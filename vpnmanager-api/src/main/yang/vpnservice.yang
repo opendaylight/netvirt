@@ -1,0 +1,96 @@
+
+module vpnService {
+    namespace "urn:opendaylight:l3vpn";
+    prefix l3vpn;
+    import ietf-inet-types {prefix inet;}
+    revision "2015-01-11" {
+        description "L3 VPN Service module";
+    }
+
+    typedef port_type {
+        type enumeration {
+            enum untagged { value 1; }
+            enum vlan { value 2; }
+            enum qinq { value 3; }
+        }
+        description "vpn port type, can be untagged, vlan and qinq, default is untagged";
+    }
+
+    grouping vlan_info{
+        leaf ctag {type uint16;}
+        leaf stag {type uint16;}
+        description "optional VLAN tag values";
+    }
+    typedef l3service_result {
+        type enumeration {
+          enum "success" { value 0; description "operation successful";}
+          enum "error" {   value 1; description "Error happened";}
+        }
+        description "Result types";
+    }
+    
+    grouping vpn_key {
+        leaf tenantId { type uint32;}
+        leaf vpn_name { type string;} 
+    }
+
+    grouping vpn_instance_info {
+        leaf routeDistinguisher{ type string; }
+        leaf-list exportrts{ type string;}
+        leaf-list importrts{ type string;}
+    }
+
+    grouping vpn_port_attributes {
+        leaf port_name {type string;}
+        leaf port_type {type port_type;}
+        uses vlan_info; /* optional */
+        leaf mac_address {type string;}
+        leaf ip_address {type string;}
+        leaf prefix_length {type uint8;}
+    }
+    
+    rpc createVpnInstance {
+        description "Create a new L3 VPN";
+        input { 
+            uses vpn_key;
+            uses vpn_instance_info;
+        }
+        output { 
+            leaf result {type l3service_result;} 
+        }
+    }
+    
+    rpc deleteVpnInstance {
+        description "Delete L3 VPN";
+        input { uses vpn_key;}
+        output {
+            leaf result {type l3service_result;} 
+        }
+    }
+    
+    rpc get_vpn{
+        input { uses vpn_key;}
+        output {uses vpn_instance_info;}
+    }
+    
+    rpc add_port_to_vpn{
+        input {
+            uses vpn_key;
+            uses vpn_port_attributes;
+        }
+        output {
+            leaf result {type l3service_result;} 
+        }
+    }
+    rpc remove_port_from_vpn{
+        input {
+            uses vpn_key;
+            uses vpn_port_attributes;
+        }
+        output {
+            leaf result {type l3service_result;} 
+        }
+
+    }
+
+}
