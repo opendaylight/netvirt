@@ -49,5 +49,15 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>ietf-yang-types</artifactId>
       <version>${ietf.yang.types.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.yangtools.model</groupId>
+      <artifactId>ietf-interfaces</artifactId>
+      <version>2014.05.08.7-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.yangtools</groupId>
+      <artifactId>model-bgp</artifactId>
+      <version>2013.07.15.7-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 </project>

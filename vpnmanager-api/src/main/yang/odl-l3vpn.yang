@@ -1,0 +1,25 @@
+
+module odl-l3vpn {
+	namespace "urn:opendaylight:l3vpn";
+	prefix odl-l3vpn;
+	
+	import l3vpn { prefix l3vpn; revision-date "2014-08-15";}
+
+	revision "2013-09-11" {
+		description "L3 VPN Service module";
+	}
+
+	grouping next-hop-list{
+		list l3-next-hops{
+			key "ip_address";
+			leaf nextHopId { type uint32;}
+			leaf ip_address {type string;}
+			leaf label {type uint32;} /* optional */
+			leaf mac_address {type string;} /* optional */
+		}
+	}
+
+	augment "/l3vpn:vpn-interfaces/l3vpn:vpn-interface" {
+		uses next-hop-list;
+	}
+}

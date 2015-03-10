@@ -15,6 +15,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.controller/features-restconf/${mdsal.version}/xml/features</repository>
   <feature name='odl-vpnservice-api' version='${project.version}' description='OpenDaylight :: vpnservice :: api '>
     <feature version='${yangtools.version}'>odl-yangtools-models</feature>
+    <bundle>mvn:org.opendaylight.yangtools/model-bgp/2013.07.15.7-SNAPSHOT</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-api/${project.version}</bundle>
   </feature>
   <feature name='odl-vpnservice-impl' version='${project.version}' description='OpenDaylight :: vpnservice :: impl '>
