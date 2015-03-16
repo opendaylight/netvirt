@@ -17,6 +17,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
+    <groupId>org.opendaylight.vpnservice</groupId>
     <artifactId>model-bgp</artifactId>
     <version>2013.07.15.7-SNAPSHOT</version>
     <name>${project.artifactId}</name>

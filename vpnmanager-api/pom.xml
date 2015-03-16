@@ -55,7 +55,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>2014.05.08.7-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.yangtools</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>model-bgp</artifactId>
       <version>2013.07.15.7-SNAPSHOT</version>
     </dependency>
