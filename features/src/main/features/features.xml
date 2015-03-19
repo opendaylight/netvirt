@@ -12,9 +12,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
   <repository>mvn:org.opendaylight.yangtools/features-yangtools/${yangtools.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.controller/features-mdsal/${mdsal.version}/xml/features</repository>
+  <repository>mvn:org.opendaylight.controller/features-flow/${mdsal.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.controller/features-restconf/${mdsal.version}/xml/features</repository>
   <feature name='odl-vpnservice-api' version='${project.version}' description='OpenDaylight :: vpnservice :: api '>
     <feature version='${yangtools.version}'>odl-yangtools-models</feature>
+    <feature version='${mdsal.version}'>odl-flow-model</feature>
     <bundle>mvn:org.opendaylight.vpnservice/model-bgp/2013.07.15.7-SNAPSHOT</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-api/${project.version}</bundle>
   </feature>
