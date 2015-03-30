@@ -15,3 +15,8 @@ bin
 xtend-gen
 target
 .DS_Store
+.checkstyle
+yang-gen-config
+yang-gen-sal
+classes
+maven-metadata-local.xml

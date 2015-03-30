@@ -23,6 +23,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <properties>
     <mdsal.version>1.2.0-SNAPSHOT</mdsal.version>
     <yangtools.version>0.7.0-SNAPSHOT</yangtools.version>
+    <interfacemgr.version>0.0.1-SNAPSHOT</interfacemgr.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -77,6 +78,18 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-impl</artifactId>
       <version>${project.version}</version>
+      <classifier>config</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>interfacemgr-impl</artifactId>
+      <version>${interfacemgr.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>interfacemgr-impl</artifactId>
+      <version>${interfacemgr.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
     </dependency>

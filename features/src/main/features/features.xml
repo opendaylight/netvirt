@@ -24,7 +24,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${project.version}'>odl-vpnservice-api</feature>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-impl/${project.version}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-impl/${interfacemgr.version}</bundle>
     <configfile finalname="vpnmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/vpnmanager-impl/${project.version}/xml/config</configfile>
+    <configfile finalname="interfacemgr-impl-default-config.xml">mvn:org.opendaylight.vpnservice/interfacemgr-impl/${interfacemgr.version}/xml/config</configfile>
   </feature>
   <feature name='odl-vpnservice-impl-rest' version='${project.version}' description='OpenDaylight :: vpnservice :: impl :: REST '>
     <feature version="${project.version}">odl-vpnservice-impl</feature>
