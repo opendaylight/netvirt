@@ -7,23 +7,35 @@
  */
 package org.opendaylight.vpnservice;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnserviceProvider implements BindingAwareProvider, AutoCloseable {
+public class VpnserviceProvider implements BindingAwareProvider,
+                                                       AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnserviceProvider.class);
+    private VpnInterfaceManager vpnInterfaceManager;
+    private VpnManager vpnManager;
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
         LOG.info("VpnserviceProvider Session Initiated");
+        try {
+            final  DataBroker dataBroker = session.getSALService(DataBroker.class);
+            vpnManager = new VpnManager(dataBroker);
+            vpnInterfaceManager = new VpnInterfaceManager(dataBroker);
+        } catch(Exception e) {
+            LOG.error("Error initializing services", e);
+        }
     }
 
     @Override
     public void close() throws Exception {
-        LOG.info("VpnserviceProvider Closed");
+        vpnManager.close();
+        vpnInterfaceManager.close();
     }
-
 }
