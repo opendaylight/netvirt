@@ -7,30 +7,28 @@
  */
 package org.opendaylight.vpnservice;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-
-public class VpnManager extends AbstractDataChangeListener<VpnInstance> implements AutoCloseable{
+public class VpnManager extends AbstractDataChangeListener<VpnInstance> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
 
+    /**
+     * Listens for data change related to VPN Instance
+     * Informs the BGP about VRF information
+     * 
+     * @param db - dataBroker reference
+     */
     public VpnManager(final DataBroker db) {
         super(VpnInstance.class);
         broker = db;

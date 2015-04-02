@@ -7,11 +7,8 @@
  */
 package org.opendaylight.vpnservice;
 
-import java.util.Collections;
+
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -20,14 +17,13 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.NextHopList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.next.hop.list.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.next.hop.list.L3NextHops;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInterface1;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -38,11 +34,17 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 
-public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface> implements AutoCloseable{
+public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
-    
+
+    /**
+     * Responsible for listening to data change related to VPN Interface
+     * Bind VPN Service on the interface and informs the BGP service
+     * 
+     * @param db - dataBroker service reference
+     */
     public VpnInterfaceManager(final DataBroker db) {
         super(VpnInterface.class);
         broker = db;
@@ -61,7 +63,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
         LOG.info("VPN Interface Manager Closed");
     }
-    
+
     private void registerListener(final DataBroker db) {
         try {
             listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
@@ -87,7 +89,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 InstanceIdentifier.builder(Interfaces.class).child(Interface.class, new InterfaceKey(interfaceName));
         InstanceIdentifier<Interface> id = idBuilder.build();
         Optional<Interface> port = read(LogicalDatastoreType.CONFIGURATION, id);
-        if(port.isPresent()) {
+        if (port.isPresent()) {
             Interface interf = port.get();
             bindServiceOnInterface(interf);
             updateNextHops(identifier);
@@ -98,15 +100,15 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         //Read NextHops
         InstanceIdentifier<VpnInterface1> path = identifier.augmentation(VpnInterface1.class);
         Optional<VpnInterface1> nextHopList = read(LogicalDatastoreType.CONFIGURATION, path);
-        
-        if(nextHopList.isPresent()) {
+
+        if (nextHopList.isPresent()) {
             List<L3NextHops> nextHops = nextHopList.get().getL3NextHops();
-            
-            if(!nextHops.isEmpty()) {
-                LOG.info("NextHops are "+ nextHops);
-                for(L3NextHops nextHop : nextHops) {
+
+            if (!nextHops.isEmpty()) {
+                LOG.info("NextHops are " + nextHops);
+                for (L3NextHops nextHop : nextHops) {
                     //TODO: Generate label for the prefix and store it in the next hop model
-                    
+
                     //TODO: Update BGP
                     updatePrefixToBGP(nextHop);
                 }

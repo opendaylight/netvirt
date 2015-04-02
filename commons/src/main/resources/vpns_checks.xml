@@ -150,9 +150,9 @@
              value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
         </module>
         <module name="Indentation">
-            <property name="basicOffset" value="2"/>
+            <property name="basicOffset" value="4"/>
             <property name="braceAdjustment" value="0"/>
-            <property name="caseIndent" value="2"/>
+            <property name="caseIndent" value="4"/>
             <property name="throwsIndent" value="4"/>
         <!-- Not yet supported https://jira.codehaus.org/browse/MCHECKSTYLE-261
             <property name="lineWrappingIndentation" value="4"/>

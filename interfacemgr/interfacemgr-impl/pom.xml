@@ -42,7 +42,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <configLocation>
-            ${project.basedir}/../../commons/src/main/resources/odl_checks.xml
+            ${project.basedir}/../../commons/src/main/resources/vpns_checks.xml
           </configLocation>
           <failsOnError>true</failsOnError>
           <includes>**/*.java,**/*.xml,**/*.ini,**/*.sh,**/*.bat</includes>

@@ -23,10 +23,14 @@ import java.util.Set;
  * AbstractDataChangeListener implemented basic {@link DataChangeListener} processing for
  * VPN related Data Objects.
  */
-public abstract class AbstractDataChangeListener <T extends DataObject> implements DataChangeListener {
+public abstract class AbstractDataChangeListener<T extends DataObject> implements DataChangeListener {
 
     protected final Class<T> clazz;
 
+    /**
+     * 
+     * @param clazz - for which the data change event is received
+     */
     public AbstractDataChangeListener(Class<T> clazz) {
         this.clazz = Preconditions.checkNotNull(clazz, "Class can not be null!");
     }
@@ -37,16 +41,16 @@ public abstract class AbstractDataChangeListener <T extends DataObject> implemen
 
         /* All DataObjects for create */
         final Map<InstanceIdentifier<?>, DataObject> createdData = changeEvent.getCreatedData() != null
-                ? changeEvent.getCreatedData() : Collections.<InstanceIdentifier<?>, DataObject> emptyMap();
+                ? changeEvent.getCreatedData() : Collections.<InstanceIdentifier<?>, DataObject>emptyMap();
         /* All DataObjects for remove */
         final Set<InstanceIdentifier<?>> removeData = changeEvent.getRemovedPaths() != null
-                ? changeEvent.getRemovedPaths() : Collections.<InstanceIdentifier<?>> emptySet();
+                ? changeEvent.getRemovedPaths() : Collections.<InstanceIdentifier<?>>emptySet();
         /* All DataObjects for updates */
         final Map<InstanceIdentifier<?>, DataObject> updateData = changeEvent.getUpdatedData() != null
-                ? changeEvent.getUpdatedData() : Collections.<InstanceIdentifier<?>, DataObject> emptyMap();
+                ? changeEvent.getUpdatedData() : Collections.<InstanceIdentifier<?>, DataObject>emptyMap();
         /* All Original DataObjects */
         final Map<InstanceIdentifier<?>, DataObject> originalData = changeEvent.getOriginalData() != null
-                ? changeEvent.getOriginalData() : Collections.<InstanceIdentifier<?>, DataObject> emptyMap();
+                ? changeEvent.getOriginalData() : Collections.<InstanceIdentifier<?>, DataObject>emptyMap();
 
         this.createData(createdData);
         this.updateData(updateData, originalData);
@@ -56,14 +60,14 @@ public abstract class AbstractDataChangeListener <T extends DataObject> implemen
     @SuppressWarnings("unchecked")
     private void createData(final Map<InstanceIdentifier<?>, DataObject> createdData) {
         final Set<InstanceIdentifier<?>> keys = createdData.keySet() != null
-                ? createdData.keySet() : Collections.<InstanceIdentifier<?>> emptySet();
+                ? createdData.keySet() : Collections.<InstanceIdentifier<?>>emptySet();
         for (InstanceIdentifier<?> key : keys) {
             if (clazz.equals(key.getTargetType())) {
-                 InstanceIdentifier<T> createKeyIdent = key.firstIdentifierOf(clazz);
-                 final Optional<DataObject> value = Optional.of(createdData.get(key));
-                 if (value.isPresent()) {
-                     this.add(createKeyIdent, (T)value.get());
-                 }
+                InstanceIdentifier<T> createKeyIdent = key.firstIdentifierOf(clazz);
+                final Optional<DataObject> value = Optional.of(createdData.get(key));
+                if (value.isPresent()) {
+                    this.add(createKeyIdent, (T)value.get());
+                }
             }
         }
     }
@@ -73,16 +77,16 @@ public abstract class AbstractDataChangeListener <T extends DataObject> implemen
             final Map<InstanceIdentifier<?>, DataObject> originalData) {
 
         final Set<InstanceIdentifier<?>> keys = updateData.keySet() != null
-                ? updateData.keySet() : Collections.<InstanceIdentifier<?>> emptySet();
+                ? updateData.keySet() : Collections.<InstanceIdentifier<?>>emptySet();
         for (InstanceIdentifier<?> key : keys) {
-          if (clazz.equals(key.getTargetType())) {
-              InstanceIdentifier<T> updateKeyIdent = key.firstIdentifierOf(clazz);
-              final Optional<DataObject> value = Optional.of(updateData.get(key));
-              final Optional<DataObject> original = Optional.of(originalData.get(key));
-              if (value.isPresent() && original.isPresent()) {
-                this.update(updateKeyIdent, (T)original.get(), (T)value.get());
-              }
-          }
+            if (clazz.equals(key.getTargetType())) {
+                InstanceIdentifier<T> updateKeyIdent = key.firstIdentifierOf(clazz);
+                final Optional<DataObject> value = Optional.of(updateData.get(key));
+                final Optional<DataObject> original = Optional.of(originalData.get(key));
+                if (value.isPresent() && original.isPresent()) {
+                    this.update(updateKeyIdent, (T)original.get(), (T)value.get());
+                }
+            }
         }
     }
 
@@ -92,9 +96,9 @@ public abstract class AbstractDataChangeListener <T extends DataObject> implemen
 
         for (InstanceIdentifier<?> key : removeData) {
             if (clazz.equals(key.getTargetType())) {
-                   final InstanceIdentifier<T> ident = key.firstIdentifierOf(clazz);
-                    final DataObject removeValue = originalData.get(key);
-                    this.remove(ident, (T)removeValue);
+                final InstanceIdentifier<T> ident = key.firstIdentifierOf(clazz);
+                final DataObject removeValue = originalData.get(key);
+                this.remove(ident, (T)removeValue);
             }
         }
     }

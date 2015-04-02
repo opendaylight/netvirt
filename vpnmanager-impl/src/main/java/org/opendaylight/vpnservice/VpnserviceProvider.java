@@ -28,7 +28,7 @@ public class VpnserviceProvider implements BindingAwareProvider,
             final  DataBroker dataBroker = session.getSALService(DataBroker.class);
             vpnManager = new VpnManager(dataBroker);
             vpnInterfaceManager = new VpnInterfaceManager(dataBroker);
-        } catch(Exception e) {
+        } catch (Exception e) {
             LOG.error("Error initializing services", e);
         }
     }
