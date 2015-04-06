@@ -16,7 +16,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.vpnservice</groupId>
-  <artifactId>vpnmanager-api</artifactId>
+  <artifactId>interfacemgr-api</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
@@ -61,9 +61,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>2014.05.08.7-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.vpnservice</groupId>
-      <artifactId>model-bgp</artifactId>
-      <version>2013.07.15.7-SNAPSHOT</version>
+      <groupId>org.opendaylight.controller.model</groupId>
+      <artifactId>model-inventory</artifactId>
+      <version>${mdsal.version}</version>
     </dependency>
   </dependencies>
 </project>

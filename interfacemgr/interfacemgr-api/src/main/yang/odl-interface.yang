@@ -1,0 +1,144 @@
+
+module odl-interface {
+	namespace "urn:opendaylight:vpnservice:interfacemgr";
+
+	prefix "odlif";
+
+	import ietf-interfaces {
+		prefix if;
+	}
+	import iana-if-type {
+		prefix ianaift;
+	}
+
+	import ietf-inet-types {
+		prefix inet;
+	}
+	revision "2015-03-31" {
+        description "ODL Interface Manager Module";
+    }
+
+	identity stacked-vlan {
+		base if:interface-type;
+		reference
+		"Q-in-Q interface";
+	}
+	
+	identity l3tunnel {
+		base if:interface-type;
+		reference
+		"l3 tunnel interface";
+	}
+
+	identity mpls {
+		base if:interface-type;
+		reference
+		"MPLS interface";
+	}
+
+	/* l3Tunnel (GRE, VxLAN) logical port */
+	identity tunnel-type-base {
+		description "Base identity for all tunnel-types";
+	}
+
+	identity tunnel-type-vxlan {
+		description "Tunnel type for vxlan tunnels";
+		base tunnel-type-base;
+	}
+
+	identity tunnel-type-gre {
+		description "Tunnel type for gre tunnels";
+		base tunnel-type-base;
+	}
+
+	/* base/common properties */
+	augment "/if:interfaces/if:interface" {
+		leaf of-port-id { 
+			type string; 
+			description "can be a physical switch port or virtual switch port e.g. neutron port";
+		} 
+		leaf tenant-id { 
+			type string; 
+			description "Tenant that owns particular interface";
+		} /* optional */
+		leaf base-interface { 
+			type if:interface-ref; 
+			description "some interfaces need a reference to parent interface ";
+		} 
+	}
+	
+	/* interface type specific properties */
+	
+	/* VLAN logical port */
+	augment "/if:interfaces/if:interface" {
+		when "if:type = 'ianaift:l2vlan'";
+		leaf vlan-id {
+			type uint16 {
+				range "1..4094";
+			}
+			must "../base-interface" {
+				description
+				"If a vlan-id is defined, a base-interface must
+				be specified.";
+			}
+		}
+	}
+	
+	/* Q-in-Q logical port */
+	augment "/if:interfaces/if:interface" {
+		when "if:type = 'stacked_vlan'";
+		leaf stacked_vlan-id {
+			type uint16 {
+				range "1..4094";
+			}
+			must "../base-interface" {
+				description
+				"If a vlan-id is defined, a base-interface must
+				be specified.";
+			}
+		}
+	}
+
+	augment "/if:interfaces/if:interface" {
+		when "if:type = 'ianaift:l3tunnel'";
+
+		leaf tunnel-type {
+            type identityref {
+                base tunnel-type-base;
+            }
+        }
+		leaf local-ip {
+			type inet:ip-address;
+			description "Local Endpoint IP address";
+		}
+		
+		leaf remote-ip {
+			type inet:ip-address;
+			description "Remote Endpoint IP address";
+		}
+		
+		leaf gateway-ip {
+			type inet:ip-address;
+			description "gateway IP address";
+		}
+				
+	}
+
+		
+	/* MPLS logical port */
+	augment "/if:interfaces/if:interface" {
+		when "if:type = 'mpls'";
+		leaf-list labelStack {
+			type uint32 {
+				range "15..1048575";
+			}
+		}
+		leaf numLabels{
+			type uint8 {
+				range "1..7";
+			}
+		}		
+	}
+
+}
+

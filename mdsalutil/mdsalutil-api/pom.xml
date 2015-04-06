@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
+    <parent>
+        <groupId>org.opendaylight.controller</groupId>
+        <artifactId>config-parent</artifactId>
+        <version>0.3.0-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+    
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.opendaylight.vpnservice</groupId>
+    <artifactId>mdsalutil-api</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>${bundle.plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            org.opendaylight.vpnservice.mdsalutil,
+                            org.opendaylight.vpnservice.mdsalutil.interfaces
+                        </Export-Package>
+                        <!--Import-Package>
+                            com.google.common.*,
+                            org.opendaylight.yang.*,
+                            org.opendaylight.yangtools.*,
+                            org.opendaylight.controller.sal.binding.api.*,
+                            org.opendaylight.controller.md.sal.common.api.*,
+                            org.opendaylight.controller.sal.common
+                         </Import-Package-->
+                    </instructions>
+                    <manifestLocation>${project.basedir}/META-INF</manifestLocation>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller.model</groupId>
+            <artifactId>model-flow-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller.model</groupId>
+            <artifactId>model-flow-base</artifactId>
+        </dependency>
+       <!--  <dependency>
+            <groupId>org.opendaylight.controller.model</groupId>
+            <artifactId>model-flow-management</artifactId>
+        </dependency>-->
+        <dependency>
+            <groupId>org.opendaylight.controller.model</groupId>
+            <artifactId>model-inventory</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller.model</groupId>
+            <artifactId>model-flow-statistics</artifactId>
+        </dependency>
+        <!--
+        <dependency>
+            <groupId>org.opendaylight.controller.adsal</groupId>
+            <artifactId>sal</artifactId>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller.model</groupId>
+            <artifactId>model-topology</artifactId>
+        </dependency>
+       
+                     
+    </dependencies>
+</project>

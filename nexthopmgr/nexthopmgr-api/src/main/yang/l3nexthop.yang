@@ -1,0 +1,40 @@
+
+
+module l3nexthop {
+	namespace "urn:opendaylight:vpnservice:l3nexthop";
+	prefix l3nexthop;
+	
+	revision "2015-03-30" {
+		description "L3 NextHop module";
+	}
+
+	container l3nexthop {
+		list vpnNexthops{
+			key "vpnId";
+			leaf vpnId {type uint32;}
+			list vpnNexthop{
+				key  "IpAddress";
+				leaf IpAddress {type string;}
+				leaf dpnId {type uint32;}
+				leaf egressPointer {type uint32;}
+			}
+		}
+		list genNexthops{
+			key  "IpAddress";
+			leaf IpAddress {type string;}
+			leaf dpnId {type uint32;}
+			leaf egressPointer {type uint32;}
+		}
+	}
+	rpc getEgressPointer {
+		description "returns egress pointer, an OF Group Id";
+		input { 
+			leaf dpnId {type uint32;}
+			leaf vpnId { type uint32;}  /* optional */
+			leaf ipAddress{type string;}
+		}
+		output { 
+			leaf egressPointer {type uint32;} 
+		}
+	}
+}

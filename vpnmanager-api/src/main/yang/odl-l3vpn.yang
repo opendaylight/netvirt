@@ -3,10 +3,6 @@ module odl-l3vpn {
     prefix odl-l3vpn;
 
     import l3vpn { prefix l3vpn; revision-date "2014-08-15"; }
-    import ietf-interfaces { prefix if; }
-    import iana-if-type { prefix ianaift; }
-    import ietf-inet-types { prefix inet; }
-    import opendaylight-inventory { prefix inv; revision-date "2013-08-19"; }
 
     revision "2013-09-11" {
         description "L3 VPN Service module";
@@ -21,82 +17,20 @@ module odl-l3vpn {
             leaf mac_address {type string;} /* optional */
         }
     }
-
-    grouping fib-list{
-        list fib-entry{
-            key "dst_prefix";
-            leaf nextHopId { type uint32;}
-            leaf dst_prefix {type inet:ipv4-prefix;}
-            leaf label {type uint32;} /* optional */
-        }
-    }
+	
+	grouping vpn-route-list{
+		leaf-list route-entry-id{
+			type uint32;
+		}
+	}
 
     augment "/l3vpn:vpn-interfaces/l3vpn:vpn-interface" {
         uses next-hop-list;
     }
 
     augment "/l3vpn:vpn-instances/l3vpn:vpn-instance" {
-        uses fib-list;
-    }
-
-    augment "/if:interfaces/if:interface" {
-        leaf portId { type inv:node-connector-id; }
-    }
-
-    identity tunnel-type-base {
-        description "Base identity for all tunnel-types";
-    }
-
-    identity tunnel-type-vxlan {
-        description "Tunnel type for vxlan tunnels";
-        base tunnel-type-base;
-    }
-
-    identity tunnel-type-gre {
-        description "Tunnel type for gre tunnels";
-        base tunnel-type-base;
-    }
-
-    grouping tunnel-type-attributes {
-        description "Common leaf for expressing tunnel-type";
-        leaf tunnel-type {
-            type identityref {
-                base tunnel-type-base;
-            }
-        }
-    }
-
-    grouping tunnel-endpoint {
-      description
-        "Tunnel Endpoint: IP address and L4 port";
-      leaf local-ip {
-        type inet:ip-address;
-        description "Local Endpoint IP address";
-      }
-      leaf remote-ip {
-        type inet:ip-address;
-        description "Remote Endpoint IP address";
-      }
-      leaf port {
-        type inet:port-number;
-        description "Data-plane port number";
-      }
-    }
-
-    augment "/if:interfaces/if:interface" {
-        when "if:type = ianaift:tunnel";
-        uses tunnel-type-attributes;
-        uses tunnel-endpoint;
-    }
-
-    augment "/if:interfaces/if:interface" {
-        when "if:type = ianaift:l2vlan";
-        leaf vlan-id {
-          type uint16 {
-            range "1..4094";
-          }
-          description "VLAN Id to be used in VLAN Tag";
-        }
+        leaf vpn-id { type uint32;}
+		uses vpn-route-list;
     }
 
 }
