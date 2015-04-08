@@ -27,15 +27,15 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataCh
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.NextHopList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.next.hop.list.L3NextHops;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.next.hop.list.L3NextHopsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.AdjacencyList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInterface1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInterface1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.AdjacenciesBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
-    
+
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
             new FutureCallback<Void>() {
                 public void onSuccess(Void result) {
@@ -114,26 +114,26 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
     private void updateNextHops(final InstanceIdentifier<VpnInterface> identifier, VpnInterface intf) {
         //Read NextHops
-        InstanceIdentifier<VpnInterface1> path = identifier.augmentation(VpnInterface1.class);
-        Optional<VpnInterface1> nextHopList = read(LogicalDatastoreType.CONFIGURATION, path);
-        String intfName = intf.getName(); 
+        InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
+        Optional<Adjacencies> adjacencies = read(LogicalDatastoreType.CONFIGURATION, path);
+        String intfName = intf.getName();
 
-        if (nextHopList.isPresent()) {
-            List<L3NextHops> nextHops = nextHopList.get().getL3NextHops();
-            List<L3NextHops> value = new ArrayList<>();
+        if (adjacencies.isPresent()) {
+            List<Adjacency> nextHops = adjacencies.get().getAdjacency();
+            List<Adjacency> value = new ArrayList<>();
 
             if (!nextHops.isEmpty()) {
                 LOG.info("NextHops are " + nextHops);
-                for (L3NextHops nextHop : nextHops) {
+                for (Adjacency nextHop : nextHops) {
                     //TODO: Generate label for the prefix and store it in the next hop model
                     long label = 200;
 
                     //TODO: Update BGP
                     updatePrefixToBGP(nextHop);
-                    value.add(new L3NextHopsBuilder(nextHop).setLabel(label).build());
+                    value.add(new AdjacencyBuilder(nextHop).setLabel(label).build());
                 }
             }
-            VpnInterface1 aug = VpnUtil.getVpnInterfaceAugmentation(value);
+            Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(value);
             VpnInterface opInterface = VpnUtil.getVpnInterface(intfName, intf.getVpnInstanceName(), aug);
             InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(intfName);
             asyncWrite(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface, DEFAULT_CALLBACK);
@@ -144,7 +144,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         //TODO: Create Ingress flow on the interface to bind the VPN service
     }
 
-    private void updatePrefixToBGP(L3NextHops nextHop) {
+    private void updatePrefixToBGP(Adjacency nextHop) {
         //TODO: Update the Prefix to BGP
     }
 
