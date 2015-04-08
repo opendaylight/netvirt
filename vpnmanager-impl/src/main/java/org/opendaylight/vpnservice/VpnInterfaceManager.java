@@ -7,8 +7,12 @@
  */
 package org.opendaylight.vpnservice;
 
-
 import java.util.List;
+import java.util.ArrayList;
+
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.FutureCallback;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -17,6 +21,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -24,20 +29,31 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.NextHopList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.next.hop.list.L3NextHops;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.next.hop.list.L3NextHopsBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInterface1;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInterface1Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
 
 public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
+    
+    private static final FutureCallback<Void> DEFAULT_CALLBACK =
+            new FutureCallback<Void>() {
+                public void onSuccess(Void result) {
+                    LOG.info("Success in Datastore write operation");
+                }
+
+                public void onFailure(Throwable error) {
+                    LOG.error("Error in Datastore write operation", error);
+                };
+            };
 
     /**
      * Responsible for listening to data change related to VPN Interface
@@ -92,27 +108,35 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         if (port.isPresent()) {
             Interface interf = port.get();
             bindServiceOnInterface(interf);
-            updateNextHops(identifier);
+            updateNextHops(identifier, vpnInterface);
         }
     }
 
-    private void updateNextHops(final InstanceIdentifier<VpnInterface> identifier) {
+    private void updateNextHops(final InstanceIdentifier<VpnInterface> identifier, VpnInterface intf) {
         //Read NextHops
         InstanceIdentifier<VpnInterface1> path = identifier.augmentation(VpnInterface1.class);
         Optional<VpnInterface1> nextHopList = read(LogicalDatastoreType.CONFIGURATION, path);
+        String intfName = intf.getName(); 
 
         if (nextHopList.isPresent()) {
             List<L3NextHops> nextHops = nextHopList.get().getL3NextHops();
+            List<L3NextHops> value = new ArrayList<>();
 
             if (!nextHops.isEmpty()) {
                 LOG.info("NextHops are " + nextHops);
                 for (L3NextHops nextHop : nextHops) {
                     //TODO: Generate label for the prefix and store it in the next hop model
+                    long label = 200;
 
                     //TODO: Update BGP
                     updatePrefixToBGP(nextHop);
+                    value.add(new L3NextHopsBuilder(nextHop).setLabel(label).build());
                 }
             }
+            VpnInterface1 aug = VpnUtil.getVpnInterfaceAugmentation(value);
+            VpnInterface opInterface = VpnUtil.getVpnInterface(intfName, intf.getVpnInstanceName(), aug);
+            InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(intfName);
+            asyncWrite(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface, DEFAULT_CALLBACK);
         }
     }
 
@@ -156,4 +180,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
     }
 
+    private <T extends DataObject> void asyncWrite(LogicalDatastoreType datastoreType,
+                        InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.put(datastoreType, path, data, true);
+        Futures.addCallback(tx.submit(), callback);
+    }
 }
