@@ -19,6 +19,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version='${mdsal.version}'>odl-flow-model</feature>
     <bundle>mvn:org.opendaylight.vpnservice/model-bgp/2013.07.15.7-SNAPSHOT</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-api/${project.version}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-api/${interfacemgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/bgpmanager-api/${project.version}</bundle>
   </feature>
   <feature name='odl-vpnservice-impl' version='${project.version}' description='OpenDaylight :: vpnservice :: impl '>

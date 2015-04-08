@@ -95,6 +95,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>interfacemgr-api</artifactId>
+      <version>${interfacemgr.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-api</artifactId>
       <version>${project.version}</version>
     </dependency>
