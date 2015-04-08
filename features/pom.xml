@@ -98,5 +98,39 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <artifactId>vpnmanager-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>bgpmanager-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>bgpmanager-impl</artifactId>
+      <version>${project.version}</version>
+      <classifier>config</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>bgpmanager-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <!--<dependency>
+      <groupId>${project.groupId}.third-party</groupId>
+      <artifactId>org.apache.thriftlib</artifactId>
+      <version>1.0.1-SNAPSHOT</version>
+    </dependency>-->
+    <dependency>
+      <groupId>org.apache.thrift</groupId>
+      <artifactId>libthrift</artifactId>
+      <version>0.9.1</version>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.5</version>
+    </dependency>
+    -->
   </dependencies>
 </project>
