@@ -23,12 +23,17 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>nexthopmgr-api</artifactId>
+      <artifactId>vpnmanager-api</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>interfacemgr-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>vpnmanager-api</artifactId>
+      <artifactId>nexthopmgr-api</artifactId>
       <version>${project.version}</version>
     </dependency>
 

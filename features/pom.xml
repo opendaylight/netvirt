@@ -24,7 +24,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <mdsal.version>1.2.0-SNAPSHOT</mdsal.version>
     <openflowplugin.version>0.1.0-SNAPSHOT</openflowplugin.version>
     <yangtools.version>0.7.0-SNAPSHOT</yangtools.version>
+    <vpnmanager.version>0.0.1-SNAPSHOT</vpnmanager.version>
     <interfacemgr.version>0.0.1-SNAPSHOT</interfacemgr.version>
+    <nexthopmgr.version>0.0.1-SNAPSHOT</nexthopmgr.version>
+    <fibmanager.version>0.0.1-SNAPSHOT</fibmanager.version>
+    <idmanager.version>0.0.1-SNAPSHOT</idmanager.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -74,12 +78,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-impl</artifactId>
-      <version>${project.version}</version>
+      <version>${vpnmanager.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-impl</artifactId>
-      <version>${project.version}</version>
+      <version>${vpnmanager.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
     </dependency>
@@ -103,7 +107,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-api</artifactId>
-      <version>${project.version}</version>
+      <version>${vpnmanager.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -126,6 +130,57 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>model-bgp</artifactId>
       <version>2013.07.15.7-SNAPSHOT</version>
+    </dependency>
+	<dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>nexthopmgr-impl</artifactId>
+      <version>${nexthopmgr.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>nexthopmgr-impl</artifactId>
+      <version>${nexthopmgr.version}</version>
+      <classifier>config</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>nexthopmgr-api</artifactId>
+      <version>${nexthopmgr.version}</version>
+    </dependency>
+	<dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>fibmanager-impl</artifactId>
+      <version>${fibmanager.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>fibmanager-impl</artifactId>
+      <version>${fibmanager.version}</version>
+      <classifier>config</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>fibmanager-api</artifactId>
+      <version>${fibmanager.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>idmanager-impl</artifactId>
+      <version>${idmanager.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>idmanager-impl</artifactId>
+      <version>${idmanager.version}</version>
+      <classifier>config</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>idmanager-api</artifactId>
+      <version>${idmanager.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.thrift</groupId>

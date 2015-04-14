@@ -18,15 +18,15 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <modules>
 	<module>model-bgp</module>
     <module>vpnmanager</module>
-    <module>distribution/karaf</module>
-    <module>features</module>
-    <module>vpnservice-artifacts</module>
     <module>interfacemgr</module>
     <module>nexthopmgr</module>
     <module>idmanager</module>
     <module>fibmanager</module>
     <module>mdsalutil</module>
     <module>bgpmanager</module>
+    <module>distribution/karaf</module>
+    <module>features</module>
+    <module>vpnservice-artifacts</module>
   </modules>
 
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->

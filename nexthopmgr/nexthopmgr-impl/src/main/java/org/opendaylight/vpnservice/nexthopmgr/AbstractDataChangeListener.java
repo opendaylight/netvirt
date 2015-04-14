@@ -23,7 +23,7 @@ import java.util.Set;
  * AbstractDataChangeListener implemented basic {@link DataChangeListener} processing for
  * VPN related Data Objects.
  */
-public abstract class AbstractDataChangeListener <T extends DataObject> implements DataChangeListener {
+public abstract class AbstractDataChangeListener<T extends DataObject> implements DataChangeListener {
 
     protected final Class<T> clazz;
 
@@ -37,7 +37,7 @@ public abstract class AbstractDataChangeListener <T extends DataObject> implemen
 
         /* All DataObjects for create */
         final Map<InstanceIdentifier<?>, DataObject> createdData = changeEvent.getCreatedData() != null
-                ? changeEvent.getCreatedData() : Collections.<InstanceIdentifier<?>, DataObject> emptyMap();
+                ? changeEvent.getCreatedData() : Collections.<InstanceIdentifier<?>, DataObject>emptyMap();
         /* All DataObjects for remove */
         final Set<InstanceIdentifier<?>> removeData = changeEvent.getRemovedPaths() != null
                 ? changeEvent.getRemovedPaths() : Collections.<InstanceIdentifier<?>> emptySet();
