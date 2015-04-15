@@ -33,6 +33,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>mockito-all</artifactId>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>org.opendaylight.vpnservice</groupId>
+          <artifactId>idmanager-api</artifactId>
+          <version>0.0.1-SNAPSHOT</version>
+      </dependency>
   </dependencies>
   <build>
     <plugins>

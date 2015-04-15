@@ -6,35 +6,39 @@ module odl-id-manager {
         description "ID generator and manager Service module";
     }
 
-    
-	list id-pool {
-		key "pool-name";
-		leaf id-start { type uint32; }
-		leaf pool-size { type uint64; }
-		leaf pool-name { type string; }
-		list generated-ids {
-			key "id-key";
-			leaf id-key { type string; }
-			leaf id-value { type uint32; }
-		}
+        container pools {
+          description
+            "id pool instances";
+            config false;
+            list id-pool {
+                key "pool-name";
+                leaf id-start { type uint32;}
+                leaf pool-size { type uint64;}
+                leaf pool-name { type string;}
+                list generated-ids {
+                    key "id-key";
+                    leaf id-key { type string;}
+                    leaf id-value { type uint32;}
+                }
+            }
 	}
-	
-	rpc createIdPool {
-		input {
-			leaf pool-name { type string; }
-			leaf id-start { type uint32; }
-			leaf pool-size { type uint64; }
-		}
-	}
-	
-	rpc getUniqueId {
-		input {
-			leaf pool-name { type string; }
-			leaf id-key {type string; }
-		}
-		output {
-			leaf id-value { type uint32; }
-		}
-	}
-    
+
+		rpc createIdPool {
+    		input {
+    			leaf pool-name { type string; }
+    			leaf id-start { type uint32; }
+    			leaf pool-size { type uint64; }
+    		}
+    	}
+
+    	rpc getUniqueId {
+    		input {
+    			leaf pool-name { type string; }
+    			leaf id-key {type string; }
+    		}
+    		output {
+    			leaf id-value { type uint32; }
+    		}
+    	}
+
 }
