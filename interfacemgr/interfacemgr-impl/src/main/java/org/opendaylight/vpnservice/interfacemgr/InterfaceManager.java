@@ -7,6 +7,17 @@
  */
 package org.opendaylight.vpnservice.interfacemgr;
 
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
+
+import java.math.BigInteger;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Counter32;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Counter64;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.DateAndTime;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state._interface.StatisticsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state._interface.Statistics;
+import com.google.common.util.concurrent.Futures;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import com.google.common.util.concurrent.FutureCallback;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.BaseIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
@@ -89,9 +100,19 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         //TODO Make this generic and move to AbstractDataChangeListener or Utils.
         final InterfaceKey key = identifier.firstKeyOf(Interface.class, InterfaceKey.class);
         String interfaceName = key.getName();
-        InstanceIdentifierBuilder<Interface> idBuilder = 
+        InstanceIdentifierBuilder<Interface> idBuilder =
                 InstanceIdentifier.builder(Interfaces.class).child(Interface.class, new InterfaceKey(interfaceName));
         InstanceIdentifier<Interface> id = idBuilder.build();
+        return id;
+    }
+
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> buildStateInterfaceId(String interfaceName) {
+        //TODO Make this generic and move to AbstractDataChangeListener or Utils.
+        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> idBuilder = 
+                InstanceIdentifier.builder(InterfacesState.class)
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class,
+                                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(interfaceName));
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> id = idBuilder.build();
         return id;
     }
 
@@ -102,14 +123,13 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         if(port.isPresent()) {
             Interface interf = port.get();
             NodeConnector nodeConn = getNodeConnectorFromInterface(interf);
-            updateInterfaceState(identifier, imgrInterface, interf);
+            updateInterfaceState(interf, nodeConn);
             /* TODO:
              *  1. Get interface-id from id manager
              *  2. Update interface-state with following:
              *    admin-status = set to enable value
              *    oper-status = Down [?]
              *    if-index = interface-id
-             *    
              * FIXME:
              *  1. Get operational data from node-connector-id?
              *
@@ -117,10 +137,51 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         }
     }
 
-    private void updateInterfaceState(InstanceIdentifier<Interface> identifier, Interface imgrInterface,
-                    Interface interf) {
-        // TODO Update InterfaceState
-        
+    private void updateInterfaceState(Interface interf, NodeConnector nodeConn) {
+        /* Update InterfaceState
+         * 1. Get interfaces-state Identifier
+         * 2. Add interface to interfaces-state/interface
+         * 3. Get interface-id from id manager
+         * 4. Update interface-state with following:
+         *    admin-status = set to enable value
+         *    oper-status = Down [?]
+         *    if-index = interface-id
+        */
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> id =
+                        buildStateInterfaceId(interf.getName());
+        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> stateIf =
+                        read(LogicalDatastoreType.OPERATIONAL, id);
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface stateIface;
+        if(!stateIf.isPresent()) {
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder ifaceBuilder = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder();
+            // TODO: Get interface-id from IdManager
+            ifaceBuilder.setAdminStatus((interf.isEnabled()) ?  org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus.Up :
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus.Down);
+            ifaceBuilder.setOperStatus(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus.Down);
+            ifaceBuilder.setIfIndex(200).setName(interf.getName()).setType(interf.getType());
+            ifaceBuilder.setKey(getStateInterfaceKeyFromName(interf.getName()));
+            //ifaceBuilder.setStatistics(createStatistics(interf.getName(), nodeConn));
+            stateIface = ifaceBuilder.build();
+            LOG.trace("updating OPERATIONAL data store with stateIface {} and id {}", stateIface, id);
+            asyncWrite(LogicalDatastoreType.OPERATIONAL, id, stateIface, DEFAULT_CALLBACK);
+        }
+    }
+
+    private Statistics createStatistics(String name, NodeConnector nodeConn) {
+        Counter64 init64 = new Counter64(new BigInteger("0000000000000000"));
+        Counter32 init32 = new Counter32((long) 0);
+        StatisticsBuilder statBuilder = new StatisticsBuilder();
+        statBuilder.setDiscontinuityTime(new DateAndTime("2015-04-04T00:00:00Z"))
+        .setInBroadcastPkts(init64).setInDiscards(init32).setInErrors(init32).setInMulticastPkts(init64)
+        .setInOctets(init64).setInUnicastPkts(init64).setInUnknownProtos(init32).setOutBroadcastPkts(init64)
+        .setOutDiscards(init32).setOutErrors(init32).setOutMulticastPkts(init64).setOutOctets(init64)
+        .setOutUnicastPkts(init64);
+        return statBuilder.build();
+    }
+
+    private org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey getStateInterfaceKeyFromName(
+                    String name) {
+        return new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(name);
     }
 
     private NodeConnector getNodeConnectorFromInterface(Interface interf) {
@@ -188,7 +249,12 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
         LOG.trace("key: " + identifier + ", original=" + original + ", update=" + update );
         updateInterface(identifier, original, update);
-        
     }
 
+    private <T extends DataObject> void asyncWrite(LogicalDatastoreType datastoreType,
+                    InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
+    WriteTransaction tx = broker.newWriteOnlyTransaction();
+    tx.put(datastoreType, path, data, true);
+    Futures.addCallback(tx.submit(), callback);
+    }
 }
