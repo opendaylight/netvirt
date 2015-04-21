@@ -1,4 +1,7 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nexthopmgr.impl.rev150325;
+
+import org.opendaylight.vpnservice.nexthopmgr.NexthopmgrProvider;
+
 public class NexthopmgrImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nexthopmgr.impl.rev150325.AbstractNexthopmgrImplModule {
     public NexthopmgrImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
@@ -15,8 +18,9 @@ public class NexthopmgrImplModule extends org.opendaylight.yang.gen.v1.urn.opend
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        // TODO:implement
-        throw new java.lang.UnsupportedOperationException();
+        NexthopmgrProvider provider = new NexthopmgrProvider();
+        getBrokerDependency().registerProvider(provider);
+        return provider;
     }
 
 }

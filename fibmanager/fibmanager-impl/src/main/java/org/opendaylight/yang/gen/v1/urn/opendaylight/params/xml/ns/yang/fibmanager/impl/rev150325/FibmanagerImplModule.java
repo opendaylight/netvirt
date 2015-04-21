@@ -1,4 +1,13 @@
+/*
+ * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.fibmanager.impl.rev150325;
+import org.opendaylight.vpnservice.fibmanager.FibManagerProvider;
+
 public class FibmanagerImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.fibmanager.impl.rev150325.AbstractFibmanagerImplModule {
     public FibmanagerImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
@@ -15,8 +24,9 @@ public class FibmanagerImplModule extends org.opendaylight.yang.gen.v1.urn.opend
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        // TODO:implement
-        throw new java.lang.UnsupportedOperationException();
+        FibManagerProvider provider = new FibManagerProvider();
+        getBrokerDependency().registerProvider(provider);
+        return provider;
     }
 
 }
