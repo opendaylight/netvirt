@@ -23,11 +23,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.vpnservice/nexthopmgr-api/${nexthopmgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/idmanager-api/${idmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/fibmanager-api/${fibmanager.version}</bundle>
-    <bundle>mvn:org.opendaylight.vpnservice/bgpmanager-api/${project.version}</bundle>
+
   </feature>
   <feature name='odl-vpnservice-impl' version='${project.version}' description='OpenDaylight :: vpnservice :: impl '>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${project.version}'>odl-vpnservice-api</feature>
+    <bundle>mvn:org.opendaylight.vpnservice/bgpmanager-api/${project.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-impl/${vpnmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-impl/${interfacemgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/nexthopmgr-impl/${nexthopmgr.version}</bundle>

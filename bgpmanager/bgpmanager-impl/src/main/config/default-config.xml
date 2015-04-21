@@ -9,6 +9,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 <snapshot>
   <required-capabilities>
+      <capability>urn:opendaylight:params:xml:ns:yang:bgpmanager:api?module=bgpmanager-api&amp;revision=2015-04-20</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:bgpmanager:impl?module=bgpmanager-impl&amp;revision=2015-03-26</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
   </required-capabilities>
@@ -25,6 +26,15 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           </broker>
         </module>
       </modules>
+      <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+        <service>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:bgpmanager:api">prefix:bgpmanager-api</type>
+          <instance>
+            <name>bgpmanager</name>
+            <provider>/modules/module[type='bgpmanager-impl'][name='bgpmanager-default']</provider>
+          </instance>
+        </service>
+      </services>
     </data>
   </configuration>
 </snapshot>
