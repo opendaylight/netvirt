@@ -27,6 +27,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,35 +37,68 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
     private static final Logger s_logger = LoggerFactory.getLogger(BgpManager.class);
     private BgpConfigurationManager bgpConfigurationMgr;
+    private FibDSWriter fibDSWriter;
     private BgpConfiguration 	bgpConfiguration = new BgpConfiguration();
     private BgpRouter           bgpThriftClient;
     private BgpThriftService    bgpThriftService;
+    private boolean             isBgpInitialized = false;
+    private boolean             hasBgpServiceStarted = false;
     private String				bgpHost;
     private int					bgpPort;
 
+
+    private String getCustomConfig(String var, String def) {
+        Bundle b = FrameworkUtil.getBundle(this.getClass());
+        BundleContext context = null;
+        if (b != null) {
+            context = b.getBundleContext();
+        }
+        if (context != null)
+            return context.getProperty(var);
+        else
+            return def;
+
+    }
+
     private void initializeBGPCommunication() {
         //start our side of thrift server
-        bgpThriftService = new BgpThriftService();
+        bgpThriftService = new BgpThriftService(this, fibDSWriter);
         bgpThriftService.start();
 
         //start bgp thrift client connection
         bgpThriftClient = new BgpRouter();
 
-        //get bgp server, port from config.ini and connect
-        bgpHost = System.getProperty(BgpConstants.BGP_SPEAKER_HOST_NAME, BgpConstants.DEFAULT_BGP_HOST_NAME);
-        bgpPort = Integer.getInteger(BgpConstants.BGP_SPEAKER_THRIFT_PORT, BgpConstants.DEFAULT_BGP_THRIFT_PORT);
+        bgpHost = getCustomConfig(BgpConstants.BGP_SPEAKER_HOST_NAME, BgpConstants.DEFAULT_BGP_HOST_NAME);
+        bgpPort = BgpConstants.DEFAULT_BGP_THRIFT_PORT;
 
         configureBgpServer(bgpHost, bgpPort);
         try {
             connectToServer(bgpHost, bgpPort);
         } catch (Exception e) {
-            //nothing to be done here, the logs have already been printed by the Exception handlers of "connectToServer"
+            return;
         }
-        /*  read bgp router and peer info from DS
-            for the case when the BGP module came down but the DataStore was still up
-        */
-        //for testing
-        configureBgp(101, "10.10.10.10");
+
+        isBgpInitialized = true;
+        //notify();       //notify all threads waiting for bgp init
+
+    }
+
+    public synchronized void waitForBgpInit() {
+        if(!isBgpInitialized) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                s_logger.error("InterruptedException while waiting for Bgp connection to initialize");
+                return;
+            }
+        }
+    }
+
+    public void startBgpService() throws TException {
+        if(bgpThriftClient == null) {
+            s_logger.info("Start Bgp Service - bgpThriftClient is null. Unable to start BGP service.");
+            return;
+        }
 
         // Now try start bgp - if bgp is already Active, it will tell us, nothing to do then
         try {
@@ -73,20 +109,27 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
                 s_logger.info("bgp server already active");
                 return;
             }
+            else if(be.getErrorCode() == BgpRouterException.BGP_ERR_NOT_INITED) {
+                s_logger.error("bgp server connection not initialized.");
+                reInitConn();
+                return;
+            }
             else {
                 s_logger.error("application error while starting bgp server " + be.getErrorCode());
                 return;
             }
 
         }  catch (TException t) {
-            s_logger.error("Transport error while starting bgp server ", t);
-            return;
+            //s_logger.error("Transport error while starting bgp server ", t);
+            s_logger.error("Could not set up thrift connection with bgp server");
+            reInitConn();
+            throw t;
         } catch (Exception e) {
             s_logger.error("Error while starting bgp server", e);
+            return;
         }
 
-        //For testing - remove later
-        addNeighbor("169.144.42.168", 102);
+        hasBgpServiceStarted = true;
 
     }
 
@@ -95,7 +138,8 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
         s_logger.info("BgpManager Session Initiated");
         try {
             final DataBroker dataBroker = session.getSALService(DataBroker.class);
-            bgpConfigurationMgr = new BgpConfigurationManager(dataBroker);
+            bgpConfigurationMgr = new BgpConfigurationManager(dataBroker, bgpConfiguration, this);
+            fibDSWriter = new FibDSWriter(dataBroker);
         } catch (Exception e) {
             s_logger.error("Error initializing services", e);
         }
@@ -107,7 +151,14 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
    @Override
     public void close() throws Exception {
         s_logger.info("BgpManager Closed");
-    }
+
+       //close the client and server ends of the thrift communication
+       if(bgpThriftClient != null)
+           bgpThriftClient.disconnect();
+       bgpThriftService.stop();
+
+
+   }
 
     private void setBgpServerDetails() {
         if(bgpThriftClient != null)
@@ -120,34 +171,33 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
         setBgpServerDetails();
     }
 
-    private void addNeighbor(String ipAddress, int asNum) {
+    protected void addNeighbor(String ipAddress, long asNum) throws TException {
         if(bgpThriftClient == null) {
             s_logger.info("Add BGP Neighbor - bgpThriftClient is null. Unable to add BGP Neighbor.");
             return;
         }
-        bgpConfiguration.setNeighbourIp(ipAddress);
-        bgpConfiguration.setNeighbourAsNum(asNum);
-        //updateBgpConfiguration(bgpConfiguration);
+
         try {
-            bgpThriftClient.addNeighbor(ipAddress, asNum);
+            bgpThriftClient.addNeighbor(ipAddress, (int) asNum);
         } catch (BgpRouterException b) {
             s_logger.error("Failed to add BGP neighbor " + ipAddress + "due to BgpRouter Exception number " + b.getErrorCode());
             s_logger.error("BgpRouterException trace ", b);
         } catch (TException t) {
             s_logger.error(String.format("Failed adding neighbor %s due to Transport error", ipAddress));
             reInitConn();
+            throw t;
         } catch (Exception e) {
             s_logger.error(String.format("Failed adding neighbor %s", ipAddress));
         }
     }
 
 
-    private void deleteNeighbor(String ipAddress) {
+    protected void deleteNeighbor(String ipAddress) throws TException {
         if(bgpThriftClient == null) {
             s_logger.info("Delete BGP Neighbor - bgpThriftClient is null. Unable to delete BGP Neighbor.");
             return;
         }
-        bgpConfiguration.setNeighbourIp("");
+
         try {
             bgpThriftClient.delNeighbor(ipAddress);
         } catch (BgpRouterException b) {
@@ -156,6 +206,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
         }catch (TException t) {
             s_logger.error(String.format("Failed deleting neighbor %s due to Transport error", ipAddress));
             reInitConn();
+            throw t;
         } catch (Exception e) {
             s_logger.error(String.format("Failed deleting neighbor %s", ipAddress));
         }
@@ -163,7 +214,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
 
     @Override
-    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) {
+    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) throws Exception {
         if(bgpThriftClient == null) {
             s_logger.info("Add BGP vrf - bgpThriftClient is null. Unable to add BGP vrf.");
             return;
@@ -173,16 +224,19 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
         } catch (BgpRouterException b) {
             s_logger.error("Failed to add BGP vrf " + rd + "due to BgpRouter Exception number " + b.getErrorCode());
             s_logger.error("BgpRouterException trace ", b);
+            throw b;
         } catch (TException t) {
             s_logger.error(String.format("Failed adding vrf %s due to Transport error", rd));
             reInitConn();
+            throw t;
         } catch (Exception e) {
             s_logger.error(String.format("Failed adding vrf %s", rd));
+            throw e;
         }
     }
 
     @Override
-    public void deleteVrf(String rd) {
+    public void deleteVrf(String rd) throws Exception {
         if(bgpThriftClient == null) {
             s_logger.info("Delete BGP vrf - bgpThriftClient is null. Unable to delete BGP vrf.");
             return;
@@ -192,54 +246,69 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
         } catch (BgpRouterException b) {
             s_logger.error("Failed to delete BGP vrf " + rd + "due to BgpRouter Exception number " + b.getErrorCode());
             s_logger.error("BgpRouterException trace ", b);
+            throw b;
         } catch (TException t) {
             s_logger.error(String.format("Failed deleting vrf %s due to Transport error", rd));
             reInitConn();
+            throw t;
         } catch (Exception e) {
             s_logger.error(String.format("Failed deleting vrf %s", rd));
+            throw e;
         }
     }
 
     @Override
-    public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel) {
+    public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception {
         if(bgpThriftClient == null) {
             s_logger.info("Add BGP prefix - bgpThriftClient is null. Unable to add BGP prefix.");
             return;
+        }
+        if(!hasBgpServiceStarted) {
+            fibDSWriter.addFibEntryToDS(rd, prefix, nextHop, vpnLabel);
         }
         try {
             bgpThriftClient.addPrefix(rd, prefix, nextHop, vpnLabel);
         } catch (BgpRouterException b) {
             s_logger.error("Failed to add BGP prefix " + prefix + "due to BgpRouter Exception number " + b.getErrorCode());
             s_logger.error("BgpRouterException trace ", b);
+            throw b;
         } catch (TException t) {
             s_logger.error(String.format("Failed adding prefix entry <vrf:prefix:nexthop:vpnlabel> %s:%s:%s:%d due to Transport error",
                 rd, prefix, nextHop, vpnLabel));
             reInitConn();
+            throw t;
         } catch (Exception e) {
             s_logger.error(String.format("Failed adding prefix entry <vrf:prefix:nexthop:vpnlabel> %s:%s:%s:%d",
                 rd, prefix, nextHop, vpnLabel));
+            throw e;
         }
     }
 
 
     @Override
-    public void deletePrefix(String rd, String prefix) {
+    public void deletePrefix(String rd, String prefix) throws Exception {
         if(bgpThriftClient == null) {
             s_logger.info("Delete BGP prefix - bgpThriftClient is null. Unable to delete BGP prefix.");
             return;
+        }
+        if(!hasBgpServiceStarted) {
+            fibDSWriter.removeFibEntryFromDS(rd, prefix);
         }
         try {
             bgpThriftClient.delPrefix(rd, prefix);
         } catch (BgpRouterException b) {
             s_logger.error("Failed to delete BGP prefix " + prefix + "due to BgpRouter Exception number " + b.getErrorCode());
             s_logger.error("BgpRouterException trace ", b);
+            throw b;
         } catch (TException t) {
             s_logger.error(String.format("Failed deleting prefix entry <vrf:prefix> %s:%s due to Transport error",
                 rd, prefix));
             reInitConn();
+            throw t;
         } catch (Exception e) {
             s_logger.error(String.format("Failed deleting prefix entry <vrf:prefix> %s:%s",
                 rd, prefix));
+            throw e;
         }
     }
 
@@ -278,7 +347,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
         }
     }
 
-    public void reInitConn() {
+    public synchronized void reInitConn() {
 
         try {
             bgpThriftClient.reInit();
@@ -287,7 +356,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
             s_logger.error("Failed to reinitialize connection to BGP server " + bgpHost + " on port " + bgpPort + " due to BgpRouter Exception number " + b.getErrorCode());
             s_logger.error("BgpRouterException trace ", b);
         } catch (TException t) {
-            s_logger.error("Failed to reinitialize BGP Connection due to Transport error.", t);
+            s_logger.error("Failed to reinitialize BGP Connection due to Transport error.");
         }
         catch (Exception e) {
             s_logger.error("Failed to reinitialize BGP Connection.", e);
@@ -449,10 +518,10 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
     }
     */
 
-/*    public void disconnect() {
+    public void disconnect() {
         bgpThriftClient.disconnect();
     }
-
+/*
     public void setRoute(Route r) {
         s_logger.info("Setting route in VPN Manager");
         //l3Manager.getVpnInstanceManager().addRoute(r.getRd(), r.getPrefix(), r.getNexthop(), r.getLabel());

@@ -32,13 +32,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>model-bgp</artifactId>
       <version>2013.07.15.7-SNAPSHOT</version>
     </dependency>
-    <!--
     <dependency>
-      <groupId>${project.groupId}.third-party</groupId>
-      <artifactId>org.apache.thriftlib</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>fibmanager-api</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
     </dependency>
-  -->
+
     <dependency>
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>

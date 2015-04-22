@@ -7,18 +7,16 @@
  */
 package org.opendaylight.bgpmanager.globals;
 
-import java.io.Serializable;
 
-public class BgpConfiguration implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class BgpConfiguration {
 
     long asNum;
     String bgpServer = "";
     int bgpPort;
     String routerId = "";
     String neighbourIp = "";
-    int neighbourAsNum;
+    long neighbourAsNum = 0;
+    boolean configUpdated = false;
 
     public BgpConfiguration() {
     }
@@ -63,13 +61,19 @@ public class BgpConfiguration implements Serializable {
         this.neighbourIp = neighbourIp;
     }
 
-    public int getNeighbourAsNum() {
+    public long getNeighbourAsNum() {
         return neighbourAsNum;
     }
 
-    public void setNeighbourAsNum(int neighbourAsNum) {
+    public void setNeighbourAsNum(long neighbourAsNum) {
         this.neighbourAsNum = neighbourAsNum;
     }
+
+    public void setConfigUpdated() { this.configUpdated = true; }
+
+    public void unsetConfigUpdated() { this.configUpdated = false; }
+
+    public boolean isConfigUpdated() { return this.configUpdated; }
 
     @Override
     public String toString() {

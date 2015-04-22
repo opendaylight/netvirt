@@ -5,6 +5,8 @@ import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TSimpleServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.*;
+import org.opendaylight.bgpmanager.BgpManager;
+import org.opendaylight.bgpmanager.FibDSWriter;
 import org.opendaylight.bgpmanager.thrift.common.Constants;
 import org.opendaylight.bgpmanager.thrift.gen.BgpUpdater;
 import org.slf4j.Logger;
@@ -22,9 +24,12 @@ public class BgpThriftService {
 	//private TNonblockingServerTransport serverTransport;
     private TServer server;
 	private BgpUpdateHandler notificationHandler;
+	private BgpManager bgpManager;
     
-    public BgpThriftService() {
-    	
+    public BgpThriftService(BgpManager bgpMgr, FibDSWriter dsWriter) {
+    	bgpManager = bgpMgr;
+		notificationHandler = new BgpUpdateHandler(bgpManager, dsWriter);
+		//fibDSWriter = dsWriter;
     }
 
 
@@ -81,7 +86,7 @@ public class BgpThriftService {
 	private class ThriftRunnable implements Runnable {
 		@Override
 		public void run() {
-			notificationHandler = new BgpUpdateHandler();
+			//notificationHandler = new BgpUpdateHandler(bgpManager);
 
 	        try {
 				serverTransport = new TServerSocket(port);

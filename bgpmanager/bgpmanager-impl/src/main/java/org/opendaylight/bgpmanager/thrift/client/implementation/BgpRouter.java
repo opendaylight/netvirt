@@ -145,7 +145,7 @@ public class BgpRouter {
         dispatch(bop);
     }
 
-    public void addNeighbor(String nbrIp, int nbrAsNum)
+    public synchronized void addNeighbor(String nbrIp, int nbrAsNum)
         throws TException, BgpRouterException {
         bop.type = ADD_NBR;
         bop.nbrIp = nbrIp;
@@ -154,7 +154,7 @@ public class BgpRouter {
         dispatch(bop);
     }
 
-    public void delNeighbor(String nbrIp)
+    public synchronized void delNeighbor(String nbrIp)
         throws TException, BgpRouterException {
         bop.type = DEL_NBR;
         bop.nbrIp = nbrIp;
@@ -162,7 +162,7 @@ public class BgpRouter {
         dispatch(bop);
     }
 
-    public void addVrf(String rd, List<String> irts, List<String> erts)
+    public synchronized void addVrf(String rd, List<String> irts, List<String> erts)
         throws TException, BgpRouterException {
         bop.type = ADD_VRF;
         bop.rd = rd;
@@ -172,7 +172,7 @@ public class BgpRouter {
         dispatch(bop);
     }
 
-    public void delVrf(String rd)
+    public synchronized void delVrf(String rd)
         throws TException, BgpRouterException {
         bop.type = DEL_VRF;
         bop.rd = rd;
@@ -180,7 +180,7 @@ public class BgpRouter {
         dispatch(bop);
     }
 
-    public void addPrefix(String rd, String prefix, String nexthop, int label)
+    public synchronized void addPrefix(String rd, String prefix, String nexthop, int label)
         throws TException, BgpRouterException {
         bop.type = ADD_PFX;
         bop.rd = rd;
@@ -191,7 +191,7 @@ public class BgpRouter {
         dispatch(bop);
     }
 
-    public void delPrefix(String rd, String prefix)
+    public synchronized void delPrefix(String rd, String prefix)
         throws TException, BgpRouterException {
         bop.type = DEL_PFX;
         bop.rd = rd;

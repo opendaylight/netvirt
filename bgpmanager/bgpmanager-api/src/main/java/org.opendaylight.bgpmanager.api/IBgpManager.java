@@ -10,13 +10,13 @@ public interface IBgpManager {
      * @param importRts
      * @param exportRts
      */
-    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts);
+    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) throws Exception;
 
     /**
      *
      * @param rd
      */
-    public void deleteVrf(String rd);
+    public void deleteVrf(String rd) throws Exception;
 
     /**
      *
@@ -25,13 +25,13 @@ public interface IBgpManager {
      * @param nextHop
      * @param vpnLabel
      */
-    public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel);
+    public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception;
 
     /**
      *
      * @param rd
      * @param prefix
      */
-    public void deletePrefix(String rd, String prefix);
+    public void deletePrefix(String rd, String prefix) throws Exception;
 
 }

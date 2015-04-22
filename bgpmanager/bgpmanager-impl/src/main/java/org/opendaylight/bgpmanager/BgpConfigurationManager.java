@@ -11,17 +11,24 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.thrift.TException;
+import org.opendaylight.bgpmanager.globals.BgpConfiguration;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.BgpRouter;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.BgpNeighbors;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.BgpNeighbor;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -29,12 +36,17 @@ import com.google.common.base.Preconditions;
 public class BgpConfigurationManager {
     private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
+    private BgpConfiguration bgpConfiguration;
+    private BgpManager bgpManager;
     private final DataBroker broker;
+    private static final int MAX_RETRIES_BGP_COMMUNICATION = 1;
 
-    public BgpConfigurationManager(final DataBroker db) {
+    public BgpConfigurationManager(final DataBroker db, BgpConfiguration bgpCfg, BgpManager bgpMgr) {
         broker = db;
-        BgpRtrCfgManager rtrCfgManager = new BgpRtrCfgManager(db);
-        BgpNghbrCfgManager nghbrCfgManager = new BgpNghbrCfgManager(db);
+        bgpConfiguration = bgpCfg;
+        bgpManager = bgpMgr;
+        BgpRtrCfgManager rtrCfgManager = new BgpRtrCfgManager(broker);
+        BgpNghbrCfgManager nghbrCfgManager = new BgpNghbrCfgManager(broker);
     }
 
     public class BgpRtrCfgManager extends AbstractDataChangeListener<BgpRouter> implements AutoCloseable {
@@ -54,23 +66,98 @@ public class BgpConfigurationManager {
             }
         }
 
+        private synchronized void removeBgpRouter(BgpRouter del)
+        {
+
+        }
+
         @Override
         protected void remove(InstanceIdentifier<BgpRouter> identifier,
                               BgpRouter del) {
-            // TODO Auto-generated method stub
+
+            LOG.info("Bgp Router deleted in DS - " + "key: " + identifier + ", value=" + del);
+
+            removeBgpRouter(del);
+
+        }
+
+        private synchronized void updateBgpRouter(BgpRouter original, BgpRouter update)
+        {
+            if(bgpConfiguration.getAsNum() != update.getLocalAsNumber()) {
+                bgpConfiguration.setAsNum(update.getLocalAsNumber());
+                bgpConfiguration.setConfigUpdated();
+            }
+            if(bgpConfiguration.getRouterId() != update.getLocalAsIdentifier().getIpv4Address().getValue()) {
+                bgpConfiguration.setRouterId(update.getLocalAsIdentifier().getIpv4Address().getValue());
+                bgpConfiguration.setConfigUpdated();
+            }
+
+            if(bgpConfiguration.isConfigUpdated()) {
+                int retryCount = 0;
+                boolean retry = false;
+                do {
+                    try {
+                        if(retry)
+                            LOG.info("Retrying BgpService start.." + "retry count:" + retryCount);
+                        //bgpManager.waitForBgpInit();
+                        bgpManager.startBgpService();
+                        LOG.info("BgpService start done..");
+                        retry = false;
+                    } catch (TException t) {
+                        LOG.info("BgpService start failed..");
+                        retry = true;
+                        retryCount++;
+                    }
+                } while(retry && retryCount <= MAX_RETRIES_BGP_COMMUNICATION);
+
+                bgpConfiguration.unsetConfigUpdated();
+            }
+
         }
 
         @Override
         protected void update(InstanceIdentifier<BgpRouter> identifier,
                               BgpRouter original, BgpRouter update) {
-            // TODO Auto-generated method stub
+
+            LOG.info("Bgp Router Updated in DS - " + "key: " + identifier + ", original=" + original + ", update=" + update);
+
+            updateBgpRouter(original, update);
+        }
+
+        private synchronized void addBgpRouter(BgpRouter value){
+            if(value.getLocalAsNumber() != null) {
+                bgpConfiguration.setAsNum(value.getLocalAsNumber());
+            }
+            if(value.getLocalAsIdentifier() != null) {
+                bgpConfiguration.setRouterId(value.getLocalAsIdentifier().getIpv4Address().getValue());
+            }
+
+            if(value.getLocalAsNumber() == null || value.getLocalAsIdentifier() == null)
+                return;
+
+            int retryCount = 0;
+            boolean retry = false;
+
+            do {
+                try {
+                    //bgpManager.waitForBgpInit();
+                    bgpManager.startBgpService();
+                    retry = false;
+                } catch (TException t) {
+                    retry = true;
+                    retryCount++;
+                }
+            } while(retry && retryCount <= MAX_RETRIES_BGP_COMMUNICATION);
         }
 
         @Override
         protected void add(InstanceIdentifier<BgpRouter> identifier,
                            BgpRouter value) {
-            LOG.info("key: " + identifier + ", value=" + value);
+            LOG.info("Bgp Router added in DS - " + "key: " + identifier + ", value=" + value);
+            LOG.info("Bgp Router localASNumber:" + value.getLocalAsNumber());
+            LOG.info("Bgp Router localASIdentifier:" + value.getLocalAsIdentifier());
 
+            addBgpRouter(value);
         }
 
         private InstanceIdentifier<BgpRouter> getWildCardPath() {
@@ -108,23 +195,149 @@ public class BgpConfigurationManager {
             }
         }
 
+        private synchronized void removeBgpNeighbors(BgpNeighbors del) {
+            List<BgpNeighbor> bgpNeighborList = del.getBgpNeighbor();
+            BgpNeighbor gateway = bgpNeighborList.get(0);
+
+            if(gateway != null) {
+                if ((gateway.getPeerAddressType() != null) && (gateway.getPeerAddressType() instanceof org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress)) {
+                    IpAddress neighborIPAddr = ((org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress) gateway.getPeerAddressType()).getIpAddress();
+                    LOG.info("Bgp Neighbor IP Address " + neighborIPAddr.getIpv4Address().getValue());
+                    bgpConfiguration.setNeighbourIp("");
+                    bgpConfiguration.setNeighbourAsNum(0);
+
+                    int retryCount = 0;
+                    boolean retry = false;
+
+                    do {
+                        try {
+                            bgpManager.deleteNeighbor(neighborIPAddr.getIpv4Address().getValue());
+                            retry = false;
+                        } catch (TException t) {
+                            retry = true;
+                            retryCount++;
+                        }
+                    } while(retry && retryCount <= MAX_RETRIES_BGP_COMMUNICATION);
+
+                }
+            }
+
+        }
+
         @Override
         protected void remove(InstanceIdentifier<BgpNeighbors> identifier,
                               BgpNeighbors del) {
-            // TODO Auto-generated method stub
+
+            LOG.info("Bgp Neighbors deleted in DS - " + "key: " + identifier + ", value=" + del);
+            removeBgpNeighbors(del);
+        }
+
+        private synchronized void updateBgpNeighbors(BgpNeighbors original, BgpNeighbors update) {
+            List<BgpNeighbor> bgpNeighborList = update.getBgpNeighbor();
+
+            //We will always consider the first element of this list, since there can be just one DC Gateway
+            BgpNeighbor gateway = bgpNeighborList.get(0);
+
+            if(gateway != null) {
+                if(gateway.getAsNumber() != null) {
+                    LOG.info("Bgp Neighbor AS number " + gateway.getAsNumber());
+                    if(bgpConfiguration.getNeighbourAsNum() != gateway.getAsNumber()) {
+                        bgpConfiguration.setNeighbourAsNum(gateway.getAsNumber());
+                        bgpConfiguration.setConfigUpdated();
+                    }
+                }
+                if((gateway.getPeerAddressType() != null) && (gateway.getPeerAddressType() instanceof org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress)) {
+                    IpAddress neighborIPAddr = ((org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress)gateway.getPeerAddressType()).getIpAddress();
+                    LOG.info("Bgp Neighbor IP Address " + neighborIPAddr.getIpv4Address().getValue());
+                    if(bgpConfiguration.getNeighbourIp() != neighborIPAddr.getIpv4Address().getValue()) {
+                        bgpConfiguration.setNeighbourIp(neighborIPAddr.getIpv4Address().getValue());
+                        bgpConfiguration.setConfigUpdated();
+                    }
+
+                }
+            }
+            if(bgpConfiguration.isConfigUpdated()) {
+                //delete old neighbor
+                BgpNeighbor old = original.getBgpNeighbor().get(0);
+                IpAddress oldIPAddr = ((org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress)old.getPeerAddressType()).getIpAddress();
+                int retryCount = 0;
+                boolean retry = false;
+                do {
+                    try {
+                        bgpManager.deleteNeighbor(oldIPAddr.getIpv4Address().getValue());
+                        retry = false;
+                    } catch (TException t) {
+                        retry = true;
+                        retryCount++;
+                    }
+                } while(retry && retryCount <= MAX_RETRIES_BGP_COMMUNICATION);
+
+                //add the newly configured neighbor
+                retryCount = 0;
+                retry = false;
+                do {
+                    try {
+                        bgpManager.addNeighbor(bgpConfiguration.getNeighbourIp(), bgpConfiguration.getNeighbourAsNum());
+                        retry = false;
+                    } catch (TException t) {
+                        retry = true;
+                        retryCount++;
+                    }
+                } while(retry && retryCount <= MAX_RETRIES_BGP_COMMUNICATION);
+            }
         }
 
         @Override
         protected void update(InstanceIdentifier<BgpNeighbors> identifier,
                               BgpNeighbors original, BgpNeighbors update) {
-            // TODO Auto-generated method stub
+
+            LOG.info("Bgp Neighbors Updated in DS - " + "key: " + identifier + ", original=" + original + ", update=" + update);
+
+            updateBgpNeighbors(original, update);
+
+        }
+
+        private synchronized void addBgpNeighbors(BgpNeighbors value) {
+            List<BgpNeighbor> bgpNeighborList = value.getBgpNeighbor();
+
+            //We will always consider the first element of this list, since there can be just one DC Gateway
+            BgpNeighbor gateway = bgpNeighborList.get(0);
+
+            if(gateway != null) {
+                if(gateway.getAsNumber() != null) {
+                    LOG.info("Bgp Neighbor AS number " + gateway.getAsNumber());
+                    bgpConfiguration.setNeighbourAsNum(gateway.getAsNumber());
+                }
+                if((gateway.getPeerAddressType() != null) && (gateway.getPeerAddressType() instanceof org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress)) {
+                    IpAddress neighborIPAddr = ((org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress)gateway.getPeerAddressType()).getIpAddress();
+                    LOG.info("Bgp Neighbor IP Address " + neighborIPAddr.getIpv4Address().getValue());
+                    bgpConfiguration.setNeighbourIp(neighborIPAddr.getIpv4Address().getValue());
+
+                }
+                if(bgpConfiguration.getNeighbourAsNum() != 0  && bgpConfiguration.getNeighbourIp() != null) {
+                    int retryCount = 0;
+                    boolean retry = false;
+                    do {
+                        try {
+                            bgpManager.addNeighbor(bgpConfiguration.getNeighbourIp(), bgpConfiguration.getNeighbourAsNum());
+                            retry = false;
+                        } catch (TException t) {
+                            retry = true;
+                            retryCount++;
+                        }
+                    } while(retry && retryCount <= MAX_RETRIES_BGP_COMMUNICATION);
+                }
+            }
+
         }
 
         @Override
         protected void add(InstanceIdentifier<BgpNeighbors> identifier,
                            BgpNeighbors value) {
             LOG.info("key: " + identifier + ", value=" + value);
+            LOG.info("Bgp Neighbor added in DS - " + "key: " + identifier + ", value=" + value);
 
+            addBgpNeighbors(value);
         }
 
         private InstanceIdentifier<?> getWildCardPath() {
