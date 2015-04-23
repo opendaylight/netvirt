@@ -47,11 +47,11 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
             new FutureCallback<Void>() {
                 public void onSuccess(Void result) {
-                    LOG.info("Success in Datastore write operation");
+                    LOG.info("Success in Datastore operation");
                 }
 
                 public void onFailure(Throwable error) {
-                    LOG.error("Error in Datastore write operation", error);
+                    LOG.error("Error in Datastore operation", error);
                 };
             };
 
@@ -168,9 +168,57 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     }
 
     @Override
-    protected void remove( InstanceIdentifier<VpnInterface> identifier, VpnInterface del) {
-        // TODO Auto-generated method stub
+    protected void remove( InstanceIdentifier<VpnInterface> identifier, VpnInterface vpnInterface) {
+        LOG.info("Remove event - key: {}, value: {}" ,identifier, vpnInterface );
+        final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
+        String interfaceName = key.getName();
+        InstanceIdentifierBuilder<Interface> idBuilder = 
+                InstanceIdentifier.builder(Interfaces.class).child(Interface.class, new InterfaceKey(interfaceName));
+        InstanceIdentifier<Interface> id = idBuilder.build();
+        Optional<Interface> port = read(LogicalDatastoreType.CONFIGURATION, id);
+        if (port.isPresent()) {
+            Interface interf = port.get();
+            unbindServiceOnInterface(interf);
+            removeNextHops(identifier, vpnInterface);
+        } else {
+            LOG.info("No nexthops were available to handle remove event {}", interfaceName);
+        }
+    }
 
+    private void removeNextHops(final InstanceIdentifier<VpnInterface> identifier, VpnInterface intf) {
+        //Read NextHops
+        InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
+        Optional<Adjacencies> adjacencies = read(LogicalDatastoreType.OPERATIONAL, path);
+        String intfName = intf.getName();
+
+        if (adjacencies.isPresent()) {
+            List<Adjacency> nextHops = adjacencies.get().getAdjacency();
+
+            if (!nextHops.isEmpty()) {
+                LOG.trace("NextHops are " + nextHops);
+                for (Adjacency nextHop : nextHops) {
+                    //TODO: Update BGP
+                    removePrefixFromBGP(nextHop);
+                }
+            }
+
+            InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(intfName);
+            delete(LogicalDatastoreType.OPERATIONAL, interfaceId);
+        }
+    }
+
+    private <T extends DataObject> void delete(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.delete(datastoreType, path);
+        Futures.addCallback(tx.submit(), DEFAULT_CALLBACK);
+    }
+
+    private void unbindServiceOnInterface(Interface intf) {
+        //TODO: Remove Ingress flow on the interface to unbind the VPN service
+    }
+
+    private void removePrefixFromBGP(Adjacency nextHop) {
+        //TODO: Update the Prefix to BGP
     }
 
     @Override

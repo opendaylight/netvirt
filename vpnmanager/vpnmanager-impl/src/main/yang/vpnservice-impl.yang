@@ -5,6 +5,7 @@ module vpnservice-impl {
 
     import config { prefix config; revision-date 2013-04-05; }
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+    import bgpmanager-api { prefix bgpmgr-api; revision-date 2015-04-20;}
 
     description
         "Service definition for vpnservice project";
@@ -27,6 +28,14 @@ module vpnservice-impl {
                     refine type {
                         mandatory true;
                         config:required-identity md-sal-binding:binding-broker-osgi-registry;
+                    }
+                }
+            }
+            container bgpmanager {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bgpmgr-api:bgpmanager-api;
                     }
                 }
             }

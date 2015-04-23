@@ -27,7 +27,7 @@ public class VpnserviceImplModule extends org.opendaylight.yang.gen.v1.urn.opend
     public java.lang.AutoCloseable createInstance() {
         VpnserviceProvider provider = new VpnserviceProvider();
         getBrokerDependency().registerProvider(provider);
+        provider.setBgpManager(getBgpmanagerDependency());
         return provider;
     }
-
 }

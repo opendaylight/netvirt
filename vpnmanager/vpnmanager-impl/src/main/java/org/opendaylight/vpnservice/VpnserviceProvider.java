@@ -7,10 +7,12 @@
  */
 package org.opendaylight.vpnservice;
 
+import java.util.Collections;
+
+import org.opendaylight.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +22,7 @@ public class VpnserviceProvider implements BindingAwareProvider,
     private static final Logger LOG = LoggerFactory.getLogger(VpnserviceProvider.class);
     private VpnInterfaceManager vpnInterfaceManager;
     private VpnManager vpnManager;
+    private IBgpManager bgpManager;
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -31,6 +34,11 @@ public class VpnserviceProvider implements BindingAwareProvider,
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
         }
+    }
+
+    public void setBgpManager(IBgpManager bgpManager) {
+        LOG.debug("BGP Manager reference initialized");
+        this.bgpManager = bgpManager;
     }
 
     @Override
