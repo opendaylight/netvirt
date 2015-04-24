@@ -120,12 +120,13 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
             }
 
         }  catch (TException t) {
-            //s_logger.error("Transport error while starting bgp server ", t);
             s_logger.error("Could not set up thrift connection with bgp server");
+            //s_logger.trace("Transport error while starting bgp server ", t);
             reInitConn();
             throw t;
         } catch (Exception e) {
-            s_logger.error("Error while starting bgp server", e);
+            s_logger.error("Error while starting bgp server");
+            //s_logger.trace("Bgp Service not started due to exception", e);
             return;
         }
 
@@ -259,13 +260,12 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
     @Override
     public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception {
-        if(bgpThriftClient == null) {
-            s_logger.info("Add BGP prefix - bgpThriftClient is null. Unable to add BGP prefix.");
+
+        if(bgpThriftClient == null || !hasBgpServiceStarted) {
+            fibDSWriter.addFibEntryToDS(rd, prefix, nextHop, vpnLabel);
             return;
         }
-        if(!hasBgpServiceStarted) {
-            fibDSWriter.addFibEntryToDS(rd, prefix, nextHop, vpnLabel);
-        }
+
         try {
             bgpThriftClient.addPrefix(rd, prefix, nextHop, vpnLabel);
         } catch (BgpRouterException b) {
@@ -287,13 +287,11 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
     @Override
     public void deletePrefix(String rd, String prefix) throws Exception {
-        if(bgpThriftClient == null) {
-            s_logger.info("Delete BGP prefix - bgpThriftClient is null. Unable to delete BGP prefix.");
+        if(bgpThriftClient == null || !hasBgpServiceStarted) {
+            fibDSWriter.removeFibEntryFromDS(rd, prefix);
             return;
         }
-        if(!hasBgpServiceStarted) {
-            fibDSWriter.removeFibEntryFromDS(rd, prefix);
-        }
+
         try {
             bgpThriftClient.delPrefix(rd, prefix);
         } catch (BgpRouterException b) {
@@ -326,14 +324,14 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
             s_logger.info("Connected to BGP server " + host + " on port " + port);
         } catch (BgpRouterException b) {
             s_logger.error("Failed to connect to BGP server " + host + " on port " + port + " due to BgpRouter Exception number " + b.getErrorCode());
-            s_logger.error("BgpRouterException trace ", b);
+            //_logger.error("BgpRouterException trace ", b);
             throw b;
         } catch (TException t) {
-            s_logger.error("Failed to initialize BGP Connection due to Transport error ", t);
+            s_logger.error("Failed to initialize BGP Connection due to Transport error ");
             throw t;
         }
         catch (Exception e) {
-            s_logger.error("Failed to initialize BGP Connection ", e);
+            s_logger.error("Failed to initialize BGP Connection ");
             throw e;
         }
     }
@@ -521,29 +519,6 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
     public void disconnect() {
         bgpThriftClient.disconnect();
     }
-/*
-    public void setRoute(Route r) {
-        s_logger.info("Setting route in VPN Manager");
-        //l3Manager.getVpnInstanceManager().addRoute(r.getRd(), r.getPrefix(), r.getNexthop(), r.getLabel());
-    }*/
-
-    /* For testing purposes */
-    /*public String ribGet() {
-        String family = "ipv4";
-        String format = "json";
-
-        try {
-            List<Route> routeList = bgpThriftClient.getRoutes();
-            Iterator<Route> iter = routeList.iterator();
-            while(iter.hasNext()) {
-                Route r = iter.next();
-                System.out.println("Route:: vrf:" + r.getRd() + " Prefix: " + r.getPrefix() + " Nexthop: " + r.getNexthop() + "Label: " + r.getLabel());
-            }
-        } catch (Exception e) {
-            s_logger.error("Failed getting bgp routes ", e);
-        }
-        return null;
-    }*/
 
 
 }

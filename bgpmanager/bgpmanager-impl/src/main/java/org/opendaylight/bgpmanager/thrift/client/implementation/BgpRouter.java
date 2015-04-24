@@ -78,7 +78,7 @@ public class BgpRouter {
             logger.info("Connecting to BGP Server " + bgpHost + " on port " + bgpPort);
             reInit();
         } catch (Exception e) {
-            logger.error("Failed connecting to BGP server ", e);
+            logger.error("Failed connecting to BGP server ");
             throw e;
         }
     }

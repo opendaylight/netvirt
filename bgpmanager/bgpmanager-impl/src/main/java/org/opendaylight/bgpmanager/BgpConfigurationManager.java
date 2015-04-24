@@ -40,6 +40,9 @@ public class BgpConfigurationManager {
     private BgpManager bgpManager;
     private final DataBroker broker;
     private static final int MAX_RETRIES_BGP_COMMUNICATION = 1;
+    private enum BgpOp {
+        START_BGP, ADD_NGHBR, DEL_NGHBR
+    }
 
     public BgpConfigurationManager(final DataBroker db, BgpConfiguration bgpCfg, BgpManager bgpMgr) {
         broker = db;
@@ -68,6 +71,10 @@ public class BgpConfigurationManager {
 
         private synchronized void removeBgpRouter(BgpRouter del)
         {
+            bgpManager.disconnect();
+
+            bgpConfiguration.setRouterId("");
+            bgpConfiguration.setAsNum(0);
 
         }
 
@@ -93,23 +100,7 @@ public class BgpConfigurationManager {
             }
 
             if(bgpConfiguration.isConfigUpdated()) {
-                int retryCount = 0;
-                boolean retry = false;
-                do {
-                    try {
-                        if(retry)
-                            LOG.info("Retrying BgpService start.." + "retry count:" + retryCount);
-                        //bgpManager.waitForBgpInit();
-                        bgpManager.startBgpService();
-                        LOG.info("BgpService start done..");
-                        retry = false;
-                    } catch (TException t) {
-                        LOG.info("BgpService start failed..");
-                        retry = true;
-                        retryCount++;
-                    }
-                } while(retry && retryCount <= MAX_RETRIES_BGP_COMMUNICATION);
-
+                configureBgpServer(BgpOp.START_BGP);
                 bgpConfiguration.unsetConfigUpdated();
             }
 
@@ -135,19 +126,7 @@ public class BgpConfigurationManager {
             if(value.getLocalAsNumber() == null || value.getLocalAsIdentifier() == null)
                 return;
 
-            int retryCount = 0;
-            boolean retry = false;
-
-            do {
-                try {
-                    //bgpManager.waitForBgpInit();
-                    bgpManager.startBgpService();
-                    retry = false;
-                } catch (TException t) {
-                    retry = true;
-                    retryCount++;
-                }
-            } while(retry && retryCount <= MAX_RETRIES_BGP_COMMUNICATION);
+            configureBgpServer(BgpOp.START_BGP);
         }
 
         @Override
@@ -203,21 +182,11 @@ public class BgpConfigurationManager {
                 if ((gateway.getPeerAddressType() != null) && (gateway.getPeerAddressType() instanceof org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress)) {
                     IpAddress neighborIPAddr = ((org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress) gateway.getPeerAddressType()).getIpAddress();
                     LOG.info("Bgp Neighbor IP Address " + neighborIPAddr.getIpv4Address().getValue());
+
+                    configureBgpServer(BgpOp.DEL_NGHBR);
+
                     bgpConfiguration.setNeighbourIp("");
                     bgpConfiguration.setNeighbourAsNum(0);
-
-                    int retryCount = 0;
-                    boolean retry = false;
-
-                    do {
-                        try {
-                            bgpManager.deleteNeighbor(neighborIPAddr.getIpv4Address().getValue());
-                            retry = false;
-                        } catch (TException t) {
-                            retry = true;
-                            retryCount++;
-                        }
-                    } while(retry && retryCount <= MAX_RETRIES_BGP_COMMUNICATION);
 
                 }
             }
@@ -233,12 +202,24 @@ public class BgpConfigurationManager {
         }
 
         private synchronized void updateBgpNeighbors(BgpNeighbors original, BgpNeighbors update) {
+
             List<BgpNeighbor> bgpNeighborList = update.getBgpNeighbor();
+
+            //handle the case where there are no neighbors configured - single neighbor entry has been deleted
+            if(bgpNeighborList.isEmpty()) {
+                configureBgpServer(BgpOp.DEL_NGHBR);
+                return;
+            }
 
             //We will always consider the first element of this list, since there can be just one DC Gateway
             BgpNeighbor gateway = bgpNeighborList.get(0);
 
             if(gateway != null) {
+                if(gateway.getAsNumber() != null ||
+                    ((gateway.getPeerAddressType() != null) && (gateway.getPeerAddressType() instanceof org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress))) {
+                    //there is an updated neighbor, so we need to delete the old neighbor
+                    configureBgpServer(BgpOp.DEL_NGHBR);
+                }
                 if(gateway.getAsNumber() != null) {
                     LOG.info("Bgp Neighbor AS number " + gateway.getAsNumber());
                     if(bgpConfiguration.getNeighbourAsNum() != gateway.getAsNumber()) {
@@ -257,33 +238,8 @@ public class BgpConfigurationManager {
                 }
             }
             if(bgpConfiguration.isConfigUpdated()) {
-                //delete old neighbor
-                BgpNeighbor old = original.getBgpNeighbor().get(0);
-                IpAddress oldIPAddr = ((org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress)old.getPeerAddressType()).getIpAddress();
-                int retryCount = 0;
-                boolean retry = false;
-                do {
-                    try {
-                        bgpManager.deleteNeighbor(oldIPAddr.getIpv4Address().getValue());
-                        retry = false;
-                    } catch (TException t) {
-                        retry = true;
-                        retryCount++;
-                    }
-                } while(retry && retryCount <= MAX_RETRIES_BGP_COMMUNICATION);
-
                 //add the newly configured neighbor
-                retryCount = 0;
-                retry = false;
-                do {
-                    try {
-                        bgpManager.addNeighbor(bgpConfiguration.getNeighbourIp(), bgpConfiguration.getNeighbourAsNum());
-                        retry = false;
-                    } catch (TException t) {
-                        retry = true;
-                        retryCount++;
-                    }
-                } while(retry && retryCount <= MAX_RETRIES_BGP_COMMUNICATION);
+                configureBgpServer(BgpOp.ADD_NGHBR);
             }
         }
 
@@ -315,17 +271,7 @@ public class BgpConfigurationManager {
 
                 }
                 if(bgpConfiguration.getNeighbourAsNum() != 0  && bgpConfiguration.getNeighbourIp() != null) {
-                    int retryCount = 0;
-                    boolean retry = false;
-                    do {
-                        try {
-                            bgpManager.addNeighbor(bgpConfiguration.getNeighbourIp(), bgpConfiguration.getNeighbourAsNum());
-                            retry = false;
-                        } catch (TException t) {
-                            retry = true;
-                            retryCount++;
-                        }
-                    } while(retry && retryCount <= MAX_RETRIES_BGP_COMMUNICATION);
+                    configureBgpServer(BgpOp.ADD_NGHBR);
                 }
             }
 
@@ -344,6 +290,7 @@ public class BgpConfigurationManager {
             return InstanceIdentifier.create(BgpNeighbors.class);
         }
 
+
         @Override
         public void close() throws Exception {
             if (listenerRegistration != null) {
@@ -357,5 +304,32 @@ public class BgpConfigurationManager {
             LOG.info("Bgp Neighbor Manager Closed");
         }
 
+    }
+
+    private void configureBgpServer(BgpOp bgpOp) {
+        int retryCount = 0;
+        boolean retry = false;
+        do {
+            try {
+                switch(bgpOp) {
+                    case START_BGP:
+                        bgpManager.startBgpService();
+                        break;
+                    case ADD_NGHBR:
+                        bgpManager.addNeighbor(bgpConfiguration.getNeighbourIp(), bgpConfiguration.getNeighbourAsNum());
+                        break;
+                    case DEL_NGHBR:
+                        bgpManager.deleteNeighbor(bgpConfiguration.getNeighbourIp());
+                        break;
+                    default:
+                        LOG.info("Invalid configuration option");
+                }
+
+                retry = false;
+            } catch (TException t) {
+                retry = true;
+                retryCount++;
+            }
+        } while(retry && retryCount <= MAX_RETRIES_BGP_COMMUNICATION);
     }
 }

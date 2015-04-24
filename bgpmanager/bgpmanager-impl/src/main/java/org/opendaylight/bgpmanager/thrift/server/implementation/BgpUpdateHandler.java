@@ -15,14 +15,6 @@ class BgpUpdateHandler implements BgpUpdater.Iface {
     public BgpUpdateHandler(BgpManager bgpMgr, FibDSWriter dsWriter) {
         bgpManager = bgpMgr;
         fibDSWriter = dsWriter;
-
-        //Test
-        onUpdatePushRoute("5", "10.1.1.2", 32, "1.2.3.4", 200);
-        onUpdatePushRoute("5", "10.1.1.3", 32, "1.2.3.5", 400);
-        onUpdatePushRoute("10", "10.10.0.10", 32, "5.4.3.2", 600);
-        onUpdateWithdrawRoute("5", "10.1.1.3", 32);
-
-
     }
 
     public void onUpdatePushRoute(String rd, String prefix, int plen,

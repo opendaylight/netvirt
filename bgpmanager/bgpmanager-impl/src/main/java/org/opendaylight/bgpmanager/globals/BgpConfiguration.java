@@ -10,7 +10,7 @@ package org.opendaylight.bgpmanager.globals;
 
 public class BgpConfiguration {
 
-    long asNum;
+    long asNum = 0;
     String bgpServer = "";
     int bgpPort;
     String routerId = "";
