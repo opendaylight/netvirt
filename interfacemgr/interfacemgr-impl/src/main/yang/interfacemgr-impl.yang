@@ -5,6 +5,7 @@ module interfacemgr-impl {
 
     import config { prefix config; revision-date 2013-04-05; }
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+    import odl-interface {prefix odlif; revision-date 2015-03-31;}
 
     description
         "Service definition for interfacemgr project";
@@ -16,6 +17,7 @@ module interfacemgr-impl {
 
     identity interfacemgr-impl {
         base config:module-type;
+        config:provided-service odlif:odl-interface;
         config:java-name-prefix InterfacemgrImpl;
     }
 

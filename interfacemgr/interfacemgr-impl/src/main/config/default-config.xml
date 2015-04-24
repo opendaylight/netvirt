@@ -9,6 +9,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 <snapshot>
   <required-capabilities>
+      <capability>urn:opendaylight:vpnservice:interfacemgr?module=odl-interface&amp;revision=2015-03-31</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:interfacemgr:impl?module=interfacemgr-impl&amp;revision=2015-03-25</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
   </required-capabilities>
@@ -25,6 +26,15 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           </broker>
         </module>
       </modules>
+      <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+        <service>
+          <type xmlns:prefix="urn:opendaylight:vpnservice:interfacemgr">prefix:odl-interface</type>
+          <instance>
+            <name>interfacemgr-service</name>
+            <provider>/modules/module[type='interfacemgr-impl'][name='interfacemgr-default']</provider>
+          </instance>
+        </service>
+      </services>
     </data>
   </configuration>
 </snapshot>

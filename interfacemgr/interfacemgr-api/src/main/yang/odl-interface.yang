@@ -21,7 +21,11 @@ module odl-interface {
     }
 
     import opendaylight-inventory {
-        prefix inv; revision-date "2013-08-19";
+        prefix inv; revision-date 2013-08-19;
+    }
+
+    import config {
+        prefix config; revision-date 2013-04-05;
     }
 
     revision "2015-03-31" {
@@ -59,6 +63,11 @@ module odl-interface {
     identity tunnel-type-gre {
         description "Tunnel type for gre tunnels";
         base tunnel-type-base;
+    }
+
+    identity odl-interface {
+        base "config:service-type";
+        config:java-class "org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager";
     }
 
     /* base/common properties */
@@ -156,4 +165,3 @@ module odl-interface {
     }
 
 }
-

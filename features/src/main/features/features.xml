@@ -19,7 +19,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version='${openflowplugin.version}'>odl-openflowplugin-nsf-model</feature>
     <bundle>mvn:org.opendaylight.vpnservice/model-bgp/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-api/${vpnmanager.version}</bundle>
-    <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-api/${interfacemgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/nexthopmgr-api/${nexthopmgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/idmanager-api/${idmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/fibmanager-api/${fibmanager.version}</bundle>
@@ -31,6 +30,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.vpnservice/bgpmanager-api/${project.version}</bundle>
 	<bundle>mvn:org.opendaylight.vpnservice/bgpmanager-impl/${project.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-impl/${vpnmanager.version}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-api/${interfacemgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-impl/${interfacemgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/nexthopmgr-impl/${nexthopmgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/idmanager-impl/${idmanager.version}</bundle>

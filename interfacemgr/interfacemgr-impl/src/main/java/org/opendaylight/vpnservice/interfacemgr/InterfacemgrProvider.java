@@ -12,11 +12,12 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderCo
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 
-public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable {
+public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable, IInterfaceManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfacemgrProvider.class);
-    
+
     private InterfaceManager interfaceManager;
 
     @Override
@@ -36,4 +37,8 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
         interfaceManager.close();
     }
 
+    @Override
+    public void testApi() {
+        LOG.debug("Testing interface mgr api");
+    }
 }
