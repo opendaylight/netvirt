@@ -17,12 +17,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   </prerequisites>
   <modules>
 	<module>model-bgp</module>
+	<module>mdsalutil</module>
     <module>vpnmanager</module>
     <module>interfacemgr</module>
     <module>nexthopmgr</module>
     <module>idmanager</module>
     <module>fibmanager</module>
-    <module>mdsalutil</module>
     <module>bgpmanager</module>
     <module>distribution/karaf</module>
     <module>features</module>

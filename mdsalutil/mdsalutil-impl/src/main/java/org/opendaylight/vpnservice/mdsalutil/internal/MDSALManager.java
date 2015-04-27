@@ -40,7 +40,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowTableRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.transaction.rev131103.TransactionId;
+// Missing constraint
+//import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.transaction.rev131103.TransactionId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
@@ -79,37 +80,25 @@ public class MDSALManager implements IMdsalApiManager,BindingAwareConsumer, Auto
 
     private DataBroker m_dataBroker;
 
-    // TODO: CHECK IF RQD
-    
     private ConsumerContext m_consumerContext = null;
-    
-    // TODO Remove this later
-    private DataBrokerService m_dataBrokerService;
-    
+       
     private PacketProcessingService m_packetProcessingService;
-
       
     private final AtomicInteger m_atomicInteger = new AtomicInteger();
 
     //TODO : IF ID MANAGER IS RQD
     
-    public void setDataProvider(final DataBroker salDataProvider) {
-        this.m_dataBroker = salDataProvider;
-        
-    }
-    
-
     @Override
     public void onSessionInitialized(ConsumerContext session) {
     	
-    	s_logger.debug( " Session Initiated for MD SAL Manager") ;
+    	s_logger.info( " Session Initiated for MD SAL Manager") ;
     	
         m_consumerContext = session;
         
        m_dataBroker = session.getSALService(DataBroker.class);
               
         // TODO - Verify this.
-       // m_packetProcessingService = session.getRpcService(PacketProcessingService.class);
+       m_packetProcessingService = session.getRpcService(PacketProcessingService.class);
             
     }
     
@@ -119,7 +108,11 @@ public class MDSALManager implements IMdsalApiManager,BindingAwareConsumer, Auto
     	s_logger.info("MDSAL Manager Closed");
     }
     
-    
+    @Override
+    public void printTest() {
+    	
+    	s_logger.info(" INTER MODULECOMMUNICATION IS WORKING!!!!");
+    }
     @Override
     public void installFlow(FlowEntity flowEntity) {
         try {
