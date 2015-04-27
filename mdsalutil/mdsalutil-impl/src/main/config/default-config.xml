@@ -9,6 +9,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 <snapshot>
   <required-capabilities>
+      <capability>urn:opendaylight:params:xml:ns:yang:mdsalutil:api?module=odl-mdsalutil&amp;revision=2015-04-10</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:mdsalutil:impl?module=mdsalutil-impl&amp;revision=2015-04-03</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
   </required-capabilities>
@@ -25,6 +26,15 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           </broker>
         </module>
       </modules>
+         <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+            <service>
+              <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:mdsalutil:api">prefix:odl-mdsalutil</type>
+                <instance>
+                   <name>mdsalutil-service</name>
+                     <provider>/modules/module[type='mdsalutil-impl'][name='mdsalutil-default']</provider>
+                </instance>
+             </service> 
+         </services>
     </data>
   </configuration>
 </snapshot>

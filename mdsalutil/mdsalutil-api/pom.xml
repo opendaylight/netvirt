@@ -15,8 +15,14 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
+    <properties>
+    <!-- ODL -->
+    <openflowplugin.version>0.1.0-SNAPSHOT</openflowplugin.version>
+     </properties>
+  
     <build>
         <plugins>
+        <!--
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -28,25 +34,70 @@
                             org.opendaylight.vpnservice.mdsalutil,
                             org.opendaylight.vpnservice.mdsalutil.interfaces
                         </Export-Package>
-                        <!--Import-Package>
+                        <Import-Package>
                             com.google.common.*,
                             org.opendaylight.yang.*,
                             org.opendaylight.yangtools.*,
                             org.opendaylight.controller.sal.binding.api.*,
                             org.opendaylight.controller.md.sal.common.api.*,
                             org.opendaylight.controller.sal.common
-                         </Import-Package-->
+                         </Import-Package
                     </instructions>
                     <manifestLocation>${project.basedir}/META-INF</manifestLocation>
                 </configuration>
             </plugin>
+            -->
+            <plugin>
+	            <groupId>org.opendaylight.yangtools</groupId>
+	            <artifactId>yang-maven-plugin</artifactId>
+	            <executions>
+	              <execution>
+	                <goals>
+	                  <goal>generate-sources</goal>
+	                </goals>
+	                <configuration>
+	                  <codeGenerators>
+	                    <generator>
+	                      <codeGeneratorClass>org.opendaylight.yangtools.maven.sal.api.gen.plugin.CodeGeneratorImpl</codeGeneratorClass>
+	                      <outputBaseDir>${salGeneratorPath}</outputBaseDir>
+	                    </generator>
+	                    <generator>
+	                      <codeGeneratorClass>org.opendaylight.controller.config.yangjmxgenerator.plugin.JMXGenerator</codeGeneratorClass>
+	                      <outputBaseDir>${jmxGeneratorPath}</outputBaseDir>
+	                      <additionalConfiguration>
+	                        <namespaceToPackage1>urn:opendaylight:params:xml:ns:yang==org.opendaylight.controller.config.yang</namespaceToPackage1>
+	                      </additionalConfiguration>
+	                    </generator>
+	                    <generator>
+	                      <codeGeneratorClass>org.opendaylight.yangtools.yang.unified.doc.generator.maven.DocumentationGeneratorImpl</codeGeneratorClass>
+	                      <outputBaseDir>target/site/models</outputBaseDir>
+	                    </generator>
+	                  </codeGenerators>
+	                  <inspectDependencies>true</inspectDependencies>
+	                </configuration>
+	              </execution>
+	            </executions>
+      </plugin>
         </plugins>
     </build>
     <dependencies>
+    <dependency>
+                <groupId>org.opendaylight.openflowplugin.model</groupId>
+                <artifactId>model-flow-base</artifactId>
+                <version>${openflowplugin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.openflowplugin.model</groupId>
+                <artifactId>model-flow-service</artifactId>
+                <version>${openflowplugin.version}</version>
+        </dependency>
+        <!--
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-api</artifactId>
         </dependency>
+        -->
+         <!-- removed due to missing constraint
         <dependency>
             <groupId>org.opendaylight.controller.model</groupId>
             <artifactId>model-flow-service</artifactId>
@@ -55,24 +106,31 @@
             <groupId>org.opendaylight.controller.model</groupId>
             <artifactId>model-flow-base</artifactId>
         </dependency>
+        -->
        <!--  <dependency>
             <groupId>org.opendaylight.controller.model</groupId>
             <artifactId>model-flow-management</artifactId>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>org.opendaylight.controller.model</groupId>
             <artifactId>model-inventory</artifactId>
         </dependency>
+        -->
+        <!--
         <dependency>
             <groupId>org.opendaylight.controller.model</groupId>
             <artifactId>model-flow-statistics</artifactId>
         </dependency>
-        <!--
+        
         <dependency>
             <groupId>org.opendaylight.controller.adsal</groupId>
             <artifactId>sal</artifactId>
         </dependency>
         -->
+        <dependency>
+	            <groupId>org.opendaylight.controller</groupId>
+	            <artifactId>config-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-common</artifactId>
@@ -81,11 +139,12 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.opendaylight.controller.model</groupId>
             <artifactId>model-topology</artifactId>
         </dependency>
-       
+       -->
                      
     </dependencies>
 </project>

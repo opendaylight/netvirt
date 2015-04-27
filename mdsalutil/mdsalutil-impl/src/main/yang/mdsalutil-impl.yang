@@ -5,6 +5,7 @@ module mdsalutil-impl {
 
     import config { prefix config; revision-date 2013-04-05; }
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+    import odl-mdsalutil { prefix odl-mdsal; revision-date 2015-04-10;}
 
     description
         "Service definition for mdsal project";
@@ -15,8 +16,9 @@ module mdsalutil-impl {
     }
 
     identity mdsalutil-impl {
-        base config:module-type;
-        config:java-name-prefix mdsaluttilimpl;
+       base config:module-type;
+       config:provided-service odl-mdsal:odl-mdsalutil;
+       config:java-name-prefix Mdsaluttilimpl;
     }
 
     augment "/config:modules/config:module/config:configuration" {
