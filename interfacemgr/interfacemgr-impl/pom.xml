@@ -27,8 +27,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.controller.model</groupId>
+      <groupId>org.opendaylight.openflowplugin.model</groupId>
       <artifactId>model-flow-service</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.yangtools.model</groupId>

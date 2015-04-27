@@ -19,6 +19,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     private static final Logger LOG = LoggerFactory.getLogger(InterfacemgrProvider.class);
 
     private InterfaceManager interfaceManager;
+    private IfmNodeConnectorListener ifmNcListener;
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -26,15 +27,19 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
         try {
             final  DataBroker dataBroker = session.getSALService(DataBroker.class);
             interfaceManager = new InterfaceManager(dataBroker);
+            ifmNcListener = new IfmNodeConnectorListener(dataBroker, interfaceManager);
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
         }
+        //TODO: Make this debug
+        LOG.info("Interfacemgr services initiated");
     }
 
     @Override
     public void close() throws Exception {
         LOG.info("InterfacemgrProvider Closed");
         interfaceManager.close();
+        ifmNcListener.close();
     }
 
     @Override
