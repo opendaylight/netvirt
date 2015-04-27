@@ -48,7 +48,6 @@ public class FibDSWriter {
         InstanceIdentifierBuilder<VrfTables> idBuilder =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
 
-        logger.info("Created idBuilder for VrfTables");
 
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
         Optional<VrfTables> vrfTable = read(LogicalDatastoreType.CONFIGURATION, vrfTableId);
@@ -69,11 +68,10 @@ public class FibDSWriter {
             VrfTables vrfTableNew = new VrfTablesBuilder().setRouteDistinguisher(rd).
                 setVrfEntry(vrfEntryList).build();
 
-            logger.info("Created VrfTables");
 
             InstanceIdentifier<VrfTables> vrfTableNewId = InstanceIdentifier.builder(FibEntries.class)
                 .child(VrfTables.class, new VrfTablesKey(rd)).build();
-            logger.info("Created idBuilder for new VrfTables");
+
             write(LogicalDatastoreType.CONFIGURATION, vrfTableNewId, vrfTableNew);
         }
 
