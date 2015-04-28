@@ -74,7 +74,6 @@ public class IfmNodeConnectorListener extends AbstractDataChangeListener<NodeCon
 
     @Override
     protected void update(InstanceIdentifier<NodeConnector> identifier, NodeConnector original, NodeConnector update) {
-        LOG.trace("NodeConnectorUpdated: key: " + identifier + ", original=" + original + ", update=" + update );
         ifManager.processPortUpdate(original, update);
     }
 

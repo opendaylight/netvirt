@@ -7,8 +7,10 @@
  */
 package org.opendaylight.vpnservice.interfacemgr;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL3tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import java.math.BigInteger;
@@ -50,6 +52,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
+    private final Map<NodeConnectorId, String> mapNcToInterfaceName = new ConcurrentHashMap<>();
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
                     new FutureCallback<Void>() {
@@ -101,7 +104,11 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
     private InstanceIdentifier<Interface> buildId(final InstanceIdentifier<Interface> identifier) {
         //TODO Make this generic and move to AbstractDataChangeListener or Utils.
         final InterfaceKey key = identifier.firstKeyOf(Interface.class, InterfaceKey.class);
-        String interfaceName = key.getName();
+        return buildId(key.getName());
+    }
+
+    private InstanceIdentifier<Interface> buildId(String interfaceName) {
+        //TODO Make this generic and move to AbstractDataChangeListener or Utils.
         InstanceIdentifierBuilder<Interface> idBuilder =
                 InstanceIdentifier.builder(Interfaces.class).child(Interface.class, new InterfaceKey(interfaceName));
         InstanceIdentifier<Interface> id = idBuilder.build();
@@ -124,8 +131,13 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         Optional<Interface> port = read(LogicalDatastoreType.CONFIGURATION, id);
         if(port.isPresent()) {
             Interface interf = port.get();
-            NodeConnector nodeConn = getNodeConnectorFromInterface(interf);
+            NodeConnector nodeConn = getNodeConnectorFromDataStore(interf);
             updateInterfaceState(identifier, interf, nodeConn);
+            if(nodeConn == null) {
+                mapNcToInterfaceName.put(this.getNodeConnectorIdFromInterface(interf) , interf.getName());
+            } else {
+                mapNcToInterfaceName.put(nodeConn.getId(), interf.getName());
+            }
             /* TODO:
              *  1. Get interface-id from id manager
              *  2. Update interface-state with following:
@@ -161,7 +173,8 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             // TODO: Get interface-id from IdManager
             ifaceBuilder.setAdminStatus((interf.isEnabled()) ?  org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus.Up :
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus.Down);
-            ifaceBuilder.setOperStatus(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus.Down);
+            ifaceBuilder.setOperStatus(getOperStatus(nodeConn));
+
             ifaceBuilder.setIfIndex(200).setName(interf.getName()).setType(interf.getType());
             ifaceBuilder.setKey(getStateInterfaceKeyFromName(interf.getName()));
             //ifaceBuilder.setStatistics(createStatistics(interf.getName(), nodeConn));
@@ -176,7 +189,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             if(interf.getType() != null) {
                 ifaceBuilder.setType(interf.getType());
             }
-
+            ifaceBuilder.setOperStatus(getOperStatus(nodeConn));
             stateIface = ifaceBuilder.build();
             LOG.trace("updating OPERATIONAL data store with stateIface {} and id {}", stateIface, id);
             asyncUpdate(LogicalDatastoreType.OPERATIONAL, id, stateIface, DEFAULT_CALLBACK);
@@ -197,6 +210,15 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
     }
     */
 
+    private OperStatus getOperStatus(NodeConnector nodeConn) {
+        LOG.trace("nodeConn is {}", nodeConn);
+        if(nodeConn == null) {
+            return OperStatus.Down;
+        }else {
+            return OperStatus.Up;
+        }
+    }
+
     private Statistics createStatistics(String name, NodeConnector nodeConn) {
         Counter64 init64 = new Counter64(new BigInteger("0000000000000000"));
         Counter32 init32 = new Counter32((long) 0);
@@ -214,7 +236,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         return new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(name);
     }
 
-    private NodeConnector getNodeConnectorFromInterface(Interface interf) {
+    private NodeConnector getNodeConnectorFromDataStore(Interface interf) {
         NodeConnectorId ncId = interf.getAugmentation(BaseIds.class).getOfPortId();
         //TODO: Replace with MDSAL Util method
         NodeId nodeId = new NodeId(ncId.getValue().substring(0,ncId.getValue().lastIndexOf(":")));
@@ -231,24 +253,41 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         return null;
     }
 
+    private NodeConnectorId getNodeConnectorIdFromInterface(Interface interf) {
+        return interf.getAugmentation(BaseIds.class).getOfPortId();
+    }
+
     private void delInterface(final InstanceIdentifier<Interface> identifier,
                               final Interface delInterface) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> id =
                         buildStateInterfaceId(delInterface.getName());
         Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> stateIf =
                         read(LogicalDatastoreType.OPERATIONAL, id);
-        if(!stateIf.isPresent()) {
+        if(stateIf.isPresent()) {
             LOG.trace("deleting interfaces:state OPERATIONAL data store with id {}", id);
             asyncRemove(LogicalDatastoreType.OPERATIONAL, id, DEFAULT_CALLBACK);
+            NodeConnectorId ncId = getNodeConnectorIdFromInterface(delInterface);
+            if(ncId != null) {
+                mapNcToInterfaceName.remove(ncId);
+            }
         }
     }
 
     private void updateInterface(final InstanceIdentifier<Interface> identifier,
-                              final Interface original, final Interface udpate) {
+                              final Interface original, final Interface update) {
         InstanceIdentifier<Interface> id = buildId(identifier);
         Optional<Interface> port = read(LogicalDatastoreType.CONFIGURATION, id);
         if(port.isPresent()) {
             Interface interf = port.get();
+            NodeConnector nc = getNodeConnectorFromDataStore(update);
+            updateInterfaceState(identifier, update, nc);
+            /*
+             * Alternative is to get from interf and update map irrespective if NCID changed or not.
+             */
+            if(nc != null) {
+                // Name doesn't change. Is it present in update?
+                mapNcToInterfaceName.put(nc.getId(), original.getName());
+            }
             //TODO: Update operational data
         }
     }
@@ -274,13 +313,13 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface del) {
-        LOG.trace("key: " + identifier + ", value=" + del );
+        LOG.trace("remove - key: " + identifier + ", value=" + del );
         delInterface(identifier, del);
     }
 
     @Override
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
-        LOG.trace("key: " + identifier + ", original=" + original + ", update=" + update );
+        LOG.trace("update - key: " + identifier + ", original=" + original + ", update=" + update );
         updateInterface(identifier, original, update);
     }
 
@@ -305,24 +344,42 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
     Futures.addCallback(tx.submit(), callback);
     }
 
-    public void processPortAdd(NodeConnector port) {
-        String strPortId = port.getId().getValue();
+    void processPortAdd(NodeConnector port) {
+        NodeConnectorId portId = port.getId();
         FlowCapableNodeConnector ofPort = port.getAugmentation(FlowCapableNodeConnector.class);
-        LOG.debug("PortAdd: PortId { "+strPortId+"} PortName {"+ofPort.getName()+"}");
+        LOG.debug("PortAdd: PortId { "+portId.getValue()+"} PortName {"+ofPort.getName()+"}");
+        String ifName = this.mapNcToInterfaceName.get(portId);
+        setInterfaceOperStatus(ifName, OperStatus.Up);
     }
 
-    public void processPortUpdate(NodeConnector oldPort, NodeConnector update) {
-        String oldPortId = oldPort.getId().getValue();
-        FlowCapableNodeConnector oldOfPort = oldPort.getAugmentation(FlowCapableNodeConnector.class);
-        String strPortId = update.getId().getValue();
-        FlowCapableNodeConnector ofPort = update.getAugmentation(FlowCapableNodeConnector.class);
-        LOG.debug("PortUpdate: { "+strPortId+", "+ofPort.getName()+"}");
+    void processPortUpdate(NodeConnector oldPort, NodeConnector update) {
+        //TODO: Currently nothing to do here.
+        //LOG.trace("map: {}", this.mapNcToInterfaceName);
     }
 
-    public void processPortDelete(NodeConnector port) {
-        String strPortId = port.getId().getValue();
+    void processPortDelete(NodeConnector port) {
+        NodeConnectorId portId = port.getId();
         FlowCapableNodeConnector ofPort = port.getAugmentation(FlowCapableNodeConnector.class);
-        LOG.debug("PortDelete: PortId { "+strPortId+"} PortName {"+ofPort.getName()+"}");
+        LOG.debug("PortDelete: PortId { "+portId.getValue()+"} PortName {"+ofPort.getName()+"}");
+        String ifName = this.mapNcToInterfaceName.get(portId);
+        setInterfaceOperStatus(ifName, OperStatus.Down);
+    }
+
+    private void setInterfaceOperStatus(String ifName, OperStatus opStatus) {
+        if (ifName != null) {
+            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> id =
+                            buildStateInterfaceId(ifName);
+            Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> stateIf =
+                            read(LogicalDatastoreType.OPERATIONAL, id);
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface stateIface;
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder ifaceBuilder =
+                            new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder();
+            if (stateIf.isPresent()) {
+                stateIface = ifaceBuilder.setOperStatus(opStatus).build();
+                LOG.trace("Setting OperStatus for {} to {} in OPERATIONAL DS", ifName, opStatus);
+                asyncUpdate(LogicalDatastoreType.OPERATIONAL, id, stateIface, DEFAULT_CALLBACK);
+            }
+        }
     }
 
 }
