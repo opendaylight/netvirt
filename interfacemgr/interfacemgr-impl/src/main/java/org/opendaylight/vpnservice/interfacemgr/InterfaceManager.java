@@ -7,18 +7,18 @@
  */
 package org.opendaylight.vpnservice.interfacemgr;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
+
+import java.util.ArrayList;
+import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
+import java.util.List;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL3tunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.L3tunnel;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL3tunnel;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
-import java.math.BigInteger;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Counter32;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Counter64;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.DateAndTime;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state._interface.StatisticsBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state._interface.Statistics;
 import com.google.common.util.concurrent.Futures;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.vpnservice.AbstractDataChangeListener;
+import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -48,11 +49,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.base.Optional;
 
-public class InterfaceManager extends AbstractDataChangeListener<Interface> implements AutoCloseable{
+public class InterfaceManager extends AbstractDataChangeListener<Interface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private final Map<NodeConnectorId, String> mapNcToInterfaceName = new ConcurrentHashMap<>();
+    private final Map<NodeId, String> dbDpnEndpoints = new ConcurrentHashMap<>();
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
                     new FutureCallback<Void>() {
@@ -97,7 +99,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
     @Override
     protected void add(final InstanceIdentifier<Interface> identifier,
             final Interface imgrInterface) {
-        LOG.trace("key: " + identifier + ", value=" + imgrInterface );
+        LOG.trace("Adding interface key: " + identifier + ", value=" + imgrInterface );
         addInterface(identifier, imgrInterface);
     }
 
@@ -126,28 +128,20 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
     }
 
     private void addInterface(final InstanceIdentifier<Interface> identifier,
-                              final Interface imgrInterface) {
-        InstanceIdentifier<Interface> id = buildId(identifier);
-        Optional<Interface> port = read(LogicalDatastoreType.CONFIGURATION, id);
-        if(port.isPresent()) {
-            Interface interf = port.get();
-            NodeConnector nodeConn = getNodeConnectorFromDataStore(interf);
-            updateInterfaceState(identifier, interf, nodeConn);
-            if(nodeConn == null) {
-                mapNcToInterfaceName.put(this.getNodeConnectorIdFromInterface(interf) , interf.getName());
-            } else {
-                mapNcToInterfaceName.put(nodeConn.getId(), interf.getName());
-            }
-            /* TODO:
-             *  1. Get interface-id from id manager
-             *  2. Update interface-state with following:
-             *    admin-status = set to enable value
-             *    oper-status = Down [?]
-             *    if-index = interface-id
-             * FIXME:
-             *  1. Get operational data from node-connector-id?
-             *
-             */
+                              final Interface interf) {
+        NodeConnector nodeConn = getNodeConnectorFromDataStore(interf);
+        NodeConnectorId ncId = null;
+        updateInterfaceState(identifier, interf, nodeConn);
+        if (nodeConn == null) {
+            ncId = getNodeConnectorIdFromInterface(interf);
+        } else {
+            ncId = nodeConn.getId();
+        }
+        mapNcToInterfaceName.put(ncId, interf.getName());
+        if(interf.getType().getClass().isInstance(L3tunnel.class)) {
+            NodeId nodeId = getNodeIdFromNodeConnectorId(ncId);
+            IfL3tunnel l3Tunnel = interf.getAugmentation(IfL3tunnel.class);
+            this.dbDpnEndpoints.put(nodeId, l3Tunnel.getLocalIp().getIpv4Address().getValue());
         }
     }
 
@@ -219,18 +213,6 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         }
     }
 
-    private Statistics createStatistics(String name, NodeConnector nodeConn) {
-        Counter64 init64 = new Counter64(new BigInteger("0000000000000000"));
-        Counter32 init32 = new Counter32((long) 0);
-        StatisticsBuilder statBuilder = new StatisticsBuilder();
-        statBuilder.setDiscontinuityTime(new DateAndTime("2015-04-04T00:00:00Z"))
-        .setInBroadcastPkts(init64).setInDiscards(init32).setInErrors(init32).setInMulticastPkts(init64)
-        .setInOctets(init64).setInUnicastPkts(init64).setInUnknownProtos(init32).setOutBroadcastPkts(init64)
-        .setOutDiscards(init32).setOutErrors(init32).setOutMulticastPkts(init64).setOutOctets(init64)
-        .setOutUnicastPkts(init64);
-        return statBuilder.build();
-    }
-
     private org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey getStateInterfaceKeyFromName(
                     String name) {
         return new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(name);
@@ -239,7 +221,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
     private NodeConnector getNodeConnectorFromDataStore(Interface interf) {
         NodeConnectorId ncId = interf.getAugmentation(BaseIds.class).getOfPortId();
         //TODO: Replace with MDSAL Util method
-        NodeId nodeId = new NodeId(ncId.getValue().substring(0,ncId.getValue().lastIndexOf(":")));
+        NodeId nodeId = getNodeIdFromNodeConnectorId(ncId);
         InstanceIdentifier<NodeConnector> ncIdentifier = InstanceIdentifier.builder(Nodes.class)
                         .child(Node.class, new NodeKey(nodeId))
                         .child(NodeConnector.class, new NodeConnectorKey(ncId)).build();
@@ -269,8 +251,30 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             NodeConnectorId ncId = getNodeConnectorIdFromInterface(delInterface);
             if(ncId != null) {
                 mapNcToInterfaceName.remove(ncId);
+                if(delInterface.getType().getClass().isInstance(L3tunnel.class)) {
+                    Node node = getNodeFromDataStore(delInterface);
+                    if(node.getNodeConnector().isEmpty()) {
+                        this.dbDpnEndpoints.remove(node.getId());
+                    }
+                }
             }
         }
+    }
+
+    private Node getNodeFromDataStore(Interface interf) {
+        NodeConnectorId ncId = interf.getAugmentation(BaseIds.class).getOfPortId();
+        //TODO: Replace with MDSAL Util method
+        NodeId nodeId = getNodeIdFromNodeConnectorId(ncId);
+        InstanceIdentifier<Node> ncIdentifier = InstanceIdentifier.builder(Nodes.class)
+                        .child(Node.class, new NodeKey(nodeId)).build();
+
+        Optional<Node> dpn = read(LogicalDatastoreType.OPERATIONAL, ncIdentifier);
+        if(dpn.isPresent()) {
+            Node node = dpn.get();
+            LOG.trace("node: {}",node);
+            return node;
+        }
+        return null;
     }
 
     private void updateInterface(final InstanceIdentifier<Interface> identifier,
@@ -287,8 +291,12 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             if(nc != null) {
                 // Name doesn't change. Is it present in update?
                 mapNcToInterfaceName.put(nc.getId(), original.getName());
+                if(interf.getType().getClass().isInstance(L3tunnel.class)) {
+                    NodeId nodeId = getNodeIdFromNodeConnectorId(nc.getId());
+                    IfL3tunnel l3Tunnel = interf.getAugmentation(IfL3tunnel.class);
+                    this.dbDpnEndpoints.put(nodeId, l3Tunnel.getLocalIp().getIpv4Address().getValue());
+                }
             }
-            //TODO: Update operational data
         }
     }
 
@@ -354,7 +362,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
 
     void processPortUpdate(NodeConnector oldPort, NodeConnector update) {
         //TODO: Currently nothing to do here.
-        //LOG.trace("map: {}", this.mapNcToInterfaceName);
+        LOG.trace("ifMap: {}, dpnMap: {}", mapNcToInterfaceName, dbDpnEndpoints);
     }
 
     void processPortDelete(NodeConnector port) {
@@ -382,4 +390,83 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         }
     }
 
+    private Interface getInterfaceByIfName(String ifName) {
+        InstanceIdentifier<Interface> id = buildId(ifName);
+        Optional<Interface> port = read(LogicalDatastoreType.CONFIGURATION, id);
+        if(port.isPresent()) {
+            return port.get();
+        }
+        return null;
+    }
+
+    Long getPortForInterface(String ifName) {
+        Interface iface = getInterfaceByIfName(ifName);
+        return getPortNumForInterface(iface);
+    }
+
+    long getDpnForInterface(String ifName) {
+        Interface iface = getInterfaceByIfName(ifName);
+        try {
+            NodeConnector port = getNodeConnectorFromDataStore(iface);
+            //TODO: This should be an MDSAL Util method
+            return Long.parseLong(getDpnFromNodeConnectorId(port.getId()));
+        } catch (NullPointerException e) {
+            LOG.error("OFPort for Interface {} not found", ifName);
+        }
+        return 0L;
+    }
+
+    String getEndpointIpForDpn(long dpnId) {
+        //TODO: This should be MDSAL Util function
+        NodeId dpnNodeId = buildDpnNodeId(dpnId);
+        return dbDpnEndpoints.get(dpnNodeId);
+    }
+
+    List<MatchInfo> getInterfaceIngressRule(String ifName){
+        Interface iface = getInterfaceByIfName(ifName);
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        Class<? extends Class> ifType = iface.getType().getClass();
+        long dpn = this.getDpnForInterface(ifName);
+        long portNo = this.getPortNumForInterface(iface).longValue();
+        matches.add(new MatchInfo(MatchFieldType.in_port, new long[] {dpn, portNo}));
+        if(ifType.isInstance(L2vlan.class)) {
+            IfL2vlan vlanIface = iface.getAugmentation(IfL2vlan.class);
+            matches.add(new MatchInfo(MatchFieldType.vlan_vid, 
+                            new long[] {vlanIface.getVlanId().longValue()}));
+            return matches;
+        } else if (ifType.isInstance(L3tunnel.class)) {
+            //TODO: Handle different tunnel types
+            return matches;
+        }
+        return null;
+    }
+
+    private String getDpnFromNodeConnectorId(NodeConnectorId portId) {
+        /*
+         * NodeConnectorId is of form 'openflow:dpnid:portnum'
+         */
+        String[] split = portId.getValue().split(":");
+        return split[1];
+    }
+
+    private NodeId buildDpnNodeId(long dpnId) {
+        // TODO Auto-generated method stub
+        return new NodeId("openflow:" + dpnId);
+    }
+
+    private NodeId getNodeIdFromNodeConnectorId(NodeConnectorId ncId) {
+        return new NodeId(ncId.getValue().substring(0,ncId.getValue().lastIndexOf(":")));
+    }
+
+    private Long getPortNumForInterface(Interface iface) {
+        try {
+            NodeConnector port = getNodeConnectorFromDataStore(iface);
+            FlowCapableNodeConnector ofPort = port.getAugmentation(FlowCapableNodeConnector.class);
+            return ofPort.getPortNumber().getUint32();
+        } catch (Exception e) {
+            LOG.error("OFPort for Interface {} not found", iface.getName());
+        }
+        return null;
+    }
+ 
 }

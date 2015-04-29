@@ -7,12 +7,18 @@
  */
 package org.opendaylight.vpnservice.interfacemgr;
 
+import java.util.List;
+import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
+
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 
 public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable, IInterfaceManager {
 
@@ -43,7 +49,22 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     }
 
     @Override
-    public void testApi() {
-        LOG.debug("Testing interface mgr api");
+    public Long getPortForInterface(String ifName) {
+        return interfaceManager.getPortForInterface(ifName);
+    }
+
+    @Override
+    public long getDpnForInterface(String ifName) {
+        return interfaceManager.getDpnForInterface(ifName);
+    }
+
+    @Override
+    public String getEndpointIpForDpn(long dpnId) {
+        return interfaceManager.getEndpointIpForDpn(dpnId);
+    }
+
+    @Override
+    public List<MatchInfo> getInterfaceIngressRule(String ifName) {
+        return interfaceManager.getInterfaceIngressRule(ifName);
     }
 }
