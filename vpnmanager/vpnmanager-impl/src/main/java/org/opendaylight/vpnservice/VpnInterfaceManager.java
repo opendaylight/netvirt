@@ -7,6 +7,7 @@
  */
 package org.opendaylight.vpnservice;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -14,8 +15,18 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.FutureCallback;
 
+import org.opendaylight.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
+import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
+import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
+import org.opendaylight.vpnservice.mdsalutil.InstructionType;
+import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
+import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
+import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -30,8 +41,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.AdjacencyList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInstance1;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
@@ -43,11 +59,14 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
+    private final IBgpManager bgpManager;
+    private IMdsalApiManager mdsalManager;
+    private IInterfaceManager interfaceManager;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
             new FutureCallback<Void>() {
                 public void onSuccess(Void result) {
-                    LOG.info("Success in Datastore operation");
+                    LOG.debug("Success in Datastore operation");
                 }
 
                 public void onFailure(Throwable error) {
@@ -61,10 +80,15 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
      * 
      * @param db - dataBroker service reference
      */
-    public VpnInterfaceManager(final DataBroker db) {
+    public VpnInterfaceManager(final DataBroker db, final IBgpManager bgpManager) {
         super(VpnInterface.class);
         broker = db;
+        this.bgpManager = bgpManager;
         registerListener(db);
+    }
+
+    public void setMdsalManager(IMdsalApiManager mdsalManager) {
+        this.mdsalManager = mdsalManager;
     }
 
     @Override
@@ -93,7 +117,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     @Override
     protected void add(final InstanceIdentifier<VpnInterface> identifier,
             final VpnInterface vpnInterface) {
-        LOG.info("key: " + identifier + ", value=" + vpnInterface );
+        LOG.info("key: {} , value: {}", identifier, vpnInterface );
         addInterface(identifier, vpnInterface);
     }
 
@@ -107,7 +131,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         Optional<Interface> port = read(LogicalDatastoreType.CONFIGURATION, id);
         if (port.isPresent()) {
             Interface interf = port.get();
-            bindServiceOnInterface(interf);
+            bindServiceOnInterface(interf, getVpnId(vpnInterface.getVpnInstanceName()));
             updateNextHops(identifier, vpnInterface);
         }
     }
@@ -122,14 +146,19 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             List<Adjacency> nextHops = adjacencies.get().getAdjacency();
             List<Adjacency> value = new ArrayList<>();
 
+            //Get the rd of the vpn instance
+            String rd = getRouteDistinguisher(intf.getVpnInstanceName());
+            //TODO: Get the endpoint IP from interface manager
+            String nextHopIp = "10.0.0.1";
+
             if (!nextHops.isEmpty()) {
-                LOG.info("NextHops are " + nextHops);
+                LOG.info("NextHops are {}", nextHops);
                 for (Adjacency nextHop : nextHops) {
                     //TODO: Generate label for the prefix and store it in the next hop model
                     long label = 200;
 
                     //TODO: Update BGP
-                    updatePrefixToBGP(nextHop);
+                    updatePrefixToBGP(rd, nextHop, nextHopIp);
                     value.add(new AdjacencyBuilder(nextHop).setLabel(label).build());
                 }
             }
@@ -140,12 +169,76 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
     }
 
-    private void bindServiceOnInterface(Interface intf) {
-        //TODO: Create Ingress flow on the interface to bind the VPN service
+    private long getVpnId(String vpnName) {
+        InstanceIdentifier<VpnInstance1> id = InstanceIdentifier.builder(VpnInstances.class)
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).augmentation(VpnInstance1.class).build();
+        Optional<VpnInstance1> vpnInstance = read(LogicalDatastoreType.CONFIGURATION, id);
+        long vpnId = -1;
+        if(vpnInstance.isPresent()) {
+            vpnId = vpnInstance.get().getVpnId();
+        }
+        return vpnId;
     }
 
-    private void updatePrefixToBGP(Adjacency nextHop) {
+    private String getRouteDistinguisher(String vpnName) {
+        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
+                                      .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+        Optional<VpnInstance> vpnInstance = read(LogicalDatastoreType.CONFIGURATION, id);
+        String rd = "";
+        if(vpnInstance.isPresent()) {
+            VpnInstance instance = vpnInstance.get();
+            VpnAfConfig config = instance.getIpv4Family();
+            rd = config.getRouteDistinguisher();
+        }
+        return rd;
+    }
+
+    private void bindServiceOnInterface(Interface intf, long vpnId) {
+        LOG.info("Bind service on interface {} for VPN: {}", intf, vpnId);
+        //TODO: Create Ingress flow on the interface to bind the VPN service
+        //TODO: Get dpn ID from the interface manager
+        long dpId = 1;
+        short LPORT_INGRESS_TABLE = 0;
+        //TODO: Get the port no from interface manager
+        int portNo = 1;
+        String flowRef = getL3InterfaceFlowRef(dpId, LPORT_INGRESS_TABLE, vpnId, portNo);
+
+        String flowName = intf.getName();
+        BigInteger COOKIE_VM_INGRESS_TABLE = new BigInteger("8000001", 16);
+
+        int priority = 10; //L3Constants.DEFAULT_L3_FLOW_PRIORITY;
+        short gotoTableId = 21; //L3Constants.L3_FIB_TABLE;
+
+        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+        mkInstructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] {
+                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+
+        mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { gotoTableId }));
+
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        matches.add(new MatchInfo(MatchFieldType.in_port, new long[] {
+                dpId, portNo }));
+
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, LPORT_INGRESS_TABLE, flowRef,
+                          priority, flowName, 0, 0, COOKIE_VM_INGRESS_TABLE, matches, mkInstructions);
+
+        mdsalManager.installFlow(flowEntity);
+    }
+
+    private String getL3InterfaceFlowRef(long dpId, short tableId,
+            long vpnId, int portNo) {
+        return new StringBuilder().append(dpId).append(tableId).append(vpnId).append(portNo).toString();
+    }
+
+    private void updatePrefixToBGP(String rd, Adjacency nextHop, String nextHopIp) {
         //TODO: Update the Prefix to BGP
+        //public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel)
+        int label = nextHop.getLabel().intValue();
+        try {
+            bgpManager.addPrefix(rd, nextHop.getIpAddress(), nextHopIp, label);
+        } catch(Exception e) {
+            LOG.error("Add prefix failed", e);
+        }
     }
 
     private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,

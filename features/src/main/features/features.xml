@@ -33,9 +33,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.vpnservice/bgpmanager-impl/${project.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/mdsalutil-api/${interfacemgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/mdsalutil-impl/${interfacemgr.version}</bundle>
-    <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-impl/${vpnmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-api/${interfacemgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-impl/${interfacemgr.version}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-impl/${vpnmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/nexthopmgr-impl/${nexthopmgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/idmanager-impl/${idmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/fibmanager-impl/${fibmanager.version}</bundle>
@@ -45,8 +45,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <!--<bundle>wrap:mvn:javax.servlet/servlet-api/2.5</bundle>-->
     <configfile finalname="bgpmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/bgpmanager-impl/${project.version}/xml/config</configfile>
     <configfile finalname="mdsalutil-impl-default-config.xml">mvn:org.opendaylight.vpnservice/mdsalutil-impl/${interfacemgr.version}/xml/config</configfile>
-    <configfile finalname="vpnmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/vpnmanager-impl/${vpnmanager.version}/xml/config</configfile>
     <configfile finalname="interfacemgr-impl-default-config.xml">mvn:org.opendaylight.vpnservice/interfacemgr-impl/${interfacemgr.version}/xml/config</configfile>
+    <configfile finalname="vpnmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/vpnmanager-impl/${vpnmanager.version}/xml/config</configfile>
     <configfile finalname="nexthopmgr-impl-default-config.xml">mvn:org.opendaylight.vpnservice/nexthopmgr-impl/${nexthopmgr.version}/xml/config</configfile>
     <configfile finalname="idmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/idmanager-impl/${idmanager.version}/xml/config</configfile>
     <configfile finalname="fibmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/fibmanager-impl/${fibmanager.version}/xml/config</configfile>

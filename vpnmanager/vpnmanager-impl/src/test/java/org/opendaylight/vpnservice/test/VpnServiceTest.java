@@ -15,8 +15,8 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
 import org.opendaylight.vpnservice.VpnManager;
+import org.opendaylight.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
@@ -39,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 @RunWith(MockitoJUnitRunner.class)
 public class VpnServiceTest {
     @Mock DataBroker dataBroker;
+    @Mock IBgpManager bgpManager;
     @Mock ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
     MockDataChangedEvent event;
 
@@ -60,9 +61,10 @@ public class VpnServiceTest {
                     setExportRoutePolicy("100:1").setApplyLabel(new ApplyLabelBuilder().setApplyLabelMode(
                         new PerRouteBuilder().setApplyLabelPerRoute(true).build()).build()).build());
         VpnInstance instance = builder.build();
-        VpnManager vpnManager = new VpnManager(dataBroker);
+        VpnManager vpnManager = new VpnManager(dataBroker, bgpManager);
         event.created.put(createVpnId("Vpn1"), instance);
-        vpnManager.onDataChanged(event);
+        //TODO: Need to enhance the test case to handle ds read/write ops
+        //vpnManager.onDataChanged(event);
     }
 
     private InstanceIdentifier<VpnInstance> createVpnId(String name) {
