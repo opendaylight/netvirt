@@ -45,6 +45,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>mdsalutil-api</artifactId>
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.vpnservice</groupId>
+      <artifactId>idmanager-api</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.vpnservice</groupId>
+      <artifactId>idmanager-impl</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
     <!-- Testing Dependencies -->
     <dependency>
       <groupId>junit</groupId>
