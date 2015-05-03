@@ -7,67 +7,66 @@
  */
 package org.opendaylight.vpnservice.interfacemgr;
 
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
-
-import org.opendaylight.vpnservice.mdsalutil.InstructionType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.Mpls;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfMpls;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfStackedVlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.StackedVlan;
-import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.idmanager.IdManager;
+import org.opendaylight.vpnservice.AbstractDataChangeListener;
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
+import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
+import org.opendaylight.vpnservice.mdsalutil.InstructionType;
+import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
+import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.Pools;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.pools.IdPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.pools.IdPoolKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.pools.id.pool.GeneratedIds;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInput;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.opendaylight.idmanager.IdManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
-import java.util.ArrayList;
-import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
-import java.util.List;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL3tunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.L3tunnel;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
-import com.google.common.util.concurrent.Futures;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
-import com.google.common.util.concurrent.FutureCallback;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.BaseIds;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
-import org.opendaylight.vpnservice.AbstractDataChangeListener;
-import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL3tunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfMpls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfStackedVlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.L3tunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.Mpls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.StackedVlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.base.Optional;
 
 public class InterfaceManager extends AbstractDataChangeListener<Interface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceManager.class);
@@ -85,7 +84,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
 
                         public void onFailure(Throwable error) {
                             LOG.error("Error in Datastore write operation", error);
-                        };
+                        }
                     };
 
     public InterfaceManager(final DataBroker db, final IdManager idmgr) {
@@ -160,12 +159,11 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             ncId = nodeConn.getId();
         }
         mapNcToInterfaceName.put(ncId, interf.getName());
-        LOG.info("interf.getType(: {}",interf.getType());
-        if(interf.getType().isInstance(L3tunnel.class)) {
+        if(interf.getType().getClass().isInstance(L3tunnel.class)) {
             NodeId nodeId = getNodeIdFromNodeConnectorId(ncId);
             IfL3tunnel l3Tunnel = interf.getAugmentation(IfL3tunnel.class);
-            LOG.info("l3Tunnel: {}",l3Tunnel);
-            this.dbDpnEndpoints.put(nodeId, l3Tunnel.getLocalIp().getIpv4Address().getValue());
+            dbDpnEndpoints.put(nodeId, l3Tunnel.getLocalIp().getIpv4Address().getValue());
+            LOG.trace("dbDpnEndpoints: {}",dbDpnEndpoints);
         }
     }
 
@@ -214,23 +212,9 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         }
     }
 
-    /*
-    private void setAugmentations(
-                    org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder ifaceBuilder,
-                    InstanceIdentifier<Interface> identifier, Interface interf) {
-        // TODO Add code for all augmentations
-        InstanceIdentifier<IfL3tunnel> ifL3TunnelPath = identifier.augmentation(IfL3tunnel.class);
-        Optional<IfL3tunnel> l3Tunnel = read(LogicalDatastoreType.CONFIGURATION, ifL3TunnelPath);
-        String ifName = interf.getName();
-        if(l3Tunnel.isPresent()) {
-            l3Tunnel.get();
-        }
-    }
-    */
-
     private Integer getIfIndex(String ifName) {
         GetUniqueIdInput getIdInput = new GetUniqueIdInputBuilder()
-        .setPoolName("interfaces").setIdKey(ifName)
+        .setPoolName(IfmConstants.IFM_IDPOOL_NAME).setIdKey(ifName)
         .build();
         //TODO: Proper error handling once IdManager code is complete
         try {
@@ -264,7 +248,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         }
         //TODO: End-delete-me
         LOG.debug("Unable to get valid ifIndex for interface {}", ifName);
-        return 65535;
+        return IfmConstants.DEFAULT_IFINDEX;
     }
 
     private OperStatus getOperStatus(NodeConnector nodeConn) {
@@ -314,10 +298,10 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             NodeConnectorId ncId = getNodeConnectorIdFromInterface(delInterface);
             if(ncId != null) {
                 mapNcToInterfaceName.remove(ncId);
-                if(delInterface.getType().isInstance(L3tunnel.class)) {
+                if(delInterface.getType().getClass().isInstance(L3tunnel.class)) {
                     Node node = getNodeFromDataStore(delInterface);
                     if((node != null) &&(node.getNodeConnector().isEmpty())) {
-                        this.dbDpnEndpoints.remove(node.getId());
+                        dbDpnEndpoints.remove(node.getId());
                     }
                 }
             }
@@ -354,10 +338,11 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             if(nc != null) {
                 // Name doesn't change. Is it present in update?
                 mapNcToInterfaceName.put(nc.getId(), original.getName());
-                if(interf.getType().isInstance(L3tunnel.class)) {
+                if(interf.getType().getClass().isInstance(L3tunnel.class)) {
                     NodeId nodeId = getNodeIdFromNodeConnectorId(nc.getId());
                     IfL3tunnel l3Tunnel = interf.getAugmentation(IfL3tunnel.class);
-                    this.dbDpnEndpoints.put(nodeId, l3Tunnel.getLocalIp().getIpv4Address().getValue());
+                    dbDpnEndpoints.put(nodeId, l3Tunnel.getLocalIp().getIpv4Address().getValue());
+                    LOG.trace("dbEndpoints: {}",dbDpnEndpoints);
                 }
             }
         }
@@ -472,7 +457,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         try {
             NodeConnector port = getNodeConnectorFromDataStore(iface);
             //TODO: This should be an MDSAL Util method
-            return Long.parseLong(getDpnFromNodeConnectorId(port.getId()));
+            return Long.parseLong(IfmUtil.getDpnFromNodeConnectorId(port.getId()));
         } catch (NullPointerException e) {
             LOG.error("OFPort for Interface {} not found", ifName);
         }
@@ -481,7 +466,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
 
     String getEndpointIpForDpn(long dpnId) {
         //TODO: This should be MDSAL Util function
-        NodeId dpnNodeId = buildDpnNodeId(dpnId);
+        NodeId dpnNodeId = IfmUtil.buildDpnNodeId(dpnId);
         return dbDpnEndpoints.get(dpnNodeId);
     }
 
@@ -492,20 +477,20 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         long dpn = this.getDpnForInterface(ifName);
         long portNo = this.getPortNumForInterface(iface).longValue();
         matches.add(new MatchInfo(MatchFieldType.in_port, new long[] {dpn, portNo}));
-        if(ifType.isInstance(L2vlan.class)) {
+        if(ifType.getClass().isInstance(L2vlan.class)) {
             IfL2vlan vlanIface = iface.getAugmentation(IfL2vlan.class);
             matches.add(new MatchInfo(MatchFieldType.vlan_vid, 
                             new long[] {vlanIface.getVlanId().longValue()}));
             LOG.trace("L2Vlan: {}",vlanIface);
-        } else if (ifType.isInstance(L3tunnel.class)) {
+        } else if (ifType.getClass().isInstance(L3tunnel.class)) {
             //TODO: Handle different tunnel types
             IfL3tunnel ifL3Tunnel = iface.getAugmentation(IfL3tunnel.class);
             Class<? extends TunnelTypeBase> tunnType = ifL3Tunnel.getTunnelType();
             LOG.trace("L3Tunnel: {}",ifL3Tunnel);
-        } else if (ifType.isInstance(StackedVlan.class)) {
+        } else if (ifType.getClass().isInstance(StackedVlan.class)) {
             IfStackedVlan ifStackedVlan = iface.getAugmentation(IfStackedVlan.class);
             LOG.trace("StackedVlan: {}",ifStackedVlan);
-        } else if (ifType.isInstance(Mpls.class)) {
+        } else if (ifType.getClass().isInstance(Mpls.class)) {
             IfMpls ifMpls = iface.getAugmentation(IfMpls.class);
             LOG.trace("Mpls: {}",ifMpls);
         }
@@ -517,7 +502,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
 
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         List<ActionInfo> actionInfos = new ArrayList<ActionInfo>();
-        Class<? extends Class> ifType = iface.getType().getClass();
+        Class<? extends InterfaceType> ifType = iface.getType();
         long dpn = this.getDpnForInterface(ifName);
         long portNo = this.getPortNumForInterface(iface).longValue();
         instructions.add(new InstructionInfo(InstructionType.apply_actions,
@@ -528,19 +513,6 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
 
 
         return instructions;
-    }
- 
-    private String getDpnFromNodeConnectorId(NodeConnectorId portId) {
-        /*
-         * NodeConnectorId is of form 'openflow:dpnid:portnum'
-         */
-        String[] split = portId.getValue().split(":");
-        return split[1];
-    }
-
-    private NodeId buildDpnNodeId(long dpnId) {
-        // TODO Auto-generated method stub
-        return new NodeId("openflow:" + dpnId);
     }
 
     private NodeId getNodeIdFromNodeConnectorId(NodeConnectorId ncId) {

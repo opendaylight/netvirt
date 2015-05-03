@@ -7,20 +7,21 @@
  */
 package org.opendaylight.vpnservice.interfacemgr;
 
-import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
+import java.util.concurrent.ExecutionException;
 
-import java.util.concurrent.Future;
-import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.opendaylight.idmanager.IdManager;
 import java.math.BigInteger;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
 import java.util.List;
-import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
-import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.idmanager.IdManager;
+import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
+import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
+import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +45,6 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
         }
-        //TODO: Make this debug
-        LOG.info("Interfacemgr services initiated");
     }
 
     private void createIdPool() {
@@ -56,12 +55,13 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
         .build();
         //TODO: Error handling
         Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
-//        try {
-//            LOG.info("Result2: {}",result.get());
-//        } catch (InterruptedException | ExecutionException e) {
-//            // TODO Auto-generated catch block
-//            LOG.error("Error in result.get");
-//        }
+        try {
+            if((result != null) && (result.get().isSuccessful())) {
+                LOG.debug("Created IdPool for InterfaceMgr");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to create idPool for InterfaceMgr",e);
+        }
     }
 
     @Override
