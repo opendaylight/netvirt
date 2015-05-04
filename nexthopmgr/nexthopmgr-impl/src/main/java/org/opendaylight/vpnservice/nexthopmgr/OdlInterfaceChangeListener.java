@@ -16,11 +16,12 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.BaseIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.L3tunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL3tunnel;
-
+import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.nexthopmgr.AbstractDataChangeListener;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +32,14 @@ public class OdlInterfaceChangeListener extends AbstractDataChangeListener<Inter
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private NexthopManager nexthopManager;
+    private IInterfaceManager interfaceManager;
 
-    public OdlInterfaceChangeListener(final DataBroker db, NexthopManager nhm) {
+
+    public OdlInterfaceChangeListener(final DataBroker db, NexthopManager nhm, IInterfaceManager ifManager) {
         super(Interface.class);
         broker = db;
         nexthopManager = nhm;
+        interfaceManager = ifManager;
         registerListener(db);
     }
 
@@ -62,24 +66,24 @@ public class OdlInterfaceChangeListener extends AbstractDataChangeListener<Inter
             throw new IllegalStateException("Nexthop Manager registration Listener failed.", e);
         }
     }
-    
+
     @Override
-    
-	protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+    protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.info("key: " + identifier + ", value=" + intrf );
 
         if (intrf.getType().equals(L3tunnel.class)) {
-        	IfL3tunnel intfData = intrf.getAugmentation(IfL3tunnel.class);
+            IfL3tunnel intfData = intrf.getAugmentation(IfL3tunnel.class);
             String gwIp = intfData.getGatewayIp().toString();
             String remoteIp = intfData.getRemoteIp().toString();
             if (gwIp != null) {
                 remoteIp = gwIp;
             }
-            nexthopManager.createRemoteNextHop(intrf.getName(), remoteIp);
+            NodeConnectorId ofPort = intrf.getAugmentation(BaseIds.class).getOfPortId();
+            nexthopManager.createRemoteNextHop(intrf.getName(), ofPort.toString(), remoteIp);
         }
     }
 
-    
+
     private InstanceIdentifier<Interface> getWildCardPath() {
         return InstanceIdentifier.create(Interfaces.class).child(Interface.class);
     }
@@ -88,13 +92,14 @@ public class OdlInterfaceChangeListener extends AbstractDataChangeListener<Inter
     protected void remove(InstanceIdentifier<Interface> identifier,
             Interface intrf) {
         if (intrf.getType().equals(L3tunnel.class)) {
+            long dpnId = interfaceManager.getDpnForInterface(intrf.getName());
             IfL3tunnel intfData = intrf.getAugmentation(IfL3tunnel.class);
             String gwIp = intfData.getGatewayIp().toString();
             String remoteIp = intfData.getRemoteIp().toString();
             if (gwIp != null) {
                 remoteIp = gwIp;
             }
-            nexthopManager.removeRemoteNextHop(intrf.getName(), remoteIp);
+            nexthopManager.removeRemoteNextHop(dpnId, remoteIp);
         }
     }
 

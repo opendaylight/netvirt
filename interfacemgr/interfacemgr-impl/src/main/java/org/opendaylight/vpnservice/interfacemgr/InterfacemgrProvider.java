@@ -8,10 +8,11 @@
 package org.opendaylight.vpnservice.interfacemgr;
 
 import java.util.concurrent.ExecutionException;
-
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.Future;
+import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
+import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
@@ -92,7 +93,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     }
 
     @Override
-    public List<InstructionInfo> getInterfaceEgressActions(String ifName) {
+    public List<ActionInfo> getInterfaceEgressActions(String ifName) {
         return interfaceManager.getInterfaceEgressActions(ifName);
     }
 }

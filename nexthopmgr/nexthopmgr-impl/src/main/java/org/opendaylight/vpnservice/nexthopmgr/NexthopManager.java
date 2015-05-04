@@ -8,33 +8,58 @@
 package org.opendaylight.vpnservice.nexthopmgr;
 
 
-import com.google.common.base.Optional;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Future;
+
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.FutureCallback;
+
+//import org.opendaylight.controller.netconf.confignetconfconnector.mapping.rpc.Rpcs;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInstance1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.l3nexthop.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.l3nexthop.tunnelnexthops.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.l3nexthop.vpnnexthops.*;
+import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
+import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
+import org.opendaylight.vpnservice.mdsalutil.ActionType;
+import org.opendaylight.vpnservice.mdsalutil.BucketInfo;
+import org.opendaylight.vpnservice.mdsalutil.GroupEntity;
+import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.idmanager.IdManager;
+
+import java.util.concurrent.ExecutionException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NexthopManager implements L3nexthopService, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NexthopManager.class);
     private final DataBroker broker;
+    private IMdsalApiManager mdsalManager;
+    private IInterfaceManager interfaceManager;
+    private IdManager idManager;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
         new FutureCallback<Void>() {
@@ -53,43 +78,44 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
     * @param db - dataBroker reference
     */
     public NexthopManager(final DataBroker db) {
-        // create nexhhop ID pool
-      //  getIdManager.createIdPool("nextHopGroupIdPool", 10000, 100000);
         broker = db;
+        createNexthopPointerPool();
     }
-
 
     @Override
     public void close() throws Exception {
         LOG.info("NextHop Manager Closed");
     }
 
-
-    public void createLocalNextHop(String ifName, String vpnName, String ipAddress)
-    {
-        String nhKey = new String("nexthop." + vpnName + ipAddress);
-        int groupId = 1;//getIdManager().getUniqueId("nextHopGroupIdPool", nhKey);
-
-        long vpnId = getVpnId(vpnName);
-        VpnNexthop nexthop = getVpnNexthop(vpnId, ipAddress);
-        if (nexthop == null) {
-
-         /*   List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
-            List<ActionInfo> listActionInfo = interfacemgr.getEgressGroupActions(ifName);
-            BucketInfo bucket = new BucketInfo(listActionInfo);
-            // MAC re-write??
-            listBucketInfo.add(bucket);
-            GroupEntity groupEntity = MDSALUtil.buildGroupEntity
-                (dpId, groupId, IPAddress, GroupTypes.GroupIndirect, listBucketInfo);
-            getMdsalApiManager().installGroup(groupEntity, objTransaction???);
-            */
-
-            //update MD-SAL DS
-            addVpnNexthopToDS(vpnId, ipAddress, groupId);
-        } else {
-            //check update
-        }
+    public void setInterfaceManager(IInterfaceManager ifManager) {
+        this.interfaceManager = ifManager;
     }
+
+    public void setMdsalManager(IMdsalApiManager mdsalManager) {
+        this.mdsalManager = mdsalManager;
+    }
+
+    public void setIdManager(IdManager idManager) {
+        this.idManager = idManager;
+    }
+
+    private void createNexthopPointerPool() {
+        CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
+            .setPoolName("nextHopPointerPool")
+            .setIdStart(1L)
+            .setPoolSize(new BigInteger("65535"))
+            .build();
+        //TODO: Error handling
+        Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+//            try {
+//                LOG.info("Result2: {}",result.get());
+//            } catch (InterruptedException | ExecutionException e) {
+//                // TODO Auto-generated catch block
+//                LOG.error("Error in result.get");
+//            }
+
+    }
+
 
     private long getVpnId(String vpnName) {
         InstanceIdentifierBuilder<VpnInstance> idBuilder = InstanceIdentifier.builder(VpnInstances.class)
@@ -99,32 +125,81 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         InstanceIdentifier<VpnInstance1> idx = id.augmentation(VpnInstance1.class);
         Optional<VpnInstance1> vpn = read(LogicalDatastoreType.CONFIGURATION, idx);
 
-        if (vpn.isPresent()) return vpn.get().getVpnId();
-        else return 0;
+        if (vpn.isPresent()) {
+            return vpn.get().getVpnId();
+        } else {
+            return 0;
+        }
     }
 
     private long getDpnId(String ifName) {
-        return 1;
+        String[] fields = ifName.split(":");
+        long dpn = Integer.parseInt(fields[1]);
+        return dpn;
     }
 
-    public void createRemoteNextHop(String ifName, String ipAddress)
-    {
-        String nhKey = new String("nexthop." + ifName + ipAddress);
-        int groupId = 1;//getIdManager().getUniqueId("nextHopGroupIdPool", nhKey);
+    private int createNextHopPointer(String nexthopKey) {
+        GetUniqueIdInput getIdInput = new GetUniqueIdInputBuilder()
+            .setPoolName("nextHopPointerPool").setIdKey(nexthopKey)
+            .build();
+        //TODO: Proper error handling once IdManager code is complete
+        try {
+            Future<RpcResult<GetUniqueIdOutput>> result = idManager.getUniqueId(getIdInput);
+            RpcResult<GetUniqueIdOutput> rpcResult = result.get();
+            return rpcResult.getResult().getIdValue().intValue();
+        } catch (NullPointerException | InterruptedException | ExecutionException e) {
+            LOG.trace("",e);
+        }
+        return 0;
+    }
 
-        long dpnId = getDpnId(ifName);
+    public void createLocalNextHop(String ifName, String vpnName, String ipAddress, String macAddress) {
+        String nhKey = new String("nexthop." + vpnName + ipAddress);
+        int groupId = createNextHopPointer(nhKey);
+
+        long vpnId = getVpnId(vpnName);
+        long dpnId = interfaceManager.getDpnForInterface(ifName);
+        VpnNexthop nexthop = getVpnNexthop(vpnId, ipAddress);
+        if (nexthop == null) {
+            List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+            List<ActionInfo> listActionInfo = interfaceManager.getInterfaceEgressActions(ifName);
+            BucketInfo bucket = new BucketInfo(listActionInfo);
+            // MAC re-write
+            if (macAddress != null) {
+                listActionInfo.add(new ActionInfo(ActionType.set_field_eth_dest, new String[]{macAddress}));
+            } else {
+                //FIXME: Log message here.
+            }
+            listBucketInfo.add(bucket);
+            GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
+                dpnId, groupId, ipAddress, GroupTypes.GroupIndirect, listBucketInfo);
+
+            // install Group
+            mdsalManager.installGroup(groupEntity);
+
+            //update MD-SAL DS
+            addVpnNexthopToDS(vpnId, ipAddress, groupId);
+        } else {
+            //check update
+        }
+    }
+
+    public void createRemoteNextHop(String ifName, String ofPortId, String ipAddress) {
+        String nhKey = new String("nexthop." + ifName + ipAddress);
+        int groupId = createNextHopPointer(nhKey);
+
+        long dpnId = getDpnId(ofPortId);
         TunnelNexthop nexthop = getTunnelNexthop(dpnId, ipAddress);
         if (nexthop == null) {
 
-         /*   List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
-            List<ActionInfo> listActionInfo = interfacemgr.getEgressGroupActions(ifName);
+            List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+            List<ActionInfo> listActionInfo = interfaceManager.getInterfaceEgressActions(ifName);
             BucketInfo bucket = new BucketInfo(listActionInfo);
-            // MAC re-write??
+            // MAC re-write??           
             listBucketInfo.add(bucket);
-            GroupEntity groupEntity = MDSALUtil.buildGroupEntity
-                (dpId, groupId, IPAddress, GroupTypes.GroupIndirect, listBucketInfo);
-            getMdsalApiManager().installGroup(groupEntity, objTransaction???);
-            */
+            GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
+                dpnId, groupId, ipAddress, GroupTypes.GroupIndirect, listBucketInfo);
+            mdsalManager.installGroup(groupEntity);
 
             //update MD-SAL DS
             addTunnelNexthopToDS(dpnId, ipAddress, groupId);
@@ -133,8 +208,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         }
     }
 
-    private void addVpnNexthopToDS(long vpnId, String ipPrefix, long egressPointer){
-
+    private void addVpnNexthopToDS(long vpnId, String ipPrefix, long egressPointer) {
 
         InstanceIdentifierBuilder<VpnNexthops> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
                 .child(VpnNexthops.class, new VpnNexthopsKey(vpnId));
@@ -161,7 +235,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
     }
 
-    private void addTunnelNexthopToDS(long dpnId, String ipPrefix, long egressPointer){
+    private void addTunnelNexthopToDS(long dpnId, String ipPrefix, long egressPointer) {
         InstanceIdentifierBuilder<TunnelNexthops> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
                 .child(TunnelNexthops.class, new TunnelNexthopsKey(dpnId));
 
@@ -170,7 +244,10 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         Optional<TunnelNexthops> nexthops = read(LogicalDatastoreType.CONFIGURATION, id);
         if (!nexthops.isPresent()) {
             // create a new node
-            TunnelNexthops node = new TunnelNexthopsBuilder().setKey(new TunnelNexthopsKey(dpnId)).setDpnId(dpnId).build();
+            TunnelNexthops node = new TunnelNexthopsBuilder()
+                .setKey(new TunnelNexthopsKey(dpnId))
+                .setDpnId(dpnId)
+                .build();
             asyncWrite(LogicalDatastoreType.OPERATIONAL, id, node, DEFAULT_CALLBACK);
         }
 
@@ -189,29 +266,47 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
     private VpnNexthop getVpnNexthop(long vpnId, String ipAddress) {
 
-        InstanceIdentifierBuilder<VpnNexthop> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
-                .child(VpnNexthops.class, new VpnNexthopsKey(vpnId))
-                .child(VpnNexthop.class, new VpnNexthopKey(ipAddress));
-        InstanceIdentifier<VpnNexthop> id = idBuilder.build();
-        Optional<VpnNexthop> nextHop = read(LogicalDatastoreType.CONFIGURATION, id);
+        // check if vpn node is there 
+        InstanceIdentifierBuilder<VpnNexthops> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
+                .child(VpnNexthops.class, new VpnNexthopsKey(vpnId));
+        InstanceIdentifier<VpnNexthops> id = idBuilder.build();
+        Optional<VpnNexthops> vpnNexthops = read(LogicalDatastoreType.CONFIGURATION, id);
+        if (!vpnNexthops.isPresent()) {
 
-        if(nextHop.isPresent()) return nextHop.get();
-        else return null;
+            // get nexthops list for vpn
+            List<VpnNexthop> nexthops = vpnNexthops.get().getVpnNexthop();
+            for (VpnNexthop nexthop : nexthops) {
+                if (nexthop.getIpAddress().equals(ipAddress)) {
+                    // return nexthop 
+                    return nexthop;
+                }
+            }
+        }
+        //return null if not found
+        return null;
     }
 
     private TunnelNexthop getTunnelNexthop(long dpnId, String ipAddress) {
-        InstanceIdentifierBuilder<TunnelNexthop> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
-                .child(TunnelNexthops.class, new TunnelNexthopsKey(dpnId))
-                .child(TunnelNexthop.class, new TunnelNexthopKey(ipAddress));
-        InstanceIdentifier<TunnelNexthop> id = idBuilder.build();
-        Optional<TunnelNexthop> nextHop = read(LogicalDatastoreType.CONFIGURATION, id);
+        
+        InstanceIdentifierBuilder<TunnelNexthops> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
+                .child(TunnelNexthops.class, new TunnelNexthopsKey(dpnId));
 
-        if(nextHop.isPresent()) return nextHop.get();
-        else return null;
+        // check if vpn node is there 
+        InstanceIdentifier<TunnelNexthops> id = idBuilder.build();
+        Optional<TunnelNexthops> dpnNexthops = read(LogicalDatastoreType.CONFIGURATION, id);
+        if (!dpnNexthops.isPresent()) {
+            List<TunnelNexthop> nexthops = dpnNexthops.get().getTunnelNexthop();
+            for (TunnelNexthop nexthop : nexthops) {
+                if (nexthop.getIpAddress().equals(ipAddress)) {
+                    return nexthop;
+                }
+            }
+        }
+        return null;
     }
 
     public long getNextHopPointer(long dpnId, long vpnId, String prefixIp, String nextHopIp) {
-        String endpointIp = "10.10.10.1";//interfaceManager.getLocalEndpointIp(dpnId);
+        String endpointIp = interfaceManager.getEndpointIpForDpn(dpnId);
         if (nextHopIp.equals(endpointIp)) {
             VpnNexthop vpnNextHop = getVpnNexthop(vpnId, prefixIp);
             return vpnNextHop.getEgressPointer();
@@ -221,25 +316,74 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         }
     }
 
-    public void removeRemoteNextHop(String ifname, String IpAddress)
-    {
-        String nhKey = new String("nexthop" + ifname + IpAddress);
-        int groupId = 1;//getIdManager().getUniqueId(L3Constants.L3NEXTHOP_GROUPID_POOL, nhKey);
+    private void removeTunnelNexthopFromDS(long dpnId, String ipPrefix) {
 
-/*        if (getNextHop(groupId) != Null){
-            List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
-            List<ActionInfo> listActionInfo = null;//nextHop.getActions({output to port});
-            BucketInfo bucket = new BucketInfo(listActionInfo);
-            listBucketInfo.add(bucket);
-            //GroupEntity groupEntity = MDSALUtil.buildGroupEntity
-              (dpId, groupId, IPAddress, GroupTypes.GroupIndirect, listBucketInfo);
-            //getMdsalApiManager().removeGroup(groupEntity, objTransaction???);
+        InstanceIdentifierBuilder<TunnelNexthop> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
+                .child(TunnelNexthops.class, new TunnelNexthopsKey(dpnId))
+                .child(TunnelNexthop.class, new TunnelNexthopKey(ipPrefix));
+        InstanceIdentifier<TunnelNexthop> id = idBuilder.build();
+        // remove from DS     
+        delete(LogicalDatastoreType.OPERATIONAL, id);
+    }
 
+    private void removeVpnNexthopFromDS(long vpnId, String ipPrefix) {
+
+        InstanceIdentifierBuilder<VpnNexthop> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
+                .child(VpnNexthops.class, new VpnNexthopsKey(vpnId))
+                .child(VpnNexthop.class, new VpnNexthopKey(ipPrefix));
+        InstanceIdentifier<VpnNexthop> id = idBuilder.build();
+        // remove from DS
+        delete(LogicalDatastoreType.OPERATIONAL, id);
+    }
+
+ 
+    public void removeLocalNextHop(String vpnName, String ipAddress) {
+
+        long vpnId = getVpnId(vpnName);
+
+        VpnNexthop nh = getVpnNexthop(vpnId, ipAddress);
+        if (nh != null) {
+            // how to inform and remove dependent FIB entries??
+            // we need to do it before the group is removed
+            
+            // remove Group ...
+            
             //update MD-SAL DS
-            removeNextHopFromDS(dpId, vpn, ipAddress);
-        }else{
-            //check update
-        }*/
+            removeVpnNexthopFromDS(vpnId, ipAddress);
+        } else {
+            //throw error
+        }
+
+    }
+
+    public void removeRemoteNextHop(long dpnId, String ipAddress) {
+
+        TunnelNexthop nh = getTunnelNexthop(dpnId, ipAddress);
+        if (nh != null) {
+            // how to inform and remove dependent FIB entries??
+            // we need to do it before the group is removed
+
+            // remove Group ...
+            //update MD-SAL DS
+            removeTunnelNexthopFromDS(dpnId, ipAddress);
+        } else {
+            //throw error
+        }
+
+    }
+
+    @Override
+    public Future<RpcResult<GetEgressPointerOutput>> getEgressPointer(
+            GetEgressPointerInput input) {
+        long egressGroupId =
+                getNextHopPointer(input.getDpnId(), input.getVpnId(), input.getIpPrefix(), input.getNexthopIp());
+
+        GetEgressPointerOutputBuilder output = new GetEgressPointerOutputBuilder();
+        output.setEgressPointer(egressGroupId);
+
+        RpcResult<GetEgressPointerOutput> result = null;
+        //Rpcs.<GetEgressPointerOutput> getRpcResult(false, output.build());
+        return Futures.immediateFuture(result); 
     }
 
     private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
@@ -265,18 +409,10 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
     }
 
 
-    @Override
-    public Future<RpcResult<GetEgressPointerOutput>> getEgressPointer(
-            GetEgressPointerInput input) {
-        long egressGroupId =
-                getNextHopPointer(input.getDpnId(), input.getVpnId(), input.getIpPrefix(), input.getNexthopIp());
-
-        GetEgressPointerOutputBuilder output = new GetEgressPointerOutputBuilder();
-        output.setEgressPointer(egressGroupId);
-
-        /*RpcResult<GetEgressPointerOutput> result = Rpcs.<GetEgressPointerOutput> getRpcResult(false, output.build());
-        return Futures.immediateFuture(result);*/
-        return null;
+    private <T extends DataObject> void delete(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.delete(datastoreType, path);
+        Futures.addCallback(tx.submit(), DEFAULT_CALLBACK);
     }
 
 }

@@ -5,6 +5,8 @@ module nexthopmgr-impl {
 
     import config { prefix config; revision-date 2013-04-05; }
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+    import odl-mdsalutil { prefix odl-mdsal; revision-date 2015-04-10;}
+    import odl-interface {prefix odlif; revision-date 2015-03-31;}
 
     description
         "Service definition for nexthopmgr project";
@@ -27,6 +29,22 @@ module nexthopmgr-impl {
                     refine type {
                         mandatory true;
                         config:required-identity md-sal-binding:binding-broker-osgi-registry;
+                    }
+                }
+            }
+            container mdsalutil {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity odl-mdsal:odl-mdsalutil;
+                    }
+                }
+            }
+            container odlinterface {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity odlif:odl-interface;
                     }
                 }
             }

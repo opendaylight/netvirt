@@ -8,16 +8,12 @@
 package org.opendaylight.vpnservice.nexthopmgr;
 
 import java.util.List;
-import java.util.ArrayList;
-
 import com.google.common.base.Optional;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
@@ -25,17 +21,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.l
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.vpnservice.nexthopmgr.AbstractDataChangeListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class VpnInterfaceChangeListener extends AbstractDataChangeListener<VpnInterface> implements AutoCloseable {
+public class VpnInterfaceChangeListener extends AbstractDataChangeListener<Adjacencies> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceChangeListener.class);
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
@@ -43,7 +35,7 @@ public class VpnInterfaceChangeListener extends AbstractDataChangeListener<VpnIn
     private NexthopManager nexthopManager;
 
     public VpnInterfaceChangeListener(final DataBroker db, NexthopManager nhm) {
-        super(VpnInterface.class);
+        super(Adjacencies.class);
         broker = db;
         nexthopManager = nhm;
         registerListener(db);
@@ -74,38 +66,44 @@ public class VpnInterfaceChangeListener extends AbstractDataChangeListener<VpnIn
     }
 
     @Override
-    protected void add(InstanceIdentifier<VpnInterface> identifier,
-            VpnInterface vpnIf) {
-        LOG.info("key: " + identifier + ", value=" + vpnIf );
+    protected void add(InstanceIdentifier<Adjacencies> identifier,
+            Adjacencies adjs) {
 
-        String vpnName = vpnIf.getVpnInstanceName();
-        final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
-        String interfaceName = key.getName();
-        InstanceIdentifierBuilder<Interface> idBuilder =
-                InstanceIdentifier.builder(Interfaces.class).child(Interface.class, new InterfaceKey(interfaceName));
-        InstanceIdentifier<Interface> id = idBuilder.build();
-        Optional<Interface> port = read(LogicalDatastoreType.CONFIGURATION, id);
-        if (port.isPresent()) {
-            //Interface interf = port.get();
+        InstanceIdentifier<VpnInterface> vpnIfId = identifier.firstIdentifierOf(VpnInterface.class);
+        Optional<VpnInterface> vpnIf = read(LogicalDatastoreType.CONFIGURATION, vpnIfId);
+        VpnInterface vpnIfData = vpnIf.get();
 
-            //Read NextHops
-            InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
-            Optional<Adjacencies> adjacencies = read(LogicalDatastoreType.CONFIGURATION, path);
+        List<Adjacency> adjList = adjs.getAdjacency();
+        for (Adjacency adjacency : adjList) {
+            nexthopManager.createLocalNextHop(
+                    vpnIfData.getName(),
+                    vpnIfData.getVpnInstanceName(),
+                    adjacency.getIpAddress(),
+                    adjacency.getMacAddress());
+        }
+    }
 
-            if (adjacencies.isPresent()) {
-                List<Adjacency> nextHops = adjacencies.get().getAdjacency();
-                List<Adjacency> value = new ArrayList<>();
 
-                if (!nextHops.isEmpty()) {
-                    LOG.info("NextHops are " + nextHops);
-                    for (Adjacency nextHop : nextHops) {
-                        nexthopManager.createLocalNextHop(interfaceName, vpnName, nextHop.getIpAddress());
-                    }
-                }
-            }
+    @Override
+    protected void remove(InstanceIdentifier<Adjacencies> identifier,
+            Adjacencies adjs) {
+        InstanceIdentifier<VpnInterface> vpnIfId = identifier.firstIdentifierOf(VpnInterface.class);
+        Optional<VpnInterface> vpnIf = read(LogicalDatastoreType.CONFIGURATION, vpnIfId);
+        VpnInterface vpnIfData = vpnIf.get();
+
+        List<Adjacency> adjList = adjs.getAdjacency();
+        for (Adjacency adjacency : adjList) {
+            nexthopManager.removeLocalNextHop(vpnIfData.getVpnInstanceName(), adjacency.getIpAddress());
         }
 
     }
+
+    @Override
+    protected void update(InstanceIdentifier<Adjacencies> identifier,
+            Adjacencies original, Adjacencies update) {
+        // TODO Auto-generated method stub
+    }
+
 
     private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path) {
@@ -122,21 +120,9 @@ public class VpnInterfaceChangeListener extends AbstractDataChangeListener<VpnIn
         return result;
     }
 
-    private InstanceIdentifier<VpnInterface> getWildCardPath() {
-        return InstanceIdentifier.create(VpnInterfaces.class).child(VpnInterface.class);
+    private InstanceIdentifier<Adjacencies> getWildCardPath() {
+        return InstanceIdentifier.create(VpnInterfaces.class).child(VpnInterface.class).augmentation(Adjacencies.class);
     }
 
-    @Override
-    protected void remove(InstanceIdentifier<VpnInterface> identifier,
-            VpnInterface del) {
-            // TODO Auto-generated method stub
-    }
-
-    @Override
-    protected void update(InstanceIdentifier<VpnInterface> identifier,
-                VpnInterface original, VpnInterface update) {
-            // TODO Auto-generated method stub
-
-    }
 
 }
