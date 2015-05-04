@@ -11,38 +11,24 @@ package org.opendaylight.vpnservice.mdsalutil.internal;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-//import org.opendaylight.controller.md.sal.common.api.data.DataModification;
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.ActionType;
-import org.opendaylight.vpnservice.mdsalutil.BucketInfo;
 import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
 import org.opendaylight.vpnservice.mdsalutil.GroupEntity;
-import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
-import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
-import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
-import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
-import org.opendaylight.vpnservice.mdsalutil.InstructionType;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ConsumerContext;
-import org.opendaylight.controller.sal.binding.api.BindingAwareConsumer;
-import org.opendaylight.controller.sal.binding.api.data.DataBrokerService;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowTableRef;
-// Missing constraint
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.transaction.rev131103.TransactionId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.GroupKey;
@@ -50,7 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.OpendaylightInventoryService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -59,113 +44,126 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.OptimisticLockFailedException;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 
-public class MDSALManager implements IMdsalApiManager,BindingAwareConsumer, AutoCloseable {
+public class MDSALManager implements IMdsalApiManager, AutoCloseable {
 
     private static final Logger s_logger = LoggerFactory.getLogger(MDSALManager.class);
 
     private DataBroker m_dataBroker;
 
-    private ConsumerContext m_consumerContext = null;
-       
     private PacketProcessingService m_packetProcessingService;
-      
+
     private final AtomicInteger m_atomicInteger = new AtomicInteger();
 
     //TODO : IF ID MANAGER IS RQD
-    
-    @Override
-    public void onSessionInitialized(ConsumerContext session) {
-    	
-    	s_logger.info( " Session Initiated for MD SAL Manager") ;
-    	
-        m_consumerContext = session;
-        
-       m_dataBroker = session.getSALService(DataBroker.class);
-              
-        // TODO - Verify this.
-       m_packetProcessingService = session.getRpcService(PacketProcessingService.class);
-            
+
+    /**
+     * Writes the flows and Groups to the MD SAL DataStore
+     * which will be sent to the openflowplugin for installing flows/groups on the switch.
+     * Other modules of VPN service that wants to install flows / groups on the switch
+     * uses this utility
+     *
+     * @param db - dataBroker reference
+     * @param PacketProcessingService for sending the packet outs
+     */
+    public MDSALManager(final DataBroker db, PacketProcessingService pktProcService) {
+        m_dataBroker = db;
+        m_packetProcessingService = pktProcService;
+
     }
-    
-    
+
+
     @Override
     public void close() throws Exception {
-    	s_logger.info("MDSAL Manager Closed");
+        s_logger.info("MDSAL Manager Closed");
     }
-    
+
     @Override
     public void printTest() {
-    	
-    	s_logger.info(" INTER MODULECOMMUNICATION IS WORKING!!!!");
+
+        s_logger.info(" INTER MODULECOMMUNICATION IS WORKING!!!!");
     }
     @Override
     public void installFlow(FlowEntity flowEntity) {
+
         try {
-            s_logger.info("within installFlowX {}", flowEntity.getDpnId());
-            System.out.println( " Insie installFlow -- ") ;
+            s_logger.info("within installFlow {}", flowEntity.getDpnId());
 
             if (flowEntity.getCookie() == null) {
-                s_logger.info("Helium_sync: Cookie is null");
+              //  s_logger.info("Helium_sync: Cookie is null");
                 flowEntity.setCookie(new BigInteger("0110000", 16));
             }
 
-            Flow flow = flowEntity.getFlowBuilder().build();
+            FlowKey flowKey = new FlowKey( new FlowId(flowEntity.getFlowId()) );
+
+            FlowBuilder flowbld = flowEntity.getFlowBuilder();
+
+            Flow flow = flowbld.build() ;
 
             Node nodeDpn = buildDpnNode(flowEntity.getDpnId());
             InstanceIdentifier<Node> nodeInstanceId = InstanceIdentifier.builder(Nodes.class)
                     .child(Node.class, nodeDpn.getKey()).build();
+
             InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
                     .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
-                    .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flow.getKey()).build();
+                    .child(Table.class, new TableKey(flowEntity.getTableId())).child(Flow.class,flowKey).build();
 
             String sTransactionUri = generateTransactionUri();
-            // Helium Way
-                       
+
+            TableKey tableKey = new TableKey(flowEntity.getTableId() );
+            InstanceIdentifier<Table> tableInstanceId = InstanceIdentifier.create(Nodes.class).child(Node.class, nodeDpn.getKey())
+                    .augmentation(FlowCapableNode.class).child(Table.class, tableKey);
+            Table table = new TableBuilder().setKey(tableKey).setFlow(Collections.<Flow>emptyList()).build();
+
             WriteTransaction modification = m_dataBroker.newWriteOnlyTransaction();
-            
-            modification.put(LogicalDatastoreType.CONFIGURATION, nodeInstanceId, nodeDpn, true);
-            
-            modification.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow);
-            
-            ListenableFuture<RpcResult<TransactionStatus>> commitFuture = modification.commit();
-            
-            Futures.addCallback(commitFuture, new FutureCallback<RpcResult<TransactionStatus>>() {
+
+            //CHECK IF RQD
+           // modification.put(LogicalDatastoreType.CONFIGURATION, nodeInstanceId, nodeDpn, true);
+
+
+            modification.put(LogicalDatastoreType.CONFIGURATION, tableInstanceId, table);
+
+            modification.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flowbld.build());
+
+            CheckedFuture<Void,TransactionCommitFailedException> submitFuture  = modification.submit();
+
+            Futures.addCallback(submitFuture, new FutureCallback<Void>() {
+
                 @Override
-                public void onSuccess(RpcResult<TransactionStatus> result) {
-                	if( result.getResult() != TransactionStatus.COMMITED ) {
-                		s_logger.debug("Failed to commit the Flow Data " + result.getErrors());
-                    	
-                    }
-                
+                public void onSuccess(final Void result) {
+                    // Commited successfully
+                    s_logger.info( "Install Flow -- Committedsuccessfully ") ;
                 }
 
                 @Override
-                public void onFailure(Throwable throwable) {
-                	s_logger.error(throwable.getMessage(), throwable);
-                    s_logger.debug(String.format("Status of Flow Data Loaded Transaction : failure. Reason : %s", throwable));
-                    
+                public void onFailure(final Throwable t) {
+                    // Transaction failed
+
+                    if(t instanceof OptimisticLockFailedException) {
+                        // Failed because of concurrent transaction modifying same data
+                        s_logger.error( "Install Flow -- Failed because of concurrent transaction modifying same data ") ;
+                    } else {
+                       // Some other type of TransactionCommitFailedException
+                        s_logger.error( "Install Flow -- Some other type of TransactionCommitFailedException " + t) ;
+                    }
                 }
             });
         } catch (Exception e) {
             s_logger.error("Could not install flow: {}, exception: {}", flowEntity, e.getMessage());
         }
-
     }
+
     @Override
     public void installGroup(GroupEntity groupEntity) {
         try {
@@ -178,34 +176,35 @@ public class MDSALManager implements IMdsalApiManager,BindingAwareConsumer, Auto
                     .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
                     .child(Group.class, new GroupKey(new GroupId(groupEntity.getGroupId()))).build();
 
-                       
-         // Helium
             WriteTransaction modification = m_dataBroker.newWriteOnlyTransaction();
-            
-            modification.put(LogicalDatastoreType.CONFIGURATION, nodeInstanceId, nodeDpn);
+
+            //CHECK IF RQD
+         //   modification.put(LogicalDatastoreType.CONFIGURATION, nodeInstanceId, nodeDpn);
             modification.put(LogicalDatastoreType.CONFIGURATION, groupInstanceId, group);
-                              
-            ListenableFuture<RpcResult<TransactionStatus>> commitFuture = modification.commit();
-            
-            Futures.addCallback(commitFuture, new FutureCallback<RpcResult<TransactionStatus>>() {
+
+            CheckedFuture<Void,TransactionCommitFailedException> submitFuture  = modification.submit();
+
+            Futures.addCallback(submitFuture, new FutureCallback<Void>() {
                 @Override
-                public void onSuccess(RpcResult<TransactionStatus> result) {
-                	if( result.getResult() != TransactionStatus.COMMITED ) {
-                		s_logger.debug("Failed to commit the group Data " + result.getErrors());
-                    	
-                    }
-                
+                public void onSuccess(final Void result) {
+                    // Commited successfully
+                    s_logger.info( "Install Group -- Committedsuccessfully ") ;
                 }
 
                 @Override
-                public void onFailure(Throwable throwable) {
-                	s_logger.error(throwable.getMessage(), throwable);
-                    s_logger.debug(String.format("Status of Group Data Loaded Transaction : failure. Reason : %s", throwable));
-                    
+                public void onFailure(final Throwable t) {
+                    // Transaction failed
+
+                    if(t instanceof OptimisticLockFailedException) {
+                        // Failed because of concurrent transaction modifying same data
+                        s_logger.error( "Install Group -- Failed because of concurrent transaction modifying same data ") ;
+                    } else {
+                       // Some other type of TransactionCommitFailedException
+                        s_logger.error( "Install Group -- Some other type of TransactionCommitFailedException " + t) ;
+                    }
                 }
-            });
-                        
-        } catch (Exception e) {
+             });
+           } catch (Exception e) {
             s_logger.error("Could not install Group: {}, exception: {}", groupEntity, e.getMessage());
             throw e;
         }
@@ -224,24 +223,27 @@ public class MDSALManager implements IMdsalApiManager,BindingAwareConsumer, Auto
                 WriteTransaction modification = m_dataBroker.newWriteOnlyTransaction();
                 modification.delete(LogicalDatastoreType.CONFIGURATION,flowInstanceId );
 
-                ListenableFuture<RpcResult<TransactionStatus>> commitFuture = modification.commit();
-                
-                Futures.addCallback(commitFuture, new FutureCallback<RpcResult<TransactionStatus>>() {
+                CheckedFuture<Void,TransactionCommitFailedException> submitFuture  = modification.submit();
+
+                Futures.addCallback(submitFuture, new FutureCallback<Void>() {
                     @Override
-                    public void onSuccess(RpcResult<TransactionStatus> result) {
-                    	if( result.getResult() != TransactionStatus.COMMITED ) {
-                    		s_logger.debug("Failed to remove the Flow Data " + result.getErrors());
-                        	
-                        }
-                    
+                    public void onSuccess(final Void result) {
+                        // Commited successfully
+                        s_logger.info( "Delete Flow -- Committedsuccessfully ") ;
                     }
 
                     @Override
-                    public void onFailure(Throwable throwable) {
-                    	s_logger.error(throwable.getMessage(), throwable);
-                        s_logger.debug(String.format("Status of Flow Data remove Transaction : failure. Reason : %s", throwable));
-                        
+                    public void onFailure(final Throwable t) {
+                        // Transaction failed
+                        if(t instanceof OptimisticLockFailedException) {
+                            // Failed because of concurrent transaction modifying same data
+                            s_logger.error( "Delete Flow -- Failed because of concurrent transaction modifying same data ") ;
+                        } else {
+                           // Some other type of TransactionCommitFailedException
+                            s_logger.error( "Delete Flow -- Some other type of TransactionCommitFailedException " + t) ;
+                        }
                     }
+
                 });
         } catch (Exception e) {
             s_logger.error("Could not remove Flow: {}, exception: {}", flowEntity, e.getMessage());
@@ -256,33 +258,31 @@ public class MDSALManager implements IMdsalApiManager,BindingAwareConsumer, Auto
                     .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
                     .child(Group.class, new GroupKey(new GroupId(groupEntity.getGroupId()))).build();
 
-
             WriteTransaction modification = m_dataBroker.newWriteOnlyTransaction();
-            
+
             modification.delete(LogicalDatastoreType.CONFIGURATION,groupInstanceId );
 
-            ListenableFuture<RpcResult<TransactionStatus>> commitFuture = modification.commit();
-            
-            Futures.addCallback(commitFuture, new FutureCallback<RpcResult<TransactionStatus>>() {
+            CheckedFuture<Void,TransactionCommitFailedException> submitFuture  = modification.submit();
+
+            Futures.addCallback(submitFuture, new FutureCallback<Void>() {
                 @Override
-                public void onSuccess(RpcResult<TransactionStatus> result) {
-                	if( result.getResult() != TransactionStatus.COMMITED ) {
-                		s_logger.debug("Failed to remove the group Data " + result.getErrors());
-                    	
-                    }
-                
+                public void onSuccess(final Void result) {
+                    // Commited successfully
+                    s_logger.info( "Install Group -- Committedsuccessfully ") ;
                 }
 
                 @Override
-                public void onFailure(Throwable throwable) {
-                	s_logger.error(throwable.getMessage(), throwable);
-                    s_logger.debug(String.format("Status of group Data remove Transaction : failure. Reason : %s", throwable));
-                    
+                public void onFailure(final Throwable t) {
+                    // Transaction failed
+                    if(t instanceof OptimisticLockFailedException) {
+                        // Failed because of concurrent transaction modifying same data
+                        s_logger.error( "Install Group -- Failed because of concurrent transaction modifying same data ") ;
+                    } else {
+                       // Some other type of TransactionCommitFailedException
+                        s_logger.error( "Install Group -- Some other type of TransactionCommitFailedException " + t) ;
+                    }
                 }
             });
-
-                
-
         } catch (Exception e) {
             s_logger.error("Could not remove Group: {}, exception: {}", groupEntity, e.getMessage());
         }
@@ -308,7 +308,7 @@ public class MDSALManager implements IMdsalApiManager,BindingAwareConsumer, Auto
                 + Long.toString(nTransactionId);
     }
 */
-    
+
     @Override
     public void sendPacketOut(long lDpnId, int groupId, byte[] payload) {
 
@@ -372,4 +372,5 @@ public class MDSALManager implements IMdsalApiManager,BindingAwareConsumer, Auto
 
         return nodeDpn;
     }
+
 }

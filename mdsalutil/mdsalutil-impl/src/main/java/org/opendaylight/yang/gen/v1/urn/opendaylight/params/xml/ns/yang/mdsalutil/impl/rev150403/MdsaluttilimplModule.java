@@ -1,6 +1,6 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.mdsalutil.impl.rev150403;
 
-import org.opendaylight.vpnservice.mdsalutil.internal.MDSALManager;
+import org.opendaylight.vpnservice.mdsalutil.internal.MDSALUtilProvider;
 
 public class MdsaluttilimplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.mdsalutil.impl.rev150403.AbstractMdsaluttilimplModule {
     public MdsaluttilimplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -21,11 +21,11 @@ public class MdsaluttilimplModule extends org.opendaylight.yang.gen.v1.urn.opend
     	// TODO:implement
 //      Can use the following to get a handle to data broker
     	
-        MDSALManager mdsalUtilMgr = new MDSALManager();
-        getBrokerDependency().registerConsumer(mdsalUtilMgr);
+    	MDSALUtilProvider mdsalUtilProvider = new MDSALUtilProvider();
+        getBrokerDependency().registerConsumer(mdsalUtilProvider);
      	//DataBroker dataBrokerService = getDataBrokerDependency();
     	//mdsalUtilMgr.setDataProvider(dataBrokerService);
-        return mdsalUtilMgr ;
+        return mdsalUtilProvider ;
       }
 
 }
