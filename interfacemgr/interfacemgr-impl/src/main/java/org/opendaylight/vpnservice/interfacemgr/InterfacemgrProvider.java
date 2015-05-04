@@ -7,18 +7,16 @@
  */
 package org.opendaylight.vpnservice.interfacemgr;
 
-import java.util.concurrent.ExecutionException;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
-import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.idmanager.IdManager;
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
-import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
+import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
@@ -50,14 +48,14 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
 
     private void createIdPool() {
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
-        .setPoolName("interfaces")
-        .setIdStart(1L)
-        .setPoolSize(new BigInteger("65535"))
-        .build();
+            .setPoolName(IfmConstants.IFM_IDPOOL_NAME)
+            .setIdStart(IfmConstants.IFM_IDPOOL_START)
+            .setPoolSize(new BigInteger(IfmConstants.IFM_IDPOOL_SIZE))
+            .build();
         //TODO: Error handling
         Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
         try {
-            if((result != null) && (result.get().isSuccessful())) {
+            if ((result != null) && (result.get().isSuccessful())) {
                 LOG.debug("Created IdPool for InterfaceMgr");
             }
         } catch (InterruptedException | ExecutionException e) {
