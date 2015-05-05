@@ -4,9 +4,12 @@ package org.opendaylight.bgpmanager.thrift.client.implementation;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BgpSyncHandle {
     private static BgpSyncHandle handle = null;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BgpSyncHandle.class);
     private int more;
     private int state;
 
@@ -16,7 +19,7 @@ public class BgpSyncHandle {
     public static final int ABORTED = 4;
     public static final int NEVER_DONE = 5;
 
-    public static final int default_tcp_sock_sz = 87380;    //default receive buffer size on linux > 2.4 (SLES 11)
+    public static final int DEFAULT_TCP_SOCK_SZ = 87380;    //default receive buffer size on linux > 2.4
 
     private BgpSyncHandle() {
         more = 1; 
@@ -24,8 +27,9 @@ public class BgpSyncHandle {
     }
 
     public static synchronized BgpSyncHandle getInstance() {
-       if (handle == null) 
+       if (handle == null) {
            handle = new BgpSyncHandle();
+       }
        return handle;
     }
 
@@ -36,14 +40,16 @@ public class BgpSyncHandle {
     public int getMaxCount() {
         //compute the max count of routes we would like to send
         Socket skt = new Socket();
-        int sockBufSz = default_tcp_sock_sz;
+        int sockBufSz = DEFAULT_TCP_SOCK_SZ;
         try {
             sockBufSz = skt.getReceiveBufferSize();
         } catch (SocketException s) {
+            LOGGER.warn("Socket Exception while retrieving default socket buffer size");
         }
         try {
             skt.close();
         } catch (IOException e) {
+            LOGGER.warn("IO Exception while closing socket for retrieving default socket buffer size");
         }
         return sockBufSz/getRouteSize();
     }

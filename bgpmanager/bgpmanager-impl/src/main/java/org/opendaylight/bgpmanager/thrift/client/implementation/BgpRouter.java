@@ -17,10 +17,9 @@ import org.slf4j.LoggerFactory;
 
 public class BgpRouter {
     private TTransport transport;
-    private TSocket sock;
     private TProtocol protocol;
     private static BgpConfigurator.Client bgpClient=null;
-    private static final Logger logger = LoggerFactory.getLogger(BgpRouter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BgpRouter.class);
 
 
     private final static int ADD_NBR = 1;
@@ -30,10 +29,6 @@ public class BgpRouter {
     private final static int ADD_PFX = 5;
     private final static int DEL_PFX = 6;
     private final static int START_BGP = 7;
-
-    //public final static int BGP_ERR_INITED = 101;
-    //public final static int BGP_ERR_NOT_INITED = 102;
-
 
     private final static int GET_RTS_INIT = 0;
     private final static int GET_RTS_NEXT = 1;
@@ -75,38 +70,42 @@ public class BgpRouter {
         this.bgpPort = bgpPort;
         bop = new BgpOp();
         try {
-            logger.info("Connecting to BGP Server " + bgpHost + " on port " + bgpPort);
+            LOGGER.info("Connecting to BGP Server " + bgpHost + " on port " + bgpPort);
             reInit();
         } catch (Exception e) {
-            logger.error("Failed connecting to BGP server ");
+            LOGGER.error("Failed connecting to BGP server ");
             throw e;
         }
     }
 
     public void disconnect() {
-        if(transport != null)
+        if(transport != null) {
             transport.close();
+        }
     }
 
     public void reInit()
         throws TException, BgpRouterException {
-        if(transport != null)
+        if(transport != null) {
             transport.close();
+        }
         transport = new TSocket(bgpHost, bgpPort);
         ((TSocket)transport).setTimeout(Constants.CL_SKT_TIMEO_MS);
         transport.open();
         protocol = new TBinaryProtocol(transport);
         bgpClient = new BgpConfigurator.Client(protocol);
-        if(bop == null)
+        if(bop == null) {
             bop = new BgpOp();
+        }
     }
 
     private void dispatch(BgpOp op)
         throws TException, BgpRouterException {
         int result = 1;
 
-        if (bgpClient == null)
+        if (bgpClient == null) {
             throw new BgpRouterException(BgpRouterException.BGP_ERR_NOT_INITED);
+        }
 
         switch (op.type) {
             case START_BGP:
@@ -133,7 +132,9 @@ public class BgpRouter {
                 break;
             default: break;
         }
-        if (result != 0) throw new BgpRouterException(result);
+        if (result != 0) {
+            throw new BgpRouterException(result);
+        }
     }
 
     public void startBgp(int asNum, String rtrId)
@@ -141,7 +142,7 @@ public class BgpRouter {
         bop.type = START_BGP;
         bop.asNum = asNum;
         bop.rtrId = rtrId;
-        logger.info("Starting BGP Server with as number " + asNum + " and router ID " + rtrId);
+        LOGGER.info("Starting BGP Server with as number " + asNum + " and router ID " + rtrId);
         dispatch(bop);
     }
 
@@ -150,7 +151,7 @@ public class BgpRouter {
         bop.type = ADD_NBR;
         bop.nbrIp = nbrIp;
         bop.nbrAsNum = nbrAsNum;
-        logger.info("Adding BGP Neighbor " + nbrIp + " with as number " + nbrAsNum);
+        LOGGER.info("Adding BGP Neighbor " + nbrIp + " with as number " + nbrAsNum);
         dispatch(bop);
     }
 
@@ -158,7 +159,7 @@ public class BgpRouter {
         throws TException, BgpRouterException {
         bop.type = DEL_NBR;
         bop.nbrIp = nbrIp;
-        logger.info("Deleting BGP Neighbor " + nbrIp);
+        LOGGER.info("Deleting BGP Neighbor " + nbrIp);
         dispatch(bop);
     }
 
@@ -168,7 +169,7 @@ public class BgpRouter {
         bop.rd = rd;
         bop.irts = irts;
         bop.erts = erts;
-        logger.info("Adding BGP VRF rd: " + rd);
+        LOGGER.info("Adding BGP VRF rd: " + rd);
         dispatch(bop);
     }
 
@@ -176,7 +177,7 @@ public class BgpRouter {
         throws TException, BgpRouterException {
         bop.type = DEL_VRF;
         bop.rd = rd;
-        logger.info("Deleting BGP VRF rd: " + rd);
+        LOGGER.info("Deleting BGP VRF rd: " + rd);
         dispatch(bop);
     }
 
@@ -187,7 +188,7 @@ public class BgpRouter {
         bop.pfx = prefix;
         bop.nh = nexthop;
         bop.lbl = label;
-        logger.info("Adding BGP route - rd:" + rd + " prefix:" + prefix + " nexthop:" + nexthop + " label:" + label);
+        LOGGER.info("Adding BGP route - rd:" + rd + " prefix:" + prefix + " nexthop:" + nexthop + " label:" + label);
         dispatch(bop);
     }
 
@@ -196,16 +197,18 @@ public class BgpRouter {
         bop.type = DEL_PFX;
         bop.rd = rd;
         bop.pfx = prefix;
-        logger.info("Deleting BGP route - rd:" + rd + " prefix:" + prefix);
+        LOGGER.info("Deleting BGP route - rd:" + rd + " prefix:" + prefix);
         dispatch(bop);
     }
 
     public int initRibSync(BgpSyncHandle handle)
         throws TException, BgpRouterException {
-        if (bgpClient == null)
+        if (bgpClient == null) {
             throw new BgpRouterException(BgpRouterException.BGP_ERR_NOT_INITED);
-        if (handle.getState() == BgpSyncHandle.ITERATING)
+        }
+        if (handle.getState() == BgpSyncHandle.ITERATING) {
             return BgpRouterException.BGP_ERR_IN_ITER;
+        }
         handle.setState(BgpSyncHandle.INITED);
         handle.setMore(1);
         return 0;
@@ -213,8 +216,9 @@ public class BgpRouter {
 
     public int endRibSync(BgpSyncHandle handle)
         throws TException, BgpRouterException {
-        if (bgpClient == null)
+        if (bgpClient == null) {
             throw new BgpRouterException(BgpRouterException.BGP_ERR_NOT_INITED);
+        }
         int state = handle.getState();
         switch (state) {
             case BgpSyncHandle.INITED:
@@ -233,8 +237,9 @@ public class BgpRouter {
 
     public Routes doRibSync(BgpSyncHandle handle)
         throws TException, BgpRouterException {
-        if (bgpClient == null)
+        if (bgpClient == null) {
             throw new BgpRouterException(BgpRouterException.BGP_ERR_NOT_INITED);
+        }
         int state = handle.getState();
         if (state != BgpSyncHandle.INITED && state != BgpSyncHandle.ITERATING) {
             Routes r = new Routes();
@@ -246,11 +251,13 @@ public class BgpRouter {
         handle.setState(BgpSyncHandle.ITERATING);
         int winSize = handle.getMaxCount()*handle.getRouteSize();
         Routes outRoutes = bgpClient.getRoutes(op, winSize);
-       if (outRoutes.errcode != 0)
-            return outRoutes;
+       if (outRoutes.errcode != 0) {
+           return outRoutes;
+       }
         handle.setMore(outRoutes.more);
-        if (outRoutes.more == 0)
+        if (outRoutes.more == 0) {
             handle.setState(BgpSyncHandle.DONE);
+        }
         return outRoutes;
     }
 
@@ -260,13 +267,13 @@ public class BgpRouter {
         BgpSyncHandle bsh = BgpSyncHandle.getInstance();
 
         try {
-            logger.info("Starting BGP Route sync.. ");
+            LOGGER.info("Starting BGP Route sync.. ");
             initRibSync(bsh);
             while (bsh.getState() != bsh.DONE) {
                 Routes r = doRibSync(bsh);
                 if(r.getErrcode() == BgpRouterException.BGP_ERR_INACTIVE) {
                     //BGP server is inactive; log and return
-                    logger.error("BGP Server is inactive. Failed BGP Route sync");
+                    LOGGER.error("BGP Server is inactive. Failed BGP Route sync");
                     return;
                 }
                 Iterator<Update> iter = r.getUpdatesIterator();
@@ -281,37 +288,12 @@ public class BgpRouter {
                 }
             }
             endRibSync(bsh);
-            logger.info("Completed BGP Route sync.");
+            LOGGER.info("Completed BGP Route sync.");
         }  catch (Exception e) {
             throw e;
         }
     };
 
-
-    public List<Route> getRoutes()
-        throws TException, BgpRouterException {
-
-        BgpSyncHandle bsh = BgpSyncHandle.getInstance();
-        List<Route> allRoutes = new ArrayList<Route>();
-
-        try {
-            initRibSync(bsh);
-            while (bsh.getState() != bsh.DONE) {
-                Routes r = doRibSync(bsh);
-                Iterator<Update> iter = r.getUpdatesIterator();
-                while (iter.hasNext()) {
-                    Update u = iter.next();
-                    Route route = new Route(u.rd, u.prefix, u.prefixlen, u.nexthop, u.label);
-
-                    allRoutes.add(route);
-                }
-            }
-            endRibSync(bsh);
-        }  catch (Exception e) {
-            throw e;
-        }
-        return allRoutes;
-    };
 
 
 }

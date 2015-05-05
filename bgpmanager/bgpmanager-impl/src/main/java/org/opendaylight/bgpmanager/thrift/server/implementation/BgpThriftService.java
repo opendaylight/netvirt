@@ -14,14 +14,12 @@ import org.slf4j.LoggerFactory;
 
 public class BgpThriftService {
 	
-	private static final Logger logger = LoggerFactory.getLogger(BgpThriftService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BgpThriftService.class);
 	
 	private int port;
-	//private int serverType;
 	private int maxWorkerThreads;
 	private int minWorkerThreads;
     private TServerTransport serverTransport;
-	//private TNonblockingServerTransport serverTransport;
     private TServer server;
 	private BgpUpdateHandler notificationHandler;
 	private BgpManager bgpManager;
@@ -29,17 +27,16 @@ public class BgpThriftService {
     public BgpThriftService(BgpManager bgpMgr, FibDSWriter dsWriter) {
     	bgpManager = bgpMgr;
 		notificationHandler = new BgpUpdateHandler(bgpManager, dsWriter);
-		//fibDSWriter = dsWriter;
     }
 
 
 	public void start() {
-		logger.info("BGP Thrift Server starting.");
+		LOGGER.info("BGP Thrift Server starting.");
 		startBgpThriftServer();
 	}
 	
 	public void stop() {
-		logger.info("BGP Thrift Server stopping.");
+		LOGGER.info("BGP Thrift Server stopping.");
 		stopBgpThriftServer();
 	}
 
@@ -47,7 +44,7 @@ public class BgpThriftService {
 	 * Destroy method called up after the bundle has been stopped
 	 */
 	public void destroy() {
-		logger.debug("BGP Thrift Server destroy ");
+		LOGGER.debug("BGP Thrift Server destroy ");
 	}
 
     /**
@@ -71,7 +68,7 @@ public class BgpThriftService {
 
 	public void stopBgpThriftServer() {
 		try {
-            logger.debug("Server stopping");
+            LOGGER.debug("Server stopping");
 
             if (serverTransport != null) {
                 serverTransport.close();
@@ -79,21 +76,19 @@ public class BgpThriftService {
             
             server.stop();
         } catch (Exception e) {
-            logger.error("Error while stopping the server - {} {}", getClass().getName(), e.getMessage());
+            LOGGER.error("Error while stopping the server - {} {}", getClass().getName(), e.getMessage());
         }
 	}
 	
 	private class ThriftRunnable implements Runnable {
 		@Override
 		public void run() {
-			//notificationHandler = new BgpUpdateHandler(bgpManager);
 
 	        try {
 				serverTransport = new TServerSocket(port);
-				//serverTransport = new TNonblockingServerSocket(port);
-	            logger.info("Server Socket on Port {} ", port);
-			} catch (TTransportException e) {			
-				e.printStackTrace();
+	            LOGGER.info("Server Socket on Port {} ", port);
+			} catch (TTransportException e) {
+				LOGGER.error("Transport Exception while starting bgp thrift server", e);
 				return;
 			}
 			/* This may need to change. Right now, its as good as a blocking server for each client (client would be
@@ -103,11 +98,6 @@ public class BgpThriftService {
 	        server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport)
 	                .maxWorkerThreads(maxWorkerThreads).minWorkerThreads(minWorkerThreads)
 	                .processor(new BgpUpdater.Processor<BgpUpdateHandler>(notificationHandler)));
-			/*
-			THsHaServer.Args args = new THsHaServer.Args(serverTransport);
-			args.workerThreads(10);
-			server = new THsHaServer(args.processor(new BgpUpdater.Processor<BgpUpdateHandler>(notificationHandler)));*/
-
 			server.serve();
 		}		
 	}
