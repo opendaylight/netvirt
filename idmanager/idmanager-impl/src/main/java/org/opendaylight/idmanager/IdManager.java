@@ -19,8 +19,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.*;
@@ -28,8 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.pools.id.pool.*;
 
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -55,7 +54,7 @@ public class IdManager implements IdManagerService, AutoCloseable{
     }
 
     public IdManager(final DataBroker db) {
-       broker = db;
+        broker = db;
     }
 
     private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
@@ -80,6 +79,13 @@ public class IdManager implements IdManagerService, AutoCloseable{
         Futures.addCallback(tx.submit(), callback);
     }
 
+    private <T extends DataObject> void asyncUpdate(LogicalDatastoreType datastoreType,
+                                                    InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.merge(datastoreType, path, data, true);
+        Futures.addCallback(tx.submit(), callback);
+    }
+
     @Override
     public Future<RpcResult<Void>> createIdPool(CreateIdPoolInput input)
     {
@@ -87,22 +93,31 @@ public class IdManager implements IdManagerService, AutoCloseable{
         String poolName = input.getPoolName();
         long startIndx = input.getIdStart();
         long poolSize = input.getPoolSize().longValue();
+        RpcResultBuilder<Void> rpcResultBuilder;
 
         LOG.debug("poolName: %s, startIndx: %d , poolSize: %d ", poolName, startIndx,  poolSize);
 
-        InstanceIdentifier.InstanceIdentifierBuilder<IdPool> idBuilder =
-                InstanceIdentifier.builder(Pools.class).child(IdPool.class, new IdPoolKey(poolName));
-        InstanceIdentifier<IdPool> id = idBuilder.build();
-        Optional<IdPool> pool = read(LogicalDatastoreType.OPERATIONAL, id);
-        if (!pool.isPresent()) {
-            LOG.debug("Creating a new global pool: %s " ,poolName);
-            IdPool newPool = getPoolInterface(poolName, startIndx, poolSize);
-            asyncWrite(LogicalDatastoreType.OPERATIONAL, id, newPool, DEFAULT_CALLBACK);
+        try {
+            InstanceIdentifier.InstanceIdentifierBuilder<IdPool> idBuilder =
+                    InstanceIdentifier.builder(Pools.class).child(IdPool.class, new IdPoolKey(poolName));
+            InstanceIdentifier<IdPool> id = idBuilder.build();
+            Optional<IdPool> pool = read(LogicalDatastoreType.OPERATIONAL, id);
+            if (!pool.isPresent()) {
+                LOG.debug("Creating a new global pool: {} ", poolName);
+                IdPool newPool = getPoolInterface(poolName, startIndx, poolSize);
+                LOG.debug("NewPool: {}", newPool);
+                asyncWrite(LogicalDatastoreType.OPERATIONAL, id, newPool, DEFAULT_CALLBACK);
 
+            }
+
+            rpcResultBuilder = RpcResultBuilder.success();
+        }
+        catch(Exception e){
+            LOG.error("Creation of global pool {} failed due to {}" ,poolName, e);
+            rpcResultBuilder = RpcResultBuilder.failed();
         }
 
-       // return Futures.immediateFuture(RpcResult<Void>);
-        return null;
+        return Futures.immediateFuture(rpcResultBuilder.build());
     }
 
 
@@ -112,45 +127,54 @@ public class IdManager implements IdManagerService, AutoCloseable{
         String poolName = input.getPoolName();
         String idKey = input.getIdKey();
 
-        LOG.debug("poolName: %s ,idKey: %s", poolName, idKey);
+        LOG.debug("poolName: {} ,idKey: {}", poolName, idKey);
+        RpcResultBuilder<GetUniqueIdOutput> rpcResultBuilder;
 
-        InstanceIdentifier.InstanceIdentifierBuilder<IdPool> idBuilder =
-                InstanceIdentifier.builder(Pools.class).child(IdPool.class, new IdPoolKey(poolName));
-        InstanceIdentifier<IdPool> id = idBuilder.build();
-        Optional<IdPool> globalPool = read(LogicalDatastoreType.OPERATIONAL, id);
-        Long newIdValue = null;
-        GeneratedIds newGenId = null;
-        if (globalPool.isPresent()) {
-            IdPool pool = globalPool.get();
-            List<GeneratedIds> generatedIds = pool.getGeneratedIds();
-
-            if (!generatedIds.isEmpty()) {
-                for (GeneratedIds gen_id : generatedIds) {
-                    if (gen_id.getIdKey().equals(idKey)) {
-                        newIdValue = gen_id.getIdValue();
-                        LOG.debug("Existing id for the key %s ", idKey);
-                    }
-
-                }
-            }
-            synchronized(this){
-                if (newIdValue == null) {
-                    LOG.debug("Creating a new id for the pool: %s ", poolName);
-                    newIdValue = (long) generatedIds.size() + 1;
-                    newGenId = getIdsInterface(idKey, newIdValue);
-                    generatedIds.add(newGenId);
-                    asyncWrite(LogicalDatastoreType.OPERATIONAL, id, pool, DEFAULT_CALLBACK);
-                }
-            }
-
+        try {
+            InstanceIdentifier.InstanceIdentifierBuilder<IdPool> idBuilder =
+                    InstanceIdentifier.builder(Pools.class).child(IdPool.class, new IdPoolKey(poolName));
+            InstanceIdentifier<IdPool> id = idBuilder.build();
+            Optional<IdPool> globalPool = read(LogicalDatastoreType.OPERATIONAL, id);
             GetUniqueIdOutputBuilder output = new GetUniqueIdOutputBuilder();
-            output.setIdValue(newIdValue);
+            Long newIdValue = null;
+            GeneratedIds newGenId = null;
+            if (globalPool.isPresent()) {
+                IdPool pool = globalPool.get();
+                List<GeneratedIds> generatedIds = pool.getGeneratedIds();
 
+                if (generatedIds == null) {
+                    generatedIds = new ArrayList<GeneratedIds>();
+                }
+                if (!generatedIds.isEmpty()) {
+                    for (GeneratedIds gen_id : generatedIds) {
+                        if (gen_id.getIdKey().equals(idKey)) {
+                            newIdValue = gen_id.getIdValue();
+                            LOG.debug("Existing id {} for the key {} ", idKey, newIdValue);
+                        }
+
+                    }
+                }
+                synchronized (this) {
+                    if (newIdValue == null) {
+                        newIdValue = (long) generatedIds.size() + 1;
+                        LOG.debug("Creating a new id {} for the pool: {} ", newIdValue, poolName);
+                        newGenId = getIdsInterface(idKey, newIdValue);
+                        generatedIds.add(newGenId);
+                        pool = new IdPoolBuilder(pool).setGeneratedIds(generatedIds).build();
+                        asyncUpdate(LogicalDatastoreType.OPERATIONAL, id, pool, DEFAULT_CALLBACK);
+                    }
+                }
+                output.setIdValue(newIdValue);
+            }
+
+            rpcResultBuilder = RpcResultBuilder.success();
+            rpcResultBuilder.withResult(output.build());
         }
-        /*            Collection<RpcError> errors = Collections.emptyList();
-            RpcResult<GetUniqueIdOutput> result = Rpcs.getRpcResult(true, output.build(), errors);
-            return Futures.immediateFuture(result);*/
-        return null;
+        catch(Exception e){
+            LOG.error("Creation of id for the key {} , global pool {} failed due to {}" ,idKey, poolName, e);
+            rpcResultBuilder = RpcResultBuilder.failed();
+        }
+        return Futures.immediateFuture(rpcResultBuilder.build());
     }
 
 
@@ -166,14 +190,14 @@ public class IdManager implements IdManagerService, AutoCloseable{
     }
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
-            new FutureCallback<Void>() {
-                public void onSuccess(Void result) {
-                    LOG.debug("Success in Datastore write operation");
-                }
+        new FutureCallback<Void>() {
+            public void onSuccess(Void result) {
+                LOG.debug("Success in Datastore write operation");
+            }
 
-                public void onFailure(Throwable error) {
-                    LOG.error("Error in Datastore write operation", error);
-                };
+            public void onFailure(Throwable error) {
+                LOG.error("Error in Datastore write operation", error);
             };
+        };
 
 }
