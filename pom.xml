@@ -16,8 +16,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <maven>3.1.1</maven>
   </prerequisites>
   <modules>
-	<module>model-bgp</module>
-	<module>mdsalutil</module>
+    <module>commons/binding-parent</module>
+    <module>commons/config-parent</module>
+    <module>model-bgp</module>
+    <module>mdsalutil</module>
     <module>vpnmanager</module>
     <module>interfacemgr</module>
     <module>nexthopmgr</module>

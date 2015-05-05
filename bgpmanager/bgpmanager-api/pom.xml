@@ -9,34 +9,18 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <parent>
-    <groupId>org.opendaylight.controller</groupId>
+    <groupId>org.opendaylight.vpnservice</groupId>
     <artifactId>config-parent</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
-    <relativePath/>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../../commons/config-parent</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.vpnservice</groupId>
   <artifactId>bgpmanager-api</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>${vpnservices.version}</version>
   <packaging>bundle</packaging>
-<!--
-  <dependencies>
 
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>vpnmanager-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}.third-party</groupId>
-      <artifactId>org.apache.thriftlib</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
-    </dependency>
-
-  </dependencies>
- -->
   <properties>
     <maven.javadoc.skip>true</maven.javadoc.skip>
   </properties>
