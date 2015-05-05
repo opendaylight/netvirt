@@ -17,13 +17,13 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.FutureCallback;
 
-//import org.opendaylight.controller.netconf.confignetconfconnector.mapping.rpc.Rpcs;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -381,9 +381,11 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         GetEgressPointerOutputBuilder output = new GetEgressPointerOutputBuilder();
         output.setEgressPointer(egressGroupId);
 
-        RpcResult<GetEgressPointerOutput> result = null;
-        //Rpcs.<GetEgressPointerOutput> getRpcResult(false, output.build());
-        return Futures.immediateFuture(result); 
+        RpcResultBuilder<GetEgressPointerOutput> rpcResultBuilder = RpcResultBuilder.success();
+        rpcResultBuilder.withResult(output.build());
+
+        return Futures.immediateFuture(rpcResultBuilder.build());
+        
     }
 
     private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
