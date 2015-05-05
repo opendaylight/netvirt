@@ -51,8 +51,6 @@ public class GroupEntity extends AbstractSwitchEntity {
             m_groupBuilder.setGroupName(getGroupName());
             m_groupBuilder.setGroupType(getGroupType());
             m_groupBuilder.setBuckets(MDSALUtil.buildBuckets(getBucketInfoList()));
-
-           // m_groupBuilder.setResyncFlag(getResyncFlag());
         }
 
         return m_groupBuilder;

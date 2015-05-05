@@ -56,7 +56,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 
-public class MDSALManager implements IMdsalApiManager, AutoCloseable {
+public class MDSALManager implements AutoCloseable {
 
     private static final Logger s_logger = LoggerFactory.getLogger(MDSALManager.class);
 
@@ -89,12 +89,12 @@ public class MDSALManager implements IMdsalApiManager, AutoCloseable {
         s_logger.info("MDSAL Manager Closed");
     }
 
-    @Override
+
     public void printTest() {
 
         s_logger.info(" INTER MODULECOMMUNICATION IS WORKING!!!!");
     }
-    @Override
+
     public void installFlow(FlowEntity flowEntity) {
 
         try {
@@ -164,7 +164,6 @@ public class MDSALManager implements IMdsalApiManager, AutoCloseable {
         }
     }
 
-    @Override
     public void installGroup(GroupEntity groupEntity) {
         try {
             Group group = groupEntity.getGroupBuilder().build();
@@ -210,7 +209,6 @@ public class MDSALManager implements IMdsalApiManager, AutoCloseable {
         }
     }
 
-    @Override
     public void removeFlow(FlowEntity flowEntity) {
         try {
             Node nodeDpn = buildDpnNode(flowEntity.getDpnId());
@@ -250,7 +248,6 @@ public class MDSALManager implements IMdsalApiManager, AutoCloseable {
         }
     }
 
-    @Override
     public void removeGroup(GroupEntity groupEntity) {
         try {
             Node nodeDpn = buildDpnNode(groupEntity.getDpnId());
@@ -288,7 +285,6 @@ public class MDSALManager implements IMdsalApiManager, AutoCloseable {
         }
     }
 
-    @Override
     public void modifyGroup(GroupEntity groupEntity) {
 
         installGroup(groupEntity);
@@ -309,7 +305,6 @@ public class MDSALManager implements IMdsalApiManager, AutoCloseable {
     }
 */
 
-    @Override
     public void sendPacketOut(long lDpnId, int groupId, byte[] payload) {
 
         List<ActionInfo> actionInfos = new ArrayList<ActionInfo>();
@@ -318,16 +313,13 @@ public class MDSALManager implements IMdsalApiManager, AutoCloseable {
         sendPacketOutWithActions(lDpnId, groupId, payload, actionInfos);
     }
 
-    @Override
     public void sendPacketOutWithActions(long lDpnId, long groupId, byte[] payload, List<ActionInfo> actionInfos) {
 
         m_packetProcessingService.transmitPacket(MDSALUtil.getPacketOut(actionInfos, payload, lDpnId,
                 getNodeConnRef("openflow:" + lDpnId, "0xfffffffd")));
     }
 
-    @Override
     public void sendARPPacketOutWithActions(long lDpnId, byte[] payload, List<ActionInfo> actions) {
-
         m_packetProcessingService.transmitPacket(MDSALUtil.getPacketOut(actions, payload, lDpnId,
                 getNodeConnRef("openflow:" + lDpnId, "0xfffffffd")));
     }

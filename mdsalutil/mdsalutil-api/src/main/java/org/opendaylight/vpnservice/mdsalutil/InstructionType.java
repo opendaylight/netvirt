@@ -84,8 +84,7 @@ public enum InstructionType {
     clear_actions {
         @Override
         public Instruction buildInstruction(InstructionInfo instructionInfo, int instructionKey) {
-            // ClearActions clearActions = new
-            // ClearActionsBuilder().setAction(listAction).build();
+            
             ClearActionsCase clearActionsCase = new ClearActionsCaseBuilder().build();
 
             InstructionBuilder instructionBuilder = new InstructionBuilder();

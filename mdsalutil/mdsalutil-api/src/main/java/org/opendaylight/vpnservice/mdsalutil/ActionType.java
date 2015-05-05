@@ -100,37 +100,6 @@ public enum ActionType {
         }
     },
 
-    /**
-     * The action info passed to this ActionType should have two actionValues string.
-     *
-     * The first string representing the metadata and the next string representing the metadatamask
-     */
-    /*
-    filter_equals {
-
-        @Override
-        public Action buildAction(ActionInfo actionInfo) {
-            String[] actionValues = actionInfo.getActionValues();
-            if (actionValues == null || actionValues.length != 2) {
-                throw new RuntimeException("Filter Equal set field action should have two arguments for metadata and metadata mask");
-            }
-            final BigInteger metaData = new BigInteger(actionValues[0]);
-            final BigInteger metadataMask = new BigInteger(actionValues[1]);
-            return new ActionBuilder()
-                .setAction(
-                    new ExperimenterActionTypeBuilder().setActionType(
-                        new FilterTypesActionBuilder()
-                            .setFilterType(EricFilterTypes.ERICFTEQUAL)
-                            .setMetadata(
-                                new MetadataBuilder().setMetadata(metaData).setMetadataMask(metadataMask).build())
-                        .build())//Filter Equal Action Type
-                    .build())//Experimenter Action
-                .setKey(new ActionKey(actionInfo.getActionKey()))
-                .build();
-        }
-    },
-    */
-
     pop_mpls {
         @Override
         public Action buildAction(ActionInfo actionInfo) {
@@ -160,28 +129,7 @@ public enum ActionType {
                     .setKey(new ActionKey(actionInfo.getActionKey())).build();
         }
     },
-/*
-    pop_vxlan {
-        @Override
-        public Action buildAction(ActionInfo actionInfo) {
-            return new ActionBuilder().setAction(
-                    new ExperimenterActionTypeBuilder().setActionType(
-                            new VxlanPopActionBuilder().build()).build())
-                    .setKey(new ActionKey(actionInfo.getActionKey())).build();
-        }
-    },
-    */
-/*
-    pop_gre {
-        @Override
-        public Action buildAction(ActionInfo actionInfo) {
-            return new ActionBuilder().setAction(
-                    new ExperimenterActionTypeBuilder().setActionType(
-                            new GrePopActionBuilder().build()).build())
-                    .setKey(new ActionKey(actionInfo.getActionKey())).build();
-        }
-    },
-*/
+
     push_mpls {
         @Override
         public Action buildAction(ActionInfo actionInfo) {
@@ -213,28 +161,7 @@ public enum ActionType {
                     .setKey(new ActionKey(actionInfo.getActionKey())).build();
         }
     },
-/*
-    push_vxlan {
-        @Override
-        public Action buildAction(ActionInfo actionInfo) {
-            return new ActionBuilder().setAction(
-                    new ExperimenterActionTypeBuilder().setActionType(
-                                    new VxlanPushActionBuilder().setEthType(0x0800).build()).build())
-                    .setKey(new ActionKey(actionInfo.getActionKey())).build();
-        }
-    },
-    */
-/*
-    push_gre {
-        @Override
-        public Action buildAction(ActionInfo actionInfo) {
-            return new ActionBuilder().setAction(
-                    new ExperimenterActionTypeBuilder().setActionType(
-                            new GrePushActionBuilder().setEthType(0x0800).build()).build())
-                    .setKey(new ActionKey(actionInfo.getActionKey())).build();
-        }
-    },
-*/
+
     set_field_mpls_label {
         @Override
         public Action buildAction(ActionInfo actionInfo) {
