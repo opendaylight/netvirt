@@ -8,7 +8,9 @@
 
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.idmanager.impl.rev150325;
 
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.idmanager.IdManagerServiceProvider;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 
 public class IdmanagerImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.idmanager.impl.rev150325.AbstractIdmanagerImplModule {
     public IdmanagerImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -20,15 +22,14 @@ public class IdmanagerImplModule extends org.opendaylight.yang.gen.v1.urn.openda
     }
 
     @Override
-    public void customValidation() {
-        // add custom validation form module attributes here.
+    public java.lang.AutoCloseable createInstance() {
+        IdManagerServiceProvider provider = new IdManagerServiceProvider(getRpcRegistryDependency());
+        getBrokerDependency().registerProvider(provider);
+        return provider;
     }
 
     @Override
-    public java.lang.AutoCloseable createInstance() {
-          IdManagerServiceProvider provider = new IdManagerServiceProvider();
-          getBrokerDependency().registerProvider(provider);
-          return provider;
+    public void customValidation() {
+        // add custom validation form module attributes here.
     }
-
 }
