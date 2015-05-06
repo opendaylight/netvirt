@@ -79,7 +79,6 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
     */
     public NexthopManager(final DataBroker db) {
         broker = db;
-        createNexthopPointerPool();
     }
 
     @Override
@@ -99,7 +98,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         this.idManager = idManager;
     }
 
-    private void createNexthopPointerPool() {
+    protected void createNexthopPointerPool() {
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
             .setPoolName("nextHopPointerPool")
             .setIdStart(1L)

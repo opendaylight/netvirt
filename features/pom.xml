@@ -24,6 +24,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <mdsal.version>1.2.0-SNAPSHOT</mdsal.version>
     <openflowplugin.version>0.1.0-SNAPSHOT</openflowplugin.version>
     <yangtools.version>0.7.0-SNAPSHOT</yangtools.version>
+    <vpnservices.version>0.0.1-SNAPSHOT</vpnservices.version>
     <mdsalutil.version>0.0.1-SNAPSHOT</mdsalutil.version>
     <vpnmanager.version>0.0.1-SNAPSHOT</vpnmanager.version>
     <interfacemgr.version>0.0.1-SNAPSHOT</interfacemgr.version>
@@ -129,19 +130,19 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>bgpmanager-impl</artifactId>
-      <version>${project.version}</version>
+      <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>bgpmanager-impl</artifactId>
-      <version>${project.version}</version>
+      <version>${vpnservices.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>bgpmanager-api</artifactId>
-      <version>${project.version}</version>
+      <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

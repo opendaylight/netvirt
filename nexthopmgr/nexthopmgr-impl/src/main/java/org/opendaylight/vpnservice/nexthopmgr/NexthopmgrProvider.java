@@ -38,6 +38,7 @@ public class NexthopmgrProvider implements BindingAwareProvider, AutoCloseable {
         nhManager.setMdsalManager(mdsalManager);
         nhManager.setInterfaceManager(interfaceManager);
         nhManager.setIdManager(idManager);
+        nhManager.createNexthopPointerPool();
         LOG.info("NexthopmgrProvider Session Initiated");
     }
 
