@@ -75,7 +75,7 @@ public class MDSALManager implements AutoCloseable {
      * uses this utility
      *
      * @param db - dataBroker reference
-     * @param PacketProcessingService for sending the packet outs
+     * @param pktProcService- PacketProcessingService for sending the packet outs
      */
     public MDSALManager(final DataBroker db, PacketProcessingService pktProcService) {
         m_dataBroker = db;
