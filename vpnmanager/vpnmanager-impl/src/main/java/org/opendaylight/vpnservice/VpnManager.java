@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.opendaylight.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -20,6 +22,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataCh
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
@@ -32,6 +35,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev15
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +51,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
     private ListenerRegistration<DataChangeListener> listenerRegistration, fibListenerRegistration;
     private final DataBroker broker;
     private final IBgpManager bgpManager;
+    private IdManagerService idManager;
     private final FibEntriesListener fibListener;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
@@ -83,24 +91,37 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         }
     }
 
+    public void setIdManager(IdManagerService idManager) {
+        this.idManager = idManager;
+    }
+
     @Override
-    protected void remove(InstanceIdentifier<VpnInstance> identifier,
-            VpnInstance del) {
-        // TODO Auto-generated method stub
+    protected void remove(InstanceIdentifier<VpnInstance> identifier, VpnInstance del) {
+        LOG.info("Remove event - Key: {}, value: {}", identifier, del);
+        String vpnName = del.getVpnInstanceName();
+        InstanceIdentifier<VpnInstance> vpnIdentifier = VpnUtil.getVpnInstanceIdentifier(vpnName);
+        delete(LogicalDatastoreType.OPERATIONAL, vpnIdentifier);
+
+        String rd = del.getIpv4Family().getRouteDistinguisher();
+        try {
+            bgpManager.deleteVrf(rd);
+        } catch(Exception e) {
+            LOG.error("Exception when removing VRF from BGP", e);
+        }
     }
 
     @Override
     protected void update(InstanceIdentifier<VpnInstance> identifier,
             VpnInstance original, VpnInstance update) {
-        // TODO Auto-generated method stub
+        LOG.info("Update event - Key: {}, value: {}", identifier, update);
     }
 
     @Override
     protected void add(InstanceIdentifier<VpnInstance> identifier,
             VpnInstance value) {
         LOG.info("key: {}, value: {}" +identifier, value);
-        //TODO: Generate VPN ID for this instance, where to store in model ... ?
-        long vpnId = 1000;
+
+        long vpnId = getUniqueId(value.getVpnInstanceName());
         InstanceIdentifier<VpnInstance1> augId = identifier.augmentation(VpnInstance1.class);
         Optional<VpnInstance1> vpnAugmenation = read(LogicalDatastoreType.CONFIGURATION, augId);
         if(vpnAugmenation.isPresent()) {
@@ -114,7 +135,6 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
 
         asyncWrite(LogicalDatastoreType.OPERATIONAL, identifier, opValue, DEFAULT_CALLBACK);
 
-        //TODO: Add VRF to BGP
         //public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts)
         VpnAfConfig config = value.getIpv4Family();
         String rd = config.getRouteDistinguisher();
@@ -193,6 +213,31 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         return null;
     }
 
+    private Integer getUniqueId(String idKey) {
+        GetUniqueIdInput getIdInput = new GetUniqueIdInputBuilder()
+                                           .setPoolName(VpnConstants.VPN_IDPOOL_NAME)
+                                           .setIdKey(idKey).build();
+
+        try {
+            Future<RpcResult<GetUniqueIdOutput>> result = idManager.getUniqueId(getIdInput);
+            RpcResult<GetUniqueIdOutput> rpcResult = result.get();
+            if(rpcResult.isSuccessful()) {
+                return rpcResult.getResult().getIdValue().intValue();
+            } else {
+                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
+            }
+        } catch (NullPointerException | InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when getting Unique Id",e);
+        }
+        return 0;
+    }
+
+    private <T extends DataObject> void delete(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.delete(datastoreType, path);
+        Futures.addCallback(tx.submit(), DEFAULT_CALLBACK);
+    }
+
     private class FibEntriesListener extends AbstractDataChangeListener<VrfEntry>  {
 
         public FibEntriesListener() {
@@ -202,8 +247,32 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         @Override
         protected void remove(InstanceIdentifier<VrfEntry> identifier,
                 VrfEntry del) {
-            // TODO Auto-generated method stub
-
+            LOG.info("Remove Fib event - Key : {}, value : {} ",identifier, del);
+            final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
+            String rd = key.getRouteDistinguisher();
+            Long label = del.getLabel();
+            VpnInstance vpn = getVpnForRD(rd);
+            if(vpn != null) {
+                InstanceIdentifier<VpnInstance> id = VpnUtil.getVpnInstanceIdentifier(vpn.getVpnInstanceName());
+                InstanceIdentifier<VpnInstance1> augId = id.augmentation(VpnInstance1.class);
+                Optional<VpnInstance1> vpnAugmenation = read(LogicalDatastoreType.OPERATIONAL, augId);
+                if(vpnAugmenation.isPresent()) {
+                    VpnInstance1 vpnAug = vpnAugmenation.get();
+                    List<Long> routeIds = vpnAug.getRouteEntryId();
+                    if(routeIds == null) {
+                        LOG.debug("Fib Route entry is empty.");
+                        return;
+                    }
+                    LOG.info("Removing label from vpn info - {}", label);
+                    routeIds.remove(label);
+                    asyncWrite(LogicalDatastoreType.OPERATIONAL, augId,
+                            new VpnInstance1Builder(vpnAug).setRouteEntryId(routeIds).build(), DEFAULT_CALLBACK);
+                } else {
+                    LOG.info("VPN Augmentation not found");
+                }
+            } else {
+                LOG.warn("No VPN Instance found for RD: {}", rd);
+            }
         }
 
         @Override
@@ -216,7 +285,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         @Override
         protected void add(InstanceIdentifier<VrfEntry> identifier,
                 VrfEntry add) {
-            LOG.info("Key : " + identifier + " value : " + add);
+            LOG.info("Add Vrf Entry event - Key : {}, value : {}",identifier, add);
             final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
             String rd = key.getRouteDistinguisher();
             Long label = add.getLabel();
@@ -231,7 +300,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
                     if(routeIds == null) {
                         routeIds = new ArrayList<>();
                     }
-                    LOG.info("Adding label to vpn info " + label);
+                    LOG.info("Adding label to vpn info - {}", label);
                     routeIds.add(label);
                     asyncWrite(LogicalDatastoreType.OPERATIONAL, augId,
                             new VpnInstance1Builder(vpnAug).setRouteEntryId(routeIds).build(), DEFAULT_CALLBACK);

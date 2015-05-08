@@ -33,6 +33,14 @@ module vpnservice-impl {
                     }
                 }
             }
+            container rpcregistry {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-rpc-registry;
+                    }
+                }
+            }
             container bgpmanager {
                 uses config:service-ref {
                     refine type {

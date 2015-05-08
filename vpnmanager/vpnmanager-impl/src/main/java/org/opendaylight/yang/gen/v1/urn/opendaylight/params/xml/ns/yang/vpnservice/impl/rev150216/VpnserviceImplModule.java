@@ -8,6 +8,7 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpnservice.impl.rev150216;
 
 import org.opendaylight.vpnservice.VpnserviceProvider;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 
 public class VpnserviceImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpnservice.impl.rev150216.AbstractVpnserviceImplModule {
     public VpnserviceImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -25,10 +26,12 @@ public class VpnserviceImplModule extends org.opendaylight.yang.gen.v1.urn.opend
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+        IdManagerService idManager = getRpcregistryDependency().getRpcService(IdManagerService.class);
         VpnserviceProvider provider = new VpnserviceProvider();
         provider.setBgpManager(getBgpmanagerDependency());
         provider.setMdsalManager(getMdsalutilDependency());
         provider.setInterfaceManager(getOdlinterfaceDependency());
+        provider.setIdManager(idManager);
         getBrokerDependency().registerProvider(provider);
         return provider;
     }

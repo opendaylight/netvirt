@@ -1,6 +1,9 @@
 package org.opendaylight.vpnservice;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -11,7 +14,11 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.AdjacenciesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.Pools;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.pools.IdPool;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.pools.IdPoolKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 
 public class VpnUtil {
     static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
@@ -31,5 +38,12 @@ public class VpnUtil {
 
     static Adjacencies getVpnInterfaceAugmentation(List<Adjacency> nextHops) {
         return new AdjacenciesBuilder().setAdjacency(nextHops).build();
+    }
+
+    public static InstanceIdentifier<IdPool> getPoolId(String poolName){
+        InstanceIdentifier.InstanceIdentifierBuilder<IdPool> idBuilder =
+                        InstanceIdentifier.builder(Pools.class).child(IdPool.class, new IdPoolKey(poolName));
+        InstanceIdentifier<IdPool> id = idBuilder.build();
+        return id;
     }
 }

@@ -7,7 +7,10 @@
  */
 package org.opendaylight.vpnservice;
 
+import java.math.BigInteger;
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.opendaylight.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -15,6 +18,10 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderCo
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +34,7 @@ public class VpnserviceProvider implements BindingAwareProvider,
     private IBgpManager bgpManager;
     private IMdsalApiManager mdsalManager;
     private IInterfaceManager interfaceManager;
+    private IdManagerService idManager;
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -34,8 +42,12 @@ public class VpnserviceProvider implements BindingAwareProvider,
         try {
             final  DataBroker dataBroker = session.getSALService(DataBroker.class);
             vpnManager = new VpnManager(dataBroker, bgpManager);
+            vpnManager.setIdManager(idManager);
             vpnInterfaceManager = new VpnInterfaceManager(dataBroker, bgpManager);
             vpnInterfaceManager.setMdsalManager(mdsalManager);
+            vpnInterfaceManager.setInterfaceManager(interfaceManager);
+            vpnInterfaceManager.setIdManager(idManager);
+            createIdPool();
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
         }
@@ -52,6 +64,26 @@ public class VpnserviceProvider implements BindingAwareProvider,
 
     public void setInterfaceManager(IInterfaceManager interfaceManager) {
         this.interfaceManager = interfaceManager;
+    }
+
+    public void setIdManager(IdManagerService idManager) {
+        this.idManager = idManager;
+    }
+
+    private void createIdPool() {
+        CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
+            .setPoolName(VpnConstants.VPN_IDPOOL_NAME)
+            .setIdStart(VpnConstants.VPN_IDPOOL_START)
+            .setPoolSize(new BigInteger(VpnConstants.VPN_IDPOOL_SIZE))
+            .build();
+        try {
+           Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+           if ((result != null) && (result.get().isSuccessful())) {
+                LOG.info("Created IdPool for VPN Service");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to create idPool for VPN Service",e);
+        }
     }
 
     @Override
