@@ -15,6 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev15
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.FibEntries;
 
 import org.slf4j.Logger;
@@ -43,37 +44,19 @@ public class FibDSWriter {
 
         VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).
             setNextHopAddress(nexthop).setLabel((long)label).build();
+        logger.debug("Created vrfEntry for " + prefix + " nexthop " + nexthop + " label " + label);
 
-        logger.info("Created vrfEntry for " + prefix + " nexthop " + nexthop + " label " + label);
+        List<VrfEntry> vrfEntryList = new ArrayList<VrfEntry>();
+        vrfEntryList.add(vrfEntry);
+
         InstanceIdentifierBuilder<VrfTables> idBuilder =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
-
-
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
-        Optional<VrfTables> vrfTable = read(LogicalDatastoreType.CONFIGURATION, vrfTableId);
-        if (vrfTable.isPresent()) {
-            List<VrfEntry> vrfEntryListExisting = vrfTable.get().getVrfEntry();
-            vrfEntryListExisting.add(vrfEntry);
 
+        VrfTables vrfTableNew = new VrfTablesBuilder().setRouteDistinguisher(rd).
+            setVrfEntry(vrfEntryList).build();
 
-            VrfTables vrfTableUpdate = new VrfTablesBuilder().setRouteDistinguisher(rd).
-                setVrfEntry(vrfEntryListExisting).build();
-            write(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableUpdate);
-        }
-        else {
-            List<VrfEntry> vrfEntryList = new ArrayList<VrfEntry>();
-            vrfEntryList.add(vrfEntry);
-
-            //add a new vrf table with this vrf entry
-            VrfTables vrfTableNew = new VrfTablesBuilder().setRouteDistinguisher(rd).
-                setVrfEntry(vrfEntryList).build();
-
-
-            InstanceIdentifier<VrfTables> vrfTableNewId = InstanceIdentifier.builder(FibEntries.class)
-                .child(VrfTables.class, new VrfTablesKey(rd)).build();
-
-            write(LogicalDatastoreType.CONFIGURATION, vrfTableNewId, vrfTableNew);
-        }
+        write(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
 
     }
 
@@ -81,26 +64,11 @@ public class FibDSWriter {
 
         logger.debug("Removing fib entry with destination prefix " + prefix + " from vrf table for rd " + rd);
 
-        InstanceIdentifierBuilder<VrfTables> idBuilder =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
-        InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
-        Optional<VrfTables> vrfTable = read(LogicalDatastoreType.CONFIGURATION, vrfTableId);
-        if (vrfTable.isPresent()) {
-            String searchPfx = prefix;
+        InstanceIdentifierBuilder<VrfEntry> idBuilder =
+            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class, new VrfEntryKey(prefix));
+        InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
+        delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
-            List<VrfEntry> vrfEntryListExisting = vrfTable.get().getVrfEntry();
-            for (Iterator<VrfEntry> it = vrfEntryListExisting.iterator(); it.hasNext(); ) {
-                VrfEntry elem = it.next();
-                if (elem.getDestPrefix().equals(searchPfx)) {
-                    it.remove();
-                    break;
-                }
-            }
-
-            VrfTables vrfTableUpdate = new VrfTablesBuilder().setRouteDistinguisher(rd).
-                setVrfEntry(vrfEntryListExisting).build();
-            write(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableUpdate);
-        }
     }
 
     private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
@@ -121,7 +89,13 @@ public class FibDSWriter {
     private <T extends DataObject> void write(LogicalDatastoreType datastoreType,
                                                    InstanceIdentifier<T> path, T data) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.put(datastoreType, path, data, true);
+        tx.merge(datastoreType, path, data, true);
+        tx.submit();
+    }
+
+    private <T extends DataObject> void delete(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.delete(datastoreType, path);
         tx.submit();
     }
 }
