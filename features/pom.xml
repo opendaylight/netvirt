@@ -24,13 +24,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <mdsal.version>1.2.0-SNAPSHOT</mdsal.version>
     <openflowplugin.version>0.1.0-SNAPSHOT</openflowplugin.version>
     <yangtools.version>0.7.0-SNAPSHOT</yangtools.version>
-    <vpnservices.version>0.0.1-SNAPSHOT</vpnservices.version>
-    <mdsalutil.version>0.0.1-SNAPSHOT</mdsalutil.version>
-    <vpnmanager.version>0.0.1-SNAPSHOT</vpnmanager.version>
-    <interfacemgr.version>0.0.1-SNAPSHOT</interfacemgr.version>
-    <nexthopmgr.version>0.0.1-SNAPSHOT</nexthopmgr.version>
-    <fibmanager.version>0.0.1-SNAPSHOT</fibmanager.version>
-    <idmanager.version>0.0.1-SNAPSHOT</idmanager.version>
+    <vpnservices.version>0.1.0-SNAPSHOT</vpnservices.version>
+    <mdsalutil.version>${vpnservices.version}</mdsalutil.version>
+    <vpnmanager.version>${vpnservices.version}</vpnmanager.version>
+    <interfacemgr.version>${vpnservices.version}</interfacemgr.version>
+    <nexthopmgr.version>${vpnservices.version}</nexthopmgr.version>
+    <fibmanager.version>${vpnservices.version}</fibmanager.version>
+    <idmanager.version>${vpnservices.version}</idmanager.version>
   </properties>
   <dependencyManagement>
     <dependencies>
