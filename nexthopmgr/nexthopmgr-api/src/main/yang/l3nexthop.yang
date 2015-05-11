@@ -40,6 +40,7 @@ module l3nexthop {
 		}
 		output { 
 			leaf egressPointer {type uint32;} 
+			leaf localDestination {type boolean;}
 		}
 	}
 }

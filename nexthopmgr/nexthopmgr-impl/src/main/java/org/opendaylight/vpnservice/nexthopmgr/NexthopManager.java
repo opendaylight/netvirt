@@ -374,11 +374,19 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
     @Override
     public Future<RpcResult<GetEgressPointerOutput>> getEgressPointer(
             GetEgressPointerInput input) {
-        long egressGroupId =
-                getNextHopPointer(input.getDpnId(), input.getVpnId(), input.getIpPrefix(), input.getNexthopIp());
 
         GetEgressPointerOutputBuilder output = new GetEgressPointerOutputBuilder();
-        output.setEgressPointer(egressGroupId);
+
+        String endpointIp = interfaceManager.getEndpointIpForDpn(input.getDpnId());
+        if (input.getNexthopIp().equals(endpointIp)) {
+            VpnNexthop vpnNextHop = getVpnNexthop(input.getVpnId(), input.getIpPrefix());
+            output.setEgressPointer(vpnNextHop.getEgressPointer());
+            output.setLocalDestination(true);
+        } else {
+            TunnelNexthop tunnelNextHop = getTunnelNexthop(input.getDpnId(), input.getNexthopIp());
+            output.setEgressPointer(tunnelNextHop.getEgressPointer());
+            output.setLocalDestination(false);
+        }
 
         RpcResultBuilder<GetEgressPointerOutput> rpcResultBuilder = RpcResultBuilder.success();
         rpcResultBuilder.withResult(output.build());
