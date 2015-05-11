@@ -122,12 +122,12 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
         InstanceIdentifier<VpnInstance> id = idBuilder.build();
         InstanceIdentifier<VpnInstance1> idx = id.augmentation(VpnInstance1.class);
-        Optional<VpnInstance1> vpn = read(LogicalDatastoreType.CONFIGURATION, idx);
+        Optional<VpnInstance1> vpn = read(LogicalDatastoreType.OPERATIONAL, idx);
 
         if (vpn.isPresent()) {
             return vpn.get().getVpnId();
         } else {
-            return 0;
+            return -1;
         }
     }
 

@@ -205,9 +205,11 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     }
 
     private long getVpnId(String vpnName) {
+        //TODO: This should be a Util function
         InstanceIdentifier<VpnInstance1> id = InstanceIdentifier.builder(VpnInstances.class)
                 .child(VpnInstance.class, new VpnInstanceKey(vpnName)).augmentation(VpnInstance1.class).build();
-        Optional<VpnInstance1> vpnInstance = read(LogicalDatastoreType.CONFIGURATION, id);
+        Optional<VpnInstance1> vpnInstance = read(LogicalDatastoreType.OPERATIONAL, id);
+        //TODO: Default vpnid should be a constant.
         long vpnId = -1;
         if(vpnInstance.isPresent()) {
             vpnId = vpnInstance.get().getVpnId();

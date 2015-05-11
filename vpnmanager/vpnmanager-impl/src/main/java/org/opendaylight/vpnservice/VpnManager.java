@@ -122,13 +122,6 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         LOG.info("key: {}, value: {}" +identifier, value);
 
         long vpnId = getUniqueId(value.getVpnInstanceName());
-        InstanceIdentifier<VpnInstance1> augId = identifier.augmentation(VpnInstance1.class);
-        Optional<VpnInstance1> vpnAugmenation = read(LogicalDatastoreType.CONFIGURATION, augId);
-        if(vpnAugmenation.isPresent()) {
-            VpnInstance1 vpn = vpnAugmenation.get();
-            vpnId = vpn.getVpnId();
-            LOG.info("VPN ID is {}", vpnId);
-        }
 
         VpnInstance opValue = new VpnInstanceBuilder(value).
                  addAugmentation(VpnInstance1.class, new VpnInstance1Builder().setVpnId(vpnId).build()).build();
