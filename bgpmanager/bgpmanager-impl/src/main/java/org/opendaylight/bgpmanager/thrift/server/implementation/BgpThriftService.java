@@ -31,12 +31,12 @@ public class BgpThriftService {
 
 
 	public void start() {
-		LOGGER.info("BGP Thrift Server starting.");
+		LOGGER.debug("BGP Thrift Server starting...");
 		startBgpThriftServer();
 	}
 	
 	public void stop() {
-		LOGGER.info("BGP Thrift Server stopping.");
+		LOGGER.debug("BGP Thrift Server stopping...");
 		stopBgpThriftServer();
 	}
 
@@ -68,13 +68,12 @@ public class BgpThriftService {
 
 	public void stopBgpThriftServer() {
 		try {
-            LOGGER.debug("Server stopping");
-
             if (serverTransport != null) {
                 serverTransport.close();
             }
             
             server.stop();
+			LOGGER.info("BGP Thrift Server stopped");
         } catch (Exception e) {
             LOGGER.error("Error while stopping the server - {} {}", getClass().getName(), e.getMessage());
         }
@@ -86,7 +85,7 @@ public class BgpThriftService {
 
 	        try {
 				serverTransport = new TServerSocket(port);
-	            LOGGER.info("Server Socket on Port {} ", port);
+				LOGGER.info("BGP Thrift Server started on port {} ", port);
 			} catch (TTransportException e) {
 				LOGGER.error("Transport Exception while starting bgp thrift server", e);
 				return;

@@ -82,7 +82,7 @@ public class BgpConfigurationManager {
         protected void remove(InstanceIdentifier<BgpRouter> identifier,
                               BgpRouter del) {
 
-            LOG.info("Bgp Router deleted in DS - " + "key: " + identifier + ", value=" + del);
+            LOG.debug("Bgp Router deleted in DS - key: {} value={} ", identifier, del);
 
             removeBgpRouter(del);
 
@@ -110,7 +110,7 @@ public class BgpConfigurationManager {
         protected void update(InstanceIdentifier<BgpRouter> identifier,
                               BgpRouter original, BgpRouter update) {
 
-            LOG.info("Bgp Router Updated in DS - " + "key: " + identifier + ", original=" + original + ", update=" + update);
+            LOG.debug("Bgp Router Updated in DS - key: {}, original={}, update={} ", identifier, original, update);
 
             updateBgpRouter(original, update);
         }
@@ -132,9 +132,7 @@ public class BgpConfigurationManager {
         @Override
         protected void add(InstanceIdentifier<BgpRouter> identifier,
                            BgpRouter value) {
-            LOG.info("Bgp Router added in DS - " + "key: " + identifier + ", value=" + value);
-            LOG.info("Bgp Router localASNumber:" + value.getLocalAsNumber());
-            LOG.info("Bgp Router localASIdentifier:" + value.getLocalAsIdentifier());
+            LOG.debug("Bgp Router added in DS - key: {}, value={} ",identifier, value);
 
             addBgpRouter(value);
         }
@@ -181,7 +179,7 @@ public class BgpConfigurationManager {
             if(gateway != null) {
                 if ((gateway.getPeerAddressType() != null) && (gateway.getPeerAddressType() instanceof org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress)) {
                     IpAddress neighborIPAddr = ((org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress) gateway.getPeerAddressType()).getIpAddress();
-                    LOG.info("Bgp Neighbor IP Address " + neighborIPAddr.getIpv4Address().getValue());
+                    LOG.debug("Bgp Neighbor IP Address {} ", neighborIPAddr.getIpv4Address().getValue());
 
                     configureBgpServer(BgpOp.DEL_NGHBR);
 
@@ -197,7 +195,7 @@ public class BgpConfigurationManager {
         protected void remove(InstanceIdentifier<BgpNeighbors> identifier,
                               BgpNeighbors del) {
 
-            LOG.info("Bgp Neighbors deleted in DS - " + "key: " + identifier + ", value=" + del);
+            LOG.debug("Bgp Neighbors deleted in DS - key: {}, value={} ", identifier, del);
             removeBgpNeighbors(del);
         }
 
@@ -221,7 +219,7 @@ public class BgpConfigurationManager {
                     configureBgpServer(BgpOp.DEL_NGHBR);
                 }
                 if(gateway.getAsNumber() != null) {
-                    LOG.info("Bgp Neighbor AS number " + gateway.getAsNumber());
+                    LOG.debug("Bgp Neighbor AS number {} ", gateway.getAsNumber());
                     if(bgpConfiguration.getNeighbourAsNum() != gateway.getAsNumber()) {
                         bgpConfiguration.setNeighbourAsNum(gateway.getAsNumber());
                         bgpConfiguration.setConfigUpdated();
@@ -229,7 +227,7 @@ public class BgpConfigurationManager {
                 }
                 if((gateway.getPeerAddressType() != null) && (gateway.getPeerAddressType() instanceof org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress)) {
                     IpAddress neighborIPAddr = ((org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress)gateway.getPeerAddressType()).getIpAddress();
-                    LOG.info("Bgp Neighbor IP Address " + neighborIPAddr.getIpv4Address().getValue());
+                    LOG.debug("Bgp Neighbor IP Address {}", neighborIPAddr.getIpv4Address().getValue());
                     if(bgpConfiguration.getNeighbourIp() != neighborIPAddr.getIpv4Address().getValue()) {
                         bgpConfiguration.setNeighbourIp(neighborIPAddr.getIpv4Address().getValue());
                         bgpConfiguration.setConfigUpdated();
@@ -247,7 +245,7 @@ public class BgpConfigurationManager {
         protected void update(InstanceIdentifier<BgpNeighbors> identifier,
                               BgpNeighbors original, BgpNeighbors update) {
 
-            LOG.info("Bgp Neighbors Updated in DS - " + "key: " + identifier + ", original=" + original + ", update=" + update);
+            LOG.debug("Bgp Neighbors Updated in DS - key: {}, original={}, update={} ", identifier,  original, update);
 
             updateBgpNeighbors(original, update);
 
@@ -261,12 +259,12 @@ public class BgpConfigurationManager {
 
             if(gateway != null) {
                 if(gateway.getAsNumber() != null) {
-                    LOG.info("Bgp Neighbor AS number " + gateway.getAsNumber());
+                    LOG.debug("Bgp Neighbor AS number {} ", gateway.getAsNumber());
                     bgpConfiguration.setNeighbourAsNum(gateway.getAsNumber());
                 }
                 if((gateway.getPeerAddressType() != null) && (gateway.getPeerAddressType() instanceof org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress)) {
                     IpAddress neighborIPAddr = ((org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress)gateway.getPeerAddressType()).getIpAddress();
-                    LOG.info("Bgp Neighbor IP Address " + neighborIPAddr.getIpv4Address().getValue());
+                    LOG.debug("Bgp Neighbor IP Address {} ", neighborIPAddr.getIpv4Address().getValue());
                     bgpConfiguration.setNeighbourIp(neighborIPAddr.getIpv4Address().getValue());
 
                 }
@@ -280,8 +278,7 @@ public class BgpConfigurationManager {
         @Override
         protected void add(InstanceIdentifier<BgpNeighbors> identifier,
                            BgpNeighbors value) {
-            LOG.info("key: " + identifier + ", value=" + value);
-            LOG.info("Bgp Neighbor added in DS - " + "key: " + identifier + ", value=" + value);
+            LOG.debug("Bgp Neighbor added in DS - key: {}, value={} ", identifier, value);
 
             addBgpNeighbors(value);
         }
@@ -322,7 +319,7 @@ public class BgpConfigurationManager {
                         bgpManager.deleteNeighbor(bgpConfiguration.getNeighbourIp());
                         break;
                     default:
-                        LOG.info("Invalid configuration option");
+                        LOG.error("Invalid configuration option {}", bgpOp);
                 }
 
                 retry = false;

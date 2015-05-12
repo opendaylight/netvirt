@@ -1,4 +1,4 @@
-package org.opendaylight.vpnservice.test;
+package org.opendaylight.vpnservice.bgpmanager.test;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
