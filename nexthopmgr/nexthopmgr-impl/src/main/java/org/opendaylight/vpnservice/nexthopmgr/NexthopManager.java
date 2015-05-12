@@ -214,7 +214,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
         // check if vpn node is there or to be created
         InstanceIdentifier<VpnNexthops> id = idBuilder.build();
-        Optional<VpnNexthops> nexthops = read(LogicalDatastoreType.CONFIGURATION, id);
+        Optional<VpnNexthops> nexthops = read(LogicalDatastoreType.OPERATIONAL, id);
         if (!nexthops.isPresent()) {
             // create a new node
             VpnNexthops node = new VpnNexthopsBuilder().setKey(new VpnNexthopsKey(vpnId)).setVpnId(vpnId).build();
@@ -240,7 +240,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
         // check if dpn node is there or to be created
         InstanceIdentifier<TunnelNexthops> id = idBuilder.build();
-        Optional<TunnelNexthops> nexthops = read(LogicalDatastoreType.CONFIGURATION, id);
+        Optional<TunnelNexthops> nexthops = read(LogicalDatastoreType.OPERATIONAL, id);
         if (!nexthops.isPresent()) {
             // create a new node
             TunnelNexthops node = new TunnelNexthopsBuilder()
@@ -269,8 +269,8 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         InstanceIdentifierBuilder<VpnNexthops> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
                 .child(VpnNexthops.class, new VpnNexthopsKey(vpnId));
         InstanceIdentifier<VpnNexthops> id = idBuilder.build();
-        Optional<VpnNexthops> vpnNexthops = read(LogicalDatastoreType.CONFIGURATION, id);
-        if (!vpnNexthops.isPresent()) {
+        Optional<VpnNexthops> vpnNexthops = read(LogicalDatastoreType.OPERATIONAL, id);
+        if (vpnNexthops.isPresent()) {
 
             // get nexthops list for vpn
             List<VpnNexthop> nexthops = vpnNexthops.get().getVpnNexthop();
@@ -292,8 +292,8 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
         // check if vpn node is there 
         InstanceIdentifier<TunnelNexthops> id = idBuilder.build();
-        Optional<TunnelNexthops> dpnNexthops = read(LogicalDatastoreType.CONFIGURATION, id);
-        if (!dpnNexthops.isPresent()) {
+        Optional<TunnelNexthops> dpnNexthops = read(LogicalDatastoreType.OPERATIONAL, id);
+        if (dpnNexthops.isPresent()) {
             List<TunnelNexthop> nexthops = dpnNexthops.get().getTunnelNexthop();
             for (TunnelNexthop nexthop : nexthops) {
                 if (nexthop.getIpAddress().equals(ipAddress)) {

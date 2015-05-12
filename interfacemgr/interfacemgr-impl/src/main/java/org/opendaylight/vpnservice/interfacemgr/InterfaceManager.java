@@ -411,7 +411,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder ifaceBuilder =
                             new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder();
             if (stateIf.isPresent()) {
-                stateIface = ifaceBuilder.setOperStatus(opStatus).build();
+                stateIface = ifaceBuilder.setOperStatus(opStatus).setKey(IfmUtil.getStateInterfaceKeyFromName(ifName)).build();
                 LOG.trace("Setting OperStatus for {} to {} in OPERATIONAL DS", ifName, opStatus);
                 asyncUpdate(LogicalDatastoreType.OPERATIONAL, id, stateIface, DEFAULT_CALLBACK);
             }
@@ -488,13 +488,12 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         Class<? extends InterfaceType> ifType = iface.getType();
         long dpn = this.getDpnForInterface(ifName);
         long portNo = this.getPortNumForInterface(iface).longValue();
-
         if (iface.isEnabled()) {
 
             if(ifType.isAssignableFrom(L2vlan.class)) {
                 IfL2vlan vlanIface = iface.getAugmentation(IfL2vlan.class);
-                long vlanVid = vlanIface.getVlanId();
                 LOG.trace("L2Vlan: {}",vlanIface);
+                long vlanVid = (vlanIface == null) ? 0 : vlanIface.getVlanId();
                 if (vlanVid != 0) {
                     listActionInfo.add(new ActionInfo(ActionType.push_vlan, new String[] {}));
                     listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
@@ -536,7 +535,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         } catch (Exception e) {
             LOG.error("OFPort for Interface {} not found", iface.getName());
         }
-        return null;
+        return 0L;
     }
 
 }
