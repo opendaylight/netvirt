@@ -3,11 +3,11 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     
     <parent>
-        <groupId>org.opendaylight.controller</groupId>
+        <groupId>org.opendaylight.vpnservice</groupId>
         <artifactId>config-parent</artifactId>
-        <version>0.3.0-SNAPSHOT</version>
-        <relativePath/>
-    </parent>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../../commons/config-parent</relativePath>
+     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.opendaylight.vpnservice</groupId>
     <artifactId>mdsalutil-impl</artifactId>
@@ -25,24 +25,15 @@
         <dependency>
             <groupId>org.opendaylight.openflowplugin.model</groupId>
             <artifactId>model-flow-base</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>${openflowplugin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.openflowplugin.model</groupId>
             <artifactId>model-flow-service</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>${openflowplugin.version}</version>
         </dependency>
          <!--  TEST Dependencies -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-       <dependency>
-       <groupId>org.mockito</groupId>
-       <artifactId>mockito-all</artifactId>
-       <scope>test</scope>
-    </dependency>
-    <dependency>
+        <dependency>
         <groupId>org.powermock</groupId>
         <artifactId>powermock-module-junit4</artifactId>
         <version>1.5.2</version>
@@ -67,14 +58,6 @@
       <type>test-jar</type>
     </dependency>
      <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>mdsalutil-api</artifactId>
       <version>${project.version}</version>
@@ -83,35 +66,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <version>${bundle.plugin.version}</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Export-Package>
-                        </Export-Package>
-                        <Service-Component>
-                        </Service-Component>
-                    </instructions>
-                    <manifestLocation>${project.basedir}/META-INF</manifestLocation>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>${maven.clean.plugin.version}</version>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>${basedir}/src/main/xtend-gen</directory>
-                            <includes>
-                                <include>**</include>
-                            </includes>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

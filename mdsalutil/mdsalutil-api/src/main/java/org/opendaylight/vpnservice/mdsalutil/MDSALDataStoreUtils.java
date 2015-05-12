@@ -13,7 +13,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MDSALDataStoreUtils {
 
-    public <T extends DataObject> Optional<T> read(final DataBroker broker,final LogicalDatastoreType datastoreType,
+    public static <T extends DataObject> Optional<T> read(final DataBroker broker,final LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path) {
 
         ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
@@ -35,14 +35,14 @@ public class MDSALDataStoreUtils {
        Futures.addCallback(tx.submit(), callback);
    }
 
-   public <T extends DataObject> void asyncUpdate(final DataBroker broker,final LogicalDatastoreType datastoreType,
+   public static <T extends DataObject> void asyncUpdate(final DataBroker broker,final LogicalDatastoreType datastoreType,
        InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
        WriteTransaction tx = broker.newWriteOnlyTransaction();
        tx.merge(datastoreType, path, data, true);
        Futures.addCallback(tx.submit(), callback);
    }
 
-   public <T extends DataObject> void asyncRemove(final DataBroker broker,final LogicalDatastoreType datastoreType,
+   public static <T extends DataObject> void asyncRemove(final DataBroker broker,final LogicalDatastoreType datastoreType,
        InstanceIdentifier<T> path, FutureCallback<Void> callback) {
        WriteTransaction tx = broker.newWriteOnlyTransaction();
        tx.delete(datastoreType, path);
