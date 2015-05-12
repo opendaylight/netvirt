@@ -27,6 +27,7 @@ public class FibmanagerImplModule extends org.opendaylight.yang.gen.v1.urn.opend
         FibManagerProvider provider = new FibManagerProvider();
         getBrokerDependency().registerProvider(provider);
         provider.setMdsalManager(getMdsalutilDependency());
+        provider.setVpnmanager(getVpnmanagerDependency());
         return provider;
     }
 

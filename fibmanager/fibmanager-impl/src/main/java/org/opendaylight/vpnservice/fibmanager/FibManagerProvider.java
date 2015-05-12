@@ -10,6 +10,7 @@ package org.opendaylight.vpnservice.fibmanager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.vpnmanager.api.IVpnManager;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.L3nexthopService;
 import org.opendaylight.yangtools.yang.binding.RpcService;
@@ -22,6 +23,7 @@ public class FibManagerProvider implements BindingAwareProvider, AutoCloseable {
 
   private FibManager fibManager;
   private IMdsalApiManager mdsalManager;
+  private IVpnManager vpnmanager;
 
   @Override
   public void onSessionInitiated(ProviderContext session) {
@@ -31,6 +33,7 @@ public class FibManagerProvider implements BindingAwareProvider, AutoCloseable {
       final RpcService nexthopService = session.getRpcService(L3nexthopService.class);
       fibManager = new FibManager(dataBroker, nexthopService);
       fibManager.setMdsalManager(mdsalManager);
+      fibManager.setVpnmanager(vpnmanager);
     } catch (Exception e) {
       LOG.error("Error initializing services", e);
     }
@@ -44,5 +47,9 @@ public class FibManagerProvider implements BindingAwareProvider, AutoCloseable {
 
   public void setMdsalManager(IMdsalApiManager mdsalManager) {
     this.mdsalManager = mdsalManager;
+  }
+
+  public void setVpnmanager(IVpnManager vpnmanager) {
+    this.vpnmanager = vpnmanager;
   }
 }

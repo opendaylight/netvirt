@@ -11,6 +11,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import com.google.common.util.concurrent.FutureCallback;
+
+import org.opendaylight.vpnmanager.api.IVpnManager;
 import org.opendaylight.vpnservice.AbstractDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -52,6 +54,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -64,6 +67,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   private final DataBroker broker;
   private final L3nexthopService l3nexthopService;
   private IMdsalApiManager mdsalManager;
+  private IVpnManager vpnmanager;
 
   private static final short L3_FIB_TABLE = 20;
   private static final short L3_LFIB_TABLE = 21;
@@ -108,6 +112,10 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     this.mdsalManager = mdsalManager;
   }
 
+  public void setVpnmanager(IVpnManager vpnmanager) {
+    this.vpnmanager = vpnmanager;
+  }
+
   private void registerListener(final DataBroker db) {
     try {
       listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
@@ -116,13 +124,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       LOG.error("FibManager DataChange listener registration fail!", e);
       throw new IllegalStateException("FibManager registration Listener failed.", e);
     }
-  }
-
-  @Override
-  protected void add(final InstanceIdentifier<VrfEntry> identifier,
-                     final VrfEntry vrfEntry) {
-    LOG.trace("key: " + identifier + ", value=" + vrfEntry );
-    createFibEntries(identifier, vrfEntry);
   }
 
   private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
@@ -144,21 +145,29 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class);
   }
 
-  @Override
-  protected void remove(InstanceIdentifier<VrfEntry> identifier, VrfEntry del) {
-    LOG.trace("key: " + identifier + ", value=" + del );
-  }
-
-  @Override
-  protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
-    LOG.trace("key: " + identifier + ", original=" + original + ", update=" + update );
-  }
-
   private <T extends DataObject> void asyncWrite(LogicalDatastoreType datastoreType,
                                                  InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
     WriteTransaction tx = broker.newWriteOnlyTransaction();
     tx.put(datastoreType, path, data, true);
     Futures.addCallback(tx.submit(), callback);
+  }
+
+  @Override
+  protected void add(final InstanceIdentifier<VrfEntry> identifier,
+                     final VrfEntry vrfEntry) {
+    LOG.trace("key: " + identifier + ", value=" + vrfEntry );
+    createFibEntries(identifier, vrfEntry);
+  }
+
+  @Override
+  protected void remove(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry) {
+    LOG.trace("key: " + identifier + ", value=" + vrfEntry);
+    deleteFibEntries(identifier, vrfEntry);
+  }
+
+  @Override
+  protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
+    LOG.trace("key: " + identifier + ", original=" + original + ", update=" + update );
   }
 
   private void createFibEntries(final InstanceIdentifier<VrfEntry> identifier,
@@ -169,34 +178,18 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
     Long vpnId = getVpnId(vrfTableKey.getRouteDistinguisher());
     Preconditions.checkNotNull(vpnId, "Vpn Instance not available!");
-    List<Long> dpns = getDpnsByVpn(vpnId);
+    Collection<Long> dpns = vpnmanager.getDpnsForVpn(vpnId);
     for (Long dpId : dpns) {
       addRouteInternal(dpId, vpnId, vrfTableKey, vrfEntry);
     }
   }
 
-  /*
-   *
-   */
   private void addRouteInternal(final long dpId, final long vpnId, final VrfTablesKey vrfTableKey,
-                        final VrfEntry vrfEntry) {
+                                final VrfEntry vrfEntry) {
     String rd = vrfTableKey.getRouteDistinguisher();
-    LOG.info("adding route " + vrfEntry.getDestPrefix() + " " + rd);
+    LOG.debug("adding route " + vrfEntry.getDestPrefix() + " " + rd);
 
-    String values[] = vrfEntry.getDestPrefix().split("/");
-    LOG.info(String.format("Adding route to DPN. ip %s masklen %s", values[0], values[1]));
-    String ipAddress = values[0];
-    int prefix = Integer.parseInt(values[1]);
-    InetAddress destAddress = null;
-    try {
-      destAddress = InetAddress.getByName(ipAddress);
-    } catch (UnknownHostException e) {
-      LOG.error(String.format("UnknowHostException in addRoute."
-                                 + "Failed to add Route for ipPrefix %s", vrfEntry.getDestPrefix()));
-      return;
-    }
-
-    GetEgressPointerOutput adjacency = resolveAdjacency(dpId, vpnId, vrfTableKey, vrfEntry);
+    GetEgressPointerOutput adjacency = resolveAdjacency(dpId, vpnId, vrfEntry);
     long groupId = -1;
     boolean isLocalRoute = false;
     if(adjacency != null) {
@@ -204,40 +197,63 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       isLocalRoute = adjacency.isLocalDestination();
     }
     if(groupId == -1) {
-      LOG.error(String.format("Could not get nexthop group id for nexthop: %s in vpn %s",
-                                   vrfEntry.getNextHopAddress(), rd));
-      LOG.warn(String.format("Failed to add Route: %s in vpn: %s",
-                             vrfEntry.getDestPrefix(), rd));
+      LOG.error("Could not get nexthop group id for nexthop: {} in vpn {}",
+                                   vrfEntry.getNextHopAddress(), rd);
+      LOG.warn("Failed to add Route: {} in vpn: {}",
+                             vrfEntry.getDestPrefix(), rd);
       return;
     }
 
-    makeConnectedRoute(dpId, destAddress, prefix, vpnId, rd, groupId, NwConstants.ADD_FLOW);
+    makeConnectedRoute(dpId, vpnId, vrfEntry, rd, groupId, NwConstants.ADD_FLOW);
 
     if (isLocalRoute) {
       makeLFibTableEntry(dpId, vrfEntry.getLabel(), groupId, vrfEntry.getNextHopAddress(), NwConstants.ADD_FLOW);
     }
 
-    LOG.info(
-        "Successfully added fib entry for " + destAddress.getHostAddress() + " vpnId " + vpnId);
+    LOG.debug(
+        "Successfully added fib entry for " + vrfEntry.getDestPrefix() + " vpnId " + vpnId);
   }
 
-  public void deleteRoute(InetAddress destPrefix, int prefixLength, int vpnId, String rd) {
-    LOG.info("deleting route "+destPrefix.getHostAddress()+ " "+vpnId);
+  private void deleteFibEntries(final InstanceIdentifier<VrfEntry> identifier,
+                                final VrfEntry vrfEntry) {
+    final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
+    Preconditions.checkNotNull(vrfTableKey, "VrfTablesKey cannot be null or empty!");
+    Preconditions.checkNotNull(vrfEntry, "VrfEntry cannot be null or empty!");
 
-    List<Long> dpnIds = getDpnsByVpn(vpnId);
-
-    for (long dpnId : dpnIds) {
-      makeConnectedRoute(dpnId, destPrefix, prefixLength, vpnId, rd, 0/*groupId*/, NwConstants.DEL_FLOW);
+    Long vpnId = getVpnId(vrfTableKey.getRouteDistinguisher());
+    Preconditions.checkNotNull(vpnId, "Vpn Instance not available!");
+    Collection<Long> dpns = vpnmanager.getDpnsForVpn(vpnId);
+    for (Long dpId : dpns) {
+      deleteRoute(dpId, vpnId, vrfTableKey, vrfEntry);
     }
-    LOG.info("Successfully delete fib entry for "+destPrefix.getHostAddress()+ " vpnId "+vpnId);
   }
 
-  public void deleteRoute(InetAddress destPrefix, int prefixLength, int vpnId, String rd, long dpId) {
-    LOG.info("deleting route "+destPrefix.getHostAddress()+ " "+vpnId);
+  public void deleteRoute(final long dpId, final long vpnId, final VrfTablesKey vrfTableKey,
+                          final VrfEntry vrfEntry) {
+    LOG.debug("deleting route "+ vrfEntry.getDestPrefix() + " "+vpnId);
+    String rd = vrfTableKey.getRouteDistinguisher();
+    GetEgressPointerOutput adjacency = resolveAdjacency(dpId, vpnId, vrfEntry);
+    long groupId = -1;
+    boolean isLocalRoute = false;
+    if(adjacency != null) {
+      groupId = adjacency.getEgressPointer();
+      isLocalRoute = adjacency.isLocalDestination();
+    }
+    if(groupId == -1) {
+      LOG.error("Could not get nexthop group id for nexthop: {} in vpn {}",
+                              vrfEntry.getNextHopAddress(), rd);
+      LOG.warn("Failed to add Route: {} in vpn: {}",
+                             vrfEntry.getDestPrefix(), rd);
+      return;
+    }
 
-    makeConnectedRoute(dpId, destPrefix, prefixLength, vpnId, rd, 0/*groupId*/, NwConstants.DEL_FLOW);
+    makeConnectedRoute(dpId, vpnId, vrfEntry, rd, groupId, NwConstants.DEL_FLOW);
 
-    LOG.info("Successfully delete fib entry for "+destPrefix.getHostAddress()+ " vpnId "+vpnId);
+    if (isLocalRoute) {
+      makeLFibTableEntry(dpId, vrfEntry.getLabel(), groupId, vrfEntry.getNextHopAddress(), NwConstants.DEL_FLOW);
+    }
+
+    LOG.debug("Successfully delete fib entry for "+ vrfEntry.getDestPrefix() + " vpnId "+vpnId);
   }
 
   private long getIpAddress(byte[] rawIpAddress) {
@@ -245,8 +261,19 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
             + ((rawIpAddress[2] & 0xFF) << (1 * 8)) + (rawIpAddress[3] & 0xFF)) & 0xffffffffL;
   }
 
-  private void makeConnectedRoute(long dpId, InetAddress destPrefix, int prefixLength, long vpnId,
-                          String rd, long groupId, int addOrRemove) {
+  private void makeConnectedRoute(long dpId, long vpnId, VrfEntry vrfEntry, String rd,
+                                  long groupId, int addOrRemove) {
+    String values[] = vrfEntry.getDestPrefix().split("/");
+    LOG.debug("Adding route to DPN. ip {} masklen {}", values[0], values[1]);
+    String ipAddress = values[0];
+    int prefixLength = Integer.parseInt(values[1]);
+    InetAddress destPrefix = null;
+    try {
+      destPrefix = InetAddress.getByName(ipAddress);
+    } catch (UnknownHostException e) {
+      LOG.error("UnknowHostException in addRoute. Failed to add Route for ipPrefix {}", vrfEntry.getDestPrefix());
+      return;
+    }
 
     List<MatchInfo> matches = new ArrayList<MatchInfo>();
 
@@ -266,6 +293,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
     if(addOrRemove == NwConstants.ADD_FLOW) {
       actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId)}));
+      actionsInfos.add(new ActionInfo(ActionType.push_mpls, new String[] { Long.toString(vrfEntry.getLabel())}));
       instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
     }
 
@@ -294,7 +322,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
     List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
     List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
-    actionsInfos.add(new ActionInfo(ActionType.pop_mpls, new String[]{Long.toString(label)}));
     actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));
     instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
 
@@ -311,7 +338,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     } else {
       mdsalManager.removeFlow(flowEntity);
     }
-    LOG.info("LFIB Entry for dpID {} : label : {} grpup {} modified successfully {}",dpId, label, groupId );
+    LOG.debug("LFIB Entry for dpID {} : label : {} grpup {} modified successfully {}",dpId, label, groupId );
   }
 
   private String getFlowRef(long dpnId, short tableId, long label, String nextHop) {
@@ -328,7 +355,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         .append(destPrefix.getHostAddress()).toString();
   }
 
-  private GetEgressPointerOutput resolveAdjacency(final long dpId, final long vpnId, final VrfTablesKey vrfTableKey,
+  private GetEgressPointerOutput resolveAdjacency(final long dpId, final long vpnId,
                         final VrfEntry vrfEntry) {
     GetEgressPointerOutput adjacency = null;
     try {
@@ -348,11 +375,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       LOG.trace("", e);
     }
     return adjacency;
-  }
-
-  private List<Long> getDpnsByVpn(long vpnId) {
-    // TODO: get list of dpns from vpnmanager, for all dpns List<Long>
-    return new ArrayList<>();
   }
 
   private Long getVpnId(String rd) {
