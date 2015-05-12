@@ -8,6 +8,7 @@
 package org.opendaylight.vpnservice;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -16,6 +17,7 @@ import org.opendaylight.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.vpnmanager.api.IVpnManager;
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
@@ -25,7 +27,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnserviceProvider implements BindingAwareProvider,
+public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
                                                        AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnserviceProvider.class);
@@ -90,5 +92,10 @@ public class VpnserviceProvider implements BindingAwareProvider,
     public void close() throws Exception {
         vpnManager.close();
         vpnInterfaceManager.close();
+    }
+
+    @Override
+    public Collection<Long> getDpnsForVpn(long vpnId) {
+        return vpnInterfaceManager.getDpnsForVpn(vpnId);
     }
 }

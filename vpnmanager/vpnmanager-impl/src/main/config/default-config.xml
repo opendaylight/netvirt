@@ -44,6 +44,15 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           </odlinterface>
         </module>
       </modules>
+      <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+        <service>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:vpnmanager:api">prefix:vpnmanager-api</type>
+          <instance>
+            <name>vpnmanager</name>
+            <provider>/modules/module[type='vpnservice-impl'][name='vpnservice-default']</provider>
+          </instance>
+        </service>
+      </services>
     </data>
   </configuration>
 </snapshot>

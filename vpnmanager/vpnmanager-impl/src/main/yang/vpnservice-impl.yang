@@ -6,6 +6,7 @@ module vpnservice-impl {
     import config { prefix config; revision-date 2013-04-05; }
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
     import bgpmanager-api { prefix bgpmgr-api; revision-date 2015-04-20;}
+    import vpnmanager-api { prefix vpnmgr-api; revision-date 2015-05-08;}
     import odl-mdsalutil { prefix odl-mdsal; revision-date 2015-04-10;}
     import odl-interface {prefix odlif; revision-date 2015-03-31;}
 
@@ -19,6 +20,7 @@ module vpnservice-impl {
 
     identity vpnservice-impl {
         base config:module-type;
+        config:provided-service vpnmgr-api:vpnmanager-api;
         config:java-name-prefix VpnserviceImpl;
     }
 

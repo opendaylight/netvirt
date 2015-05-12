@@ -8,12 +8,18 @@
 package org.opendaylight.vpnservice;
 
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -70,6 +76,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     private IMdsalApiManager mdsalManager;
     private IInterfaceManager interfaceManager;
     private IdManagerService idManager;
+    private Map<Long, Collection<Long>> vpnToDpnsDb;
+    private Map<Long, Collection<String>> dpnToInterfaceDb;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
             new FutureCallback<Void>() {
@@ -92,6 +100,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         super(VpnInterface.class);
         broker = db;
         this.bgpManager = bgpManager;
+        vpnToDpnsDb = new ConcurrentHashMap<>();
+        dpnToInterfaceDb = new ConcurrentHashMap<>();
         registerListener(db);
     }
 
@@ -230,6 +240,41 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         return rd;
     }
 
+    private synchronized void updateMappingDbs(long vpnId, long dpnId, String intfName) {
+        Collection<Long> dpnIds = vpnToDpnsDb.get(vpnId);
+        if(dpnIds == null) {
+            dpnIds = new HashSet<>();
+        }
+        if(dpnIds.add(dpnId)) {
+            vpnToDpnsDb.put(vpnId, dpnIds);
+            //TODO: Send an Event that new DPN added...
+        }
+
+        Collection<String> intfNames = dpnToInterfaceDb.get(dpnId);
+        if(intfNames == null) {
+            intfNames = new ArrayList<>();
+        }
+        intfNames.add(intfName);
+        dpnToInterfaceDb.put(dpnId, intfNames);
+    }
+
+    private synchronized void remoteFromMappingDbs(long vpnId, long dpnId, String inftName) {
+        Collection<String> intfNames = dpnToInterfaceDb.get(dpnId);
+        if(intfNames == null) {
+            return;
+        }
+        intfNames.remove(inftName);
+        dpnToInterfaceDb.put(dpnId, intfNames);
+        if(intfNames.isEmpty()) {
+            Collection<Long> dpnIds = vpnToDpnsDb.get(vpnId);
+            if(dpnIds == null) {
+                return;
+            }
+            dpnIds.remove(dpnId);
+            vpnToDpnsDb.put(vpnId, dpnIds);
+        }
+    }
+
     private void bindServiceOnInterface(Interface intf, long vpnId) {
         LOG.info("Bind service on interface {} for VPN: {}", intf, vpnId);
 
@@ -237,6 +282,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         if(dpId == 0L) {
             LOG.warn("DPN for interface {} not found. Bind service on this interface aborted.", intf.getName());
             return;
+        } else {
+            updateMappingDbs(vpnId, dpId, intf.getName());
         }
 
         long portNo = interfaceManager.getPortForInterface(intf.getName());
@@ -307,8 +354,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         Optional<Interface> port = read(LogicalDatastoreType.CONFIGURATION, id);
         if (port.isPresent()) {
             Interface interf = port.get();
-            unbindServiceOnInterface(interf, getVpnId(vpnInterface.getVpnInstanceName()));
             removeNextHops(identifier, vpnInterface);
+            unbindServiceOnInterface(interf, getVpnId(vpnInterface.getVpnInstanceName()));
         } else {
             LOG.info("No nexthops were available to handle remove event {}", interfaceName);
         }
@@ -347,6 +394,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         if(dpId == 0L) {
             LOG.warn("DPN for interface {} not found. Unbind service on this interface aborted.", intf.getName());
             return;
+        } else {
+            remoteFromMappingDbs(vpnId, dpId, intf.getName());
         }
 
         long portNo = interfaceManager.getPortForInterface(intf.getName());
@@ -387,5 +436,14 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, true);
         Futures.addCallback(tx.submit(), callback);
+    }
+
+    synchronized Collection<Long> getDpnsForVpn(long vpnId) {
+        Collection<Long> dpnIds = vpnToDpnsDb.get(vpnId);
+        if(dpnIds != null) {
+            return ImmutableList.copyOf(dpnIds);
+        } else {
+            return Collections.emptyList();
+        }
     }
 }
