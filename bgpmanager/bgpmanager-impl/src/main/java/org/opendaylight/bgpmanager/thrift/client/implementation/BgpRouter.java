@@ -70,7 +70,7 @@ public class BgpRouter {
         this.bgpPort = bgpPort;
         bop = new BgpOp();
         try {
-            LOGGER.info("Connecting to BGP Server " + bgpHost + " on port " + bgpPort);
+            LOGGER.debug("Connecting to BGP Server " + bgpHost + " on port " + bgpPort);
             reInit();
         } catch (Exception e) {
             LOGGER.error("Failed connecting to BGP server ");
@@ -142,7 +142,7 @@ public class BgpRouter {
         bop.type = START_BGP;
         bop.asNum = asNum;
         bop.rtrId = rtrId;
-        LOGGER.info("Starting BGP Server with as number " + asNum + " and router ID " + rtrId);
+        LOGGER.debug("Starting BGP Server with as number {} and router ID {} ", asNum, rtrId);
         dispatch(bop);
     }
 
@@ -151,7 +151,7 @@ public class BgpRouter {
         bop.type = ADD_NBR;
         bop.nbrIp = nbrIp;
         bop.nbrAsNum = nbrAsNum;
-        LOGGER.info("Adding BGP Neighbor " + nbrIp + " with as number " + nbrAsNum);
+        LOGGER.debug("Adding BGP Neighbor {} with as number {} ", nbrIp, nbrAsNum);
         dispatch(bop);
     }
 
@@ -159,7 +159,7 @@ public class BgpRouter {
         throws TException, BgpRouterException {
         bop.type = DEL_NBR;
         bop.nbrIp = nbrIp;
-        LOGGER.info("Deleting BGP Neighbor " + nbrIp);
+        LOGGER.debug("Deleting BGP Neighbor {} ", nbrIp);
         dispatch(bop);
     }
 
@@ -169,7 +169,7 @@ public class BgpRouter {
         bop.rd = rd;
         bop.irts = irts;
         bop.erts = erts;
-        LOGGER.info("Adding BGP VRF rd: " + rd);
+        LOGGER.debug("Adding BGP VRF rd: {} ", rd);
         dispatch(bop);
     }
 
@@ -177,7 +177,7 @@ public class BgpRouter {
         throws TException, BgpRouterException {
         bop.type = DEL_VRF;
         bop.rd = rd;
-        LOGGER.info("Deleting BGP VRF rd: " + rd);
+        LOGGER.debug("Deleting BGP VRF rd: {} " + rd);
         dispatch(bop);
     }
 
@@ -188,7 +188,7 @@ public class BgpRouter {
         bop.pfx = prefix;
         bop.nh = nexthop;
         bop.lbl = label;
-        LOGGER.info("Adding BGP route - rd:" + rd + " prefix:" + prefix + " nexthop:" + nexthop + " label:" + label);
+        LOGGER.debug("Adding BGP route - rd:{} prefix:{} nexthop:{} label:{} ", rd ,prefix, nexthop, label);
         dispatch(bop);
     }
 
@@ -197,7 +197,7 @@ public class BgpRouter {
         bop.type = DEL_PFX;
         bop.rd = rd;
         bop.pfx = prefix;
-        LOGGER.info("Deleting BGP route - rd:" + rd + " prefix:" + prefix);
+        LOGGER.debug("Deleting BGP route - rd:{} prefix:{} ", rd, prefix);
         dispatch(bop);
     }
 
@@ -267,7 +267,7 @@ public class BgpRouter {
         BgpSyncHandle bsh = BgpSyncHandle.getInstance();
 
         try {
-            LOGGER.info("Starting BGP Route sync.. ");
+            LOGGER.debug("Starting BGP Route sync.. ");
             initRibSync(bsh);
             while (bsh.getState() != bsh.DONE) {
                 Routes r = doRibSync(bsh);
@@ -288,7 +288,7 @@ public class BgpRouter {
                 }
             }
             endRibSync(bsh);
-            LOGGER.info("Completed BGP Route sync.");
+            LOGGER.debug("Completed BGP Route sync.");
         }  catch (Exception e) {
             throw e;
         }

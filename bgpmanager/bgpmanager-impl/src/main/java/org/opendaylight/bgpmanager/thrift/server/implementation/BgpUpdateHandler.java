@@ -20,21 +20,20 @@ class BgpUpdateHandler implements BgpUpdater.Iface {
     public void onUpdatePushRoute(String rd, String prefix, int plen,
                                 String nexthop, int label) {
 
-       LOGGER.info("Route add ** " + rd + " ** " + prefix + "/" + plen
-               + " ** " + nexthop + " ** " + label);
+       LOGGER.debug("Route add ** {} ** {}/{} ** {} ** {} ", rd, prefix, plen, nexthop, label);
         //Write to FIB in Data Store
         fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, nexthop, label);
 
    }
 
    public void onUpdateWithdrawRoute(String rd, String prefix, int plen) {
-       LOGGER.info("Route del ** " + rd + " ** " + prefix + "/" + plen);
+       LOGGER.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
        fibDSWriter.removeFibEntryFromDS(rd, prefix + "/" + plen);
 
    }
 
    public void onStartConfigResyncNotification() {
-       LOGGER.info("BGP (re)started");
+       LOGGER.debug("BGP (re)started");
        bgpManager.reInitConn();
    }
 

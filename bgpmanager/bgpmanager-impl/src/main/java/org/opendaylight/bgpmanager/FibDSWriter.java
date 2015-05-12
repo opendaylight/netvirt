@@ -44,7 +44,7 @@ public class FibDSWriter {
 
         VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).
             setNextHopAddress(nexthop).setLabel((long)label).build();
-        logger.debug("Created vrfEntry for " + prefix + " nexthop " + nexthop + " label " + label);
+        logger.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nexthop, label);
 
         List<VrfEntry> vrfEntryList = new ArrayList<VrfEntry>();
         vrfEntryList.add(vrfEntry);
@@ -62,7 +62,7 @@ public class FibDSWriter {
 
     public synchronized void removeFibEntryFromDS(String rd, String prefix) {
 
-        logger.debug("Removing fib entry with destination prefix " + prefix + " from vrf table for rd " + rd);
+        logger.debug("Removing fib entry with destination prefix {} from vrf table for rd {}", prefix, rd);
 
         InstanceIdentifierBuilder<VrfEntry> idBuilder =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class, new VrfEntryKey(prefix));
