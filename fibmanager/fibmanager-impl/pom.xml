@@ -27,11 +27,25 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>mdsalutil-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>vpnmanager-impl</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.opendaylight.vpnservice</groupId>
+      <artifactId>vpnmanager-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.vpnservice</groupId>
+      <artifactId>nexthopmgr-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
   </dependencies>
 
 </project>

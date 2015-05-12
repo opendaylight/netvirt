@@ -10,6 +10,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 <snapshot>
   <required-capabilities>
       <capability>urn:opendaylight:params:xml:ns:yang:fibmanager:impl?module=fibmanager-impl&amp;revision=2015-03-25</capability>
+      <capability>urn:opendaylight:params:xml:ns:yang:mdsalutil:api?module=odl-mdsalutil&amp;revision=2015-04-10</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
   </required-capabilities>
   <configuration>
@@ -23,6 +24,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-broker-osgi-registry</type>
             <name>binding-osgi-broker</name>
           </broker>
+          <mdsalutil>
+            <type xmlns:mdsalutil="urn:opendaylight:params:xml:ns:yang:mdsalutil:api">mdsalutil:odl-mdsalutil</type>
+            <name>mdsalutil-service</name>
+          </mdsalutil>
         </module>
       </modules>
     </data>
