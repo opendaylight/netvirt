@@ -11,20 +11,15 @@ package org.opendaylight.vpnservice.mdsalutil.internal;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.ActionType;
 import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
 import org.opendaylight.vpnservice.mdsalutil.GroupEntity;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
-import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
@@ -64,10 +59,6 @@ public class MDSALManager implements AutoCloseable {
 
     private PacketProcessingService m_packetProcessingService;
 
-    private final AtomicInteger m_atomicInteger = new AtomicInteger();
-
-    //TODO : IF ID MANAGER IS RQD
-
     /**
      * Writes the flows and Groups to the MD SAL DataStore
      * which will be sent to the openflowplugin for installing flows/groups on the switch.
@@ -83,58 +74,32 @@ public class MDSALManager implements AutoCloseable {
 
     }
 
-
     @Override
     public void close() throws Exception {
         s_logger.info("MDSAL Manager Closed");
     }
 
-
-    public void printTest() {
-
-        s_logger.info(" INTER MODULECOMMUNICATION IS WORKING!!!!");
-    }
-
     public void installFlow(FlowEntity flowEntity) {
 
         try {
-            s_logger.info("within installFlow {}", flowEntity.getDpnId());
+            s_logger.info("InstallFlow for flowEntity {} ", flowEntity);
 
             if (flowEntity.getCookie() == null) {
-              //  s_logger.info("Helium_sync: Cookie is null");
-                flowEntity.setCookie(new BigInteger("0110000", 16));
+               flowEntity.setCookie(new BigInteger("0110000", 16));
             }
 
             FlowKey flowKey = new FlowKey( new FlowId(flowEntity.getFlowId()) );
 
             FlowBuilder flowbld = flowEntity.getFlowBuilder();
 
-            Flow flow = flowbld.build() ;
-
             Node nodeDpn = buildDpnNode(flowEntity.getDpnId());
-            InstanceIdentifier<Node> nodeInstanceId = InstanceIdentifier.builder(Nodes.class)
-                    .child(Node.class, nodeDpn.getKey()).build();
-
             InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
                     .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
                     .child(Table.class, new TableKey(flowEntity.getTableId())).child(Flow.class,flowKey).build();
 
-            String sTransactionUri = generateTransactionUri();
-
-            TableKey tableKey = new TableKey(flowEntity.getTableId() );
-            InstanceIdentifier<Table> tableInstanceId = InstanceIdentifier.create(Nodes.class).child(Node.class, nodeDpn.getKey())
-                    .augmentation(FlowCapableNode.class).child(Table.class, tableKey);
-            Table table = new TableBuilder().setKey(tableKey).setFlow(Collections.<Flow>emptyList()).build();
-
             WriteTransaction modification = m_dataBroker.newWriteOnlyTransaction();
 
-            //CHECK IF RQD
-           // modification.put(LogicalDatastoreType.CONFIGURATION, nodeInstanceId, nodeDpn, true);
-
-
-            modification.put(LogicalDatastoreType.CONFIGURATION, tableInstanceId, table);
-
-            modification.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flowbld.build());
+            modification.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flowbld.build(),true );
 
             CheckedFuture<Void,TransactionCommitFailedException> submitFuture  = modification.submit();
 
@@ -160,7 +125,7 @@ public class MDSALManager implements AutoCloseable {
                 }
             });
         } catch (Exception e) {
-            s_logger.error("Could not install flow: {}, exception: {}", flowEntity, e.getMessage());
+            s_logger.error("Could not install flow: {}, exception: {}", flowEntity, e);
         }
     }
 
@@ -169,17 +134,14 @@ public class MDSALManager implements AutoCloseable {
             Group group = groupEntity.getGroupBuilder().build();
 
             Node nodeDpn = buildDpnNode(groupEntity.getDpnId());
-            InstanceIdentifier<Node> nodeInstanceId = InstanceIdentifier.builder(Nodes.class)
-                    .child(Node.class, nodeDpn.getKey()).build();
+
             InstanceIdentifier<Group> groupInstanceId = InstanceIdentifier.builder(Nodes.class)
                     .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
                     .child(Group.class, new GroupKey(new GroupId(groupEntity.getGroupId()))).build();
 
             WriteTransaction modification = m_dataBroker.newWriteOnlyTransaction();
 
-            //CHECK IF RQD
-         //   modification.put(LogicalDatastoreType.CONFIGURATION, nodeInstanceId, nodeDpn);
-            modification.put(LogicalDatastoreType.CONFIGURATION, groupInstanceId, group);
+            modification.put(LogicalDatastoreType.CONFIGURATION, groupInstanceId, group, true);
 
             CheckedFuture<Void,TransactionCommitFailedException> submitFuture  = modification.submit();
 
@@ -204,7 +166,7 @@ public class MDSALManager implements AutoCloseable {
                 }
              });
            } catch (Exception e) {
-            s_logger.error("Could not install Group: {}, exception: {}", groupEntity, e.getMessage());
+            s_logger.error("Could not install Group: {}, exception: {}", groupEntity, e);
             throw e;
         }
     }
@@ -244,7 +206,7 @@ public class MDSALManager implements AutoCloseable {
 
                 });
         } catch (Exception e) {
-            s_logger.error("Could not remove Flow: {}, exception: {}", flowEntity, e.getMessage());
+            s_logger.error("Could not remove Flow: {}, exception: {}", flowEntity, e);
         }
     }
 
@@ -281,7 +243,7 @@ public class MDSALManager implements AutoCloseable {
                 }
             });
         } catch (Exception e) {
-            s_logger.error("Could not remove Group: {}, exception: {}", groupEntity, e.getMessage());
+            s_logger.error("Could not remove Group: {}, exception: {}", groupEntity, e);
         }
     }
 
@@ -289,21 +251,6 @@ public class MDSALManager implements AutoCloseable {
 
         installGroup(groupEntity);
     }
-
-    private String generateTransactionUri() {
-        long lTransactionIdOut = m_atomicInteger.incrementAndGet();
-
-        // TO DO Introduce this later
-      //  return "" + (lTransactionIdOut | m_lTransactionIdPrefix);
-        return "" + (lTransactionIdOut );
-    }
-/*
-    private String generateTransactionUriForFlow(long nTransactionId) {
-        long lTransactionIdOut = m_atomicInteger.incrementAndGet();
-        return Long.toString((lTransactionIdOut | m_lTransactionIdPrefix)) + EUtil.TRANSACTION_ID_SEPARATOR
-                + Long.toString(nTransactionId);
-    }
-*/
 
     public void sendPacketOut(long lDpnId, int groupId, byte[] payload) {
 
@@ -322,12 +269,6 @@ public class MDSALManager implements AutoCloseable {
     public void sendARPPacketOutWithActions(long lDpnId, byte[] payload, List<ActionInfo> actions) {
         m_packetProcessingService.transmitPacket(MDSALUtil.getPacketOut(actions, payload, lDpnId,
                 getNodeConnRef("openflow:" + lDpnId, "0xfffffffd")));
-    }
-
-    private NodeKey getNodeKey(long dpId) {
-        String nodeId = "openflow:" + dpId;
-        NodeKey nodeKey = new NodeKey(new NodeId(nodeId));
-        return nodeKey;
     }
 
     public InstanceIdentifier<Node> nodeToInstanceId(Node node) {
@@ -351,11 +292,6 @@ public class MDSALManager implements AutoCloseable {
         InstanceIdentifier<NodeConnector> path = _child_1.toInstance();
         NodeConnectorRef _nodeConnectorRef = new NodeConnectorRef(path);
         return _nodeConnectorRef;
-    }
-
-    private long getDpnIdFromNodeName(String nodeName) {
-        String dpId = nodeName.substring(nodeName.lastIndexOf(":") + 1);
-        return Long.parseLong(dpId);
     }
 
     private Node buildDpnNode(long lDpnId) {

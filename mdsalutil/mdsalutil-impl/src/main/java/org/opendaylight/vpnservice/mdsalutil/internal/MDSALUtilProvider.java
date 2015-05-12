@@ -90,11 +90,4 @@ public class MDSALUtilProvider implements BindingAwareConsumer, IMdsalApiManager
         mdSalMgr.sendARPPacketOutWithActions(dpid, payload, action_info);
     }
 
-
-    @Override
-    public void printTest() {
-        // TODO Auto-generated method stub
-        mdSalMgr.printTest();
-    }
-
 }

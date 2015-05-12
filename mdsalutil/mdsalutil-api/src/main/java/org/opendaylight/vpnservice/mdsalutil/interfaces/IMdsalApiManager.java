@@ -22,7 +22,5 @@ public interface IMdsalApiManager {
     public void sendPacketOutWithActions(long lDpnId, long groupId, byte[] payload, List<ActionInfo> actionInfos);
 
     public void sendARPPacketOutWithActions(long dpid, byte[] payload, List<ActionInfo> action_info);
-    
-    public void printTest() ;
 
- }
+}
