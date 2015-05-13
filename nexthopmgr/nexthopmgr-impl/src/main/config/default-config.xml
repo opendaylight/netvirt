@@ -33,6 +33,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <type xmlns:odlif="urn:opendaylight:vpnservice:interfacemgr">odlif:odl-interface</type>
             <name>interfacemgr-service</name>
           </odlinterface>
+          <rpc-registry>
+            <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-rpc-registry</type>
+            <name>binding-rpc-broker</name>
+          </rpc-registry>
         </module>
       </modules>
     </data>

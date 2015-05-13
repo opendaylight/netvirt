@@ -18,10 +18,9 @@ public class NexthopmgrImplModule extends org.opendaylight.yang.gen.v1.urn.opend
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        NexthopmgrProvider provider = new NexthopmgrProvider();
+        NexthopmgrProvider provider = new NexthopmgrProvider(getRpcRegistryDependency());
         provider.setMdsalManager(getMdsalutilDependency());
         provider.setInterfaceManager(getOdlinterfaceDependency());
-
         getBrokerDependency().registerProvider(provider);
         return provider;
     }
