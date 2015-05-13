@@ -8,13 +8,15 @@
 package org.opendaylight.vpnservice.nexthopmgr;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.vpnservice.nexthopmgr.NexthopManager;
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.L3nexthopService;
 import org.opendaylight.idmanager.IdManager;
-
+import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,15 @@ public class NexthopmgrProvider implements BindingAwareProvider, AutoCloseable {
     private IMdsalApiManager mdsalManager;
     private IInterfaceManager interfaceManager;
     private IdManager idManager;
+    private RpcProviderRegistry rpcProviderRegistry;
+
+    public RpcProviderRegistry getRpcProviderRegistry() {
+        return rpcProviderRegistry;
+    }
+
+    public void setRpcProviderRegistry(RpcProviderRegistry rpcProviderRegistry) {
+        this.rpcProviderRegistry = rpcProviderRegistry;
+    }
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -35,6 +46,7 @@ public class NexthopmgrProvider implements BindingAwareProvider, AutoCloseable {
         vpnIfListener = new VpnInterfaceChangeListener(dbx, nhManager);
         odlIfListener = new OdlInterfaceChangeListener(dbx, nhManager, interfaceManager);
         idManager = new IdManager(dbx);
+        final BindingAwareBroker.RpcRegistration<L3nexthopService> rpcRegistration = getRpcProviderRegistry().addRpcImplementation(L3nexthopService.class, nhManager);
         nhManager.setMdsalManager(mdsalManager);
         nhManager.setInterfaceManager(interfaceManager);
         nhManager.setIdManager(idManager);
@@ -48,6 +60,10 @@ public class NexthopmgrProvider implements BindingAwareProvider, AutoCloseable {
 
     public void setInterfaceManager(IInterfaceManager interfaceManager) {
         this.interfaceManager = interfaceManager;
+    }
+
+    public NexthopmgrProvider(RpcProviderRegistry rpcRegistry) {
+        this.rpcProviderRegistry = rpcRegistry;
     }
 
     @Override

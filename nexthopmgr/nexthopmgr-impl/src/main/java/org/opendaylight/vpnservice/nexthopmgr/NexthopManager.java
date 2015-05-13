@@ -165,7 +165,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
             BucketInfo bucket = new BucketInfo(listActionInfo);
             // MAC re-write
             if (macAddress != null) {
-                listActionInfo.add(new ActionInfo(ActionType.set_field_eth_dest, new String[]{macAddress}));
+               listActionInfo.add(0, new ActionInfo(ActionType.set_field_eth_dest, new String[]{macAddress}));
             } else {
                 //FIXME: Log message here.
             }
