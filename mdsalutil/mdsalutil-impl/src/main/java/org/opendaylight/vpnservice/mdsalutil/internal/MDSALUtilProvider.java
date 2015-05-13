@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.opendaylight.vpnservice.mdsalutil.internal;
 
 import java.util.List;
@@ -27,8 +34,7 @@ public class MDSALUtilProvider implements BindingAwareConsumer, IMdsalApiManager
             final DataBroker dataBroker;
             final PacketProcessingService packetProcessingService;
             dataBroker = session.getSALService(DataBroker.class);
-             // TODO - Verify this.
-             packetProcessingService = session.getRpcService(PacketProcessingService.class);
+            packetProcessingService = session.getRpcService(PacketProcessingService.class);
              mdSalMgr = new MDSALManager( dataBroker, packetProcessingService) ;
         }catch( Exception e) {
             s_logger.error( "Error initializing MD SAL Util Services " + e );

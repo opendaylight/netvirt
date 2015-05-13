@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2013 Ericsson AB.  All rights reserved.
+ * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
- *
  */
 
 package org.opendaylight.vpnservice.mdsalutil.internal;
@@ -71,7 +70,7 @@ public class MDSALManager implements AutoCloseable {
     public MDSALManager(final DataBroker db, PacketProcessingService pktProcService) {
         m_dataBroker = db;
         m_packetProcessingService = pktProcService;
-
+        s_logger.info( "MDSAL Manager Initialized ") ;
     }
 
     @Override
@@ -82,7 +81,7 @@ public class MDSALManager implements AutoCloseable {
     public void installFlow(FlowEntity flowEntity) {
 
         try {
-            s_logger.info("InstallFlow for flowEntity {} ", flowEntity);
+            s_logger.trace("InstallFlow for flowEntity {} ", flowEntity);
 
             if (flowEntity.getCookie() == null) {
                flowEntity.setCookie(new BigInteger("0110000", 16));
@@ -108,7 +107,7 @@ public class MDSALManager implements AutoCloseable {
                 @Override
                 public void onSuccess(final Void result) {
                     // Commited successfully
-                    s_logger.info( "Install Flow -- Committedsuccessfully ") ;
+                    s_logger.debug( "Install Flow -- Committedsuccessfully ") ;
                 }
 
                 @Override
@@ -149,7 +148,7 @@ public class MDSALManager implements AutoCloseable {
                 @Override
                 public void onSuccess(final Void result) {
                     // Commited successfully
-                    s_logger.info( "Install Group -- Committedsuccessfully ") ;
+                    s_logger.debug( "Install Group -- Committedsuccessfully ") ;
                 }
 
                 @Override
@@ -189,7 +188,7 @@ public class MDSALManager implements AutoCloseable {
                     @Override
                     public void onSuccess(final Void result) {
                         // Commited successfully
-                        s_logger.info( "Delete Flow -- Committedsuccessfully ") ;
+                        s_logger.debug( "Delete Flow -- Committedsuccessfully ") ;
                     }
 
                     @Override
@@ -227,7 +226,7 @@ public class MDSALManager implements AutoCloseable {
                 @Override
                 public void onSuccess(final Void result) {
                     // Commited successfully
-                    s_logger.info( "Install Group -- Committedsuccessfully ") ;
+                    s_logger.debug( "Install Group -- Committedsuccessfully ") ;
                 }
 
                 @Override
