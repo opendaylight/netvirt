@@ -64,7 +64,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
         new FutureCallback<Void>() {
             public void onSuccess(Void result) {
-                LOG.info("Success in Datastore write operation");
+                LOG.debug("Success in Datastore write operation");
             }
             public void onFailure(Throwable error) {
                 LOG.error("Error in Datastore write operation", error);
@@ -159,6 +159,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         long vpnId = getVpnId(vpnName);
         long dpnId = interfaceManager.getDpnForInterface(ifName);
         VpnNexthop nexthop = getVpnNexthop(vpnId, ipAddress);
+        LOG.trace("nexthop: {}", nexthop);
         if (nexthop == null) {
             List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
             List<ActionInfo> listActionInfo = interfaceManager.getInterfaceEgressActions(ifName);
@@ -230,7 +231,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
         InstanceIdentifier<VpnNexthop> id1 = idBuilder
                 .child(VpnNexthop.class, new VpnNexthopKey(ipPrefix)).build();
-
+        LOG.trace("Adding nextHop {} to Operational DS", nh);
         asyncWrite(LogicalDatastoreType.OPERATIONAL, id1, nh, DEFAULT_CALLBACK);
 
     }
@@ -382,6 +383,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         GetEgressPointerOutputBuilder output = new GetEgressPointerOutputBuilder();
 
         String endpointIp = interfaceManager.getEndpointIpForDpn(input.getDpnId());
+        LOG.trace("getEgressPointer: input {}, endpointIp {}", input, endpointIp);
         if (input.getNexthopIp().equals(endpointIp)) {
             VpnNexthop vpnNextHop = getVpnNexthop(input.getVpnId(), input.getIpPrefix());
             output.setEgressPointer(vpnNextHop.getEgressPointer());

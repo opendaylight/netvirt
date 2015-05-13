@@ -8,6 +8,8 @@
 package org.opendaylight.vpnservice.nexthopmgr;
 
 
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -69,14 +71,18 @@ public class OdlInterfaceChangeListener extends AbstractDataChangeListener<Inter
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        LOG.info("key: " + identifier + ", value=" + intrf );
+        LOG.trace("key: " + identifier + ", value=" + intrf );
 
         if (intrf.getType().equals(L3tunnel.class)) {
             IfL3tunnel intfData = intrf.getAugmentation(IfL3tunnel.class);
-            String gwIp = intfData.getGatewayIp().toString();
-            String remoteIp = intfData.getRemoteIp().toString();
+            IpAddress gatewayIp = intfData.getGatewayIp();
+            String gwIp = (gatewayIp == null) ? null : gatewayIp.toString();
+            String remoteIp = null;
             if (gwIp != null) {
                 remoteIp = gwIp;
+            } else {
+                IpAddress remIp = intfData.getRemoteIp();
+                remoteIp = (remIp == null) ? null : remIp.toString();
             }
             NodeConnectorId ofPort = intrf.getAugmentation(BaseIds.class).getOfPortId();
             nexthopManager.createRemoteNextHop(intrf.getName(), ofPort.toString(), remoteIp);

@@ -263,10 +263,11 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
   private void makeConnectedRoute(long dpId, long vpnId, VrfEntry vrfEntry, String rd,
                                   long groupId, int addOrRemove) {
+    LOG.trace("makeConnectedRoute: vrfEntry {}",vrfEntry);
     String values[] = vrfEntry.getDestPrefix().split("/");
-    LOG.debug("Adding route to DPN. ip {} masklen {}", values[0], values[1]);
     String ipAddress = values[0];
-    int prefixLength = Integer.parseInt(values[1]);
+    int prefixLength = (values.length == 1) ? 32 : Integer.parseInt(values[1]);
+    LOG.debug("Adding route to DPN. ip {} masklen {}", ipAddress, prefixLength);
     InetAddress destPrefix = null;
     try {
       destPrefix = InetAddress.getByName(ipAddress);
@@ -293,7 +294,8 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
     if(addOrRemove == NwConstants.ADD_FLOW) {
       actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId)}));
-      actionsInfos.add(new ActionInfo(ActionType.push_mpls, new String[] { Long.toString(vrfEntry.getLabel())}));
+      actionsInfos.add(new ActionInfo(ActionType.push_mpls, new String[] { null }));
+      actionsInfos.add(new ActionInfo(ActionType.set_field_mpls_label, new String[] { Long.toString(vrfEntry.getLabel())}));
       instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
     }
 
@@ -338,7 +340,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     } else {
       mdsalManager.removeFlow(flowEntity);
     }
-    LOG.debug("LFIB Entry for dpID {} : label : {} grpup {} modified successfully {}",dpId, label, groupId );
+    LOG.debug("LFIB Entry for dpID {} : label : {} group {} modified successfully {}",dpId, label, groupId );
   }
 
   private String getFlowRef(long dpnId, short tableId, long label, String nextHop) {

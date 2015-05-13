@@ -178,20 +178,23 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             long dpnId = interfaceManager.getDpnForInterface(intfName);
             String nextHopIp = interfaceManager.getEndpointIpForDpn(dpnId);
 
-            if (!nextHops.isEmpty()) {
-                LOG.trace("NextHops are {}", nextHops);
-                for (Adjacency nextHop : nextHops) {
-                    String key = nextHop.getIpAddress();
-                    long label = getUniqueId(key);
 
-                    updatePrefixToBGP(rd, nextHop, nextHopIp, label);
-                    value.add(new AdjacencyBuilder(nextHop).setLabel(label).build());
-                }
+            LOG.trace("NextHops are {}", nextHops);
+            for (Adjacency nextHop : nextHops) {
+                String key = nextHop.getIpAddress();
+                long label = getUniqueId(key);
+                value.add(new AdjacencyBuilder(nextHop).setLabel(label).build());
             }
+
             Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(value);
             VpnInterface opInterface = VpnUtil.getVpnInterface(intfName, intf.getVpnInstanceName(), aug);
             InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(intfName);
             asyncWrite(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface, DEFAULT_CALLBACK);
+            for (Adjacency nextHop : nextHops) {
+                String key = nextHop.getIpAddress();
+                long label = getUniqueId(key);
+                updatePrefixToBGP(rd, nextHop, nextHopIp, label);
+            }
         }
     }
 

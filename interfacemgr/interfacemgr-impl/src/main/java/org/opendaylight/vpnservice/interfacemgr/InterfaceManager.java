@@ -439,7 +439,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             //TODO: This should be an MDSAL Util method
             return Long.parseLong(IfmUtil.getDpnFromNodeConnectorId(port.getId()));
         } catch (NullPointerException e) {
-            LOG.error("OFPort for Interface {} not found", ifName);
+            LOG.error("dpn for Interface {} not found", ifName);
         }
         return 0L;
     }
