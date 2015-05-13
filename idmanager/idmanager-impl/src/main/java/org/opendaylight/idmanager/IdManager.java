@@ -72,14 +72,14 @@ public class IdManager implements IdManagerService, AutoCloseable{
         return result;
     }
 
-    private <T extends DataObject> void asyncWrite(LogicalDatastoreType datastoreType,
+    protected  <T extends DataObject> void asyncWrite(LogicalDatastoreType datastoreType,
                                                    InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, true);
         Futures.addCallback(tx.submit(), callback);
     }
 
-    private <T extends DataObject> void asyncUpdate(LogicalDatastoreType datastoreType,
+    protected  <T extends DataObject> void asyncUpdate(LogicalDatastoreType datastoreType,
                                                     InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.merge(datastoreType, path, data, true);
@@ -95,7 +95,7 @@ public class IdManager implements IdManagerService, AutoCloseable{
         long poolSize = input.getPoolSize().longValue();
         RpcResultBuilder<Void> rpcResultBuilder;
 
-        LOG.debug("poolName: %s, startIndx: %d , poolSize: %d ", poolName, startIndx,  poolSize);
+        LOG.debug("poolName: {}, startIndx: {} , poolSize: {} ", poolName, startIndx,  poolSize);
 
         try {
             InstanceIdentifier.InstanceIdentifierBuilder<IdPool> idBuilder =
@@ -146,9 +146,9 @@ public class IdManager implements IdManagerService, AutoCloseable{
                     generatedIds = new ArrayList<GeneratedIds>();
                 }
                 if (!generatedIds.isEmpty()) {
-                    for (GeneratedIds gen_id : generatedIds) {
-                        if (gen_id.getIdKey().equals(idKey)) {
-                            newIdValue = gen_id.getIdValue();
+                    for (GeneratedIds genId : generatedIds) {
+                        if (genId.getIdKey().equals(idKey)) {
+                            newIdValue = genId.getIdValue();
                             LOG.debug("Existing id {} for the key {} ", idKey, newIdValue);
                         }
 
@@ -197,7 +197,6 @@ public class IdManager implements IdManagerService, AutoCloseable{
 
             public void onFailure(Throwable error) {
                 LOG.error("Error in Datastore write operation", error);
-            };
+            }
         };
-
 }
