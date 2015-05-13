@@ -97,7 +97,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
 
     @Override
     protected void remove(InstanceIdentifier<VpnInstance> identifier, VpnInstance del) {
-        LOG.info("Remove event - Key: {}, value: {}", identifier, del);
+        LOG.trace("Remove event - Key: {}, value: {}", identifier, del);
         String vpnName = del.getVpnInstanceName();
         InstanceIdentifier<VpnInstance> vpnIdentifier = VpnUtil.getVpnInstanceIdentifier(vpnName);
         delete(LogicalDatastoreType.OPERATIONAL, vpnIdentifier);
@@ -113,13 +113,13 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
     @Override
     protected void update(InstanceIdentifier<VpnInstance> identifier,
             VpnInstance original, VpnInstance update) {
-        LOG.info("Update event - Key: {}, value: {}", identifier, update);
+        LOG.trace("Update event - Key: {}, value: {}", identifier, update);
     }
 
     @Override
     protected void add(InstanceIdentifier<VpnInstance> identifier,
             VpnInstance value) {
-        LOG.info("key: {}, value: {}" +identifier, value);
+        LOG.trace("key: {}, value: {}", identifier, value);
 
         long vpnId = getUniqueId(value.getVpnInstanceName());
 
@@ -240,7 +240,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         @Override
         protected void remove(InstanceIdentifier<VrfEntry> identifier,
                 VrfEntry del) {
-            LOG.info("Remove Fib event - Key : {}, value : {} ",identifier, del);
+            LOG.trace("Remove Fib event - Key : {}, value : {} ", identifier, del);
             final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
             String rd = key.getRouteDistinguisher();
             Long label = del.getLabel();
@@ -256,12 +256,12 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
                         LOG.debug("Fib Route entry is empty.");
                         return;
                     }
-                    LOG.info("Removing label from vpn info - {}", label);
+                    LOG.debug("Removing label from vpn info - {}", label);
                     routeIds.remove(label);
                     asyncWrite(LogicalDatastoreType.OPERATIONAL, augId,
                             new VpnInstance1Builder(vpnAug).setRouteEntryId(routeIds).build(), DEFAULT_CALLBACK);
                 } else {
-                    LOG.info("VPN Augmentation not found");
+                    LOG.warn("VPN Augmentation not found for vpn instance {}", vpn.getVpnInstanceName());
                 }
             } else {
                 LOG.warn("No VPN Instance found for RD: {}", rd);
@@ -278,7 +278,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         @Override
         protected void add(InstanceIdentifier<VrfEntry> identifier,
                 VrfEntry add) {
-            LOG.info("Add Vrf Entry event - Key : {}, value : {}",identifier, add);
+            LOG.trace("Add Vrf Entry event - Key : {}, value : {}", identifier, add);
             final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
             String rd = key.getRouteDistinguisher();
             Long label = add.getLabel();
@@ -293,12 +293,12 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
                     if(routeIds == null) {
                         routeIds = new ArrayList<>();
                     }
-                    LOG.info("Adding label to vpn info - {}", label);
+                    LOG.debug("Adding label to vpn info - {}", label);
                     routeIds.add(label);
                     asyncWrite(LogicalDatastoreType.OPERATIONAL, augId,
                             new VpnInstance1Builder(vpnAug).setRouteEntryId(routeIds).build(), DEFAULT_CALLBACK);
                 } else {
-                    LOG.info("VPN Augmentation not found");
+                    LOG.warn("VPN Augmentation not found for vpn instance {}", vpn.getVpnInstanceName());
                 }
             } else {
                 LOG.warn("No VPN Instance found for RD: {}", rd);

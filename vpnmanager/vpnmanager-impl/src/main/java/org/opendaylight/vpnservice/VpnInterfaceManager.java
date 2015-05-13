@@ -143,7 +143,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     @Override
     protected void add(final InstanceIdentifier<VpnInterface> identifier,
             final VpnInterface vpnInterface) {
-        LOG.info("key: {} , value: {}", identifier, vpnInterface );
+        LOG.trace("key: {} , value: {}", identifier, vpnInterface );
         addInterface(identifier, vpnInterface);
     }
 
@@ -179,7 +179,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             String nextHopIp = interfaceManager.getEndpointIpForDpn(dpnId);
 
             if (!nextHops.isEmpty()) {
-                LOG.info("NextHops are {}", nextHops);
+                LOG.trace("NextHops are {}", nextHops);
                 for (Adjacency nextHop : nextHops) {
                     String key = nextHop.getIpAddress();
                     long label = getUniqueId(key);
@@ -276,7 +276,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     }
 
     private void bindServiceOnInterface(Interface intf, long vpnId) {
-        LOG.info("Bind service on interface {} for VPN: {}", intf, vpnId);
+        LOG.trace("Bind service on interface {} for VPN: {}", intf, vpnId);
 
         long dpId = interfaceManager.getDpnForInterface(intf.getName()); 
         if(dpId == 0L) {
@@ -345,7 +345,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
     @Override
     protected void remove( InstanceIdentifier<VpnInterface> identifier, VpnInterface vpnInterface) {
-        LOG.info("Remove event - key: {}, value: {}" ,identifier, vpnInterface );
+        LOG.trace("Remove event - key: {}, value: {}" ,identifier, vpnInterface );
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         String interfaceName = key.getName();
         InstanceIdentifierBuilder<Interface> idBuilder = 
@@ -357,7 +357,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             removeNextHops(identifier, vpnInterface);
             unbindServiceOnInterface(interf, getVpnId(vpnInterface.getVpnInstanceName()));
         } else {
-            LOG.info("No nexthops were available to handle remove event {}", interfaceName);
+            LOG.warn("No nexthops were available to handle remove event {}", interfaceName);
         }
     }
 
@@ -388,7 +388,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     }
 
     private void unbindServiceOnInterface(Interface intf, long vpnId) {
-        LOG.info("Unbind service on interface {} for VPN: {}", intf, vpnId);
+        LOG.trace("Unbind service on interface {} for VPN: {}", intf, vpnId);
 
         long dpId = interfaceManager.getDpnForInterface(intf.getName());
         if(dpId == 0L) {

@@ -81,7 +81,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
         try {
            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
            if ((result != null) && (result.get().isSuccessful())) {
-                LOG.info("Created IdPool for VPN Service");
+                LOG.debug("Created IdPool for VPN Service");
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to create idPool for VPN Service",e);
