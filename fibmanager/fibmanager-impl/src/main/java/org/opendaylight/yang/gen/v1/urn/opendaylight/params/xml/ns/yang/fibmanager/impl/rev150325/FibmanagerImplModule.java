@@ -25,9 +25,9 @@ public class FibmanagerImplModule extends org.opendaylight.yang.gen.v1.urn.opend
     @Override
     public java.lang.AutoCloseable createInstance() {
         FibManagerProvider provider = new FibManagerProvider();
-        getBrokerDependency().registerProvider(provider);
         provider.setMdsalManager(getMdsalutilDependency());
         provider.setVpnmanager(getVpnmanagerDependency());
+        getBrokerDependency().registerProvider(provider);
         return provider;
     }
 

@@ -282,6 +282,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
                     Node node = getNodeFromDataStore(delInterface);
                     if((node != null) &&(node.getNodeConnector().isEmpty())) {
                         dbDpnEndpoints.remove(node.getId());
+                        LOG.trace("dbDpnEndpoints: {}",dbDpnEndpoints);
                     }
                 }
             }
@@ -390,7 +391,6 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
 
     void processPortUpdate(NodeConnector oldPort, NodeConnector update) {
         //TODO: Currently nothing to do here.
-        LOG.trace("ifMap: {}, dpnMap: {}", mapNcToInterfaceName, dbDpnEndpoints);
     }
 
     void processPortDelete(NodeConnector port) {

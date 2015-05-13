@@ -358,6 +358,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   private GetEgressPointerOutput resolveAdjacency(final long dpId, final long vpnId,
                         final VrfEntry vrfEntry) {
     GetEgressPointerOutput adjacency = null;
+    LOG.trace("resolveAdjacency called with dpid {}, vpnId{}, VrfEntry {}",dpId, vpnId, vrfEntry);;
     try {
       Future<RpcResult<GetEgressPointerOutput>> result =
           l3nexthopService.getEgressPointer(new GetEgressPointerInputBuilder().setDpnId(dpId)
