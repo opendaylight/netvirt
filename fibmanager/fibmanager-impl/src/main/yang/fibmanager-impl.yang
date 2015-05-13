@@ -3,7 +3,8 @@ module fibmanager-impl {
     namespace "urn:opendaylight:params:xml:ns:yang:fibmanager:impl";
     prefix "fibmanager-impl";
 
-    import config { prefix config; revision-date 2013-04-05; }
+    import config { prefix config; revision-date 2013-04-05;}
+    import fibmanager-api { prefix fibmgr-api; revision-date 2015-05-08;}
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
     import odl-mdsalutil { prefix odl-mdsal; revision-date 2015-04-10;}
     import vpnmanager-api { prefix odl-vpn; revision-date 2015-05-08;}
@@ -18,6 +19,7 @@ module fibmanager-impl {
 
     identity fibmanager-impl {
         base config:module-type;
+        config:provided-service fibmgr-api:fibmanager-api;
         config:java-name-prefix FibmanagerImpl;
     }
 

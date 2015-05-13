@@ -10,6 +10,7 @@ package org.opendaylight.vpnservice.fibmanager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.fibmanager.api.IFibManager;
 import org.opendaylight.vpnmanager.api.IVpnManager;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.L3nexthopService;
@@ -17,7 +18,7 @@ import org.opendaylight.yangtools.yang.binding.RpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FibManagerProvider implements BindingAwareProvider, AutoCloseable {
+public class FibManagerProvider implements BindingAwareProvider, IFibManager, AutoCloseable {
 
   private static final Logger LOG = LoggerFactory.getLogger(FibManagerProvider.class);
 
@@ -54,5 +55,15 @@ public class FibManagerProvider implements BindingAwareProvider, AutoCloseable {
 
   public void setVpnmanager(IVpnManager vpnmanager) {
     this.vpnmanager = vpnmanager;
+  }
+
+  @Override
+  public void populateFibOnNewDpn(long dpnId, long vpnId, String rd) {
+    fibManager.populateFibOnNewDpn(dpnId, vpnId, rd);
+  }
+
+  @Override
+  public void cleanUpDpnForVpn(long dpnId, long vpnId, String rd) {
+    fibManager.populateFibOnNewDpn(dpnId, vpnId, rd);
   }
 }

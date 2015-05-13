@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev15
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.GetEgressPointerInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.GetEgressPointerOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.L3nexthopService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.RemoveLocalNextHopInputBuilder;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -251,6 +252,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
     if (isLocalRoute) {
       makeLFibTableEntry(dpId, vrfEntry.getLabel(), groupId, vrfEntry.getNextHopAddress(), NwConstants.DEL_FLOW);
+      deleteLocalAdjacency(dpId, vpnId, vrfEntry);
     }
 
     LOG.debug("Successfully delete fib entry for "+ vrfEntry.getDestPrefix() + " vpnId "+vpnId);
@@ -341,6 +343,55 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       mdsalManager.removeFlow(flowEntity);
     }
     LOG.debug("LFIB Entry for dpID {} : label : {} group {} modified successfully {}",dpId, label, groupId );
+  }
+
+  private void deleteLocalAdjacency(final long dpId, final long vpnId, final VrfEntry vrfEntry) {
+    LOG.trace("deleteLocalAdjacency called with dpid {}, vpnId{}, VrfEntry {}",dpId, vpnId, vrfEntry);;
+    try {
+      Future<RpcResult<Void>> result =
+          l3nexthopService.removeLocalNextHop(new RemoveLocalNextHopInputBuilder().setDpnId(dpId)
+                                                  .setIpPrefix(vrfEntry.getDestPrefix())
+                                                  .setNexthopIp(vrfEntry.getNextHopAddress())
+                                                  .setVpnId(vpnId)
+                                                  .build());
+      RpcResult<Void> rpcResult = result.get();
+      if (rpcResult.isSuccessful()) {
+        LOG.debug("Local Next hop for {} on dpn {} successfully deleted", vrfEntry.getDestPrefix(), dpId);
+      } else {
+        LOG.error("Local Next hop for {} on dpn {} not deleted", vrfEntry.getDestPrefix(), dpId);
+      }
+    } catch (NullPointerException | InterruptedException | ExecutionException e) {
+      LOG.trace("", e);
+    }
+  }
+
+  public void populateFibOnNewDpn(long dpnId, long vpnId, String rd) {
+    LOG.trace("New dpn {} for vpn {} : populateFibOnNewDpn", dpnId, rd);
+    InstanceIdentifier<VrfTables> id = buildVrfId(rd);
+    Optional<VrfTables> vrfTable = read(LogicalDatastoreType.OPERATIONAL, id);
+    if(vrfTable.isPresent()) {
+      for(VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
+        addRouteInternal(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry);
+      }
+    }
+  }
+
+  public void cleanUpDpnForVpn(long dpnId, long vpnId, String rd) {
+    LOG.trace("Remove dpn {} for vpn {} : cleanUpDpnForVpn", dpnId, rd);
+    InstanceIdentifier<VrfTables> id = buildVrfId(rd);
+    Optional<VrfTables> vrfTable = read(LogicalDatastoreType.OPERATIONAL, id);
+    if(vrfTable.isPresent()) {
+      for(VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
+        deleteRoute(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry);
+      }
+    }
+  }
+
+  public static InstanceIdentifier<VrfTables> buildVrfId(String rd) {
+    InstanceIdentifierBuilder<VrfTables> idBuilder =
+        InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+    InstanceIdentifier<VrfTables> id = idBuilder.build();
+    return id;
   }
 
   private String getFlowRef(long dpnId, short tableId, long label, String nextHop) {
