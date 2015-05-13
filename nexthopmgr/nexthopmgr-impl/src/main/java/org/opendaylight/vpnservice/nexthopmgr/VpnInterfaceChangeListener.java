@@ -87,15 +87,7 @@ public class VpnInterfaceChangeListener extends AbstractDataChangeListener<Adjac
     @Override
     protected void remove(InstanceIdentifier<Adjacencies> identifier,
             Adjacencies adjs) {
-        InstanceIdentifier<VpnInterface> vpnIfId = identifier.firstIdentifierOf(VpnInterface.class);
-        Optional<VpnInterface> vpnIf = read(LogicalDatastoreType.CONFIGURATION, vpnIfId);
-        VpnInterface vpnIfData = vpnIf.get();
-
-        List<Adjacency> adjList = adjs.getAdjacency();
-        for (Adjacency adjacency : adjList) {
-            nexthopManager.removeLocalNextHop(vpnIfData.getVpnInstanceName(), adjacency.getIpAddress());
-        }
-
+        // nexthop group will be removed after fib entry deletion
     }
 
     @Override

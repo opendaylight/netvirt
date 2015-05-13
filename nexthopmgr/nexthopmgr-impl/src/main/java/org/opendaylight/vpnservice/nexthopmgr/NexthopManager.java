@@ -166,6 +166,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
             // MAC re-write
             if (macAddress != null) {
                listActionInfo.add(0, new ActionInfo(ActionType.set_field_eth_dest, new String[]{macAddress}));
+               listActionInfo.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
             } else {
                 //FIXME: Log message here.
             }
@@ -336,17 +337,16 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
     }
 
  
-    public void removeLocalNextHop(String vpnName, String ipAddress) {
-
-        long vpnId = getVpnId(vpnName);
+    public void removeLocalNextHop(Long dpId, Long vpnId, String ipAddress) {
 
         VpnNexthop nh = getVpnNexthop(vpnId, ipAddress);
         if (nh != null) {
             // how to inform and remove dependent FIB entries??
             // we need to do it before the group is removed
-            
+            GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
+                    dpId, nh.getEgressPointer(), ipAddress, GroupTypes.GroupIndirect, null);
             // remove Group ...
-            
+            mdsalManager.removeGroup(groupEntity);
             //update MD-SAL DS
             removeVpnNexthopFromDS(vpnId, ipAddress);
         } else {
@@ -363,6 +363,10 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
             // we need to do it before the group is removed
 
             // remove Group ...
+            GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
+                    dpnId, nh.getEgressPointer(), ipAddress, GroupTypes.GroupIndirect, null);
+            // remove Group ...
+            mdsalManager.removeGroup(groupEntity);
             //update MD-SAL DS
             removeTunnelNexthopFromDS(dpnId, ipAddress);
         } else {
@@ -422,6 +426,22 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.delete(datastoreType, path);
         Futures.addCallback(tx.submit(), DEFAULT_CALLBACK);
+    }
+
+    @Override
+    public Future<RpcResult<Void>> removeLocalNextHop(RemoveLocalNextHopInput input) {
+        VpnNexthop vpnNextHop = getVpnNexthop(input.getVpnId(), input.getIpPrefix());
+        RpcResultBuilder<Void> rpcResultBuilder;
+        LOG.debug("vpnnexthop is: {}", vpnNextHop);
+        try {
+            removeLocalNextHop(input.getDpnId(),input.getVpnId(), input.getIpPrefix());
+            rpcResultBuilder = RpcResultBuilder.success();
+        }
+        catch(Exception e){
+            LOG.error("Removal of local next hop for vpnNextHop {} failed {}" ,vpnNextHop, e);
+            rpcResultBuilder = RpcResultBuilder.failed();
+        }
+        return Futures.immediateFuture(rpcResultBuilder.build());
     }
 
 }

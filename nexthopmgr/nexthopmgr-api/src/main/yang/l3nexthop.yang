@@ -43,4 +43,14 @@ module l3nexthop {
 			leaf localDestination {type boolean;}
 		}
 	}
+
+	rpc removeLocalNextHop {
+		description "remove a local next hop";
+		input {
+			leaf dpnId {type uint32;}
+			leaf vpnId { type uint32;}  /* optional */
+			leaf ipPrefix {type string;}
+			leaf nexthopIp {type string;}
+		}
+	}
 }
