@@ -36,8 +36,10 @@ public enum InstructionType {
         public Instruction buildInstruction(InstructionInfo instructionInfo, int instructionKey) {
             List<ActionInfo> mkActions = instructionInfo.getActionInfos();
             List<Action> listAction = new ArrayList <Action> ();
+            int actionKey = 0 ;
             for(ActionInfo mkAction: mkActions) {
                 ActionType actionType = mkAction.getActionType();
+                mkAction.setActionKey(actionKey++);
                 listAction.add(actionType.buildAction(mkAction));
             }
             ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
@@ -69,8 +71,10 @@ public enum InstructionType {
         public Instruction buildInstruction(InstructionInfo instructionInfo, int instructionKey) {
             List<ActionInfo> mkActions = instructionInfo.getActionInfos();
             List<Action> listAction = new ArrayList <Action> ();
+            int actionKey = 0 ;
             for(ActionInfo mkAction: mkActions) {
                 ActionType actionType = mkAction.getActionType();
+                mkAction.setActionKey(actionKey++);
                 listAction.add(actionType.buildAction(mkAction));
             }
             WriteActions writeActions = new WriteActionsBuilder().setAction(listAction).build();
