@@ -70,8 +70,8 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   private IMdsalApiManager mdsalManager;
   private IVpnManager vpnmanager;
 
-  private static final short L3_FIB_TABLE = 20;
-  private static final short L3_LFIB_TABLE = 21;
+  private static final short L3_FIB_TABLE = 21;
+  private static final short L3_LFIB_TABLE = 20;
   private static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000002", 16);
   private static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
   private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
@@ -295,9 +295,9 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
 
     if(addOrRemove == NwConstants.ADD_FLOW) {
-      actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId)}));
       actionsInfos.add(new ActionInfo(ActionType.push_mpls, new String[] { null }));
       actionsInfos.add(new ActionInfo(ActionType.set_field_mpls_label, new String[] { Long.toString(vrfEntry.getLabel())}));
+      actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId)}));
       instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
     }
 

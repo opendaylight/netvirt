@@ -170,7 +170,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
             // MAC re-write
             if (macAddress != null) {
                listActionInfo.add(0, new ActionInfo(ActionType.set_field_eth_dest, new String[]{macAddress}));
-               listActionInfo.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
+               listActionInfo.add(0, new ActionInfo(ActionType.pop_mpls, new String[]{}));
             } else {
                 //FIXME: Log message here.
                 LOG.debug("mac address for new local nexthop is null");
