@@ -46,6 +46,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>nexthopmgr-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.openflowplugin.model</groupId>
+      <artifactId>model-flow-service</artifactId>
+      <version>${openflowplugin.version}</version>
+    </dependency>
   </dependencies>
 
 </project>
