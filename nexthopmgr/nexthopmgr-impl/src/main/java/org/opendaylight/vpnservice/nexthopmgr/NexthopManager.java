@@ -117,7 +117,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
     }
 
 
-    private long getVpnId(String vpnName) {
+    protected long getVpnId(String vpnName) {
         InstanceIdentifierBuilder<VpnInstance> idBuilder = InstanceIdentifier.builder(VpnInstances.class)
                 .child(VpnInstance.class, new VpnInstanceKey(vpnName));
 
@@ -140,7 +140,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         return dpn;
     }
 
-    private int createNextHopPointer(String nexthopKey) {
+    protected int createNextHopPointer(String nexthopKey) {
         GetUniqueIdInput getIdInput = new GetUniqueIdInputBuilder()
             .setPoolName("nextHopPointerPool").setIdKey(nexthopKey)
             .build();
@@ -213,7 +213,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         }
     }
 
-    private void addVpnNexthopToDS(long vpnId, String ipPrefix, long egressPointer) {
+    protected void addVpnNexthopToDS(long vpnId, String ipPrefix, long egressPointer) {
 
         InstanceIdentifierBuilder<VpnNexthops> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
                 .child(VpnNexthops.class, new VpnNexthopsKey(vpnId));
@@ -270,7 +270,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
     }
 
-    private VpnNexthop getVpnNexthop(long vpnId, String ipAddress) {
+    protected VpnNexthop getVpnNexthop(long vpnId, String ipAddress) {
 
         // check if vpn node is there 
         InstanceIdentifierBuilder<VpnNexthops> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
