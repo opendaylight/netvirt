@@ -57,7 +57,7 @@ public class VpnInterfaceChangeListener extends AbstractDataChangeListener<Adjac
 
     private void registerListener(final DataBroker db) {
         try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
                     getWildCardPath(), VpnInterfaceChangeListener.this, DataChangeScope.SUBTREE);
         } catch (final Exception e) {
             LOG.error("Nexthop Manager DataChange listener registration fail!", e);
@@ -68,9 +68,9 @@ public class VpnInterfaceChangeListener extends AbstractDataChangeListener<Adjac
     @Override
     protected void add(InstanceIdentifier<Adjacencies> identifier,
             Adjacencies adjs) {
-
+        LOG.trace("Adding adjacencies interface : key: " + identifier + ", value=" + adjs );
         InstanceIdentifier<VpnInterface> vpnIfId = identifier.firstIdentifierOf(VpnInterface.class);
-        Optional<VpnInterface> vpnIf = read(LogicalDatastoreType.CONFIGURATION, vpnIfId);
+        Optional<VpnInterface> vpnIf = read(LogicalDatastoreType.OPERATIONAL, vpnIfId);
         VpnInterface vpnIfData = vpnIf.get();
 
         List<Adjacency> adjList = adjs.getAdjacency();

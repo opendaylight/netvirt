@@ -41,6 +41,7 @@ public class NexthopmgrProvider implements BindingAwareProvider, AutoCloseable {
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
+        try {
         final  DataBroker dbx = session.getSALService(DataBroker.class);
         nhManager = new NexthopManager(dbx);
         vpnIfListener = new VpnInterfaceChangeListener(dbx, nhManager);
@@ -52,6 +53,11 @@ public class NexthopmgrProvider implements BindingAwareProvider, AutoCloseable {
         nhManager.setIdManager(idManager);
         nhManager.createNexthopPointerPool();
         LOG.info("NexthopmgrProvider Session Initiated");
+        }
+        catch (Exception e)
+        {
+            LOG.error("Error initializing services", e);
+        }
     }
 
     public void setMdsalManager(IMdsalApiManager mdsalManager) {

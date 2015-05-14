@@ -71,7 +71,7 @@ public class OdlInterfaceChangeListener extends AbstractDataChangeListener<Inter
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        LOG.trace("key: " + identifier + ", value=" + intrf );
+        LOG.trace("Adding Interface : key: " + identifier + ", value=" + intrf );
 
         if (intrf.getType().equals(L3tunnel.class)) {
             IfL3tunnel intfData = intrf.getAugmentation(IfL3tunnel.class);
@@ -97,6 +97,7 @@ public class OdlInterfaceChangeListener extends AbstractDataChangeListener<Inter
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier,
             Interface intrf) {
+        LOG.trace("Removing interface : key: " + identifier + ", value=" + intrf );
         if (intrf.getType().equals(L3tunnel.class)) {
             long dpnId = interfaceManager.getDpnForInterface(intrf.getName());
             IfL3tunnel intfData = intrf.getAugmentation(IfL3tunnel.class);
