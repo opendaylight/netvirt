@@ -62,6 +62,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${model.bgp.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.vpnservice</groupId>
+      <artifactId>fibmanager-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
         <groupId>org.opendaylight.controller</groupId>
         <artifactId>config-api</artifactId>
     </dependency>

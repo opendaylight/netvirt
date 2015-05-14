@@ -55,6 +55,7 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
 
   public void setVpnmanager(IVpnManager vpnmanager) {
     this.vpnmanager = vpnmanager;
+    vpnmanager.setFibService(this);
   }
 
   @Override

@@ -17,6 +17,7 @@ import org.opendaylight.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.fibmanager.api.IFibManager;
 import org.opendaylight.vpnmanager.api.IVpnManager;
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
@@ -34,6 +35,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
     private VpnInterfaceManager vpnInterfaceManager;
     private VpnManager vpnManager;
     private IBgpManager bgpManager;
+    private IFibManager fibManager;
     private IMdsalApiManager mdsalManager;
     private IInterfaceManager interfaceManager;
     private IdManagerService idManager;
@@ -62,6 +64,10 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
 
     public void setMdsalManager(IMdsalApiManager mdsalManager) {
         this.mdsalManager = mdsalManager;
+    }
+
+    public void setFibManager(IFibManager fibManager) {
+        this.fibManager = fibManager;
     }
 
     public void setInterfaceManager(IInterfaceManager interfaceManager) {
@@ -97,5 +103,12 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
     @Override
     public Collection<Long> getDpnsForVpn(long vpnId) {
         return vpnInterfaceManager.getDpnsForVpn(vpnId);
+    }
+
+    @Override
+    public void setFibService(IFibManager fibManager) {
+        LOG.debug("Fib service reference is initialized in VPN Manager");
+        this.fibManager = fibManager;
+        vpnInterfaceManager.setFibManager(fibManager);
     }
 }

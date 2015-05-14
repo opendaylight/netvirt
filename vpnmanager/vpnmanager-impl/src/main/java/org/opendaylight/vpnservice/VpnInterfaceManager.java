@@ -26,6 +26,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import org.opendaylight.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.fibmanager.api.IFibManager;
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
 import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
@@ -73,6 +74,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private final IBgpManager bgpManager;
+    private IFibManager fibManager;
     private IMdsalApiManager mdsalManager;
     private IInterfaceManager interfaceManager;
     private IdManagerService idManager;
@@ -111,6 +113,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
     public void setInterfaceManager(IInterfaceManager interfaceManager) {
         this.interfaceManager = interfaceManager;
+    }
+
+    public void setFibManager(IFibManager fibManager) {
+        this.fibManager = fibManager;
     }
 
     public void setIdManager(IdManagerService idManager) {
@@ -157,7 +163,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         Optional<Interface> port = read(LogicalDatastoreType.CONFIGURATION, id);
         if (port.isPresent()) {
             Interface interf = port.get();
-            bindServiceOnInterface(interf, getVpnId(vpnInterface.getVpnInstanceName()));
+            bindServiceOnInterface(interf, vpnInterface.getVpnInstanceName());
             updateNextHops(identifier, vpnInterface);
         }
     }
@@ -222,8 +228,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         InstanceIdentifier<VpnInstance1> id = InstanceIdentifier.builder(VpnInstances.class)
                 .child(VpnInstance.class, new VpnInstanceKey(vpnName)).augmentation(VpnInstance1.class).build();
         Optional<VpnInstance1> vpnInstance = read(LogicalDatastoreType.OPERATIONAL, id);
-        //TODO: Default vpnid should be a constant.
-        long vpnId = -1;
+
+        long vpnId = VpnConstants.INVALID_ID;
         if(vpnInstance.isPresent()) {
             vpnId = vpnInstance.get().getVpnId();
         }
@@ -243,14 +249,14 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         return rd;
     }
 
-    private synchronized void updateMappingDbs(long vpnId, long dpnId, String intfName) {
+    private synchronized void updateMappingDbs(long vpnId, long dpnId, String intfName, String rd) {
         Collection<Long> dpnIds = vpnToDpnsDb.get(vpnId);
         if(dpnIds == null) {
             dpnIds = new HashSet<>();
         }
         if(dpnIds.add(dpnId)) {
             vpnToDpnsDb.put(vpnId, dpnIds);
-            //TODO: Send an Event that new DPN added...
+            fibManager.populateFibOnNewDpn(dpnId, vpnId, rd);
         }
 
         Collection<String> intfNames = dpnToInterfaceDb.get(dpnId);
@@ -261,13 +267,14 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         dpnToInterfaceDb.put(dpnId, intfNames);
     }
 
-    private synchronized void remoteFromMappingDbs(long vpnId, long dpnId, String inftName) {
+    private synchronized void remoteFromMappingDbs(long vpnId, long dpnId, String inftName, String rd) {
         Collection<String> intfNames = dpnToInterfaceDb.get(dpnId);
         if(intfNames == null) {
             return;
         }
         intfNames.remove(inftName);
         dpnToInterfaceDb.put(dpnId, intfNames);
+        //TODO: Delay 'DPN' removal so that other services can cleanup the entries for this dpn
         if(intfNames.isEmpty()) {
             Collection<Long> dpnIds = vpnToDpnsDb.get(vpnId);
             if(dpnIds == null) {
@@ -275,18 +282,21 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             }
             dpnIds.remove(dpnId);
             vpnToDpnsDb.put(vpnId, dpnIds);
+            fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd);
         }
     }
 
-    private void bindServiceOnInterface(Interface intf, long vpnId) {
-        LOG.trace("Bind service on interface {} for VPN: {}", intf, vpnId);
+    private void bindServiceOnInterface(Interface intf, String vpnName) {
+        LOG.trace("Bind service on interface {} for VPN: {}", intf, vpnName);
 
+        long vpnId = getVpnId(vpnName);
         long dpId = interfaceManager.getDpnForInterface(intf.getName()); 
         if(dpId == 0L) {
             LOG.warn("DPN for interface {} not found. Bind service on this interface aborted.", intf.getName());
             return;
         } else {
-            updateMappingDbs(vpnId, dpId, intf.getName());
+            String rd = getRouteDistinguisher(vpnName);
+            updateMappingDbs(vpnId, dpId, intf.getName(), rd);
         }
 
         long portNo = interfaceManager.getPortForInterface(intf.getName());
@@ -358,7 +368,9 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         if (port.isPresent()) {
             Interface interf = port.get();
             removeNextHops(identifier, vpnInterface);
-            unbindServiceOnInterface(interf, getVpnId(vpnInterface.getVpnInstanceName()));
+            unbindServiceOnInterface(interf, vpnInterface.getVpnInstanceName());
+            //InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
+            delete(LogicalDatastoreType.OPERATIONAL, identifier);
         } else {
             LOG.warn("No nexthops were available to handle remove event {}", interfaceName);
         }
@@ -380,8 +392,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 }
             }
         }
-        InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(intfName);
-        delete(LogicalDatastoreType.OPERATIONAL, interfaceId);
+//        InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(intfName);
+//        delete(LogicalDatastoreType.OPERATIONAL, interfaceId);
     }
 
     private <T extends DataObject> void delete(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
@@ -390,15 +402,17 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         Futures.addCallback(tx.submit(), DEFAULT_CALLBACK);
     }
 
-    private void unbindServiceOnInterface(Interface intf, long vpnId) {
-        LOG.trace("Unbind service on interface {} for VPN: {}", intf, vpnId);
+    private void unbindServiceOnInterface(Interface intf, String vpnName) {
+        LOG.trace("Unbind service on interface {} for VPN: {}", intf, vpnName);
 
+        long vpnId = getVpnId(vpnName);
         long dpId = interfaceManager.getDpnForInterface(intf.getName());
         if(dpId == 0L) {
             LOG.warn("DPN for interface {} not found. Unbind service on this interface aborted.", intf.getName());
             return;
         } else {
-            remoteFromMappingDbs(vpnId, dpId, intf.getName());
+            String rd = getRouteDistinguisher(vpnName);
+            remoteFromMappingDbs(vpnId, dpId, intf.getName(), rd);
         }
 
         long portNo = interfaceManager.getPortForInterface(intf.getName());
