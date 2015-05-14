@@ -24,6 +24,7 @@ public class FibManagerProvider implements BindingAwareProvider, AutoCloseable {
   private FibManager fibManager;
   private IMdsalApiManager mdsalManager;
   private IVpnManager vpnmanager;
+  private FibNodeCapableListener fibNcListener;
 
   @Override
   public void onSessionInitiated(ProviderContext session) {
@@ -34,6 +35,7 @@ public class FibManagerProvider implements BindingAwareProvider, AutoCloseable {
       fibManager = new FibManager(dataBroker, nexthopService);
       fibManager.setMdsalManager(mdsalManager);
       fibManager.setVpnmanager(vpnmanager);
+      fibNcListener = new FibNodeCapableListener(dataBroker, fibManager);
     } catch (Exception e) {
       LOG.error("Error initializing services", e);
     }
@@ -43,6 +45,7 @@ public class FibManagerProvider implements BindingAwareProvider, AutoCloseable {
   public void close() throws Exception {
     LOG.info("FibManagerProvider Closed");
     fibManager.close();
+    fibNcListener.close();
   }
 
   public void setMdsalManager(IMdsalApiManager mdsalManager) {

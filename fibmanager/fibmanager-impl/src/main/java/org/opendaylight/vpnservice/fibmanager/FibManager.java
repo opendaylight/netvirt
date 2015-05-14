@@ -398,4 +398,42 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     }
     return vpnId;
   }
+
+    public void processNodeAdd(long dpnId) {
+        LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpnId);
+        makeTableMissFlow(dpnId, NwConstants.ADD_FLOW);
+    }
+
+    private void makeTableMissFlow(long dpnId, int addOrRemove) {
+        final BigInteger COOKIE_TABLE_MISS = new BigInteger("1030000", 16);
+        // Instruction to punt to controller
+        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
+        instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        FlowEntity flowEntityLfib = MDSALUtil.buildFlowEntity(dpnId, L3_LFIB_TABLE,
+                getFlowRef(dpnId, L3_LFIB_TABLE, NwConstants.TABLE_MISS_FLOW),
+                NwConstants.TABLE_MISS_PRIORITY, "Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
+
+        FlowEntity flowEntityFib = MDSALUtil.buildFlowEntity(dpnId,L3_FIB_TABLE, getFlowRef(dpnId, L3_FIB_TABLE, NwConstants.TABLE_MISS_FLOW),
+                NwConstants.TABLE_MISS_PRIORITY, "FIB Table Miss Flow", 0, 0, COOKIE_VM_FIB_TABLE,
+                matches, instructions);
+
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            LOG.debug("Invoking MDSAL to install Table Miss Entries");
+            mdsalManager.installFlow(flowEntityLfib);
+            mdsalManager.installFlow(flowEntityFib);
+        } else {
+            mdsalManager.removeFlow(flowEntityLfib);
+            mdsalManager.removeFlow(flowEntityFib);
+
+        }
+    }
+
+    private String getFlowRef(long dpnId, short tableId, int tableMiss) {
+        return new StringBuffer().append(FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
+                .append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(tableMiss)
+                .append(FLOWID_PREFIX).toString();
+    }
 }
