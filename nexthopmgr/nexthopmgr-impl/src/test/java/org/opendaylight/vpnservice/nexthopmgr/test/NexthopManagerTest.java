@@ -12,9 +12,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.L3nexthop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -189,6 +191,10 @@ public class NexthopManagerTest {
 
     doReturn(Futures.immediateCheckedFuture(vpnIf)).when(mockReadTx).read(LogicalDatastoreType.OPERATIONAL,
             vpnInterfaceIdent);
+    InstanceIdentifierBuilder<VpnNexthops> idBuilder =
+                    InstanceIdentifier.builder(L3nexthop.class).child(VpnNexthops.class, new VpnNexthopsKey(vpnId));
+    InstanceIdentifier<VpnNexthops> id = idBuilder.build();
+    doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType.OPERATIONAL,id);
 
     when(interfacemanager.getDpnForInterface(ifName)).thenReturn(dpId);
     dataChangeEvent.created.put(adjacencies, adjacency);
