@@ -7,6 +7,8 @@
  */
 package org.opendaylight.vpnservice;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.L3tunnel;
+
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,12 +19,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.FutureCallback;
-
 import org.opendaylight.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -195,7 +195,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(value);
             VpnInterface opInterface = VpnUtil.getVpnInterface(intfName, intf.getVpnInstanceName(), aug);
             InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(intfName);
-            asyncWrite(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface, DEFAULT_CALLBACK);
+            syncWrite(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface, DEFAULT_CALLBACK);
             for (Adjacency nextHop : nextHops) {
                 String key = nextHop.getIpAddress();
                 long label = getUniqueId(key);
@@ -307,6 +307,9 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
         int priority = VpnConstants.DEFAULT_FLOW_PRIORITY;
         short gotoTableId = VpnConstants.FIB_TABLE;
+        if(intf.getType().equals(L3tunnel.class)){
+            gotoTableId = VpnConstants.LFIB_TABLE;
+        }
 
         List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
         mkInstructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] {
@@ -453,6 +456,13 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, true);
         Futures.addCallback(tx.submit(), callback);
+    }
+
+    private <T extends DataObject> void syncWrite(LogicalDatastoreType datastoreType,
+                        InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.put(datastoreType, path, data, true);
+        tx.submit();
     }
 
     synchronized Collection<Long> getDpnsForVpn(long vpnId) {
