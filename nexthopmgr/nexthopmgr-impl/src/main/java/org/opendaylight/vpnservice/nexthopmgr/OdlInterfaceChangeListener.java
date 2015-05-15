@@ -76,16 +76,9 @@ public class OdlInterfaceChangeListener extends AbstractDataChangeListener<Inter
         if (intrf.getType().equals(L3tunnel.class)) {
             IfL3tunnel intfData = intrf.getAugmentation(IfL3tunnel.class);
             IpAddress gatewayIp = intfData.getGatewayIp();
-            String gwIp = (gatewayIp == null) ? null : gatewayIp.toString();
-            String remoteIp = null;
-            if (gwIp != null) {
-                remoteIp = gwIp;
-            } else {
-                IpAddress remIp = intfData.getRemoteIp();
-                remoteIp = (remIp == null) ? null : remIp.toString();
-            }
+            IpAddress remoteIp = (gatewayIp == null) ? intfData.getRemoteIp() : gatewayIp;
             NodeConnectorId ofPort = intrf.getAugmentation(BaseIds.class).getOfPortId();
-            nexthopManager.createRemoteNextHop(intrf.getName(), ofPort.toString(), remoteIp);
+            nexthopManager.createRemoteNextHop(intrf.getName(), ofPort.toString(), remoteIp.getIpv4Address().getValue());
         }
     }
 
@@ -101,12 +94,9 @@ public class OdlInterfaceChangeListener extends AbstractDataChangeListener<Inter
         if (intrf.getType().equals(L3tunnel.class)) {
             long dpnId = interfaceManager.getDpnForInterface(intrf.getName());
             IfL3tunnel intfData = intrf.getAugmentation(IfL3tunnel.class);
-            String gwIp = intfData.getGatewayIp().toString();
-            String remoteIp = intfData.getRemoteIp().toString();
-            if (gwIp != null) {
-                remoteIp = gwIp;
-            }
-            nexthopManager.removeRemoteNextHop(dpnId, remoteIp);
+            IpAddress gatewayIp = intfData.getGatewayIp();
+            IpAddress remoteIp = (gatewayIp == null) ? intfData.getRemoteIp() : gatewayIp;
+            nexthopManager.removeRemoteNextHop(dpnId, intrf.getName(), remoteIp.getIpv4Address().getValue());
         }
     }
 

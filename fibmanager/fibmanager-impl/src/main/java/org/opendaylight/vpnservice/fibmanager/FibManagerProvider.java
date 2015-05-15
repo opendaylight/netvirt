@@ -65,6 +65,6 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
 
   @Override
   public void cleanUpDpnForVpn(long dpnId, long vpnId, String rd) {
-    fibManager.populateFibOnNewDpn(dpnId, vpnId, rd);
+    fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd);
   }
 }
