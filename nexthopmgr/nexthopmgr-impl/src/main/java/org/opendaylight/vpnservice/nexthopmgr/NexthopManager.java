@@ -226,7 +226,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
         if (NwConstants.ADD_FLOW == addOrRemoveFlow) {
-            interfaceManager.getPortForInterface(ifName);
+            portNo = interfaceManager.getPortForInterface(ifName);
             matches.add(new MatchInfo(MatchFieldType.in_port, new long[] {
                 dpId, portNo }));
             mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {LFIB_TABLE}));

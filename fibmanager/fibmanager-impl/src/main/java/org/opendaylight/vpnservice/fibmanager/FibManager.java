@@ -408,7 +408,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         .append(destPrefix.getHostAddress()).toString();
   }
 
-  private GetEgressPointerOutput resolveAdjacency(final long dpId, final long vpnId,
+  protected GetEgressPointerOutput resolveAdjacency(final long dpId, final long vpnId,
                         final VrfEntry vrfEntry) {
     GetEgressPointerOutput adjacency = null;
     LOG.trace("resolveAdjacency called with dpid {}, vpnId{}, VrfEntry {}",dpId, vpnId, vrfEntry);;
@@ -431,7 +431,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     return adjacency;
   }
 
-  private Long getVpnId(String rd) {
+  protected Long getVpnId(String rd) {
     Long vpnId = null;
     InstanceIdentifier<VpnInstances> id = InstanceIdentifier.create(VpnInstances.class);
     Optional<VpnInstances> vpnInstances = read(LogicalDatastoreType.OPERATIONAL, id);
