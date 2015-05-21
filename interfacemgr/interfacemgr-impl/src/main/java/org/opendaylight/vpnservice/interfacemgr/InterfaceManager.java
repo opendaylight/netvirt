@@ -7,6 +7,8 @@
  */
 package org.opendaylight.vpnservice.interfacemgr;
 
+import java.math.BigInteger;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -432,19 +434,19 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         return getPortNumForInterface(iface);
     }
 
-    long getDpnForInterface(String ifName) {
+    BigInteger getDpnForInterface(String ifName) {
         Interface iface = getInterfaceByIfName(ifName);
         try {
             NodeConnector port = getNodeConnectorFromDataStore(iface);
             //TODO: This should be an MDSAL Util method
-            return Long.parseLong(IfmUtil.getDpnFromNodeConnectorId(port.getId()));
+            return new BigInteger(IfmUtil.getDpnFromNodeConnectorId(port.getId()));
         } catch (NullPointerException e) {
             LOG.error("dpn for Interface {} not found", ifName);
         }
-        return 0L;
+        return BigInteger.ZERO;
     }
 
-    String getEndpointIpForDpn(long dpnId) {
+    String getEndpointIpForDpn(BigInteger dpnId) {
         //TODO: This should be MDSAL Util function
         NodeId dpnNodeId = IfmUtil.buildDpnNodeId(dpnId);
         return dbDpnEndpoints.get(dpnNodeId);
@@ -454,9 +456,9 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         Interface iface = getInterfaceByIfName(ifName);
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         Class<? extends InterfaceType> ifType = iface.getType();
-        long dpn = this.getDpnForInterface(ifName);
+        BigInteger dpn = this.getDpnForInterface(ifName);
         long portNo = this.getPortNumForInterface(iface).longValue();
-        matches.add(new MatchInfo(MatchFieldType.in_port, new long[] {dpn, portNo}));
+        matches.add(new MatchInfo(MatchFieldType.in_port, new BigInteger[] {dpn, BigInteger.valueOf(portNo)}));
 
         if (ifType.isInstance(L2vlan.class)) {
             IfL2vlan vlanIface = iface.getAugmentation(IfL2vlan.class);
@@ -486,7 +488,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
 
         List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
         Class<? extends InterfaceType> ifType = iface.getType();
-        long dpn = this.getDpnForInterface(ifName);
+        BigInteger dpn = this.getDpnForInterface(ifName);
         long portNo = this.getPortNumForInterface(iface).longValue();
         if (iface.isEnabled()) {
 

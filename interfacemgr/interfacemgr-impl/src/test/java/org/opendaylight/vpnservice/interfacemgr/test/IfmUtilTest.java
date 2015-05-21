@@ -11,6 +11,8 @@ package org.opendaylight.vpnservice.interfacemgr.test;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
+import java.math.BigInteger;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -30,7 +32,7 @@ public class IfmUtilTest {
 
     @Test
     public void testDpnConversions() {
-        String NodeId = IfmUtil.buildDpnNodeId(101L).getValue();
+        String NodeId = IfmUtil.buildDpnNodeId(BigInteger.valueOf(101)).getValue();
         assertEquals("openflow:101", NodeId);
         when(ncId.getValue()).thenReturn("openflow:101:11");
         assertEquals("101",IfmUtil.getDpnFromNodeConnectorId(ncId));

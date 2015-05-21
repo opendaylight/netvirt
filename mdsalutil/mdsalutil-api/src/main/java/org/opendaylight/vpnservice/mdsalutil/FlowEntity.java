@@ -34,8 +34,8 @@ public class FlowEntity extends AbstractSwitchEntity {
 
     private transient FlowBuilder m_flowBuilder;
 
-    public FlowEntity(long lDpnId) {
-        super(lDpnId);
+    public FlowEntity(BigInteger dpnId) {
+        super(dpnId);
     }
 
     @Override

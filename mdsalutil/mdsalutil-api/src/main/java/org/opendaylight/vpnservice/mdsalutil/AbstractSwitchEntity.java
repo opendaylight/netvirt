@@ -7,29 +7,30 @@
  */
 package org.opendaylight.vpnservice.mdsalutil;
 
+import java.math.BigInteger;
+
 public class AbstractSwitchEntity {
     private static final long serialVersionUID = 1L;
 
-    private long m_lDpnId;
+    private BigInteger m_dpnId;
 
 
-    public AbstractSwitchEntity(long lDpnId) {
-        m_lDpnId = lDpnId;
-
+    public AbstractSwitchEntity(BigInteger dpnId) {
+        m_dpnId = dpnId;
     }
 
     @Override
     public String toString() {
-        return "AbstractSwitchEntity [m_lDpnId=" + m_lDpnId + " ]";
+        return "AbstractSwitchEntity [m_lDpnId=" + m_dpnId + " ]";
     }
 
 
-    public long getDpnId() {
-        return m_lDpnId;
+    public BigInteger getDpnId() {
+        return m_dpnId;
     }
 
-    public void setDpnId(long lDpnId) {
-        m_lDpnId = lDpnId;
+    public void setDpnId(BigInteger dpnId) {
+        m_dpnId = dpnId;
     }
 
 }

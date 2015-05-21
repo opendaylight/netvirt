@@ -1,5 +1,7 @@
 package org.opendaylight.vpnservice.fibmanager;
 
+import java.math.BigInteger;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
@@ -57,7 +59,7 @@ public class FibNodeCapableListener extends AbstractDataChangeListener<FlowCapab
     protected void add(InstanceIdentifier<FlowCapableNode> identifier, FlowCapableNode node) {
         LOG.trace("FlowCapableNode Added: key: " + identifier + ", value=" + node );
         NodeKey nodeKey = identifier.firstKeyOf(Node.class, NodeKey.class);
-        long dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         fibManager.processNodeAdd(dpnId);
     }
 

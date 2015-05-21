@@ -7,15 +7,26 @@
  */
 package org.opendaylight.vpnservice.fibmanager;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.Futures;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import com.google.common.util.concurrent.FutureCallback;
-
-import org.opendaylight.vpnmanager.api.IVpnManager;
-import org.opendaylight.vpnservice.AbstractDataChangeListener;
+import com.google.common.util.concurrent.Futures;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.vpnmanager.api.IVpnManager;
+import org.opendaylight.vpnservice.AbstractDataChangeListener;
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.ActionType;
 import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
@@ -30,6 +41,7 @@ import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInstance1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -41,25 +53,10 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yangtools.yang.binding.RpcService;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.base.Optional;
-
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class FibManager extends AbstractDataChangeListener<VrfEntry> implements AutoCloseable{
   private static final Logger LOG = LoggerFactory.getLogger(FibManager.class);
@@ -179,13 +176,13 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
     Long vpnId = getVpnId(vrfTableKey.getRouteDistinguisher());
     Preconditions.checkNotNull(vpnId, "Vpn Instance not available!");
-    Collection<Long> dpns = vpnmanager.getDpnsForVpn(vpnId);
-    for (Long dpId : dpns) {
+    Collection<BigInteger> dpns = vpnmanager.getDpnsForVpn(vpnId);
+    for (BigInteger dpId : dpns) {
       addRouteInternal(dpId, vpnId, vrfTableKey, vrfEntry);
     }
   }
 
-  private void addRouteInternal(final long dpId, final long vpnId, final VrfTablesKey vrfTableKey,
+  private void addRouteInternal(final BigInteger dpId, final long vpnId, final VrfTablesKey vrfTableKey,
                                 final VrfEntry vrfEntry) {
     String rd = vrfTableKey.getRouteDistinguisher();
     LOG.debug("adding route " + vrfEntry.getDestPrefix() + " " + rd);
@@ -223,13 +220,13 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
     Long vpnId = getVpnId(vrfTableKey.getRouteDistinguisher());
     Preconditions.checkNotNull(vpnId, "Vpn Instance not available!");
-    Collection<Long> dpns = vpnmanager.getDpnsForVpn(vpnId);
-    for (Long dpId : dpns) {
+    Collection<BigInteger> dpns = vpnmanager.getDpnsForVpn(vpnId);
+    for (BigInteger dpId : dpns) {
       deleteRoute(dpId, vpnId, vrfTableKey, vrfEntry);
     }
   }
 
-  public void deleteRoute(final long dpId, final long vpnId, final VrfTablesKey vrfTableKey,
+  public void deleteRoute(final BigInteger dpId, final long vpnId, final VrfTablesKey vrfTableKey,
                           final VrfEntry vrfEntry) {
     LOG.debug("deleting route "+ vrfEntry.getDestPrefix() + " "+vpnId);
     String rd = vrfTableKey.getRouteDistinguisher();
@@ -263,7 +260,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
             + ((rawIpAddress[2] & 0xFF) << (1 * 8)) + (rawIpAddress[3] & 0xFF)) & 0xffffffffL;
   }
 
-  private void makeConnectedRoute(long dpId, long vpnId, VrfEntry vrfEntry, String rd,
+  private void makeConnectedRoute(BigInteger dpId, long vpnId, VrfEntry vrfEntry, String rd,
                                   long groupId, int addOrRemove) {
     LOG.trace("makeConnectedRoute: vrfEntry {}",vrfEntry);
     String values[] = vrfEntry.getDestPrefix().split("/");
@@ -317,7 +314,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     }
   }
 
-  private void makeLFibTableEntry(long dpId, long label, long groupId,
+  private void makeLFibTableEntry(BigInteger dpId, long label, long groupId,
                                   String nextHop, int addOrRemove) {
     List<MatchInfo> matches = new ArrayList<MatchInfo>();
     matches.add(new MatchInfo(MatchFieldType.eth_type,
@@ -345,7 +342,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     LOG.debug("LFIB Entry for dpID {} : label : {} group {} modified successfully {}",dpId, label, groupId );
   }
 
-  private void deleteLocalAdjacency(final long dpId, final long vpnId, final VrfEntry vrfEntry) {
+  private void deleteLocalAdjacency(final BigInteger dpId, final long vpnId, final VrfEntry vrfEntry) {
     LOG.trace("deleteLocalAdjacency called with dpid {}, vpnId{}, VrfEntry {}",dpId, vpnId, vrfEntry);;
     try {
       Future<RpcResult<Void>> result =
@@ -365,7 +362,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     }
   }
 
-  public void populateFibOnNewDpn(long dpnId, long vpnId, String rd) {
+  public void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd) {
     LOG.trace("New dpn {} for vpn {} : populateFibOnNewDpn", dpnId, rd);
     InstanceIdentifier<VrfTables> id = buildVrfId(rd);
     Optional<VrfTables> vrfTable = read(LogicalDatastoreType.CONFIGURATION, id);
@@ -376,7 +373,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     }
   }
 
-  public void cleanUpDpnForVpn(long dpnId, long vpnId, String rd) {
+  public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd) {
     LOG.trace("Remove dpn {} for vpn {} : cleanUpDpnForVpn", dpnId, rd);
     InstanceIdentifier<VrfTables> id = buildVrfId(rd);
     Optional<VrfTables> vrfTable = read(LogicalDatastoreType.CONFIGURATION, id);
@@ -394,21 +391,21 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     return id;
   }
 
-  private String getFlowRef(long dpnId, short tableId, long label, String nextHop) {
+  private String getFlowRef(BigInteger dpnId, short tableId, long label, String nextHop) {
     return new StringBuilder(64).append(FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
         .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
         .append(label).append(NwConstants.FLOWID_SEPARATOR)
         .append(nextHop).toString();
   }
 
-  private String getFlowRef(long dpnId, short tableId, String rd, InetAddress destPrefix) {
+  private String getFlowRef(BigInteger dpnId, short tableId, String rd, InetAddress destPrefix) {
     return new StringBuilder(64).append(FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
         .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
         .append(rd).append(NwConstants.FLOWID_SEPARATOR)
         .append(destPrefix.getHostAddress()).toString();
   }
 
-  protected GetEgressPointerOutput resolveAdjacency(final long dpId, final long vpnId,
+  protected GetEgressPointerOutput resolveAdjacency(final BigInteger dpId, final long vpnId,
                         final VrfEntry vrfEntry) {
     GetEgressPointerOutput adjacency = null;
     LOG.trace("resolveAdjacency called with dpid {}, vpnId{}, VrfEntry {}",dpId, vpnId, vrfEntry);;
@@ -450,12 +447,12 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     return vpnId;
   }
 
-    public void processNodeAdd(long dpnId) {
+    public void processNodeAdd(BigInteger dpnId) {
         LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpnId);
         makeTableMissFlow(dpnId, NwConstants.ADD_FLOW);
     }
 
-    private void makeTableMissFlow(long dpnId, int addOrRemove) {
+    private void makeTableMissFlow(BigInteger dpnId, int addOrRemove) {
         final BigInteger COOKIE_TABLE_MISS = new BigInteger("1030000", 16);
         // Instruction to punt to controller
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
@@ -482,7 +479,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         }
     }
 
-    private String getFlowRef(long dpnId, short tableId, int tableMiss) {
+    private String getFlowRef(BigInteger dpnId, short tableId, int tableMiss) {
         return new StringBuffer().append(FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
                 .append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(tableMiss)
                 .append(FLOWID_PREFIX).toString();

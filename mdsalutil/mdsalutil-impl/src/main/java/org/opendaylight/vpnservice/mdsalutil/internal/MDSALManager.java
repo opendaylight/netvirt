@@ -251,23 +251,23 @@ public class MDSALManager implements AutoCloseable {
         installGroup(groupEntity);
     }
 
-    public void sendPacketOut(long lDpnId, int groupId, byte[] payload) {
+    public void sendPacketOut(BigInteger dpnId, int groupId, byte[] payload) {
 
         List<ActionInfo> actionInfos = new ArrayList<ActionInfo>();
         actionInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));
 
-        sendPacketOutWithActions(lDpnId, groupId, payload, actionInfos);
+        sendPacketOutWithActions(dpnId, groupId, payload, actionInfos);
     }
 
-    public void sendPacketOutWithActions(long lDpnId, long groupId, byte[] payload, List<ActionInfo> actionInfos) {
+    public void sendPacketOutWithActions(BigInteger dpnId, long groupId, byte[] payload, List<ActionInfo> actionInfos) {
 
-        m_packetProcessingService.transmitPacket(MDSALUtil.getPacketOut(actionInfos, payload, lDpnId,
-                getNodeConnRef("openflow:" + lDpnId, "0xfffffffd")));
+        m_packetProcessingService.transmitPacket(MDSALUtil.getPacketOut(actionInfos, payload, dpnId,
+                getNodeConnRef("openflow:" + dpnId, "0xfffffffd")));
     }
 
-    public void sendARPPacketOutWithActions(long lDpnId, byte[] payload, List<ActionInfo> actions) {
-        m_packetProcessingService.transmitPacket(MDSALUtil.getPacketOut(actions, payload, lDpnId,
-                getNodeConnRef("openflow:" + lDpnId, "0xfffffffd")));
+    public void sendARPPacketOutWithActions(BigInteger dpnId, byte[] payload, List<ActionInfo> actions) {
+        m_packetProcessingService.transmitPacket(MDSALUtil.getPacketOut(actions, payload, dpnId,
+                getNodeConnRef("openflow:" + dpnId, "0xfffffffd")));
     }
 
     public InstanceIdentifier<Node> nodeToInstanceId(Node node) {
@@ -293,8 +293,8 @@ public class MDSALManager implements AutoCloseable {
         return _nodeConnectorRef;
     }
 
-    private Node buildDpnNode(long lDpnId) {
-        NodeId nodeId = new NodeId("openflow:" + lDpnId);
+    private Node buildDpnNode(BigInteger dpnId) {
+        NodeId nodeId = new NodeId("openflow:" + dpnId);
         Node nodeDpn = new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
 
         return nodeDpn;

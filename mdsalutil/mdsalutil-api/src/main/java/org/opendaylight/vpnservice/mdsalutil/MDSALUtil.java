@@ -65,7 +65,7 @@ public class MDSALUtil {
             new ArrayList<Instruction>()).build();
     private static final Match EMPTY_Matches = new MatchBuilder().build();
 
-    public static FlowEntity buildFlowEntity(long dpnId, short tableId, String flowId, int priority, String flowName,
+    public static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, String flowId, int priority, String flowName,
             int idleTimeOut, int hardTimeOut, BigInteger cookie, List<MatchInfo> listMatchInfo,
             List<InstructionInfo> listInstructionInfo) {
 
@@ -102,7 +102,7 @@ public class MDSALUtil {
                 .setCookie(new FlowCookie(cookie)).build();
     }
 
-    public static GroupEntity buildGroupEntity(long dpnId, long groupId, String groupName, GroupTypes groupType,
+    public static GroupEntity buildGroupEntity(BigInteger dpnId, long groupId, String groupName, GroupTypes groupType,
             List<BucketInfo> listBucketInfo) {
 
         GroupEntity groupEntity = new GroupEntity(dpnId);
@@ -115,7 +115,7 @@ public class MDSALUtil {
         return groupEntity;
     }
 
-    public static TransmitPacketInput getPacketOutDefault(List<ActionInfo> actionInfos, byte[] payload, long dpnId) {
+    public static TransmitPacketInput getPacketOutDefault(List<ActionInfo> actionInfos, byte[] payload, BigInteger dpnId) {
         return new TransmitPacketInputBuilder()
                 .setAction(buildActions(actionInfos))
                 .setPayload(payload)
@@ -217,11 +217,11 @@ public class MDSALUtil {
     }
 
     // TODO: Check the port const
-    public static NodeConnectorRef getDefaultNodeConnRef(long nDpId) {
+    public static NodeConnectorRef getDefaultNodeConnRef(BigInteger nDpId) {
         return getNodeConnRef(NODE_PREFIX + SEPARATOR + nDpId, "0xfffffffd");
     }
 
-    public static NodeConnectorRef getNodeConnRef(long nDpId, String port) {
+    public static NodeConnectorRef getNodeConnRef(BigInteger nDpId, String port) {
         return getNodeConnRef(NODE_PREFIX + SEPARATOR + nDpId, port);
     }
 
@@ -260,13 +260,13 @@ public class MDSALUtil {
         return nodeConnectorRef;
     }
 
-    public static long getDpnIdFromNodeName(NodeId nodeId) {
+    public static BigInteger getDpnIdFromNodeName(NodeId nodeId) {
         return getDpnIdFromNodeName(nodeId.getValue());
     }
 
-    public static long getDpnIdFromNodeName(String sMdsalNodeName) {
+    public static BigInteger getDpnIdFromNodeName(String sMdsalNodeName) {
         String sDpId = sMdsalNodeName.substring(sMdsalNodeName.lastIndexOf(":") + 1);
-        return Long.parseLong(sDpId);
+        return new BigInteger(sDpId);
     }
 
     public static long getOfPortNumberFromPortName(NodeConnectorId nodeConnectorId) {
@@ -276,5 +276,11 @@ public class MDSALUtil {
     public static long getOfPortNumberFromPortName(String sMdsalPortName) {
         String sPortNumber = sMdsalPortName.substring(sMdsalPortName.lastIndexOf(":") + 1);
         return Long.parseLong(sPortNumber);
+    }
+
+    public static TransmitPacketInput getPacketOut(List<ActionInfo> actionInfos, byte[] payload, BigInteger dpnId,
+                    NodeConnectorRef nodeConnRef) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

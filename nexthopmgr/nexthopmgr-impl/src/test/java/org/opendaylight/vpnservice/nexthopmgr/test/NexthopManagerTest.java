@@ -12,10 +12,11 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
+import java.math.BigInteger;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.L3nexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
-
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import java.lang.reflect.InvocationTargetException;
@@ -67,7 +68,7 @@ public class NexthopManagerTest {
   private final String ipAddress = "1.1.1.1";
   private final String macAddress = "11:22:33:44:55:66";
   private final int groupId = 5000;
-  private final long dpId = 1L;
+  private final BigInteger dpId = BigInteger.ONE;
   private final long vpnId = 2L;
 
   Map<InstanceIdentifier<?>, DataObject> written = new HashMap<>();

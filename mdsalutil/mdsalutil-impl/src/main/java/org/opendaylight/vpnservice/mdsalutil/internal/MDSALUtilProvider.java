@@ -7,8 +7,9 @@
  */
 package org.opendaylight.vpnservice.mdsalutil.internal;
 
-import java.util.List;
+import java.math.BigInteger;
 
+import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareConsumer;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ConsumerContext;
@@ -78,22 +79,22 @@ public class MDSALUtilProvider implements BindingAwareConsumer, IMdsalApiManager
 
 
     @Override
-    public void sendPacketOut(long lDpnId, int groupId, byte[] payload) {
-        mdSalMgr.sendPacketOut(lDpnId, groupId, payload);
+    public void sendPacketOut(BigInteger dpnId, int groupId, byte[] payload) {
+        mdSalMgr.sendPacketOut(dpnId, groupId, payload);
     }
 
 
     @Override
-    public void sendPacketOutWithActions(long lDpnId, long groupId,
+    public void sendPacketOutWithActions(BigInteger dpnId, long groupId,
             byte[] payload, List<ActionInfo> actionInfos) {
-        mdSalMgr.sendPacketOutWithActions(lDpnId, groupId, payload, actionInfos);
+        mdSalMgr.sendPacketOutWithActions(dpnId, groupId, payload, actionInfos);
     }
 
 
     @Override
-    public void sendARPPacketOutWithActions(long dpid, byte[] payload,
+    public void sendARPPacketOutWithActions(BigInteger dpnId, byte[] payload,
             List<ActionInfo> action_info) {
-        mdSalMgr.sendARPPacketOutWithActions(dpid, payload, action_info);
+        mdSalMgr.sendARPPacketOutWithActions(dpnId, payload, action_info);
     }
 
 }

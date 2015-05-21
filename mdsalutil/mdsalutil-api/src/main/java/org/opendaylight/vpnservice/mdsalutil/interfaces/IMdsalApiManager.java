@@ -7,6 +7,7 @@
  */
 package org.opendaylight.vpnservice.mdsalutil.interfaces;
 
+import java.math.BigInteger;
 import java.util.List;
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
@@ -24,10 +25,10 @@ public interface IMdsalApiManager {
 
     public void removeGroup(GroupEntity groupEntity);
 
-    public void sendPacketOut(long lDpnId, int groupId, byte[] payload);
+    public void sendPacketOut(BigInteger dpnId, int groupId, byte[] payload);
 
-    public void sendPacketOutWithActions(long lDpnId, long groupId, byte[] payload, List<ActionInfo> actionInfos);
+    public void sendPacketOutWithActions(BigInteger dpnId, long groupId, byte[] payload, List<ActionInfo> actionInfos);
 
-    public void sendARPPacketOutWithActions(long dpid, byte[] payload, List<ActionInfo> action_info);
+    public void sendARPPacketOutWithActions(BigInteger dpnId, byte[] payload, List<ActionInfo> action_info);
 
 }

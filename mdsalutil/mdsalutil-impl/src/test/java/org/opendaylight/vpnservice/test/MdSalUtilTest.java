@@ -63,6 +63,7 @@ public class MdSalUtilTest extends AbstractDataBrokerTest {
      MDSALManager mdSalMgr = null ;
      MockFlowForwarder flowFwder = null ;
      MockGroupForwarder grpFwder = null ;
+     private static final String Nodeid = "openflow:1";
 
      @Before
         public void setUp() throws Exception {
@@ -110,7 +111,6 @@ public class MdSalUtilTest extends AbstractDataBrokerTest {
         @Test
         public void testInstallGroup() {
             // Install Group 1
-            String Nodeid = "1";
             String inport = "2" ;
             int vlanid = 100 ;
             GroupEntity grpEntity1 = createGroupEntity(Nodeid, inport, vlanid) ;
@@ -119,7 +119,6 @@ public class MdSalUtilTest extends AbstractDataBrokerTest {
              assertEquals(1, grpFwder.getDataChgCount());
 
              // Install Group 2
-               Nodeid = "1";
                 inport = "3" ;
                 vlanid = 100 ;
                 GroupEntity grpEntity2 = createGroupEntity(Nodeid, inport, vlanid) ;
@@ -129,7 +128,6 @@ public class MdSalUtilTest extends AbstractDataBrokerTest {
 
         @Test
         public void testRemoveGroup() {
-            String Nodeid = "1";
             String inport = "2" ;
             int vlanid = 100 ;
             GroupEntity grpEntity = createGroupEntity(Nodeid, inport, vlanid) ;
@@ -162,7 +160,7 @@ public class MdSalUtilTest extends AbstractDataBrokerTest {
 
         public FlowEntity createFlowEntity(String dpnId, String tableId) {
 
-            long dpId;
+            BigInteger dpId;
             int SERVICE_ID = 0;
             FlowEntity terminatingServiceTableFlowEntity = null;
 
@@ -171,7 +169,7 @@ public class MdSalUtilTest extends AbstractDataBrokerTest {
                     new String[] {}));
 
             try {
-                dpId = Long.parseLong(dpnId.split(":")[1]);
+                dpId = new BigInteger(dpnId.split(":")[1]);
 
                 List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
                 BigInteger COOKIE = new BigInteger("9000000", 16);
@@ -218,7 +216,8 @@ public class MdSalUtilTest extends AbstractDataBrokerTest {
             listBucketInfo.add(new BucketInfo(listActionInfo));
 
             String groupName = "Test Group";
-            groupEntity = MDSALUtil.buildGroupEntity(Long.valueOf(Nodeid), id, groupName, GroupTypes.GroupIndirect,
+            BigInteger dpnId = new BigInteger(Nodeid.split(":")[1]);
+            groupEntity = MDSALUtil.buildGroupEntity(dpnId, id, groupName, GroupTypes.GroupIndirect,
                     listBucketInfo);
 
             return groupEntity;
@@ -226,7 +225,7 @@ public class MdSalUtilTest extends AbstractDataBrokerTest {
 
         private static long getUniqueValue(String nodeId, String inport) {
 
-            Long nodeIdL = Long.valueOf(nodeId);
+            Long nodeIdL = Long.valueOf(nodeId.split(":")[1]);
             Long inportL = Long.valueOf(inport);
                 long sd_set;
                 sd_set = nodeIdL * 10 + inportL;

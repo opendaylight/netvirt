@@ -7,6 +7,7 @@
  */
 package org.opendaylight.vpnservice.fibmanager;
 
+import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
@@ -59,12 +60,12 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
   }
 
   @Override
-  public void populateFibOnNewDpn(long dpnId, long vpnId, String rd) {
+  public void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd) {
     fibManager.populateFibOnNewDpn(dpnId, vpnId, rd);
   }
 
   @Override
-  public void cleanUpDpnForVpn(long dpnId, long vpnId, String rd) {
+  public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd) {
     fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd);
   }
 }

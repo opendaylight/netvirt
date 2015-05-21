@@ -76,12 +76,12 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     }
 
     @Override
-    public long getDpnForInterface(String ifName) {
+    public BigInteger getDpnForInterface(String ifName) {
         return interfaceManager.getDpnForInterface(ifName);
     }
 
     @Override
-    public String getEndpointIpForDpn(long dpnId) {
+    public String getEndpointIpForDpn(BigInteger dpnId) {
         return interfaceManager.getEndpointIpForDpn(dpnId);
     }
 

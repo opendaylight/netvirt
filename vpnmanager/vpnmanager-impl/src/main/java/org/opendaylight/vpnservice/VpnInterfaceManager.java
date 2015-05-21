@@ -78,8 +78,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     private IMdsalApiManager mdsalManager;
     private IInterfaceManager interfaceManager;
     private IdManagerService idManager;
-    private Map<Long, Collection<Long>> vpnToDpnsDb;
-    private Map<Long, Collection<String>> dpnToInterfaceDb;
+    private Map<Long, Collection<BigInteger>> vpnToDpnsDb;
+    private Map<BigInteger, Collection<String>> dpnToInterfaceDb;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
             new FutureCallback<Void>() {
@@ -181,7 +181,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             //Get the rd of the vpn instance
             String rd = getRouteDistinguisher(intf.getVpnInstanceName());
 
-            long dpnId = interfaceManager.getDpnForInterface(intfName);
+            BigInteger dpnId = interfaceManager.getDpnForInterface(intfName);
             String nextHopIp = interfaceManager.getEndpointIpForDpn(dpnId);
 
 
@@ -249,8 +249,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         return rd;
     }
 
-    private synchronized void updateMappingDbs(long vpnId, long dpnId, String intfName, String rd) {
-        Collection<Long> dpnIds = vpnToDpnsDb.get(vpnId);
+    private synchronized void updateMappingDbs(long vpnId, BigInteger dpnId, String intfName, String rd) {
+        Collection<BigInteger> dpnIds = vpnToDpnsDb.get(vpnId);
         if(dpnIds == null) {
             dpnIds = new HashSet<>();
         }
@@ -267,7 +267,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         dpnToInterfaceDb.put(dpnId, intfNames);
     }
 
-    private synchronized void remoteFromMappingDbs(long vpnId, long dpnId, String inftName, String rd) {
+    private synchronized void remoteFromMappingDbs(long vpnId, BigInteger dpnId, String inftName, String rd) {
         Collection<String> intfNames = dpnToInterfaceDb.get(dpnId);
         if(intfNames == null) {
             return;
@@ -276,7 +276,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         dpnToInterfaceDb.put(dpnId, intfNames);
         //TODO: Delay 'DPN' removal so that other services can cleanup the entries for this dpn
         if(intfNames.isEmpty()) {
-            Collection<Long> dpnIds = vpnToDpnsDb.get(vpnId);
+            Collection<BigInteger> dpnIds = vpnToDpnsDb.get(vpnId);
             if(dpnIds == null) {
                 return;
             }
@@ -290,8 +290,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         LOG.trace("Bind service on interface {} for VPN: {}", intf, vpnName);
 
         long vpnId = getVpnId(vpnName);
-        long dpId = interfaceManager.getDpnForInterface(intf.getName()); 
-        if(dpId == 0L) {
+        BigInteger dpId = interfaceManager.getDpnForInterface(intf.getName()); 
+        if(dpId.equals(BigInteger.ZERO)) {
             LOG.warn("DPN for interface {} not found. Bind service on this interface aborted.", intf.getName());
             return;
         } else {
@@ -318,8 +318,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { gotoTableId }));
 
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        matches.add(new MatchInfo(MatchFieldType.in_port, new long[] {
-                dpId, portNo }));
+        matches.add(new MatchInfo(MatchFieldType.in_port, new BigInteger[] {
+                dpId, BigInteger.valueOf(portNo) }));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, VpnConstants.LPORT_INGRESS_TABLE, flowRef,
                           priority, flowName, 0, 0, COOKIE_VM_INGRESS_TABLE, matches, mkInstructions);
@@ -327,7 +327,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         mdsalManager.installFlow(flowEntity);
     }
 
-    private String getVpnInterfaceFlowRef(long dpId, short tableId,
+    private String getVpnInterfaceFlowRef(BigInteger dpId, short tableId,
             long vpnId, long portNo) {
         return new StringBuilder().append(dpId).append(tableId).append(vpnId).append(portNo).toString();
     }
@@ -409,8 +409,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         LOG.trace("Unbind service on interface {} for VPN: {}", intf, vpnName);
 
         long vpnId = getVpnId(vpnName);
-        long dpId = interfaceManager.getDpnForInterface(intf.getName());
-        if(dpId == 0L) {
+        BigInteger dpId = interfaceManager.getDpnForInterface(intf.getName());
+        if(dpId.equals(BigInteger.ZERO)) {
             LOG.warn("DPN for interface {} not found. Unbind service on this interface aborted.", intf.getName());
             return;
         } else {
@@ -426,8 +426,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         int priority = VpnConstants.DEFAULT_FLOW_PRIORITY;
 
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        matches.add(new MatchInfo(MatchFieldType.in_port, new long[] {
-                dpId, portNo }));
+        matches.add(new MatchInfo(MatchFieldType.in_port, new BigInteger[] {
+                dpId, BigInteger.valueOf(portNo) }));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, VpnConstants.LPORT_INGRESS_TABLE, flowRef,
                           priority, flowName, 0, 0, null, matches, null);
@@ -465,8 +465,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         tx.submit();
     }
 
-    synchronized Collection<Long> getDpnsForVpn(long vpnId) {
-        Collection<Long> dpnIds = vpnToDpnsDb.get(vpnId);
+    synchronized Collection<BigInteger> getDpnsForVpn(long vpnId) {
+        Collection<BigInteger> dpnIds = vpnToDpnsDb.get(vpnId);
         if(dpnIds != null) {
             return ImmutableList.copyOf(dpnIds);
         } else {

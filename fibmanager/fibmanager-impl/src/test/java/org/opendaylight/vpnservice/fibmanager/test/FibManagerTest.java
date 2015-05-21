@@ -7,27 +7,25 @@
  */
 package org.opendaylight.vpnservice.fibmanager.test;
 
+import java.math.BigInteger;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
-
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,19 +83,20 @@ public class FibManagerTest {
 
   MockDataChangedEvent dataChangeEvent;
   FibManager fibmgr;
-  Long EgressPointer = 11L;
+  private static final Long EgressPointer = 11L;
   VrfEntry vrfEntry;
   InstanceIdentifier<VrfEntry> identifier;
   VrfEntryBuilder vrfbuilder;
-  String rd = "routeDis";
-  String prefix = "0.1.2.3";
-  String nexthop = "1.1.1.1";
-  int label = 10;
-  List<Long> Dpns;
+  private static final String rd = "routeDis";
+  private static final String prefix = "0.1.2.3";
+  private static final String nexthop = "1.1.1.1";
+  private static final int label = 10;
+  List<BigInteger> Dpns;
+  private static final long vpnId = 101L;
 
   private void SetupMocks() {
-    Dpns = new ArrayList<Long>();
-    Dpns.add(100000L);
+    Dpns = new ArrayList<BigInteger>();
+    Dpns.add(BigInteger.valueOf(100000L));
     identifier = buildVrfEntryId(rd, prefix);
     vrfEntry = buildVrfEntry(rd, prefix, nexthop, label);
     fibmgr.setMdsalManager(mdsalManager);
@@ -117,13 +116,13 @@ public class FibManagerTest {
     dataChangeEvent = new MockDataChangedEvent();
     vrfbuilder = new VrfEntryBuilder();
     fibmgr = new FibManager(dataBroker, l3nexthopService) {
-      protected GetEgressPointerOutput resolveAdjacency(final long dpId, final long vpnId,
+      protected GetEgressPointerOutput resolveAdjacency(final BigInteger dpId, final long vpnId,
           final VrfEntry vrfEntry) {
         return adjacency;
       }
 
       protected Long getVpnId(String rd) {
-        return 101L;
+        return vpnId;
       }
     };
     SetupMocks();

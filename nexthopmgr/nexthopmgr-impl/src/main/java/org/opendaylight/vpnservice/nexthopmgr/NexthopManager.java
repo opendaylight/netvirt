@@ -139,9 +139,9 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         }
     }
 
-    private long getDpnId(String ifName) {
-        String[] fields = ifName.split(":");
-        long dpn = Integer.parseInt(fields[1]);
+    private BigInteger getDpnId(String ofPortId) {
+        String[] fields = ofPortId.split(":");
+        BigInteger dpn = new BigInteger(fields[1]);
         LOG.debug("DpnId: {}", dpn);
         return dpn;
     }
@@ -166,7 +166,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         int groupId = createNextHopPointer(nhKey);
 
         long vpnId = getVpnId(vpnName);
-        long dpnId = interfaceManager.getDpnForInterface(ifName);
+        BigInteger dpnId = interfaceManager.getDpnForInterface(ifName);
         VpnNexthop nexthop = getVpnNexthop(vpnId, ipAddress, 0);
         LOG.trace("nexthop: {}", nexthop);
         if (nexthop == null) {
@@ -199,7 +199,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         String nhKey = new String("nexthop." + ifName + ipAddress);
         int groupId = createNextHopPointer(nhKey);
 
-        long dpnId = getDpnId(ofPortId);
+        BigInteger dpnId = getDpnId(ofPortId);
         TunnelNexthop nexthop = getTunnelNexthop(dpnId, ipAddress);
         if (nexthop == null) {
             List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
@@ -219,21 +219,21 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         }
     }
 
-    private void makeRemoteFlow(long dpId, String ifName, int addOrRemoveFlow) {
+    private void makeRemoteFlow(BigInteger dpnId, String ifName, int addOrRemoveFlow) {
         long portNo = 0;
         String flowName = ifName;
-        String flowRef = getTunnelInterfaceFlowRef(dpId, LPORT_INGRESS_TABLE, ifName);
+        String flowRef = getTunnelInterfaceFlowRef(dpnId, LPORT_INGRESS_TABLE, ifName);
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
         if (NwConstants.ADD_FLOW == addOrRemoveFlow) {
             portNo = interfaceManager.getPortForInterface(ifName);
-            matches.add(new MatchInfo(MatchFieldType.in_port, new long[] {
-                dpId, portNo }));
+            matches.add(new MatchInfo(MatchFieldType.in_port, new BigInteger[] {
+                dpnId, BigInteger.valueOf(portNo) }));
             mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {LFIB_TABLE}));
         }
 
         BigInteger COOKIE_VM_INGRESS_TABLE = new BigInteger("8000001", 16);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, LPORT_INGRESS_TABLE, flowRef,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, LPORT_INGRESS_TABLE, flowRef,
                                                           DEFAULT_FLOW_PRIORITY, flowName, 0, 0, COOKIE_VM_INGRESS_TABLE, matches, mkInstructions);
 
         if (NwConstants.ADD_FLOW == addOrRemoveFlow) {
@@ -243,8 +243,8 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         }
     }
 
-    private String getTunnelInterfaceFlowRef(long dpId, short tableId, String ifName) {
-                return new StringBuilder().append(dpId).append(tableId).append(ifName).toString();
+    private String getTunnelInterfaceFlowRef(BigInteger dpnId, short tableId, String ifName) {
+                return new StringBuilder().append(dpnId).append(tableId).append(ifName).toString();
             }
 
     protected void addVpnNexthopToDS(long vpnId, String ipPrefix, long egressPointer) {
@@ -266,7 +266,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
     }
 
-    private void addTunnelNexthopToDS(long dpnId, String ipPrefix, long egressPointer) {
+    private void addTunnelNexthopToDS(BigInteger dpnId, String ipPrefix, long egressPointer) {
         InstanceIdentifierBuilder<TunnelNexthops> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
                 .child(TunnelNexthops.class, new TunnelNexthopsKey(dpnId));
 
@@ -313,7 +313,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         return null;
     }
 
-    private TunnelNexthop getTunnelNexthop(long dpnId, String ipAddress) {
+    private TunnelNexthop getTunnelNexthop(BigInteger dpnId, String ipAddress) {
         
         InstanceIdentifierBuilder<TunnelNexthops> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
                 .child(TunnelNexthops.class, new TunnelNexthopsKey(dpnId));
@@ -333,7 +333,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         return null;
     }
 
-    public long getNextHopPointer(long dpnId, long vpnId, String prefixIp, String nextHopIp) {
+    public long getNextHopPointer(BigInteger dpnId, long vpnId, String prefixIp, String nextHopIp) {
         String endpointIp = interfaceManager.getEndpointIpForDpn(dpnId);
         if (nextHopIp.equals(endpointIp)) {
             VpnNexthop vpnNextHop = getVpnNexthop(vpnId, prefixIp, 0);
@@ -345,7 +345,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         }
     }
 
-    private void removeTunnelNexthopFromDS(long dpnId, String ipPrefix) {
+    private void removeTunnelNexthopFromDS(BigInteger dpnId, String ipPrefix) {
 
         InstanceIdentifierBuilder<TunnelNexthop> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
                 .child(TunnelNexthops.class, new TunnelNexthopsKey(dpnId))
@@ -368,14 +368,14 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
     }
 
  
-    public void removeLocalNextHop(Long dpId, Long vpnId, String ipAddress) {
+    public void removeLocalNextHop(BigInteger dpnId, Long vpnId, String ipAddress) {
 
         VpnNexthop nh = getVpnNexthop(vpnId, ipAddress, 0);
         if (nh != null) {
             // how to inform and remove dependent FIB entries??
             // we need to do it before the group is removed
             GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
-                    dpId, nh.getEgressPointer(), ipAddress, GroupTypes.GroupIndirect, null);
+                    dpnId, nh.getEgressPointer(), ipAddress, GroupTypes.GroupIndirect, null);
             // remove Group ...
             mdsalManager.removeGroup(groupEntity);
             //update MD-SAL DS
@@ -387,7 +387,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
     }
 
-    public void removeRemoteNextHop(long dpnId, String ifName, String ipAddress) {
+    public void removeRemoteNextHop(BigInteger dpnId, String ifName, String ipAddress) {
 
         TunnelNexthop nh = getTunnelNexthop(dpnId, ipAddress);
         if (nh != null) {

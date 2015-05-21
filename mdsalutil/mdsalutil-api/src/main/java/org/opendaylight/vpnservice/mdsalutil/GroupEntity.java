@@ -7,8 +7,9 @@
  */
 package org.opendaylight.vpnservice.mdsalutil;
 
-import java.util.List;
+import java.math.BigInteger;
 
+import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.GroupBuilder;
@@ -24,8 +25,8 @@ public class GroupEntity extends AbstractSwitchEntity {
 
     private transient GroupBuilder m_groupBuilder;
 
-    public GroupEntity(long lDpnId) {
-        super(lDpnId);
+    public GroupEntity(BigInteger dpnId) {
+        super(dpnId);
     }
 
     @Override

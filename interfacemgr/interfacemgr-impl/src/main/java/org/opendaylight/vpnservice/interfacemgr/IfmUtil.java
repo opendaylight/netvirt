@@ -7,6 +7,8 @@
  */
 package org.opendaylight.vpnservice.interfacemgr;
 
+import java.math.BigInteger;
+
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -30,7 +32,7 @@ public class IfmUtil {
     }
 
 
-    public static NodeId buildDpnNodeId(long dpnId) {
+    public static NodeId buildDpnNodeId(BigInteger dpnId) {
         return new NodeId(IfmConstants.OF_URI_PREFIX + dpnId);
     }
 

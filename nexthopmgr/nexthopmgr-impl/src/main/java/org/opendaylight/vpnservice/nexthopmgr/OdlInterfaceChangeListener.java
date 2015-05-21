@@ -8,22 +8,21 @@
 package org.opendaylight.vpnservice.nexthopmgr;
 
 
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
-
+import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.BaseIds;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.L3tunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL3tunnel;
-import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
-import org.opendaylight.vpnservice.nexthopmgr.AbstractDataChangeListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.L3tunnel;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +91,7 @@ public class OdlInterfaceChangeListener extends AbstractDataChangeListener<Inter
             Interface intrf) {
         LOG.trace("Removing interface : key: " + identifier + ", value=" + intrf );
         if (intrf.getType().equals(L3tunnel.class)) {
-            long dpnId = interfaceManager.getDpnForInterface(intrf.getName());
+            BigInteger dpnId = interfaceManager.getDpnForInterface(intrf.getName());
             IfL3tunnel intfData = intrf.getAugmentation(IfL3tunnel.class);
             IpAddress gatewayIp = intfData.getGatewayIp();
             IpAddress remoteIp = (gatewayIp == null) ? intfData.getRemoteIp() : gatewayIp;

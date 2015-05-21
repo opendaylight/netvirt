@@ -101,7 +101,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
     }
 
     @Override
-    public Collection<Long> getDpnsForVpn(long vpnId) {
+    public Collection<BigInteger> getDpnsForVpn(long vpnId) {
         return vpnInterfaceManager.getDpnsForVpn(vpnId);
     }
 
