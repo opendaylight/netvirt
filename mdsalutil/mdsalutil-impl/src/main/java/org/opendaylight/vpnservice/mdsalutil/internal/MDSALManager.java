@@ -124,7 +124,7 @@ public class MDSALManager implements AutoCloseable {
                 }
             });
         } catch (Exception e) {
-            s_logger.error("Could not install flow: {}, exception: {}", flowEntity, e);
+            s_logger.error("Could not install flow: {}", flowEntity, e);
         }
     }
 
@@ -165,7 +165,7 @@ public class MDSALManager implements AutoCloseable {
                 }
              });
            } catch (Exception e) {
-            s_logger.error("Could not install Group: {}, exception: {}", groupEntity, e);
+            s_logger.error("Could not install Group: {}", groupEntity, e);
             throw e;
         }
     }
@@ -205,7 +205,7 @@ public class MDSALManager implements AutoCloseable {
 
                 });
         } catch (Exception e) {
-            s_logger.error("Could not remove Flow: {}, exception: {}", flowEntity, e);
+            s_logger.error("Could not remove Flow: {}", flowEntity, e);
         }
     }
 
@@ -242,7 +242,7 @@ public class MDSALManager implements AutoCloseable {
                 }
             });
         } catch (Exception e) {
-            s_logger.error("Could not remove Group: {}, exception: {}", groupEntity, e);
+            s_logger.error("Could not remove Group: {}", groupEntity, e);
         }
     }
 
