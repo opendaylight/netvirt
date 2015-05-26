@@ -417,7 +417,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
         String endpointIp = interfaceManager.getEndpointIpForDpn(input.getDpnId());
         LOG.trace("getEgressPointer: input {}, endpointIp {}", input, endpointIp);
-        if (input.getNexthopIp().equals(endpointIp)) {
+        if (input.getNexthopIp() == null || input.getNexthopIp().equals(endpointIp)) {
             VpnNexthop vpnNextHop = getVpnNexthop(input.getVpnId(), input.getIpPrefix(), 5);
             output.setEgressPointer(vpnNextHop.getEgressPointer());
             output.setLocalDestination(true);
