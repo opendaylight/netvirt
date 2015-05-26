@@ -51,6 +51,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
             vpnInterfaceManager.setMdsalManager(mdsalManager);
             vpnInterfaceManager.setInterfaceManager(interfaceManager);
             vpnInterfaceManager.setIdManager(idManager);
+            vpnManager.setVpnInterfaceManager(vpnInterfaceManager);
             createIdPool();
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
