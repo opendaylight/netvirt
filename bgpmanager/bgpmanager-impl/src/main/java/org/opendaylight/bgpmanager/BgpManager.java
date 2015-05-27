@@ -238,12 +238,15 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
     @Override
     public void deleteVrf(String rd) throws Exception {
-        if(bgpThriftClient == null) {
-            LOGGER.info("Delete BGP vrf - bgpThriftClient is null. Unable to delete BGP vrf.");
+        if(bgpThriftClient == null || !hasBgpServiceStarted) {
+            LOGGER.debug("Delete BGP vrf - Unable to delete BGP vrf in BGP Server. Removing Vrf from local DS");
+            fibDSWriter.removeVrfFromDS(rd);
             return;
         }
+
         try {
             bgpThriftClient.delVrf(rd);
+            fibDSWriter.removeVrfFromDS(rd);
         } catch (BgpRouterException b) {
             LOGGER.error("Failed to delete BGP vrf " + rd + "due to BgpRouter Exception number " + b.getErrorCode());
             LOGGER.debug("BgpRouterException trace ", b);
