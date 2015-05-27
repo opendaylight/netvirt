@@ -26,9 +26,11 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInstance1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInstance1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.FibEntries;
@@ -52,6 +54,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
     private final DataBroker broker;
     private final IBgpManager bgpManager;
     private IdManagerService idManager;
+    private VpnInterfaceManager vpnInterfaceManager;
     private final FibEntriesListener fibListener;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
@@ -95,11 +98,30 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         this.idManager = idManager;
     }
 
+    public void setVpnInterfaceManager(VpnInterfaceManager vpnInterfaceManager) {
+        this.vpnInterfaceManager = vpnInterfaceManager;
+    }
+
     @Override
     protected void remove(InstanceIdentifier<VpnInstance> identifier, VpnInstance del) {
-        LOG.trace("Remove event - Key: {}, value: {}", identifier, del);
+        LOG.trace("Remove VPN event - Key: {}, value: {}", identifier, del);
         String vpnName = del.getVpnInstanceName();
         InstanceIdentifier<VpnInstance> vpnIdentifier = VpnUtil.getVpnInstanceIdentifier(vpnName);
+        //Clean up vpn Interface
+        InstanceIdentifier<VpnInterfaces> vpnInterfacesId = InstanceIdentifier.builder(VpnInterfaces.class).build();
+        Optional<VpnInterfaces> optionalVpnInterfaces = read(LogicalDatastoreType.OPERATIONAL, vpnInterfacesId);
+
+        if(optionalVpnInterfaces.isPresent()) {
+            List<VpnInterface> vpnInterfaces = optionalVpnInterfaces.get().getVpnInterface();
+            for(VpnInterface vpnInterface : vpnInterfaces) {
+                if(vpnInterface.getVpnInstanceName().equals(vpnName)) {
+                    LOG.debug("VpnInterface {} will be removed from VPN {}", vpnInterface.getName(), vpnName);
+                    vpnInterfaceManager.remove(
+                            VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName()), vpnInterface);
+                }
+            }
+        }
+
         delete(LogicalDatastoreType.OPERATIONAL, vpnIdentifier);
 
         String rd = del.getIpv4Family().getRouteDistinguisher();
@@ -219,7 +241,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
             } else {
                 LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
             }
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when getting Unique Id",e);
         }
         return 0;

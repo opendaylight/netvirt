@@ -395,8 +395,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 }
             }
         }
-//        InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(intfName);
-//        delete(LogicalDatastoreType.OPERATIONAL, interfaceId);
     }
 
     private <T extends DataObject> void delete(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
@@ -436,7 +434,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     }
 
     private void removePrefixFromBGP(String rd, Adjacency nextHop) {
-        //public void deletePrefix(String rd, String prefix) throws Exception;
         try {
             bgpManager.deletePrefix(rd, nextHop.getIpAddress());
         } catch(Exception e) {
@@ -447,8 +444,57 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     @Override
     protected void update(InstanceIdentifier<VpnInterface> identifier, 
                                    VpnInterface original, VpnInterface update) {
-        // TODO Auto-generated method stub
+        LOG.trace("Update VPN Interface {} , original {}, update {}", 
+                                                  identifier, original, update);
+        String vpnName = original.getVpnInstanceName();
 
+        boolean vpnNameChanged = false;
+        String rd = getRouteDistinguisher(vpnName);
+        String newRd = rd;
+        if(!vpnName.equals(update.getVpnInstanceName())) {
+            //VPN for this interface got changed. 
+            //Remove the interface from old VPN and add it to new VPN
+            String newVpnName = update.getVpnInstanceName();
+            newRd = getRouteDistinguisher(newVpnName);
+            if(newRd.equals("")) {
+                LOG.warn("VPN Instance {} not found. Update operation aborted", newVpnName);
+                return;
+            }
+            vpnNameChanged = true;
+            LOG.debug("New VPN Name for the interface {} is {}", newVpnName, original.getName());
+        }
+
+        BigInteger dpnId = interfaceManager.getDpnForInterface(original.getName());
+        String nextHopIp = interfaceManager.getEndpointIpForDpn(dpnId);
+        //List<Adjacency> oldAdjs = original.getAugmentation(Adjacencies.class).getAdjacency();
+        List<Adjacency> newAdjs = update.getAugmentation(Adjacencies.class).getAdjacency();
+        if(vpnNameChanged && newAdjs != null && !newAdjs.isEmpty()) {
+            long label = VpnConstants.INVALID_ID;
+            InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
+            Optional<Adjacencies> adjacencies = read(LogicalDatastoreType.OPERATIONAL, path);
+            if (adjacencies.isPresent()) {
+                List<Adjacency> nextHops = adjacencies.get().getAdjacency();
+                for(Adjacency nextHop : nextHops) {
+                    label = nextHop.getLabel();
+                    if(label == VpnConstants.INVALID_ID) {
+                        //Generate label using ID Manager
+                        label = getUniqueId(nextHop.getIpAddress());
+                    }
+                    removePrefixFromBGP(rd, nextHop);
+                    updatePrefixToBGP(newRd, nextHop, nextHopIp, label);
+                }
+                asyncUpdate(LogicalDatastoreType.OPERATIONAL, identifier, update, DEFAULT_CALLBACK);
+            }
+        } else {
+            LOG.debug("No Update information is available for VPN Interface to proceed");
+        }
+    }
+
+    protected <T extends DataObject> void asyncUpdate(LogicalDatastoreType datastoreType,
+            InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.merge(datastoreType, path, data, true);
+        Futures.addCallback(tx.submit(), callback);
     }
 
     private <T extends DataObject> void asyncWrite(LogicalDatastoreType datastoreType,
