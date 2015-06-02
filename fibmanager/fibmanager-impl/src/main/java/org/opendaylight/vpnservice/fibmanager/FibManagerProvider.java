@@ -26,7 +26,7 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
   private FibManager fibManager;
   private IMdsalApiManager mdsalManager;
   private IVpnManager vpnmanager;
-  private FibNodeCapableListener fibNcListener;
+  //private FibNodeCapableListener fibNcListener;
 
   @Override
   public void onSessionInitiated(ProviderContext session) {
@@ -37,7 +37,7 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
       fibManager = new FibManager(dataBroker, nexthopService);
       fibManager.setMdsalManager(mdsalManager);
       fibManager.setVpnmanager(vpnmanager);
-      fibNcListener = new FibNodeCapableListener(dataBroker, fibManager);
+      //fibNcListener = new FibNodeCapableListener(dataBroker, fibManager);
     } catch (Exception e) {
       LOG.error("Error initializing services", e);
     }
@@ -47,7 +47,7 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
   public void close() throws Exception {
     LOG.info("FibManagerProvider Closed");
     fibManager.close();
-    fibNcListener.close();
+    //fibNcListener.close();
   }
 
   public void setMdsalManager(IMdsalApiManager mdsalManager) {
