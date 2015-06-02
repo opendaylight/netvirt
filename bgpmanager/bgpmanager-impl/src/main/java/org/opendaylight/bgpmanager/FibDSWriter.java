@@ -71,6 +71,18 @@ public class FibDSWriter {
 
     }
 
+    public synchronized void removeVrfFromDS(String rd) {
+        logger.debug("Removing vrf table for rd {}", rd);
+
+        InstanceIdentifierBuilder<VrfTables> idBuilder =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+        InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
+
+        delete(LogicalDatastoreType.CONFIGURATION, vrfTableId);
+
+    }
+
+
     private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
                                                     InstanceIdentifier<T> path) {
 
