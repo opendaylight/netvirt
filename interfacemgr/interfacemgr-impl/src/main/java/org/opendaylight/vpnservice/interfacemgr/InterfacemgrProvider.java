@@ -7,6 +7,8 @@
  */
 package org.opendaylight.vpnservice.interfacemgr;
 
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -93,5 +95,11 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     @Override
     public List<ActionInfo> getInterfaceEgressActions(String ifName) {
         return interfaceManager.getInterfaceEgressActions(ifName);
+    }
+
+    @Override
+    public BigInteger getDpnForInterface(Interface intrf) {
+        // TODO Auto-generated method stub
+        return interfaceManager.getDpnForInterface(intrf);
     }
 }

@@ -91,7 +91,7 @@ public class OdlInterfaceChangeListener extends AbstractDataChangeListener<Inter
             Interface intrf) {
         LOG.trace("Removing interface : key: " + identifier + ", value=" + intrf );
         if (intrf.getType().equals(L3tunnel.class)) {
-            BigInteger dpnId = interfaceManager.getDpnForInterface(intrf.getName());
+            BigInteger dpnId = interfaceManager.getDpnForInterface(intrf);
             IfL3tunnel intfData = intrf.getAugmentation(IfL3tunnel.class);
             IpAddress gatewayIp = intfData.getGatewayIp();
             IpAddress remoteIp = (gatewayIp == null) ? intfData.getRemoteIp() : gatewayIp;
