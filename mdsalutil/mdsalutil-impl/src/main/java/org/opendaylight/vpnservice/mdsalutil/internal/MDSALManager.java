@@ -172,6 +172,7 @@ public class MDSALManager implements AutoCloseable {
 
     public void removeFlow(FlowEntity flowEntity) {
         try {
+            s_logger.debug("Remove flow {}",flowEntity);
             Node nodeDpn = buildDpnNode(flowEntity.getDpnId());
             FlowKey flowKey = new FlowKey(new FlowId(flowEntity.getFlowId()));
             InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
