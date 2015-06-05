@@ -56,7 +56,7 @@ public class FibDSWriter {
         VrfTables vrfTableNew = new VrfTablesBuilder().setRouteDistinguisher(rd).
             setVrfEntry(vrfEntryList).build();
 
-        write(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
+        write(LogicalDatastoreType.OPERATIONAL, vrfTableId, vrfTableNew);
 
     }
 
@@ -67,18 +67,18 @@ public class FibDSWriter {
         InstanceIdentifierBuilder<VrfEntry> idBuilder =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class, new VrfEntryKey(prefix));
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
-        delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        delete(LogicalDatastoreType.OPERATIONAL, vrfEntryId);
 
     }
 
     public synchronized void removeVrfFromDS(String rd) {
-        logger.debug("Removing vrf table for rd {}", rd);
+        logger.debug("Removing vrf table for  rd {}", rd);
 
         InstanceIdentifierBuilder<VrfTables> idBuilder =
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
 
-        delete(LogicalDatastoreType.CONFIGURATION, vrfTableId);
+        delete(LogicalDatastoreType.OPERATIONAL, vrfTableId);
 
     }
 

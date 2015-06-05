@@ -25,7 +25,7 @@ public class MockFibManager extends AbstractMockFibManager<VrfEntry> {
     }
 
     private void registerListener(final DataBroker db) {
-        final DataTreeIdentifier<VrfEntry> treeId = new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, getWildCardPath());
+        final DataTreeIdentifier<VrfEntry> treeId = new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, getWildCardPath());
         try {
             listenerRegistration = db.registerDataTreeChangeListener(treeId, MockFibManager.this);
         } catch (final Exception e) {
@@ -55,7 +55,7 @@ public class MockFibManager extends AbstractMockFibManager<VrfEntry> {
                     }
                     break;
                 default:
-                    throw new IllegalArgumentException("Unhandled modification type " + mod.getModificationType());
+                    throw new IllegalArgumentException("Unhandled modification  type " + mod.getModificationType());
                 }
             }
      }

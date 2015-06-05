@@ -86,10 +86,10 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         try {
             listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
                     getWildCardPath(), VpnManager.this, DataChangeScope.SUBTREE);
-            fibListenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+            fibListenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
                     getFibEntryListenerPath(), fibListener, DataChangeScope.BASE);
         } catch (final Exception e) {
-            LOG.error("VPN Service DataChange listener registration fail!", e);
+            LOG.error("VPN Service DataChange listener registration fail !", e);
             throw new IllegalStateException("VPN Service registration Listener failed.", e);
         }
     }

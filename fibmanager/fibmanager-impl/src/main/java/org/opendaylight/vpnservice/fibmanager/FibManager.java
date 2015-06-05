@@ -116,7 +116,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
   private void registerListener(final DataBroker db) {
     try {
-      listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+      listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
                                                            getWildCardPath(), FibManager.this, DataChangeScope.SUBTREE);
     } catch (final Exception e) {
       LOG.error("FibManager DataChange listener registration fail!", e);
@@ -271,7 +271,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     try {
       destPrefix = InetAddress.getByName(ipAddress);
     } catch (UnknownHostException e) {
-      LOG.error("UnknowHostException in addRoute. Failed to add Route for ipPrefix {}", vrfEntry.getDestPrefix());
+      LOG.error("UnknowHostException in addRoute. Failed  to add Route for ipPrefix {}", vrfEntry.getDestPrefix());
       return;
     }
 
@@ -365,7 +365,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   public void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd) {
     LOG.trace("New dpn {} for vpn {} : populateFibOnNewDpn", dpnId, rd);
     InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-    Optional<VrfTables> vrfTable = read(LogicalDatastoreType.CONFIGURATION, id);
+    Optional<VrfTables> vrfTable = read(LogicalDatastoreType.OPERATIONAL, id);
     if(vrfTable.isPresent()) {
       for(VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
         addRouteInternal(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry);
@@ -376,7 +376,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd) {
     LOG.trace("Remove dpn {} for vpn {} : cleanUpDpnForVpn", dpnId, rd);
     InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-    Optional<VrfTables> vrfTable = read(LogicalDatastoreType.CONFIGURATION, id);
+    Optional<VrfTables> vrfTable = read(LogicalDatastoreType.OPERATIONAL, id);
     if(vrfTable.isPresent()) {
       for(VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
         deleteRoute(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry);
