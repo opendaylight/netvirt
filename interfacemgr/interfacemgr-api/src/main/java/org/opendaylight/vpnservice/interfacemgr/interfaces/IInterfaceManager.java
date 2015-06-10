@@ -23,5 +23,6 @@ public interface IInterfaceManager {
     public String getEndpointIpForDpn(BigInteger dpnId);
     public List<MatchInfo> getInterfaceIngressRule(String ifName);
     public List<ActionInfo> getInterfaceEgressActions(String ifName);
+    public Long getPortForInterface(Interface intf);
 
 }

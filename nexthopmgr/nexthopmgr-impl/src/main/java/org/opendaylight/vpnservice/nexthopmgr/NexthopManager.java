@@ -210,7 +210,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
             GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
                 dpnId, groupId, ipAddress, GroupTypes.GroupIndirect, listBucketInfo);
             mdsalManager.installGroup(groupEntity);
-            makeRemoteFlow(dpnId, ifName, NwConstants.ADD_FLOW);
+            //makeRemoteFlow(dpnId, ifName, NwConstants.ADD_FLOW);
 
             //update MD-SAL DS
             addTunnelNexthopToDS(dpnId, ipAddress, groupId);
@@ -399,7 +399,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
                     dpnId, nh.getEgressPointer(), ipAddress, GroupTypes.GroupIndirect, null);
             // remove Group ...
             mdsalManager.removeGroup(groupEntity);
-            makeRemoteFlow(dpnId, ifName, NwConstants.DEL_FLOW);
+            //makeRemoteFlow(dpnId, ifName, NwConstants.DEL_FLOW);
             //update MD-SAL DS
             removeTunnelNexthopFromDS(dpnId, ipAddress);
         } else {

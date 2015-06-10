@@ -78,6 +78,12 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     }
 
     @Override
+    public Long getPortForInterface(Interface intf) {
+        return interfaceManager.getPortForInterface(intf);
+    }
+
+
+    @Override
     public BigInteger getDpnForInterface(String ifName) {
         return interfaceManager.getDpnForInterface(ifName);
     }

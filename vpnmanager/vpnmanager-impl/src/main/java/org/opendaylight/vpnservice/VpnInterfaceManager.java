@@ -35,6 +35,7 @@ import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
 import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
 import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
+import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -46,8 +47,10 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.AdjacencyList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
@@ -71,7 +74,7 @@ import org.slf4j.LoggerFactory;
 
 public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceManager.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
+    private ListenerRegistration<DataChangeListener> listenerRegistration, interfaceListenerRegistration;
     private final DataBroker broker;
     private final IBgpManager bgpManager;
     private IFibManager fibManager;
@@ -80,6 +83,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     private IdManagerService idManager;
     private Map<Long, Collection<BigInteger>> vpnToDpnsDb;
     private Map<BigInteger, Collection<String>> dpnToInterfaceDb;
+    private InterfaceListener interfaceListener;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
             new FutureCallback<Void>() {
@@ -104,6 +108,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         this.bgpManager = bgpManager;
         vpnToDpnsDb = new ConcurrentHashMap<>();
         dpnToInterfaceDb = new ConcurrentHashMap<>();
+        interfaceListener = new InterfaceListener();
         registerListener(db);
     }
 
@@ -128,10 +133,12 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         if (listenerRegistration != null) {
             try {
                 listenerRegistration.close();
+                interfaceListenerRegistration.close();
             } catch (final Exception e) {
                 LOG.error("Error when cleaning up DataChangeListener.", e);
             }
             listenerRegistration = null;
+            interfaceListenerRegistration = null;
         }
         LOG.info("VPN Interface Manager Closed");
     }
@@ -140,10 +147,17 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         try {
             listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
                     getWildCardPath(), VpnInterfaceManager.this, DataChangeScope.SUBTREE);
+            interfaceListenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                    getInterfaceListenerPath(), interfaceListener, DataChangeScope.SUBTREE);
         } catch (final Exception e) {
             LOG.error("VPN Service DataChange listener registration fail!", e);
             throw new IllegalStateException("VPN Service registration Listener failed.", e);
         }
+    }
+
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> getInterfaceListenerPath() {
+        return InstanceIdentifier.create(InterfacesState.class)
+        .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class);
     }
 
     @Override
@@ -407,16 +421,17 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         LOG.trace("Unbind service on interface {} for VPN: {}", intf, vpnName);
 
         long vpnId = getVpnId(vpnName);
-        BigInteger dpId = interfaceManager.getDpnForInterface(intf.getName());
+        BigInteger dpId = interfaceManager.getDpnForInterface(intf);
         if(dpId.equals(BigInteger.ZERO)) {
             LOG.warn("DPN for interface {} not found. Unbind service on this interface aborted.", intf.getName());
             return;
         } else {
             String rd = getRouteDistinguisher(vpnName);
             remoteFromMappingDbs(vpnId, dpId, intf.getName(), rd);
+            LOG.debug("removed vpn mapping for interface {} from VPN RD {}", intf.getName(), rd);
         }
 
-        long portNo = interfaceManager.getPortForInterface(intf.getName());
+        long portNo = interfaceManager.getPortForInterface(intf);
         String flowRef = getVpnInterfaceFlowRef(dpId, VpnConstants.LPORT_INGRESS_TABLE, vpnId, portNo);
 
         String flowName = intf.getName();
@@ -429,6 +444,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, VpnConstants.LPORT_INGRESS_TABLE, flowRef,
                           priority, flowName, 0, 0, null, matches, null);
+        LOG.debug("Remove ingress flow for port {} in dpn {}", portNo, dpId.intValue());
 
         mdsalManager.removeFlow(flowEntity);
     }
@@ -481,8 +497,9 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                         label = getUniqueId(nextHop.getIpAddress());
                     }
                     removePrefixFromBGP(rd, nextHop);
-                    updatePrefixToBGP(newRd, nextHop, nextHopIp, label);
+                    //updatePrefixToBGP(newRd, nextHop, nextHopIp, label);
                 }
+                updateNextHops(identifier, update);
                 asyncUpdate(LogicalDatastoreType.OPERATIONAL, identifier, update, DEFAULT_CALLBACK);
             }
         } else {
@@ -517,6 +534,128 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             return ImmutableList.copyOf(dpnIds);
         } else {
             return Collections.emptyList();
+        }
+    }
+
+    VpnInterface getVpnInterface(String interfaceName) {
+        Optional<VpnInterfaces> optVpnInterfaces = read(LogicalDatastoreType.CONFIGURATION, VpnUtil.getVpnInterfacesIdentifier());
+        if(optVpnInterfaces.isPresent()) {
+            List<VpnInterface> interfaces = optVpnInterfaces.get().getVpnInterface();
+            for(VpnInterface intf : interfaces) {
+                if(intf.getName().equals(interfaceName)) {
+                    return intf;
+                }
+            }
+        }
+        return null;
+    }
+
+    private Interface getInterface(String interfaceName) {
+        Optional<Interface> optInterface = read(LogicalDatastoreType.CONFIGURATION, VpnUtil.getInterfaceIdentifier(interfaceName));
+        if(optInterface.isPresent()) {
+            return optInterface.get();
+        }
+        return null;
+    }
+
+    private String getTunnelInterfaceFlowRef(BigInteger dpnId, short tableId, String ifName) {
+        return new StringBuilder().append(dpnId).append(tableId).append(ifName).toString();
+    }
+
+
+    private void makeTunnelIngressFlow(BigInteger dpnId, String ifName, int addOrRemoveFlow) {
+        long portNo = 0;
+        String flowName = ifName;
+        String flowRef = getTunnelInterfaceFlowRef(dpnId, VpnConstants.LPORT_INGRESS_TABLE, ifName);
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+        if (NwConstants.ADD_FLOW == addOrRemoveFlow) {
+            portNo = interfaceManager.getPortForInterface(ifName);
+            matches.add(new MatchInfo(MatchFieldType.in_port, new BigInteger[] {
+                dpnId, BigInteger.valueOf(portNo) }));
+            mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {VpnConstants.LFIB_TABLE}));
+        }
+
+        BigInteger COOKIE_VM_INGRESS_TABLE = new BigInteger("8000001", 16);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, VpnConstants.LPORT_INGRESS_TABLE, flowRef,
+                VpnConstants.DEFAULT_FLOW_PRIORITY, flowName, 0, 0, COOKIE_VM_INGRESS_TABLE, matches, mkInstructions);
+
+        if (NwConstants.ADD_FLOW == addOrRemoveFlow) {
+            mdsalManager.installFlow(flowEntity);
+        } else {
+            mdsalManager.removeFlow(flowEntity);
+        }
+    }
+
+    private class InterfaceListener extends AbstractDataChangeListener<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface>  {
+
+        public InterfaceListener() {
+            super(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class);
+        }
+
+        @Override
+        protected void remove(InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> identifier,
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface del) {
+            LOG.trace("Operational Interface remove event - {}", del);
+        }
+
+        @Override
+        protected void update(InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> identifier,
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface original, 
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface update) {
+            LOG.trace("Operation Interface update event - Old: {}, New: {}", original, update);
+            String interfaceName = update.getName();
+            Interface intf = getInterface(interfaceName);
+            if (intf != null && intf.getType().equals(L3tunnel.class)) {
+                BigInteger dpnId = interfaceManager.getDpnForInterface(interfaceName);
+                if(update.getOperStatus().equals(OperStatus.Up)) {
+                    //Create ingress to LFIB
+                    LOG.debug("Installing Ingress for tunnel interface {}", interfaceName);
+                    makeTunnelIngressFlow(dpnId, interfaceName, NwConstants.ADD_FLOW);
+                } else if(update.getOperStatus().equals(OperStatus.Down)) {
+                    LOG.debug("Removing Ingress flow for tunnel interface {}", interfaceName);
+                    makeTunnelIngressFlow(dpnId, interfaceName, NwConstants.DEL_FLOW);
+                }
+            } else {
+                VpnInterface vpnInterface = getVpnInterface(interfaceName);
+                if(vpnInterface != null) {
+                    if(update.getOperStatus().equals(OperStatus.Up)) {
+                        LOG.debug("Installing VPN related rules for interface {}", interfaceName);
+                        addInterface(VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName()), vpnInterface);
+                    } else if(update.getOperStatus().equals(OperStatus.Down)) {
+                        LOG.debug("Removing VPN related rules for interface {}", interfaceName);
+                        VpnInterfaceManager.this.remove(VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName()), vpnInterface);
+                    }
+                } else {
+                    LOG.debug("No VPN Interface associated with interface {} to handle Update Operation", interfaceName);
+                }
+            }
+        }
+
+        @Override
+        protected void add(InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> identifier,
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface add) {
+            LOG.trace("Operational Interface add event - {}", add);
+            String interfaceName = add.getName();
+            Interface intf = getInterface(interfaceName);
+            if (intf != null && intf.getType().equals(L3tunnel.class)) {
+                BigInteger dpnId = interfaceManager.getDpnForInterface(interfaceName);
+                if(add.getOperStatus().equals(OperStatus.Up)) {
+                    //Create ingress to LFIB
+                    LOG.debug("Installing Ingress for tunnel interface {}", interfaceName);
+                    makeTunnelIngressFlow(dpnId, interfaceName, NwConstants.ADD_FLOW);
+                }
+            } else {
+                VpnInterface vpnInterface = getVpnInterface(interfaceName);
+                if(vpnInterface != null) {
+                    if(add.getOperStatus().equals(OperStatus.Up)) {
+                        LOG.debug("Installing VPN related rules for interface {}", interfaceName);
+                        addInterface(VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName()), vpnInterface);
+                    }
+                } else {
+                    LOG.debug("No VPN Interface associated with interface {} to handle add Operation", interfaceName);
+                }
+            }
         }
     }
 }

@@ -39,6 +39,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
     private IMdsalApiManager mdsalManager;
     private IInterfaceManager interfaceManager;
     private IdManagerService idManager;
+    private InterfaceChangeListener interfaceListener;
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -52,6 +53,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
             vpnInterfaceManager.setInterfaceManager(interfaceManager);
             vpnInterfaceManager.setIdManager(idManager);
             vpnManager.setVpnInterfaceManager(vpnInterfaceManager);
+            interfaceListener = new InterfaceChangeListener(dataBroker, vpnInterfaceManager);
             createIdPool();
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
@@ -99,6 +101,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
     public void close() throws Exception {
         vpnManager.close();
         vpnInterfaceManager.close();
+        interfaceListener.close();
     }
 
     @Override

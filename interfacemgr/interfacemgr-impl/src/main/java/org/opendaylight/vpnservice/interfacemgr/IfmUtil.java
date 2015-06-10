@@ -31,6 +31,13 @@ public class IfmUtil {
         return split[1];
     }
 
+    public static String getPortNoFromNodeConnectorId(NodeConnectorId portId) {
+        /*
+         * NodeConnectorId is of form 'openflow:dpnid:portnum'
+         */
+        String[] split = portId.getValue().split(IfmConstants.OF_URI_SEPARATOR);
+        return split[2];
+    }
 
     public static NodeId buildDpnNodeId(BigInteger dpnId) {
         return new NodeId(IfmConstants.OF_URI_PREFIX + dpnId);

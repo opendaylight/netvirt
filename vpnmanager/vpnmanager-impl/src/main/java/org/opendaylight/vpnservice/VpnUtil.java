@@ -19,6 +19,9 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.AdjacenciesBuilder;
@@ -53,5 +56,14 @@ public class VpnUtil {
                         InstanceIdentifier.builder(Pools.class).child(IdPool.class, new IdPoolKey(poolName));
         InstanceIdentifier<IdPool> id = idBuilder.build();
         return id;
+    }
+
+    static InstanceIdentifier<VpnInterfaces> getVpnInterfacesIdentifier() {
+        return InstanceIdentifier.builder(VpnInterfaces.class).build();
+    }
+
+    static InstanceIdentifier<Interface> getInterfaceIdentifier(String interfaceName) {
+        return InstanceIdentifier.builder(Interfaces.class)
+                .child(Interface.class, new InterfaceKey(interfaceName)).build();
     }
 }

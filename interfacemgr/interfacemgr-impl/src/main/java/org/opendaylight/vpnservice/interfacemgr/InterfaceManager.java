@@ -434,12 +434,34 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
         return getPortNumForInterface(iface);
     }
 
+    Long getPortForInterface(Interface intrf) {
+        try {
+            NodeConnector port = getNodeConnectorFromDataStore(intrf);
+            NodeConnectorId id = null;
+            if(port == null) {
+                id = getNodeConnectorIdFromInterface(intrf);
+            } else {
+                id = port.getId();
+            }
+            String portNo = IfmUtil.getPortNoFromNodeConnectorId(id);
+            return Long.parseLong(portNo);
+        } catch (NullPointerException e) {
+            LOG.error("Port for Interface {} not found", intrf.getName(), e);
+        }
+        return 0L;
+    }
 
     public BigInteger getDpnForInterface(Interface intrf) {
         try {
             NodeConnector port = getNodeConnectorFromDataStore(intrf);
+            NodeConnectorId id = null;
+            if(port == null) {
+                id = getNodeConnectorIdFromInterface(intrf);
+            } else {
+                id = port.getId();
+            }
             //TODO: This should be an MDSAL Util method
-            return new BigInteger(IfmUtil.getDpnFromNodeConnectorId(port.getId()));
+            return new BigInteger(IfmUtil.getDpnFromNodeConnectorId(id));
         } catch (NullPointerException e) {
             LOG.error("dpn for Interface {} not found", intrf.getName(), e);
         }
