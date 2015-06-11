@@ -281,11 +281,9 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             if(ncId != null) {
                 mapNcToInterfaceName.remove(ncId);
                 if(delInterface.getType().isAssignableFrom(L3tunnel.class)) {
-                    Node node = getNodeFromDataStore(delInterface);
-                    if((node != null) &&(node.getNodeConnector().isEmpty())) {
-                        dbDpnEndpoints.remove(node.getId());
-                        LOG.trace("dbDpnEndpoints: {}",dbDpnEndpoints);
-                    }
+                    NodeId nodeId = getNodeIdFromNodeConnectorId(ncId);
+                    dbDpnEndpoints.remove(nodeId);
+                    LOG.trace("dbDpnEndpoints: {}",dbDpnEndpoints);
                 }
             }
         }
