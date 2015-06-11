@@ -201,7 +201,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
             LOG.trace("NextHops are {}", nextHops);
             for (Adjacency nextHop : nextHops) {
-                String key = nextHop.getIpAddress();
+                String key = rd + VpnConstants.SEPARATOR + nextHop.getIpAddress();
                 long label = getUniqueId(key);
                 value.add(new AdjacencyBuilder(nextHop).setLabel(label).build());
             }
@@ -211,7 +211,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(intfName);
             syncWrite(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface, DEFAULT_CALLBACK);
             for (Adjacency nextHop : nextHops) {
-                String key = nextHop.getIpAddress();
+                String key = rd + VpnConstants.SEPARATOR + nextHop.getIpAddress();
                 long label = getUniqueId(key);
                 updatePrefixToBGP(rd, nextHop, nextHopIp, label);
             }
@@ -494,7 +494,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     label = nextHop.getLabel();
                     if(label == VpnConstants.INVALID_ID) {
                         //Generate label using ID Manager
-                        label = getUniqueId(nextHop.getIpAddress());
+                        String key = newRd + VpnConstants.SEPARATOR + nextHop.getIpAddress();
+                        label = getUniqueId(key);
                     }
                     removePrefixFromBGP(rd, nextHop);
                     //updatePrefixToBGP(newRd, nextHop, nextHopIp, label);

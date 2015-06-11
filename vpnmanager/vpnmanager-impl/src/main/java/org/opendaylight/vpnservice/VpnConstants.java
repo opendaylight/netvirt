@@ -17,4 +17,5 @@ public class VpnConstants {
     public static final short FIB_TABLE = 21;
     public static final short DEFAULT_FLOW_PRIORITY = 10;
     public static final long INVALID_ID = -1;
+    public static final String SEPARATOR = ".";
 }
