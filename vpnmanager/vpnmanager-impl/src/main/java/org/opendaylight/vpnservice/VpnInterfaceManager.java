@@ -564,7 +564,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     }
 
 
-    private void makeTunnelIngressFlow(BigInteger dpnId, String ifName, int addOrRemoveFlow) {
+    protected void makeTunnelIngressFlow(BigInteger dpnId, String ifName, int addOrRemoveFlow) {
         long portNo = 0;
         String flowName = ifName;
         String flowRef = getTunnelInterfaceFlowRef(dpnId, VpnConstants.LPORT_INGRESS_TABLE, ifName);
