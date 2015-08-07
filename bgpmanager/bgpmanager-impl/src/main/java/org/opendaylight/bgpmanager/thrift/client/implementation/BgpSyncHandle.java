@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 package org.opendaylight.bgpmanager.thrift.client.implementation;
 
@@ -22,7 +29,7 @@ public class BgpSyncHandle {
     public static final int DEFAULT_TCP_SOCK_SZ = 87380;    //default receive buffer size on linux > 2.4
 
     private BgpSyncHandle() {
-        more = 1; 
+        more = 1;
         state = NEVER_DONE;
     }
 
@@ -58,8 +65,8 @@ public class BgpSyncHandle {
        //size of one update structure on the wire. ideally
        //this should be computed; or thrift sure has a nice
        //way to tell this to the applciation, but for the
-       //moment, we just use 8 bytes more than the size of 
-       //the C struct. 
+       //moment, we just use 8 bytes more than the size of
+       //the C struct.
 
        return 96;
     }
@@ -77,5 +84,5 @@ public class BgpSyncHandle {
     }
 }
 
-        
-  
+
+

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.bgpmanager.thrift.server.implementation;
 
 import org.apache.thrift.server.THsHaServer;
@@ -13,9 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BgpThriftService {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(BgpThriftService.class);
-	
+
 	private int port;
 	private int maxWorkerThreads;
 	private int minWorkerThreads;
@@ -23,7 +31,7 @@ public class BgpThriftService {
     private TServer server;
 	private BgpUpdateHandler notificationHandler;
 	private BgpManager bgpManager;
-    
+
     public BgpThriftService(BgpManager bgpMgr, FibDSWriter dsWriter) {
     	bgpManager = bgpMgr;
 		notificationHandler = new BgpUpdateHandler(bgpManager, dsWriter);
@@ -34,7 +42,7 @@ public class BgpThriftService {
 		LOGGER.debug("BGP Thrift Server starting...");
 		startBgpThriftServer();
 	}
-	
+
 	public void stop() {
 		LOGGER.debug("BGP Thrift Server stopping...");
 		stopBgpThriftServer();
@@ -49,7 +57,7 @@ public class BgpThriftService {
 
     /**
      * Loading the parameters required for a connection
-     * 
+     *
      */
     private void loadParameters() {
         port = Integer.getInteger(Constants.PROP_BGP_THRIFT_PORT, Constants.BGP_SERVICE_PORT);
@@ -71,14 +79,14 @@ public class BgpThriftService {
             if (serverTransport != null) {
                 serverTransport.close();
             }
-            
+
             server.stop();
 			LOGGER.info("BGP Thrift Server stopped");
         } catch (Exception e) {
             LOGGER.error("Error while stopping the server - {} {}", getClass().getName(), e.getMessage());
         }
 	}
-	
+
 	private class ThriftRunnable implements Runnable {
 		@Override
 		public void run() {
@@ -98,7 +106,7 @@ public class BgpThriftService {
 	                .maxWorkerThreads(maxWorkerThreads).minWorkerThreads(minWorkerThreads)
 	                .processor(new BgpUpdater.Processor<BgpUpdateHandler>(notificationHandler)));
 			server.serve();
-		}		
+		}
 	}
 
 }
