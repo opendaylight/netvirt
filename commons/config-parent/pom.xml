@@ -24,17 +24,31 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <properties>
     <!-- ODL -->
     <vpnservices.version>0.2.0-SNAPSHOT</vpnservices.version>
-    <ietf.inet.types.version>2010.09.24.8-SNAPSHOT</ietf.inet.types.version>
-    <ietf.yang.types.version>2010.09.24.8-SNAPSHOT</ietf.yang.types.version>
-    <ietf.interfaces.version>2014.05.08.8-SNAPSHOT</ietf.interfaces.version>
-    <iana.if.type.version>2014.05.08.8-SNAPSHOT</iana.if.type.version>
-    <yang.ext.version>2013.09.07.8-SNAPSHOT</yang.ext.version>
     <yangtools.version>0.8.0-SNAPSHOT</yangtools.version>
-    <mdsal.version>1.3.0-SNAPSHOT</mdsal.version>
+    <controller.mdsal.version>1.3.0-SNAPSHOT</controller.mdsal.version>
     <vpns.mdsalutil.version>0.2.0-SNAPSHOT</vpns.mdsalutil.version>
     <model.bgp.version>2013.07.15.8-SNAPSHOT</model.bgp.version>
     <openflowplugin.version>0.2.0-SNAPSHOT</openflowplugin.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.opendaylight.mdsal</groupId>
+        <artifactId>mdsal-artifacts</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.opendaylight.mdsal.model</groupId>
+        <artifactId>mdsal-model-artifacts</artifactId>
+        <version>0.8.0-SNAPSHOT</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <!-- Testing Dependencies -->
