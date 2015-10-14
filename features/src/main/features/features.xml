@@ -66,4 +66,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <feature name='odl-vpnservice-core' version='${project.version}' description='OpenDaylight :: vpnservice :: core'>
     <feature version="${project.version}">odl-vpnservice-impl-ui</feature>
   </feature>
-</features>
+  <feature name='odl-vpnservice-openstack' version='${project.version}' description='OpenDaylight :: vpnservice :: impl :: REST '>
+    <feature version="${project.version}">odl-vpnservice-impl</feature>
+  </feature>
+  </features>
