@@ -1,4 +1,3 @@
-
 module odl-interface {
     namespace "urn:opendaylight:vpnservice:interfacemgr";
 
@@ -32,25 +31,30 @@ module odl-interface {
         description "ODL Interface Manager Module";
     }
 
+    identity odl-interface {
+        status deprecated;
+        base "config:service-type";
+        config:java-class "org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager";
+    }
+
     identity stacked-vlan {
         base if:interface-type;
-        reference
-        "Q-in-Q interface";
+        reference "Q-in-Q interface";
+    }
+
+    identity mpls {
+        base if:interface-type;
+        reference "MPLS interface";
     }
 
     identity l3tunnel {
+        status deprecated;
         base if:interface-type;
         reference
         "l3 tunnel interface";
     }
 
-    identity mpls {
-        base if:interface-type;
-        reference
-        "MPLS interface";
-    }
-
-    /* l3Tunnel (GRE, VxLAN) logical port */
+    /* Tunnel (GRE, VxLAN) logical port */
     identity tunnel-type-base {
         description "Base identity for all tunnel-types";
     }
@@ -65,25 +69,26 @@ module odl-interface {
         base tunnel-type-base;
     }
 
-    identity odl-interface {
-        base "config:service-type";
-        config:java-class "org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager";
-    }
-
     /* base/common properties */
     augment "/if:interfaces/if:interface" {
+        status deprecated;
         ext:augment-identifier "base-ids";
         leaf of-port-id {
             type inv:node-connector-id;
             description "can be a physical switch port or virtual switch port e.g. neutron port";
         }
-        leaf tenant-id {
+    }
+
+    augment "/if:interfaces/if:interface" {
+        ext:augment-identifier "parent-refs";
+        leaf datapath-node-identifier {
+            type uint64;
+            description "can be a physical switch identifier (optional)";
+        }
+
+        leaf parent-interface {
             type string;
-            description "Tenant that owns particular interface";
-        } /* optional */
-        leaf base-interface {
-            type if:interface-ref;
-            description "some interfaces need a reference to parent interface ";
+            description "can be a physical switch port or virtual switch port e.g. neutron port";
         }
     }
 
@@ -97,31 +102,48 @@ module odl-interface {
             type uint16 {
                 range "1..4094";
             }
-            must "../base-interface" {
-                description
-                "If a vlan-id is defined, a base-interface must
-                be specified.";
-            }
         }
     }
 
     /* Q-in-Q logical port */
     augment "/if:interfaces/if:interface" {
         ext:augment-identifier "if-stacked-vlan";
-        when "if:type = 'stacked_vlan'";
+        when "if:type = 'stacked-vlan'";
         leaf stacked_vlan-id {
             type uint16 {
                 range "1..4094";
-            }
-            must "../base-interface" {
-                description
-                "If a vlan-id is defined, a base-interface must
-                be specified.";
             }
         }
     }
 
     augment "/if:interfaces/if:interface" {
+        ext:augment-identifier "if-tunnel";
+        when "if:type = 'ianaift:tunnel'";
+
+        leaf tunnel-interface-type {
+            type identityref {
+                base tunnel-type-base;
+            }
+        }
+
+        leaf tunnel-source {
+            type inet:ip-address;
+            description "Local Endpoint IP address";
+        }
+
+        leaf tunnel-destination {
+            type inet:ip-address;
+            description "Remote Endpoint IP address";
+        }
+
+        leaf tunnel-gateway {
+            type inet:ip-address;
+            description "gateway IP address";
+        }
+    }
+
+    augment "/if:interfaces/if:interface" {
+        status deprecated;
         ext:augment-identifier "if-l3tunnel";
         when "if:type = 'ianaift:l3tunnel'";
 
@@ -144,10 +166,7 @@ module odl-interface {
             type inet:ip-address;
             description "gateway IP address";
         }
-
     }
-
-
     /* MPLS logical port */
     augment "/if:interfaces/if:interface" {
         ext:augment-identifier "if-mpls";
@@ -163,5 +182,4 @@ module odl-interface {
             }
         }
     }
-
 }

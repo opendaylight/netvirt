@@ -1,0 +1,50 @@
+module odl-interface-meta {
+    namespace "urn:opendaylight:vpnservice:interfacemgr:meta";
+    prefix "odlifmeta";
+
+    import ovsdb {
+        prefix southbound; revision-date "2015-01-05";
+    }
+
+    revision "2015-10-07" {
+        description "ODL rendering specific Interface Manager Meta Module";
+    }
+
+    container bridge-interface-info {
+        description "Contains the list of dpns along with the tunnel interfaces configured on them.";
+
+        list bridge-entry {
+            key dpid;
+            leaf dpid {
+                type uint64;
+            }
+
+            list bridge-interface-entry {
+                key interface-name;
+                leaf interface-name {
+                    type string;
+                }
+                leaf tp-id-ref {
+                    type southbound:ovsdb-termination-point-ref;
+                }
+            }
+        }
+    }
+
+    container bridge-ref-info {
+        config false;
+        description "The container that maps dpid with ovs bridge ref in the operational DS.";
+
+        list bridge-ref-entry {
+            key dpid;
+            leaf dpid {
+                type uint64;
+            }
+
+            leaf bridge-reference {
+                type southbound:ovsdb-bridge-ref;
+                description "This is the reference to an ovs bridge";
+            }
+        }
+    }
+}
