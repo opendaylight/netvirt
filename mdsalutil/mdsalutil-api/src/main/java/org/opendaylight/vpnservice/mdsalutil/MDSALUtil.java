@@ -16,6 +16,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PopVlanActionCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.pop.vlan.action._case.PopVlanActionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -27,7 +31,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.I
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.WriteMetadataCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActions;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActionsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.write.metadata._case.WriteMetadataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.BucketId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
@@ -97,6 +109,23 @@ public class MDSALUtil {
         FlowKey key = new FlowKey(new FlowId(flowId));
         return new FlowBuilder().setMatch(buildMatches(listMatchInfo)).setKey(key)
                 .setPriority(Integer.valueOf(priority)).setInstructions(buildInstructions(listInstructionInfo))
+                .setBarrier(false).setInstallHw(true).setHardTimeout(hardTimeOut).setIdleTimeout(idleTimeOut)
+                .setFlowName(flowName).setTableId(Short.valueOf(tableId)).setStrict(isStrict)
+                .setCookie(new FlowCookie(cookie)).build();
+    }
+
+    public static Flow buildFlowNew(short tableId, String flowId, int priority, String flowName, int idleTimeOut,
+                                 int hardTimeOut, BigInteger cookie, List<MatchInfo> listMatchInfo, List<Instruction> listInstructionInfo) {
+        return MDSALUtil.buildFlowNew(tableId, flowId, priority, flowName, idleTimeOut, hardTimeOut, cookie,
+                listMatchInfo, listInstructionInfo, true);
+    }
+
+    private static Flow buildFlowNew(short tableId, String flowId, int priority, String flowName, int idleTimeOut,
+                                  int hardTimeOut, BigInteger cookie, List<MatchInfo> listMatchInfo,
+                                  List<Instruction> listInstructionInfo, boolean isStrict) {
+        FlowKey key = new FlowKey(new FlowId(flowId));
+        return new FlowBuilder().setMatch(buildMatches(listMatchInfo)).setKey(key)
+                .setPriority(Integer.valueOf(priority)).setInstructions(new InstructionsBuilder().setInstruction(listInstructionInfo).build())
                 .setBarrier(false).setInstallHw(true).setHardTimeout(hardTimeOut).setIdleTimeout(idleTimeOut)
                 .setFlowName(flowName).setTableId(Short.valueOf(tableId)).setStrict(isStrict)
                 .setCookie(new FlowCookie(cookie)).build();
@@ -282,5 +311,29 @@ public class MDSALUtil {
                     NodeConnectorRef nodeConnRef) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public static Instruction buildAndGetPopVlanActionInstruction(int actionKey, int instructionKey) {
+        Action popVlanAction = new ActionBuilder().setAction(
+                new PopVlanActionCaseBuilder().setPopVlanAction(new PopVlanActionBuilder().build()).build())
+                .setKey(new ActionKey(actionKey)).build();
+        List<Action> listAction = new ArrayList<Action> ();
+        listAction.add(popVlanAction);
+        ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
+        ApplyActionsCase applyActionsCase = new ApplyActionsCaseBuilder().setApplyActions(applyActions).build();
+        InstructionBuilder instructionBuilder = new InstructionBuilder();
+
+        instructionBuilder.setInstruction(applyActionsCase);
+        instructionBuilder.setKey(new InstructionKey(instructionKey));
+        return instructionBuilder.build();
+    }
+
+    public static Instruction buildAndGetWriteMetadaInstruction(BigInteger metadata,
+                                                                BigInteger mask, int instructionKey) {
+        return new InstructionBuilder()
+                .setInstruction(
+                        new WriteMetadataCaseBuilder().setWriteMetadata(
+                                new WriteMetadataBuilder().setMetadata(metadata).setMetadataMask(mask).build())
+                                .build()).setKey(new InstructionKey(instructionKey)).build();
     }
 }

@@ -23,6 +23,8 @@ module odl-interface {
         prefix inv; revision-date 2013-08-19;
     }
 
+    import opendaylight-l2-types { prefix ethertype; revision-date "2013-08-27";}
+
     import config {
         prefix config; revision-date 2013-04-05;
     }
@@ -47,14 +49,13 @@ module odl-interface {
         reference "MPLS interface";
     }
 
+    /* Tunnel (GRE, VxLAN) logical port */
     identity l3tunnel {
         status deprecated;
         base if:interface-type;
-        reference
-        "l3 tunnel interface";
+        reference "l3 tunnel interface";
     }
 
-    /* Tunnel (GRE, VxLAN) logical port */
     identity tunnel-type-base {
         description "Base identity for all tunnel-types";
     }
@@ -99,8 +100,42 @@ module odl-interface {
         ext:augment-identifier "if-l2vlan";
         when "if:type = 'ianaift:l2vlan'";
         leaf vlan-id {
-            type uint16 {
-                range "1..4094";
+            type ethertype:vlan-id;
+        }
+
+        leaf l2vlan-mode {
+            description "The VLAN mode of the L2Vlan Interface.";
+            type enumeration {
+                enum "access" {
+                    value 1;
+                    description
+                        "The VLAN mode access.";
+                }
+                enum "native-tagged" {
+                    value 2;
+                    description
+                        "The VLAN mode native-tagged.";
+                }
+                enum "native-untagged" {
+                    value 3;
+                    description
+                        "The VLAN mode native-untagged.";
+                }
+                enum "trunk" {
+                    value 4;
+                    description
+                        "The VLAN mode trunk.";
+                }
+                enum "trunk-member" {
+                    value 5;
+                    description
+                        "The VLAN mode trunk-member.";
+                }
+                enum "transparent" {
+                    value 6;
+                    description
+                        "The VLAN mode transparent.";
+                }
             }
         }
     }
@@ -152,6 +187,7 @@ module odl-interface {
                 base tunnel-type-base;
             }
         }
+
         leaf local-ip {
             type inet:ip-address;
             description "Local Endpoint IP address";

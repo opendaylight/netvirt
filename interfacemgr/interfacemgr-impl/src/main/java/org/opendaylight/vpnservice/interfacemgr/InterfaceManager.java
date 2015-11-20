@@ -7,17 +7,9 @@
  */
 package org.opendaylight.vpnservice.interfacemgr;
 
-import java.math.BigInteger;
-
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -31,6 +23,7 @@ import org.opendaylight.vpnservice.mdsalutil.ActionType;
 import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
 import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -49,15 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.pools.IdPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.pools.id.pool.GeneratedIds;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.BaseIds;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL3tunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfMpls;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfStackedVlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.L3tunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.Mpls;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.StackedVlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.*;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -65,6 +50,14 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdenti
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class InterfaceManager extends AbstractDataChangeListener<Interface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceManager.class);
@@ -148,10 +141,10 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             ncId = nodeConn.getId();
         }
         mapNcToInterfaceName.put(ncId, interf.getName());
-        if(interf.getType().isAssignableFrom(L3tunnel.class)) {
+        if(interf.getType().isAssignableFrom(Tunnel.class)) {
             NodeId nodeId = getNodeIdFromNodeConnectorId(ncId);
-            IfL3tunnel l3Tunnel = interf.getAugmentation(IfL3tunnel.class);
-            dbDpnEndpoints.put(nodeId, l3Tunnel.getLocalIp().getIpv4Address().getValue());
+            IfTunnel tunnel = interf.getAugmentation(IfTunnel.class);
+            dbDpnEndpoints.put(nodeId, tunnel.getTunnelSource().getIpv4Address().getValue());
             LOG.trace("dbDpnEndpoints: {}",dbDpnEndpoints);
         }
     }
@@ -280,7 +273,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             NodeConnectorId ncId = getNodeConnectorIdFromInterface(delInterface);
             if(ncId != null) {
                 mapNcToInterfaceName.remove(ncId);
-                if(delInterface.getType().isAssignableFrom(L3tunnel.class)) {
+                if(delInterface.getType().isAssignableFrom(Tunnel.class)) {
                     NodeId nodeId = getNodeIdFromNodeConnectorId(ncId);
                     dbDpnEndpoints.remove(nodeId);
                     LOG.trace("dbDpnEndpoints: {}",dbDpnEndpoints);
@@ -319,10 +312,10 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             if(nc != null) {
                 // Name doesn't change. Is it present in update?
                 mapNcToInterfaceName.put(nc.getId(), original.getName());
-                if(interf.getType().isAssignableFrom(L3tunnel.class)) {
+                if(interf.getType().isAssignableFrom(Tunnel.class)) {
                     NodeId nodeId = getNodeIdFromNodeConnectorId(nc.getId());
-                    IfL3tunnel l3Tunnel = interf.getAugmentation(IfL3tunnel.class);
-                    dbDpnEndpoints.put(nodeId, l3Tunnel.getLocalIp().getIpv4Address().getValue());
+                    IfTunnel tunnel = interf.getAugmentation(IfTunnel.class);
+                    dbDpnEndpoints.put(nodeId, tunnel.getTunnelSource().getIpv4Address().getValue());
                     LOG.trace("dbEndpoints: {}",dbDpnEndpoints);
                 }
             }
@@ -491,17 +484,17 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
 
         if (ifType.isInstance(L2vlan.class)) {
             IfL2vlan vlanIface = iface.getAugmentation(IfL2vlan.class);
-            long vlanVid = vlanIface.getVlanId().longValue();
+            long vlanVid = vlanIface.getVlanId().getValue().longValue();
             if (vlanVid != 0) {
                 matches.add(new MatchInfo(MatchFieldType.vlan_vid,
                             new long[] {vlanVid}));
                 LOG.trace("L2Vlan: {}",vlanIface);
             }
-        } else if (ifType.isInstance(L3tunnel.class)) {
+        } else if (ifType.isInstance(Tunnel.class)) {
             //TODO: Handle different tunnel types
-            IfL3tunnel ifL3Tunnel = iface.getAugmentation(IfL3tunnel.class);
-            Class<? extends TunnelTypeBase> tunnType = ifL3Tunnel.getTunnelType();
-            LOG.trace("L3Tunnel: {}",ifL3Tunnel);
+            IfTunnel ifTunnel = iface.getAugmentation(IfTunnel.class);
+            Class<? extends TunnelTypeBase> tunnType = ifTunnel.getTunnelInterfaceType();
+            LOG.trace("L3Tunnel: {}",ifTunnel);
         } else if (ifType.isAssignableFrom(StackedVlan.class)) {
             IfStackedVlan ifStackedVlan = iface.getAugmentation(IfStackedVlan.class);
             LOG.trace("StackedVlan: {}",ifStackedVlan);
@@ -524,7 +517,7 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
             if(ifType.isAssignableFrom(L2vlan.class)) {
                 IfL2vlan vlanIface = iface.getAugmentation(IfL2vlan.class);
                 LOG.trace("L2Vlan: {}",vlanIface);
-                long vlanVid = (vlanIface == null) ? 0 : vlanIface.getVlanId();
+                long vlanVid = (vlanIface == null) ? 0 : vlanIface.getVlanId().getValue().longValue();
                 if (vlanVid != 0) {
                     listActionInfo.add(new ActionInfo(ActionType.push_vlan, new String[] {}));
                     listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
@@ -532,11 +525,11 @@ public class InterfaceManager extends AbstractDataChangeListener<Interface> impl
                 }
                 listActionInfo.add(new ActionInfo(ActionType.output, new String[] { Long.toString(portNo)}));
 
-            } else if (ifType.isAssignableFrom(L3tunnel.class)) {
+            } else if (ifType.isAssignableFrom(Tunnel.class)) {
                 //TODO: Handle different tunnel types
-                IfL3tunnel ifL3Tunnel = iface.getAugmentation(IfL3tunnel.class);
-                Class<? extends TunnelTypeBase> tunnType = ifL3Tunnel.getTunnelType();
-                LOG.trace("L3Tunnel: {}",ifL3Tunnel);
+                IfTunnel ifTunnel = iface.getAugmentation(IfTunnel.class);
+                Class<? extends TunnelTypeBase> tunnType = ifTunnel.getTunnelInterfaceType();
+                LOG.trace("L3Tunnel: {}",ifTunnel);
                 //TODO: check switch_type and configure accordingly
                 listActionInfo.add(new ActionInfo(ActionType.output, new String[] { Long.toString(portNo)}));
 

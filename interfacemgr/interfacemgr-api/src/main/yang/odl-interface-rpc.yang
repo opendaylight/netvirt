@@ -17,62 +17,7 @@ module odl-interface-rpc {
         description "ODL Specific Interface Manager Rpcs Module";
     }
 
-/* RPCs */
-    rpc get-interface-from-lporttag {
-        description "Used to retrieve the interface-name using lporttag";
-        input {
-            leaf lportag {
-                type uint32;
-            }
-        }
-        output {
-            leaf intf-name {
-                type string;
-            }
-        }
-    }
-
-    rpc get-lporttag-from-interface {
-        description "Used to retrieve the lporttag from interface-name";
-        input {
-            leaf intf-name {
-                type string;
-            }
-        }
-        output {
-            leaf lportag {
-                type uint32;
-            }
-        }
-    }
-
-    rpc get-interface-from-groupid {
-        description "Used to retrieve the interface-name using groupid";
-        input {
-            leaf groupid {
-                type uint32;
-            }
-        }
-        output {
-            leaf intf-name {
-                type string;
-            }
-        }
-    }
-
-    rpc get-groupid-from-interface {
-        description "Used to retrieve the interface-name using groupid";
-        input {
-            leaf intf-name {
-                type string;
-            }
-        }
-        output {
-            leaf groupid {
-                type uint32;
-            }
-        }
-    }
+    /* RPCs */
 
     rpc get-dpid-from-interface {
         description "used to retrieve dpid from interface name";

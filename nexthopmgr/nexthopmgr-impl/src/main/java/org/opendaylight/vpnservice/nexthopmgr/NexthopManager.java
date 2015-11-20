@@ -195,11 +195,11 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         }
     }
 
-    public void createRemoteNextHop(String ifName, String ofPortId, String ipAddress) {
+    public void createRemoteNextHop(String ifName, String ipAddress) {
         String nhKey = new String("nexthop." + ifName + ipAddress);
         int groupId = createNextHopPointer(nhKey);
 
-        BigInteger dpnId = getDpnId(ofPortId);
+        BigInteger dpnId = interfaceManager.getDpnForInterface(ifName);
         TunnelNexthop nexthop = getTunnelNexthop(dpnId, ipAddress);
         if (nexthop == null) {
             List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
@@ -434,7 +434,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         
     }
 
-    private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
+    <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path) {
 
         ReadOnlyTransaction tx = broker.newReadOnlyTransaction();

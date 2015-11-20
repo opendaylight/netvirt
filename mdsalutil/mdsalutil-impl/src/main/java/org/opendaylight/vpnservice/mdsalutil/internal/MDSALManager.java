@@ -128,6 +128,18 @@ public class MDSALManager implements AutoCloseable {
         }
     }
 
+    public CheckedFuture<Void,TransactionCommitFailedException> installFlow(BigInteger dpId, Flow flow) {
+        FlowKey flowKey = new FlowKey( new FlowId(flow.getId()) );
+        Node nodeDpn = buildDpnNode(dpId);
+        InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class,flowKey).build();
+
+        WriteTransaction modification = m_dataBroker.newWriteOnlyTransaction();
+        modification.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow, true);
+        return modification.submit();
+    }
+
     public void installGroup(GroupEntity groupEntity) {
         try {
             Group group = groupEntity.getGroupBuilder().build();
@@ -181,7 +193,7 @@ public class MDSALManager implements AutoCloseable {
 
 
                 WriteTransaction modification = m_dataBroker.newWriteOnlyTransaction();
-                modification.delete(LogicalDatastoreType.CONFIGURATION,flowInstanceId );
+                modification.delete(LogicalDatastoreType.CONFIGURATION,flowInstanceId);
 
                 CheckedFuture<Void,TransactionCommitFailedException> submitFuture  = modification.submit();
 
@@ -208,6 +220,18 @@ public class MDSALManager implements AutoCloseable {
         } catch (Exception e) {
             s_logger.error("Could not remove Flow: {}", flowEntity, e);
         }
+    }
+
+    public CheckedFuture<Void,TransactionCommitFailedException> removeFlowNew(FlowEntity flowEntity) {
+        s_logger.debug("Remove flow {}",flowEntity);
+        Node nodeDpn = buildDpnNode(flowEntity.getDpnId());
+        FlowKey flowKey = new FlowKey(new FlowId(flowEntity.getFlowId()));
+        InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
+                    .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                    .child(Table.class, new TableKey(flowEntity.getTableId())).child(Flow.class, flowKey).build();
+        WriteTransaction modification = m_dataBroker.newWriteOnlyTransaction();
+        modification.delete(LogicalDatastoreType.CONFIGURATION,flowInstanceId );
+        return modification.submit();
     }
 
     public void removeGroup(GroupEntity groupEntity) {

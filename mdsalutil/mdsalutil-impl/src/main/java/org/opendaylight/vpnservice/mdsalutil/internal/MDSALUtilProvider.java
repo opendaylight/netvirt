@@ -10,13 +10,17 @@ package org.opendaylight.vpnservice.mdsalutil.internal;
 import java.math.BigInteger;
 
 import java.util.List;
+
+import com.google.common.util.concurrent.CheckedFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareConsumer;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ConsumerContext;
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
 import org.opendaylight.vpnservice.mdsalutil.GroupEntity;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +57,16 @@ public class MDSALUtilProvider implements BindingAwareConsumer, IMdsalApiManager
     @Override
     public void installFlow(FlowEntity flowEntity) {
           mdSalMgr.installFlow(flowEntity);
+    }
+
+    @Override
+    public CheckedFuture<Void, TransactionCommitFailedException> installFlow(BigInteger dpId, Flow flowEntity) {
+        return mdSalMgr.installFlow(dpId, flowEntity);
+    }
+
+    @Override
+    public CheckedFuture<Void, TransactionCommitFailedException> removeFlow(BigInteger dpId, FlowEntity flowEntity) {
+        return mdSalMgr.removeFlowNew(flowEntity);
     }
 
     @Override

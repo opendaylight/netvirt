@@ -27,6 +27,8 @@ public class InterfacemgrImplModule extends org.opendaylight.yang.gen.v1.urn.ope
     @Override
     public java.lang.AutoCloseable createInstance() {
         InterfacemgrProvider provider = new InterfacemgrProvider();
+        provider.setRpcProviderRegistry(getRpcRegistryDependency());
+
         getBrokerDependency().registerProvider(provider);
         return provider;
     }

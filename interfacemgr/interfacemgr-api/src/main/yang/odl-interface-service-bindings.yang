@@ -42,10 +42,6 @@ module interface-service-bindings {
                     }
                 }
 
-                leaf interface-name {
-                    type string;
-                }
-
                 leaf service-name {
                     type string;
                 }

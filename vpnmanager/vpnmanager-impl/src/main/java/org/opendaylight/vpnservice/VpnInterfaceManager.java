@@ -7,7 +7,7 @@
  */
 package org.opendaylight.vpnservice;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.L3tunnel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 
 import java.math.BigInteger;
 import java.util.Collection;
@@ -321,7 +321,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
         int priority = VpnConstants.DEFAULT_FLOW_PRIORITY;
         short gotoTableId = VpnConstants.FIB_TABLE;
-        if(intf.getType().equals(L3tunnel.class)){
+        if(intf.getType().equals(Tunnel.class)){
             gotoTableId = VpnConstants.LFIB_TABLE;
         }
 
@@ -607,7 +607,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             LOG.trace("Operation Interface update event - Old: {}, New: {}", original, update);
             String interfaceName = update.getName();
             Interface intf = getInterface(interfaceName);
-            if (intf != null && intf.getType().equals(L3tunnel.class)) {
+            if (intf != null && intf.getType().equals(Tunnel.class)) {
                 BigInteger dpnId = interfaceManager.getDpnForInterface(interfaceName);
                 if(update.getOperStatus().equals(OperStatus.Up)) {
                     //Create ingress to LFIB
@@ -639,7 +639,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             LOG.trace("Operational Interface add event - {}", add);
             String interfaceName = add.getName();
             Interface intf = getInterface(interfaceName);
-            if (intf != null && intf.getType().equals(L3tunnel.class)) {
+            if (intf != null && intf.getType().equals(Tunnel.class)) {
                 BigInteger dpnId = interfaceManager.getDpnForInterface(interfaceName);
                 if(add.getOperStatus().equals(OperStatus.Up)) {
                     //Create ingress to LFIB

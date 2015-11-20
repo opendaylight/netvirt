@@ -5,24 +5,24 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.vpnservice;
 
-import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.mdsalutil.NwConstants;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.L3tunnel;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
 
 public class InterfaceChangeListener extends AbstractDataChangeListener<Interface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceChangeListener.class);
@@ -82,7 +82,7 @@ public class InterfaceChangeListener extends AbstractDataChangeListener<Interfac
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("Remove interface event - key: {}, value: {}", identifier, intrf );
-        if (intrf.getType().equals(L3tunnel.class)) {
+        if (intrf.getType().equals(Tunnel.class)) {
           BigInteger dpnId =  interfaceManager.getDpnForInterface(intrf);
           String ifName = intrf.getName();
           LOG.debug("Removing tunnel interface associated with Interface {}", intrf.getName());

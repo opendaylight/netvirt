@@ -24,9 +24,6 @@ module odl-interface-meta {
                 leaf interface-name {
                     type string;
                 }
-                leaf tp-id-ref {
-                    type southbound:ovsdb-termination-point-ref;
-                }
             }
         }
     }
@@ -44,6 +41,23 @@ module odl-interface-meta {
             leaf bridge-reference {
                 type southbound:ovsdb-bridge-ref;
                 description "This is the reference to an ovs bridge";
+            }
+        }
+    }
+
+    container interface-child-info {
+        description "The container of all Child-Interfaces for a given interface.";
+        list interface-parent-entry {
+            key parent-interface;
+            leaf parent-interface {
+                type string;
+            }
+
+            list interface-child-entry {
+                key child-interface;
+                leaf child-interface {
+                    type string;
+                }
             }
         }
     }

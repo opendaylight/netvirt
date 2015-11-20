@@ -20,7 +20,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
     <feature version='${openflowplugin.version}'>odl-openflowplugin-nsf-model</feature>
-    <feature version="${ovsdb.version}">odl-ovsdb-southbound-api</feature>
     <bundle>mvn:org.opendaylight.vpnservice/model-bgp/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/idmanager-api/${idmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-api/${vpnmanager.version}</bundle>
@@ -30,7 +29,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </feature>
   <feature name='odl-vpnservice-impl' version='${project.version}' description='OpenDaylight :: vpnservice :: impl '>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
-    <feature version="${ovsdb.version}">odl-ovsdb-southbound-api</feature>
+    <feature version="${ovsdb.version}">odl-ovsdb-southbound-impl-rest</feature>
     <feature version='${project.version}'>odl-vpnservice-api</feature>
     <feature version="${openflowplugin.version}">odl-openflowplugin-southbound</feature>
     <feature version="${openflowplugin.version}">odl-openflowplugin-flow-services</feature>

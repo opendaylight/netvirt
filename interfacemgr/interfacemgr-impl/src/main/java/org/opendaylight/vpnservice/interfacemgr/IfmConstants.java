@@ -15,5 +15,7 @@ public class IfmConstants {
     public static final String OF_URI_PREFIX = "openflow:";
     public static final String OF_URI_SEPARATOR = ":";
     public static final int DEFAULT_IFINDEX = 65536;
+    public static final String IFM_LPORT_TAG_IDPOOL_NAME = "vlaninterfaces.lporttag";
+    public static final short VLAN_INTERFACE_INGRESS_TABLE = 0;
 
 }

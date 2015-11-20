@@ -15,14 +15,27 @@ import java.util.List;
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 
+@Deprecated
 public interface IInterfaceManager {
-
+    @Deprecated
     public Long getPortForInterface(String ifName);
+
+    @Deprecated
     public BigInteger getDpnForInterface(String ifName);
+
+    @Deprecated
     public BigInteger getDpnForInterface(Interface intrf);
+
+    @Deprecated
     public String getEndpointIpForDpn(BigInteger dpnId);
+
+    @Deprecated
     public List<MatchInfo> getInterfaceIngressRule(String ifName);
+
+    @Deprecated
     public List<ActionInfo> getInterfaceEgressActions(String ifName);
+
+    @Deprecated
     public Long getPortForInterface(Interface intf);
 
 }
