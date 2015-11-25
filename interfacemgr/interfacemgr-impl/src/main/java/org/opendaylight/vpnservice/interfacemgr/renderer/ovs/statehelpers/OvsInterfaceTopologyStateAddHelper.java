@@ -65,8 +65,10 @@ public class OvsInterfaceTopologyStateAddHelper {
             return futures;
         }
 
-        dpId = dpId.replaceAll("[^\\d.]", "");
-        BigInteger ovsdbDpId = new BigInteger(dpId, 16);
+        String datapathId = dpId.replaceAll("[^\\d.]", "");
+        BigInteger ovsdbDpId = new BigInteger(datapathId, 16);
+
+        LOG.info("adding dpId {} to bridge reference {}", datapathId, bridgeName);
         BridgeRefEntryKey bridgeRefEntryKey = new BridgeRefEntryKey(ovsdbDpId);
         InstanceIdentifier<BridgeRefEntry> bridgeEntryId =
                 InterfaceMetaUtils.getBridgeRefEntryIdentifier(bridgeRefEntryKey);
@@ -92,11 +94,9 @@ public class OvsInterfaceTopologyStateAddHelper {
             InterfaceKey interfaceKey = new InterfaceKey(portName);
             Interface iface = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(interfaceKey, dataBroker);
             if (iface.getAugmentation(IfTunnel.class) != null) {
-                SouthboundUtils.addPortToBridge(bridgeIid, iface, bridgeNew, bridgeName, portName, dataBroker, t);
-                 InstanceIdentifier<TerminationPoint> tpIid = SouthboundUtils.createTerminationPointInstanceIdentifier(
-                        InstanceIdentifier.keyOf(bridgeIid.firstIdentifierOf(Node.class)), portName);
+                SouthboundUtils.addPortToBridge(bridgeIid, iface, bridgeNew, bridgeName, portName, dataBroker, futures);
                 InterfaceMetaUtils.createBridgeInterfaceEntryInConfigDS(bridgeEntryKey,
-                        new BridgeInterfaceEntryKey(portName), portName, tpIid, t);
+                        new BridgeInterfaceEntryKey(portName), portName, t);
             }
         }
 

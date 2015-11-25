@@ -53,21 +53,20 @@ public class OvsInterfaceConfigAddHelper {
     public static List<ListenableFuture<Void>> addConfiguration(DataBroker dataBroker, ParentRefs parentRefs,
                                                                 Interface interfaceNew, IdManager idManager) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
 
         IfTunnel ifTunnel = interfaceNew.getAugmentation(IfTunnel.class);
         if (ifTunnel != null) {
-            addTunnelConfiguration(dataBroker, parentRefs, interfaceNew, idManager, t);
-            futures.add(t.submit());
+            addTunnelConfiguration(dataBroker, parentRefs, interfaceNew, idManager, futures);
             return futures;
         }
 
-        addVlanConfiguration(interfaceNew, t, dataBroker);
-        futures.add(t.submit());
+        addVlanConfiguration(interfaceNew, dataBroker, futures);
         return futures;
     }
 
-    private static void addVlanConfiguration(Interface interfaceNew, WriteTransaction t, DataBroker dataBroker) {
+    private static void addVlanConfiguration(Interface interfaceNew, DataBroker dataBroker,
+                                             List<ListenableFuture<Void>> futures) {
+        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceNew.getName(), dataBroker);
         if (ifState == null) {
@@ -117,11 +116,14 @@ public class OvsInterfaceConfigAddHelper {
             childIfaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(ifaceChild.getName()));
             t.put(LogicalDatastoreType.OPERATIONAL, ifChildStateId, childIfaceBuilder.build(), true);
         }
+        futures.add(t.submit());
     }
 
     private static void addTunnelConfiguration(DataBroker dataBroker, ParentRefs parentRefs,
                                               Interface interfaceNew, IdManager idManager,
-                                              WriteTransaction t) {
+                                              List<ListenableFuture<Void>> futures) {
+        LOG.debug("adding tunnel configuration for {}", interfaceNew.getName());
+        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
         if (parentRefs == null) {
             LOG.warn("ParentRefs for interface: {} Not Found. " +
                     "Creation of Tunnel OF-Port not supported when dpid not provided.", interfaceNew.getName());
@@ -144,11 +146,11 @@ public class OvsInterfaceConfigAddHelper {
                 InterfaceMetaUtils.getBridgeRefEntryFromOperDS(dpnBridgeEntryIid, dataBroker);
         BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpId);
         BridgeInterfaceEntryKey bridgeInterfaceEntryKey = new BridgeInterfaceEntryKey(interfaceNew.getName());
-        if (bridgeRefEntry == null) {
-            InterfaceMetaUtils.createBridgeInterfaceEntryInConfigDS(bridgeEntryKey, bridgeInterfaceEntryKey,
+
+        LOG.debug("creating bridge interfaceEntry in ConfigDS {}", bridgeEntryKey);
+        InterfaceMetaUtils.createBridgeInterfaceEntryInConfigDS(bridgeEntryKey, bridgeInterfaceEntryKey,
                     interfaceNew.getName(), t);
-            return;
-        }
+        futures.add(t.submit());
 
         InstanceIdentifier<OvsdbBridgeAugmentation> bridgeIid =
                 (InstanceIdentifier<OvsdbBridgeAugmentation>)bridgeRefEntry.getBridgeReference().getValue();
@@ -158,13 +160,8 @@ public class OvsInterfaceConfigAddHelper {
             OvsdbBridgeAugmentation ovsdbBridgeAugmentation = bridgeNodeOptional.get();
             String bridgeName = ovsdbBridgeAugmentation.getBridgeName().getValue();
             SouthboundUtils.addPortToBridge(bridgeIid, interfaceNew,
-                    ovsdbBridgeAugmentation, bridgeName, interfaceNew.getName(), dataBroker, t);
+                    ovsdbBridgeAugmentation, bridgeName, interfaceNew.getName(), dataBroker, futures);
         }
-
-        InstanceIdentifier<TerminationPoint> tpIid = SouthboundUtils.createTerminationPointInstanceIdentifier(
-            InstanceIdentifier.keyOf(bridgeIid.firstIdentifierOf(Node.class)), interfaceNew.getName());
-        InterfaceMetaUtils.createBridgeInterfaceEntryInConfigDS(bridgeEntryKey, bridgeInterfaceEntryKey,
-                interfaceNew.getName(), tpIid, t);
     }
 
     private static void updateStateEntry(Interface interfaceNew, WriteTransaction t,
@@ -183,6 +180,7 @@ public class OvsInterfaceConfigAddHelper {
 
     private static void createBridgeEntryIfNotPresent(BigInteger dpId,
                                                       DataBroker dataBroker, WriteTransaction t) {
+        LOG.debug("creating bridge entry if not present for dpn {}",dpId);
         BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpId);
         InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier =
                 InterfaceMetaUtils.getBridgeEntryIdentifier(bridgeEntryKey);

@@ -8,6 +8,7 @@
 package org.opendaylight.vpnservice.interfacemgr.renderer.ovs.utilities;
 
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -45,17 +46,18 @@ public class SouthboundUtils {
 
     public static void addPortToBridge(InstanceIdentifier<?> bridgeIid, Interface iface,
                                        OvsdbBridgeAugmentation bridgeAugmentation, String bridgeName,
-                                       String portName, DataBroker dataBroker, WriteTransaction t) {
+                                       String portName, DataBroker dataBroker, List<ListenableFuture<Void>> futures) {
+        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         IfTunnel ifTunnel = iface.getAugmentation(IfTunnel.class);
         if (ifTunnel != null) {
-            addTunnelPortToBridge(ifTunnel, bridgeIid, iface, bridgeAugmentation, bridgeName, portName, dataBroker, t);
-            return;
+            addTunnelPortToBridge(ifTunnel, bridgeIid, iface, bridgeAugmentation, bridgeName, portName, dataBroker, tx);
         }
 
         IfL2vlan ifL2vlan = iface.getAugmentation(IfL2vlan.class);
         if (ifL2vlan != null) {
-            addVlanPortToBridge(bridgeIid, ifL2vlan, bridgeAugmentation, bridgeName, portName, dataBroker, t);
+            addVlanPortToBridge(bridgeIid, ifL2vlan, bridgeAugmentation, bridgeName, portName, dataBroker, tx);
         }
+        futures.add(tx.submit());
     }
 
     private static void addVlanPortToBridge(InstanceIdentifier<?> bridgeIid, IfL2vlan ifL2vlan,
@@ -69,6 +71,8 @@ public class SouthboundUtils {
                                              OvsdbBridgeAugmentation bridgeAugmentation, String bridgeName,
                                              String portName, DataBroker dataBroker, WriteTransaction t) {
         Class type = null;
+        LOG.debug("adding tunnel port {} to bridge {}",portName, bridgeName);
+
         if (ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeGre.class)) {
             type = InterfaceTypeGre.class;
         } else if (ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {

@@ -83,19 +83,6 @@ public class FlowBasedServicesUtils {
     public static List<MatchInfo> getMatchInfoForTunnelPortAtIngressTable(BigInteger dpId, long portNo, Interface iface) {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         matches.add(new MatchInfo(MatchFieldType.in_port, new BigInteger[]{dpId, BigInteger.valueOf(portNo)}));
-        /*IfTunnel tunnel = iface.getAugmentation(IfTunnel.class);
-        TunnelResources tunnelResources = tunnel.getTunnelResources();
-        if (tunnelResources.getTunnelType().isAssignableFrom(TunnelTypeGre.class)) {
-            IfGre ifgre = tunnelResources.getAugmentation(IfGre.class);
-            BigInteger grekey = ifgre.getGreKey();
-            // FIXME: Add tunnel-id match information
-
-        } else if (tunnelResources.getTunnelType().isAssignableFrom(TunnelTypeVxlan.class)) {
-            IfVxlan ifVxlan = tunnelResources.getAugmentation(IfVxlan.class);
-            BigInteger vni = ifVxlan.getVni();
-            // FIXME: Add tunnel-id match information
-        }*/
-
         return matches;
     }
 
@@ -105,20 +92,6 @@ public class FlowBasedServicesUtils {
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 MetaDataUtil.getMetaDataForLPortDispatcher(interfaceTag, servicePriority),
                 MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
-        /*if (iface.getType().isAssignableFrom(Tunnel.class)) {
-            IfTunnel tunnel = iface.getAugmentation(IfTunnel.class);
-            TunnelResources tunnelResources = tunnel.getTunnelResources();
-            if (tunnelResources.getTunnelType().isAssignableFrom(TunnelTypeGre.class)) {
-                IfGre ifgre = tunnelResources.getAugmentation(IfGre.class);
-                BigInteger grekey = ifgre.getGreKey();
-                // FIXME: Add tunnel-id match information
-
-            } else if (tunnelResources.getTunnelType().isAssignableFrom(TunnelTypeVxlan.class)) {
-                IfVxlan ifVxlan = tunnelResources.getAugmentation(IfVxlan.class);
-                BigInteger vni = ifVxlan.getVni();
-                // FIXME: Add tunnel-id match information
-            }
-        }*/
         return matches;
     }
 

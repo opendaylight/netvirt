@@ -93,23 +93,6 @@ public class InterfaceMetaUtils {
         t.put(LogicalDatastoreType.CONFIGURATION, bridgeInterfaceEntryIid, entryBuilder.build(), true);
     }
 
-    public static void createBridgeInterfaceEntryInConfigDS(BridgeEntryKey bridgeEntryKey,
-                                                             BridgeInterfaceEntryKey bridgeInterfaceEntryKey,
-                                                             String childInterface,
-                                                             InstanceIdentifier<TerminationPoint> tpIid,
-                                                             WriteTransaction t) {
-        if (tpIid == null) {
-            createBridgeInterfaceEntryInConfigDS(bridgeEntryKey, bridgeInterfaceEntryKey, childInterface, t);
-            return;
-        }
-
-        InstanceIdentifier<BridgeInterfaceEntry> bridgeInterfaceEntryIid =
-                InterfaceMetaUtils.getBridgeInterfaceEntryIdentifier(bridgeEntryKey, bridgeInterfaceEntryKey);
-        BridgeInterfaceEntryBuilder entryBuilder = new BridgeInterfaceEntryBuilder().setKey(bridgeInterfaceEntryKey)
-                .setInterfaceName(childInterface);
-        t.put(LogicalDatastoreType.CONFIGURATION, bridgeInterfaceEntryIid, entryBuilder.build(), true);
-    }
-
     public static InstanceIdentifier<InterfaceParentEntry> getInterfaceParentEntryIdentifier(
             InterfaceParentEntryKey interfaceParentEntryKey) {
         InstanceIdentifier.InstanceIdentifierBuilder<InterfaceParentEntry> intfIdBuilder =
