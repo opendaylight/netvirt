@@ -70,6 +70,11 @@ module odl-interface {
         base tunnel-type-base;
     }
 
+    identity tunnel-type-mpls-over-gre {
+        description "Tunnel type for mpls over gre tunnels";
+        base tunnel-type-base;
+    }
+
     /* base/common properties */
     augment "/if:interfaces/if:interface" {
         status deprecated;

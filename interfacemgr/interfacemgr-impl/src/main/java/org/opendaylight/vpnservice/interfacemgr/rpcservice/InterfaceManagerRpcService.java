@@ -136,6 +136,24 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
     }
 
     @Override
+    public Future<RpcResult<GetInterfaceTypeOutput>> getInterfaceType(GetInterfaceTypeInput input) {
+        String interfaceName = input.getIntfName();
+        RpcResultBuilder<GetInterfaceTypeOutput> rpcResultBuilder;
+        try {
+            InterfaceKey interfaceKey = new InterfaceKey(interfaceName);
+            Interface interfaceInfo = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(interfaceKey, dataBroker);
+
+            GetInterfaceTypeOutputBuilder output = new GetInterfaceTypeOutputBuilder().setInterfaceType(interfaceInfo.getType());
+            rpcResultBuilder = RpcResultBuilder.success();
+            rpcResultBuilder.withResult(output.build());
+        } catch (Exception e) {
+            LOG.error("Retrieval of interface type for the key {} failed due to {}", interfaceName, e);
+            rpcResultBuilder = RpcResultBuilder.failed();
+        }
+        return Futures.immediateFuture(rpcResultBuilder.build());
+    }
+
+    @Override
     public Future<RpcResult<GetEgressActionsForInterfaceOutput>> getEgressActionsForInterface(GetEgressActionsForInterfaceInput input) {
         RpcResultBuilder<GetEgressActionsForInterfaceOutput> rpcResultBuilder;
         try {
@@ -149,25 +167,6 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
             rpcResultBuilder = RpcResultBuilder.failed();
         }
         return Futures.immediateFuture(rpcResultBuilder.build());
-    }
-
-    public static InstanceIdentifier<InterfaceChildEntry> getInterfaceChildEntryIdentifier(InterfaceParentEntryKey parentEntryKey, InterfaceChildEntryKey interfaceChildEntryKey) {
-        InstanceIdentifier.InstanceIdentifierBuilder<InterfaceChildEntry> interfaceChildEntryInstanceIdentifierBuilder =
-                InstanceIdentifier.builder(InterfaceChildInfo.class).child(InterfaceParentEntry.class, parentEntryKey).child(InterfaceChildEntry.class, interfaceChildEntryKey);
-        return interfaceChildEntryInstanceIdentifierBuilder.build();
-    }
-
-    public static InterfaceChildEntry getInterfaceChildEntryFromConfigDS(String interfaceName,
-                                                         DataBroker dataBroker) {
-        InterfaceParentEntryKey parentEntryKey = new InterfaceParentEntryKey(interfaceName);
-        InterfaceChildEntryKey childEntryKey = new InterfaceChildEntryKey(interfaceName);
-        InstanceIdentifier<InterfaceChildEntry> interfaceChildEntryInstanceIdentifier = getInterfaceChildEntryIdentifier(parentEntryKey, childEntryKey);
-        Optional<InterfaceChildEntry> interfaceChildEntryOptional =
-                IfmUtil.read(LogicalDatastoreType.CONFIGURATION, interfaceChildEntryInstanceIdentifier, dataBroker);
-        if (!interfaceChildEntryOptional.isPresent()) {
-            return null;
-        }
-        return interfaceChildEntryOptional.get();
     }
 
     @Override
@@ -196,28 +195,23 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
     }
 
     @Override
-    public Future<RpcResult<GetInterfaceFromPortOutput>> getInterfaceFromPort(GetInterfaceFromPortInput input) {
-        /*RpcResultBuilder<GetInterfaceFromPortOutput> rpcResultBuilder;
+    public Future<RpcResult<GetNodeconnectorIdFromInterfaceOutput>> getNodeconnectorIdFromInterface(GetNodeconnectorIdFromInterfaceInput input) {
+        String interfaceName = input.getIntfName();
+        RpcResultBuilder<GetNodeconnectorIdFromInterfaceOutput> rpcResultBuilder;
         try {
-            Interface interfaceInfo = null;
-            NodeId nodeId = IfmUtil.buildDpnNodeId(input.getDpid());
-            Node node = getNodeFromInventoryOperDS(nodeId, dataBroker);
-            ChildInterfaceNames childInterfaceNames = node.getAugmentation(ChildInterfaceNames.class);
-            for(OfInterfaceRefInfo ofInterfaceRefInfo : childInterfaceNames.getOfInterfaceRefInfo()){
-               interfaceInfo = getInterfaceFromTunnelKey(ofInterfaceRefInfo.getOfIntfName(), input.getInterfaceId(),
-                       input.getInterfaceType());
-            }
-            GetInterfaceFromPortOutputBuilder output = new GetInterfaceFromPortOutputBuilder().
-                    setInterfaceName(interfaceInfo == null ? null : interfaceInfo.getName());
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
+                    InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceName, dataBroker);
+            String lowerLayerIf = ifState.getLowerLayerIf().get(0);
+            NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
+
+            GetNodeconnectorIdFromInterfaceOutputBuilder output = new GetNodeconnectorIdFromInterfaceOutputBuilder().setNodeconnectorId(nodeConnectorId);
             rpcResultBuilder = RpcResultBuilder.success();
             rpcResultBuilder.withResult(output.build());
-        }catch(Exception e){
-            LOG.error("Retrieval of interface for the key {} failed due to {}" ,input.getPortno(), e);
+        } catch (Exception e) {
+            LOG.error("Retrieval of nodeconnector id for the key {} failed due to {}", interfaceName, e);
             rpcResultBuilder = RpcResultBuilder.failed();
         }
         return Futures.immediateFuture(rpcResultBuilder.build());
-        */
-        return null;
     }
 
     public List<ActionInfo> getEgressActionInfosForInterface(String interfaceName) {
@@ -271,46 +265,4 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
         return null;
     }
 
-    public static Node getNodeFromInventoryOperDS(NodeId nodeId, DataBroker dataBroker) {
-        InstanceIdentifier<Node> nodeIdentifier = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(nodeId)).build();
-
-        Optional<Node> nodeOptional = IfmUtil.read(LogicalDatastoreType.OPERATIONAL,
-                nodeIdentifier, dataBroker);
-        if (!nodeOptional.isPresent()) {
-            return null;
-        }
-        return nodeOptional.get();
-    }
-
-    public Interface getInterfaceFromTunnelKey(String interfaceName, BigInteger tunnelKey,
-                                               Class<? extends TunnelTypeBase> ifType){
-
-        /*Interface interfaceInfo = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(new InterfaceKey(interfaceName), dataBroker);
-
-        if(ifType.isAssignableFrom(IfL2vlan.class)){
-            IfL2vlan vlanIface = interfaceInfo.getAugmentation(IfL2vlan.class);
-            LOG.trace("L2Vlan: {}",vlanIface);
-            long vlanVid = (vlanIface == null) ? 0 : vlanIface.getVlanId();
-            if(tunnelKey.intValue() == vlanVid){
-               return interfaceInfo;
-            }
-        }else if(ifType.isAssignableFrom(TunnelTypeBase.class)){
-            IfTunnel ifTunnel = interfaceInfo.getAugmentation(IfTunnel.class);
-            TunnelResources tunnelResources = ifTunnel.getTunnelResources();
-            if(ifType.isAssignableFrom(TunnelTypeGre.class)) {
-                IfGre ifGre = tunnelResources.getAugmentation(IfGre.class);
-                if (ifGre.getGreKey() == tunnelKey) {
-                    return interfaceInfo;
-                }
-            }else if(ifType.isAssignableFrom(TunnelTypeVxlan.class)){
-                IfVxlan ifVxlan = tunnelResources.getAugmentation(IfVxlan.class);
-                if(ifVxlan.getVni() == tunnelKey){
-                    return interfaceInfo;
-                }
-            }
-        }
-        return null;*/
-        return null;
-    }
 }

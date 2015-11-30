@@ -10,6 +10,14 @@ module odl-interface-rpc {
         prefix odlif; revision-date 2015-03-31;
     }
 
+    import opendaylight-inventory {
+        prefix inv; revision-date 2013-08-19;
+    }
+
+    import ietf-interfaces {
+        prefix if; revision-date 2014-05-08;
+    }
+
     import opendaylight-action-types {prefix action;}
     import opendaylight-flow-types {prefix offlow;revision-date "2013-10-26";}
 
@@ -53,33 +61,6 @@ module odl-interface-rpc {
         }
     }
 
-    rpc get-interface-from-port {
-        description "used to retrieve interface from port details";
-        input {
-            leaf interface-type {
-                description "Type of the interface (vlan/gre or vxlan tunnel)";
-                type identityref {
-                    base odlif:tunnel-type-base;
-                }
-            }
-            leaf dpid {
-                type uint64;
-            }
-            leaf portno {
-                type uint32;
-            }
-            leaf interface-id {
-                description "Used to provide the interface specific differentiator information (vlanId/gre-key/vxlan-vni)";
-                type uint64;
-            }
-        }
-        output {
-            leaf interface-name {
-                type string;
-            }
-        }
-    }
-
     rpc get-egress-actions-for-interface {
         description "used to retrieve group actions to use from interface name";
         input {
@@ -114,6 +95,36 @@ module odl-interface-rpc {
         output {
             leaf-list local-ips {
                 type inet:ip-address;
+            }
+        }
+    }
+
+    rpc get-interface-type {
+    description "to get the type of the interface(vlan/vxlan or gre)";
+        input {
+            leaf intf-name {
+                type string;
+            }
+        }
+        output {
+            leaf interface-type {
+                type identityref {
+                    base if:interface-type;
+                }
+            }
+        }
+    }
+
+    rpc get-nodeconnector-id-from-interface {
+    description "to get nodeconnector id associated with an interface";
+        input {
+            leaf intf-name {
+                type string;
+            }
+        }
+        output {
+            leaf nodeconnector-id {
+                type inv:node-connector-id;
             }
         }
     }

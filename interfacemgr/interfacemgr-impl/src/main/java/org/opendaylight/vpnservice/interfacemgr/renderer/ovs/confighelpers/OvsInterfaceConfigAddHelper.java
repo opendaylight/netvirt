@@ -139,11 +139,6 @@ public class OvsInterfaceConfigAddHelper {
 
         createBridgeEntryIfNotPresent(dpId, dataBroker, t);
 
-        BridgeRefEntryKey BridgeRefEntryKey = new BridgeRefEntryKey(dpId);
-        InstanceIdentifier<BridgeRefEntry> dpnBridgeEntryIid =
-                InterfaceMetaUtils.getBridgeRefEntryIdentifier(BridgeRefEntryKey);
-        BridgeRefEntry bridgeRefEntry =
-                InterfaceMetaUtils.getBridgeRefEntryFromOperDS(dpnBridgeEntryIid, dataBroker);
         BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpId);
         BridgeInterfaceEntryKey bridgeInterfaceEntryKey = new BridgeInterfaceEntryKey(interfaceNew.getName());
 
@@ -152,15 +147,24 @@ public class OvsInterfaceConfigAddHelper {
                     interfaceNew.getName(), t);
         futures.add(t.submit());
 
-        InstanceIdentifier<OvsdbBridgeAugmentation> bridgeIid =
-                (InstanceIdentifier<OvsdbBridgeAugmentation>)bridgeRefEntry.getBridgeReference().getValue();
-        Optional<OvsdbBridgeAugmentation> bridgeNodeOptional =
-                IfmUtil.read(LogicalDatastoreType.OPERATIONAL, bridgeIid, dataBroker);
-        if (bridgeNodeOptional.isPresent()) {
-            OvsdbBridgeAugmentation ovsdbBridgeAugmentation = bridgeNodeOptional.get();
-            String bridgeName = ovsdbBridgeAugmentation.getBridgeName().getValue();
-            SouthboundUtils.addPortToBridge(bridgeIid, interfaceNew,
-                    ovsdbBridgeAugmentation, bridgeName, interfaceNew.getName(), dataBroker, futures);
+        // create bridge on switch, if switch is connected
+        BridgeRefEntryKey BridgeRefEntryKey = new BridgeRefEntryKey(dpId);
+        InstanceIdentifier<BridgeRefEntry> dpnBridgeEntryIid =
+                InterfaceMetaUtils.getBridgeRefEntryIdentifier(BridgeRefEntryKey);
+        BridgeRefEntry bridgeRefEntry =
+                InterfaceMetaUtils.getBridgeRefEntryFromOperDS(dpnBridgeEntryIid, dataBroker);
+        if(bridgeRefEntry != null && bridgeRefEntry.getBridgeReference() != null) {
+            LOG.debug("creating bridge interface on dpn {}", bridgeEntryKey);
+            InstanceIdentifier<OvsdbBridgeAugmentation> bridgeIid =
+                    (InstanceIdentifier<OvsdbBridgeAugmentation>) bridgeRefEntry.getBridgeReference().getValue();
+            Optional<OvsdbBridgeAugmentation> bridgeNodeOptional =
+                    IfmUtil.read(LogicalDatastoreType.OPERATIONAL, bridgeIid, dataBroker);
+            if (bridgeNodeOptional.isPresent()) {
+                OvsdbBridgeAugmentation ovsdbBridgeAugmentation = bridgeNodeOptional.get();
+                String bridgeName = ovsdbBridgeAugmentation.getBridgeName().getValue();
+                SouthboundUtils.addPortToBridge(bridgeIid, interfaceNew,
+                        ovsdbBridgeAugmentation, bridgeName, interfaceNew.getName(), dataBroker, futures);
+            }
         }
     }
 
