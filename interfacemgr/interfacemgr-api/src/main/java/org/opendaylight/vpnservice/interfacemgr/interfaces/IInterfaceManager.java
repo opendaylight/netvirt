@@ -30,12 +30,8 @@ public interface IInterfaceManager {
     public String getEndpointIpForDpn(BigInteger dpnId);
 
     @Deprecated
-    public List<MatchInfo> getInterfaceIngressRule(String ifName);
-
-    @Deprecated
     public List<ActionInfo> getInterfaceEgressActions(String ifName);
 
     @Deprecated
     public Long getPortForInterface(Interface intf);
-
 }

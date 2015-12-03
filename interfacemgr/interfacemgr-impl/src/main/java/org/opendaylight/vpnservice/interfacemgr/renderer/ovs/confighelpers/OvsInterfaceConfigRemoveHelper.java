@@ -79,20 +79,21 @@ public class OvsInterfaceConfigRemoveHelper {
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ncStr);
         NodeConnector nodeConnector =
                 InterfaceManagerCommonUtils.getNodeConnectorFromInventoryOperDS(nodeConnectorId, dataBroker);
-        FlowCapableNodeConnector flowCapableNodeConnector =
-                nodeConnector.getAugmentation(FlowCapableNodeConnector.class);
-        //State state = flowCapableNodeConnector.getState();
-        OperStatus operStatus = flowCapableNodeConnector == null ? OperStatus.Down : OperStatus.Up;
+        if(nodeConnector != null) {
+            FlowCapableNodeConnector flowCapableNodeConnector =
+                    nodeConnector.getAugmentation(FlowCapableNodeConnector.class);
+            //State state = flowCapableNodeConnector.getState();
+            OperStatus operStatus = flowCapableNodeConnector == null ? OperStatus.Down : OperStatus.Up;
 
-        if (ifState.getOperStatus() != operStatus) {
-            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
-                    IfmUtil.buildStateInterfaceId(interfaceOld.getName());
-            InterfaceBuilder ifaceBuilder = new InterfaceBuilder();
-            ifaceBuilder.setOperStatus(operStatus);
-            ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(interfaceOld.getName()));
-            t.merge(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build());
+            if (ifState.getOperStatus() != operStatus) {
+                InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
+                        IfmUtil.buildStateInterfaceId(interfaceOld.getName());
+                InterfaceBuilder ifaceBuilder = new InterfaceBuilder();
+                ifaceBuilder.setOperStatus(operStatus);
+                ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(interfaceOld.getName()));
+                t.merge(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build());
+            }
         }
-
         IfL2vlan ifL2vlan = interfaceOld.getAugmentation(IfL2vlan.class);
         if (ifL2vlan == null || ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
             return;

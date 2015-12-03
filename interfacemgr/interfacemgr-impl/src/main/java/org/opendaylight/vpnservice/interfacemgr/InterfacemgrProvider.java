@@ -43,9 +43,6 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     private static final Logger LOG = LoggerFactory.getLogger(InterfacemgrProvider.class);
 
     private RpcProviderRegistry rpcProviderRegistry;
-
-    private InterfaceManager interfaceManager;
-    private IfmNodeConnectorListener ifmNcListener;
     private IdManager idManager;
 
     private InterfaceConfigListener interfaceConfigListener;
@@ -93,10 +90,6 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
             vlanMemberConfigListener =
                                new VlanMemberConfigListener(dataBroker, idManager);
             vlanMemberConfigListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-
-
-            /*interfaceManager = new InterfaceManager(dataBroker, idManager);
-            ifmNcListener = new IfmNodeConnectorListener(dataBroker, interfaceManager);*/
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
         }
@@ -122,8 +115,6 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     @Override
     public void close() throws Exception {
         LOG.info("InterfacemgrProvider Closed");
-        interfaceManager.close();
-        ifmNcListener.close();
         interfaceConfigListener.close();
         rpcRegistration.close();
     }
@@ -193,11 +184,6 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
             LOG.warn("Exception when getting port for interface",e);
         }
         return null;
-    }
-
-    @Override
-    public List<MatchInfo> getInterfaceIngressRule(String ifName) {
-        return interfaceManager.getInterfaceIngressRule(ifName);
     }
 
     @Override

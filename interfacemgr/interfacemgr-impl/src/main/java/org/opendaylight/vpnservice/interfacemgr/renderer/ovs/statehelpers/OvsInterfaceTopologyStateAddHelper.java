@@ -59,6 +59,7 @@ public class OvsInterfaceTopologyStateAddHelper {
 
         String dpId = bridgeNew.getDatapathId().getValue();
         String bridgeName = bridgeNew.getBridgeName().getValue();
+        LOG.info("adding dpId {} to bridge reference {}", dpId, bridgeNew);
 
         if (dpId == null) {
             LOG.error("Optained null dpid for bridge: {}", bridgeNew);

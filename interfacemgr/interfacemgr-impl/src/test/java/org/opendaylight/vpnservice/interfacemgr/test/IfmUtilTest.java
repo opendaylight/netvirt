@@ -23,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 public class IfmUtilTest {
 
     @Mock NodeConnectorId ncId;
-    MockDataChangedEvent event;
 
     @Before
     public void setUp() throws Exception {

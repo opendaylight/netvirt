@@ -137,7 +137,7 @@ public class OvsInterfaceConfigAddHelper {
             return;
         }
 
-        createBridgeEntryIfNotPresent(dpId, dataBroker, t);
+        //createBridgeEntryIfNotPresent(dpId, dataBroker, t);
 
         BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpId);
         BridgeInterfaceEntryKey bridgeInterfaceEntryKey = new BridgeInterfaceEntryKey(interfaceNew.getName());
@@ -179,22 +179,6 @@ public class OvsInterfaceConfigAddHelper {
             ifaceBuilder.setOperStatus(operStatus);
             ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(interfaceNew.getName()));
             t.merge(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build());
-        }
-    }
-
-    private static void createBridgeEntryIfNotPresent(BigInteger dpId,
-                                                      DataBroker dataBroker, WriteTransaction t) {
-        LOG.debug("creating bridge entry if not present for dpn {}",dpId);
-        BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpId);
-        InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier =
-                InterfaceMetaUtils.getBridgeEntryIdentifier(bridgeEntryKey);
-        BridgeEntry bridgeEntry =
-                InterfaceMetaUtils.getBridgeEntryFromConfigDS(bridgeEntryInstanceIdentifier,
-                        dataBroker);
-        if (bridgeEntry == null) {
-            BridgeEntryBuilder bridgeEntryBuilder = new BridgeEntryBuilder().setKey(bridgeEntryKey)
-                    .setDpid(dpId);
-            t.put(LogicalDatastoreType.CONFIGURATION, bridgeEntryInstanceIdentifier, bridgeEntryBuilder.build(), true);
         }
     }
 }
