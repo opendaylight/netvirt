@@ -26,6 +26,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>idmanager-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.vpnservice</groupId>
+      <artifactId>lockmanager-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+       <groupId>org.opendaylight.vpnservice</groupId>
+       <artifactId>mdsalutil-api</artifactId>
+       <version>${vpnservices.version}</version>
+    </dependency>
   </dependencies>
 
 </project>

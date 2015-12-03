@@ -33,6 +33,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <interfacemgr.version>${vpnservices.version}</interfacemgr.version>
     <nexthopmgr.version>${vpnservices.version}</nexthopmgr.version>
     <fibmanager.version>${vpnservices.version}</fibmanager.version>
+    <lockmanager.version>${vpnservices.version}</lockmanager.version>
     <idmanager.version>${vpnservices.version}</idmanager.version>
   </properties>
   <dependencyManagement>
@@ -208,6 +209,23 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>fibmanager-api</artifactId>
       <version>${fibmanager.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>lockmanager-impl</artifactId>
+      <version>${lockmanager.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>lockmanager-impl</artifactId>
+      <version>${lockmanager.version}</version>
+      <classifier>config</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>lockmanager-api</artifactId>
+      <version>${lockmanager.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

@@ -12,6 +12,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.idmanager.IdManager;
+import org.opendaylight.vpnservice.VpnUtil;
+import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
@@ -137,13 +139,16 @@ public class OvsVlanMemberConfigAddHelper {
 
     private static long createInterfaceChildEntry(DataBroker dataBroker, IdManager idManager, WriteTransaction t,
                                                 InterfaceParentEntryKey interfaceParentEntryKey, String childInterface){
-        long lportTag = InterfaceManagerCommonUtils.getUniqueId(idManager, childInterface);
-        InterfaceChildEntryKey interfaceChildEntryKey = new InterfaceChildEntryKey(childInterface);
-        InstanceIdentifier<InterfaceChildEntry> intfId =
-                InterfaceMetaUtils.getInterfaceChildEntryIdentifier(interfaceParentEntryKey, interfaceChildEntryKey);
-        InterfaceChildEntryBuilder entryBuilder = new InterfaceChildEntryBuilder().setKey(interfaceChildEntryKey)
-                .setChildInterface(childInterface);
-        t.put(LogicalDatastoreType.CONFIGURATION, intfId, entryBuilder.build(),true);
-        return lportTag;
+
+            //TODO FIXME
+//        long lportTag = InterfaceManagerCommonUtils.getUniqueId(idManager, childInterface);
+//        InterfaceChildEntryKey interfaceChildEntryKey = new InterfaceChildEntryKey(childInterface);
+//        InstanceIdentifier<InterfaceChildEntry> intfId =
+//                InterfaceMetaUtils.getInterfaceChildEntryIdentifier(interfaceParentEntryKey, interfaceChildEntryKey);
+//        InterfaceChildEntryBuilder entryBuilder = new InterfaceChildEntryBuilder().setKey(interfaceChildEntryKey)
+//                .setChildInterface(childInterface);
+//        t.put(LogicalDatastoreType.CONFIGURATION, intfId, entryBuilder.build(),true);
+//        return lportTag;
+        return 0L;
     }
 }

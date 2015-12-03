@@ -55,10 +55,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.AdjacencyLi
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInstance1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
@@ -202,7 +202,11 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             LOG.trace("NextHops are {}", nextHops);
             for (Adjacency nextHop : nextHops) {
                 String key = rd + VpnConstants.SEPARATOR + nextHop.getIpAddress();
-                long label = getUniqueId(key);
+                String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
+//                long label = getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, VpnUtil
+//                        .getNextHopLabelKey((rd == null) ? intf.getVpnInstanceName() : rd, prefix));
+                long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                        VpnUtil.getNextHopLabelKey(rd, nextHop.getIpAddress()));
                 value.add(new AdjacencyBuilder(nextHop).setLabel(label).build());
             }
 
@@ -212,29 +216,14 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             syncWrite(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface, DEFAULT_CALLBACK);
             for (Adjacency nextHop : nextHops) {
                 String key = rd + VpnConstants.SEPARATOR + nextHop.getIpAddress();
-                long label = getUniqueId(key);
+                String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
+//                long label = getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, VpnUtil
+//                        .getNextHopLabelKey((rd == null) ? intf.getVpnInstanceName() : rd, prefix));
+                long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                        VpnUtil.getNextHopLabelKey(rd, nextHop.getIpAddress()));
                 updatePrefixToBGP(rd, nextHop, nextHopIp, label);
             }
         }
-    }
-
-    private Integer getUniqueId(String idKey) {
-        GetUniqueIdInput getIdInput = new GetUniqueIdInputBuilder()
-                                           .setPoolName(VpnConstants.VPN_IDPOOL_NAME)
-                                           .setIdKey(idKey).build();
-
-        try {
-            Future<RpcResult<GetUniqueIdOutput>> result = idManager.getUniqueId(getIdInput);
-            RpcResult<GetUniqueIdOutput> rpcResult = result.get();
-            if(rpcResult.isSuccessful()) {
-                return rpcResult.getResult().getIdValue().intValue();
-            } else {
-                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
-            }
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting Unique Id",e);
-        }
-        return 0;
     }
 
     private long getVpnId(String vpnName) {
@@ -495,7 +484,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     if(label == VpnConstants.INVALID_ID) {
                         //Generate label using ID Manager
                         String key = newRd + VpnConstants.SEPARATOR + nextHop.getIpAddress();
-                        label = getUniqueId(key);
+//                        label = getUniqueId(key);
                     }
                     removePrefixFromBGP(rd, nextHop);
                     //updatePrefixToBGP(newRd, nextHop, nextHopIp, label);

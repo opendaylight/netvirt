@@ -35,11 +35,14 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInstance1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.l3nexthop.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.l3nexthop.tunnelnexthops.*;
@@ -106,20 +109,13 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
     protected void createNexthopPointerPool() {
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
-            .setPoolName("nextHopPointerPool")
-            .setIdStart(1L)
-            .setPoolSize(new BigInteger("65535"))
-            .build();
+                .setPoolName("nextHopPointerPool")
+                .setLow(150000L)
+                .setHigh(175000L)
+                .build();
         //TODO: Error handling
         Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
         LOG.trace("NextHopPointerPool result : {}", result);
-//            try {
-//                LOG.info("Result2: {}",result.get());
-//            } catch (InterruptedException | ExecutionException e) {
-//                // TODO Auto-generated catch block
-//                LOG.error("Error in result.get");
-//            }
-
     }
 
 
@@ -146,15 +142,15 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         return dpn;
     }
 
-    protected int createNextHopPointer(String nexthopKey) {
-        GetUniqueIdInput getIdInput = new GetUniqueIdInputBuilder()
-            .setPoolName("nextHopPointerPool").setIdKey(nexthopKey)
-            .build();
+    protected long createNextHopPointer(String nexthopKey) {
+        AllocateIdInput getIdInput = new AllocateIdInputBuilder()
+                .setPoolName("nextHopPointerPool").setIdKey(nexthopKey)
+                .build();
         //TODO: Proper error handling once IdManager code is complete
         try {
-            Future<RpcResult<GetUniqueIdOutput>> result = idManager.getUniqueId(getIdInput);
-            RpcResult<GetUniqueIdOutput> rpcResult = result.get();
-            return rpcResult.getResult().getIdValue().intValue();
+            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
+            RpcResult<AllocateIdOutput> rpcResult = result.get();
+            return rpcResult.getResult().getIdValue();
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
             LOG.trace("",e);
         }
@@ -163,7 +159,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
     public void createLocalNextHop(String ifName, String vpnName, String ipAddress, String macAddress) {
         String nhKey = new String("nexthop." + vpnName + ipAddress);
-        int groupId = createNextHopPointer(nhKey);
+        long groupId = createNextHopPointer(nhKey);
 
         long vpnId = getVpnId(vpnName);
         BigInteger dpnId = interfaceManager.getDpnForInterface(ifName);
@@ -197,7 +193,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
 
     public void createRemoteNextHop(String ifName, String ipAddress) {
         String nhKey = new String("nexthop." + ifName + ipAddress);
-        int groupId = createNextHopPointer(nhKey);
+        long groupId = createNextHopPointer(nhKey);
 
         BigInteger dpnId = interfaceManager.getDpnForInterface(ifName);
         TunnelNexthop nexthop = getTunnelNexthop(dpnId, ipAddress);

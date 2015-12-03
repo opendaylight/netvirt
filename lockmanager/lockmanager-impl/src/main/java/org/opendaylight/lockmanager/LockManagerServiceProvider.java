@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.idmanager;
+package org.opendaylight.lockmanager;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
@@ -14,19 +14,17 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderCo
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.lockmanager.rev150819.LockManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class IdManagerServiceProvider implements BindingAwareProvider,
+public class LockManagerServiceProvider implements BindingAwareProvider,
             AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(IdManagerServiceProvider.class);
-    private IdManager idManager;
-    private RpcProviderRegistry rpcProviderRegistry;
-    private LockManagerService lockManager;
+        private static final Logger LOG = LoggerFactory.getLogger(LockManagerServiceProvider.class);
+        private LockManager lockManager;
+        private RpcProviderRegistry rpcProviderRegistry;
 
     public RpcProviderRegistry getRpcProviderRegistry() {
         return rpcProviderRegistry;
@@ -36,34 +34,23 @@ public class IdManagerServiceProvider implements BindingAwareProvider,
         this.rpcProviderRegistry = rpcProviderRegistry;
     }
 
-    public void setLockManager(LockManagerService lockManager) {
-        this.lockManager = lockManager;
-    }
-
-    @Override
+        @Override
     public void onSessionInitiated(ProviderContext session){
-        LOG.info("IDManagerserviceProvider Session Initiated");
+        LOG.info("LockManagerServiceProvider Session Initiated");
         try {
             final  DataBroker dataBroker = session.getSALService(DataBroker.class);
-            idManager = new IdManager(dataBroker);
-            idManager.setLockManager(lockManager);
-            final BindingAwareBroker.RpcRegistration<IdManagerService> rpcRegistration = getRpcProviderRegistry().addRpcImplementation(IdManagerService.class, idManager);
+            lockManager = new LockManager(dataBroker);
+            final BindingAwareBroker.RpcRegistration<LockManagerService> rpcRegistration = getRpcProviderRegistry().addRpcImplementation(LockManagerService.class, lockManager);
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
         }
     }
 
-    public IdManagerServiceProvider(RpcProviderRegistry rpcRegistry) {
+    public LockManagerServiceProvider(RpcProviderRegistry rpcRegistry) {
         this.rpcProviderRegistry = rpcRegistry;
     }
 
     @Override
     public void close() throws Exception {
-        idManager.close();
         }
     }
-
-
-
-
-

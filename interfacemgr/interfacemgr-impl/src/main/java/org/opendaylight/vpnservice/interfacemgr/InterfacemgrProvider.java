@@ -98,8 +98,8 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     private void createIdPool() {
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
             .setPoolName(IfmConstants.IFM_IDPOOL_NAME)
-            .setIdStart(IfmConstants.IFM_IDPOOL_START)
-            .setPoolSize(new BigInteger(IfmConstants.IFM_IDPOOL_SIZE))
+                .setLow(IfmConstants.IFM_ID_POOL_START)
+                .setHigh(IfmConstants.IFM_ID_POOL_END)
             .build();
         //TODO: Error handling
         Future<RpcResult<Void>> result = idManager.createIdPool(createPool);

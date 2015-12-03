@@ -24,9 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdOutput;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -117,26 +114,6 @@ public class InterfaceManagerCommonUtils {
         }
 
         return ifStateOptional.get();
-    }
-
-    public static Integer getUniqueId(IdManager idManager, String idKey) {
-        GetUniqueIdInput getIdInput = new GetUniqueIdInputBuilder()
-                .setPoolName(IfmConstants.IFM_LPORT_TAG_IDPOOL_NAME)
-                .setIdKey(idKey).build();
-
-        try {
-            Future<RpcResult<GetUniqueIdOutput>> result = idManager.
-                    getUniqueId(getIdInput);
-            RpcResult<GetUniqueIdOutput> rpcResult = result.get();
-            if(rpcResult.isSuccessful()) {
-                return rpcResult.getResult().getIdValue().intValue();
-            } else {
-                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
-            }
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting Unique Id",e);
-        }
-        return 0;
     }
 
     public static String getJobKey(String dpId, String portName) {

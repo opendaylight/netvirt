@@ -85,8 +85,8 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
     private void createIdPool() {
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
             .setPoolName(VpnConstants.VPN_IDPOOL_NAME)
-            .setIdStart(VpnConstants.VPN_IDPOOL_START)
-            .setPoolSize(new BigInteger(VpnConstants.VPN_IDPOOL_SIZE))
+            .setLow(VpnConstants.VPN_IDPOOL_START)
+            .setHigh(new BigInteger(VpnConstants.VPN_IDPOOL_SIZE).longValue())
             .build();
         try {
            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
