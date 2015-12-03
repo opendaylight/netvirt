@@ -30,6 +30,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <model.bgp.version>2013.07.15.8-SNAPSHOT</model.bgp.version>
     <openflowplugin.version>0.2.0-SNAPSHOT</openflowplugin.version>
     <vpns.ovsdb.version>1.2.1-SNAPSHOT</vpns.ovsdb.version>
+    <liblldp.version>0.10.0-SNAPSHOT</liblldp.version>
   </properties>
 
   <dependencyManagement>

@@ -17,6 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PopVlanActionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.pop.vlan.action._case.PopVlanActionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
@@ -62,6 +66,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -72,7 +77,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
+import org.opendaylight.controller.liblldp.HexEncode;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.primitives.Bytes;
@@ -314,6 +320,12 @@ public class MDSALUtil {
         return getOfPortNumberFromPortName(nodeConnectorId.getValue());
     }
 
+    public static long getDpnIdFromPortName(NodeConnectorId nodeConnectorId) {
+        String ofPortName = nodeConnectorId.getValue();
+        return Long.parseLong(ofPortName.substring(ofPortName.indexOf(":")+1, 
+                ofPortName.lastIndexOf(":")));
+    }
+
     public static long getOfPortNumberFromPortName(String sMdsalPortName) {
         String sPortNumber = sMdsalPortName.substring(sMdsalPortName.lastIndexOf(":") + 1);
         return Long.parseLong(sPortNumber);
@@ -374,7 +386,6 @@ public class MDSALUtil {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
         return result;
     }
 
@@ -418,4 +429,52 @@ public class MDSALUtil {
             throw new RuntimeException(e.getMessage());
         }
     }
+
+    public static byte[] getMacAddressForNodeConnector(DataBroker broker,
+            InstanceIdentifier<NodeConnector> nodeConnectorId)  {
+        Optional<NodeConnector> optNc = MDSALDataStoreUtils.read(broker,
+                LogicalDatastoreType.OPERATIONAL, nodeConnectorId);
+        if(optNc.isPresent()) {
+            NodeConnector nc = optNc.get();
+            FlowCapableNodeConnector fcnc = nc.getAugmentation(FlowCapableNodeConnector.class);
+            MacAddress macAddress = fcnc.getHardwareAddress();
+            return HexEncode.bytesFromHexString(macAddress.getValue());
+        }
+        return null;
+    }
+
+    public static NodeId getNodeIdFromNodeConnectorId(NodeConnectorId ncId) {
+        return new NodeId(ncId.getValue().substring(0,
+                ncId.getValue().lastIndexOf(":")));
+    }
+
+    public static String getInterfaceName(NodeConnectorRef ref, DataBroker dataBroker) {
+        NodeConnectorId nodeConnectorId = getNodeConnectorId(dataBroker, ref);
+        NodeId nodeId = getNodeIdFromNodeConnectorId(nodeConnectorId);
+        InstanceIdentifier<NodeConnector> ncIdentifier = InstanceIdentifier
+                .builder(Nodes.class)
+                .child(Node.class, new NodeKey(nodeId))
+                .child(NodeConnector.class,
+                        new NodeConnectorKey(nodeConnectorId)).build();
+
+        Optional<NodeConnector> nodeConnectorOptional = read(
+                dataBroker,
+                LogicalDatastoreType.OPERATIONAL, ncIdentifier);
+        if (!nodeConnectorOptional.isPresent()) {
+            return null;
+        }
+        NodeConnector nc = nodeConnectorOptional.get();
+        FlowCapableNodeConnector fc = nc
+                .getAugmentation(FlowCapableNodeConnector.class);
+        return fc.getName();
+    }
+
+    public static NodeConnectorId getNodeConnectorId(DataBroker dataBroker,
+            NodeConnectorRef ref) {
+        Optional<NodeConnector> nc = (Optional<NodeConnector>) read(
+                dataBroker,
+                LogicalDatastoreType.CONFIGURATION, ref.getValue());
+        return nc.get().getId();
+    }
+
 }
