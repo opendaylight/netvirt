@@ -1,0 +1,124 @@
+module itm-state {
+
+      namespace "urn:opendaylight:params:xml:ns:yang:itm:op";
+
+      prefix itm-state;
+
+      import ietf-interfaces {
+          prefix if;
+      }
+
+      import ietf-yang-types {
+          prefix yang;
+      }
+
+      import ietf-inet-types {
+          prefix inet;
+      }
+
+      description "This YANG module defines operation part of the model.";
+
+      revision "2015-07-01";
+
+        /* Operational state */
+
+      container tunnels {
+
+        list DPN-TEPs-info {
+
+          key "DPN-ID";
+
+          leaf DPN-ID {
+                   type uint64;
+          }
+          leaf up {
+             type boolean;
+             config false;
+          }
+
+          /* Minimum 1 port. We may for now support only two ports */
+          list tunnel-end-points {
+
+               key "portname VLAN-ID ip-address"; /* Multiple tunnels on the same physical port but on different VLAN can be supported */
+
+                 leaf portname {
+                     type string;
+                     }
+                 leaf VLAN-ID {
+                     type uint16;
+                     }
+                 leaf ip-address {
+                     type inet:ip-address;
+                 }
+                 leaf subnet-mask {
+                     type inet:ip-prefix;
+                 }
+                 leaf gw-ip-address {
+                          type inet:ip-address;
+                 }
+                 leaf transport-zone {
+                          type string;
+                 }
+                 leaf interface-name {
+                          type string;
+                 }
+                 leaf tunnel-type {
+                      type string;
+                 }
+           }
+
+         }
+      }
+
+
+      container tunnels_state {
+             list state-tunnel-list {
+
+               key  "source-DPN destination-DPN";
+
+               leaf source-DPN {
+                   type uint64;
+               }
+
+               leaf destination-DPN {
+                   type uint64;
+               }
+
+               /* logical-group interface id */
+
+               leaf logical-tunnel-group-name {
+                    type string;
+                    config false;
+               }
+
+               leaf logical-tunnel-state {
+                    type boolean;
+                    config false;
+               }
+
+             }
+          }
+
+          rpc get-tunnel-id {
+
+             input {
+                leaf source-dpn {
+                    type uint64;
+                }
+                leaf destination-dpn {
+                    type uint64;
+                }
+             }
+
+             output {
+                     leaf logical-group-name {
+                        type string;
+                     }
+             }
+
+          }
+          
+          notification itm-tunnel-build-complete{
+          }
+
+}
