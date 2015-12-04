@@ -36,7 +36,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <fibmanager.version>${vpnservices.version}</fibmanager.version>
     <lockmanager.version>${vpnservices.version}</lockmanager.version>
     <idmanager.version>${vpnservices.version}</idmanager.version>
-	<itm.version>${vpnservices.version}</itm.version>
+    <itm.version>${vpnservices.version}</itm.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -196,7 +196,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <artifactId>model-bgp</artifactId>
       <version>2013.07.15.8-SNAPSHOT</version>
     </dependency>
-	<dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>nexthopmgr-impl</artifactId>
       <version>${nexthopmgr.version}</version>
@@ -213,7 +213,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <artifactId>nexthopmgr-api</artifactId>
       <version>${nexthopmgr.version}</version>
     </dependency>
-	<dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fibmanager-impl</artifactId>
       <version>${fibmanager.version}</version>
@@ -264,7 +264,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <artifactId>idmanager-api</artifactId>
       <version>${idmanager.version}</version>
     </dependency>
-	<dependency>
+    <dependency>
       <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>itm-impl</artifactId>
       <version>${itm.version}</version>
@@ -275,6 +275,23 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <version>${itm.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>dhcpservice-impl</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>dhcpservice-impl</artifactId>
+      <version>${vpnservices.version}</version>
+      <classifier>config</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>dhcpservice-api</artifactId>
+      <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.thrift</groupId>
