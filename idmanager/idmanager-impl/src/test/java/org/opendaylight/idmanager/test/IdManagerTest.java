@@ -69,15 +69,8 @@ public class IdManagerTest {
     private static final Logger LOG = LoggerFactory.getLogger(IdManagerTest.class);
     private static int BLADE_ID;
     static {
-        String hostName;
         try {
-            hostName = InetAddress.getLocalHost().getHostName();
             BLADE_ID = InetAddresses.coerceToInteger(InetAddress.getLocalHost());
-            if (hostName.indexOf("-") > 0) {
-                BLADE_ID = new Integer(hostName.split("-")[1].toString()).intValue();
-            } else {
-                LOG.error("Host name {} is not matching with the condition!! PL-X is expected", hostName);
-            }
         } catch (Exception e) {
             LOG.error("IdManager - Exception - {}", e.getMessage());
         }

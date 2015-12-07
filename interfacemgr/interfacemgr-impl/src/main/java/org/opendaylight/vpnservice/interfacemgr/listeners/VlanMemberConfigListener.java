@@ -17,6 +17,7 @@ import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsVl
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsVlanMemberConfigUpdateHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -29,9 +30,9 @@ import java.util.concurrent.Callable;
 public class VlanMemberConfigListener extends AsyncDataTreeChangeListenerBase<Interface, VlanMemberConfigListener> {
     private static final Logger LOG = LoggerFactory.getLogger(VlanMemberConfigListener.class);
     private DataBroker dataBroker;
-    private IdManager idManager;
+    private IdManagerService idManager;
 
-    public VlanMemberConfigListener(final DataBroker dataBroker, final IdManager idManager) {
+    public VlanMemberConfigListener(final DataBroker dataBroker, final IdManagerService idManager) {
         super(Interface.class, VlanMemberConfigListener.class);
         this.dataBroker = dataBroker;
         this.idManager = idManager;

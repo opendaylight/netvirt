@@ -31,7 +31,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.IfIndexesInterfaceMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.InterfaceChildInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
@@ -209,6 +212,26 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
             rpcResultBuilder.withResult(output.build());
         } catch (Exception e) {
             LOG.error("Retrieval of nodeconnector id for the key {} failed due to {}", interfaceName, e);
+            rpcResultBuilder = RpcResultBuilder.failed();
+        }
+        return Futures.immediateFuture(rpcResultBuilder.build());
+    }
+
+    @Override
+    public Future<RpcResult<GetInterfaceFromIfIndexOutput>> getInterfaceFromIfIndex(GetInterfaceFromIfIndexInput input) {
+        Integer ifIndex = input.getIfIndex();
+        RpcResultBuilder<GetInterfaceFromIfIndexOutput> rpcResultBuilder = null;
+        try {
+            InstanceIdentifier<IfIndexInterface> id = InstanceIdentifier.builder(IfIndexesInterfaceMap.class).child(IfIndexInterface.class, new IfIndexInterfaceKey(ifIndex)).build();
+            Optional<IfIndexInterface> ifIndexesInterface = IfmUtil.read(LogicalDatastoreType.OPERATIONAL, id, dataBroker);
+            if(ifIndexesInterface.isPresent()) {
+                String interfaceName = ifIndexesInterface.get().getInterfaceName();
+                GetInterfaceFromIfIndexOutputBuilder output = new GetInterfaceFromIfIndexOutputBuilder().setInterfaceName(interfaceName);
+                rpcResultBuilder = RpcResultBuilder.success();
+                rpcResultBuilder.withResult(output.build());
+            }
+        } catch (Exception e) {
+            LOG.error("Retrieval of interfaceName for the key {} failed due to {}", ifIndex, e);
             rpcResultBuilder = RpcResultBuilder.failed();
         }
         return Futures.immediateFuture(rpcResultBuilder.build());

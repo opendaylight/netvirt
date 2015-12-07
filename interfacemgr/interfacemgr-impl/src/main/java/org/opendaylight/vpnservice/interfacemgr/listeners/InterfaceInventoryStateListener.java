@@ -10,9 +10,11 @@ package org.opendaylight.vpnservice.interfacemgr.listeners;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
+import org.opendaylight.idmanager.IdManager;
 import org.opendaylight.vpnservice.datastoreutils.AsyncDataChangeListenerBase;
 import org.opendaylight.vpnservice.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInterfaceStateAddHelper;
+import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInterfaceStateRemoveHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInterfaceStateRemoveHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInterfaceStateUpdateHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
@@ -20,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +41,12 @@ import java.util.concurrent.Callable;
 public class InterfaceInventoryStateListener extends AsyncDataChangeListenerBase<FlowCapableNodeConnector, InterfaceInventoryStateListener> implements AutoCloseable{
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceInventoryStateListener.class);
     private DataBroker dataBroker;
+    private IdManagerService idManager;
 
-    public InterfaceInventoryStateListener(final DataBroker dataBroker) {
+    public InterfaceInventoryStateListener(final DataBroker dataBroker, final IdManagerService idManager) {
         super(FlowCapableNodeConnector.class, InterfaceInventoryStateListener.class);
         this.dataBroker = dataBroker;
+        this.idManager = idManager;
     }
 
     @Override
@@ -68,7 +73,7 @@ public class InterfaceInventoryStateListener extends AsyncDataChangeListenerBase
         NodeConnectorId nodeConnectorId = InstanceIdentifier.keyOf(key.firstIdentifierOf(NodeConnector.class)).getId();
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
 
-        InterfaceStateRemoveWorker interfaceStateRemoveWorker = new InterfaceStateRemoveWorker(key,
+        InterfaceStateRemoveWorker interfaceStateRemoveWorker = new InterfaceStateRemoveWorker(idManager, key,
                 flowCapableNodeConnectorOld, portName);
         coordinator.enqueueJob(portName, interfaceStateRemoveWorker);
     }
@@ -92,7 +97,7 @@ public class InterfaceInventoryStateListener extends AsyncDataChangeListenerBase
         NodeConnectorId nodeConnectorId = InstanceIdentifier.keyOf(key.firstIdentifierOf(NodeConnector.class)).getId();
 
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-        InterfaceStateAddWorker ifStateAddWorker = new InterfaceStateAddWorker(nodeConnectorId,
+        InterfaceStateAddWorker ifStateAddWorker = new InterfaceStateAddWorker(idManager, nodeConnectorId,
                 fcNodeConnectorNew, portName);
         coordinator.enqueueJob(portName, ifStateAddWorker);
     }
@@ -101,20 +106,22 @@ public class InterfaceInventoryStateListener extends AsyncDataChangeListenerBase
         private final NodeConnectorId nodeConnectorId;
         private final FlowCapableNodeConnector fcNodeConnectorNew;
         private final String portName;
+        private final IdManagerService idManager;
 
-        public InterfaceStateAddWorker(NodeConnectorId nodeConnectorId,
+        public InterfaceStateAddWorker(IdManagerService idManager, NodeConnectorId nodeConnectorId,
                                        FlowCapableNodeConnector fcNodeConnectorNew,
                                        String portName) {
             this.nodeConnectorId = nodeConnectorId;
             this.fcNodeConnectorNew = fcNodeConnectorNew;
             this.portName = portName;
+            this.idManager = idManager;
         }
 
         @Override
         public Object call() throws Exception {
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
-             return OvsInterfaceStateAddHelper.addState(dataBroker, nodeConnectorId,
+             return OvsInterfaceStateAddHelper.addState(dataBroker, idManager, nodeConnectorId,
                      portName, fcNodeConnectorNew);
         }
 
@@ -168,20 +175,23 @@ public class InterfaceInventoryStateListener extends AsyncDataChangeListenerBase
         InstanceIdentifier<FlowCapableNodeConnector> key;
         FlowCapableNodeConnector fcNodeConnectorOld;
         private final String portName;
+        private final IdManagerService idManager;
 
-        public InterfaceStateRemoveWorker(InstanceIdentifier<FlowCapableNodeConnector> key,
+        public InterfaceStateRemoveWorker(IdManagerService idManager,
+                                          InstanceIdentifier<FlowCapableNodeConnector> key,
                                           FlowCapableNodeConnector fcNodeConnectorOld,
                                           String portName) {
             this.key = key;
             this.fcNodeConnectorOld = fcNodeConnectorOld;
             this.portName = portName;
+            this.idManager = idManager;
         }
 
         @Override
         public Object call() throws Exception {
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
-            return OvsInterfaceStateRemoveHelper.removeState(key, dataBroker, portName, fcNodeConnectorOld);
+            return OvsInterfaceStateRemoveHelper.removeState(idManager, key, dataBroker, portName, fcNodeConnectorOld);
         }
 
         @Override

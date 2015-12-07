@@ -13,7 +13,6 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.idmanager.IdManager;
 import org.opendaylight.vpnservice.interfacemgr.listeners.InterfaceConfigListener;
 import org.opendaylight.vpnservice.interfacemgr.listeners.InterfaceInventoryStateListener;
 import org.opendaylight.vpnservice.interfacemgr.listeners.InterfaceTopologyStateListener;
@@ -28,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.*;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     private static final Logger LOG = LoggerFactory.getLogger(InterfacemgrProvider.class);
 
     private RpcProviderRegistry rpcProviderRegistry;
-    private IdManager idManager;
+    private IdManagerService idManager;
 
     private InterfaceConfigListener interfaceConfigListener;
     private InterfaceTopologyStateListener topologyStateListener;
@@ -64,7 +64,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
         LOG.info("InterfacemgrProvider Session Initiated");
         try {
             final  DataBroker dataBroker = session.getSALService(DataBroker.class);
-            idManager = new IdManager(dataBroker);
+            idManager = rpcProviderRegistry.getRpcService(IdManagerService.class);
             createIdPool();
 
             interfaceManagerRpcService = new InterfaceManagerRpcService(dataBroker);
@@ -74,7 +74,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
             interfaceConfigListener = new InterfaceConfigListener(dataBroker, idManager);
             interfaceConfigListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
 
-            interfaceInventoryStateListener = new InterfaceInventoryStateListener(dataBroker);
+            interfaceInventoryStateListener = new InterfaceInventoryStateListener(dataBroker, idManager);
             interfaceInventoryStateListener.registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
 
             topologyStateListener = new InterfaceTopologyStateListener(dataBroker);

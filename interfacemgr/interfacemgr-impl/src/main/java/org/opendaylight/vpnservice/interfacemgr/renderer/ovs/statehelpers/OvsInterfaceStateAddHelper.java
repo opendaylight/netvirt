@@ -11,6 +11,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.idmanager.IdManager;
+import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
@@ -20,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
@@ -42,7 +45,7 @@ import java.util.List;
 public class OvsInterfaceStateAddHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsInterfaceStateAddHelper.class);
 
-    public static List<ListenableFuture<Void>> addState(DataBroker dataBroker, NodeConnectorId nodeConnectorId,
+    public static List<ListenableFuture<Void>> addState(DataBroker dataBroker, IdManagerService idManager, NodeConnectorId nodeConnectorId,
                                                         String portName, FlowCapableNodeConnector fcNodeConnectorNew) {
         LOG.debug("Adding Interface State to Oper DS for port: {}", portName);
         List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -69,12 +72,15 @@ public class OvsInterfaceStateAddHelper {
         List<String> lowerLayerIfList = new ArrayList<>();
         lowerLayerIfList.add(nodeConnectorId.getValue());
 
+        Integer ifIndex = IfmUtil.allocateId(idManager, IfmConstants.IFM_IDPOOL_NAME, portName);
         InstanceIdentifier<Interface> ifStateId = IfmUtil.buildStateInterfaceId(portName);
         InterfaceBuilder ifaceBuilder = new InterfaceBuilder().setOperStatus(operStatus)
-                .setAdminStatus(adminStatus).setPhysAddress(physAddress).setLowerLayerIf(lowerLayerIfList)
+                .setAdminStatus(adminStatus).setPhysAddress(physAddress).setIfIndex(ifIndex).setLowerLayerIf(lowerLayerIfList)
                 .setKey(IfmUtil.getStateInterfaceKeyFromName(portName));
         t.put(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build(), true);
 
+        // allocate lport tag and set in if-index
+        InterfaceMetaUtils.createLportTagInterfaceMap(t, portName, ifIndex);
         if (iface == null) {
             futures.add(t.submit());
             return futures;
