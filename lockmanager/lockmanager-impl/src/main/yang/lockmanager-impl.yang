@@ -1,0 +1,44 @@
+module lockmanager-impl {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:lockmanager:impl";
+    prefix "lockmanager-impl";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+
+    description
+        "Service definition for lockmanager project";
+
+    revision "2015-08-19" {
+        description
+            "Initial revision";
+    }
+
+    identity lockmanager-impl {
+        base config:module-type;
+        config:java-name-prefix LockManagerImpl;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case lockmanager-impl {
+            when "/config:modules/config:module/config:type = 'lockmanager-impl'";
+            container broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-broker-osgi-registry;
+                    }
+                }
+            }
+            container rpc-registry {
+                 uses config:service-ref {
+                      refine type {
+                         mandatory true;
+                         config:required-identity md-sal-binding:binding-rpc-registry;
+                      }
+                 }
+            }
+
+        }
+    }
+}

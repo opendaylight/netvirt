@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PopVlanActionCaseBuilder;
@@ -63,10 +64,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Tr
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Ints;
+import com.google.common.util.concurrent.CheckedFuture;
 
 public class MDSALUtil {
 
@@ -76,6 +87,7 @@ public class MDSALUtil {
     private static final Instructions EMPTY_Instructions = new InstructionsBuilder().setInstruction(
             new ArrayList<Instruction>()).build();
     private static final Match EMPTY_Matches = new MatchBuilder().build();
+    private static final Logger logger = LoggerFactory.getLogger(MDSALUtil.class);
 
     public static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, String flowId, int priority, String flowName,
             int idleTimeOut, int hardTimeOut, BigInteger cookie, List<MatchInfo> listMatchInfo,
@@ -335,5 +347,75 @@ public class MDSALUtil {
                         new WriteMetadataCaseBuilder().setWriteMetadata(
                                 new WriteMetadataBuilder().setMetadata(metadata).setMetadataMask(mask).build())
                                 .build()).setKey(new InstructionKey(instructionKey)).build();
+    }
+
+    public static <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
+                                                          InstanceIdentifier<T> path, DataBroker broker) {
+
+        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
+
+        Optional<T> result = Optional.absent();
+        try {
+            result = tx.read(datastoreType, path).get();
+        } catch (Exception e) {
+            logger.error("An error occured while reading data from the path {} with the exception {}", path, e);
+        }
+        return result;
+    }
+
+    public static <T extends DataObject> Optional<T> read(DataBroker broker,
+                                                          LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
+
+        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
+
+        Optional<T> result = Optional.absent();
+        try {
+            result = tx.read(datastoreType, path).get();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
+    }
+
+    public static <T extends DataObject> void syncWrite(DataBroker broker,
+                                                        LogicalDatastoreType datastoreType, InstanceIdentifier<T> path,
+                                                        T data) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.put(datastoreType, path, data, true);
+        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        try {
+            futures.get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Error writing to datastore (path, data) : ({}, {})", path, data);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public static <T extends DataObject> void syncUpdate(DataBroker broker,
+                                                         LogicalDatastoreType datastoreType, InstanceIdentifier<T> path,
+                                                         T data) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.merge(datastoreType, path, data, true);
+        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        try {
+            futures.get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Error writing to datastore (path, data) : ({}, {})", path, data);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public static <T extends DataObject> void syncDelete(DataBroker broker,
+                                                         LogicalDatastoreType datastoreType, InstanceIdentifier<T> obj) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.delete(datastoreType, obj);
+        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        try {
+            futures.get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Error deleting from datastore (path) : ({})", obj);
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }

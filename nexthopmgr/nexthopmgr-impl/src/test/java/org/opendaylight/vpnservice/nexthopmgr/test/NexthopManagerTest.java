@@ -158,7 +158,7 @@ public class NexthopManagerTest {
     dataChangeEvent = new MockDataChangedEvent();
     vpnNexthop = new VpnNexthopBuilder().setEgressPointer(10L).setIpAddress(ipAddress).build();
     nhmgr = new NexthopManager(dataBroker) {
-      protected int createNextHopPointer(String nexthopKey) {
+      protected long createNextHopPointer(String nexthopKey) {
         return groupId;
       }
 

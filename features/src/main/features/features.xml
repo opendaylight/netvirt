@@ -21,6 +21,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
     <feature version='${openflowplugin.version}'>odl-openflowplugin-nsf-model</feature>
     <bundle>mvn:org.opendaylight.vpnservice/model-bgp/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/lockmanager-api/${lockmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/idmanager-api/${idmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-api/${vpnmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/nexthopmgr-api/${nexthopmgr.version}</bundle>
@@ -33,6 +34,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version='${project.version}'>odl-vpnservice-api</feature>
     <feature version="${openflowplugin.version}">odl-openflowplugin-southbound</feature>
     <feature version="${openflowplugin.version}">odl-openflowplugin-flow-services</feature>
+    <bundle>mvn:org.opendaylight.vpnservice/lockmanager-impl/${lockmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/idmanager-impl/${idmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/bgpmanager-api/${vpnservices.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/bgpmanager-impl/${vpnservices.version}</bundle>
@@ -48,6 +50,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <!--<bundle>mvn:org.opendaylight.vpnservice.third-party/org.apache.thriftlib/1.0.1-SNAPSHOT</bundle>-->
     <bundle>wrap:mvn:org.apache.thrift/libthrift/0.9.1$overwrite=merge&amp;Bundle-Version=0.9.1&amp;Export-Package=*;-noimport:=true;version="0.9.1"</bundle>
     <!--<bundle>wrap:mvn:javax.servlet/servlet-api/2.5</bundle>-->
+    <configfile finalname="lockmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/lockmanager-impl/${lockmanager.version}/xml/config</configfile>
 	<configfile finalname="idmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/idmanager-impl/${idmanager.version}/xml/config</configfile>
     <configfile finalname="bgpmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/bgpmanager-impl/${vpnservices.version}/xml/config</configfile>
     <configfile finalname="mdsalutil-impl-default-config.xml">mvn:org.opendaylight.vpnservice/mdsalutil-impl/${interfacemgr.version}/xml/config</configfile>

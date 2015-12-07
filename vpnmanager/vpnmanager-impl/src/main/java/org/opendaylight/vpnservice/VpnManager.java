@@ -37,9 +37,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev15
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.GetUniqueIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,7 +143,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
             VpnInstance value) {
         LOG.trace("key: {}, value: {}", identifier, value);
 
-        long vpnId = getUniqueId(value.getVpnInstanceName());
+        long vpnId = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, value.getVpnInstanceName());
 
         VpnInstance opValue = new VpnInstanceBuilder(value).
                  addAugmentation(VpnInstance1.class, new VpnInstance1Builder().setVpnId(vpnId).build()).build();
@@ -228,24 +228,24 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         return null;
     }
 
-    private Integer getUniqueId(String idKey) {
-        GetUniqueIdInput getIdInput = new GetUniqueIdInputBuilder()
-                                           .setPoolName(VpnConstants.VPN_IDPOOL_NAME)
-                                           .setIdKey(idKey).build();
-
-        try {
-            Future<RpcResult<GetUniqueIdOutput>> result = idManager.getUniqueId(getIdInput);
-            RpcResult<GetUniqueIdOutput> rpcResult = result.get();
-            if(rpcResult.isSuccessful()) {
-                return rpcResult.getResult().getIdValue().intValue();
-            } else {
-                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting Unique Id",e);
-        }
-        return 0;
-    }
+//    private Integer getUniqueId(IdManagerService idManager, String poolName,String idKey) {
+//        AllocateIdInput getIdInput = new AllocateIdInputBuilder()
+//                .setPoolName(poolName)
+//                .setIdKey(idKey).build();
+//
+//        try {
+//            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
+//            RpcResult<AllocateIdOutput> rpcResult = result.get();
+//            if(rpcResult.isSuccessful()) {
+//                return rpcResult.getResult().getIdValue().intValue();
+//            } else {
+//                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
+//            }
+//        } catch (InterruptedException | ExecutionException e) {
+//            LOG.warn("Exception when getting Unique Id",e);
+//        }
+//        return 0;
+//    }
 
     private <T extends DataObject> void delete(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();

@@ -25,13 +25,26 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.AdjacenciesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.Pools;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.pools.IdPool;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.pools.IdPoolKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdPools;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPool;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPoolKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VpnUtil {
+
+    private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
+    private static final int DEFAULT_PREFIX_LENGTH = 32;
+    private static final String PREFIX_SEPARATOR = "/";
+
     static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
         return InstanceIdentifier.builder(VpnInterfaces.class)
                 .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
@@ -53,7 +66,7 @@ public class VpnUtil {
 
     public static InstanceIdentifier<IdPool> getPoolId(String poolName){
         InstanceIdentifier.InstanceIdentifierBuilder<IdPool> idBuilder =
-                        InstanceIdentifier.builder(Pools.class).child(IdPool.class, new IdPoolKey(poolName));
+                        InstanceIdentifier.builder(IdPools.class).child(IdPool.class, new IdPoolKey(poolName));
         InstanceIdentifier<IdPool> id = idBuilder.build();
         return id;
     }
@@ -65,5 +78,37 @@ public class VpnUtil {
     static InstanceIdentifier<Interface> getInterfaceIdentifier(String interfaceName) {
         return InstanceIdentifier.builder(Interfaces.class)
                 .child(Interface.class, new InterfaceKey(interfaceName)).build();
+    }
+
+    public static String getNextHopLabelKey(String rd, String prefix){
+        String key = rd + VpnConstants.SEPARATOR + prefix;
+        return key;
+    }
+
+    static String getIpPrefix(String prefix) {
+        String prefixValues[] = prefix.split("/");
+        if (prefixValues.length == 1) {
+            prefix = prefix + PREFIX_SEPARATOR + DEFAULT_PREFIX_LENGTH ;
+        }
+        return prefix;
+    }
+
+    public static int getUniqueId(IdManagerService idManager, String poolName,String idKey) {
+        AllocateIdInput getIdInput = new AllocateIdInputBuilder()
+                .setPoolName(poolName)
+                .setIdKey(idKey).build();
+
+        try {
+            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
+            RpcResult<AllocateIdOutput> rpcResult = result.get();
+            if(rpcResult.isSuccessful()) {
+                return rpcResult.getResult().getIdValue().intValue();
+            } else {
+                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when getting Unique Id",e);
+        }
+        return 0;
     }
 }
