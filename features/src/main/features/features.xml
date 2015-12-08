@@ -20,10 +20,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
     <feature version='${openflowplugin.version}'>odl-openflowplugin-nsf-model</feature>
+    <bundle>mvn:org.opendaylight.controller/liblldp/${liblldp.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/model-bgp/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/lockmanager-api/${lockmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/idmanager-api/${idmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/arputil-api/${arputil.version}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/alivenessmonitor-api/${vpnservices.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-api/${vpnmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/nexthopmgr-api/${nexthopmgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/fibmanager-api/${fibmanager.version}</bundle>
@@ -41,6 +43,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.vpnservice/bgpmanager-impl/${vpnservices.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/mdsalutil-api/${interfacemgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/arputil-impl/${arputil.version}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/alivenessmonitor-impl/${vpnservices.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/mdsalutil-impl/${interfacemgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-api/${interfacemgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-impl/${interfacemgr.version}</bundle>
@@ -58,6 +61,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <configfile finalname="mdsalutil-impl-default-config.xml">mvn:org.opendaylight.vpnservice/mdsalutil-impl/${interfacemgr.version}/xml/config</configfile>
     <configfile finalname="interfacemgr-impl-default-config.xml">mvn:org.opendaylight.vpnservice/interfacemgr-impl/${interfacemgr.version}/xml/config</configfile>
     <configfile finalname="arputil-impl-default-config.xml">mvn:org.opendaylight.vpnservice/arputil-impl/${arputil.version}/xml/config</configfile>
+    <configfile finalname="alivenessmonitor-impl-default-config.xml">mvn:org.opendaylight.vpnservice/alivenessmonitor-impl/${vpnservices.version}/xml/config</configfile>
     <configfile finalname="vpnmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/vpnmanager-impl/${vpnmanager.version}/xml/config</configfile>
     <configfile finalname="nexthopmgr-impl-default-config.xml">mvn:org.opendaylight.vpnservice/nexthopmgr-impl/${nexthopmgr.version}/xml/config</configfile>
     <configfile finalname="fibmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/fibmanager-impl/${fibmanager.version}/xml/config</configfile>

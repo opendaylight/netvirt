@@ -1,40 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License v1.0 which accompanies this distribution,
 and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <groupId>org.opendaylight.vpnservice</groupId>
-  <artifactId>vpnservice</artifactId>
+
+  <parent>
+    <groupId>org.opendaylight.odlparent</groupId>
+    <artifactId>odlparent</artifactId>
+    <version>1.6.0-SNAPSHOT</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>org.opendaylight.controller</groupId>
+  <artifactId>alivenessmonitor-aggregator</artifactId>
   <version>0.2.0-SNAPSHOT</version>
-  <name>${project.artifactId}</name>
+  <name>alivenessmonitor</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
   <prerequisites>
     <maven>3.1.1</maven>
   </prerequisites>
   <modules>
-    <module>commons/binding-parent</module>
-    <module>commons/config-parent</module>
-    <module>model-bgp</module>
-    <module>mdsalutil</module>
-    <module>lockmanager</module>
-    <module>idmanager</module>
-    <module>arputil</module>
-    <module>vpnmanager</module>
-    <module>interfacemgr</module>
-    <module>alivenessmonitor</module>
-    <module>nexthopmgr</module>
-    <module>fibmanager</module>
-    <module>bgpmanager</module>
-    <module>itm</module>
-    <module>distribution/karaf</module>
-    <module>features</module>
-    <module>vpnservice-artifacts</module>
+    <module>alivenessmonitor-api</module>
+    <module>alivenessmonitor-impl</module>
   </modules>
-
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
   <build>
     <plugins>
@@ -54,10 +46,4 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       </plugin>
     </plugins>
   </build>
-  <scm>
-    <connection>scm:git:ssh://git.opendaylight.org:29418/vpnservice.git</connection>
-    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/vpnservice.git</developerConnection>
-    <url>https://wiki.opendaylight.org/view/VPNService:Main</url>
-    <tag>HEAD</tag>
-  </scm>
 </project>
