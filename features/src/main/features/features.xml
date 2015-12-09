@@ -18,6 +18,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.netconf/features-restconf/${restconf.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.ovsdb/features-ovsdb/${ovsdb.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.neutron/features-neutron/${neutron.version}/xml/features</repository>
+  <repository>mvn:org.opendaylight.nic/features-nic/{{VERSION}}/xml/features</repository>
   <feature name='odl-vpnservice-api' version='${project.version}' description='OpenDaylight :: vpnservice :: api '>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
@@ -66,6 +67,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.vpnservice/elanmanager-impl/${elanmgr.version}</bundle>
 
     <!--<bundle>mvn:org.opendaylight.vpnservice.third-party/org.apache.thriftlib/1.1.0-SNAPSHOT</bundle>-->
+    <!--<bundle>mvn:org.opendaylight.vpnservice.third-party/org.apache.thriftlib/1.0.1-SNAPSHOT</bundle>-->
     <bundle>wrap:mvn:org.apache.thrift/libthrift/0.9.1$overwrite=merge&amp;Bundle-Version=0.9.1&amp;Export-Package=*;-noimport:=true;version="0.9.1"</bundle>
     <!--<bundle>wrap:mvn:javax.servlet/servlet-api/2.5</bundle>-->
     <configfile finalname="lockmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/lockmanager-impl/${lockmanager.version}/xml/config</configfile>
@@ -100,5 +102,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </feature>
   <feature name='odl-vpnservice-openstack' version='${project.version}' description='OpenDaylight :: vpnservice :: impl :: REST '>
     <feature version="${project.version}">odl-vpnservice-impl</feature>
+  </feature>
+  <feature name='odl-vpnservice-intent' version='${project.version}' description='OpenDaylight :: vpnservice :: intent'>
+    <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+    <feature version='${nic.version}'>odl-nic-core-service-mdsal</feature>
+    <feature version='${nic.version}'>odl-nic-core</feature>
+    <feature version='${nic.version}'>odl-nic-listeners</feature>
+    <bundle>mvn:org.opendaylight.vpnservice/vpnintent-api/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/vpnintent-impl/{{VERSION}}</bundle>
+    <configfile finalname="vpnintent-impl-default-config.xml">mvn:org.opendaylight.vpnservice/vpnintent-impl/{{VERSION}}/xml/config</configfile>
   </feature>
   </features>

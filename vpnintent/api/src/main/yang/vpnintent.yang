@@ -1,0 +1,69 @@
+/*
+ * Copyright (c) 2016 Inocybe Technologies and others. All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
+ */
+module vpnintent {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:vpnintent";
+    prefix "vpnintent";
+
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24;}
+
+    revision "2015-01-05" {
+        description "Initial revision of VPN intent model.
+            Create VPN via Intent, keep VPN state and manage MPLS labels";
+    }
+
+    container vpns{
+        list vpn-intents {
+            key "vpn-name";
+            uses vpn-intent;
+        }
+    }
+
+    grouping vpn-intent {
+        leaf vpn-name {
+            type string;
+            description "VPN name";
+            mandatory true;
+        }
+        list endpoint {
+            key "site-name";
+            uses endpoint-fields;
+            description "List to keep track site name and endpoint.";
+          }
+    }
+
+    grouping endpoint-fields {
+        leaf site-name{
+            type string;
+            description "VPN member site name.";
+        }
+
+        leaf ip-prefix {
+            type inet:ip-prefix;
+            description "VPN member IP prefix.";
+        }
+
+        leaf switch-port-id {
+            type string;
+            description "Switch and port ID that VPN member is connected to.";
+        }
+    }
+
+    grouping labels {
+        list label {
+            key "label-id";
+            leaf "label-id"{
+                type uint64;
+                description "MPLS or other label ID.";
+                mandatory true;
+            }
+            uses endpoint-fields;
+            description "Keep track of MPLS/other label endpoint relation.";
+        }
+     }
+  }
