@@ -116,7 +116,7 @@ public class NexthopManagerTest {
     }
 
     @Override
-    public Long getNextHopId() {
+    public String getNextHopIp() {
       return null;
     }
 
