@@ -61,4 +61,17 @@ module odl-interface-meta {
             }
         }
     }
+
+   container if-indexes-interface-map {
+           config false;
+           list if-index-interface {
+               key if-index;
+               leaf if-index {
+                   type int32;
+               }
+               leaf interface-name {
+                   type string;
+               }
+           }
+       }
 }

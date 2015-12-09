@@ -13,6 +13,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.idmanager.IdManager;
+import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
@@ -25,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
@@ -51,7 +53,7 @@ public class OvsInterfaceConfigAddHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsInterfaceConfigAddHelper.class);
 
     public static List<ListenableFuture<Void>> addConfiguration(DataBroker dataBroker, ParentRefs parentRefs,
-                                                                Interface interfaceNew, IdManager idManager) {
+                                                                Interface interfaceNew, IdManagerService idManager) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
 
         IfTunnel ifTunnel = interfaceNew.getAugmentation(IfTunnel.class);
@@ -60,19 +62,20 @@ public class OvsInterfaceConfigAddHelper {
             return futures;
         }
 
-        addVlanConfiguration(interfaceNew, dataBroker, futures);
+        addVlanConfiguration(interfaceNew, dataBroker, idManager, futures);
         return futures;
     }
 
-    private static void addVlanConfiguration(Interface interfaceNew, DataBroker dataBroker,
+    private static void addVlanConfiguration(Interface interfaceNew, DataBroker dataBroker, IdManagerService idManager,
                                              List<ListenableFuture<Void>> futures) {
         WriteTransaction t = dataBroker.newWriteOnlyTransaction();
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceNew.getName(), dataBroker);
+
         if (ifState == null) {
             return;
         }
-        updateStateEntry(interfaceNew, t, ifState);
+        updateStateEntry(interfaceNew, ifState.getIfIndex(), t, ifState);
 
         IfL2vlan ifL2vlan = interfaceNew.getAugmentation(IfL2vlan.class);
         if (ifL2vlan == null || ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
@@ -120,7 +123,7 @@ public class OvsInterfaceConfigAddHelper {
     }
 
     private static void addTunnelConfiguration(DataBroker dataBroker, ParentRefs parentRefs,
-                                              Interface interfaceNew, IdManager idManager,
+                                              Interface interfaceNew, IdManagerService idManager,
                                               List<ListenableFuture<Void>> futures) {
         LOG.debug("adding tunnel configuration for {}", interfaceNew.getName());
         WriteTransaction t = dataBroker.newWriteOnlyTransaction();
@@ -168,17 +171,16 @@ public class OvsInterfaceConfigAddHelper {
         }
     }
 
-    private static void updateStateEntry(Interface interfaceNew, WriteTransaction t,
+    private static void updateStateEntry(Interface interfaceNew, Integer ifIndex, WriteTransaction t,
                                          org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState) {
-        OperStatus operStatus;
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
+                IfmUtil.buildStateInterfaceId(interfaceNew.getName());
+        InterfaceBuilder ifaceBuilder = new InterfaceBuilder();
         if (!interfaceNew.isEnabled() && ifState.getOperStatus() != OperStatus.Down) {
-            operStatus = OperStatus.Down;
-            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
-                    IfmUtil.buildStateInterfaceId(interfaceNew.getName());
-            InterfaceBuilder ifaceBuilder = new InterfaceBuilder();
-            ifaceBuilder.setOperStatus(operStatus);
-            ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(interfaceNew.getName()));
-            t.merge(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build());
+            ifaceBuilder.setOperStatus(OperStatus.Down);
         }
+        ifaceBuilder.setIfIndex(ifIndex);
+        ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(interfaceNew.getName()));
+        t.merge(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build());
     }
 }

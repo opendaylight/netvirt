@@ -23,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
@@ -42,7 +43,7 @@ public class OvsVlanMemberConfigAddHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsVlanMemberConfigAddHelper.class);
     public static List<ListenableFuture<Void>> addConfiguration(DataBroker dataBroker, ParentRefs parentRefs,
                                                                 Interface interfaceNew, IfL2vlan ifL2vlan,
-                                                                IdManager idManager) {
+                                                                IdManagerService idManager) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction t = dataBroker.newWriteOnlyTransaction();
 
@@ -137,18 +138,16 @@ public class OvsVlanMemberConfigAddHelper {
         }
     }
 
-    private static long createInterfaceChildEntry(DataBroker dataBroker, IdManager idManager, WriteTransaction t,
+    private static long createInterfaceChildEntry(DataBroker dataBroker, IdManagerService idManager, WriteTransaction t,
                                                 InterfaceParentEntryKey interfaceParentEntryKey, String childInterface){
 
-            //TODO FIXME
-//        long lportTag = InterfaceManagerCommonUtils.getUniqueId(idManager, childInterface);
-//        InterfaceChildEntryKey interfaceChildEntryKey = new InterfaceChildEntryKey(childInterface);
-//        InstanceIdentifier<InterfaceChildEntry> intfId =
-//                InterfaceMetaUtils.getInterfaceChildEntryIdentifier(interfaceParentEntryKey, interfaceChildEntryKey);
-//        InterfaceChildEntryBuilder entryBuilder = new InterfaceChildEntryBuilder().setKey(interfaceChildEntryKey)
-//                .setChildInterface(childInterface);
-//        t.put(LogicalDatastoreType.CONFIGURATION, intfId, entryBuilder.build(),true);
-//        return lportTag;
-        return 0L;
+        long lportTag = IfmUtil.allocateId(idManager, IfmConstants.IFM_IDPOOL_NAME, childInterface);
+        InterfaceChildEntryKey interfaceChildEntryKey = new InterfaceChildEntryKey(childInterface);
+        InstanceIdentifier<InterfaceChildEntry> intfId =
+                InterfaceMetaUtils.getInterfaceChildEntryIdentifier(interfaceParentEntryKey, interfaceChildEntryKey);
+        InterfaceChildEntryBuilder entryBuilder = new InterfaceChildEntryBuilder().setKey(interfaceChildEntryKey)
+              .setChildInterface(childInterface);
+        t.put(LogicalDatastoreType.CONFIGURATION, intfId, entryBuilder.build(),true);
+        return lportTag;
     }
 }

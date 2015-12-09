@@ -17,6 +17,7 @@ import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
@@ -30,13 +31,19 @@ import java.util.List;
 public class OvsInterfaceStateRemoveHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsInterfaceStateRemoveHelper.class);
 
-    public static List<ListenableFuture<Void>> removeState(InstanceIdentifier<FlowCapableNodeConnector> key,
+    public static List<ListenableFuture<Void>> removeState(IdManagerService idManager,
+                                                           InstanceIdentifier<FlowCapableNodeConnector> key,
                                                            DataBroker dataBroker, String portName, FlowCapableNodeConnector fcNodeConnectorOld) {
         LOG.debug("Removing interface-state for port: {}", portName);
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction t = dataBroker.newWriteOnlyTransaction();
 
         InstanceIdentifier<Interface> ifStateId = IfmUtil.buildStateInterfaceId(portName);
+        /* Remove entry from if-index-interface-name map and deallocate Id from Idmanager. */
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState =
+                InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(portName, dataBroker);
+        InterfaceMetaUtils.removeLportTagInterfaceMap(t, idManager, dataBroker, interfaceState.getName(), interfaceState.getIfIndex());
+
         t.delete(LogicalDatastoreType.OPERATIONAL, ifStateId);
 
         // For Vlan-Trunk Interface, remove the trunk-member operstates as well...

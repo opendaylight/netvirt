@@ -38,9 +38,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IfmUtil {
-
+    private static final Logger LOG = LoggerFactory.getLogger(IfmUtil.class);
+    private static final int INVALID_ID = 0;
     public static String getDpnFromNodeConnectorId(NodeConnectorId portId) {
         /*
          * NodeConnectorId is of form 'openflow:dpnid:portnum'
@@ -154,6 +158,37 @@ public class IfmUtil {
         return new BigInteger[] { metadata, metadataMask };
     }
 
+    public static Integer allocateId(IdManagerService idManager, String poolName, String idKey) {
+        AllocateIdInput getIdInput = new AllocateIdInputBuilder()
+                .setPoolName(poolName)
+                .setIdKey(idKey).build();
+        try {
+            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
+            RpcResult<AllocateIdOutput> rpcResult = result.get();
+            if(rpcResult.isSuccessful()) {
+                return rpcResult.getResult().getIdValue().intValue();
+            } else {
+                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when getting Unique Id",e);
+        }
+        return INVALID_ID;
+    }
 
-
+    public static void releaseId(IdManagerService idManager, String poolName, String idKey) {
+        ReleaseIdInput idInput = new ReleaseIdInputBuilder()
+                .setPoolName(poolName)
+                .setIdKey(idKey).build();
+        try {
+            Future<RpcResult<Void>> result = idManager.releaseId(idInput);
+            RpcResult<Void> rpcResult = result.get();
+            if(!rpcResult.isSuccessful()) {
+                LOG.warn("RPC Call to release Id {} with Key {} returned with Errors {}",
+                        idKey, rpcResult.getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when releasing Id for key {}", idKey, e);
+        }
+    }
 }

@@ -64,7 +64,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
     private final DataBroker broker;
     private IMdsalApiManager mdsalManager;
     private IInterfaceManager interfaceManager;
-    private IdManager idManager;
+    private IdManagerService idManager;
     private static final short LPORT_INGRESS_TABLE = 0;
     private static final short LFIB_TABLE = 20;
     private static final short FIB_TABLE = 21;
@@ -103,7 +103,7 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
         this.mdsalManager = mdsalManager;
     }
 
-    public void setIdManager(IdManager idManager) {
+    public void setIdManager(IdManagerService idManager) {
         this.idManager = idManager;
     }
 
