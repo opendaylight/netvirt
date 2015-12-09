@@ -160,6 +160,13 @@ module odl-interface {
         ext:augment-identifier "if-tunnel";
         when "if:type = 'ianaift:tunnel'";
 
+        leaf internal {
+            type boolean;
+            default "false";
+            description
+              "represents whether this is an internal or external tunnel.";
+        }
+        
         leaf tunnel-interface-type {
             type identityref {
                 base tunnel-type-base;
