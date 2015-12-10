@@ -12,18 +12,18 @@ module odl-l3vpn {
     grouping adjacency-list{
         list adjacency{
             key "ip_address";
-            leaf nextHopId { type uint32;}
+            leaf nextHopIp { type string; }
             leaf ip_address {type string;}
-            leaf label {type uint32;} /* optional */
+            leaf label { type uint32; config "false"; } /* optional */
             leaf mac_address {type string;} /* optional */
         }
     }
-	
-	grouping vpn-route-list{
-		leaf-list route-entry-id{
-			type uint32;
-		}
-	}
+
+    grouping vpn-route-list{
+        leaf-list route-entry-id{
+            type uint32;
+        }
+    }
 
     augment "/l3vpn:vpn-interfaces/l3vpn:vpn-interface" {
         ext:augment-identifier "adjacencies";
@@ -32,7 +32,75 @@ module odl-l3vpn {
 
     augment "/l3vpn:vpn-instances/l3vpn:vpn-instance" {
         leaf vpn-id { type uint32;}
-		uses vpn-route-list;
+        uses vpn-route-list;
+    }
+
+    /* Operational DS containers for reverse lookups*/
+    container prefix-to-interface {
+        config false;
+        list vpn-ids {
+           key vpn-id;
+           leaf vpn-id {type uint32;}
+           list prefixes {
+              key ip_address;
+              leaf ip_address {type string;}
+              leaf dpnId {
+                 type uint64;
+              }
+              leaf vpn-interface-name {
+                  type string;
+              }
+           }
+        }
+    }
+
+    /* Data models to adhere to restart requirements */
+    container vpn-instance-to-vpn-id {
+       list vpn-instance {
+          key vpn-instance-name;
+          leaf vpn-instance-name {
+             type string;
+          }
+          leaf vpn-id {
+             type uint32;
+          }
+          leaf vrf-id {
+              description
+                 "The vrf-id command configures a route distinguisher (RD)
+                  for the IPv4 or IPv6 address family of a VPN instance or
+                  vpn instance name for internal vpn case.";
+              type string;
+          }
+       }
+    }
+
+    container vpn-instance-op-data {
+        config false;
+        list vpn-instance-op-data-entry {
+           key vrf-id;
+           leaf vpn-id { type uint32;}
+           leaf vrf-id {
+              description
+                 "The vrf-id command configures a route distinguisher (RD)
+                  for the IPv4 or IPv6 address family of a VPN instance or
+                  vpn instance name for internal vpn case.";
+              type string;
+           }
+
+           uses vpn-route-list;
+           list vpn-to-dpn-list {
+               key dpnId;
+               leaf dpnId {
+                  type uint64;
+               }
+               list vpn-interfaces {
+                  key interface-name;
+                  leaf interface-name {
+                      type string;
+                  }
+               }
+           }
+        }
     }
 
 }
