@@ -1,0 +1,11 @@
+module dhcpservice-api {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:dhcpservice:api";
+    prefix "dhcpservice-api";
+
+    revision "2015-07-10" {
+        description
+            "Initial revision for DHCP Service module";
+    }
+
+}
