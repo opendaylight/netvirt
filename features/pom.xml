@@ -29,6 +29,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <vpnservices.version>0.2.0-SNAPSHOT</vpnservices.version>
     <ovsdb.version>1.2.1-SNAPSHOT</ovsdb.version>
     <liblldp.version>0.10.0-SNAPSHOT</liblldp.version>
+    <neutron.version>0.6.0-SNAPSHOT</neutron.version>
     <arputil.version>${vpnservices.version}</arputil.version>
     <mdsalutil.version>${vpnservices.version}</mdsalutil.version>
     <vpnmanager.version>${vpnservices.version}</vpnmanager.version>
@@ -106,6 +107,19 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <version>${restconf.version}</version>
       <type>xml</type>
       <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.neutron</groupId>
+      <artifactId>features-neutron</artifactId>
+      <classifier>features</classifier>
+      <version>${neutron.version}</version>
+      <type>xml</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.neutron</groupId>
+      <artifactId>dummyprovider</artifactId>
+      <version>${neutron.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -320,6 +334,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
       <version>0.9.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+      <version>${commons.net.version}</version>
     </dependency>
   </dependencies>
 </project>

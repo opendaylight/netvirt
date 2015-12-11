@@ -7,8 +7,10 @@
  */
 package org.opendaylight.vpnservice.dhcpservice;
 
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import java.math.BigInteger;
 
+import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
@@ -24,15 +26,22 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
     private DhcpPktHandler dhcpPktHandler;
     private Registration packetListener = null;
     private NotificationProviderService notificationService;
+    private DhcpManager dhcpManager;
+    private NodeListener dhcpNodeListener;
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
         LOG.info("DhcpProvider Session Initiated");
         try {
-            final  DataBroker dataBroker = session.getSALService(DataBroker.class);
-            dhcpPktHandler = new DhcpPktHandler(dataBroker);
+            final DataBroker dataBroker = session.getSALService(DataBroker.class);
+            final PacketProcessingService pktProcessingService = session.getRpcService(PacketProcessingService.class);
+            dhcpManager = new DhcpManager(dataBroker);
+            dhcpManager.setMdsalManager(mdsalManager);
+            dhcpPktHandler = new DhcpPktHandler(dataBroker, dhcpManager);
+            dhcpPktHandler.setPacketProcessingService(pktProcessingService);
             packetListener = notificationService.registerNotificationListener(dhcpPktHandler);
-            } catch (Exception e) {
+            dhcpNodeListener = new NodeListener(dataBroker, dhcpManager);
+        } catch (Exception e) {
             LOG.error("Error initializing services", e);
         }
     }
@@ -49,6 +58,9 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
         }
         if(dhcpPktHandler != null) {
             dhcpPktHandler.close();
+        }
+        if(dhcpNodeListener != null) {
+            dhcpNodeListener.close();
         }
         LOG.info("DhcpProvider closed");
     }

@@ -16,14 +16,17 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.openflowplugin/features-openflowplugin/${openflowplugin.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.netconf/features-restconf/${restconf.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.ovsdb/features-ovsdb/${ovsdb.version}/xml/features</repository>
+  <repository>mvn:org.opendaylight.neutron/features-neutron/${neutron.version}/xml/features</repository>
   <feature name='odl-vpnservice-api' version='${project.version}' description='OpenDaylight :: vpnservice :: api '>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
     <feature version='${openflowplugin.version}'>odl-openflowplugin-nsf-model</feature>
     <bundle>mvn:org.opendaylight.controller/liblldp/${liblldp.version}</bundle>
+    <bundle>mvn:org.opendaylight.neutron/model/${neutron.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/model-bgp/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/lockmanager-api/${lockmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/idmanager-api/${idmanager.version}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/mdsalutil-api/${vpnservices.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/arputil-api/${arputil.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/alivenessmonitor-api/${vpnservices.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-api/${vpnmanager.version}</bundle>
@@ -38,14 +41,15 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version='${project.version}'>odl-vpnservice-api</feature>
     <feature version="${openflowplugin.version}">odl-openflowplugin-southbound</feature>
     <feature version="${openflowplugin.version}">odl-openflowplugin-flow-services</feature>
+    <bundle>mvn:commons-net/commons-net/${commons.net.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/lockmanager-impl/${lockmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/idmanager-impl/${idmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/bgpmanager-api/${vpnservices.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/bgpmanager-impl/${vpnservices.version}</bundle>
-    <bundle>mvn:org.opendaylight.vpnservice/mdsalutil-api/${interfacemgr.version}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/mdsalutil-api/${vpnservices.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/arputil-impl/${arputil.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/alivenessmonitor-impl/${vpnservices.version}</bundle>
-    <bundle>mvn:org.opendaylight.vpnservice/mdsalutil-impl/${interfacemgr.version}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/mdsalutil-impl/${vpnservices.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-api/${interfacemgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-impl/${interfacemgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-impl/${vpnmanager.version}</bundle>
@@ -61,7 +65,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <configfile finalname="idmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/idmanager-impl/${idmanager.version}/xml/config</configfile>
     <configfile finalname="idmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/idmanager-impl/${idmanager.version}/xml/config</configfile>
     <configfile finalname="bgpmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/bgpmanager-impl/${vpnservices.version}/xml/config</configfile>
-    <configfile finalname="mdsalutil-impl-default-config.xml">mvn:org.opendaylight.vpnservice/mdsalutil-impl/${interfacemgr.version}/xml/config</configfile>
+    <configfile finalname="mdsalutil-impl-default-config.xml">mvn:org.opendaylight.vpnservice/mdsalutil-impl/${vpnservices.version}/xml/config</configfile>
     <configfile finalname="interfacemgr-impl-default-config.xml">mvn:org.opendaylight.vpnservice/interfacemgr-impl/${interfacemgr.version}/xml/config</configfile>
     <configfile finalname="arputil-impl-default-config.xml">mvn:org.opendaylight.vpnservice/arputil-impl/${arputil.version}/xml/config</configfile>
     <configfile finalname="alivenessmonitor-impl-default-config.xml">mvn:org.opendaylight.vpnservice/alivenessmonitor-impl/${vpnservices.version}/xml/config</configfile>
@@ -81,6 +85,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version="${mdsal.version}">odl-mdsal-xsql</feature>
   </feature>
   <feature name='odl-vpnservice-core' version='${project.version}' description='OpenDaylight :: vpnservice :: core'>
+    <feature version="${neutron.version}">odl-neutron-service</feature>
+    <bundle>mvn:org.opendaylight.neutron/dummyprovider/${neutron.version}</bundle>
     <feature version="${project.version}">odl-vpnservice-impl-ui</feature>
   </feature>
   <feature name='odl-vpnservice-openstack' version='${project.version}' description='OpenDaylight :: vpnservice :: impl :: REST '>
