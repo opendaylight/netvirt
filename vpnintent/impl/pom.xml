@@ -18,7 +18,17 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <artifactId>vpnintent-impl</artifactId>
   <version>${vpnservices.version}</version>
   <packaging>bundle</packaging>
+
+  <properties>
+    <nic.version>1.2.0-SNAPSHOT</nic.version>
+  </properties>
+
   <dependencies>
+    <dependency>
+      <groupId>org.opendaylight.vpnservice</groupId>
+      <artifactId>mdsalutil-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnintent-api</artifactId>
@@ -35,6 +45,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opendaylight.nic</groupId>
+      <artifactId>intent-mapping-interface</artifactId>
+      <version>${nic.version}</version>
     </dependency>
   </dependencies>
 
