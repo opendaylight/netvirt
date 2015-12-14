@@ -26,8 +26,10 @@ import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsInterfaceConfigAddHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsInterfaceConfigRemoveHelper;
+import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsInterfaceConfigUpdateHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeGre;
@@ -90,6 +92,7 @@ public class TunnelInterfaceConfigurationTest {
 
     OvsInterfaceConfigAddHelper addHelper;
     OvsInterfaceConfigRemoveHelper removeHelper;
+    OvsInterfaceConfigUpdateHelper updateHelper;
 
     @Before
     public void setUp() throws Exception {
@@ -201,5 +204,24 @@ public class TunnelInterfaceConfigurationTest {
         //Add some verifications
         verify(mockWriteTx).delete(LogicalDatastoreType.CONFIGURATION, bridgeEntryIid);
         verify(mockWriteTx).delete(LogicalDatastoreType.CONFIGURATION, terminationPointInstanceIdentifier);
+    }
+
+
+    @Test
+    public void testUpdateAdminStateForGreInterface() {
+        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface>
+                expectedStateInterface = Optional.of(stateInterface);
+        doReturn(Futures.immediateCheckedFuture(expectedStateInterface)).when(mockReadTx).read(
+                LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
+
+        updateHelper.updateConfiguration(dataBroker,idManager,tunnelInterfaceDisabled,tunnelInterfaceEnabled);
+
+        //verify whether operational data store is updated with the new oper state.
+        InterfaceBuilder ifaceBuilder = new InterfaceBuilder();
+        ifaceBuilder.setOperStatus(OperStatus.Down);
+        ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(stateInterface.getName()));
+
+        verify(mockWriteTx).merge(LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier,
+                ifaceBuilder.build());
     }
 }
