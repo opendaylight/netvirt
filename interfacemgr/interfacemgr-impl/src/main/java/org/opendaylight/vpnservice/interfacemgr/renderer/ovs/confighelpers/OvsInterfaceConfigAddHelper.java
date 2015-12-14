@@ -68,14 +68,14 @@ public class OvsInterfaceConfigAddHelper {
 
     private static void addVlanConfiguration(Interface interfaceNew, DataBroker dataBroker, IdManagerService idManager,
                                              List<ListenableFuture<Void>> futures) {
-        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
+        WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceNew.getName(), dataBroker);
 
         if (ifState == null) {
             return;
         }
-        updateStateEntry(interfaceNew, ifState.getIfIndex(), t, ifState);
+        updateStateEntry(interfaceNew, transaction, ifState);
 
         IfL2vlan ifL2vlan = interfaceNew.getAugmentation(IfL2vlan.class);
         if (ifL2vlan == null || ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
@@ -117,16 +117,16 @@ public class OvsInterfaceConfigAddHelper {
             InterfaceBuilder childIfaceBuilder = new InterfaceBuilder().setAdminStatus(adminStatus)
                     .setOperStatus(operStatus).setPhysAddress(physAddress).setLowerLayerIf(childLowerLayerIfList);
             childIfaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(ifaceChild.getName()));
-            t.put(LogicalDatastoreType.OPERATIONAL, ifChildStateId, childIfaceBuilder.build(), true);
+            transaction.put(LogicalDatastoreType.OPERATIONAL, ifChildStateId, childIfaceBuilder.build(), true);
         }
-        futures.add(t.submit());
+        futures.add(transaction.submit());
     }
 
     private static void addTunnelConfiguration(DataBroker dataBroker, ParentRefs parentRefs,
                                               Interface interfaceNew, IdManagerService idManager,
                                               List<ListenableFuture<Void>> futures) {
         LOG.debug("adding tunnel configuration for {}", interfaceNew.getName());
-        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
+        WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
         if (parentRefs == null) {
             LOG.warn("ParentRefs for interface: {} Not Found. " +
                     "Creation of Tunnel OF-Port not supported when dpid not provided.", interfaceNew.getName());
@@ -147,8 +147,8 @@ public class OvsInterfaceConfigAddHelper {
 
         LOG.debug("creating bridge interfaceEntry in ConfigDS {}", bridgeEntryKey);
         InterfaceMetaUtils.createBridgeInterfaceEntryInConfigDS(bridgeEntryKey, bridgeInterfaceEntryKey,
-                    interfaceNew.getName(), t);
-        futures.add(t.submit());
+                    interfaceNew.getName(), transaction);
+        futures.add(transaction.submit());
 
         // create bridge on switch, if switch is connected
         BridgeRefEntryKey BridgeRefEntryKey = new BridgeRefEntryKey(dpId);
@@ -171,16 +171,15 @@ public class OvsInterfaceConfigAddHelper {
         }
     }
 
-    private static void updateStateEntry(Interface interfaceNew, Integer ifIndex, WriteTransaction t,
+    private static void updateStateEntry(Interface interfaceNew, WriteTransaction transaction,
                                          org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
                 IfmUtil.buildStateInterfaceId(interfaceNew.getName());
         InterfaceBuilder ifaceBuilder = new InterfaceBuilder();
         if (!interfaceNew.isEnabled() && ifState.getOperStatus() != OperStatus.Down) {
             ifaceBuilder.setOperStatus(OperStatus.Down);
+            ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(interfaceNew.getName()));
+            transaction.merge(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build());
         }
-        ifaceBuilder.setIfIndex(ifIndex);
-        ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(interfaceNew.getName()));
-        t.merge(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build());
     }
 }
