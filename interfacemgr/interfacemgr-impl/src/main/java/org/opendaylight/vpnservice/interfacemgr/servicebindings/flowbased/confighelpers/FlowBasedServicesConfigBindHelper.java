@@ -40,7 +40,7 @@ public class FlowBasedServicesConfigBindHelper {
     public static List<ListenableFuture<Void>> bindService(InstanceIdentifier<BoundServices> instanceIdentifier,
                                                            BoundServices boundServiceNew, DataBroker dataBroker) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        WriteTransaction t = null;
+        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
         String interfaceName =
                 InstanceIdentifier.keyOf(instanceIdentifier.firstIdentifierOf(ServicesInfo.class)).getInterfaceName();
 

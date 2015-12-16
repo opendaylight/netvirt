@@ -40,7 +40,7 @@ public class FlowBasedServicesConfigUnbindHelper {
     public static List<ListenableFuture<Void>> unbindService(InstanceIdentifier<BoundServices> instanceIdentifier,
                                                              BoundServices boundServiceOld, DataBroker dataBroker) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        WriteTransaction t = null;
+        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
 
         String interfaceName =
                 InstanceIdentifier.keyOf(instanceIdentifier.firstIdentifierOf(ServicesInfo.class)).getInterfaceName();
