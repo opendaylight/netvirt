@@ -142,4 +142,35 @@ module odl-interface-rpc {
                 }
             }
         }
+
+    rpc create-terminating-service-actions {
+    description "create the ingress terminating service table entries";
+        input {
+             leaf dpid {
+                 type uint64;
+             }
+             leaf tunnel-key {
+                 type uint64;
+             }
+             leaf interface-name {
+                 type string;
+             }
+             uses offlow:instruction-list;
+        }
+    }
+
+    rpc remove-terminating-service-actions {
+    description "remove the ingress terminating service table entries";
+        input {
+             leaf dpid {
+                 type uint64;
+             }
+             leaf interface-name {
+                 type string;
+             }
+             leaf tunnel-key {
+                 type uint64;
+             }
+        }
+    }
 }

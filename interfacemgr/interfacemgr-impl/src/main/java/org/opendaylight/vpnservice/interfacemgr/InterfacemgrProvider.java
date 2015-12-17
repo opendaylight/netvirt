@@ -23,6 +23,7 @@ import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.listen
 import org.opendaylight.vpnservice.interfacemgr.listeners.VlanMemberConfigListener;
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
@@ -44,7 +45,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
 
     private RpcProviderRegistry rpcProviderRegistry;
     private IdManagerService idManager;
-
+    private IMdsalApiManager mdsalManager;
     private InterfaceConfigListener interfaceConfigListener;
     private InterfaceTopologyStateListener topologyStateListener;
     private InterfaceInventoryStateListener interfaceInventoryStateListener;
@@ -59,6 +60,10 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
         this.rpcProviderRegistry = rpcProviderRegistry;
     }
 
+    public void setMdsalManager(IMdsalApiManager mdsalManager) {
+        this.mdsalManager = mdsalManager;
+    }
+
     @Override
     public void onSessionInitiated(ProviderContext session) {
         LOG.info("InterfacemgrProvider Session Initiated");
@@ -67,7 +72,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
             idManager = rpcProviderRegistry.getRpcService(IdManagerService.class);
             createIdPool();
 
-            interfaceManagerRpcService = new InterfaceManagerRpcService(dataBroker);
+            interfaceManagerRpcService = new InterfaceManagerRpcService(dataBroker, mdsalManager);
             rpcRegistration = getRpcProviderRegistry().addRpcImplementation(
                     OdlInterfaceRpcService.class, interfaceManagerRpcService);
 

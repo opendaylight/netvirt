@@ -9,45 +9,41 @@
 package org.opendaylight.vpnservice.interfacemgr.rpcservice;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
-import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
-import org.opendaylight.vpnservice.mdsalutil.ActionType;
-import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
-import org.opendaylight.vpnservice.mdsalutil.InstructionType;
+import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
+import org.opendaylight.vpnservice.mdsalutil.*;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.IfIndexesInterfaceMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.InterfaceChildInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.bridge.entry.BridgeInterfaceEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.*;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
@@ -62,8 +58,10 @@ import java.util.concurrent.Future;
 public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceManagerRpcService.class);
     DataBroker dataBroker;
-    public InterfaceManagerRpcService(DataBroker dataBroker) {
+    IMdsalApiManager mdsalMgr;
+    public InterfaceManagerRpcService(DataBroker dataBroker, IMdsalApiManager mdsalMgr) {
         this.dataBroker = dataBroker;
+        this.mdsalMgr = mdsalMgr;
     }
 
     @Override
@@ -93,6 +91,108 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
             rpcResultBuilder = RpcResultBuilder.failed();
         }
         return Futures.immediateFuture(rpcResultBuilder.build());
+    }
+
+    @Override
+    public Future<RpcResult<Void>> createTerminatingServiceActions(CreateTerminatingServiceActionsInput input) {
+        final SettableFuture<RpcResult<Void>> result = SettableFuture.create();
+        try{
+            List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+            WriteTransaction t = dataBroker.newWriteOnlyTransaction();
+            LOG.info("create terminatingServiceAction on DpnId = {} for tunnel-key {}", input.getDpid() , input.getTunnelKey());
+
+            // Matching metadata
+            mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {input.getTunnelKey()}));
+            List<Instruction> instructions = input.getInstruction();
+            Interface interfaceInfo = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(new InterfaceKey(input.getInterfaceName()),dataBroker);
+            IfTunnel tunnelInfo = interfaceInfo.getAugmentation(IfTunnel.class);
+            if(tunnelInfo != null) {
+                short tableId = tunnelInfo.isInternal() ? IfmConstants.INTERNAL_TUNNEL_TABLE :
+                        IfmConstants.EXTERNAL_TUNNEL_TABLE;
+                List<Instruction> instructionSet = new ArrayList<Instruction>();
+                if (instructions != null && !instructions.isEmpty()) {
+                    for (Instruction info : instructions) {
+                        instructionSet.add(info);
+                    }
+                }
+                final String flowRef = getFlowRef(input.getDpid(),tableId, input.getTunnelKey());
+                Flow terminatingSerFlow = MDSALUtil.buildFlowNew(tableId, flowRef,
+                        5, "TST Flow Entry", 0, 0,
+                        IfmConstants.TUNNEL_TABLE_COOKIE.add(input.getTunnelKey()), mkMatches, instructionSet);
+
+                ListenableFuture<Void> installFlowResult = mdsalMgr.installFlow(input.getDpid(), terminatingSerFlow);
+                Futures.addCallback(installFlowResult, new FutureCallback<Void>(){
+
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        result.set(RpcResultBuilder.<Void>success().build());
+                    }
+
+                    @Override
+                    public void onFailure(Throwable error) {
+                        String msg = String.format("Unable to install terminating service flow %s", flowRef);
+                        LOG.error("create terminating service actions failed. {}. {}", msg, error);
+                        result.set(RpcResultBuilder.<Void>failed().withError(RpcError.ErrorType.APPLICATION, msg, error).build());
+                    }
+                });
+                result.set(RpcResultBuilder.<Void>success().build());
+            } else {
+                String msg = String.format("Terminating Service Actions cannot be created for a non-tunnel interface %s",input.getInterfaceName());
+                LOG.error(msg);
+                result.set(RpcResultBuilder.<Void>failed().withError(RpcError.ErrorType.APPLICATION, msg).build());
+            }
+        }catch(Exception e){
+            String msg = String.format("create Terminating Service Actions for %s failed",input.getInterfaceName());
+            LOG.error("create Terminating Service Actions for {} failed due to {}" ,input.getDpid(), e);
+            result.set(RpcResultBuilder.<Void>failed().withError(RpcError.ErrorType.APPLICATION, msg, e.getMessage()).build());
+        }
+        return result;
+    }
+
+    @Override
+    public Future<RpcResult<Void>> removeTerminatingServiceActions(RemoveTerminatingServiceActionsInput input) {
+        final SettableFuture<RpcResult<Void>> result = SettableFuture.create();
+        try{
+            WriteTransaction t = dataBroker.newWriteOnlyTransaction();
+            LOG.info("remove terminatingServiceAction on DpnId = {} for tunnel-key {}", input.getDpid() , input.getTunnelKey());
+
+            Interface interfaceInfo = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(new InterfaceKey(input.getInterfaceName()),dataBroker);
+            IfTunnel tunnelInfo = interfaceInfo.getAugmentation(IfTunnel.class);
+            if(tunnelInfo != null) {
+                short tableId = tunnelInfo.isInternal() ? IfmConstants.INTERNAL_TUNNEL_TABLE :
+                        IfmConstants.EXTERNAL_TUNNEL_TABLE;
+                final String flowRef = getFlowRef(input.getDpid(),tableId, input.getTunnelKey());
+                FlowEntity flowEntity = MDSALUtil.buildFlowEntity(input.getDpid(), tableId, flowRef,
+                        0, flowRef, 0, 0,
+                        null, null, null);
+                ListenableFuture<Void> removeFlowResult = mdsalMgr.removeFlow(input.getDpid(), flowEntity);
+                Futures.addCallback(removeFlowResult, new FutureCallback<Void>(){
+
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        result.set(RpcResultBuilder.<Void>success().build());
+                    }
+
+                    @Override
+                    public void onFailure(Throwable error) {
+                        String msg = String.format("Unable to install terminating service flow %s", flowRef);
+                        LOG.error("create terminating service actions failed. {}. {}", msg, error);
+                        result.set(RpcResultBuilder.<Void>failed().withError(RpcError.ErrorType.APPLICATION, msg, error).build());
+                    }
+                });
+                result.set(RpcResultBuilder.<Void>success().build());
+            } else {
+                String msg = String.format("Terminating Service Actions cannot be removed for a non-tunnel interface %s",
+                        input.getInterfaceName());
+                LOG.error(msg);
+                result.set(RpcResultBuilder.<Void>failed().withError(RpcError.ErrorType.APPLICATION, msg).build());
+            }
+        }catch(Exception e){
+            LOG.error("Remove Terminating Service Actions for {} failed due to {}" ,input.getDpid(), e);
+            String msg = String.format("Remove Terminating Service Actions for %d failed.", input.getDpid());
+            result.set(RpcResultBuilder.<Void>failed().withError(RpcError.ErrorType.APPLICATION, msg, e.getMessage()).build());
+        }
+        return result;
     }
 
     @Override
@@ -288,4 +388,8 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
         return null;
     }
 
+    private String getFlowRef(BigInteger dpnId, short tableId, BigInteger tunnelKey) {
+        return new StringBuffer().append(IfmConstants.TUNNEL_TABLE_FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
+                .append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(tunnelKey).toString();
+    }
 }

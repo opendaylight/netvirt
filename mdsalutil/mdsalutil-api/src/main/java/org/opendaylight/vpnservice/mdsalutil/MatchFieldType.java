@@ -553,7 +553,11 @@ public enum MatchFieldType {
             }
 
             BigInteger[] tunnelIdValues = matchInfo.getBigMatchValues();
-            tunnelBuilder.setTunnelId(tunnelIdValues[0]).setTunnelMask(tunnelIdValues[1]).build();
+            tunnelBuilder.setTunnelId(tunnelIdValues[0]);
+            if(tunnelIdValues.length > 1){
+                tunnelBuilder.setTunnelMask(tunnelIdValues[1]);
+            }
+            tunnelBuilder.build();
         }
 
         @Override

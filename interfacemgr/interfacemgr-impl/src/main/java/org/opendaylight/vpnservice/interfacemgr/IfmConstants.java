@@ -8,6 +8,8 @@
 
 package org.opendaylight.vpnservice.interfacemgr;
 
+import java.math.BigInteger;
+
 public class IfmConstants {
     public static final String IFM_IDPOOL_NAME = "interfaces";
     public static final long IFM_ID_POOL_START = 1L;
@@ -18,5 +20,8 @@ public class IfmConstants {
     public static final int DEFAULT_IFINDEX = 65536;
     public static final String IFM_LPORT_TAG_IDPOOL_NAME = "vlaninterfaces.lporttag";
     public static final short VLAN_INTERFACE_INGRESS_TABLE = 0;
-
+    public static final short INTERNAL_TUNNEL_TABLE = 22;
+    public static final short EXTERNAL_TUNNEL_TABLE = 23;
+    public static final String TUNNEL_TABLE_FLOWID_PREFIX = "TUNNEL.";
+    public static final BigInteger TUNNEL_TABLE_COOKIE = new BigInteger("9000000", 16);
 }
