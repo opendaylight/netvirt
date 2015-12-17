@@ -35,6 +35,8 @@ public class Ethernet extends Packet {
     static {
         etherTypeClassMap = new HashMap<Short, Class<? extends Packet>>();
         etherTypeClassMap.put(EtherTypes.ARP.shortValue(), ARP.class);
+        etherTypeClassMap.put(EtherTypes.LLDP.shortValue(), LLDP.class);
+        etherTypeClassMap.put(EtherTypes.IPv4.shortValue(), IPv4.class);
         // TODO: Add support for more classes here
         // etherTypeClassMap.put(EtherTypes.VLANTAGGED.shortValue(), IEEE8021Q.class);
         // etherTypeClassMap.put(EtherTypes.OLDQINQ.shortValue(), IEEE8021Q.class);
@@ -64,6 +66,7 @@ public class Ethernet extends Packet {
     /**
      * Constructor that sets the access level for the packet and
      * creates and sets the HashMap
+     * @param writeAccess boolean
      */
     public Ethernet(boolean writeAccess) {
         super(writeAccess);

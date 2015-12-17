@@ -67,10 +67,6 @@ public class ARP extends Packet {
         hdrFieldsMap = fieldValues;
     }
 
-    /**
-     * Constructor that sets the access level for the packet and
-     * creates and sets the HashMap
-     */
     public ARP(boolean writeAccess) {
         super(writeAccess);
         fieldValues = new HashMap<String, byte[]>();
