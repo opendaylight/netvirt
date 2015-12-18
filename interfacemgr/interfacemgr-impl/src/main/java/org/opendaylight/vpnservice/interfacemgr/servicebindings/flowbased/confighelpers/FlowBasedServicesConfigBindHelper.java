@@ -77,7 +77,10 @@ public class FlowBasedServicesConfigBindHelper {
             int vlanId = 0;
             List<MatchInfo> matches = null;
             if (iface.getType().isAssignableFrom(L2vlan.class)) {
-                vlanId = iface.getAugmentation(IfL2vlan.class).getVlanId().getValue();
+                IfL2vlan l2vlan = iface.getAugmentation(IfL2vlan.class);
+                if( l2vlan != null){
+                    vlanId = l2vlan.getVlanId().getValue();
+                }
                 matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, vlanId);
             } else if (iface.getType().isAssignableFrom(Tunnel.class)){
                 matches = FlowBasedServicesUtils.getMatchInfoForTunnelPortAtIngressTable (dpId, portNo, iface);
