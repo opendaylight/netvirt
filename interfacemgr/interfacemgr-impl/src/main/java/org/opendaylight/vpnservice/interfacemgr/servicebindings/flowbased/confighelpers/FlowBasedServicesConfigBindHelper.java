@@ -47,11 +47,12 @@ public class FlowBasedServicesConfigBindHelper {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceName, dataBroker);
         if (ifState == null || ifState.getOperStatus() == OperStatus.Down) {
-            LOG.info("Not Binding Service since for Interface: {}", interfaceName);
+            LOG.warn("Interface not up, not Binding Service for Interface: {}", interfaceName);
             return futures;
         }
 
         // Get the Parent ServiceInfo
+
         ServicesInfo servicesInfo = FlowBasedServicesUtils.getServicesInfoForInterface(interfaceName, dataBroker);
         if (servicesInfo == null) {
             LOG.error("Reached Impossible part 1 in the code during bind service for: {}", boundServiceNew);
@@ -87,7 +88,7 @@ public class FlowBasedServicesConfigBindHelper {
             }
 
             if (matches != null) {
-                FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, vlanId, boundServiceNew,
+                FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface.getName(), vlanId, boundServiceNew,
                         dataBroker, t, matches, lportTag.intValue(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
             }
 
@@ -133,7 +134,7 @@ public class FlowBasedServicesConfigBindHelper {
 
             if (matches != null) {
                 FlowBasedServicesUtils.removeIngressFlow(iface, serviceToReplace, dpId, dataBroker, t);
-                FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, vlanId, boundServiceNew, dataBroker, t,
+                FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface.getName(), vlanId, boundServiceNew, dataBroker, t,
                         matches, lportTag.intValue(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
             }
         }

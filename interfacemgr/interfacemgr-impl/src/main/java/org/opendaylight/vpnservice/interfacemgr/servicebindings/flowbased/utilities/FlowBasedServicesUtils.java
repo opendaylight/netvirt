@@ -14,10 +14,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
-import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
-import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
-import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
-import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
+import org.opendaylight.vpnservice.mdsalutil.*;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -116,7 +113,7 @@ public class FlowBasedServicesUtils {
         return 0L;
     }
 
-    public static void installInterfaceIngressFlow(BigInteger dpId, int vlanId,
+    public static void installInterfaceIngressFlow(BigInteger dpId, String interfaceName, int vlanId,
                                                    BoundServices boundServiceNew,
                                                    DataBroker dataBroker, WriteTransaction t,
                                                    List<MatchInfo> matches, int lportTag, short tableId) {
@@ -153,8 +150,9 @@ public class FlowBasedServicesUtils {
         }
 
         String serviceRef = boundServiceNew.getServiceName();
+        String flowRef = getFlowRef(dpId, interfaceName, boundServiceNew);
         StypeOpenflow stypeOpenflow = boundServiceNew.getAugmentation(StypeOpenflow.class);
-        Flow ingressFlow = MDSALUtil.buildFlowNew(tableId, serviceRef,
+        Flow ingressFlow = MDSALUtil.buildFlowNew(tableId, flowRef,
                 stypeOpenflow.getFlowPriority(), serviceRef, 0, 0,
                 stypeOpenflow.getFlowCookie(), matches, instructionSet);
         installFlow(dpId, ingressFlow, dataBroker, t);
@@ -208,7 +206,8 @@ public class FlowBasedServicesUtils {
         }
 
         // build the flow and install it
-        Flow ingressFlow = MDSALUtil.buildFlowNew(stypeOpenFlow.getDispatcherTableId(), serviceRef,
+        String flowRef = getFlowRef(dpId, iface.getName(), boundService);
+        Flow ingressFlow = MDSALUtil.buildFlowNew(stypeOpenFlow.getDispatcherTableId(), flowRef,
                 boundService.getServicePriority(), serviceRef, 0, 0, stypeOpenFlow.getFlowCookie(), matches, instructions);
         installFlow(dpId, ingressFlow, dataBroker, t);
     }
@@ -216,8 +215,7 @@ public class FlowBasedServicesUtils {
     public static void removeIngressFlow(Interface iface, BoundServices serviceOld, BigInteger dpId,
                                          DataBroker dataBroker, WriteTransaction t) {
         LOG.debug("Removing Ingress Flows");
-        String flowKeyStr = iface.getName() + serviceOld.getServicePriority() +
-                serviceOld.getServiceName() + IfmConstants.VLAN_INTERFACE_INGRESS_TABLE;
+        String flowKeyStr = getFlowRef(dpId, iface.getName(), serviceOld);
         FlowKey flowKey = new FlowKey(new FlowId(flowKeyStr));
         Node nodeDpn = buildInventoryDpnNode(dpId);
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
@@ -244,12 +242,9 @@ public class FlowBasedServicesUtils {
         t.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
     }
 
-    public static String getInterfaceRefInfo(String dpId, String portName) {
-        String portRefInfo = "";
-        if (!"".equals(dpId)) {
-            portRefInfo = dpId.toString() + ":";
-        }
-        portRefInfo = portRefInfo + portName;
-        return portRefInfo;
+    private static String getFlowRef(BigInteger dpnId, String iface, BoundServices service) {
+        return new StringBuffer().append(dpnId).append(IfmConstants.VLAN_INTERFACE_INGRESS_TABLE).append(NwConstants.FLOWID_SEPARATOR)
+                .append(iface).append(NwConstants.FLOWID_SEPARATOR).append(service.getServiceName()).append(NwConstants.FLOWID_SEPARATOR)
+                .append(service.getServicePriority()).toString();
     }
 }
