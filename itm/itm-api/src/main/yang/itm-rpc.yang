@@ -1,0 +1,61 @@
+module itm-rpc {
+    namespace "urn:opendaylight:params:xml:ns:yang:itm:rpcs";
+    prefix "itmrpcs";
+
+    import ietf-inet-types {
+        prefix inet;
+        revision-date "2010-09-24";
+    }
+
+    import ietf-yang-types {
+              prefix yang;
+      }
+
+    import ietf-interfaces {
+        prefix if; revision-date 2014-05-08;
+    }
+
+    revision "2015-12-17" {
+        description "ODL Specific Itm Manager Rpcs Module";
+    }
+
+    /* RPCs */
+
+    rpc get-tunnel-interface-id {
+        description "used to retrieve tunnel interface id between Dpns";
+        input {
+            leaf source-dpid {
+            type uint64;
+            }
+            leaf destination-dpid {
+            type uint64;
+            }
+        }
+        output {
+            leaf interfaceid {
+                type uint16;
+            }
+        }
+    }
+
+    rpc build-tunnel-from-dpn-to-dcgateway {
+        description "used for building tunnels between a Dpn and DC Gateway";
+        input {
+            leaf dpid {
+            type uint64;
+            }
+            leaf dcgwyid {
+            type inet:ip-address;
+            }
+        }
+     }
+
+     rpc build-tunnel-to-dcgateway {
+        description "used for building tunnels between teps on all Dpns and DC Gateway";
+        input {
+            leaf dcgwyid {
+            type inet:ip-address;
+            }
+        }
+     }
+}

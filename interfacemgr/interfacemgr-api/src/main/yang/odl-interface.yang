@@ -17,6 +17,7 @@ module odl-interface {
 
     import ietf-inet-types {
         prefix inet;
+        revision-date "2010-09-24";
     }
 
     import opendaylight-inventory {
