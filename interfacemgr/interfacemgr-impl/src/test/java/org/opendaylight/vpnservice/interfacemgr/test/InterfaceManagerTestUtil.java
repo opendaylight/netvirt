@@ -28,6 +28,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.WriteMetadataCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.write.metadata._case.WriteMetadata;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -47,6 +50,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdPools;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPoolKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntryKey;
@@ -96,6 +102,13 @@ public class InterfaceManagerTestUtil {
                 .build();
     }
 
+    public static InstanceIdentifier<FlowCapableNodeConnector> getFlowCapableNodeConnectorIdentifier(String nodeKey, NodeConnectorId ncId) {
+        return InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId(nodeKey)))
+                .child(NodeConnector.class, new NodeConnectorKey(ncId)).augmentation(FlowCapableNodeConnector.class)
+                .build();
+    }
+
     public static Interface buildInterface(String ifName, String desc, boolean enabled, Object ifType,
                                            BigInteger dpn) {
         InterfaceBuilder builder = new InterfaceBuilder().setKey(new InterfaceKey(ifName)).setName(ifName)
@@ -127,11 +140,24 @@ public class InterfaceManagerTestUtil {
         builder.addAugmentation(IfTunnel.class, tunnel);
         return builder.build();
     }
+    public static IfIndexInterface buildIfIndexInterface(int ifindex, String interfaceName) {
+        IfIndexInterfaceBuilder builder = new IfIndexInterfaceBuilder().setKey(new IfIndexInterfaceKey(ifindex)).setIfIndex(ifindex).setInterfaceName(interfaceName);
+        return builder.build();
+    }
 
     public static NodeConnector buildNodeConnector(NodeConnectorId ncId) {
         NodeConnectorBuilder ncBuilder = new NodeConnectorBuilder()
                 .setId(ncId)
                 .setKey(new NodeConnectorKey(ncId));
+        return ncBuilder.build();
+    }
+
+    public static NodeConnector buildFlowCapableNodeConnector(NodeConnectorId ncId) {
+        NodeConnectorBuilder ncBuilder = new NodeConnectorBuilder()
+                .setId(ncId)
+                .setKey(new NodeConnectorKey(ncId));
+        FlowCapableNodeConnectorBuilder flowCapableNodeConnectorBuilder = new FlowCapableNodeConnectorBuilder().setHardwareAddress(MacAddress.getDefaultInstance("AA:AA:AA:AA:AA:AA"));
+        ncBuilder.addAugmentation(FlowCapableNodeConnector.class,flowCapableNodeConnectorBuilder.build());
         return ncBuilder.build();
     }
 

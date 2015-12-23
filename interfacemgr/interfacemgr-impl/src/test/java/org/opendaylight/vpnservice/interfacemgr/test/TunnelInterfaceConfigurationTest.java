@@ -21,7 +21,6 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.idmanager.IdManager;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsInterfaceConfigAddHelper;
@@ -215,6 +214,27 @@ public class TunnelInterfaceConfigurationTest {
                 LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
 
         updateHelper.updateConfiguration(dataBroker,idManager,tunnelInterfaceDisabled,tunnelInterfaceEnabled);
+
+        //verify whether operational data store is updated with the new oper state.
+        InterfaceBuilder ifaceBuilder = new InterfaceBuilder();
+        ifaceBuilder.setOperStatus(OperStatus.Down);
+        ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(stateInterface.getName()));
+
+        verify(mockWriteTx).merge(LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier,
+                ifaceBuilder.build());
+    }
+    @Test
+    public void testEnableAdminStateForGreInterface() {
+        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface>
+                expectedStateInterface = Optional.of(stateInterface);
+        Optional<NodeConnector>expectedNodeConnector = Optional.of(nodeConnector);
+
+        doReturn(Futures.immediateCheckedFuture(expectedNodeConnector)).when(mockReadTx).read(
+                LogicalDatastoreType.OPERATIONAL, nodeConnectorInstanceIdentifier);
+        doReturn(Futures.immediateCheckedFuture(expectedStateInterface)).when(mockReadTx).read(
+                LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
+
+        updateHelper.updateConfiguration(dataBroker,idManager,tunnelInterfaceEnabled,tunnelInterfaceDisabled);
 
         //verify whether operational data store is updated with the new oper state.
         InterfaceBuilder ifaceBuilder = new InterfaceBuilder();
