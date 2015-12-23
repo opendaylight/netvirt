@@ -63,8 +63,11 @@ public class FlowBasedServicesUtils {
     public static NodeConnectorId getNodeConnectorIdFromInterface(Interface iface, DataBroker dataBroker) {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(iface.getName(), dataBroker);
-        List<String> ofportIds = ifState.getLowerLayerIf();
-        return new NodeConnectorId(ofportIds.get(0));
+        if(ifState != null) {
+            List<String> ofportIds = ifState.getLowerLayerIf();
+            return new NodeConnectorId(ofportIds.get(0));
+        }
+        return null;
     }
 
     public static List<MatchInfo> getMatchInfoForVlanPortAtIngressTable(BigInteger dpId, long portNo, long vlanId) {
@@ -155,10 +158,10 @@ public class FlowBasedServicesUtils {
         Flow ingressFlow = MDSALUtil.buildFlowNew(tableId, flowRef,
                 stypeOpenflow.getFlowPriority(), serviceRef, 0, 0,
                 stypeOpenflow.getFlowCookie(), matches, instructionSet);
-        installFlow(dpId, ingressFlow, dataBroker, t);
+        installFlow(dpId, ingressFlow, t);
     }
 
-    private static void installFlow(BigInteger dpId, Flow flow, DataBroker dataBroker, WriteTransaction t) {
+    public static void installFlow(BigInteger dpId, Flow flow, WriteTransaction t) {
         FlowKey flowKey = new FlowKey(new FlowId(flow.getId()));
         Node nodeDpn = buildInventoryDpnNode(dpId);
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
@@ -166,6 +169,17 @@ public class FlowBasedServicesUtils {
                 .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class,flowKey).build();
 
         t.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow, true);
+    }
+
+    public static void removeFlow(String flowRef, BigInteger dpId, WriteTransaction t) {
+        LOG.debug("Removing Ingress Flows");
+        FlowKey flowKey = new FlowKey(new FlowId(flowRef));
+        Node nodeDpn = buildInventoryDpnNode(dpId);
+        InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                .child(Table.class, new TableKey(IfmConstants.VLAN_INTERFACE_INGRESS_TABLE)).child(Flow.class, flowKey).build();
+
+        t.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
     }
 
     private static Node buildInventoryDpnNode(BigInteger dpnId) {
@@ -209,7 +223,7 @@ public class FlowBasedServicesUtils {
         String flowRef = getFlowRef(dpId, iface.getName(), boundService);
         Flow ingressFlow = MDSALUtil.buildFlowNew(stypeOpenFlow.getDispatcherTableId(), flowRef,
                 boundService.getServicePriority(), serviceRef, 0, 0, stypeOpenFlow.getFlowCookie(), matches, instructions);
-        installFlow(dpId, ingressFlow, dataBroker, t);
+        installFlow(dpId, ingressFlow, t);
     }
 
     public static void removeIngressFlow(Interface iface, BoundServices serviceOld, BigInteger dpId,

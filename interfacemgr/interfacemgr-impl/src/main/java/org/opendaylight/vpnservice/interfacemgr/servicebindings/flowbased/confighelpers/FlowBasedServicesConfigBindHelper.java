@@ -72,7 +72,6 @@ public class FlowBasedServicesConfigBindHelper {
         long portNo = Long.parseLong(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
         BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
 
-        Long lportTag = FlowBasedServicesUtils.getLPortTag(iface, dataBroker);
         if (allServices.size() == 1) {
             // If only one service present, install instructions in table 0.
             int vlanId = 0;
@@ -89,7 +88,7 @@ public class FlowBasedServicesConfigBindHelper {
 
             if (matches != null) {
                 FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface.getName(), vlanId, boundServiceNew,
-                        dataBroker, t, matches, lportTag.intValue(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
+                        dataBroker, t, matches, ifState.getIfIndex(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
             }
 
             if (t != null) {
@@ -118,11 +117,11 @@ public class FlowBasedServicesConfigBindHelper {
 
         if (!isCurrentServiceHighestPriority) {
             FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, boundServiceNew, iface, dataBroker,  t,
-                    lportTag.intValue());
+                    ifState.getIfIndex());
         } else {
             BoundServices serviceToReplace = tmpServicesMap.get(highestPriority);
             FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, serviceToReplace, iface, dataBroker, t,
-                    lportTag.intValue());
+                    ifState.getIfIndex());
             int vlanId = 0;
             List<MatchInfo> matches = null;
             if (iface.getType().isAssignableFrom(L2vlan.class)) {
@@ -135,7 +134,7 @@ public class FlowBasedServicesConfigBindHelper {
             if (matches != null) {
                 FlowBasedServicesUtils.removeIngressFlow(iface, serviceToReplace, dpId, dataBroker, t);
                 FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface.getName(), vlanId, boundServiceNew, dataBroker, t,
-                        matches, lportTag.intValue(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
+                        matches, ifState.getIfIndex(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
             }
         }
 

@@ -554,7 +554,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
 
     protected void makeTunnelIngressFlow(BigInteger dpnId, String ifName, int addOrRemoveFlow) {
-        long portNo = 0;
+       /* long portNo = 0;
         String flowName = ifName;
         String flowRef = getTunnelInterfaceFlowRef(dpnId, VpnConstants.LPORT_INGRESS_TABLE, ifName);
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
@@ -574,7 +574,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             mdsalManager.installFlow(flowEntity);
         } else {
             mdsalManager.removeFlow(flowEntity);
-        }
+        }*/
     }
 
     private class InterfaceListener extends AbstractDataChangeListener<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface>  {

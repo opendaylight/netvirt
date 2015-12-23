@@ -64,7 +64,7 @@ public class FlowBasedServicesConfigUnbindHelper {
         NodeConnectorId nodeConnectorId = FlowBasedServicesUtils.getNodeConnectorIdFromInterface(iface, dataBroker);
         long portNo = Long.parseLong(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
         BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
-        Long lportTag = FlowBasedServicesUtils.getLPortTag(iface, dataBroker);
+
         int vlanId = 0;
         if (iface.getType().isAssignableFrom(L2vlan.class)) {
             IfL2vlan l2vlan = iface.getAugmentation(IfL2vlan.class);
@@ -109,7 +109,7 @@ public class FlowBasedServicesConfigUnbindHelper {
         BoundServices toBeMoved = tmpServicesMap.get(highestPriority);
         FlowBasedServicesUtils.removeIngressFlow(iface, boundServiceOld, dpId, dataBroker, t);
         FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface.getName(), vlanId, toBeMoved, dataBroker, t,
-                matches, lportTag.intValue(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
+                matches, ifState.getIfIndex(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
         FlowBasedServicesUtils.removeLPortDispatcherFlow(dpId, iface, toBeMoved, dataBroker, t);
 
         if (t != null) {

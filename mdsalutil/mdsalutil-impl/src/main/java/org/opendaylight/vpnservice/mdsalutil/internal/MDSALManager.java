@@ -134,7 +134,6 @@ public class MDSALManager implements AutoCloseable {
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
                 .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class,flowKey).build();
-
         WriteTransaction modification = m_dataBroker.newWriteOnlyTransaction();
         modification.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow, true);
         return modification.submit();
@@ -222,14 +221,14 @@ public class MDSALManager implements AutoCloseable {
         }
     }
 
-    public CheckedFuture<Void,TransactionCommitFailedException> removeFlowNew(FlowEntity flowEntity) {
+    public CheckedFuture<Void,TransactionCommitFailedException> removeFlowNew(BigInteger dpnId, Flow flowEntity) {
         s_logger.debug("Remove flow {}",flowEntity);
-        Node nodeDpn = buildDpnNode(flowEntity.getDpnId());
-        FlowKey flowKey = new FlowKey(new FlowId(flowEntity.getFlowId()));
+        Node nodeDpn = buildDpnNode(dpnId);
+        FlowKey flowKey = new FlowKey(new FlowId(flowEntity.getId()));
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
                     .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
                     .child(Table.class, new TableKey(flowEntity.getTableId())).child(Flow.class, flowKey).build();
-        WriteTransaction modification = m_dataBroker.newWriteOnlyTransaction();
+        WriteTransaction  modification = m_dataBroker.newWriteOnlyTransaction();
         modification.delete(LogicalDatastoreType.CONFIGURATION,flowInstanceId );
         return modification.submit();
     }

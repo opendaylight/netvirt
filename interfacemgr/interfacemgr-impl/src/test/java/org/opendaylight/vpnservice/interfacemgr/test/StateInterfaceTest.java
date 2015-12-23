@@ -26,6 +26,8 @@ import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInterfaceStateAddHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInterfaceStateRemoveHelper;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -36,7 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.IfIndexesInterfaceMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeGre;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -58,10 +59,9 @@ public class StateInterfaceTest {
     NodeConnectorId nodeConnectorId = null;
     NodeConnector nodeConnector = null;
     FlowCapableNodeConnector fcNodeConnectorNew = null;
-    Interface interfaceEnabled = null;
-    Interface interfaceDisabled = null;
+    Interface vlanInterfaceEnabled = null;
+    Interface vlanInterfaceDisabled = null;
     IfIndexInterface IfindexInterface = null;
-    InstanceIdentifier<BridgeEntry> bridgeEntryIid = null;
     InstanceIdentifier<Interface> interfaceInstanceIdentifier = null;
     InstanceIdentifier<FlowCapableNodeConnector> fcNodeConnectorId = null;
     InstanceIdentifier<IfIndexInterface> ifIndexId =null;
@@ -70,6 +70,7 @@ public class StateInterfaceTest {
 
     @Mock DataBroker dataBroker;
     @Mock IdManagerService idManager;
+    @Mock IMdsalApiManager mdsalManager;
     @Mock ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
     @Mock ReadOnlyTransaction mockReadTx;
     @Mock WriteTransaction mockWriteTx;
@@ -97,10 +98,8 @@ public class StateInterfaceTest {
         ifIndexId = InstanceIdentifier.builder(IfIndexesInterfaceMap.class).child(IfIndexInterface.class, new IfIndexInterfaceKey(100)).build();
         interfaceInstanceIdentifier = InterfaceManagerCommonUtils.getInterfaceIdentifier(new InterfaceKey(InterfaceManagerTestUtil.interfaceName));
         interfaceStateIdentifier = IfmUtil.buildStateInterfaceId(InterfaceManagerTestUtil.interfaceName);
-        interfaceEnabled = InterfaceManagerTestUtil.buildTunnelInterface(dpId, InterfaceManagerTestUtil.interfaceName, "Test Interface1", true, TunnelTypeGre.class
-                , "192.168.56.101", "192.168.56.102");
-        interfaceDisabled = InterfaceManagerTestUtil.buildTunnelInterface(dpId, InterfaceManagerTestUtil.interfaceName, "Test Interface1", false, TunnelTypeGre.class
-                , "192.168.56.101", "192.168.56.102");
+        vlanInterfaceEnabled = InterfaceManagerTestUtil.buildInterface(InterfaceManagerTestUtil.interfaceName, "Test Vlan Interface1", true, L2vlan.class, BigInteger.valueOf(1));
+        vlanInterfaceDisabled = InterfaceManagerTestUtil.buildInterface(InterfaceManagerTestUtil.interfaceName, "Test Vlan Interface1", false, L2vlan.class, BigInteger.valueOf(1));
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder ifaceBuilder = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder();
         List<String> lowerLayerIfList = new ArrayList<>();
         lowerLayerIfList.add(nodeConnectorId.getValue());
@@ -116,7 +115,7 @@ public class StateInterfaceTest {
 
     @Test
     public void testAddStateInterface() {
-        Optional<Interface> expectedInterface = Optional.of(interfaceEnabled);
+        Optional<Interface> expectedInterface = Optional.of(vlanInterfaceEnabled);
         AllocateIdOutput expectedId = new AllocateIdOutputBuilder().setIdValue(Long.valueOf("100")).build();
 
         Future<RpcResult<AllocateIdOutput>> idOutputOptional = RpcResultBuilder.success(expectedId).buildFuture();
@@ -128,7 +127,7 @@ public class StateInterfaceTest {
                 .setIdKey(InterfaceManagerTestUtil.interfaceName).build();
         doReturn(idOutputOptional).when(idManager).allocateId(getIdInput);
 
-        addHelper.addState(dataBroker, idManager, nodeConnectorId, InterfaceManagerTestUtil.interfaceName, fcNodeConnectorNew);
+        addHelper.addState(dataBroker, idManager, mdsalManager, nodeConnectorId, InterfaceManagerTestUtil.interfaceName, fcNodeConnectorNew);
 
         //Add some verifications
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier,
@@ -152,7 +151,7 @@ public class StateInterfaceTest {
 
         doReturn(Futures.immediateFuture(RpcResultBuilder.<Void>success().build())).when(idManager).releaseId(getIdInput);
 
-        removeHelper.removeState(idManager, fcNodeConnectorId, dataBroker, InterfaceManagerTestUtil.interfaceName, fcNodeConnectorNew);
+        removeHelper.removeState(idManager, mdsalManager, fcNodeConnectorId, dataBroker, InterfaceManagerTestUtil.interfaceName, fcNodeConnectorNew);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, ifIndexId);

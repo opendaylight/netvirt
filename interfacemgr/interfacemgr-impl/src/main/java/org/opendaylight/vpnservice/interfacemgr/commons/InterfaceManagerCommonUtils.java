@@ -9,11 +9,16 @@
 package org.opendaylight.vpnservice.interfacemgr.commons;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.idmanager.IdManager;
+import org.opendaylight.vpnservice.VpnConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
+import org.opendaylight.vpnservice.mdsalutil.*;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -24,12 +29,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeMplsOverGre;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -49,44 +58,6 @@ public class InterfaceManagerCommonUtils {
         }
         return nodeConnectorOptional.get();
     }
-
-    /*public static void addInterfaceEntryToInventoryOperDS(NodeConnectorId nodeConnectorId, long lporttag, String interfaceName,
-                                                          DataBroker dataBroker, WriteTransaction t) {
-        NodeId nodeId = IfmUtil.getNodeIdFromNodeConnectorId(nodeConnectorId);
-        TunnelInterfaceInventoryInfoKey tunnelInterfaceInventoryInfoKey = new TunnelInterfaceInventoryInfoKey(lporttag);
-        InstanceIdentifier<TunnelInterfaceInventoryInfo> inventoryIdentifier = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(nodeId))
-                .augmentation(TunnelInterfaceNames.class)
-                .child(TunnelInterfaceInventoryInfo.class, tunnelInterfaceInventoryInfoKey).build();
-        TunnelInterfaceInventoryInfoBuilder builder = new TunnelInterfaceInventoryInfoBuilder().setKey(tunnelInterfaceInventoryInfoKey)
-                .setTunIntfName(interfaceName);
-        t.put(LogicalDatastoreType.OPERATIONAL, inventoryIdentifier, builder.build(), true);
-    }
-
-    public static void removeInterfaceEntryFromInventoryOperDS(NodeConnectorId nodeConnectorId, long lporttag,
-                                                               String interfaceName, DataBroker dataBroker,
-                                                               WriteTransaction t) {
-        NodeId nodeId = IfmUtil.getNodeIdFromNodeConnectorId(nodeConnectorId);
-        TunnelInterfaceInventoryInfoKey tunnelInterfaceInventoryInfoKey = new TunnelInterfaceInventoryInfoKey(lporttag);
-        InstanceIdentifier<TunnelInterfaceInventoryInfo> inventoryIdentifier = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(nodeId))
-                .augmentation(TunnelInterfaceNames.class)
-                .child(TunnelInterfaceInventoryInfo.class, tunnelInterfaceInventoryInfoKey).build();
-        t.delete(LogicalDatastoreType.OPERATIONAL, inventoryIdentifier);
-    }
-
-    public static void removeInterfaceEntryFromInventoryOperDS(NodeConnectorId nodeConnectorId, long lporttag,
-                                                               DataBroker dataBroker) {
-        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
-        NodeId nodeId = IfmUtil.getNodeIdFromNodeConnectorId(nodeConnectorId);
-        TunnelInterfaceInventoryInfoKey tunnelInterfaceInventoryInfoKey = new TunnelInterfaceInventoryInfoKey(lporttag);
-        InstanceIdentifier<TunnelInterfaceInventoryInfo> inventoryIdentifier = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(nodeId))
-                .augmentation(TunnelInterfaceNames.class)
-                .child(TunnelInterfaceInventoryInfo.class, tunnelInterfaceInventoryInfoKey).build();
-        t.delete(LogicalDatastoreType.OPERATIONAL, inventoryIdentifier);
-        t.submit(); // This is a Best-Effort Deletion. If Node is already removed, this may fail.
-    } */
 
     public static InstanceIdentifier<Interface> getInterfaceIdentifier(InterfaceKey interfaceKey) {
         InstanceIdentifier.InstanceIdentifierBuilder<Interface> interfaceInstanceIdentifierBuilder =
@@ -115,22 +86,28 @@ public class InterfaceManagerCommonUtils {
 
         return ifStateOptional.get();
     }
+    public static void makeTunnelIngressFlow(List<ListenableFuture<Void>> futures, IMdsalApiManager mdsalApiManager,
+                                             IfTunnel tunnel, BigInteger dpnId, long portNo, Interface iface, int addOrRemoveFlow) {
+        String flowRef = InterfaceManagerCommonUtils.getTunnelInterfaceFlowRef(dpnId, VpnConstants.LPORT_INGRESS_TABLE, iface.getName());
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+        if (NwConstants.ADD_FLOW == addOrRemoveFlow) {
+            matches.add(new MatchInfo(MatchFieldType.in_port, new BigInteger[] {
+                    dpnId, BigInteger.valueOf(portNo) }));
+            short tableId = tunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeMplsOverGre.class) ? IfmConstants.LFIB_TABLE :
+                    tunnel.isInternal() ? IfmConstants.INTERNAL_TUNNEL_TABLE : IfmConstants.EXTERNAL_TUNNEL_TABLE;
+            mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {tableId}));}
 
-    public static String getJobKey(String dpId, String portName) {
-        String jobKey = "";
-        if (dpId != null && !"".equals(dpId)) {
-            jobKey = dpId.toString() + ":";
+        BigInteger COOKIE_VM_INGRESS_TABLE = new BigInteger("8000001", 16);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, IfmConstants.VLAN_INTERFACE_INGRESS_TABLE, flowRef,
+                IfmConstants.DEFAULT_FLOW_PRIORITY, iface.getName(), 0, 0, COOKIE_VM_INGRESS_TABLE, matches, mkInstructions);
+        if (NwConstants.ADD_FLOW == addOrRemoveFlow) {
+            futures.add(mdsalApiManager.installFlow(dpnId, flowEntity));
+        } else {
+            futures.add(mdsalApiManager.removeFlow(dpnId, flowEntity));
         }
-        jobKey = jobKey + portName;
-        return jobKey;
     }
-
-    public static String getJobKey(BigInteger dpId, String portName) {
-        String jobKey = "";
-        if (dpId != null && dpId.longValue() != 0) {
-            jobKey = dpId.toString() + ":";
-        }
-        jobKey = jobKey + portName;
-        return jobKey;
+    public static String getTunnelInterfaceFlowRef(BigInteger dpnId, short tableId, String ifName) {
+        return new StringBuilder().append(dpnId).append(tableId).append(ifName).toString();
     }
 }

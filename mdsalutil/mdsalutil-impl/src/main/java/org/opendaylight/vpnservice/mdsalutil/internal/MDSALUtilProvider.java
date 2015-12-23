@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.google.common.util.concurrent.CheckedFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareConsumer;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ConsumerContext;
@@ -65,8 +66,18 @@ public class MDSALUtilProvider implements BindingAwareConsumer, IMdsalApiManager
     }
 
     @Override
+    public CheckedFuture<Void, TransactionCommitFailedException> installFlow(BigInteger dpId, FlowEntity flowEntity) {
+        return mdSalMgr.installFlow(dpId, flowEntity.getFlowBuilder().build());
+    }
+
+    @Override
+    public CheckedFuture<Void, TransactionCommitFailedException> removeFlow(BigInteger dpId, Flow flowEntity) {
+        return mdSalMgr.removeFlowNew(dpId, flowEntity);
+    }
+
+    @Override
     public CheckedFuture<Void, TransactionCommitFailedException> removeFlow(BigInteger dpId, FlowEntity flowEntity) {
-        return mdSalMgr.removeFlowNew(flowEntity);
+        return mdSalMgr.removeFlowNew(dpId, flowEntity.getFlowBuilder().build());
     }
 
     @Override

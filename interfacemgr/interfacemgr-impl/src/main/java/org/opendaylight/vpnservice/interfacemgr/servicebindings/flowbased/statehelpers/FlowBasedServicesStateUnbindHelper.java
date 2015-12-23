@@ -57,9 +57,10 @@ public class FlowBasedServicesStateUnbindHelper {
                 InterfaceManagerCommonUtils.getInterfaceFromConfigDS(interfaceKey, dataBroker);
 
         NodeConnectorId nodeConnectorId = FlowBasedServicesUtils.getNodeConnectorIdFromInterface(iface, dataBroker);
+        if(nodeConnectorId == null){
+            return futures;
+        }
         BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
-        Long lportTag = FlowBasedServicesUtils.getLPortTag(iface, dataBroker);
-
         FlowBasedServicesUtils.removeIngressFlow(iface, highestPriorityBoundService, dpId,
                 dataBroker, t);
 

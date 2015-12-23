@@ -41,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeMplsOverGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.*;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcError;
@@ -94,33 +95,16 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
     }
 
     @Override
-    public Future<RpcResult<Void>> createTerminatingServiceActions(CreateTerminatingServiceActionsInput input) {
+    public Future<RpcResult<Void>> createTerminatingServiceActions(final CreateTerminatingServiceActionsInput input) {
         final SettableFuture<RpcResult<Void>> result = SettableFuture.create();
         try{
-            List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
-            WriteTransaction t = dataBroker.newWriteOnlyTransaction();
             LOG.info("create terminatingServiceAction on DpnId = {} for tunnel-key {}", input.getDpid() , input.getTunnelKey());
-
-            // Matching metadata
-            mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {input.getTunnelKey()}));
-            List<Instruction> instructions = input.getInstruction();
             Interface interfaceInfo = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(new InterfaceKey(input.getInterfaceName()),dataBroker);
             IfTunnel tunnelInfo = interfaceInfo.getAugmentation(IfTunnel.class);
             if(tunnelInfo != null) {
-                short tableId = tunnelInfo.isInternal() ? IfmConstants.INTERNAL_TUNNEL_TABLE :
-                        IfmConstants.EXTERNAL_TUNNEL_TABLE;
-                List<Instruction> instructionSet = new ArrayList<Instruction>();
-                if (instructions != null && !instructions.isEmpty()) {
-                    for (Instruction info : instructions) {
-                        instructionSet.add(info);
-                    }
-                }
-                final String flowRef = getFlowRef(input.getDpid(),tableId, input.getTunnelKey());
-                Flow terminatingSerFlow = MDSALUtil.buildFlowNew(tableId, flowRef,
-                        5, "TST Flow Entry", 0, 0,
-                        IfmConstants.TUNNEL_TABLE_COOKIE.add(input.getTunnelKey()), mkMatches, instructionSet);
-
-                ListenableFuture<Void> installFlowResult = mdsalMgr.installFlow(input.getDpid(), terminatingSerFlow);
+                ListenableFuture<Void> installFlowResult = (tunnelInfo.getTunnelInterfaceType().isAssignableFrom(TunnelTypeMplsOverGre.class)) ?
+                        makeLFIBFlow(input.getDpid(),input.getTunnelKey(), input.getInstruction(), NwConstants.ADD_FLOW) :
+                        makeTerminatingServiceFlow(tunnelInfo, input.getDpid(), input.getTunnelKey(), input.getInstruction(), NwConstants.ADD_FLOW);
                 Futures.addCallback(installFlowResult, new FutureCallback<Void>(){
 
                     @Override
@@ -130,7 +114,7 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
 
                     @Override
                     public void onFailure(Throwable error) {
-                        String msg = String.format("Unable to install terminating service flow %s", flowRef);
+                        String msg = String.format("Unable to install terminating service flow for %s", input.getInterfaceName());
                         LOG.error("create terminating service actions failed. {}. {}", msg, error);
                         result.set(RpcResultBuilder.<Void>failed().withError(RpcError.ErrorType.APPLICATION, msg, error).build());
                     }
@@ -150,7 +134,7 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
     }
 
     @Override
-    public Future<RpcResult<Void>> removeTerminatingServiceActions(RemoveTerminatingServiceActionsInput input) {
+    public Future<RpcResult<Void>> removeTerminatingServiceActions(final RemoveTerminatingServiceActionsInput input) {
         final SettableFuture<RpcResult<Void>> result = SettableFuture.create();
         try{
             WriteTransaction t = dataBroker.newWriteOnlyTransaction();
@@ -159,13 +143,9 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
             Interface interfaceInfo = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(new InterfaceKey(input.getInterfaceName()),dataBroker);
             IfTunnel tunnelInfo = interfaceInfo.getAugmentation(IfTunnel.class);
             if(tunnelInfo != null) {
-                short tableId = tunnelInfo.isInternal() ? IfmConstants.INTERNAL_TUNNEL_TABLE :
-                        IfmConstants.EXTERNAL_TUNNEL_TABLE;
-                final String flowRef = getFlowRef(input.getDpid(),tableId, input.getTunnelKey());
-                FlowEntity flowEntity = MDSALUtil.buildFlowEntity(input.getDpid(), tableId, flowRef,
-                        0, flowRef, 0, 0,
-                        null, null, null);
-                ListenableFuture<Void> removeFlowResult = mdsalMgr.removeFlow(input.getDpid(), flowEntity);
+                ListenableFuture<Void> removeFlowResult = (tunnelInfo.getTunnelInterfaceType().isAssignableFrom(TunnelTypeMplsOverGre.class)) ?
+                        makeLFIBFlow(input.getDpid(),input.getTunnelKey(), null, NwConstants.DEL_FLOW) :
+                        makeTerminatingServiceFlow(tunnelInfo, input.getDpid(), input.getTunnelKey(), null, NwConstants.DEL_FLOW);
                 Futures.addCallback(removeFlowResult, new FutureCallback<Void>(){
 
                     @Override
@@ -175,7 +155,7 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
 
                     @Override
                     public void onFailure(Throwable error) {
-                        String msg = String.format("Unable to install terminating service flow %s", flowRef);
+                        String msg = String.format("Unable to install terminating service flow %s", input.getInterfaceName());
                         LOG.error("create terminating service actions failed. {}. {}", msg, error);
                         result.set(RpcResultBuilder.<Void>failed().withError(RpcError.ErrorType.APPLICATION, msg, error).build());
                     }
@@ -386,6 +366,39 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
         }
 
         return null;
+    }
+
+    private ListenableFuture<Void> makeTerminatingServiceFlow(IfTunnel tunnelInfo, BigInteger dpnId, BigInteger tunnelKey, List<Instruction> instruction, int addOrRemove) {
+        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {tunnelKey}));
+        short tableId = tunnelInfo.isInternal() ? IfmConstants.INTERNAL_TUNNEL_TABLE :
+                IfmConstants.EXTERNAL_TUNNEL_TABLE;
+        final String flowRef = getFlowRef(dpnId,tableId, tunnelKey);
+        Flow terminatingSerFlow = MDSALUtil.buildFlowNew(tableId, flowRef,
+                5, "TST Flow Entry", 0, 0,
+                IfmConstants.TUNNEL_TABLE_COOKIE.add(tunnelKey), mkMatches, instruction);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            return mdsalMgr.installFlow(dpnId, terminatingSerFlow);
+        }
+
+        return mdsalMgr.removeFlow(dpnId, terminatingSerFlow);
+    }
+
+    private ListenableFuture<Void> makeLFIBFlow(BigInteger dpnId, BigInteger tunnelKey, List<Instruction> instruction, int addOrRemove) {
+        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        mkMatches.add(new MatchInfo(MatchFieldType.eth_type,
+                new long[]{0x8847L}));
+        mkMatches.add(new MatchInfo(MatchFieldType.mpls_label, new String[]{Long.toString(tunnelKey.longValue())}));
+        // Install the flow entry in L3_LFIB_TABLE
+        String flowRef = getFlowRef(dpnId, IfmConstants.LFIB_TABLE, tunnelKey);
+
+        Flow lfibFlow = MDSALUtil.buildFlowNew(IfmConstants.LFIB_TABLE, flowRef,
+                IfmConstants.DEFAULT_FLOW_PRIORITY, "LFIB Entry", 0, 0,
+                IfmConstants.COOKIE_VM_LFIB_TABLE, mkMatches, instruction);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            return mdsalMgr.installFlow(dpnId, lfibFlow);
+        }
+        return mdsalMgr.removeFlow(dpnId, lfibFlow);
     }
 
     private String getFlowRef(BigInteger dpnId, short tableId, BigInteger tunnelKey) {
