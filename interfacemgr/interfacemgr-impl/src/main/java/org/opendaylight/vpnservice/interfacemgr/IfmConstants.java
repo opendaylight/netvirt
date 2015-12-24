@@ -18,10 +18,13 @@ public class IfmConstants {
     public static final String OF_URI_PREFIX = "openflow:";
     public static final String OF_URI_SEPARATOR = ":";
     public static final int DEFAULT_IFINDEX = 65536;
+    public static final int DEFAULT_FLOW_PRIORITY = 5;
     public static final String IFM_LPORT_TAG_IDPOOL_NAME = "vlaninterfaces.lporttag";
     public static final short VLAN_INTERFACE_INGRESS_TABLE = 0;
     public static final short INTERNAL_TUNNEL_TABLE = 22;
     public static final short EXTERNAL_TUNNEL_TABLE = 23;
+    public static final short LFIB_TABLE = 20;
+    public static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000002", 16);;
     public static final String TUNNEL_TABLE_FLOWID_PREFIX = "TUNNEL.";
     public static final BigInteger TUNNEL_TABLE_COOKIE = new BigInteger("9000000", 16);
 }

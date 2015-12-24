@@ -79,7 +79,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
             interfaceConfigListener = new InterfaceConfigListener(dataBroker, idManager);
             interfaceConfigListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
 
-            interfaceInventoryStateListener = new InterfaceInventoryStateListener(dataBroker, idManager);
+            interfaceInventoryStateListener = new InterfaceInventoryStateListener(dataBroker, idManager, mdsalManager);
             interfaceInventoryStateListener.registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
 
             topologyStateListener = new InterfaceTopologyStateListener(dataBroker);

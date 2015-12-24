@@ -17,6 +17,7 @@ import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInt
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInterfaceStateRemoveHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInterfaceStateRemoveHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInterfaceStateUpdateHelper;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
@@ -42,11 +43,13 @@ public class InterfaceInventoryStateListener extends AsyncDataChangeListenerBase
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceInventoryStateListener.class);
     private DataBroker dataBroker;
     private IdManagerService idManager;
+    private IMdsalApiManager mdsalApiManager;
 
-    public InterfaceInventoryStateListener(final DataBroker dataBroker, final IdManagerService idManager) {
+    public InterfaceInventoryStateListener(final DataBroker dataBroker, final IdManagerService idManager, final IMdsalApiManager mdsalApiManager) {
         super(FlowCapableNodeConnector.class, InterfaceInventoryStateListener.class);
         this.dataBroker = dataBroker;
         this.idManager = idManager;
+        this.mdsalApiManager = mdsalApiManager;
     }
 
     @Override
@@ -121,7 +124,7 @@ public class InterfaceInventoryStateListener extends AsyncDataChangeListenerBase
         public Object call() throws Exception {
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
-             return OvsInterfaceStateAddHelper.addState(dataBroker, idManager, nodeConnectorId,
+             return OvsInterfaceStateAddHelper.addState(dataBroker, idManager, mdsalApiManager, nodeConnectorId,
                      portName, fcNodeConnectorNew);
         }
 
@@ -191,7 +194,7 @@ public class InterfaceInventoryStateListener extends AsyncDataChangeListenerBase
         public Object call() throws Exception {
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
-            return OvsInterfaceStateRemoveHelper.removeState(idManager, key, dataBroker, portName, fcNodeConnectorOld);
+            return OvsInterfaceStateRemoveHelper.removeState(idManager, mdsalApiManager, key, dataBroker, portName, fcNodeConnectorOld);
         }
 
         @Override

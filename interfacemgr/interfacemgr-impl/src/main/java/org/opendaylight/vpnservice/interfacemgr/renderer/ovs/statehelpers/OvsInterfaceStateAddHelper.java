@@ -12,25 +12,34 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.idmanager.IdManager;
+import org.opendaylight.vpnservice.VpnConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
+import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
+import org.opendaylight.vpnservice.mdsalutil.*;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,11 +54,11 @@ import java.util.List;
 public class OvsInterfaceStateAddHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsInterfaceStateAddHelper.class);
 
-    public static List<ListenableFuture<Void>> addState(DataBroker dataBroker, IdManagerService idManager, NodeConnectorId nodeConnectorId,
-                                                        String portName, FlowCapableNodeConnector fcNodeConnectorNew) {
+    public static List<ListenableFuture<Void>> addState(DataBroker dataBroker, IdManagerService idManager, IMdsalApiManager mdsalApiManager,
+                                                        NodeConnectorId nodeConnectorId, String portName, FlowCapableNodeConnector fcNodeConnectorNew) {
         LOG.debug("Adding Interface State to Oper DS for port: {}", portName);
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
+        WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
 
         //Retrieve PbyAddress & OperState from the DataObject
         PhysAddress physAddress = new PhysAddress(fcNodeConnectorNew.getHardwareAddress().getValue());
@@ -77,12 +86,22 @@ public class OvsInterfaceStateAddHelper {
         InterfaceBuilder ifaceBuilder = new InterfaceBuilder().setOperStatus(operStatus)
                 .setAdminStatus(adminStatus).setPhysAddress(physAddress).setIfIndex(ifIndex).setLowerLayerIf(lowerLayerIfList)
                 .setKey(IfmUtil.getStateInterfaceKeyFromName(portName));
-        t.put(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build(), true);
+        transaction.put(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build(), true);
 
         // allocate lport tag and set in if-index
-        InterfaceMetaUtils.createLportTagInterfaceMap(t, portName, ifIndex);
+        InterfaceMetaUtils.createLportTagInterfaceMap(transaction, portName, ifIndex);
         if (iface == null) {
-            futures.add(t.submit());
+            futures.add(transaction.submit());
+            return futures;
+        }
+
+        // If this interface is a tunnel interface, create the tunnel ingress flow
+        IfTunnel tunnel = iface.getAugmentation(IfTunnel.class);
+        if(tunnel != null){
+            BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
+            long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
+            InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager, tunnel,dpId, portNo, iface,
+                    NwConstants.ADD_FLOW);
             return futures;
         }
 
@@ -90,7 +109,7 @@ public class OvsInterfaceStateAddHelper {
         // should also be created here.
         IfL2vlan ifL2vlan = iface.getAugmentation(IfL2vlan.class);
         if (ifL2vlan == null || ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
-            futures.add(t.submit());
+            futures.add(transaction.submit());
             return futures;
         }
 
@@ -98,13 +117,13 @@ public class OvsInterfaceStateAddHelper {
         InterfaceParentEntry interfaceParentEntry =
                 InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryKey, dataBroker);
         if (interfaceParentEntry == null) {
-            futures.add(t.submit());
+            futures.add(transaction.submit());
             return futures;
         }
 
         List<InterfaceChildEntry> interfaceChildEntries = interfaceParentEntry.getInterfaceChildEntry();
         if (interfaceChildEntries == null) {
-            futures.add(t.submit());
+            futures.add(transaction.submit());
             return futures;
         }
 
@@ -130,7 +149,7 @@ public class OvsInterfaceStateAddHelper {
             InterfaceBuilder childIfaceBuilder = new InterfaceBuilder().setAdminStatus(adminStatus).setOperStatus(operStatus)
                     .setPhysAddress(physAddress).setLowerLayerIf(childLowerLayerIfList);
             childIfaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(ifaceChild.getName()));
-            t.put(LogicalDatastoreType.OPERATIONAL, ifChildStateId, childIfaceBuilder.build(), true);
+            transaction.put(LogicalDatastoreType.OPERATIONAL, ifChildStateId, childIfaceBuilder.build(), true);
         }
 
         /** Below code will be needed if we want to update the vlan-trunks on the of-port
@@ -156,7 +175,7 @@ public class OvsInterfaceStateAddHelper {
         VlanTrunkSouthboundUtils.addTerminationPointWithTrunks(bridgeIid, trunks, iface.getName(), t);
          */
 
-        futures.add(t.submit());
+        futures.add(transaction.submit());
         return futures;
     }
 }
