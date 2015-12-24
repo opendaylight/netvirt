@@ -14,6 +14,7 @@ module itm-state {
 
       import ietf-inet-types {
           prefix inet;
+          revision-date "2010-09-24";
       }
 
       description "This YANG module defines operation part of the model.";

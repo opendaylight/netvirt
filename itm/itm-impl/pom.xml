@@ -30,11 +30,6 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.vpnservice</groupId>
-      <artifactId>interfacemgr-impl</artifactId>
-      <version>${vpnservices.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>mdsalutil-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
@@ -58,16 +53,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.vpnservice</groupId>
-      <artifactId>interfacemgr-api</artifactId>
-      <version>${vpnservices.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.vpnservice</groupId>
-      <artifactId>mdsalutil-api</artifactId>
-      <version>${vpnservices.version}</version>
-  </dependency>
-   <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>18.0</version>
