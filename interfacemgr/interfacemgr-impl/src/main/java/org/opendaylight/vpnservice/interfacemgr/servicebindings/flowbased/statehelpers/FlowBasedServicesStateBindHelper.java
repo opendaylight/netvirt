@@ -64,21 +64,16 @@ public class FlowBasedServicesStateBindHelper {
         NodeConnectorId nodeConnectorId = FlowBasedServicesUtils.getNodeConnectorIdFromInterface(iface, dataBroker);
         long portNo = Long.parseLong(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
         BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
-        int vlanId = 0;
         List<MatchInfo> matches = null;
         if (iface.getType().isAssignableFrom(L2vlan.class)) {
-            IfL2vlan l2vlan = iface.getAugmentation(IfL2vlan.class);
-            if(l2vlan != null) {
-                vlanId = l2vlan.getVlanId().getValue();
-            }
-            matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, vlanId);
+            matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, iface);
         } else if (iface.getType().isAssignableFrom(Tunnel.class)){
             matches = FlowBasedServicesUtils.getMatchInfoForTunnelPortAtIngressTable (dpId, portNo, iface);
         }
 
         if (matches != null) {
-            FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface.getName(), vlanId, highestPriorityBoundService,
-                    dataBroker, t, matches, ifaceState.getIfIndex(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
+            FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface, highestPriorityBoundService,
+                    t, matches, ifaceState.getIfIndex(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
         }
 
         for (BoundServices boundService : allServices) {

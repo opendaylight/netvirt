@@ -65,13 +65,6 @@ public class FlowBasedServicesConfigUnbindHelper {
         long portNo = Long.parseLong(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
         BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
 
-        int vlanId = 0;
-        if (iface.getType().isAssignableFrom(L2vlan.class)) {
-            IfL2vlan l2vlan = iface.getAugmentation(IfL2vlan.class);
-            if(l2vlan != null) {
-                vlanId = iface.getAugmentation(IfL2vlan.class).getVlanId().getValue();
-            }
-        }
         List<BoundServices> boundServices = servicesInfo.getBoundServices();
         if (boundServices.isEmpty()) {
             // Remove entry from Ingress Table.
@@ -101,14 +94,14 @@ public class FlowBasedServicesConfigUnbindHelper {
 
         List<MatchInfo> matches = null;
         if (iface.getType().isAssignableFrom(L2vlan.class)) {
-            matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, vlanId);
+            matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, iface);
         } else if (iface.getType().isAssignableFrom(Tunnel.class)){
             matches = FlowBasedServicesUtils.getMatchInfoForTunnelPortAtIngressTable (dpId, portNo, iface);
         }
 
         BoundServices toBeMoved = tmpServicesMap.get(highestPriority);
         FlowBasedServicesUtils.removeIngressFlow(iface, boundServiceOld, dpId, t);
-        FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface.getName(), vlanId, toBeMoved, dataBroker, t,
+        FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface, toBeMoved, t,
                 matches, ifState.getIfIndex(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
         FlowBasedServicesUtils.removeLPortDispatcherFlow(dpId, iface, toBeMoved, t);
 

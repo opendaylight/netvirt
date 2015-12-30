@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.serviceb
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.ServicesInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.ServicesInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,9 +71,14 @@ public class FlowBasedServicesUtils {
         return null;
     }
 
-    public static List<MatchInfo> getMatchInfoForVlanPortAtIngressTable(BigInteger dpId, long portNo, long vlanId) {
+    public static List<MatchInfo> getMatchInfoForVlanPortAtIngressTable(BigInteger dpId, long portNo, Interface iface) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.in_port, new BigInteger[] {dpId, BigInteger.valueOf(portNo)}));
+        int vlanId = 0;
+        IfL2vlan l2vlan = iface.getAugmentation(IfL2vlan.class);
+        if(l2vlan != null){
+            vlanId = l2vlan.getVlanId().getValue();
+        }
         if (vlanId > 0) {
             LOG.error("VlanId matching support is not fully available in Be.");
             matches.add(new MatchInfo(MatchFieldType.vlan_vid, new long[]{vlanId}));
@@ -116,14 +122,19 @@ public class FlowBasedServicesUtils {
         return 0L;
     }
 
-    public static void installInterfaceIngressFlow(BigInteger dpId, String interfaceName, int vlanId,
+    public static void installInterfaceIngressFlow(BigInteger dpId, Interface iface,
                                                    BoundServices boundServiceNew,
-                                                   DataBroker dataBroker, WriteTransaction t,
+                                                   WriteTransaction t,
                                                    List<MatchInfo> matches, int lportTag, short tableId) {
         List<Instruction> instructions = boundServiceNew.getAugmentation(StypeOpenflow.class).getInstruction();
 
         int serviceInstructionsSize = instructions.size();
         List<Instruction> instructionSet = new ArrayList<Instruction>();
+        int vlanId = 0;
+        IfL2vlan l2vlan = iface.getAugmentation(IfL2vlan.class);
+        if(l2vlan != null){
+            vlanId = l2vlan.getVlanId().getValue();
+        }
         if (vlanId != 0) {
             // incrementing instructionSize and using it as actionKey. Because it won't clash with any other instructions
             int actionKey = ++serviceInstructionsSize;
@@ -153,7 +164,7 @@ public class FlowBasedServicesUtils {
         }
 
         String serviceRef = boundServiceNew.getServiceName();
-        String flowRef = getFlowRef(dpId, interfaceName, boundServiceNew);
+        String flowRef = getFlowRef(dpId, iface.getName(), boundServiceNew);
         StypeOpenflow stypeOpenflow = boundServiceNew.getAugmentation(StypeOpenflow.class);
         Flow ingressFlow = MDSALUtil.buildFlowNew(tableId, flowRef,
                 stypeOpenflow.getFlowPriority(), serviceRef, 0, 0,

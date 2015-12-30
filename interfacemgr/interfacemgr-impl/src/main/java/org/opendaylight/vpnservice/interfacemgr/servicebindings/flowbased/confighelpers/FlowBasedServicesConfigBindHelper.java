@@ -40,7 +40,7 @@ public class FlowBasedServicesConfigBindHelper {
     public static List<ListenableFuture<Void>> bindService(InstanceIdentifier<BoundServices> instanceIdentifier,
                                                            BoundServices boundServiceNew, DataBroker dataBroker) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
+        WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
         String interfaceName =
                 InstanceIdentifier.keyOf(instanceIdentifier.firstIdentifierOf(ServicesInfo.class)).getInterfaceName();
 
@@ -77,22 +77,18 @@ public class FlowBasedServicesConfigBindHelper {
             int vlanId = 0;
             List<MatchInfo> matches = null;
             if (iface.getType().isAssignableFrom(L2vlan.class)) {
-                IfL2vlan l2vlan = iface.getAugmentation(IfL2vlan.class);
-                if( l2vlan != null){
-                    vlanId = l2vlan.getVlanId().getValue();
-                }
-                matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, vlanId);
+                matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, iface);
             } else if (iface.getType().isAssignableFrom(Tunnel.class)){
                 matches = FlowBasedServicesUtils.getMatchInfoForTunnelPortAtIngressTable (dpId, portNo, iface);
             }
 
             if (matches != null) {
-                FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface.getName(), vlanId, boundServiceNew,
-                        dataBroker, t, matches, ifState.getIfIndex(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
+                FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface, boundServiceNew,
+                        transaction, matches, ifState.getIfIndex(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
             }
 
-            if (t != null) {
-                futures.add(t.submit());
+            if (transaction != null) {
+                futures.add(transaction.submit());
             }
             return futures;
         }
@@ -111,35 +107,37 @@ public class FlowBasedServicesConfigBindHelper {
                     highestPriority = boundService.getServicePriority();
                 }
             }
-            LOG.error("Reached unexpected part 1 of the code when handling bind service for interface: {}, when binding" +
-                    "service: {}", iface, boundServiceNew);
         }
 
         if (!isCurrentServiceHighestPriority) {
-            FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, boundServiceNew, iface, t,
+            FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, boundServiceNew, iface, transaction,
                     ifState.getIfIndex());
         } else {
             BoundServices serviceToReplace = tmpServicesMap.get(highestPriority);
-            FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, serviceToReplace, iface, t,
+            FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, serviceToReplace, iface, transaction,
                     ifState.getIfIndex());
-            int vlanId = 0;
             List<MatchInfo> matches = null;
             if (iface.getType().isAssignableFrom(L2vlan.class)) {
-                vlanId = iface.getAugmentation(IfL2vlan.class).getVlanId().getValue();
-                matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, vlanId);
+                matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, iface);
             } else if (iface.getType().isAssignableFrom(Tunnel.class)){
                 matches = FlowBasedServicesUtils.getMatchInfoForTunnelPortAtIngressTable (dpId, portNo, iface);
             }
 
             if (matches != null) {
-                FlowBasedServicesUtils.removeIngressFlow(iface, serviceToReplace, dpId, t);
-                FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface.getName(), vlanId, boundServiceNew, dataBroker, t,
+
+                WriteTransaction removeFlowTransaction = dataBroker.newWriteOnlyTransaction();
+                FlowBasedServicesUtils.removeIngressFlow(iface, serviceToReplace, dpId, removeFlowTransaction);
+                futures.add(removeFlowTransaction.submit());
+
+                WriteTransaction installFlowTransaction = dataBroker.newWriteOnlyTransaction();
+                FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface, boundServiceNew, installFlowTransaction,
                         matches, ifState.getIfIndex(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
+                futures.add(installFlowTransaction.submit());
             }
         }
 
-        if (t != null) {
-            futures.add(t.submit());
+        if (transaction != null) {
+            futures.add(transaction.submit());
         }
         return futures;
     }
