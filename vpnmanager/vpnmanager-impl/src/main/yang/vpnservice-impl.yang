@@ -5,10 +5,10 @@ module vpnservice-impl {
 
     import config { prefix config; revision-date 2013-04-05; }
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+    import opendaylight-sal-binding-broker-impl { prefix md-sal-binding-impl; revision-date 2013-10-28;}
     import bgpmanager-api { prefix bgpmgr-api; revision-date 2015-04-20;}
     import vpnmanager-api { prefix vpnmgr-api; revision-date 2015-05-08;}
     import odl-mdsalutil { prefix odl-mdsal; revision-date 2015-04-10;}
-    import odl-interface {prefix odlif; revision-date 2015-03-31;}
 
     description
         "Service definition for vpnservice project";
@@ -59,11 +59,11 @@ module vpnservice-impl {
                     }
                 }
             }
-            container odlinterface {
+            container notification-service {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity odlif:odl-interface;
+                        config:required-identity md-sal-binding-impl:binding-new-notification-service;
                     }
                 }
             }

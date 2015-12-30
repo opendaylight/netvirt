@@ -30,11 +30,6 @@ module odl-l3vpn {
         uses adjacency-list;
     }
 
-    augment "/l3vpn:vpn-instances/l3vpn:vpn-instance" {
-        leaf vpn-id { type uint32;}
-        uses vpn-route-list;
-    }
-
     /* Operational DS containers for reverse lookups*/
     container prefix-to-interface {
         config false;

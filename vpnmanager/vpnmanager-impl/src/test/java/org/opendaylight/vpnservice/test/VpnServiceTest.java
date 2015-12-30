@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -21,6 +21,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetKey;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4Family;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -35,6 +39,9 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.apply.label.ApplyLabelMode;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.ApplyLabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4FamilyBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VpnServiceTest {
@@ -56,10 +63,25 @@ public class VpnServiceTest {
 
     @Test
     public void test() {
-        VpnInstanceBuilder builder = new VpnInstanceBuilder().setKey(new VpnInstanceKey("Vpn1")).
-                setIpv4Family(new Ipv4FamilyBuilder().setRouteDistinguisher("100:1").setImportRoutePolicy("100:2").
-                    setExportRoutePolicy("100:1").setApplyLabel(new ApplyLabelBuilder().setApplyLabelMode(
-                        new PerRouteBuilder().setApplyLabelPerRoute(true).build()).build()).build());
+
+        List<VpnTarget> vpnTargetList = new ArrayList<VpnTarget>();
+
+        VpnTarget vpneRTarget = new VpnTargetBuilder().setKey(new VpnTargetKey("100:1")).setVrfRTValue("100:1")
+                .setVrfRTType(VpnTarget.VrfRTType.ExportExtcommunity).build();
+        VpnTarget vpniRTarget = new VpnTargetBuilder().setKey(new VpnTargetKey("100:2")).setVrfRTValue("100:2")
+                .setVrfRTType(VpnTarget.VrfRTType.ImportExtcommunity).build();
+
+        vpnTargetList.add(vpneRTarget);
+        vpnTargetList.add(vpniRTarget);
+
+        VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
+
+        Ipv4Family ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher("100:1").setVpnTargets(vpnTargets)
+                .setApplyLabel(new ApplyLabelBuilder().setApplyLabelMode(
+                        new PerRouteBuilder().setApplyLabelPerRoute(true).build()).build()).build();
+
+        VpnInstanceBuilder builder = new VpnInstanceBuilder().setKey(new VpnInstanceKey("Vpn1")).setIpv4Family
+                (ipv4Family);
         VpnInstance instance = builder.build();
         VpnManager vpnManager = new VpnManager(dataBroker, bgpManager);
         event.created.put(createVpnId("Vpn1"), instance);

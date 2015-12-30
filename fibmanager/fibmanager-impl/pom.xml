@@ -33,8 +33,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     </dependency>
     <dependency>
       <groupId>org.opendaylight.vpnservice</groupId>
-      <artifactId>vpnmanager-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <artifactId>itm-api</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.vpnservice</groupId>
@@ -43,7 +43,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     </dependency>
     <dependency>
       <groupId>org.opendaylight.vpnservice</groupId>
-      <artifactId>nexthopmgr-api</artifactId>
+      <artifactId>idmanager-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>interfacemgr-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
