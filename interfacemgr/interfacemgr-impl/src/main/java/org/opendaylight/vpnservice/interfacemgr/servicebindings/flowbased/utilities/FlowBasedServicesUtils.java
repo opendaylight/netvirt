@@ -190,7 +190,7 @@ public class FlowBasedServicesUtils {
     }
 
     public static void installLPortDispatcherFlow(BigInteger dpId, BoundServices boundService, Interface iface,
-                                                  DataBroker dataBroker, WriteTransaction t, int interfaceTag) {
+                                                  WriteTransaction t, int interfaceTag) {
         LOG.debug("Installing LPort Dispatcher Flows {}, {}", dpId, iface);
         short serviceIndex = boundService.getServicePriority();
         String serviceRef = boundService.getServiceName();
@@ -226,8 +226,7 @@ public class FlowBasedServicesUtils {
         installFlow(dpId, ingressFlow, t);
     }
 
-    public static void removeIngressFlow(Interface iface, BoundServices serviceOld, BigInteger dpId,
-                                         DataBroker dataBroker, WriteTransaction t) {
+    public static void removeIngressFlow(Interface iface, BoundServices serviceOld, BigInteger dpId, WriteTransaction t) {
         LOG.debug("Removing Ingress Flows");
         String flowKeyStr = getFlowRef(dpId, iface.getName(), serviceOld);
         FlowKey flowKey = new FlowKey(new FlowId(flowKeyStr));
@@ -239,15 +238,13 @@ public class FlowBasedServicesUtils {
         t.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
     }
 
-    public static void removeLPortDispatcherFlow(BigInteger dpId, Interface iface, BoundServices boundServicesOld,
-                                                 DataBroker dataBroker, WriteTransaction t) {
+    public static void removeLPortDispatcherFlow(BigInteger dpId, Interface iface, BoundServices boundServicesOld, WriteTransaction t) {
         LOG.debug("Removing LPort Dispatcher Flows {}, {}", dpId, iface);
-        Long interfaceTag = FlowBasedServicesUtils.getLPortTag(iface, dataBroker);
 
         StypeOpenflow stypeOpenFlow = boundServicesOld.getAugmentation(StypeOpenflow.class);
-        String flowKeyStr = iface.getName() + boundServicesOld.getServicePriority() +
-                boundServicesOld.getServiceName() + stypeOpenFlow.getDispatcherTableId();
-        FlowKey flowKey = new FlowKey(new FlowId(flowKeyStr));
+        // build the flow and install it
+        String flowRef = getFlowRef(dpId, iface.getName(), boundServicesOld);
+        FlowKey flowKey = new FlowKey(new FlowId(flowRef));
         Node nodeDpn = buildInventoryDpnNode(dpId);
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)

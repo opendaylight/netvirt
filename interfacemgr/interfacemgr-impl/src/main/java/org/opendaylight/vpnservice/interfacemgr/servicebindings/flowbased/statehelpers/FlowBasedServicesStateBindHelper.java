@@ -64,7 +64,6 @@ public class FlowBasedServicesStateBindHelper {
         NodeConnectorId nodeConnectorId = FlowBasedServicesUtils.getNodeConnectorIdFromInterface(iface, dataBroker);
         long portNo = Long.parseLong(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
         BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
-        Long lportTag = FlowBasedServicesUtils.getLPortTag(iface, dataBroker);
         int vlanId = 0;
         List<MatchInfo> matches = null;
         if (iface.getType().isAssignableFrom(L2vlan.class)) {
@@ -79,13 +78,12 @@ public class FlowBasedServicesStateBindHelper {
 
         if (matches != null) {
             FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface.getName(), vlanId, highestPriorityBoundService,
-                    dataBroker, t, matches, lportTag.intValue(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
+                    dataBroker, t, matches, ifaceState.getIfIndex(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
         }
 
         for (BoundServices boundService : allServices) {
             if (!boundService.equals(highestPriorityBoundService)) {
-                FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, boundService, iface,
-                         dataBroker, t, lportTag.intValue());
+                FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, boundService, iface, t, ifaceState.getIfIndex());
             }
         }
 

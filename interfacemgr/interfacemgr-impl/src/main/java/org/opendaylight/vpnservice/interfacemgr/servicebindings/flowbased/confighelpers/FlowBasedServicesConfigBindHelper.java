@@ -116,11 +116,11 @@ public class FlowBasedServicesConfigBindHelper {
         }
 
         if (!isCurrentServiceHighestPriority) {
-            FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, boundServiceNew, iface, dataBroker,  t,
+            FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, boundServiceNew, iface, t,
                     ifState.getIfIndex());
         } else {
             BoundServices serviceToReplace = tmpServicesMap.get(highestPriority);
-            FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, serviceToReplace, iface, dataBroker, t,
+            FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, serviceToReplace, iface, t,
                     ifState.getIfIndex());
             int vlanId = 0;
             List<MatchInfo> matches = null;
@@ -132,7 +132,7 @@ public class FlowBasedServicesConfigBindHelper {
             }
 
             if (matches != null) {
-                FlowBasedServicesUtils.removeIngressFlow(iface, serviceToReplace, dpId, dataBroker, t);
+                FlowBasedServicesUtils.removeIngressFlow(iface, serviceToReplace, dpId, t);
                 FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface.getName(), vlanId, boundServiceNew, dataBroker, t,
                         matches, ifState.getIfIndex(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
             }

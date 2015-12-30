@@ -61,12 +61,11 @@ public class FlowBasedServicesStateUnbindHelper {
             return futures;
         }
         BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
-        FlowBasedServicesUtils.removeIngressFlow(iface, highestPriorityBoundService, dpId,
-                dataBroker, t);
+        FlowBasedServicesUtils.removeIngressFlow(iface, highestPriorityBoundService, dpId, t);
 
         for (BoundServices boundService : allServices) {
             if (!boundService.equals(highestPriorityBoundService)) {
-                FlowBasedServicesUtils.removeLPortDispatcherFlow(dpId, iface, boundService, dataBroker, t);
+                FlowBasedServicesUtils.removeLPortDispatcherFlow(dpId, iface, boundService, t);
             }
         }
 
