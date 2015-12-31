@@ -28,8 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge.ref.info.BridgeRefEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge.ref.info.BridgeRefEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,29 +54,23 @@ public class OvsInterfaceTopologyStateAddHelper {
                 return futures;
             }
         }
-
-        String dpId = bridgeNew.getDatapathId().getValue();
         String bridgeName = bridgeNew.getBridgeName().getValue();
-        LOG.info("adding dpId {} to bridge reference {}", dpId, bridgeNew);
+        BigInteger dpnId = IfmUtil.getDpnId(bridgeNew.getDatapathId());
 
-        if (dpId == null) {
-            LOG.error("Optained null dpid for bridge: {}", bridgeNew);
+        if (dpnId == null) {
+            LOG.warn("Got Null DPID for Bridge: {}", bridgeNew);
             return futures;
         }
 
-        String datapathId = dpId.replaceAll("[^\\d.]", "");
-        BigInteger ovsdbDpId = new BigInteger(datapathId, 16);
-
-        LOG.info("adding dpId {} to bridge reference {}", datapathId, bridgeName);
-        BridgeRefEntryKey bridgeRefEntryKey = new BridgeRefEntryKey(ovsdbDpId);
+        BridgeRefEntryKey bridgeRefEntryKey = new BridgeRefEntryKey(dpnId);
         InstanceIdentifier<BridgeRefEntry> bridgeEntryId =
                 InterfaceMetaUtils.getBridgeRefEntryIdentifier(bridgeRefEntryKey);
         BridgeRefEntryBuilder tunnelDpnBridgeEntryBuilder =
-                new BridgeRefEntryBuilder().setKey(bridgeRefEntryKey).setDpid(ovsdbDpId)
+                new BridgeRefEntryBuilder().setKey(bridgeRefEntryKey).setDpid(dpnId)
                         .setBridgeReference(new OvsdbBridgeRef(bridgeIid));
         t.put(LogicalDatastoreType.OPERATIONAL, bridgeEntryId, tunnelDpnBridgeEntryBuilder.build(), true);
 
-        BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(ovsdbDpId);
+        BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpnId);
         InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier =
                 InterfaceMetaUtils.getBridgeEntryIdentifier(bridgeEntryKey);
         BridgeEntry bridgeEntry =

@@ -51,7 +51,9 @@ public class OvsInterfaceStateRemoveHelper {
         /* Remove entry from if-index-interface-name map and deallocate Id from Idmanager. */
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState =
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(portName, dataBroker);
-        InterfaceMetaUtils.removeLportTagInterfaceMap(transaction, idManager, dataBroker, interfaceState.getName(), interfaceState.getIfIndex());
+        if(interfaceState != null) {
+            InterfaceMetaUtils.removeLportTagInterfaceMap(transaction, idManager, dataBroker, interfaceState.getName(), interfaceState.getIfIndex());
+        }
 
         transaction.delete(LogicalDatastoreType.OPERATIONAL, ifStateId);
 

@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdOutput;
@@ -190,5 +191,13 @@ public class IfmUtil {
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when releasing Id for key {}", idKey, e);
         }
+    }
+
+    public static BigInteger getDpnId(DatapathId datapathId){
+        if (datapathId != null) {
+            String dpIdStr = datapathId.getValue().replace(":", "");
+            return new BigInteger(dpIdStr, 16);
+        }
+        return null;
     }
 }
