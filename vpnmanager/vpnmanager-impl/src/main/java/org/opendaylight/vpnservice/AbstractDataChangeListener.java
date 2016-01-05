@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -14,6 +14,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Map;
@@ -27,6 +29,7 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
 
     protected final Class<T> clazz;
 
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractDataChangeListener.class);
     /**
      * 
      * @param clazz - for which the data change event is received
@@ -37,6 +40,7 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
 
     @Override
     public void onDataChanged(final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> changeEvent) {
+        try {
         Preconditions.checkNotNull(changeEvent,"Async ChangeEvent can not be null!");
 
         /* All DataObjects for create */
@@ -55,6 +59,12 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
         this.createData(createdData);
         this.updateData(updateData, originalData);
         this.removeData(removeData, originalData);
+        
+        } catch (Throwable e) {
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("failed to handle dcn ", e);
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")

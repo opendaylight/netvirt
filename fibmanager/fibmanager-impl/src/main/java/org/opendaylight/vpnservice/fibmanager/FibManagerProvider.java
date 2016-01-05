@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,14 +8,16 @@
 package org.opendaylight.vpnservice.fibmanager;
 
 import java.math.BigInteger;
+import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.fibmanager.api.IFibManager;
 import org.opendaylight.vpnmanager.api.IVpnManager;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.L3nexthopService;
-import org.opendaylight.yangtools.yang.binding.RpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.rpcs.rev151217.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,18 +28,29 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
   private FibManager fibManager;
   private IMdsalApiManager mdsalManager;
   private IVpnManager vpnmanager;
-  //private FibNodeCapableListener fibNcListener;
+  private NexthopManager nexthopManager;
+  private IdManagerService idManager;
+  private ItmRpcService itmManager;
+  private OdlInterfaceRpcService interfaceManager;
+  private FibNodeCapableListener fibNcListener;
 
   @Override
   public void onSessionInitiated(ProviderContext session) {
     LOG.info("FibManagerProvider Session Initiated");
     try {
       final  DataBroker dataBroker = session.getSALService(DataBroker.class);
-      final RpcService nexthopService = session.getRpcService(L3nexthopService.class);
-      fibManager = new FibManager(dataBroker, nexthopService);
+      nexthopManager = new NexthopManager(dataBroker);
+      nexthopManager.setMdsalManager(mdsalManager);
+      nexthopManager.setIdManager(idManager);
+      nexthopManager.setInterfaceManager(interfaceManager);
+      nexthopManager.setITMRpcService(itmManager);
+      fibManager = new FibManager(dataBroker);
       fibManager.setMdsalManager(mdsalManager);
       fibManager.setVpnmanager(vpnmanager);
-      //fibNcListener = new FibNodeCapableListener(dataBroker, fibManager);
+      fibManager.setNextHopManager(nexthopManager);
+      fibManager.setITMRpcService(itmManager);
+      fibManager.setInterfaceManager(interfaceManager);
+      fibNcListener = new FibNodeCapableListener(dataBroker, fibManager);
     } catch (Exception e) {
       LOG.error("Error initializing services", e);
     }
@@ -47,7 +60,7 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
   public void close() throws Exception {
     LOG.info("FibManagerProvider Closed");
     fibManager.close();
-    //fibNcListener.close();
+    fibNcListener.close();
   }
 
   public void setMdsalManager(IMdsalApiManager mdsalManager) {
@@ -59,6 +72,18 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
     vpnmanager.setFibService(this);
   }
 
+  public void setIdManager(IdManagerService idManager) {
+    this.idManager = idManager;
+  }
+
+  public void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
+    this.interfaceManager = interfaceManager;
+  }
+
+  public void setITMProvider(ItmRpcService itmManager) {
+    this.itmManager = itmManager;
+  }
+
   @Override
   public void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd) {
     fibManager.populateFibOnNewDpn(dpnId, vpnId, rd);
@@ -67,5 +92,21 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
   @Override
   public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd) {
     fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd);
+  }
+
+  @Override
+  public List<String> printFibEntries() {
+    return fibManager.printFibEntries();
+  }
+
+  //Temp
+  @Override
+  public void addStaticRoute(String prefix, String nextHop, String rd, int label) {
+    this.vpnmanager.addExtraRoute(prefix, nextHop, rd, null, label);
+  }
+
+  @Override
+  public void deleteStaticRoute(String prefix, String rd) {
+    this.vpnmanager.delExtraRoute(prefix, rd, null);
   }
 }

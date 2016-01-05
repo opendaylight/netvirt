@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,19 +8,20 @@
 package org.opendaylight.vpnservice;
 
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.opendaylight.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.fibmanager.api.IFibManager;
 import org.opendaylight.vpnmanager.api.IVpnManager;
-import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.rpcs.rev151217.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.arputil.rev151126.OdlArputilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
@@ -37,9 +38,11 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
     private IBgpManager bgpManager;
     private IFibManager fibManager;
     private IMdsalApiManager mdsalManager;
-    private IInterfaceManager interfaceManager;
+    private OdlInterfaceRpcService interfaceManager;
+    private ItmRpcService itmProvider;
     private IdManagerService idManager;
-    private InterfaceChangeListener interfaceListener;
+    private OdlArputilService arpManager;
+    private NotificationService notificationService;
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -48,17 +51,21 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
             final  DataBroker dataBroker = session.getSALService(DataBroker.class);
             vpnManager = new VpnManager(dataBroker, bgpManager);
             vpnManager.setIdManager(idManager);
-            vpnInterfaceManager = new VpnInterfaceManager(dataBroker, bgpManager);
+            vpnInterfaceManager = new VpnInterfaceManager(dataBroker, bgpManager, notificationService);
             vpnInterfaceManager.setMdsalManager(mdsalManager);
             vpnInterfaceManager.setInterfaceManager(interfaceManager);
+            vpnInterfaceManager.setITMProvider(itmProvider);
             vpnInterfaceManager.setIdManager(idManager);
+            vpnInterfaceManager.setArpManager(arpManager);
             vpnManager.setVpnInterfaceManager(vpnInterfaceManager);
-            interfaceListener = new InterfaceChangeListener(dataBroker, vpnInterfaceManager);
-            interfaceListener.setInterfaceManager(interfaceManager);
             createIdPool();
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
         }
+    }
+
+    public void setNotificationService(NotificationService notificationService) {
+        this.notificationService = notificationService;
     }
 
     public void setBgpManager(IBgpManager bgpManager) {
@@ -74,12 +81,20 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
         this.fibManager = fibManager;
     }
 
-    public void setInterfaceManager(IInterfaceManager interfaceManager) {
+    public void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
         this.interfaceManager = interfaceManager;
+    }
+
+    public void setITMProvider(ItmRpcService itmProvider) {
+        this.itmProvider = itmProvider;
     }
 
     public void setIdManager(IdManagerService idManager) {
         this.idManager = idManager;
+    }
+
+    public void setArpManager(OdlArputilService arpManager) {
+        this.arpManager = arpManager;
     }
 
     private void createIdPool() {
@@ -102,12 +117,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
     public void close() throws Exception {
         vpnManager.close();
         vpnInterfaceManager.close();
-        interfaceListener.close();
-    }
 
-    @Override
-    public Collection<BigInteger> getDpnsForVpn(long vpnId) {
-        return vpnInterfaceManager.getDpnsForVpn(vpnId);
     }
 
     @Override
@@ -115,5 +125,17 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
         LOG.debug("Fib service reference is initialized in VPN Manager");
         this.fibManager = fibManager;
         vpnInterfaceManager.setFibManager(fibManager);
+    }
+
+    @Override
+    public void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label) {
+        LOG.info("Adding extra route with destination {} and nexthop {}", destination, nextHop);
+        vpnInterfaceManager.addExtraRoute(destination, nextHop, rd, routerID, label);
+    }
+
+    @Override
+    public void delExtraRoute(String destination, String rd, String routerID) {
+        LOG.info("Deleting extra route with destination {}", destination);
+        vpnInterfaceManager.delExtraRoute(destination, rd, routerID);
     }
 }

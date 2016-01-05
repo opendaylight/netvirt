@@ -444,7 +444,7 @@ module l3vpn {
 
             config "true";
             type boolean;
-	    
+
           }
         }
       }
@@ -723,9 +723,7 @@ module l3vpn {
 
       leaf vpn-instance-name {
         mandatory "true";
-        type string {
-          length "1..31";
-        }
+        type string;
         description
           "The name of the vpn-instance.";
       }

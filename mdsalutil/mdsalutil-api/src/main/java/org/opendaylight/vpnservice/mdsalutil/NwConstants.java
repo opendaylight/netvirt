@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -21,6 +21,10 @@ public class NwConstants {
     public static final int IP_PROT_UDP = 17;
     public static final int IP_PROT_GRE = 47;
 
+    //ARP TYPE
+    public static final int ARP_REQUEST = 1;
+    public static final int ARP_REPLY = 2;
+
     //Default Port
     public static final int UDP_DEFAULT_PORT = 4789;
 
@@ -34,5 +38,7 @@ public class NwConstants {
     public static final String FLOWID_SEPARATOR = ".";
     public static final int TABLE_MISS_FLOW = 0;
     public static final int TABLE_MISS_PRIORITY = 0;
+
+    public static final int DEFAULT_ARP_FLOW_PRIORITY = 100;
 
  }
