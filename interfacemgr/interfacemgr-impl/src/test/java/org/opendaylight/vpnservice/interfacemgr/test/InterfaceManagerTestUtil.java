@@ -17,6 +17,8 @@ import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.utilities.SouthboundUtils;
+import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
+import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -29,11 +31,26 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.WriteMetadataCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.WriteMetadataCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.write.metadata._case.WriteMetadata;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.write.metadata._case.WriteMetadataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
@@ -47,6 +64,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.Options;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.OptionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.OptionsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.ServiceTypeFlowBased;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.StypeOpenflow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.StypeOpenflowBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.ServicesInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.ServicesInfoBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.ServicesInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.services.info.BoundServicesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdPools;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPoolKey;
@@ -75,10 +101,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class InterfaceManagerTestUtil {
     public static final String interfaceName = "s1-eth1";
@@ -100,6 +123,16 @@ public class InterfaceManagerTestUtil {
                 .child(Node.class, new NodeKey(new NodeId(nodeKey)))
                 .child(NodeConnector.class, new NodeConnectorKey(ncId))
                 .build();
+    }
+
+    public static InstanceIdentifier<Flow> getFlowInstanceIdentifier(BigInteger dpId,short key,FlowKey flowKey){
+
+        org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node nodeDpn;
+        NodeId nodeId = new NodeId("openflow:" + dpId);
+        nodeDpn = InterfaceManagerTestUtil.buildNode(nodeId,new NodeKey(nodeId));
+        return InstanceIdentifier.builder(Nodes.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class,nodeDpn.getKey())
+                .augmentation(FlowCapableNode.class).child(Table.class, new TableKey(key)).child(Flow.class, flowKey).build();
     }
 
     public static InstanceIdentifier<FlowCapableNodeConnector> getFlowCapableNodeConnectorIdentifier(String nodeKey, NodeConnectorId ncId) {
@@ -143,6 +176,51 @@ public class InterfaceManagerTestUtil {
     public static IfIndexInterface buildIfIndexInterface(int ifindex, String interfaceName) {
         IfIndexInterfaceBuilder builder = new IfIndexInterfaceBuilder().setKey(new IfIndexInterfaceKey(ifindex)).setIfIndex(ifindex).setInterfaceName(interfaceName);
         return builder.build();
+    }
+
+    public static StypeOpenflow buildStypeOpenflow(BigInteger dpId, int flowpriority, short dispatchertableId , List list){
+        StypeOpenflowBuilder builder = new StypeOpenflowBuilder().setFlowCookie(dpId).setDispatcherTableId(dispatchertableId)
+                .setFlowPriority(flowpriority).setInstruction(list);
+        return builder.build();
+    }
+
+    public static WriteMetadata buildWriteMetaData(BigInteger meta, BigInteger mask){
+        WriteMetadataBuilder builder = new WriteMetadataBuilder().setMetadata(meta).setMetadataMask(mask);
+        return builder.build();
+    }
+
+    public static WriteMetadataCase buildWriteMetaDataCase(WriteMetadata writeMetadata){
+        WriteMetadataCaseBuilder builder = new WriteMetadataCaseBuilder().setWriteMetadata(writeMetadata);
+        return builder.build();
+    }
+
+    public static Instruction buildInstruction(WriteMetadataCase writeMetadataCase, InstructionKey instructionKey){
+        InstructionBuilder builder = new InstructionBuilder().setInstruction(writeMetadataCase).setKey(instructionKey);
+        return builder.build();
+    }
+    public static ServicesInfo buildServicesInfo(String name,ServicesInfoKey servicesInfoKey, List list){
+        ServicesInfoBuilder builder = new ServicesInfoBuilder().setInterfaceName(name).setBoundServices(list).setKey(servicesInfoKey);
+        return builder.build();
+    }
+
+    public static BoundServices buildBoundServices(String servicename, short servicepriority, BoundServicesKey boundServicesKey, StypeOpenflow stypeOpenflow){
+        BoundServicesBuilder builder = new BoundServicesBuilder().setServiceName(servicename).setKey(boundServicesKey).setServicePriority(servicepriority)
+                .setServiceType(ServiceTypeFlowBased.class).addAugmentation(StypeOpenflow.class,stypeOpenflow);
+        return builder.build();
+    }
+
+    public static  org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node buildNode(NodeId nodeId , NodeKey nodeKey){
+        org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node nodeDpn;
+        nodeDpn = new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder().setId(nodeId).setKey(nodeKey).build();
+        return nodeDpn;
+    }
+
+    public static String buildflowRef(BigInteger dpId,String servicaName,String boundServicename, short servicePriority)
+    {
+        String flowRef = new StringBuffer().append(dpId).append(IfmConstants.VLAN_INTERFACE_INGRESS_TABLE).append(NwConstants.FLOWID_SEPARATOR).
+                append(servicaName).append(NwConstants.FLOWID_SEPARATOR).append(boundServicename).
+                append(NwConstants.FLOWID_SEPARATOR).append(servicePriority).toString();
+        return flowRef;
     }
 
     public static NodeConnector buildNodeConnector(NodeConnectorId ncId) {
