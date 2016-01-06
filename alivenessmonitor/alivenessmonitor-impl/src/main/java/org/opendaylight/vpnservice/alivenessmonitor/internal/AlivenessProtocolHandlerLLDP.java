@@ -36,11 +36,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.endpoint.endpoint.type.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.monitor.configs.MonitoringInfo;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
-//import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetInterfaceFromIfIndexInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetInterfaceFromIfIndexInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetPortFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetPortFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetPortFromInterfaceOutput;
@@ -122,12 +124,21 @@ public class AlivenessProtocolHandlerLLDP extends AbstractAlivenessProtocolHandl
         }
 
         String destInterfaceName = null;
-        //TODO: Use latest interface RPC
-//        try {
-//            destInterfaceName = serviceProvider.getInterfaceManager().getInterfaceNameForInterfaceTag(portTag);
-//        } catch(InterfaceNotFoundException e) {
-//            LOG.warn("Error retrieving interface Name for tag {}", portTag, e);
-//        }
+
+        try {
+            GetInterfaceFromIfIndexInput input = new GetInterfaceFromIfIndexInputBuilder().setIfIndex(portTag).build();
+            Future<RpcResult<GetInterfaceFromIfIndexOutput>> output = serviceProvider.getInterfaceManager().getInterfaceFromIfIndex(input);
+            RpcResult<GetInterfaceFromIfIndexOutput> result = output.get();
+            if(result.isSuccessful()) {
+                GetInterfaceFromIfIndexOutput ifIndexOutput = result.getResult();
+                destInterfaceName = ifIndexOutput.getInterfaceName();
+            } else {
+                LOG.warn("RPC call to get interface name for if index {} failed with errors {}", portTag, result.getErrors());
+                return null;
+            }
+        } catch(InterruptedException | ExecutionException e) {
+            LOG.warn("Error retrieving interface Name for tag {}", portTag, e);
+        }
 
         if(!Strings.isNullOrEmpty(interfaceName)) {
             String monitorKey = new StringBuilder().append(interfaceName).append(EtherTypes.LLDP).toString();
@@ -186,7 +197,7 @@ public class AlivenessProtocolHandlerLLDP extends AbstractAlivenessProtocolHandl
                 return;
             }
         }catch(InterruptedException | ExecutionException e) {
-            LOG.error("Failed to retrieve RPC Result ", e);
+            LOG.error("Failed to retrieve interface service RPC Result ", e);
             return;
         }
 
