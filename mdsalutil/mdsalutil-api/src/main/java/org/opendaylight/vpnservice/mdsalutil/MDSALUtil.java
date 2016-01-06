@@ -483,8 +483,11 @@ public class MDSALUtil {
             NodeConnectorRef ref) {
         Optional<NodeConnector> nc = (Optional<NodeConnector>) read(
                 dataBroker,
-                LogicalDatastoreType.CONFIGURATION, ref.getValue());
-        return nc.get().getId();
+                LogicalDatastoreType.OPERATIONAL, ref.getValue());
+        if(nc.isPresent()){
+            return nc.get().getId();
+        }
+        return null;
     }
 
 }
