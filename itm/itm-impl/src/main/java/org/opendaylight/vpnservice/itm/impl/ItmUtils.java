@@ -24,6 +24,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.DpnEndpoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.DpnEndpointsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.DPNTEPsInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.DPNTEPsInfoBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.DPNTEPsInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.dpn.teps.info.TunnelEndPointsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.dpn.teps.info.TunnelEndPointsKey;
 import org.opendaylight.vpnservice.itm.globals.ITMConstants;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -31,15 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.Tunnels;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.TunnelsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.DPNTEPsInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.DPNTEPsInfoBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.DPNTEPsInfoKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.dpn.teps.info.TunnelEndPoints;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.dpn.teps.info.TunnelEndPointsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.dpn.teps.info.TunnelEndPointsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels_state.StateTunnelListKey;
 //import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice._interface.service.rev150602._interface.service.info.ServiceInfo;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -129,7 +128,7 @@ public class ItmUtils {
 
     public static InstanceIdentifier<DPNTEPsInfo> getDPNTEPInstance(BigInteger dpIdKey) {
         InstanceIdentifier.InstanceIdentifierBuilder<DPNTEPsInfo> dpnTepInfoBuilder =
-                        InstanceIdentifier.builder(Tunnels.class).child(DPNTEPsInfo.class, new DPNTEPsInfoKey(dpIdKey));
+                        InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class, new DPNTEPsInfoKey(dpIdKey));
         InstanceIdentifier<DPNTEPsInfo> dpnInfo = dpnTepInfoBuilder.build();
         return dpnInfo;
     }
@@ -140,15 +139,15 @@ public class ItmUtils {
     }
 
     public static TunnelEndPoints createTunnelEndPoints(BigInteger dpnId, IpAddress ipAddress, String portName, int vlanId,
-                    IpPrefix prefix, IpAddress gwAddress, String zoneName, String  tunnel_type) {
+                    IpPrefix prefix, IpAddress gwAddress, String zoneName, Class<? extends TunnelTypeBase>  tunnel_type) {
         // when Interface Mgr provides support to take in Dpn Id
         return new TunnelEndPointsBuilder().setKey(new TunnelEndPointsKey(ipAddress, portName, vlanId))
                         .setSubnetMask(prefix).setGwIpAddress(gwAddress).setTransportZone(zoneName)
                         .setInterfaceName(ItmUtils.getInterfaceName(dpnId, portName, vlanId)).setTunnelType(tunnel_type).build();
     }
 
-    public static Tunnels createTunnel(List<DPNTEPsInfo> dpnTepInfo) {
-        return new TunnelsBuilder().setDPNTEPsInfo(dpnTepInfo).build();
+    public static DpnEndpoints createDpnEndpoints(List<DPNTEPsInfo> dpnTepInfo) {
+        return new DpnEndpointsBuilder().setDPNTEPsInfo(dpnTepInfo).build();
     }
 
     public static InstanceIdentifier<Interface> buildId(String interfaceName) {
@@ -174,11 +173,11 @@ public class ItmUtils {
         List<DPNTEPsInfo> dpnTEPs= null ;
 
         // Read the EndPoint Info from the operational database
-        InstanceIdentifierBuilder<Tunnels> tnlBuilder = InstanceIdentifier.builder( Tunnels.class) ;
-        InstanceIdentifier<Tunnels> tnls = tnlBuilder.build() ;
-        Optional<Tunnels> tunnels = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, tnls, dataBroker);
-        if( tunnels.isPresent()) {
-           Tunnels tn= tunnels.get() ;
+        InstanceIdentifierBuilder<DpnEndpoints> depBuilder = InstanceIdentifier.builder( DpnEndpoints.class) ;
+        InstanceIdentifier<DpnEndpoints> deps = depBuilder.build() ;
+        Optional<DpnEndpoints> dpnEps = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, deps, dataBroker);
+        if( dpnEps.isPresent()) {
+           DpnEndpoints tn= dpnEps.get() ;
            dpnTEPs = tn.getDPNTEPsInfo() ;
            LOG.debug( "Read from CONFIGURATION datastore - No. of Dpns " , dpnTEPs.size() );
         }else

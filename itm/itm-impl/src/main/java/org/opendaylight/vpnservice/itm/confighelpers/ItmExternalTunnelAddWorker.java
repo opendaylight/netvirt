@@ -17,28 +17,42 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.itm.impl.ItmUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.DPNTEPsInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.dpn.teps.info.TunnelEndPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.ExternalTunnelList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.DPNTEPsInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnelKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.net.util.SubnetUtils;
 
+import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 
 public class ItmExternalTunnelAddWorker {
     private static final Logger logger = LoggerFactory.getLogger(ItmExternalTunnelAddWorker.class ) ;
 
-    public static List<ListenableFuture<Void>> buildTunnelsToExternalEndPoint(DataBroker dataBroker,List<DPNTEPsInfo> meshedDpnList, IpAddress extIp) {
+    private static final FutureCallback<Void> DEFAULT_CALLBACK =
+            new FutureCallback<Void>() {
+                public void onSuccess(Void result) {
+                    logger.debug("Success in Datastore operation");
+                }
+
+                public void onFailure(Throwable error) {
+                    logger.error("Error in Datastore operation", error);
+                };
+            };
+
+    public static List<ListenableFuture<Void>> buildTunnelsToExternalEndPoint(DataBroker dataBroker,List<DPNTEPsInfo> cfgDpnList, IpAddress extIp, Class<? extends TunnelTypeBase> tunType) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction t = dataBroker.newWriteOnlyTransaction();
-        if( null == meshedDpnList)
-            ItmUtils.getTunnelMeshInfo(dataBroker) ;
-       if( null != meshedDpnList) {
-          for( DPNTEPsInfo teps : meshedDpnList ) {
+       if( null != cfgDpnList) {
+          for( DPNTEPsInfo teps : cfgDpnList ) {
              // CHECK -- Assumption -- Only one End Point / Dpn for GRE/Vxlan Tunnels
               TunnelEndPoints firstEndPt = teps.getTunnelEndPoints().get(0) ;
               String interfaceName = firstEndPt.getInterfaceName() ;
@@ -48,8 +62,7 @@ public class ItmExternalTunnelAddWorker {
               SubnetUtils utils = new SubnetUtils(subnetMaskStr);
               String dcGwyIpStr = String.valueOf(extIp.getValue());
               IpAddress gwyIpAddress = (utils.getInfo().isInRange(dcGwyIpStr) ) ? null : firstEndPt.getGwIpAddress() ;
-              Class<? extends TunnelTypeBase> tunType = (teps.getTunnelEndPoints().get(0).getTunnelType().equals("GRE") ) ? TunnelTypeGre.class :TunnelTypeVxlan.class ;
-              String ifDescription = (tunType.equals("GRE") ) ? "GRE" : "VxLan" ;
+              String ifDescription = tunType.getName();
               logger.debug(  " Creating Trunk Interface with parameters trunk I/f Name - {}, parent I/f name - {}, source IP - {}, DC Gateway IP - {} gateway IP - {}",trunkInterfaceName, interfaceName, firstEndPt.getIpAddress(), extIp, gwyIpAddress ) ;
               Interface iface = ItmUtils.buildTunnelInterface(teps.getDPNID(), trunkInterfaceName, String.format( "%s %s",ifDescription, "Trunk Interface"), true, tunType, firstEndPt.getIpAddress(), extIp, gwyIpAddress) ;
               logger.debug(  " Trunk Interface builder - {} ", iface ) ;
@@ -58,22 +71,34 @@ public class ItmExternalTunnelAddWorker {
               logger.trace(  " Writing Trunk Interface to Config DS {}, {} ", trunkIdentifier, iface ) ;
               //ItmUtils.asyncUpdate(LogicalDatastoreType.CONFIGURATION,trunkIdentifier, iface , dataBroker, ItmUtils.DEFAULT_CALLBACK);
               t.merge(LogicalDatastoreType.CONFIGURATION, trunkIdentifier, iface, true);
+       //       update_external_tunnels_ds(teps.getDPNID(), extIp, trunkInterfaceName, tunType);
+              InstanceIdentifier<ExternalTunnel> path = InstanceIdentifier.create(
+                      ExternalTunnelList.class)
+                          .child(ExternalTunnel.class, new ExternalTunnelKey(extIp, teps.getDPNID()));   
+              ExternalTunnel tnl = new ExternalTunnelBuilder().setKey(new ExternalTunnelKey(extIp, teps.getDPNID()))
+                                             .setDestinationIP(extIp)
+                                             .setSourceDPN(teps.getDPNID())
+                                             .setTunnelInterfaceName(trunkInterfaceName).build();
+              ItmUtils.asyncUpdate(LogicalDatastoreType.CONFIGURATION, path, tnl, dataBroker, DEFAULT_CALLBACK);
           }
           futures.add( t.submit()) ;
        }
         return futures ;
     }
 
-    public static List<ListenableFuture<Void>> buildTunnelsFromDpnToExternalEndPoint(DataBroker dataBroker,BigInteger dpnId,List<DPNTEPsInfo> meshedDpnList, IpAddress extIp) {
+    public static List<ListenableFuture<Void>> buildTunnelsFromDpnToExternalEndPoint(DataBroker dataBroker, List<BigInteger> dpnId, IpAddress extIp, Class<? extends TunnelTypeBase> tunType) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         List<DPNTEPsInfo> cfgDpnList = new ArrayList<DPNTEPsInfo>() ;
-       if( null != meshedDpnList) {
-          for( DPNTEPsInfo teps : meshedDpnList ) {
-             if( teps.getDPNID().equals(dpnId)) {
-                cfgDpnList.add(teps) ;
-             }
-          }
-          futures = buildTunnelsToExternalEndPoint( dataBroker, cfgDpnList, extIp) ;
+        List<DPNTEPsInfo> meshedDpnList = ItmUtils.getTunnelMeshInfo(dataBroker) ;
+        if( null != meshedDpnList) {
+    	   for (BigInteger dpn : dpnId){
+    	          for( DPNTEPsInfo teps : meshedDpnList ) {
+    	              if( teps.getDPNID().equals(dpn)) {
+    	                 cfgDpnList.add(teps) ;
+    	              }
+    	           }
+    	   }
+          futures = buildTunnelsToExternalEndPoint( dataBroker, cfgDpnList, extIp, tunType) ;
        }
         return futures ;
     }

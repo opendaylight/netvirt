@@ -41,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeMplsOverGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.*;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -229,6 +230,31 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
             GetInterfaceTypeOutputBuilder output = new GetInterfaceTypeOutputBuilder().setInterfaceType(interfaceInfo.getType());
             rpcResultBuilder = RpcResultBuilder.success();
             rpcResultBuilder.withResult(output.build());
+        } catch (Exception e) {
+            LOG.error("Retrieval of interface type for the key {} failed due to {}", interfaceName, e);
+            rpcResultBuilder = RpcResultBuilder.failed();
+        }
+        return Futures.immediateFuture(rpcResultBuilder.build());
+    }
+
+    @Override
+    public Future<RpcResult<GetTunnelTypeOutput>> getTunnelType(GetTunnelTypeInput input) {
+        String interfaceName = input.getIntfName();
+        RpcResultBuilder<GetTunnelTypeOutput> rpcResultBuilder;
+        try {
+            InterfaceKey interfaceKey = new InterfaceKey(interfaceName);
+            Interface interfaceInfo = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(interfaceKey, dataBroker);
+
+            if (Tunnel.class.equals(interfaceInfo.getType())) {
+                IfTunnel tnl = interfaceInfo.getAugmentation(IfTunnel.class);
+                Class <? extends TunnelTypeBase> tun_type = tnl.getTunnelInterfaceType();
+                GetTunnelTypeOutputBuilder output = new GetTunnelTypeOutputBuilder().setTunnelType(tun_type);
+                rpcResultBuilder = RpcResultBuilder.success();
+                rpcResultBuilder.withResult(output.build());
+            } else {
+                LOG.error("Retrieval of interface type for the key {} failed", interfaceName);
+                rpcResultBuilder = RpcResultBuilder.failed();
+            }
         } catch (Exception e) {
             LOG.error("Retrieval of interface type for the key {} failed due to {}", interfaceName, e);
             rpcResultBuilder = RpcResultBuilder.failed();

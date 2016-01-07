@@ -115,6 +115,23 @@ module odl-interface-rpc {
         }
     }
 
+    rpc get-tunnel-type {
+    description "to get the type of the tunnel interface(vxlan or gre)";
+        input {
+            leaf intf-name {
+                type string;
+            }
+        }
+        output {
+            leaf tunnel-type {
+                type identityref {
+                    base odlif:tunnel-type-base;
+                }
+            }
+        }
+    }
+
+
     rpc get-nodeconnector-id-from-interface {
     description "to get nodeconnector id associated with an interface";
         input {

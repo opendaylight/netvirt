@@ -21,6 +21,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
     <feature version='${openflowplugin.version}'>odl-openflowplugin-nsf-model</feature>
+    <feature version="${ovsdb.version}">odl-ovsdb-southbound-impl-rest</feature>
     <bundle>mvn:org.opendaylight.controller/liblldp/${liblldp.version}</bundle>
     <bundle>mvn:org.opendaylight.neutron/model/${neutron.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/model-bgp/{{VERSION}}</bundle>
@@ -29,6 +30,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.vpnservice/mdsalutil-api/${vpnservices.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/arputil-api/${arputil.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/alivenessmonitor-api/${vpnservices.version}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-api/${interfacemgr.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-api/${vpnmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/fibmanager-api/${fibmanager.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/itm-api/${itm.version}</bundle>

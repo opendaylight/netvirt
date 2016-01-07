@@ -17,9 +17,9 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.itm.impl.ItmUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.Tunnels;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.DPNTEPsInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.dpn.teps.info.TunnelEndPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.DpnEndpoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.DPNTEPsInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,13 +66,13 @@ public class ItmInternalTunnelDeleteWorker {
 
                     // removing vtep / dpn from Tunnels OpDs.
                     InstanceIdentifier<TunnelEndPoints> tepPath =
-                                    InstanceIdentifier.builder(Tunnels.class).child(DPNTEPsInfo.class, srcDpn.getKey())
+                                    InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class, srcDpn.getKey())
                                                     .child(TunnelEndPoints.class, srcTep.getKey()).build();
 
                     logger.trace("Tep Removal from DPNTEPSINFO CONFIG DS " + srcTep);
                     t.delete(LogicalDatastoreType.CONFIGURATION, tepPath);
                     InstanceIdentifier<DPNTEPsInfo> dpnPath =
-                                    InstanceIdentifier.builder(Tunnels.class).child(DPNTEPsInfo.class, srcDpn.getKey())
+                                    InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class, srcDpn.getKey())
                                                     .build();
                     Optional<DPNTEPsInfo> dpnOptional =
                                     ItmUtils.read(LogicalDatastoreType.CONFIGURATION, dpnPath, dataBroker);
@@ -84,15 +84,15 @@ public class ItmInternalTunnelDeleteWorker {
                            // setUpOrRemoveTerminatingServiceTable(dpnRead.getDPNID(), false);
                             logger.trace("DPN Removal from DPNTEPSINFO CONFIG DS " + dpnRead);
                             t.delete(LogicalDatastoreType.CONFIGURATION, dpnPath);
-                            InstanceIdentifier<Tunnels> tnlContainerPath =
-                                            InstanceIdentifier.builder(Tunnels.class).build();
-                            Optional<Tunnels> containerOptional =
+                            InstanceIdentifier<DpnEndpoints> tnlContainerPath =
+                                            InstanceIdentifier.builder(DpnEndpoints.class).build();
+                            Optional<DpnEndpoints> containerOptional =
                                             ItmUtils.read(LogicalDatastoreType.CONFIGURATION,
                                                             tnlContainerPath, dataBroker);
                             // remove container if no DPNs are present
                             if (containerOptional.isPresent()) {
-                                Tunnels tnls = containerOptional.get();
-                                if (tnls.getDPNTEPsInfo() == null || tnls.getDPNTEPsInfo().isEmpty()) {
+                            	DpnEndpoints deps = containerOptional.get();
+                                if (deps.getDPNTEPsInfo() == null || deps.getDPNTEPsInfo().isEmpty()) {
                                     logger.trace("Container Removal from DPNTEPSINFO CONFIG DS");
                                     t.delete(LogicalDatastoreType.CONFIGURATION, tnlContainerPath);
                                 }

@@ -1,5 +1,5 @@
 module itm-rpc {
-    namespace "urn:opendaylight:params:xml:ns:yang:itm:rpcs";
+    namespace "urn:opendaylight:vpnservice:itm:rpcs";
     prefix "itmrpcs";
 
     import ietf-inet-types {
@@ -15,46 +15,108 @@ module itm-rpc {
         prefix if; revision-date 2014-05-08;
     }
 
+    import odl-interface {
+        prefix odlif;
+        revision-date "2015-03-31";
+    }
+    
     revision "2015-12-17" {
         description "ODL Specific Itm Manager Rpcs Module";
     }
 
     /* RPCs */
 
-    rpc get-tunnel-interface-id {
+    rpc get-tunnel-interface-name {
+        description "used to retrieve tunnel interface id between Dpns";
+        input {
+            leaf source-dpid {
+                 type uint64;
+            }
+            leaf destination-dpid {
+                 type uint64;
+            }
+        }
+        output {
+            leaf interface-name {
+                type string;
+            }
+        }
+    }
+
+    rpc get-external-tunnel-interface-name {
         description "used to retrieve tunnel interface id between Dpns";
         input {
             leaf source-dpid {
             type uint64;
             }
-            leaf destination-dpid {
-            type uint64;
+            leaf destination-ip {
+            type inet:ip-address;
             }
         }
         output {
-            leaf interfaceid {
-                type uint16;
+            leaf interface-name {
+                type string;
             }
         }
     }
 
-    rpc build-tunnel-from-dpn-to-dcgateway {
-        description "used for building tunnels between a Dpn and DC Gateway";
+    rpc build-external-tunnel-from-dpns {
+        description "used for building tunnels between a Dpn and external node";
         input {
-            leaf dpid {
-            type uint64;
+            leaf-list dpn-id {
+                type uint64;
             }
-            leaf dcgwyid {
-            type inet:ip-address;
+            leaf destination-ip {
+                type inet:ip-address;
+            }
+            leaf tunnel-type {
+            type identityref {
+                base odlif:tunnel-type-base;
+            }
             }
         }
      }
 
-     rpc build-tunnel-to-dcgateway {
-        description "used for building tunnels between teps on all Dpns and DC Gateway";
+     rpc add-external-tunnel-endpoint { 
+        description "used for building tunnels between teps on all Dpns and external node";
         input {
-            leaf dcgwyid {
-            type inet:ip-address;
+            leaf destination-ip {
+                 type inet:ip-address;
+            }
+            leaf tunnel-type {
+            type identityref {
+                base odlif:tunnel-type-base;
+            }
+            }
+        }
+     }
+    rpc remove-external-tunnel-from-dpns {
+        description "used for building tunnels between a Dpn and external node";
+        input {
+            leaf-list dpn-id {
+                type uint64;
+            }
+            leaf destination-ip {
+                type inet:ip-address;
+            }
+            leaf tunnel-type {
+            type identityref {
+                base odlif:tunnel-type-base;
+            }
+            }
+        }
+     }
+
+     rpc remove-external-tunnel-endpoint { 
+        description "used for building tunnels between teps on all Dpns and external node";
+        input {
+            leaf destination-ip {
+                 type inet:ip-address;
+            }
+            leaf tunnel-type {
+            type identityref {
+                base odlif:tunnel-type-base;
+            }
             }
         }
      }

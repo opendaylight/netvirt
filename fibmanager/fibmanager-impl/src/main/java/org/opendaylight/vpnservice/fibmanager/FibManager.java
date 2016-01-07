@@ -18,6 +18,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -48,17 +50,26 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.prefix.to._
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.rpcs.rev151217.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.overlay.rev150105.TunnelTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetTunnelInterfaceNameOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeMplsOverGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetTunnelTypeInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetTunnelTypeOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthop;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -317,13 +328,59 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         read(LogicalDatastoreType.OPERATIONAL, getPrefixToInterfaceIdentifier(vpnId, ipPrefix));
     return  localNextHopInfoData.isPresent() ? localNextHopInfoData.get() : null;
   }
+  
 
+  private Class<? extends TunnelTypeBase> getTunnelType(String ifName) {
+        try {
+            Future<RpcResult<GetTunnelTypeOutput>> result = interfaceManager.getTunnelType(
+        		  new GetTunnelTypeInputBuilder().setIntfName(ifName).build());
+          RpcResult<GetTunnelTypeOutput> rpcResult = result.get();
+          if(!rpcResult.isSuccessful()) {
+              LOG.warn("RPC Call to getTunnelInterfaceId returned with Errors {}", rpcResult.getErrors());
+          } else {
+              return rpcResult.getResult().getTunnelType();
+          }
+    	  
+      } catch (InterruptedException | ExecutionException e) {
+          LOG.warn("Exception when getting tunnel interface Id for tunnel type {}", e);
+      }
+  
+  return null;
+
+  }
   private void createRemoteFibEntry(final BigInteger localDpnId, final BigInteger remoteDpnId,
                                     final long vpnId, final VrfTablesKey vrfTableKey,
                                     final VrfEntry vrfEntry) {
     String rd = vrfTableKey.getRouteDistinguisher();
     LOG.debug("adding route " + vrfEntry.getDestPrefix() + " " + rd);
-
+    /********************************************/
+    String tunnelInterface = resolveAdjacency(localDpnId, remoteDpnId, vpnId, vrfEntry);
+    if(tunnelInterface == null) {
+      LOG.error("Could not get interface for nexthop: {} in vpn {}",
+                                   vrfEntry.getNextHopAddress(), rd);
+      LOG.warn("Failed to add Route: {} in vpn: {}",
+                             vrfEntry.getDestPrefix(), rd);
+      return;
+    }
+        List<ActionInfo> actionInfos = nextHopManager.getEgressActionsForInterface(tunnelInterface);
+	Class<? extends TunnelTypeBase> tunnel_type = getTunnelType(tunnelInterface);
+    if (tunnel_type.equals(TunnelTypeMplsOverGre.class)) {
+        LOG.debug("Push label action for prefix {}", vrfEntry.getDestPrefix());
+        actionInfos.add(new ActionInfo(ActionType.push_mpls, new String[] { null }));
+        actionInfos.add(new ActionInfo(ActionType.set_field_mpls_label, new String[] { Long.toString(vrfEntry.getLabel())}));
+    } else {
+        int label = vrfEntry.getLabel().intValue();
+        BigInteger tunnelId;
+        if(tunnel_type.equals(TunnelTypeVxlan.class)) {
+        	tunnelId = MetaDataUtil.getTunnelIdWithValidVniBitAndVniSet(label);
+        } else {
+        	tunnelId = BigInteger.valueOf(label);
+        }
+        LOG.debug("adding set tunnel id action for label {}", label);
+        actionInfos.add(new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {
+        		tunnelId, MetaDataUtil.METADA_MASK_VALID_TUNNEL_ID_BIT_AND_TUNNEL_ID }));
+    }
+/*
     List<ActionInfo> actionInfos = resolveAdjacency(localDpnId, remoteDpnId, vpnId, vrfEntry);
     if(actionInfos == null) {
       LOG.error("Could not get nexthop group id for nexthop: {} in vpn {}",
@@ -349,7 +406,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                 MetaDataUtil.getTunnelIdWithValidVniBitAndVniSet(label),
                 MetaDataUtil.METADA_MASK_VALID_TUNNEL_ID_BIT_AND_TUNNEL_ID }));
     }
-
+**/
     makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, actionInfos, NwConstants.ADD_FLOW);
     LOG.debug(
         "Successfully added fib entry for " + vrfEntry.getDestPrefix() + " vpnId " + vpnId);
@@ -381,8 +438,8 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                                 final VrfEntry vrfEntry) {
     LOG.debug("deleting route "+ vrfEntry.getDestPrefix() + " "+vpnId);
     String rd = vrfTableKey.getRouteDistinguisher();
-    List<ActionInfo> actionInfos = resolveAdjacency(localDpnId, remoteDpnId, vpnId, vrfEntry);
-    if(actionInfos == null) {
+    String egressInterface = resolveAdjacency(localDpnId, remoteDpnId, vpnId, vrfEntry);
+    if(egressInterface == null) {
       LOG.error("Could not get nexthop group id for nexthop: {} in vpn {}",
                 vrfEntry.getNextHopAddress(), rd);
       LOG.warn("Failed to delete Route: {} in vpn: {}",
@@ -552,9 +609,9 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         .append(destPrefix.getHostAddress()).toString();
   }
 
-  protected List<ActionInfo> resolveAdjacency(final BigInteger localDpnId, final BigInteger remoteDpnId,
+  protected String resolveAdjacency(final BigInteger localDpnId, final BigInteger remoteDpnId,
                                               final long vpnId, final VrfEntry vrfEntry) {
-    List<ActionInfo> adjacency = null;
+    String adjacency = null;
     LOG.trace("resolveAdjacency called with localdpid{} remotedpid {}, vpnId{}, VrfEntry {}", localDpnId, remoteDpnId, vpnId, vrfEntry);;
     try {
       adjacency =

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.opendaylight.vpnservice.itm.impl.ItmUtils;
@@ -19,13 +20,21 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.Tunnels;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.TunnelsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.DPNTEPsInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.dpn.teps.info.TunnelEndPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.DpnEndpoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.DpnEndpointsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.ExternalTunnelList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.TunnelList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.DPNTEPsInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnelKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.TunnelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.TunnelKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.slf4j.Logger;
@@ -33,6 +42,17 @@ import org.slf4j.LoggerFactory;
 
 public class ItmInternalTunnelAddWorker {
      private static final Logger logger = LoggerFactory.getLogger(ItmInternalTunnelAddWorker.class) ;
+     private static final FutureCallback<Void> DEFAULT_CALLBACK =
+             new FutureCallback<Void>() {
+                 public void onSuccess(Void result) {
+                     logger.debug("Success in Datastore operation");
+                 }
+
+                 public void onFailure(Throwable error) {
+                     logger.error("Error in Datastore operation", error);
+                 };
+             };
+
 
     public static List<ListenableFuture<Void>> build_all_tunnels(DataBroker dataBroker, List<DPNTEPsInfo> cfgdDpnList, List<DPNTEPsInfo> meshedDpnList) {
         logger.trace( "Building tunnels with DPN List {} " , cfgdDpnList );
@@ -44,6 +64,7 @@ public class ItmInternalTunnelAddWorker {
          }
 
         for( DPNTEPsInfo dpn : cfgdDpnList) {
+            //#####if dpn is not in meshedDpnList
             build_tunnel_from(dpn, meshedDpnList, dataBroker, t, futures);
             if(null == meshedDpnList) {
                 meshedDpnList = new ArrayList<DPNTEPsInfo>() ;
@@ -58,11 +79,11 @@ public class ItmInternalTunnelAddWorker {
 
     private static void updateOperationalDatastore(DataBroker dataBroker, DPNTEPsInfo dpn, WriteTransaction t, List<ListenableFuture<Void>> futures) {
         logger.debug("Updating CONFIGURATION datastore with DPN {} ", dpn);
-        InstanceIdentifier<Tunnels> tnId = InstanceIdentifier.builder( Tunnels.class).build() ;
+        InstanceIdentifier<DpnEndpoints> dep = InstanceIdentifier.builder( DpnEndpoints.class).build() ;
         List<DPNTEPsInfo> dpnList = new ArrayList<DPNTEPsInfo>() ;
         dpnList.add(dpn) ;
-        Tunnels tnlBuilder = new TunnelsBuilder().setDPNTEPsInfo(dpnList).build() ;
-        t.merge(LogicalDatastoreType.CONFIGURATION, tnId, tnlBuilder, true);
+        DpnEndpoints tnlBuilder = new DpnEndpointsBuilder().setDPNTEPsInfo(dpnList).build() ;
+        t.merge(LogicalDatastoreType.CONFIGURATION, dep, tnlBuilder, true);
     }
 
     private static void build_tunnel_from( DPNTEPsInfo srcDpn,List<DPNTEPsInfo> meshedDpnList, DataBroker dataBroker,  WriteTransaction t, List<ListenableFuture<Void>> futures) {
@@ -120,8 +141,8 @@ public class ItmInternalTunnelAddWorker {
         // Wire Up logic
         logger.trace( "Wiring between source tunnel end points {}, destination tunnel end points {} " , srcte, dstte );
         String interfaceName = srcte.getInterfaceName() ;
-        Class<? extends TunnelTypeBase> tunType = (srcte.getTunnelType().equals("GRE") ) ? TunnelTypeGre.class :TunnelTypeVxlan.class ;
-        String ifDescription = (srcte.getTunnelType().equals("GRE") ) ? "GRE" : "VxLan" ;
+        Class<? extends TunnelTypeBase> tunType = srcte.getTunnelType();
+        String ifDescription = srcte.getTunnelType().getName();
         // Form the trunk Interface Name
         String trunkInterfaceName = ItmUtils.getTrunkInterfaceName(interfaceName,srcte.getIpAddress().getIpv4Address().getValue(), dstte.getIpAddress().getIpv4Address().getValue()) ;
         IpAddress gwyIpAddress = ( srcte.getSubnetMask().equals(dstte.getSubnetMask()) ) ? null : srcte.getGwIpAddress() ;
@@ -132,6 +153,15 @@ public class ItmInternalTunnelAddWorker {
         logger.debug(  " Trunk Interface Identifier - {} ", trunkIdentifier ) ;
         logger.trace(  " Writing Trunk Interface to Config DS {}, {} ", trunkIdentifier, iface ) ;
         t.merge(LogicalDatastoreType.CONFIGURATION, trunkIdentifier, iface, true);
+        // also update itm-state ds?
+        InstanceIdentifier<Tunnel> path = InstanceIdentifier.create(
+                TunnelList.class)
+                    .child(Tunnel.class, new TunnelKey(dstDpnId, srcDpnId));   
+        Tunnel tnl = new TunnelBuilder().setKey(new TunnelKey(dstDpnId, srcDpnId))
+                                       .setDestinationDPN(dstDpnId)
+                                       .setSourceDPN(srcDpnId)
+                                       .setTunnelInterfaceName(trunkInterfaceName).build();
+        ItmUtils.asyncUpdate(LogicalDatastoreType.CONFIGURATION, path, tnl, dataBroker, DEFAULT_CALLBACK);
         return true;
     }
 

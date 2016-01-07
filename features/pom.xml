@@ -285,16 +285,21 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <version>${idmanager.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.vpnservice</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>itm-impl</artifactId>
       <version>${itm.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.vpnservice</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>itm-impl</artifactId>
       <version>${itm.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>itm-api</artifactId>
+      <version>${itm.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

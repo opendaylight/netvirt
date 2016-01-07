@@ -24,6 +24,7 @@ import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
@@ -33,9 +34,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.AdjacencyKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.rpcs.rev151217.GetTunnelInterfaceIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.rpcs.rev151217.GetTunnelInterfaceIdOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.rpcs.rev151217.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetExternalTunnelInterfaceNameInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetExternalTunnelInterfaceNameOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetTunnelInterfaceNameInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetTunnelInterfaceNameOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdOutput;
@@ -214,23 +217,43 @@ public class NexthopManager implements AutoCloseable {
         return listActionInfo;
     }
 
-    protected Integer getTunnelInterfaceId(BigInteger srcDpId, BigInteger dstDpId) {
+    protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
         // FIXME: Enable during itm integration
-        /*
+        
         try {
-            Future<RpcResult<GetTunnelInterfaceIdOutput>> result = itmManager.getTunnelInterfaceId(new GetTunnelInterfaceIdInputBuilder()
+            Future<RpcResult<GetTunnelInterfaceNameOutput>> result = itmManager.getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder()
                                                                                  .setSourceDpid(srcDpId)
                                                                                  .setDestinationDpid(dstDpId).build());
-            RpcResult<GetTunnelInterfaceIdOutput> rpcResult = result.get();
+            RpcResult<GetTunnelInterfaceNameOutput> rpcResult = result.get();
             if(!rpcResult.isSuccessful()) {
                 LOG.warn("RPC Call to getTunnelInterfaceId returned with Errors {}", rpcResult.getErrors());
             } else {
-                return rpcResult.getResult().getInterfaceid();
+                return rpcResult.getResult().getInterfaceName();
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when getting tunnel interface Id for tunnel between {} and  {}", srcDpId, dstDpId, e);
         }
-        */
+        
+        return null;
+    }
+
+    protected String getExternalTunnelInterfaceName(BigInteger srcDpId, IpAddress dstIp) {
+        // FIXME: Enable during itm integration
+        
+        try {
+            Future<RpcResult<GetExternalTunnelInterfaceNameOutput>> result = itmManager.getExternalTunnelInterfaceName(new GetExternalTunnelInterfaceNameInputBuilder()
+                                                                                 .setSourceDpid(srcDpId)
+                                                                                 .setDestinationIp(dstIp).build());
+            RpcResult<GetExternalTunnelInterfaceNameOutput> rpcResult = result.get();
+            if(!rpcResult.isSuccessful()) {
+                LOG.warn("RPC Call to getExternalTunnelInterfaceId returned with Errors {}", rpcResult.getErrors());
+            } else {
+                return rpcResult.getResult().getInterfaceName();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when getting external tunnel interface Id for tunnel between {} and  {}", srcDpId, dstIp, e);
+        }
+        
         return null;
     }
 
@@ -334,9 +357,9 @@ public class NexthopManager implements AutoCloseable {
     }
 
 
-    public List<ActionInfo> getRemoteNextHopPointer(BigInteger localDpnId, BigInteger remoteDpnId,
+    public String getRemoteNextHopPointer(BigInteger localDpnId, BigInteger remoteDpnId,
                                                     long vpnId, String prefixIp, String nextHopIp) {
-        List<ActionInfo> remoteNextHopActions = null;
+        String tunnelIfName = null;
         LOG.trace("getRemoteNextHopPointer: input [localDpnId {} remoteDpnId {}, vpnId {}, prefixIp {}, nextHopIp {} ]",
                   localDpnId, remoteDpnId, vpnId, prefixIp, nextHopIp);
 
@@ -353,22 +376,19 @@ public class NexthopManager implements AutoCloseable {
         }
         LOG.trace("getRemoteNextHopPointer: Calling ITM with localDpnId {} ", localDpnId);
         try{
+            // here use the config for tunnel type param
             if(localDpnId != null){
-                Integer interfaceId = getTunnelInterfaceId(remoteDpnId, localDpnId);
-                if(interfaceId != null) {
-                    remoteNextHopActions =
-                        getEgressActionsForInterface(
-                            getTunnelInterfaceId(remoteDpnId, localDpnId).toString());
-                }
+                //internal tunnel
+                tunnelIfName =  getTunnelInterfaceName(remoteDpnId, localDpnId);
             } else {
-                // FIXME: dynamically build and use tunnel to dc gateway.
-                // remoteNextHopActions = itmManager.getEgressOutputForDCGateway(remoteDpnId,
-                //                                                            IpAddressBuilder.getDefaultInstance(nextHopIp));
+                //external tunnel
+                tunnelIfName = getExternalTunnelInterfaceName(remoteDpnId,
+                                                                   IpAddressBuilder.getDefaultInstance(nextHopIp));
             }
         }catch(Exception ex){
             LOG.error("Error while retrieving nexthop pointer for DC Gateway : ", ex.getMessage());
         }
-        return remoteNextHopActions;
+        return tunnelIfName;
     }
 
     public BigInteger getDpnForPrefix(long vpnId, String prefixIp) {

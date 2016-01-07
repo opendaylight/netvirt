@@ -1,6 +1,6 @@
 module itm {
 
-    namespace "urn:opendaylight:params:xml:ns:yang:itm";
+    namespace "urn:opendaylight:vpnservice:itm";
 
     prefix itm;
 
@@ -14,6 +14,12 @@ module itm {
         prefix inet;
         revision-date "2010-09-24";
     }
+    
+    import odl-interface {
+        prefix odlif;
+    }
+    
+    
     import config { prefix config; revision-date 2013-04-05; }
 
     description "This YANG module defines tunnel configuration.";
@@ -28,7 +34,9 @@ module itm {
             type string;
         }
         leaf tunnel-type {
-             type string;
+            type identityref {
+                base odlif:tunnel-type-base;
+            }
         }
 
         list subnets {

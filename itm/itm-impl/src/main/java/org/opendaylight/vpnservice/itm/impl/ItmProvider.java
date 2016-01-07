@@ -15,23 +15,23 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.itm.api.IITMProvider;
 import org.opendaylight.vpnservice.itm.listeners.TransportZoneListener;
 import org.opendaylight.vpnservice.itm.rpc.ItmManagerRpcService;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.GetTunnelIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.GetTunnelIdOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.ItmStateService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.TunnelsState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.rev150701.transport.zones.transport.zone.*;;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
+
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ItmProvider implements BindingAwareProvider, AutoCloseable, IITMProvider,ItmStateService {
+public class ItmProvider implements BindingAwareProvider, AutoCloseable, IITMProvider /*,ItmStateService */{
 
     private static final Logger LOG = LoggerFactory.getLogger(ItmProvider.class);
     private IInterfaceManager interfaceManager;
@@ -42,6 +42,15 @@ public class ItmProvider implements BindingAwareProvider, AutoCloseable, IITMPro
     private ItmManagerRpcService itmRpcService ;
     private NotificationService notificationService;
     private TransportZoneListener tzChangeListener;
+    private RpcProviderRegistry rpcProviderRegistry;
+
+    public void setRpcProviderRegistry(RpcProviderRegistry rpcProviderRegistry) {
+        this.rpcProviderRegistry = rpcProviderRegistry;
+    }
+
+    public RpcProviderRegistry getRpcProviderRegistry() {
+        return this.rpcProviderRegistry;
+    }
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -52,6 +61,7 @@ public class ItmProvider implements BindingAwareProvider, AutoCloseable, IITMPro
             itmManager = new ITMManager(dataBroker);
             tzChangeListener = new TransportZoneListener(dataBroker) ;
             itmRpcService = new ItmManagerRpcService(dataBroker);
+            final BindingAwareBroker.RpcRegistration<ItmRpcService> rpcRegistration = getRpcProviderRegistry().addRpcImplementation(ItmRpcService.class, itmRpcService);
 
             itmManager.setMdsalManager(mdsalManager);
             itmManager.setNotificationPublishService(notificationPublishService);
@@ -90,11 +100,5 @@ public class ItmProvider implements BindingAwareProvider, AutoCloseable, IITMPro
         LOG.info("ItmProvider Closed");
     }
 
-    @Override
-    public Future<RpcResult<GetTunnelIdOutput>> getTunnelId(
-         GetTunnelIdInput input) {
-         // TODO Auto-generated method stub
-         return null;
-    }
 
 }

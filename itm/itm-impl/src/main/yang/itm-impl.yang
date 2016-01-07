@@ -1,6 +1,6 @@
 module itm-impl {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:itm:impl";
+    namespace "urn:opendaylight:vpnservice:itm:impl";
     prefix "itm-impl";
 
     import config { prefix config; revision-date 2013-04-05; }

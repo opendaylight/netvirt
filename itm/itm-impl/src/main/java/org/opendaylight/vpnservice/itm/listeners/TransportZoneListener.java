@@ -24,13 +24,14 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.DPNTEPsInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels.dpn.teps.info.TunnelEndPoints;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.rev150701.TransportZones;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.rev150701.TransportZonesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.rev150701.transport.zones.TransportZone;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.rev150701.transport.zones.transport.zone.Subnets;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.rev150701.transport.zones.transport.zone.subnets.Vteps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.DPNTEPsInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.TransportZones;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.TransportZonesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.transport.zones.TransportZone;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.transport.zones.transport.zone.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.transport.zones.transport.zone.subnets.Vteps;
 import org.opendaylight.vpnservice.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.vpnservice.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.vpnservice.itm.impl.ITMManager;
@@ -136,7 +137,7 @@ public class TransportZoneListener extends AsyncDataTreeChangeListenerBase<Trans
        // List<TransportZone> transportZoneList = transportZones.getTransportZone();
        // for(TransportZone transportZone : transportZoneList) {
             String zone_name = transportZone.getZoneName();
-            String tunnel_type = transportZone.getTunnelType();
+            Class<? extends TunnelTypeBase> tunnel_type = transportZone.getTunnelType();
             LOG.trace("Transport Zone_name: {}", zone_name);
             List<Subnets> subnetsList = transportZone.getSubnets();
             if(subnetsList!=null){

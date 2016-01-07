@@ -1,6 +1,6 @@
 module itm-state {
 
-      namespace "urn:opendaylight:params:xml:ns:yang:itm:op";
+      namespace "urn:opendaylight:vpnservice:itm:op";
 
       prefix itm-state;
 
@@ -16,6 +16,10 @@ module itm-state {
           prefix inet;
           revision-date "2010-09-24";
       }
+      import odl-interface {
+          prefix odlif; revision-date "2015-03-31";
+      }
+    
 
       description "This YANG module defines operation part of the model.";
 
@@ -23,7 +27,7 @@ module itm-state {
 
         /* Operational state */
 
-      container tunnels {
+      container dpn-endpoints {
 
         list DPN-TEPs-info {
 
@@ -64,7 +68,9 @@ module itm-state {
                           type string;
                  }
                  leaf tunnel-type {
-                      type string;
+                      type identityref {
+                          base odlif:tunnel-type-base;
+                      }
                  }
            }
 
@@ -72,8 +78,8 @@ module itm-state {
       }
 
 
-      container tunnels_state {
-             list state-tunnel-list {
+      container tunnel-list {
+             list tunnel {
 
                key  "source-DPN destination-DPN";
 
@@ -87,36 +93,32 @@ module itm-state {
 
                /* logical-group interface id */
 
-               leaf logical-tunnel-group-name {
+               leaf tunnel-interface-name {
                     type string;
-                    config false;
                }
-
-               leaf logical-tunnel-state {
-                    type boolean;
-                    config false;
-               }
-
              }
           }
+          
+      container external-tunnel-list {
+             list external-tunnel {
 
-          rpc get-tunnel-id {
+               key  "source-DPN destination-IP";
 
-             input {
-                leaf source-dpn {
-                    type uint64;
-                }
-                leaf destination-dpn {
-                    type uint64;
-                }
+               leaf source-DPN {
+                   type uint64;
+               }
+
+               leaf destination-IP {
+                   type inet:ip-address;
+               }
+
+               /* logical-group interface id */
+
+               leaf tunnel-interface-name {
+                    type string;
+               }
+
              }
-
-             output {
-                     leaf logical-group-name {
-                        type string;
-                     }
-             }
-
           }
           
           notification itm-tunnel-build-complete{
