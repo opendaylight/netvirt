@@ -14,6 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -34,6 +35,7 @@ import org.opendaylight.vpnservice.mdsalutil.packet.ARP;
 import org.opendaylight.vpnservice.mdsalutil.packet.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -99,6 +101,8 @@ public class ArpUtilImpl implements OdlArputilService,
     private static final short ARP_REQUEST_OP = (short) 1;
 
     private static final short ARP_RESPONSE_OP = (short) 2;
+
+    private static final short ETH_TYPE_ARP = 0x0806;
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ArpUtilImpl.class);
@@ -237,7 +241,7 @@ public class ArpUtilImpl implements OdlArputilService,
                 interfaceName = interfaceAddress.getInterface();
                 srcIpBytes = getIpAddressBytes(interfaceAddress.getIpAddress());
 
-                NodeConnectorId id = getNodeConnectorFromDataStore(interfaceName);
+                NodeConnectorId id = getNodeConnectorFromInterfaceName(interfaceName);
 
                 dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(id));
                 Long portid = MDSALUtil.getOfPortNumberFromPortName(id);
@@ -322,7 +326,7 @@ public class ArpUtilImpl implements OdlArputilService,
 
         try {
             String interfaceName = input.getInterface();
-            NodeConnectorId id = getNodeConnectorFromDataStore(interfaceName);
+            NodeConnectorId id = getNodeConnectorFromInterfaceName(interfaceName);
 
             dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(id));
             Long portid = MDSALUtil.getOfPortNumberFromPortName(id);
@@ -384,8 +388,7 @@ public class ArpUtilImpl implements OdlArputilService,
 
                 ethernet.deserialize(data, 0, data.length
                         * NetUtils.NumBitsInAByte);
-                if (ethernet.getEtherType() != ARP_REQUEST_OP
-                        && ethernet.getEtherType() != ARP_REQUEST_OP) {
+                if (ethernet.getEtherType() != ETH_TYPE_ARP) {
                     return;
                 }
 
@@ -524,15 +527,24 @@ public class ArpUtilImpl implements OdlArputilService,
     }
 
 
-    private NodeConnectorId getNodeConnectorFromDataStore(String interfaceName) {
-        InstanceIdentifier<Interface> id = buildInterfaceId(interfaceName);
-        Optional<Interface> interf = MDSALUtil.read(dataBroker,
-                LogicalDatastoreType.CONFIGURATION,
-                id);
-        if (interf.isPresent()) {
-            return interf.get().getAugmentation(BaseIds.class).getOfPortId();
+    private NodeConnectorId getNodeConnectorFromInterfaceName(String interfaceName) {
+        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> idBuilder =
+                InstanceIdentifier.builder(InterfacesState.class)
+                        .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class,
+                                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(interfaceName));
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId = idBuilder.build();
+
+        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateOptional = MDSALUtil.read(dataBroker,
+                LogicalDatastoreType.OPERATIONAL,
+                ifStateId);
+
+        if (ifStateOptional.isPresent()) {
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState = ifStateOptional.get();
+            List<String> lowerLayerIf = ifState.getLowerLayerIf();
+            if (!lowerLayerIf.isEmpty()) {
+                return new NodeConnectorId(lowerLayerIf.get(0));
+            }
         }
         return null;
     }
-
 }

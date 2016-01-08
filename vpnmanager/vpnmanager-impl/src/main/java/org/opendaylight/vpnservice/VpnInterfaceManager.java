@@ -286,7 +286,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
     private void makeArpFlow(short sIndex, int lPortTag, String vpnInterfaceName, long vpnId, ArpReplyOrRequest replyOrRequest, int addOrRemoveFlow){
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher(lPortTag, sIndex, BigInteger.valueOf(vpnId));
+        BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher(lPortTag, ++sIndex, BigInteger.valueOf(vpnId));
         BigInteger metadataMask = MetaDataUtil.getMetaDataMaskForLPortDispatcher(MetaDataUtil.METADATA_MASK_SERVICE_INDEX,
                 MetaDataUtil.METADATA_MASK_LPORT_TAG, MetaDataUtil.METADATA_MASK_VRFID);
 
