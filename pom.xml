@@ -28,6 +28,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module>alivenessmonitor</module>
     <module>fibmanager</module>
     <module>bgpmanager</module>
+    <module>neutronvpn</module>
     <module>dhcpservice</module>
     <module>itm</module>
     <module>distribution/karaf</module>
