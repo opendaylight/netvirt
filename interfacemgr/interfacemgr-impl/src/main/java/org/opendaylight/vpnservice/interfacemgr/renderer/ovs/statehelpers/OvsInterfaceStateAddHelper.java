@@ -102,6 +102,7 @@ public class OvsInterfaceStateAddHelper {
             long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
             InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager, tunnel,dpId, portNo, iface,
                     NwConstants.ADD_FLOW);
+            futures.add(transaction.submit());
             return futures;
         }
 
