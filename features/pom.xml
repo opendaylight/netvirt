@@ -39,6 +39,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <lockmanager.version>${vpnservices.version}</lockmanager.version>
     <idmanager.version>${vpnservices.version}</idmanager.version>
     <itm.version>${vpnservices.version}</itm.version>
+    <neutronvpn.version>${vpnservices.version}</neutronvpn.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -317,6 +318,28 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>dhcpservice-api</artifactId>
       <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>neutronvpn-api</artifactId>
+      <version>${neutronvpn.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>neutronvpn-impl</artifactId>
+      <version>${neutronvpn.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>neutronvpn-impl</artifactId>
+      <version>${neutronvpn.version}</version>
+      <classifier>config</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>neutronvpn-shell</artifactId>
+      <version>${neutronvpn.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.thrift</groupId>
