@@ -62,7 +62,7 @@ public class ItmProvider implements BindingAwareProvider, AutoCloseable, IITMPro
             tzChangeListener = new TransportZoneListener(dataBroker) ;
             itmRpcService = new ItmManagerRpcService(dataBroker);
             final BindingAwareBroker.RpcRegistration<ItmRpcService> rpcRegistration = getRpcProviderRegistry().addRpcImplementation(ItmRpcService.class, itmRpcService);
-
+            itmRpcService.setMdsalManager(mdsalManager);
             itmManager.setMdsalManager(mdsalManager);
             itmManager.setNotificationPublishService(notificationPublishService);
             itmManager.setMdsalManager(mdsalManager);

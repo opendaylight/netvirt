@@ -7,7 +7,10 @@
  */
 package org.opendaylight.vpnservice.itm.globals;
 
+import java.math.BigInteger;
+
 
 public class ITMConstants{
-                
+    public static final short INTERNAL_TUNNEL_TABLE = 22;
+    public static final BigInteger COOKIE_ITM = new BigInteger("9000000", 16);
 }
