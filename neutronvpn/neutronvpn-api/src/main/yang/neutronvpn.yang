@@ -151,6 +151,21 @@ module neutronvpn {
         }
     }
 
+    /* container for DHCP Configuration */
+    container dhcp-config {
+        list configs {
+            leaf lease-duration {
+                type    int32;
+                description "default lease duration for dhcp lease.
+                             -1 means infinite";
+            }
+            leaf default-domain {
+                type string;
+                description "default domain-name. used in dhcp reply";
+            }
+        }
+    }
+
     rpc createL3VPN{
         description "Create one or more L3 VPN";
         input {

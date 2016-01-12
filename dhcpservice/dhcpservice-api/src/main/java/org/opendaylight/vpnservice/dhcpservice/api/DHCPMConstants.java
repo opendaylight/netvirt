@@ -34,4 +34,5 @@ public final class DHCPMConstants {
     public static final short dhcpServerPort = 67;
 
     public static final int DEFAULT_LEASE_TIME = 86400;
+    public static final String DEFAULT_DOMAIN_NAME = "openstacklocal";
 }
