@@ -13,7 +13,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.mdsalutil.AbstractDataChangeListener;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -65,17 +64,18 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
 
     @Override
     protected void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
-        LOG.trace("Adding Subnet : key: " + identifier + ", value=" + input);
-        nvpnManager.updateSubnetNode(input.getUuid(), input.getTenantId(), input.getNetworkId(), null, null, null);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Adding Subnet : key: " + identifier + ", value=" + input);
+        }
+        nvpnManager.handleNeutronSubnetCreated(input.getUuid(), input.getNetworkId(), input.getTenantId());
     }
 
     @Override
     protected void remove(InstanceIdentifier<Subnet> identifier, Subnet input) {
-        LOG.trace("Removing subnet : key: " + identifier + ", value=" + input);
-        Uuid vpnId = NeutronvpnUtils.getVpnForNetwork(broker, input.getNetworkId());
-        if (vpnId != null) {
-            nvpnManager.removeSubnetFromVpn(vpnId, input.getUuid());
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Removing subnet : key: " + identifier + ", value=" + input);
         }
+        nvpnManager.handleNeutronSubnetDeleted(input.getUuid(), input.getNetworkId(), null);
     }
 
     @Override
@@ -84,6 +84,6 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
             LOG.trace("Updating Subnet : key: " + identifier + ", original value=" + original + ", update value=" +
                     update);
         }
-        nvpnManager.updateSubnetNode(update.getUuid(), update.getTenantId(), update.getNetworkId(), null, null, null);
+        nvpnManager.handleNeutronSubnetUpdated(update.getUuid(), update.getNetworkId(), update.getTenantId());
     }
 }

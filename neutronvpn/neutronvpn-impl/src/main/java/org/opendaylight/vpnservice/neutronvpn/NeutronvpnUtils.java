@@ -31,9 +31,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.lockmanager.rev1
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.lockmanager.rev150819.TryLockInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.lockmanager.rev150819.UnlockInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.lockmanager.rev150819.UnlockInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.NeutronPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.VpnMaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.networkmaps.NetworkMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.networkmaps.NetworkMapKey;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
         .PortFixedipToPortName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
@@ -66,8 +70,7 @@ public class NeutronvpnUtils {
     private static final Logger logger = LoggerFactory.getLogger(NeutronvpnUtils.class);
 
     protected static Subnetmap getSubnetmap(DataBroker broker, Uuid subnetId) {
-        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class).
-                child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
+        InstanceIdentifier id = buildSubnetMapIdentifier(subnetId);
         Optional<Subnetmap> sn = read(broker, LogicalDatastoreType.CONFIGURATION, id);
 
         if (sn.isPresent()) {
@@ -153,6 +156,16 @@ public class NeutronvpnUtils {
         return null;
     }
 
+    protected static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
+        InstanceIdentifier id = buildNetworkMapIdentifier(networkId);
+        Optional<NetworkMap> optionalNetworkMap = read(broker, LogicalDatastoreType.CONFIGURATION,
+                id);
+        if (optionalNetworkMap.isPresent()) {
+            return optionalNetworkMap.get().getSubnetIdList();
+        }
+        return null;
+    }
+
     //TODO
     //Will be done once integrated with TrunkPort Extensions
     protected static int getVlanFromNeutronPort(Port port) {
@@ -190,19 +203,6 @@ public class NeutronvpnUtils {
         if (net.isPresent()) {
             return net.get();
         }
-        return null;
-    }
-
-    protected static List<Uuid> getNeutronNetworkSubnetIds(DataBroker broker, Uuid networkId) {
-
-        logger.debug("getNeutronNetworkSubnetIds for {}", networkId.getValue());
-        Network network = getNeutronNetwork(broker, networkId);
-        if (network != null) {
-            //TODO
-            //return network.getSubnets();
-        }
-        logger.debug("returning from getNeutronNetworkSubnetIds for {}", networkId.getValue());
-
         return null;
     }
 
@@ -264,16 +264,26 @@ public class NeutronvpnUtils {
     }
 
     static InstanceIdentifier<PortNameToPortUuid> buildPortNameToPortUuidIdentifier(String portname) {
-        InstanceIdentifier<PortNameToPortUuid> id =
-                InstanceIdentifier.builder(NeutronPortData.class).child(PortNameToPortUuid.class, new
-                        PortNameToPortUuidKey(portname)).build();
+        InstanceIdentifier<PortNameToPortUuid> id = InstanceIdentifier.builder(NeutronPortData.class).child
+                (PortNameToPortUuid.class, new PortNameToPortUuidKey(portname)).build();
         return id;
     }
 
     static InstanceIdentifier<PortFixedipToPortName> buildFixedIpToPortNameIdentifier(String fixedIp) {
-        InstanceIdentifier<PortFixedipToPortName> id =
-                InstanceIdentifier.builder(NeutronPortData.class).child(PortFixedipToPortName.class, new
-                        PortFixedipToPortNameKey(fixedIp)).build();
+        InstanceIdentifier<PortFixedipToPortName> id = InstanceIdentifier.builder(NeutronPortData.class).child
+                (PortFixedipToPortName.class, new PortFixedipToPortNameKey(fixedIp)).build();
+        return id;
+    }
+
+    static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {
+        InstanceIdentifier<NetworkMap> id = InstanceIdentifier.builder(NetworkMaps.class).child(NetworkMap.class, new
+                NetworkMapKey(networkId)).build();
+        return id;
+    }
+
+    static InstanceIdentifier<Subnetmap> buildSubnetMapIdentifier(Uuid subnetId) {
+        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class, new
+                SubnetmapKey(subnetId)).build();
         return id;
     }
 
