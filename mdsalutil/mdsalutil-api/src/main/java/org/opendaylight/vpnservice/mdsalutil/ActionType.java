@@ -213,11 +213,23 @@ public enum ActionType {
         @Override
         public Action buildAction(ActionInfo actionInfo) {
             BigInteger [] actionValues = actionInfo.getBigActionValues();
-            return new ActionBuilder().setAction(
+            if (actionValues.length == 2) {
+                return new ActionBuilder().setAction(
                     new SetFieldCaseBuilder().setSetField(
-                            new SetFieldBuilder().setTunnel(new TunnelBuilder().setTunnelId(actionValues[0])
-                                    .setTunnelMask(actionValues[1]).build()).build()).build())
-                                    .setKey(new ActionKey(actionInfo.getActionKey())).build();
+                        new SetFieldBuilder()
+                            .setTunnel(new TunnelBuilder().setTunnelId(actionValues[0])
+                                           .setTunnelMask(actionValues[1]).build()).build())
+                        .build())
+                    .setKey(new ActionKey(actionInfo.getActionKey())).build();
+            } else {
+                return new ActionBuilder().setAction(
+                    new SetFieldCaseBuilder().setSetField(
+                        new SetFieldBuilder()
+                            .setTunnel(new TunnelBuilder().setTunnelId(actionValues[0])
+                                           .build()).build())
+                        .build())
+                    .setKey(new ActionKey(actionInfo.getActionKey())).build();
+            }
 
         }
 

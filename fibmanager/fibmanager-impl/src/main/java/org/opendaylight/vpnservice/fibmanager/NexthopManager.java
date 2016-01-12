@@ -218,8 +218,6 @@ public class NexthopManager implements AutoCloseable {
     }
 
     protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
-        // FIXME: Enable during itm integration
-        
         try {
             Future<RpcResult<GetTunnelInterfaceNameOutput>> result = itmManager.getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder()
                                                                                  .setSourceDpid(srcDpId)
@@ -238,8 +236,6 @@ public class NexthopManager implements AutoCloseable {
     }
 
     protected String getExternalTunnelInterfaceName(BigInteger srcDpId, IpAddress dstIp) {
-        // FIXME: Enable during itm integration
-        
         try {
             Future<RpcResult<GetExternalTunnelInterfaceNameOutput>> result = itmManager.getExternalTunnelInterfaceName(new GetExternalTunnelInterfaceNameInputBuilder()
                                                                                  .setSourceDpid(srcDpId)
