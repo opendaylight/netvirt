@@ -1,0 +1,153 @@
+module ebgp {
+
+  yang-version "1";
+
+  // namespace
+  namespace "urn:ericsson:params:xml:ns:yang:ebgp";
+
+  prefix "ericsson-bgp";
+
+  // import some basic inet types
+  import ietf-inet-types { prefix inet; }
+
+  // meta
+  organization
+    "Ericsson Bangalore";
+
+  contact
+    "Ericsson Bangalore"; 
+
+  description
+    "BGP configuration model for Ericsson's implementation of
+    Opendaylight L3VPN";
+
+  revision "2015-09-01" {
+  }
+
+ container bgp {
+  config "true"; 
+  container config-server {
+    leaf host {
+      type inet:ipv4-address;
+      mandatory "true";
+    }
+    leaf port {
+      type uint32;
+      mandatory "true"; 
+    } 
+  }
+
+  container as-id {
+    leaf local-as {
+      type uint32;
+      mandatory "true";
+    }
+    leaf router-id {
+      type inet:ipv4-address;
+    }
+    leaf stalepath-time {
+      type uint32;
+      default 360;
+    }
+    leaf announce-fbit {
+      type boolean;
+    }
+  }
+
+  container graceful-restart {
+    leaf stalepath-time {
+      type uint32;
+      mandatory "true";
+    }
+  }
+
+  container logging {
+    leaf file {
+      type string;
+    }
+    leaf level {
+      type string;
+    }
+  }
+
+  list neighbors { 
+    key "address";
+    leaf address {
+      type inet:ipv4-address;
+      mandatory "true";
+    }
+    leaf remote-as {
+      type uint32;
+      mandatory "true";
+    }
+    container ebgp-multihop {
+      leaf nhops {
+        type uint32;
+        mandatory "true";
+      }
+      leaf peer-ip {
+        type leafref {
+          path "/ericsson-bgp:bgp/neighbors/address";
+        }
+      }
+    }
+    container update-source {
+      leaf source-ip {
+        type inet:ipv4-address;
+      }
+      leaf peer-ip {
+        type leafref {
+          path "/ericsson-bgp:bgp/neighbors/address";
+        }
+      }
+    }
+    list address-families {
+      key "afi safi";
+      leaf afi {
+        type uint32;
+        mandatory "true";
+      }
+      leaf safi {
+        type uint32;
+        mandatory "true";
+      }
+      leaf peer-ip {
+        type leafref {
+          path "/ericsson-bgp:bgp/neighbors/address";
+        }
+      }
+    } //addr-families
+  } // neighbhors
+
+  list networks {
+    key "rd prefix-len";
+    leaf rd {
+      type string;
+    }
+    leaf prefix-len {
+          type string;
+    }
+    leaf nexthop {
+      type inet:ipv4-address;
+      mandatory "false";
+    }
+    leaf label {
+      type uint32;
+      mandatory "false";
+    }
+  } // networks
+
+  list vrfs {
+    key "rd";
+    leaf rd {
+      type string;
+    }
+    leaf-list import-rts {
+      type string;
+    }
+    leaf-list export-rts {
+      type string;
+    }
+  }
+ } // bgp
+}

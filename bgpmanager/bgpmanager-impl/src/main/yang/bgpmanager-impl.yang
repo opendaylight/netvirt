@@ -6,6 +6,7 @@ module bgpmanager-impl {
     import config { prefix config; revision-date 2013-04-05; }
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
     import bgpmanager-api { prefix bgpmgr-api; revision-date 2015-04-20;}
+    //import itm { prefix itm; revision-date 2015-07-01; }
 
     description
         "Service definition for bgpmanager project";
@@ -32,6 +33,14 @@ module bgpmanager-impl {
                     }
                 }
             }
+            /*container itm {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity itm:itm;
+                    }
+                }
+            }*/
         }
     }
 }

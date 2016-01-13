@@ -25,7 +25,7 @@ public class MockFibManager extends AbstractMockFibManager<VrfEntry> {
     }
 
     private void registerListener(final DataBroker db) {
-        final DataTreeIdentifier<VrfEntry> treeId = new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, getWildCardPath());
+        final DataTreeIdentifier<VrfEntry> treeId = new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, getWildCardPath());
         try {
             listenerRegistration = db.registerDataTreeChangeListener(treeId, MockFibManager.this);
         } catch (final Exception e) {

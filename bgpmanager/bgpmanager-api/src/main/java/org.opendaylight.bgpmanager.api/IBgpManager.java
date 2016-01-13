@@ -42,4 +42,13 @@ public interface IBgpManager {
      */
     public void deletePrefix(String rd, String prefix) throws Exception;
 
+    /**
+     *
+     * @param fileName
+     * @param logLevel
+     */
+    public void setQbgpLog(String fileName, String logLevel) throws Exception;
+
+    public String getDCGwIP();
+
 }
