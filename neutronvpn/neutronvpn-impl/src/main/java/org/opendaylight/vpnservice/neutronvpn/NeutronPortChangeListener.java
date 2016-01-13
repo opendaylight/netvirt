@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,15 +8,27 @@
 package org.opendaylight.vpnservice.neutronvpn;
 
 
+import com.google.common.base.Optional;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
+        .PortFixedipToPortNameBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
+        .PortNameToPortUuidBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -72,7 +84,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         if (LOG.isTraceEnabled()) {
             LOG.trace("Adding Port : key: " + identifier + ", value=" + input);
         }
-        nvpnManager.handleNeutronPortCreated(input);
+        handleNeutronPortCreated(input);
 
     }
 
@@ -81,7 +93,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         if (LOG.isTraceEnabled()) {
             LOG.trace("Removing Port : key: " + identifier + ", value=" + input);
         }
-        nvpnManager.handleNeutronPortDeleted(input);
+        handleNeutronPortDeleted(input);
 
     }
 
@@ -102,7 +114,158 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                     iterator.remove();
                 }
             }
-            nvpnManager.handleNeutronPortUpdated(original, update);
+            handleNeutronPortUpdated(original, update);
         }
+    }
+
+    private void handleNeutronPortCreated(Port port) {
+        LOG.info("Of-port-interface creation");
+        int portVlanId = NeutronvpnUtils.getVlanFromNeutronPort(port);
+        // Create of-port interface for this neutron port
+        createOfPortInterface(port, portVlanId);
+        LOG.debug("Add port to subnet");
+        // add port to local Subnets DS
+        Uuid vpnId = addPortToSubnets(port);
+
+        if (vpnId != null) {
+            // create vpn-interface on this neutron port
+            LOG.debug("Adding VPN Interface");
+            nvpnManager.createVpnInterface(vpnId, port);
+        }
+    }
+
+    private void handleNeutronPortDeleted(Port port) {
+        LOG.debug("Of-port-interface removal");
+        LOG.debug("Remove port from subnet");
+        // remove port from local Subnets DS
+        Uuid vpnId = removePortFromSubnets(port);
+
+        if (vpnId != null) {
+            // remove vpn-interface for this neutron port
+            LOG.debug("removing VPN Interface");
+            nvpnManager.deleteVpnInterface(port);
+        }
+        int portVlanId = NeutronvpnUtils.getVlanFromNeutronPort(port);
+        // Remove of-port interface for this neutron port
+        deleteOfPortInterface(port, portVlanId);
+
+    }
+
+    private void handleNeutronPortUpdated(Port portoriginal, Port portupdate) {
+        LOG.debug("Add port to subnet");
+        // add port FixedIPs to local Subnets DS
+        Uuid vpnIdup = addPortToSubnets(portupdate);
+
+        if (vpnIdup != null) {
+            nvpnManager.createVpnInterface(vpnIdup, portupdate);
+        }
+
+        // remove port FixedIPs from local Subnets DS
+        Uuid vpnIdor = removePortFromSubnets(portoriginal);
+
+        if (vpnIdor != null) {
+            nvpnManager.deleteVpnInterface(portoriginal);
+        }
+    }
+
+    private void createOfPortInterface(Port port, int portVlanId) {
+        String name = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
+        //String ifname = new StringBuilder(name).append(":").append(Integer.toString(portVlanId)).toString();
+        //Network network = NeutronvpnUtils.getNeutronNetwork(broker, port.getNetworkId());
+        //Boolean isVlanTransparent = network.isVlanTransparent();
+
+        LOG.debug("Creating OFPort Interface {}", name);
+        InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(name);
+        try {
+            Optional<Interface> optionalInf = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+                    interfaceIdentifier);
+            if (!optionalInf.isPresent()) {
+                // handle these for trunkport extensions : portVlanId, isVlanTransparent
+                Interface inf = new InterfaceBuilder().setEnabled(true).setName(name).setType(L2vlan.class).build();
+                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
+            } else {
+                LOG.error("Interface {} is already present", name);
+            }
+        } catch (Exception e) {
+            LOG.error("failed to create interface {} due to the exception {} ", name, e.getMessage());
+        }
+
+        InstanceIdentifier portIdentifier = NeutronvpnUtils.buildPortNameToPortUuidIdentifier(name);
+        PortNameToPortUuidBuilder builder = new PortNameToPortUuidBuilder().setPortName(name).setPortId(port.getUuid());
+        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, portIdentifier, builder.build());
+        LOG.debug("name-uuid map for port with name: {}, uuid: {} added to NeutronPortData DS", name, port.getUuid
+                ());
+    }
+
+    private void deleteOfPortInterface(Port port, int portVlanId) {
+        String name = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
+        //String ifname = new StringBuilder(name).append(":").append(Integer.toString(portVlanId)).toString();
+        LOG.debug("Removing OFPort Interface {}", name);
+        InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(name);
+        try {
+            Optional<Interface> optionalInf = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+                    interfaceIdentifier);
+            if (optionalInf.isPresent()) {
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, interfaceIdentifier);
+            } else {
+                LOG.error("Interface {} is not present", name);
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to delete interface {} due to the exception {}", name, e.getMessage());
+        }
+
+        InstanceIdentifier portIdentifier = NeutronvpnUtils.buildPortNameToPortUuidIdentifier(name);
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, portIdentifier);
+        LOG.debug("name-uuid map for port with name: {}, uuid: {} deleted from NeutronPortData DS", name, port
+                .getUuid());
+    }
+
+    // adds port to subnet list and creates vpnInterface
+    private Uuid addPortToSubnets(Port port) {
+        Uuid subnetId = null;
+        Uuid vpnId = null;
+        String name = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
+
+        // find all subnets to which this port is associated
+        List<FixedIps> ips = port.getFixedIps();
+        for (FixedIps ip : ips) {
+            String ipValue = ip.getIpAddress().getIpv4Address().getValue();
+
+            InstanceIdentifier id = NeutronvpnUtils.buildFixedIpToPortNameIdentifier(ipValue);
+            PortFixedipToPortNameBuilder builder = new PortFixedipToPortNameBuilder().setPortFixedip(ipValue)
+                    .setPortName(name);
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
+            LOG.debug("fixedIp-name map for neutron port with fixedIp: {}, name: {} added to NeutronPortData DS",
+                    ipValue, name);
+
+            subnetId = ip.getSubnetId();
+            Subnetmap subnetmap = nvpnManager.updateSubnetNode(subnetId, null, null, null, null, port.getUuid());
+            if (vpnId == null && subnetmap != null) {
+                vpnId = subnetmap.getVpnId();
+            }
+        }
+        return vpnId;
+    }
+
+    private Uuid removePortFromSubnets(Port port) {
+        Uuid subnetId = null;
+        Uuid vpnId = null;
+
+        // find all Subnets to which this port is associated
+        List<FixedIps> ips = port.getFixedIps();
+        for (FixedIps ip : ips) {
+            String ipValue = ip.getIpAddress().getIpv4Address().getValue();
+
+            InstanceIdentifier id = NeutronvpnUtils.buildFixedIpToPortNameIdentifier(ipValue);
+            MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
+            LOG.debug("fixedIp-name map for neutron port with fixedIp: {} deleted from NeutronPortData DS", ipValue);
+
+            subnetId = ip.getSubnetId();
+            Subnetmap subnetmap = nvpnManager.removeFromSubnetNode(subnetId, null, null, null, port.getUuid());
+            if (vpnId == null && subnetmap != null) {
+                vpnId = subnetmap.getVpnId();
+            }
+        }
+        return vpnId;
     }
 }
