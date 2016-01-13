@@ -7,8 +7,10 @@
  */
 package org.opendaylight.vpnservice.dhcpservice;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.dhcp.config.Configs;
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 
+import org.opendaylight.vpnservice.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.dhcp.config.Configs;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.vpnservice.datastoreutils.AsyncDataChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.DhcpConfig;
@@ -22,7 +24,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpConfigListener extends AsyncDataChangeListenerBase<DhcpConfig, DhcpConfigListener> implements AutoCloseable {
+public class DhcpConfigListener extends AsyncClusteredDataChangeListenerBase<DhcpConfig, DhcpConfigListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpConfigListener.class);
 
@@ -98,7 +100,7 @@ public class DhcpConfigListener extends AsyncDataChangeListenerBase<DhcpConfig, 
     }
 
     @Override
-    protected DataChangeListener getDataChangeListener() {
+    protected ClusteredDataChangeListener getDataChangeListener() {
         return DhcpConfigListener.this;
     }
 
