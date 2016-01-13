@@ -213,9 +213,9 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId() + "has null vpnId!");
 
     Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+    BigInteger localDpnId = createLocalFibEntry(vpnInstance.getVpnId(),
+              vrfTableKey.getRouteDistinguisher(), vrfEntry);
     if (vpnToDpnList != null) {
-      BigInteger localDpnId = createLocalFibEntry(vpnInstance.getVpnId(),
-                          vrfTableKey.getRouteDistinguisher(), vrfEntry);
       for (VpnToDpnList curDpn : vpnToDpnList) {
         if (!curDpn.getDpnId().equals(localDpnId)) {
           createRemoteFibEntry(localDpnId, curDpn.getDpnId(), vpnInstance.getVpnId(),
@@ -272,9 +272,8 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       LOG.info("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", destDpId , label,actionsInfos);
 
       // Matching metadata
-      mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {
-                                  MetaDataUtil.getTunnelIdWithValidVniBitAndVniSet(label),
-                                  MetaDataUtil.METADA_MASK_TUNNEL_ID }));
+      // FIXME vxlan vni bit set is not working properly with OVS.need to revisit
+      mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(label)}));
 
       List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
       mkInstructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
@@ -372,7 +371,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                              vrfEntry.getDestPrefix(), rd);
       return;
     }
-        List<ActionInfo> actionInfos = nextHopManager.getEgressActionsForInterface(tunnelInterface);
+      List<ActionInfo> actionInfos = new ArrayList<>();
 	Class<? extends TunnelTypeBase> tunnel_type = getTunnelType(tunnelInterface);
     if (tunnel_type.equals(TunnelTypeMplsOverGre.class)) {
         LOG.debug("Push label action for prefix {}", vrfEntry.getDestPrefix());
@@ -381,15 +380,17 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     } else {
         int label = vrfEntry.getLabel().intValue();
         BigInteger tunnelId;
+        // FIXME vxlan vni bit set is not working properly with OVS.need to revisit
         if(tunnel_type.equals(TunnelTypeVxlan.class)) {
-        	tunnelId = MetaDataUtil.getTunnelIdWithValidVniBitAndVniSet(label);
+        	tunnelId = BigInteger.valueOf(label);
         } else {
         	tunnelId = BigInteger.valueOf(label);
         }
         LOG.debug("adding set tunnel id action for label {}", label);
-        actionInfos.add(new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {
-        		tunnelId}));
+        actionInfos.add(new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[]{
+                tunnelId}));
     }
+    actionInfos.addAll(nextHopManager.getEgressActionsForInterface(tunnelInterface));
 /*
     List<ActionInfo> actionInfos = resolveAdjacency(localDpnId, remoteDpnId, vpnId, vrfEntry);
     if(actionInfos == null) {
@@ -417,7 +418,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                 MetaDataUtil.METADA_MASK_VALID_TUNNEL_ID_BIT_AND_TUNNEL_ID }));
     }
 **/
-    makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, actionInfos, NwConstants.ADD_FLOW);
+      makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, actionInfos, NwConstants.ADD_FLOW);
     LOG.debug(
         "Successfully added fib entry for " + vrfEntry.getDestPrefix() + " vpnId " + vpnId);
   }
@@ -431,9 +432,9 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     VpnInstanceOpDataEntry vpnInstance = getVpnInstance(vrfTableKey.getRouteDistinguisher());
     Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available!");
     Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+    BigInteger localDpnId = deleteLocalFibEntry(vpnInstance.getVpnId(),
+              vrfTableKey.getRouteDistinguisher(), vrfEntry);
     if (vpnToDpnList != null) {
-      BigInteger localDpnId = deleteLocalFibEntry(vpnInstance.getVpnId(),
-                          vrfTableKey.getRouteDistinguisher(), vrfEntry);
       for (VpnToDpnList curDpn : vpnToDpnList) {
         if (!curDpn.getDpnId().equals(localDpnId)) {
           deleteRemoteRoute(localDpnId, curDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry);
