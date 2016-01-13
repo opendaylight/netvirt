@@ -12,6 +12,8 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.util.SubnetUtils;
@@ -23,6 +25,12 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.DpnEndpointsBuilder;
@@ -44,6 +52,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +67,7 @@ public class ItmUtils {
     public static final String DUMMY_IP_ADDRESS = "0.0.0.0";
     public static final String TUNNEL_TYPE_VXLAN = "VXLAN";
     public static final String TUNNEL_TYPE_GRE = "GRE";
+    public static final String TUNNEL = "TUNNEL";
 
     private static final Logger LOG = LoggerFactory.getLogger(ItmUtils.class);
 
@@ -117,8 +127,9 @@ public class ItmUtils {
         return dpnId;
     }
 
-    public static String getTrunkInterfaceName(String parentInterfaceName, String localHostName, String remoteHostName) {
+    public static String getTrunkInterfaceName(IdManagerService idManager, String parentInterfaceName, String localHostName, String remoteHostName) {
         String trunkInterfaceName = String.format("%s:%s:%s", parentInterfaceName, localHostName, remoteHostName);
+        trunkInterfaceName = String.format("%s:%s", TUNNEL, getUniqueId(idManager, trunkInterfaceName));
         return trunkInterfaceName;
     }
 
@@ -183,5 +194,37 @@ public class ItmUtils {
         }else
             LOG.debug( "No Dpn information in CONFIGURATION datastore "  );
          return dpnTEPs ;
+    }
+
+    public static int getUniqueId(IdManagerService idManager, String idKey) {
+        AllocateIdInput getIdInput = new AllocateIdInputBuilder()
+            .setPoolName(ITMConstants.ITM_IDPOOL_NAME)
+            .setIdKey(idKey).build();
+
+        try {
+            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
+            RpcResult<AllocateIdOutput> rpcResult = result.get();
+            if(rpcResult.isSuccessful()) {
+                return rpcResult.getResult().getIdValue().intValue();
+            } else {
+                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when getting Unique Id",e);
+        }
+        return 0;
+    }
+
+    public static void releaseId(IdManagerService idManager, String idKey) {
+        ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(ITMConstants.ITM_IDPOOL_NAME).setIdKey(idKey).build();
+        try {
+            Future<RpcResult<Void>> result = idManager.releaseId(idInput);
+            RpcResult<Void> rpcResult = result.get();
+            if(!rpcResult.isSuccessful()) {
+                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when getting Unique Id for key {}", idKey, e);
+        }
     }
 }

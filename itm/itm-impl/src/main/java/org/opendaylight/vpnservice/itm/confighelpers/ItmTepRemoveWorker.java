@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.vpnservice.itm.impl.ItmUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.DPNTEPsInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +25,12 @@ public class ItmTepRemoveWorker implements Callable<List<ListenableFuture<Void>>
     private DataBroker dataBroker;
     private List<DPNTEPsInfo> delDpnList ;
     private List<DPNTEPsInfo> meshedDpnList ;
+    private IdManagerService idManagerService;
 
-    public ItmTepRemoveWorker( List<DPNTEPsInfo> delDpnList,  DataBroker broker) {
+    public ItmTepRemoveWorker( List<DPNTEPsInfo> delDpnList,  DataBroker broker, IdManagerService idManagerService) {
         this.delDpnList = delDpnList ;
         this.dataBroker = broker ;
+        this.idManagerService = idManagerService;
         logger.trace("ItmTepRemoveWorker initialized with  DpnList {}",delDpnList );
     }
 
@@ -35,7 +38,7 @@ public class ItmTepRemoveWorker implements Callable<List<ListenableFuture<Void>>
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>() ;
         this.meshedDpnList = ItmUtils.getTunnelMeshInfo(dataBroker) ;
-        futures.addAll( ItmInternalTunnelDeleteWorker.deleteTunnels(dataBroker, delDpnList, meshedDpnList));
+        futures.addAll( ItmInternalTunnelDeleteWorker.deleteTunnels(dataBroker, idManagerService, delDpnList, meshedDpnList));
         logger.debug("Invoking Internal Tunnel delete method with DpnList to be deleted {} ; Meshed DpnList {} ",delDpnList, meshedDpnList );
         // IF EXTERNAL TUNNELS NEEDS TO BE DELETED, DO IT HERE, IT COULD BE TO DC GATEWAY OR TOR SWITCH
         return futures ;

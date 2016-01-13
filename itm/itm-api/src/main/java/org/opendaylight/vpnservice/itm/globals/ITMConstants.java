@@ -11,6 +11,13 @@ import java.math.BigInteger;
 
 
 public class ITMConstants{
+
     public static final short INTERNAL_TUNNEL_TABLE = 22;
     public static final BigInteger COOKIE_ITM = new BigInteger("9000000", 16);
+
+  public static final String ITM_IDPOOL_NAME = "Itmservices";
+  public static final long ITM_IDPOOL_START = 1L;
+  public static final String ITM_IDPOOL_SIZE = "100000";
+                
+
 }
