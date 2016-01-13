@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -69,13 +70,18 @@ public class ItmManagerRpcService implements ItmRpcService {
    private static final Logger LOG = LoggerFactory.getLogger(ItmManagerRpcService.class);
         DataBroker dataBroker;
         private IMdsalApiManager mdsalManager;
-        public ItmManagerRpcService(DataBroker dataBroker) {
-        this.dataBroker = dataBroker;
-    }
+
 
     public void setMdsalManager(IMdsalApiManager mdsalManager) {
             this.mdsalManager = mdsalManager;
     }
+
+        IdManagerService idManagerService;
+
+        public ItmManagerRpcService(DataBroker dataBroker, IdManagerService idManagerService) {
+          this.dataBroker = dataBroker;
+          this.idManagerService = idManagerService;
+        }
 
      @Override
      public Future<RpcResult<GetTunnelInterfaceNameOutput>> getTunnelInterfaceName(GetTunnelInterfaceNameInput input) {
@@ -125,7 +131,7 @@ public class ItmManagerRpcService implements ItmRpcService {
             BuildExternalTunnelFromDpnsInput input) {
         //Ignore the Futures for now
         final SettableFuture<RpcResult<Void>> result = SettableFuture.create();
-        List<ListenableFuture<Void>> extTunnelResultList = ItmExternalTunnelAddWorker.buildTunnelsFromDpnToExternalEndPoint(dataBroker, input.getDpnId(), input.getDestinationIp(), input.getTunnelType());
+        List<ListenableFuture<Void>> extTunnelResultList = ItmExternalTunnelAddWorker.buildTunnelsFromDpnToExternalEndPoint(dataBroker, idManagerService, input.getDpnId(), input.getDestinationIp(), input.getTunnelType());
         for (ListenableFuture<Void> extTunnelResult : extTunnelResultList) {
             Futures.addCallback(extTunnelResult, new FutureCallback<Void>(){
 

@@ -17,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.itm.impl.ItmUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
@@ -30,7 +31,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 public class ItmInternalTunnelDeleteWorker {
    private static final Logger logger = LoggerFactory.getLogger(ItmInternalTunnelDeleteWorker.class) ;
 
-    public static List<ListenableFuture<Void>> deleteTunnels(DataBroker dataBroker, List<DPNTEPsInfo> dpnTepsList, List<DPNTEPsInfo> meshedDpnList)
+    public static List<ListenableFuture<Void>> deleteTunnels(DataBroker dataBroker, IdManagerService idManagerService,
+                                                             List<DPNTEPsInfo> dpnTepsList, List<DPNTEPsInfo> meshedDpnList)
     {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction t = dataBroker.newWriteOnlyTransaction();
@@ -58,7 +60,7 @@ public class ItmInternalTunnelDeleteWorker {
                                 if (dstTep.getTransportZone().equals(srcTZone)) {
                                     // remove all trunk interfaces
                                     logger.trace("Invoking removeTrunkInterface between source TEP {} , Destination TEP {} " ,srcTep , dstTep);
-                                    removeTrunkInterface(dataBroker, srcTep, dstTep, srcDpn.getDPNID(), dstDpn.getDPNID(), t, futures);
+                                    removeTrunkInterface(dataBroker, idManagerService, srcTep, dstTep, srcDpn.getDPNID(), dstDpn.getDPNID(), t, futures);
                                 }
                             }
                         }
@@ -108,10 +110,11 @@ public class ItmInternalTunnelDeleteWorker {
         return futures ;
     }
 
-    private static void removeTrunkInterface(DataBroker dataBroker, TunnelEndPoints srcTep, TunnelEndPoints dstTep, BigInteger srcDpnId, BigInteger dstDpnId,
-        WriteTransaction t, List<ListenableFuture<Void>> futures) {
+    private static void removeTrunkInterface(DataBroker dataBroker, IdManagerService idManagerService,
+                                             TunnelEndPoints srcTep, TunnelEndPoints dstTep, BigInteger srcDpnId, BigInteger dstDpnId,
+                                             WriteTransaction t, List<ListenableFuture<Void>> futures) {
         String trunkfwdIfName =
-                        ItmUtils.getTrunkInterfaceName(srcTep.getInterfaceName(), srcTep.getIpAddress()
+                        ItmUtils.getTrunkInterfaceName(idManagerService, srcTep.getInterfaceName(), srcTep.getIpAddress()
                                         .getIpv4Address().getValue(), dstTep.getIpAddress().getIpv4Address()
                                         .getValue());
         logger.trace("Removing forward Trunk Interface " + trunkfwdIfName);
@@ -119,7 +122,7 @@ public class ItmInternalTunnelDeleteWorker {
         logger.debug(  " Removing Trunk Interface Name - {} , Id - {} from Config DS {}, {} ", trunkfwdIfName, trunkIdentifier ) ;
         t.delete(LogicalDatastoreType.CONFIGURATION, trunkIdentifier);
         String trunkRevIfName =
-                        ItmUtils.getTrunkInterfaceName(dstTep.getInterfaceName(), dstTep.getIpAddress()
+                        ItmUtils.getTrunkInterfaceName(idManagerService, dstTep.getInterfaceName(), dstTep.getIpAddress()
                                         .getIpv4Address().getValue(), srcTep.getIpAddress().getIpv4Address()
                                         .getValue());
         logger.trace("Removing Reverse Trunk Interface " + trunkRevIfName);
