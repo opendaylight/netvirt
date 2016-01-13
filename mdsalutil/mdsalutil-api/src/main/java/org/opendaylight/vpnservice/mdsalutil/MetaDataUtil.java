@@ -17,6 +17,7 @@ public class MetaDataUtil {
     public static final BigInteger METADATA_MASK_LPORT_WRITE = new BigInteger("00FFFF0000000000", 16);
     public static final BigInteger METADA_MASK_VALID_TUNNEL_ID_BIT_AND_TUNNEL_ID = new BigInteger("08000000FFFFFF00", 16);
     public static final BigInteger METADATA_MASK_LABEL_ITM = new BigInteger("40FFFFFF000000FF", 16);
+    public static final BigInteger METADA_MASK_TUNNEL_ID = new BigInteger("00000000FFFFFF00", 16);
 
     public static BigInteger getMetaDataForLPortDispatcher(int lportTag, short serviceIndex) {
         return getServiceIndexMetaData(serviceIndex).or(getLportTagMetaData(lportTag));

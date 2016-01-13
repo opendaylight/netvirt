@@ -51,7 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instanc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.overlay.rev150105.TunnelTypeVxlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTables;
@@ -86,6 +85,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
   private static final short L3_FIB_TABLE = 21;
   private static final short L3_LFIB_TABLE = 20;
+  public static final short INTERNAL_TUNNEL_TABLE = 23;
   private static final short L3_PROTOCOL_TABLE = 36;
   private static final short L3_INTERFACE_TABLE = 80;
   public static final short LPORT_DISPATCHER_TABLE = 30;
@@ -94,6 +94,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
   private static final BigInteger METADATA_MASK_CLEAR = new BigInteger("000000FFFFFFFFFF", 16);
   private static final BigInteger CLEAR_METADATA = BigInteger.valueOf(0);
+  public static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
 
 
   private static final FutureCallback<Void> DEFAULT_CALLBACK =
@@ -266,8 +267,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   }
 
   public void createTerminatingServiceActions( BigInteger destDpId, int label, List<ActionInfo> actionsInfos) {
-    // FIXME
-/*      List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+      List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
 
       LOG.info("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", destDpId , label,actionsInfos);
 
@@ -279,18 +279,28 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
       mkInstructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
 
-      FlowEntity terminatingServiceTableFlowEntity = MDSALUtil.buildFlowEntity(destDpId,ITMConstants.TERMINATING_SERVICE_TABLE,
-                      getFlowRef(destDpId, ITMConstants.TERMINATING_SERVICE_TABLE,label), 5, String.format("%s:%d","TST Flow Entry ",label),
-                      0, 0, ITMConstants.COOKIE_ITM.add(BigInteger.valueOf(label)),mkMatches, mkInstructions);
+      FlowEntity terminatingServiceTableFlowEntity = MDSALUtil.buildFlowEntity(destDpId, INTERNAL_TUNNEL_TABLE,
+                      getFlowRef(destDpId, INTERNAL_TUNNEL_TABLE,label), 5, String.format("%s:%d","TST Flow Entry ",label),
+                      0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(label)),mkMatches, mkInstructions);
 
-      mdsalManager.installFlow(terminatingServiceTableFlowEntity);*/
+      mdsalManager.installFlow(terminatingServiceTableFlowEntity);
  }
 
   private void removeTunnelTableEntry(BigInteger dpId, long label) {
-      // FIXME
-      // itmManager.removeTerminatingServiceAction(dpId, (int)label);
-
-      // LOG.debug("Terminating service Entry for dpID {} : label : {} removed successfully {}",dpId, label);
+    FlowEntity flowEntity;
+    LOG.info("remove terminatingServiceActions called with DpnId = {} and label = {}", dpId , label);
+    List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+    // Matching metadata
+    mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {
+        MetaDataUtil.getTunnelIdWithValidVniBitAndVniSet((int)label),
+        MetaDataUtil.METADA_MASK_TUNNEL_ID }));
+    flowEntity = MDSALUtil.buildFlowEntity(dpId,
+                                           INTERNAL_TUNNEL_TABLE,
+                                           getFlowRef(dpId, INTERNAL_TUNNEL_TABLE, (int)label),
+                                           5, String.format("%s:%d","TST Flow Entry ",label), 0, 0,
+                                           COOKIE_TUNNEL.add(BigInteger.valueOf(label)), mkMatches, null);
+    mdsalManager.removeFlow(flowEntity);
+    LOG.debug("Terminating service Entry for dpID {} : label : {} removed successfully {}",dpId, label);
   }
 
   public BigInteger deleteLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry) {
@@ -378,7 +388,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         }
         LOG.debug("adding set tunnel id action for label {}", label);
         actionInfos.add(new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {
-        		tunnelId, MetaDataUtil.METADA_MASK_VALID_TUNNEL_ID_BIT_AND_TUNNEL_ID }));
+        		tunnelId}));
     }
 /*
     List<ActionInfo> actionInfos = resolveAdjacency(localDpnId, remoteDpnId, vpnId, vrfEntry);
