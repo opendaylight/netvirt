@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.liblldp.Packet;
@@ -27,6 +28,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.endpoint.endpoint.type.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.endpoint.endpoint.type.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.monitor.configs.MonitoringInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetInterfaceFromIfIndexInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetInterfaceFromIfIndexInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.arputil.rev151126.OdlArputilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.arputil.rev151126.SendArpRequestInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.arputil.rev151126.SendArpRequestInputBuilder;
@@ -79,12 +83,21 @@ public class AlivenessProtocolHandlerARP extends AbstractAlivenessProtocolHandle
                 BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata();
                 int portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
                 String interfaceName = null;
-                NodeConnectorId connId = packetReceived.getMatch().getInPort();
-//                try {
-//                    interfaceName = serviceProvider.getInterfaceManager().getInterfaceNameForInterfaceTag(portTag);
-//                } catch(InterfaceNotFoundException e) {
-//                    LOG.warn("Error retrieving interface Name for tag {}", portTag, e);
-//                }
+
+                try {
+                    GetInterfaceFromIfIndexInput input = new GetInterfaceFromIfIndexInputBuilder().setIfIndex(portTag).build();
+                    Future<RpcResult<GetInterfaceFromIfIndexOutput>> output = serviceProvider.getInterfaceManager().getInterfaceFromIfIndex(input);
+                    RpcResult<GetInterfaceFromIfIndexOutput> result = output.get();
+                    if(result.isSuccessful()) {
+                        GetInterfaceFromIfIndexOutput ifIndexOutput = result.getResult();
+                        interfaceName = ifIndexOutput.getInterfaceName();
+                    } else {
+                        LOG.warn("RPC call to get interface name for if index {} failed with errors {}", portTag, result.getErrors());
+                        return null;
+                    }
+                } catch(InterruptedException | ExecutionException e) {
+                    LOG.warn("Error retrieving interface Name for tag {}", portTag, e);
+                }
                 if(!Strings.isNullOrEmpty(interfaceName)) {
                     String sourceIp = toStringIpAddress(packet.getSenderProtocolAddress());
                     String targetIp = toStringIpAddress(packet.getTargetProtocolAddress());
