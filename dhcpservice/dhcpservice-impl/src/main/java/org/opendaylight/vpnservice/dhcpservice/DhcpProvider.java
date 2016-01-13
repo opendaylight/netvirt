@@ -7,7 +7,7 @@
  */
 package org.opendaylight.vpnservice.dhcpservice;
 
-import java.math.BigInteger;
+import org.opendaylight.vpnservice.neutronvpn.interfaces.INeutronVpnManager;
 
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
@@ -28,6 +28,8 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
     private NotificationProviderService notificationService;
     private DhcpManager dhcpManager;
     private NodeListener dhcpNodeListener;
+    private INeutronVpnManager neutronVpnManager;
+    private DhcpConfigListener dhcpConfigListener;
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -37,10 +39,12 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
             final PacketProcessingService pktProcessingService = session.getRpcService(PacketProcessingService.class);
             dhcpManager = new DhcpManager(dataBroker);
             dhcpManager.setMdsalManager(mdsalManager);
+            dhcpManager.setNeutronVpnService(neutronVpnManager);
             dhcpPktHandler = new DhcpPktHandler(dataBroker, dhcpManager);
             dhcpPktHandler.setPacketProcessingService(pktProcessingService);
             packetListener = notificationService.registerNotificationListener(dhcpPktHandler);
             dhcpNodeListener = new NodeListener(dataBroker, dhcpManager);
+            dhcpConfigListener = new DhcpConfigListener(dataBroker, dhcpManager);
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
         }
@@ -49,6 +53,10 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
 
     public void setMdsalManager(IMdsalApiManager mdsalManager) {
         this.mdsalManager = mdsalManager;
+    }
+
+    public void setNeutronVpnManager(INeutronVpnManager neutronVpnManager) {
+        this.neutronVpnManager = neutronVpnManager;
     }
 
     @Override

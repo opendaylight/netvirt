@@ -7,8 +7,9 @@
  */
 package org.opendaylight.vpnservice.dhcpservice;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
+import org.opendaylight.vpnservice.neutronvpn.interfaces.INeutronVpnManager;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -46,7 +47,8 @@ public class DhcpManager implements AutoCloseable {
     private int dhcpOptLeaseTime = 0;
     private int dhcpOptRenewalTime = 0;
     private int dhcpOptRebindingTime = 0;
-    private String dhcpOptDefDomainName = "openstacklocal";
+    private String dhcpOptDefDomainName;
+    private INeutronVpnManager neutronVpnService;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
         new FutureCallback<Void>() {
@@ -68,6 +70,11 @@ public class DhcpManager implements AutoCloseable {
 
     public void setMdsalManager(IMdsalApiManager mdsalManager) {
         this.mdsalUtil = mdsalManager;
+    }
+
+    public void setNeutronVpnService(INeutronVpnManager neutronVpnService) {
+        logger.debug("Setting NeutronVpn dependency");
+        this.neutronVpnService = neutronVpnService;
     }
 
     @Override
@@ -150,7 +157,6 @@ public class DhcpManager implements AutoCloseable {
     }
 
     public Subnet getNeutronSubnet(Port nPort) {
-        /* TODO: Once NeutronVpn is merged, use it to get Subnet
         if (nPort != null) {
             try {
                 return neutronVpnService.getNeutronSubnet(nPort.getFixedIps().get(0).getSubnetId());
@@ -158,32 +164,11 @@ public class DhcpManager implements AutoCloseable {
                 logger.warn("Failed to get Neutron Subnet from Port: {}", e);
             }
         }
-        */
-        if (nPort.getFixedIps() != null && !nPort.getFixedIps().isEmpty()) {
-            InstanceIdentifier<Subnet> sIid =
-                            InstanceIdentifier.create(Neutron.class).child(Subnets.class)
-                                .child(Subnet.class, new SubnetKey(nPort.getFixedIps().get(0).getSubnetId()));
-            Optional<Subnet> optSubnet = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION, sIid, broker);
-            if (optSubnet.isPresent()) {
-                return optSubnet.get();
-            }
-        }
         return null;
     }
 
     public Port getNeutronPort(String name) {
-        // TODO Once NeutronVpn is merged, use it to get port
-        //return neutronVpnService.getNeutronPort(name);
-        InstanceIdentifier<Ports> pIid = InstanceIdentifier.create(Neutron.class).child(Ports.class);
-        Optional<Ports> optPorts = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION, pIid, broker);
-        if(optPorts.isPresent()) {
-            for(Port port: optPorts.get().getPort()) {
-                if(port.getUuid().getValue().startsWith(name.substring(3))) {
-                    return port;
-                }
-            }
-        }
-        return null;
+        return neutronVpnService.getNeutronPort(name);
     }
 
 }
