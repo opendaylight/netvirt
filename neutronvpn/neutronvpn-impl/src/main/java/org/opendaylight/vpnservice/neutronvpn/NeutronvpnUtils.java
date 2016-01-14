@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -37,7 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev15
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.networkmaps.NetworkMapKey;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
         .PortFixedipToPortName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
@@ -80,10 +79,9 @@ public class NeutronvpnUtils {
     }
 
     protected static VpnMap getVpnMap(DataBroker broker, Uuid id) {
-        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
-                .child(VpnMap.class, new VpnMapKey(id)).build();
-        Optional<VpnMap> optionalVpnMap = read(broker, LogicalDatastoreType.CONFIGURATION,
-                vpnMapIdentifier);
+        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
+                new VpnMapKey(id)).build();
+        Optional<VpnMap> optionalVpnMap = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
         if (optionalVpnMap.isPresent()) {
             return optionalVpnMap.get();
         }
@@ -93,8 +91,7 @@ public class NeutronvpnUtils {
 
     protected static Uuid getVpnForNetwork(DataBroker broker, Uuid network) {
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
-        Optional<VpnMaps> optionalVpnMaps = read(broker, LogicalDatastoreType.CONFIGURATION,
-                vpnMapsIdentifier);
+        Optional<VpnMaps> optionalVpnMaps = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
         if (optionalVpnMaps.isPresent()) {
             VpnMaps vpnMaps = optionalVpnMaps.get();
             List<VpnMap> allMaps = vpnMaps.getVpnMap();
@@ -109,8 +106,7 @@ public class NeutronvpnUtils {
 
     protected static Uuid getVpnForRouter(DataBroker broker, Uuid router) {
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
-        Optional<VpnMaps> optionalVpnMaps = read(broker, LogicalDatastoreType.CONFIGURATION,
-                vpnMapsIdentifier);
+        Optional<VpnMaps> optionalVpnMaps = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
         if (optionalVpnMaps.isPresent()) {
             VpnMaps vpnNets = optionalVpnMaps.get();
             List<VpnMap> allMaps = vpnNets.getVpnMap();
@@ -128,8 +124,7 @@ public class NeutronvpnUtils {
     protected static Uuid getRouterforVpn(DataBroker broker, Uuid vpnId) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
                 .child(VpnMap.class, new VpnMapKey(vpnId)).build();
-        Optional<VpnMap> optionalVpnMap = read(broker, LogicalDatastoreType.CONFIGURATION,
-                vpnMapIdentifier);
+        Optional<VpnMap> optionalVpnMap = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
         if (optionalVpnMap.isPresent()) {
             VpnMap vpnMap = optionalVpnMap.get();
             return vpnMap.getRouterId();
@@ -158,8 +153,7 @@ public class NeutronvpnUtils {
 
     protected static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier id = buildNetworkMapIdentifier(networkId);
-        Optional<NetworkMap> optionalNetworkMap = read(broker, LogicalDatastoreType.CONFIGURATION,
-                id);
+        Optional<NetworkMap> optionalNetworkMap = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (optionalNetworkMap.isPresent()) {
             return optionalNetworkMap.get().getSubnetIdList();
         }
@@ -184,9 +178,8 @@ public class NeutronvpnUtils {
 
     protected static Router getNeutronRouter(DataBroker broker, Uuid routerId) {
 
-        InstanceIdentifier<Router> inst = InstanceIdentifier.create(Neutron.class).
-                child(Routers.class).child(Router.class, new RouterKey(routerId));
-
+        InstanceIdentifier<Router> inst = InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router
+                .class, new RouterKey(routerId));
         Optional<Router> rtr = read(broker, LogicalDatastoreType.CONFIGURATION, inst);
         if (rtr.isPresent()) {
             return rtr.get();
@@ -196,9 +189,8 @@ public class NeutronvpnUtils {
 
     protected static Network getNeutronNetwork(DataBroker broker, Uuid networkId) {
         logger.debug("getNeutronNetwork for {}", networkId.getValue());
-        InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class).
-                child(Networks.class).child(Network.class, new NetworkKey(networkId));
-
+        InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class).child(Networks.class).child
+                (Network.class, new NetworkKey(networkId));
         Optional<Network> net = read(broker, LogicalDatastoreType.CONFIGURATION, inst);
         if (net.isPresent()) {
             return net.get();
@@ -261,6 +253,44 @@ public class NeutronvpnUtils {
             throw new RuntimeException(String.format("Unable to unlock vpninterface %s", vpnInterfaceName), e
                     .getCause());
         }
+    }
+
+    protected static Short getIPPrefixFromPort(DataBroker broker, Port port) {
+        Short prefix = new Short((short) 0);
+        String cidr = "";
+        try {
+            Uuid subnetUUID = port.getFixedIps().get(0).getSubnetId();
+
+            org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets
+                    .SubnetKey subnetkey = new org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets
+                    .rev150712.subnets.attributes.subnets.SubnetKey(subnetUUID);
+            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets
+                    .attributes.subnets.Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class).child(org
+                    .opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets
+                    .class).child(org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets
+                    .attributes.subnets.Subnet.class, subnetkey);
+            Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes
+                    .subnets.Subnet> subnet = read(broker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
+
+            if (subnet.isPresent()) {
+                cidr = subnet.get().getCidr();
+                // Extract the prefix length from cidr
+                String[] parts = cidr.split("/");
+                if ((parts.length == 2)) {
+                    prefix = Short.valueOf(parts[1]);
+                    return prefix;
+                } else {
+                    logger.trace("Could not retrieve prefix from subnet CIDR");
+                    System.out.println("Could not retrieve prefix from subnet CIDR");
+                }
+            } else {
+                logger.trace("Unable to read on subnet datastore");
+            }
+        } catch (Exception e) {
+            logger.trace("Failed to retrieve IP prefix from port : ", e);
+            System.out.println("Failed to retrieve IP prefix from port : " + e.getMessage());
+        }
+        return null;
     }
 
     static InstanceIdentifier<PortNameToPortUuid> buildPortNameToPortUuidIdentifier(String portname) {
