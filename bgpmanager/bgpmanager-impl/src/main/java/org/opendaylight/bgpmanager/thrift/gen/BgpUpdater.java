@@ -4,6 +4,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
+
 package org.opendaylight.bgpmanager.thrift.gen;
 
 import org.apache.thrift.scheme.IScheme;
@@ -42,6 +43,8 @@ public class BgpUpdater {
 
     public void onStartConfigResyncNotification() throws org.apache.thrift.TException;
 
+    public void onNotificationSendEvent(String prefix, byte errCode, byte errSubcode) throws org.apache.thrift.TException;
+
   }
 
   public interface AsyncIface {
@@ -51,6 +54,8 @@ public class BgpUpdater {
     public void onUpdateWithdrawRoute(String rd, String prefix, int prefixlen, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void onStartConfigResyncNotification(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+
+    public void onNotificationSendEvent(String prefix, byte errCode, byte errSubcode, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
   }
 
@@ -113,6 +118,20 @@ public class BgpUpdater {
     {
       onStartConfigResyncNotification_args args = new onStartConfigResyncNotification_args();
       sendBase("onStartConfigResyncNotification", args);
+    }
+
+    public void onNotificationSendEvent(String prefix, byte errCode, byte errSubcode) throws org.apache.thrift.TException
+    {
+      send_onNotificationSendEvent(prefix, errCode, errSubcode);
+    }
+
+    public void send_onNotificationSendEvent(String prefix, byte errCode, byte errSubcode) throws org.apache.thrift.TException
+    {
+      onNotificationSendEvent_args args = new onNotificationSendEvent_args();
+      args.setPrefix(prefix);
+      args.setErrCode(errCode);
+      args.setErrSubcode(errSubcode);
+      sendBase("onNotificationSendEvent", args);
     }
 
   }
@@ -241,6 +260,43 @@ public class BgpUpdater {
       }
     }
 
+    public void onNotificationSendEvent(String prefix, byte errCode, byte errSubcode, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      onNotificationSendEvent_call method_call = new onNotificationSendEvent_call(prefix, errCode, errSubcode, resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
+    public static class onNotificationSendEvent_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String prefix;
+      private byte errCode;
+      private byte errSubcode;
+      public onNotificationSendEvent_call(String prefix, byte errCode, byte errSubcode, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, true);
+        this.prefix = prefix;
+        this.errCode = errCode;
+        this.errSubcode = errSubcode;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("onNotificationSendEvent", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        onNotificationSendEvent_args args = new onNotificationSendEvent_args();
+        args.setPrefix(prefix);
+        args.setErrCode(errCode);
+        args.setErrSubcode(errSubcode);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public void getResult() throws org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+      }
+    }
+
   }
 
   public static class Processor<I extends Iface> extends org.apache.thrift.TBaseProcessor<I> implements org.apache.thrift.TProcessor {
@@ -257,6 +313,7 @@ public class BgpUpdater {
       processMap.put("onUpdatePushRoute", new onUpdatePushRoute());
       processMap.put("onUpdateWithdrawRoute", new onUpdateWithdrawRoute());
       processMap.put("onStartConfigResyncNotification", new onStartConfigResyncNotification());
+      processMap.put("onNotificationSendEvent", new onNotificationSendEvent());
       return processMap;
     }
 
@@ -317,6 +374,25 @@ public class BgpUpdater {
       }
     }
 
+    public static class onNotificationSendEvent<I extends Iface> extends org.apache.thrift.ProcessFunction<I, onNotificationSendEvent_args> {
+      public onNotificationSendEvent() {
+        super("onNotificationSendEvent");
+      }
+
+      public onNotificationSendEvent_args getEmptyArgsInstance() {
+        return new onNotificationSendEvent_args();
+      }
+
+      protected boolean isOneway() {
+        return true;
+      }
+
+      public org.apache.thrift.TBase getResult(I iface, onNotificationSendEvent_args args) throws org.apache.thrift.TException {
+        iface.onNotificationSendEvent(args.prefix, args.errCode, args.errSubcode);
+        return null;
+      }
+    }
+
   }
 
   public static class AsyncProcessor<I extends AsyncIface> extends org.apache.thrift.TBaseAsyncProcessor<I> {
@@ -333,6 +409,7 @@ public class BgpUpdater {
       processMap.put("onUpdatePushRoute", new onUpdatePushRoute());
       processMap.put("onUpdateWithdrawRoute", new onUpdateWithdrawRoute());
       processMap.put("onStartConfigResyncNotification", new onStartConfigResyncNotification());
+      processMap.put("onNotificationSendEvent", new onNotificationSendEvent());
       return processMap;
     }
 
@@ -417,6 +494,34 @@ public class BgpUpdater {
 
       public void start(I iface, onStartConfigResyncNotification_args args, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws TException {
         iface.onStartConfigResyncNotification(resultHandler);
+      }
+    }
+
+    public static class onNotificationSendEvent<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, onNotificationSendEvent_args, Void> {
+      public onNotificationSendEvent() {
+        super("onNotificationSendEvent");
+      }
+
+      public onNotificationSendEvent_args getEmptyArgsInstance() {
+        return new onNotificationSendEvent_args();
+      }
+
+      public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+        final org.apache.thrift.AsyncProcessFunction fcall = this;
+        return new AsyncMethodCallback<Void>() { 
+          public void onComplete(Void o) {
+          }
+          public void onError(Exception e) {
+          }
+        };
+      }
+
+      protected boolean isOneway() {
+        return true;
+      }
+
+      public void start(I iface, onNotificationSendEvent_args args, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws TException {
+        iface.onNotificationSendEvent(args.prefix, args.errCode, args.errSubcode,resultHandler);
       }
     }
 
@@ -1961,6 +2066,552 @@ public class BgpUpdater {
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, onStartConfigResyncNotification_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
+      }
+    }
+
+  }
+
+  public static class onNotificationSendEvent_args implements org.apache.thrift.TBase<onNotificationSendEvent_args, onNotificationSendEvent_args._Fields>, java.io.Serializable, Cloneable, Comparable<onNotificationSendEvent_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("onNotificationSendEvent_args");
+
+    private static final org.apache.thrift.protocol.TField PREFIX_FIELD_DESC = new org.apache.thrift.protocol.TField("prefix", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField ERR_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("errCode", org.apache.thrift.protocol.TType.BYTE, (short)2);
+    private static final org.apache.thrift.protocol.TField ERR_SUBCODE_FIELD_DESC = new org.apache.thrift.protocol.TField("errSubcode", org.apache.thrift.protocol.TType.BYTE, (short)3);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new onNotificationSendEvent_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new onNotificationSendEvent_argsTupleSchemeFactory());
+    }
+
+    public String prefix; // required
+    public byte errCode; // required
+    public byte errSubcode; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      PREFIX((short)1, "prefix"),
+      ERR_CODE((short)2, "errCode"),
+      ERR_SUBCODE((short)3, "errSubcode");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // PREFIX
+            return PREFIX;
+          case 2: // ERR_CODE
+            return ERR_CODE;
+          case 3: // ERR_SUBCODE
+            return ERR_SUBCODE;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    private static final int __ERRCODE_ISSET_ID = 0;
+    private static final int __ERRSUBCODE_ISSET_ID = 1;
+    private byte __isset_bitfield = 0;
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.ERR_CODE, new org.apache.thrift.meta_data.FieldMetaData("errCode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
+      tmpMap.put(_Fields.ERR_SUBCODE, new org.apache.thrift.meta_data.FieldMetaData("errSubcode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(onNotificationSendEvent_args.class, metaDataMap);
+    }
+
+    public onNotificationSendEvent_args() {
+    }
+
+    public onNotificationSendEvent_args(
+      String prefix,
+      byte errCode,
+      byte errSubcode)
+    {
+      this();
+      this.prefix = prefix;
+      this.errCode = errCode;
+      setErrCodeIsSet(true);
+      this.errSubcode = errSubcode;
+      setErrSubcodeIsSet(true);
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public onNotificationSendEvent_args(onNotificationSendEvent_args other) {
+      __isset_bitfield = other.__isset_bitfield;
+      if (other.isSetPrefix()) {
+        this.prefix = other.prefix;
+      }
+      this.errCode = other.errCode;
+      this.errSubcode = other.errSubcode;
+    }
+
+    public onNotificationSendEvent_args deepCopy() {
+      return new onNotificationSendEvent_args(this);
+    }
+
+    @Override
+    public void clear() {
+      this.prefix = null;
+      setErrCodeIsSet(false);
+      this.errCode = 0;
+      setErrSubcodeIsSet(false);
+      this.errSubcode = 0;
+    }
+
+    public String getPrefix() {
+      return this.prefix;
+    }
+
+    public onNotificationSendEvent_args setPrefix(String prefix) {
+      this.prefix = prefix;
+      return this;
+    }
+
+    public void unsetPrefix() {
+      this.prefix = null;
+    }
+
+    /** Returns true if field prefix is set (has been assigned a value) and false otherwise */
+    public boolean isSetPrefix() {
+      return this.prefix != null;
+    }
+
+    public void setPrefixIsSet(boolean value) {
+      if (!value) {
+        this.prefix = null;
+      }
+    }
+
+    public byte getErrCode() {
+      return this.errCode;
+    }
+
+    public onNotificationSendEvent_args setErrCode(byte errCode) {
+      this.errCode = errCode;
+      setErrCodeIsSet(true);
+      return this;
+    }
+
+    public void unsetErrCode() {
+      __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ERRCODE_ISSET_ID);
+    }
+
+    /** Returns true if field errCode is set (has been assigned a value) and false otherwise */
+    public boolean isSetErrCode() {
+      return EncodingUtils.testBit(__isset_bitfield, __ERRCODE_ISSET_ID);
+    }
+
+    public void setErrCodeIsSet(boolean value) {
+      __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ERRCODE_ISSET_ID, value);
+    }
+
+    public byte getErrSubcode() {
+      return this.errSubcode;
+    }
+
+    public onNotificationSendEvent_args setErrSubcode(byte errSubcode) {
+      this.errSubcode = errSubcode;
+      setErrSubcodeIsSet(true);
+      return this;
+    }
+
+    public void unsetErrSubcode() {
+      __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ERRSUBCODE_ISSET_ID);
+    }
+
+    /** Returns true if field errSubcode is set (has been assigned a value) and false otherwise */
+    public boolean isSetErrSubcode() {
+      return EncodingUtils.testBit(__isset_bitfield, __ERRSUBCODE_ISSET_ID);
+    }
+
+    public void setErrSubcodeIsSet(boolean value) {
+      __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ERRSUBCODE_ISSET_ID, value);
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case PREFIX:
+        if (value == null) {
+          unsetPrefix();
+        } else {
+          setPrefix((String)value);
+        }
+        break;
+
+      case ERR_CODE:
+        if (value == null) {
+          unsetErrCode();
+        } else {
+          setErrCode((Byte)value);
+        }
+        break;
+
+      case ERR_SUBCODE:
+        if (value == null) {
+          unsetErrSubcode();
+        } else {
+          setErrSubcode((Byte)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case PREFIX:
+        return getPrefix();
+
+      case ERR_CODE:
+        return Byte.valueOf(getErrCode());
+
+      case ERR_SUBCODE:
+        return Byte.valueOf(getErrSubcode());
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case PREFIX:
+        return isSetPrefix();
+      case ERR_CODE:
+        return isSetErrCode();
+      case ERR_SUBCODE:
+        return isSetErrSubcode();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof onNotificationSendEvent_args)
+        return this.equals((onNotificationSendEvent_args)that);
+      return false;
+    }
+
+    public boolean equals(onNotificationSendEvent_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_prefix = true && this.isSetPrefix();
+      boolean that_present_prefix = true && that.isSetPrefix();
+      if (this_present_prefix || that_present_prefix) {
+        if (!(this_present_prefix && that_present_prefix))
+          return false;
+        if (!this.prefix.equals(that.prefix))
+          return false;
+      }
+
+      boolean this_present_errCode = true;
+      boolean that_present_errCode = true;
+      if (this_present_errCode || that_present_errCode) {
+        if (!(this_present_errCode && that_present_errCode))
+          return false;
+        if (this.errCode != that.errCode)
+          return false;
+      }
+
+      boolean this_present_errSubcode = true;
+      boolean that_present_errSubcode = true;
+      if (this_present_errSubcode || that_present_errSubcode) {
+        if (!(this_present_errSubcode && that_present_errSubcode))
+          return false;
+        if (this.errSubcode != that.errSubcode)
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    @Override
+    public int compareTo(onNotificationSendEvent_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetPrefix()).compareTo(other.isSetPrefix());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetPrefix()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.prefix, other.prefix);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetErrCode()).compareTo(other.isSetErrCode());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetErrCode()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.errCode, other.errCode);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetErrSubcode()).compareTo(other.isSetErrSubcode());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetErrSubcode()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.errSubcode, other.errSubcode);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("onNotificationSendEvent_args(");
+      boolean first = true;
+
+      sb.append("prefix:");
+      if (this.prefix == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.prefix);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("errCode:");
+      sb.append(this.errCode);
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("errSubcode:");
+      sb.append(this.errSubcode);
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
+        __isset_bitfield = 0;
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class onNotificationSendEvent_argsStandardSchemeFactory implements SchemeFactory {
+      public onNotificationSendEvent_argsStandardScheme getScheme() {
+        return new onNotificationSendEvent_argsStandardScheme();
+      }
+    }
+
+    private static class onNotificationSendEvent_argsStandardScheme extends StandardScheme<onNotificationSendEvent_args> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, onNotificationSendEvent_args struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // PREFIX
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.prefix = iprot.readString();
+                struct.setPrefixIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 2: // ERR_CODE
+              if (schemeField.type == org.apache.thrift.protocol.TType.BYTE) {
+                struct.errCode = iprot.readByte();
+                struct.setErrCodeIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 3: // ERR_SUBCODE
+              if (schemeField.type == org.apache.thrift.protocol.TType.BYTE) {
+                struct.errSubcode = iprot.readByte();
+                struct.setErrSubcodeIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, onNotificationSendEvent_args struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.prefix != null) {
+          oprot.writeFieldBegin(PREFIX_FIELD_DESC);
+          oprot.writeString(struct.prefix);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldBegin(ERR_CODE_FIELD_DESC);
+        oprot.writeByte(struct.errCode);
+        oprot.writeFieldEnd();
+        oprot.writeFieldBegin(ERR_SUBCODE_FIELD_DESC);
+        oprot.writeByte(struct.errSubcode);
+        oprot.writeFieldEnd();
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class onNotificationSendEvent_argsTupleSchemeFactory implements SchemeFactory {
+      public onNotificationSendEvent_argsTupleScheme getScheme() {
+        return new onNotificationSendEvent_argsTupleScheme();
+      }
+    }
+
+    private static class onNotificationSendEvent_argsTupleScheme extends TupleScheme<onNotificationSendEvent_args> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, onNotificationSendEvent_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetPrefix()) {
+          optionals.set(0);
+        }
+        if (struct.isSetErrCode()) {
+          optionals.set(1);
+        }
+        if (struct.isSetErrSubcode()) {
+          optionals.set(2);
+        }
+        oprot.writeBitSet(optionals, 3);
+        if (struct.isSetPrefix()) {
+          oprot.writeString(struct.prefix);
+        }
+        if (struct.isSetErrCode()) {
+          oprot.writeByte(struct.errCode);
+        }
+        if (struct.isSetErrSubcode()) {
+          oprot.writeByte(struct.errSubcode);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, onNotificationSendEvent_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(3);
+        if (incoming.get(0)) {
+          struct.prefix = iprot.readString();
+          struct.setPrefixIsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.errCode = iprot.readByte();
+          struct.setErrCodeIsSet(true);
+        }
+        if (incoming.get(2)) {
+          struct.errSubcode = iprot.readByte();
+          struct.setErrSubcodeIsSet(true);
+        }
       }
     }
 
