@@ -423,13 +423,13 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             InterfaceUtils.getInterfaceStateFromOperDS(broker, interfaceName);
 
         if (existingVpnInterface.isPresent() && interfaceState != null) {
-            processVpnInterfaceDown(interfaceName, interfaceState.getIfIndex());
+            processVpnInterfaceDown(interfaceName, interfaceState.getIfIndex(), false);
         } else {
             LOG.warn("VPN interface {} was unavailable in operational data store to handle remove event", interfaceName);
         }
     }
 
-    protected synchronized void processVpnInterfaceDown(String interfaceName, int lPortTag) {
+    protected synchronized void processVpnInterfaceDown(String interfaceName, int lPortTag, boolean isInterfaceStateDown) {
         VpnInterface vpnInterface = VpnUtil.getOperationalVpnInterface(broker, interfaceName);
         if(vpnInterface == null) {
             LOG.info("Unable to process delete/down for interface {} as it is not available in operational data store", interfaceName);
@@ -440,7 +440,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
         removeAdjacenciesFromVpn(identifier, vpnInterface);
         LOG.info("Unbinding vpn service from interface {} ", interfaceName);
-        unbindService(vpnName, interfaceName, lPortTag);
+        unbindService(vpnName, interfaceName, lPortTag, isInterfaceStateDown);
         updateDpnDbs(vpnName, interfaceName, false);
         VpnUtil.delete(broker, LogicalDatastoreType.OPERATIONAL, identifier, VpnUtil.DEFAULT_CALLBACK);
     }
@@ -477,10 +477,13 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     }
 
 
-    private void unbindService(String vpnInstanceName, String vpnInterfaceName, int lPortTag) {
-        VpnUtil.delete(broker, LogicalDatastoreType.CONFIGURATION,
-                       InterfaceUtils.buildServiceId(vpnInterfaceName,VpnConstants.L3VPN_SERVICE_IDENTIFIER),
-                       VpnUtil.DEFAULT_CALLBACK);
+    private void unbindService(String vpnInstanceName, String vpnInterfaceName, int lPortTag, boolean isInterfaceStateDown) {
+        if (!isInterfaceStateDown) {
+            VpnUtil.delete(broker, LogicalDatastoreType.CONFIGURATION,
+                           InterfaceUtils.buildServiceId(vpnInterfaceName,
+                                                         VpnConstants.L3VPN_SERVICE_IDENTIFIER),
+                           VpnUtil.DEFAULT_CALLBACK);
+        }
         long vpnId = VpnUtil.getVpnId(broker, vpnInstanceName);
         makeArpFlow(VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName,
                     vpnId, ArpReplyOrRequest.REQUEST, NwConstants.DEL_FLOW);

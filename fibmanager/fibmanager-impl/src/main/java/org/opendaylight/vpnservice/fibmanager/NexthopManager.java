@@ -36,6 +36,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.l
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetExternalTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetExternalTunnelInterfaceNameOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetInternalOrExternalInterfaceNameInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetInternalOrExternalInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
@@ -235,19 +237,19 @@ public class NexthopManager implements AutoCloseable {
         return null;
     }
 
-    protected String getExternalTunnelInterfaceName(BigInteger srcDpId, IpAddress dstIp) {
+    protected String getTunnelInterfaceName(BigInteger srcDpId, IpAddress dstIp) {
         try {
-            Future<RpcResult<GetExternalTunnelInterfaceNameOutput>> result = itmManager.getExternalTunnelInterfaceName(new GetExternalTunnelInterfaceNameInputBuilder()
+            Future<RpcResult<GetInternalOrExternalInterfaceNameOutput>> result = itmManager.getInternalOrExternalInterfaceName(new GetInternalOrExternalInterfaceNameInputBuilder()
                                                                                  .setSourceDpid(srcDpId)
                                                                                  .setDestinationIp(dstIp).build());
-            RpcResult<GetExternalTunnelInterfaceNameOutput> rpcResult = result.get();
+            RpcResult<GetInternalOrExternalInterfaceNameOutput> rpcResult = result.get();
             if(!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to getExternalTunnelInterfaceId returned with Errors {}", rpcResult.getErrors());
+                LOG.warn("RPC Call to getTunnelInterfaceName returned with Errors {}", rpcResult.getErrors());
             } else {
                 return rpcResult.getResult().getInterfaceName();
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting external tunnel interface Id for tunnel between {} and  {}", srcDpId, dstIp, e);
+            LOG.warn("Exception when getting tunnel interface Id for tunnel between {} and  {}", srcDpId, dstIp, e);
         }
         
         return null;
@@ -359,28 +361,10 @@ public class NexthopManager implements AutoCloseable {
         LOG.trace("getRemoteNextHopPointer: input [localDpnId {} remoteDpnId {}, vpnId {}, prefixIp {}, nextHopIp {} ]",
                   localDpnId, remoteDpnId, vpnId, prefixIp, nextHopIp);
 
-        // check if the incoming VM is within the same DC. If so, retrieve the local tunnel group pointer.
-        // Else retrieve the tunnel to DC gateway group pointer.
-
-        if (localDpnId == null  || BigInteger.ZERO.equals(localDpnId)) {
-            VpnNexthop vpnNexthop = getVpnNexthop(vpnId, prefixIp);
-            //If the vrf entry is a static/extra route, the nexthop of the entry would be a adjacency in the vpn
-            if(vpnNexthop == null) {
-                vpnNexthop = getVpnNexthop(vpnId, nextHopIp + "/32");
-            }
-            localDpnId = (vpnNexthop == null) ? null : vpnNexthop.getDpnId();
-        }
         LOG.trace("getRemoteNextHopPointer: Calling ITM with localDpnId {} ", localDpnId);
         try{
             // here use the config for tunnel type param
-            if(localDpnId != null){
-                //internal tunnel
-                tunnelIfName =  getTunnelInterfaceName(remoteDpnId, localDpnId);
-            } else {
-                //external tunnel
-                tunnelIfName = getExternalTunnelInterfaceName(remoteDpnId,
-                                                                   IpAddressBuilder.getDefaultInstance(nextHopIp));
-            }
+            tunnelIfName = getTunnelInterfaceName(remoteDpnId, IpAddressBuilder.getDefaultInstance(nextHopIp));
         }catch(Exception ex){
             LOG.error("Error while retrieving nexthop pointer for DC Gateway : ", ex.getMessage());
         }
