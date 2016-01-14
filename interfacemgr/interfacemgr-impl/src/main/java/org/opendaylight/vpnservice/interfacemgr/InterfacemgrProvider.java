@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,37 +7,51 @@
  */
 package org.opendaylight.vpnservice.interfacemgr;
 
+import java.math.BigInteger;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
+import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
+import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo.InterfaceAdminState;
+import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.interfacemgr.listeners.InterfaceConfigListener;
 import org.opendaylight.vpnservice.interfacemgr.listeners.InterfaceInventoryStateListener;
 import org.opendaylight.vpnservice.interfacemgr.listeners.InterfaceTopologyStateListener;
-import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
+import org.opendaylight.vpnservice.interfacemgr.listeners.VlanMemberConfigListener;
 import org.opendaylight.vpnservice.interfacemgr.rpcservice.InterfaceManagerRpcService;
 import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.listeners.FlowBasedServicesConfigListener;
 import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.listeners.FlowBasedServicesInterfaceStateListener;
-import org.opendaylight.vpnservice.interfacemgr.listeners.VlanMemberConfigListener;
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
-import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEndpointIpForDpnInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEndpointIpForDpnInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEndpointIpForDpnOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetPortFromInterfaceInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetPortFromInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetPortFromInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable, IInterfaceManager {
 
@@ -52,7 +66,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     private FlowBasedServicesInterfaceStateListener flowBasedServicesInterfaceStateListener;
     private FlowBasedServicesConfigListener flowBasedServicesConfigListener;
     private VlanMemberConfigListener vlanMemberConfigListener;
-
+    private DataBroker dataBroker;
     private InterfaceManagerRpcService interfaceManagerRpcService;
     private BindingAwareBroker.RpcRegistration<OdlInterfaceRpcService> rpcRegistration;
 
@@ -68,7 +82,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     public void onSessionInitiated(ProviderContext session) {
         LOG.info("InterfacemgrProvider Session Initiated");
         try {
-            final  DataBroker dataBroker = session.getSALService(DataBroker.class);
+            dataBroker = session.getSALService(DataBroker.class);
             idManager = rpcProviderRegistry.getRpcService(IdManagerService.class);
             createIdPool();
 
@@ -157,6 +171,89 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
         }
         return null;
     }
+
+    @Override
+    public InterfaceInfo getInterfaceInfo(String interfaceName) {
+        //FIXME [ELANBE] This is not working yet, fix this
+
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
+                ifState = InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceName,dataBroker);
+
+        if(ifState == null){
+            LOG.error("Interface {} is not present", interfaceName);
+            return null;
+        }
+
+        Integer lportTag = ifState.getIfIndex();
+        Interface intf = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(new InterfaceKey(interfaceName), dataBroker);
+
+        NodeConnectorId ncId = IfmUtil.getNodeConnectorIdFromInterface(intf, dataBroker);
+        InterfaceInfo.InterfaceType interfaceType = IfmUtil.getInterfaceType(intf);
+        InterfaceInfo interfaceInfo = null;
+        BigInteger dpId = org.opendaylight.vpnservice.interfacemgr.globals.IfmConstants.INVALID_DPID;
+        Integer portNo = org.opendaylight.vpnservice.interfacemgr.globals.IfmConstants.INVALID_PORT_NO;
+        if (ncId !=null ) {
+            dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(ncId));
+            portNo = Integer.parseInt(IfmUtil.getPortNoFromNodeConnectorId(ncId));
+        }
+
+        if(interfaceType == InterfaceInfo.InterfaceType.VLAN_INTERFACE){
+        	interfaceInfo = IfmUtil.getVlanInterfaceInfo(interfaceName, intf, dpId);
+        } else if (interfaceType == InterfaceInfo.InterfaceType.VXLAN_TRUNK_INTERFACE || interfaceType == InterfaceInfo.InterfaceType.GRE_TRUNK_INTERFACE) {/*
+            trunkInterfaceInfo trunkInterfaceInfo = (TrunkInterfaceInfo) ConfigIfmUtil.getTrunkInterfaceInfo(ifName, ConfigIfmUtil.getInterfaceByIfName(dataBroker, ifName));
+            String higherLayerIf = inf.getHigherLayerIf().get(0);
+            Interface vlanInterface = ConfigIfmUtil.getInterfaceByIfName(dataBroker, higherLayerIf);
+            trunkInterfaceInfo.setPortName(vlanInterface.getAugmentation(BaseConfig.class).getParentInterface());
+            trunkInterfaceManager.updateTargetMacAddressInInterfaceInfo(trunkInterfaceInfo, trunkInterface);
+            if (trunkInterface.getPhysAddress() != null) {
+                trunkInterfaceInfo.setLocalMacAddress(trunkInterface.getPhysAddress().getValue());
+            }
+            interfaceInfo = trunkInterfaceInfo;
+            interfaceInfo.setL2domainGroupId(IfmUtil.getGroupId(OperationalIfmUtil.getInterfaceStateByIfName(dataBroker, higherLayerIf).getIfIndex(), InterfaceType.VLAN_INTERFACE));
+        */} else {
+            LOG.error("Type of Interface {} is unknown", interfaceName);
+            return null;
+        }
+        interfaceInfo.setDpId(dpId);
+        interfaceInfo.setPortNo(portNo);
+        interfaceInfo.setAdminState((intf.isEnabled() == true) ? InterfaceAdminState.ENABLED : InterfaceAdminState.DISABLED);
+        interfaceInfo.setInterfaceName(interfaceName);
+        interfaceInfo.setInterfaceTag(lportTag);
+        interfaceInfo.setInterfaceType(interfaceType);
+        interfaceInfo.setGroupId(IfmUtil.getGroupId(lportTag, interfaceType));
+        interfaceInfo.setOpState((ifState.getOperStatus() == OperStatus.Up) ? InterfaceInfo.InterfaceOpState.UP : InterfaceInfo.InterfaceOpState.DOWN);
+
+
+        return interfaceInfo;
+
+    }
+
+    @Override
+	public InterfaceInfo getInterfaceInfoFromOperationalDataStore(String interfaceName, InterfaceInfo.InterfaceType interfaceType) {
+		InterfaceInfo interfaceInfo = new InterfaceInfo(interfaceName);
+		org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState = InterfaceManagerCommonUtils
+				.getInterfaceStateFromOperDS(interfaceName, dataBroker);
+		if (ifState == null) {
+			LOG.error("Interface {} is not present", interfaceName);
+			return null;
+		}
+        Integer lportTag = ifState.getIfIndex();
+		Interface intf = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(new InterfaceKey(interfaceName), dataBroker);
+		NodeConnectorId ncId = IfmUtil.getNodeConnectorIdFromInterface(intf, dataBroker);
+		if (ncId != null) {
+			interfaceInfo.setDpId(new BigInteger(IfmUtil.getDpnFromNodeConnectorId(ncId)));
+			interfaceInfo.setPortNo(Integer.parseInt(IfmUtil.getPortNoFromNodeConnectorId(ncId)));
+		}
+        interfaceInfo.setAdminState((intf.isEnabled() == true) ? InterfaceAdminState.ENABLED : InterfaceAdminState.DISABLED);
+        interfaceInfo.setInterfaceName(interfaceName);
+        interfaceInfo.setInterfaceTag(lportTag);
+        interfaceInfo.setInterfaceType(interfaceType);
+        interfaceInfo.setGroupId(IfmUtil.getGroupId(lportTag, interfaceType));
+        interfaceInfo.setOpState((ifState.getOperStatus() == OperStatus.Up) ? InterfaceInfo.InterfaceOpState.UP : InterfaceInfo.InterfaceOpState.DOWN);
+
+
+        return interfaceInfo;
+		}
 
     @Override
     public BigInteger getDpnForInterface(String ifName) {

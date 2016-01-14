@@ -31,5 +31,16 @@
             <artifactId>liblldp</artifactId>
             <version>${liblldp.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin</groupId>
+            <artifactId>openflowplugin-extension-nicira</artifactId>
+            <version>${openflowplugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin</groupId>
+            <artifactId>openflowjava-extension-nicira</artifactId>
+            <version>${openflowplugin.version}</version>
+        </dependency>
+
     </dependencies>
 </project>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -11,11 +11,15 @@ package org.opendaylight.vpnservice.mdsalutil.internal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.ActionType;
 import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
 import org.opendaylight.vpnservice.mdsalutil.GroupEntity;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
@@ -40,6 +44,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.opendaylight.vpnservice.mdsalutil.*;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.OptimisticLockFailedException;
@@ -57,6 +62,8 @@ public class MDSALManager implements AutoCloseable {
     private DataBroker m_dataBroker;
 
     private PacketProcessingService m_packetProcessingService;
+    private ConcurrentMap<FlowInfoKey, Runnable> flowMap = new ConcurrentHashMap<FlowInfoKey, Runnable>();
+    private ConcurrentMap<GroupInfoKey, Runnable> groupMap = new ConcurrentHashMap<GroupInfoKey, Runnable> ();
 
     /**
      * Writes the flows and Groups to the MD SAL DataStore
@@ -322,6 +329,66 @@ public class MDSALManager implements AutoCloseable {
         Node nodeDpn = new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
 
         return nodeDpn;
+    }
+
+    public void syncSetUpFlow(FlowEntity flowEntity, long delay, boolean isRemove) {
+        s_logger.trace("syncSetUpFlow for flowEntity {} ", flowEntity);
+        if (flowEntity.getCookie() == null) {
+            flowEntity.setCookie(new BigInteger("0110000", 16));
+        }
+        Flow flow = flowEntity.getFlowBuilder().build();
+        String flowId = flowEntity.getFlowId();
+        BigInteger dpId = flowEntity.getDpnId();
+        short tableId = flowEntity.getTableId();
+        Match matches = flow.getMatch();
+        FlowKey flowKey = new FlowKey( new FlowId(flowId));
+        Node nodeDpn = buildDpnNode(dpId);
+        InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
+        Runnable notifyTask = new NotifyTask();
+        FlowInfoKey flowInfoKey = new FlowInfoKey(dpId, tableId, matches, flowId);
+        synchronized (flowInfoKey.toString().intern()) {
+            flowMap.put(flowInfoKey, notifyTask);
+            if (isRemove) {
+                MDSALUtil.syncDelete(m_dataBroker, LogicalDatastoreType.CONFIGURATION, flowInstanceId);
+            } else {
+                MDSALUtil.syncWrite(m_dataBroker, LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow);
+            }
+            synchronized (notifyTask) {
+                try {
+                    notifyTask.wait(delay);
+                } catch (InterruptedException e){}
+            }
+        }
+    }
+
+    public void syncSetUpGroup(GroupEntity groupEntity, long delayTime, boolean isRemove) {
+        s_logger.trace("syncSetUpGroup for groupEntity {} ", groupEntity);
+        Group group = groupEntity.getGroupBuilder().build();
+        BigInteger dpId = groupEntity.getDpnId();
+        Node nodeDpn = buildDpnNode(dpId);
+        long groupId = groupEntity.getGroupId();
+        GroupKey groupKey = new GroupKey(new GroupId(groupId));
+        InstanceIdentifier<Group> groupInstanceId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                .child(Group.class, groupKey).build();
+        Runnable notifyTask = new NotifyTask();
+        GroupInfoKey groupInfoKey = new GroupInfoKey(dpId, groupId);
+        synchronized (groupInfoKey.toString().intern()) {
+            s_logger.trace("syncsetupGroupKey groupKey {}", groupInfoKey);
+            groupMap.put(groupInfoKey, notifyTask);
+            if (isRemove) {
+                MDSALUtil.syncDelete(m_dataBroker, LogicalDatastoreType.CONFIGURATION, groupInstanceId);
+            } else {
+                MDSALUtil.syncWrite(m_dataBroker, LogicalDatastoreType.CONFIGURATION, groupInstanceId, group);
+            }
+            synchronized (notifyTask) {
+                try {
+                    notifyTask.wait(delayTime);
+                } catch (InterruptedException e){}
+            }
+        }
     }
 
 }

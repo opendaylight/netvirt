@@ -34,6 +34,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <mdsalutil.version>${vpnservices.version}</mdsalutil.version>
     <vpnmanager.version>${vpnservices.version}</vpnmanager.version>
     <interfacemgr.version>${vpnservices.version}</interfacemgr.version>
+    <elanmgr.version>${vpnservices.version}</elanmgr.version>
     <nexthopmgr.version>${vpnservices.version}</nexthopmgr.version>
     <fibmanager.version>${vpnservices.version}</fibmanager.version>
     <lockmanager.version>${vpnservices.version}</lockmanager.version>
@@ -184,6 +185,23 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>interfacemgr-api</artifactId>
       <version>${interfacemgr.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>elanmanager-impl</artifactId>
+      <version>${elanmgr.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>elanmanager-impl</artifactId>
+      <version>${elanmgr.version}</version>
+      <classifier>config</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>elanmanager-api</artifactId>
+      <version>${elanmgr.version}</version>
     </dependency>
     <dependency>
         <groupId>org.opendaylight.controller</groupId>
@@ -345,6 +363,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
       <version>0.9.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.openflowplugin</groupId>
+      <artifactId>features-openflowplugin-extension</artifactId>
+      <classifier>features</classifier>
+      <version>${openflowplugin.version}</version>
+      <type>xml</type>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>commons-net</groupId>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -14,9 +14,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.google.common.base.Optional;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
+import org.opendaylight.vpnservice.interfacemgr.globals.VlanInterfaceInfo;
+import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -26,6 +32,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.overlay.rev150105.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.overlay.rev150105.TunnelTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.overlay.rev150105.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInputBuilder;
@@ -36,6 +45,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPoolKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan.L2vlanMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -103,6 +115,17 @@ public class IfmUtil {
             strList.add(1, intfName.substring(index));
         }
         return strList;
+    }
+
+    public static long getGroupId(long ifIndex, InterfaceInfo.InterfaceType infType) {
+        if (infType == InterfaceInfo.InterfaceType.LOGICAL_GROUP_INTERFACE) {
+            return ifIndex + IfmConstants.LOGICAL_GROUP_START;
+        }
+        else if (infType == InterfaceInfo.InterfaceType.VLAN_INTERFACE) {
+            return ifIndex + IfmConstants.VLAN_GROUP_START;
+        } else {
+            return ifIndex + IfmConstants.TRUNK_GROUP_START;
+        }
     }
 
     public static List<String> getDpIdPortNameAndSuffixFromInterfaceName(String intfName) {
@@ -200,4 +223,57 @@ public class IfmUtil {
         }
         return null;
     }
+
+    public static NodeConnectorId getNodeConnectorIdFromInterface(Interface iface, DataBroker dataBroker) {
+        return FlowBasedServicesUtils.getNodeConnectorIdFromInterface(iface, dataBroker);
+    }
+
+    public static InterfaceInfo.InterfaceType getInterfaceType(Interface iface) {
+        InterfaceInfo.InterfaceType interfaceType =
+                org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo.InterfaceType.UNKNOWN_INTERFACE;
+        Class<? extends org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType> ifType = iface.getType();
+
+        if (ifType.isAssignableFrom(L2vlan.class)) {
+            interfaceType =  org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo.InterfaceType.VLAN_INTERFACE;
+        } else if (ifType.isAssignableFrom(Tunnel.class)) {
+            IfTunnel ifTunnel = iface.getAugmentation(IfTunnel.class);
+            Class<? extends  org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase> tunnelType = ifTunnel.getTunnelInterfaceType();
+            if (tunnelType.isAssignableFrom(TunnelTypeVxlan.class)) {
+                interfaceType = InterfaceInfo.InterfaceType.VXLAN_TRUNK_INTERFACE;
+            } else if (tunnelType.isAssignableFrom(TunnelTypeGre.class)) {
+                interfaceType = InterfaceInfo.InterfaceType.GRE_TRUNK_INTERFACE;
+            }
+        }
+        // TODO: Check if the below condition is still needed/valid
+        //else if (ifType.isAssignableFrom(InterfaceGroup.class)) {
+        //    interfaceType =  org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo.InterfaceType.LOGICAL_GROUP_INTERFACE;
+        //}
+        return interfaceType;
+    }
+
+    public static VlanInterfaceInfo getVlanInterfaceInfo(String interfaceName, Interface iface, BigInteger dpId){
+        IfL2vlan vlanIface = iface.getAugmentation(IfL2vlan.class);
+
+        short vlanId = 0;
+        //FIXME :Use this below thing properly
+        VlanInterfaceInfo vlanInterfaceInfo = new VlanInterfaceInfo(dpId, "someString", vlanId);
+
+        if (vlanIface != null) {
+            vlanId = vlanIface.getVlanId() == null ? 0 : vlanIface.getVlanId().getValue().shortValue();
+            L2vlanMode l2VlanMode = vlanIface.getL2vlanMode();
+
+            if (l2VlanMode == L2vlanMode.Transparent) {
+                vlanInterfaceInfo.setVlanTransparent(true);
+            }
+            if (l2VlanMode == L2vlanMode.NativeUntagged) {
+                vlanInterfaceInfo.setUntaggedVlan(true);
+            }
+            vlanInterfaceInfo.setVlanId(vlanId);
+
+        }
+        return vlanInterfaceInfo;
+    }
+
+
+
 }
