@@ -283,9 +283,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     LOG.info("remove terminatingServiceActions called with DpnId = {} and label = {}", dpId , label);
     List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
     // Matching metadata
-    mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {
-        MetaDataUtil.getTunnelIdWithValidVniBitAndVniSet((int)label),
-        MetaDataUtil.METADA_MASK_TUNNEL_ID }));
+    mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(label)}));
     flowEntity = MDSALUtil.buildFlowEntity(dpId,
                                            NwConstants.INTERNAL_TUNNEL_TABLE,
                                            getFlowRef(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, (int)label),
@@ -641,7 +639,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     public void processNodeAdd(BigInteger dpnId) {
         LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpnId);
         makeTableMissFlow(dpnId, NwConstants.ADD_FLOW);
-        makeProtocolTableFlow(dpnId, NwConstants.ADD_FLOW);
         makeL3IntfTblMissFlow(dpnId, NwConstants.ADD_FLOW);
     }
 

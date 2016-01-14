@@ -116,7 +116,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
           }
         } else {
           if (VpnUtil.isVpnInterfaceConfigured(broker, interfaceName)) {
-            vpnInterfaceManager.processVpnInterfaceDown(interfaceName, intrf.getIfIndex());
+            vpnInterfaceManager.processVpnInterfaceDown(interfaceName, intrf.getIfIndex(), true);
           }
         }
       } catch (Exception e) {
