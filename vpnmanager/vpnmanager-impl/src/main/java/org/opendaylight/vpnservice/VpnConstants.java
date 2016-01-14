@@ -14,10 +14,6 @@ public class VpnConstants {
     public static final String VPN_IDPOOL_NAME = "vpnservices";
     public static final long VPN_IDPOOL_START = 100L;
     public static final String VPN_IDPOOL_SIZE = "100000";
-    public static final short LPORT_INGRESS_TABLE = 0;
-    public static final short LFIB_TABLE = 20;
-    public static final short FIB_TABLE = 21;
-    public static final short L3_INTERFACE_TABLE = 80;
     public static final short DEFAULT_FLOW_PRIORITY = 10;
     public static final short L3VPN_SERVICE_IDENTIFIER = 2;
     public static final long INVALID_ID = -1;

@@ -212,7 +212,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         List<Instruction> instructions = new ArrayList<Instruction>();
 
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
-        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(VpnConstants.FIB_TABLE, ++instructionKey));
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));
 
         BoundServices
             serviceInfo =
@@ -305,10 +305,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
         // Install the flow entry in L3_INTERFACE_TABLE
         BigInteger dpId = InterfaceUtils.getDpnForInterface(interfaceManager, vpnInterfaceName);
-        String flowRef = VpnUtil.getFlowRef(dpId, VpnConstants.L3_INTERFACE_TABLE,
+        String flowRef = VpnUtil.getFlowRef(dpId, NwConstants.L3_INTERFACE_TABLE,
                     NwConstants.ETHTYPE_ARP, lPortTag, replyOrRequest.getArpOperation());
         FlowEntity flowEntity;
-        flowEntity = MDSALUtil.buildFlowEntity(dpId, VpnConstants.L3_INTERFACE_TABLE, flowRef,
+        flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_INTERFACE_TABLE, flowRef,
                 NwConstants.DEFAULT_ARP_FLOW_PRIORITY, replyOrRequest.getName(), 0, 0,
                 VpnUtil.getCookieArpFlow(lPortTag), matches, instructions);
 

@@ -188,7 +188,7 @@ public class FlowBasedServicesUtils {
         Node nodeDpn = buildInventoryDpnNode(dpId);
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
-                .child(Table.class, new TableKey(IfmConstants.VLAN_INTERFACE_INGRESS_TABLE)).child(Flow.class, flowKey).build();
+                .child(Table.class, new TableKey(NwConstants.VLAN_INTERFACE_INGRESS_TABLE)).child(Flow.class, flowKey).build();
 
         t.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
     }
@@ -244,7 +244,7 @@ public class FlowBasedServicesUtils {
         Node nodeDpn = buildInventoryDpnNode(dpId);
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
-                .child(Table.class, new TableKey(IfmConstants.VLAN_INTERFACE_INGRESS_TABLE)).child(Flow.class, flowKey).build();
+                .child(Table.class, new TableKey(NwConstants.VLAN_INTERFACE_INGRESS_TABLE)).child(Flow.class, flowKey).build();
 
         t.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
     }
@@ -265,7 +265,7 @@ public class FlowBasedServicesUtils {
     }
 
     private static String getFlowRef(BigInteger dpnId, String iface, BoundServices service) {
-        return new StringBuffer().append(dpnId).append(IfmConstants.VLAN_INTERFACE_INGRESS_TABLE).append(NwConstants.FLOWID_SEPARATOR)
+        return new StringBuffer().append(dpnId).append( NwConstants.VLAN_INTERFACE_INGRESS_TABLE).append(NwConstants.FLOWID_SEPARATOR)
                 .append(iface).append(NwConstants.FLOWID_SEPARATOR).append(service.getServiceName()).append(NwConstants.FLOWID_SEPARATOR)
                 .append(service.getServicePriority()).toString();
     }

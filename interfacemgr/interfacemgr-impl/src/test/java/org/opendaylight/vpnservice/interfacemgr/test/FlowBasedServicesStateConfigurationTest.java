@@ -17,10 +17,7 @@ import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.statehelpers.FlowBasedServicesStateBindHelper;
 import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.statehelpers.FlowBasedServicesStateUnbindHelper;
-import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
-import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
-import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
-import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
+import org.opendaylight.vpnservice.mdsalutil.*;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -104,7 +101,7 @@ public class FlowBasedServicesStateConfigurationTest {
                 .setLowerLayerIf(lowerLayerIfList)
                 .setKey(IfmUtil.getStateInterfaceKeyFromName(InterfaceManagerTestUtil.interfaceName))
                 .setName(InterfaceManagerTestUtil.interfaceName);
-        stypeOpenflow = InterfaceManagerTestUtil.buildStypeOpenflow(dpId,flowpriority, IfmConstants.VLAN_INTERFACE_INGRESS_TABLE, instructions);
+        stypeOpenflow = InterfaceManagerTestUtil.buildStypeOpenflow(dpId,flowpriority, NwConstants.VLAN_INTERFACE_INGRESS_TABLE, instructions);
         instructionKey = new InstructionKey(instructionKeyval);
         BigInteger[] metadataValues = IfmUtil.mergeOpenflowMetadataWriteInstructions(instructions);
         boundService = InterfaceManagerTestUtil.buildBoundServices(serviceName,key,new BoundServicesKey(key),stypeOpenflow);
