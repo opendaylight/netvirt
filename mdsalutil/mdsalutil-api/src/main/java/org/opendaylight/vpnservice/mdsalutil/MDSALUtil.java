@@ -246,7 +246,7 @@ public class MDSALUtil {
         return EMPTY_Instructions;
     }
 
-    protected static Match buildMatches(List<MatchInfo> listMatchInfo) {
+    public static Match buildMatches(List<MatchInfo> listMatchInfo) {
         if (listMatchInfo != null) {
             MatchBuilder matchBuilder = new MatchBuilder();
             Map<Class<?>, Object> mapMatchBuilder = new HashMap<Class<?>, Object>();

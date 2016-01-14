@@ -1,0 +1,67 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <reference id="elanProviderRef" interface="org.opendaylight.elanmanager.api.IElanService"  availability="optional" />
+    <reference id="interfaceManagerRef" interface="org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager"  availability="optional" />
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+        <command>
+            <action class="org.opendaylight.vpnservice.elan.cli.ElanAdd">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.vpnservice.elan.cli.ElanDelete">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.vpnservice.elan.cli.ElanUpdate">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.vpnservice.elan.cli.ElanInterfaceAdd">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.vpnservice.elan.cli.ElanInterfaceDelete">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.vpnservice.elan.cli.ElanInterfaceUpdate">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.vpnservice.elan.cli.StaticMacAdd">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.vpnservice.elan.cli.StaticMacDelete">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.vpnservice.elan.cli.ElanMacTableGet">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.vpnservice.elan.cli.ElanMacTableFlush">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.vpnservice.elan.cli.ElanGet">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.vpnservice.elan.cli.ElanInterfaceGet">
+                <property name="elanProvider" ref="elanProviderRef" />
+                <property name="interfaceManager" ref="interfaceManagerRef" />
+            </action>
+        </command>
+    </command-bundle>
+</blueprint>

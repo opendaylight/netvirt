@@ -34,7 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInstance1;
+//import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInstance1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdOutput;
@@ -124,15 +124,18 @@ public class NexthopManager implements L3nexthopService, AutoCloseable {
                 .child(VpnInstance.class, new VpnInstanceKey(vpnName));
 
         InstanceIdentifier<VpnInstance> id = idBuilder.build();
-        InstanceIdentifier<VpnInstance1> idx = id.augmentation(VpnInstance1.class);
-        Optional<VpnInstance1> vpn = read(LogicalDatastoreType.OPERATIONAL, idx);
+        //FIXME [ELAnBE] Commenting out below 2 lines
+        //InstanceIdentifier<VpnInstance1> idx = id.augmentation(VpnInstance1.class);
+        //Optional<VpnInstance1> vpn = read(LogicalDatastoreType.OPERATIONAL, idx);
 
-        if (vpn.isPresent()) {
-            LOG.debug("VPN id returned: {}", vpn.get().getVpnId());
-            return vpn.get().getVpnId();
-        } else {
-            return -1;
-        }
+
+//        if (vpn.isPresent()) {
+//            LOG.debug("VPN id returned: {}", vpn.get().getVpnId());
+//            return vpn.get().getVpnId();
+//        } else {
+//            return -1;
+//        }
+        return -1;
     }
 
     private BigInteger getDpnId(String ofPortId) {

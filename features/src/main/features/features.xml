@@ -14,6 +14,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.controller/features-mdsal/${mdsal.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.mdsal.model/features-mdsal-model/${mdsal.model.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.openflowplugin/features-openflowplugin/${openflowplugin.version}/xml/features</repository>
+  <repository>mvn:org.opendaylight.openflowplugin/features-openflowplugin-extension/${openflowplugin.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.netconf/features-restconf/${restconf.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.ovsdb/features-ovsdb/${ovsdb.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.neutron/features-neutron/${neutron.version}/xml/features</repository>
@@ -21,6 +22,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
     <feature version='${openflowplugin.version}'>odl-openflowplugin-nsf-model</feature>
+    <feature version="${openflowplugin.version}">odl-openflowplugin-nxm-extensions</feature>
     <feature version="${ovsdb.version}">odl-ovsdb-southbound-impl-rest</feature>
     <bundle>mvn:org.opendaylight.controller/liblldp/${liblldp.version}</bundle>
     <bundle>mvn:org.opendaylight.neutron/model/${neutron.version}</bundle>
@@ -60,6 +62,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.vpnservice/neutronvpn-impl/${neutronvpn.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/neutronvpn-shell/${neutronvpn.version}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/dhcpservice-impl/${vpnservices.version}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/elanmanager-api/${elanmgr.version}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/elanmanager-impl/${elanmgr.version}</bundle>
 
     <!--<bundle>mvn:org.opendaylight.vpnservice.third-party/org.apache.thriftlib/1.0.1-SNAPSHOT</bundle>-->
     <bundle>wrap:mvn:org.apache.thrift/libthrift/0.9.1$overwrite=merge&amp;Bundle-Version=0.9.1&amp;Export-Package=*;-noimport:=true;version="0.9.1"</bundle>
@@ -77,6 +81,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <configfile finalname="itm-impl-default-config.xml">mvn:org.opendaylight.vpnservice/itm-impl/${itm.version}/xml/config</configfile>
     <configfile finalname="neutronvpn-impl-default-config.xml">mvn:org.opendaylight.vpnservice/neutronvpn-impl/${neutronvpn.version}/xml/config</configfile>
     <configfile finalname="dhcpservice-impl-default-config.xml">mvn:org.opendaylight.vpnservice/dhcpservice-impl/${vpnservices.version}/xml/config</configfile>
+    <configfile finalname="elanmanager-impl-default-config.xml">mvn:org.opendaylight.vpnservice/elanmanager-impl/${elanmgr.version}/xml/config</configfile>
+
   </feature>
   <feature name='odl-vpnservice-impl-rest' version='${project.version}' description='OpenDaylight :: vpnservice :: impl :: REST '>
     <feature version="${project.version}">odl-vpnservice-impl</feature>

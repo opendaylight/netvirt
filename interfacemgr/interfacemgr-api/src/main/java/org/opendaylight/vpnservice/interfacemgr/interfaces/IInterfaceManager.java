@@ -8,12 +8,12 @@
 
 package org.opendaylight.vpnservice.interfacemgr.interfaces;
 
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-
 import java.math.BigInteger;
 import java.util.List;
+
+import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
-import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 
 @Deprecated
 public interface IInterfaceManager {
@@ -34,4 +34,8 @@ public interface IInterfaceManager {
 
     @Deprecated
     public Long getPortForInterface(Interface intf);
+
+    public InterfaceInfo getInterfaceInfo(String intInfo);
+
+    public InterfaceInfo getInterfaceInfoFromOperationalDataStore(String interfaceName, InterfaceInfo.InterfaceType interfaceType);
 }
