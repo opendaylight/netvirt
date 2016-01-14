@@ -19,8 +19,11 @@ import org.opendaylight.vpnservice.itm.impl.ItmUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.DpnEndpoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.TunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnelKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,6 +124,15 @@ public class ItmInternalTunnelDeleteWorker {
         InstanceIdentifier<Interface> trunkIdentifier = ItmUtils.buildId(trunkfwdIfName);
         logger.debug(  " Removing Trunk Interface Name - {} , Id - {} from Config DS {}, {} ", trunkfwdIfName, trunkIdentifier ) ;
         t.delete(LogicalDatastoreType.CONFIGURATION, trunkIdentifier);
+
+        // also update itm-state ds -- Delete the forward tunnel-interface from the tunnel list
+        InstanceIdentifier<InternalTunnel> path = InstanceIdentifier.create(
+                TunnelList.class)
+                    .child(InternalTunnel.class, new InternalTunnelKey( srcDpnId, dstDpnId));   
+        t.delete(LogicalDatastoreType.CONFIGURATION,path) ;
+        // Release the Id for the forward trunk
+        ItmUtils.releaseId(idManagerService, trunkfwdIfName);
+
         String trunkRevIfName =
                         ItmUtils.getTrunkInterfaceName(idManagerService, dstTep.getInterfaceName(), dstTep.getIpAddress()
                                         .getIpv4Address().getValue(), srcTep.getIpAddress().getIpv4Address()
@@ -129,5 +141,14 @@ public class ItmInternalTunnelDeleteWorker {
         trunkIdentifier = ItmUtils.buildId(trunkfwdIfName);
         logger.debug(  " Removing Trunk Interface Name - {} , Id - {} from Config DS {}, {} ", trunkfwdIfName, trunkIdentifier ) ;
         t.delete(LogicalDatastoreType.CONFIGURATION, trunkIdentifier);
+
+     // also update itm-state ds -- Delete the reverse tunnel-interface from the tunnel list
+        path = InstanceIdentifier.create(
+                TunnelList.class)
+                    .child(InternalTunnel.class, new InternalTunnelKey(dstDpnId, srcDpnId));   
+        t.delete(LogicalDatastoreType.CONFIGURATION,path) ;
+        
+        // Release the Id for the Reverse trunk
+        ItmUtils.releaseId(idManagerService, trunkRevIfName);
     }
 }

@@ -47,6 +47,23 @@ module itm-rpc {
         }
     }
 
+    rpc get-internal-or-external-interface-name {
+        description "used to retrieve tunnel interface id with src Dpn and destination ip";
+            input {
+                leaf source-dpid {
+                type uint64;
+                }
+                leaf destination-ip {
+                type inet:ip-address;
+                }
+            }
+            output {
+                leaf interface-name {
+                    type string;
+                }
+        }
+    }
+
     rpc get-external-tunnel-interface-name {
         description "used to retrieve tunnel interface id between Dpns";
         input {
@@ -111,7 +128,7 @@ module itm-rpc {
         }
      }
 
-     rpc remove-external-tunnel-endpoint { 
+     rpc remove-external-tunnel-endpoint {
         description "used for building tunnels between teps on all Dpns and external node";
         input {
             leaf destination-ip {
@@ -129,7 +146,7 @@ module itm-rpc {
          description  "used for programming the terminating service actions";
          input {
              leaf dpn-id {
-               type uint64;  
+               type uint64;
              }
              leaf service-id {
                 type uint16;
@@ -142,7 +159,7 @@ module itm-rpc {
               description  "used for removing the terminating service actions";
               input {
                   leaf dpn-id {
-                    type uint64;  
+                    type uint64;
                   }
                   leaf service-id {
                      type uint16;

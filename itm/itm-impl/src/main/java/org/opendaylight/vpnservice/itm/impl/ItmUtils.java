@@ -40,6 +40,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.dpn.teps.info.TunnelEndPointsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.dpn.teps.info.TunnelEndPointsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnelKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnelKey;
 import org.opendaylight.vpnservice.itm.globals.ITMConstants;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -169,15 +175,28 @@ public class ItmUtils {
     }
 
     public static Interface buildTunnelInterface(BigInteger dpn, String ifName, String desc, boolean enabled, Class<? extends TunnelTypeBase> tunType,
-       IpAddress localIp, IpAddress remoteIp, IpAddress gatewayIp) {
+       IpAddress localIp, IpAddress remoteIp, IpAddress gatewayIp, boolean internal) {
        InterfaceBuilder builder = new InterfaceBuilder().setKey(new InterfaceKey(ifName)).setName(ifName)
        .setDescription(desc).setEnabled(enabled).setType(Tunnel.class);
        ParentRefs parentRefs = new ParentRefsBuilder().setDatapathNodeIdentifier(dpn).build();
        builder.addAugmentation(ParentRefs.class, parentRefs);
        IfTunnel tunnel = new IfTunnelBuilder().setTunnelDestination(remoteIp).setTunnelGateway(gatewayIp).setTunnelSource(localIp)
-       .setTunnelInterfaceType( tunType).build();
+       .setTunnelInterfaceType( tunType).setInternal(internal).build();
        builder.addAugmentation(IfTunnel.class, tunnel);
        return builder.build();
+    }
+
+    public static InternalTunnel buildInternalTunnel( BigInteger srcDpnId, BigInteger dstDpnId, String trunkInterfaceName) {
+        InternalTunnel tnl = new InternalTunnelBuilder().setKey(new InternalTunnelKey(srcDpnId, dstDpnId))
+            .setDestinationDPN(dstDpnId)
+            .setSourceDPN(srcDpnId)
+            .setTunnelInterfaceName(trunkInterfaceName).build();
+        return tnl ;
+    }
+
+    public static ExternalTunnel buildExternalTunnel( BigInteger srcDpnId, IpAddress dstIp, String trunkInterfaceName) {
+        ExternalTunnel extTnl = new ExternalTunnelBuilder().setKey(new ExternalTunnelKey(dstIp, srcDpnId)).setSourceDPN(srcDpnId).setDestinationIP(dstIp).setTunnelInterfaceName(trunkInterfaceName).build();
+        return extTnl ;
     }
 
     public static List<DPNTEPsInfo> getTunnelMeshInfo(DataBroker dataBroker) {
@@ -226,5 +245,19 @@ public class ItmUtils {
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when getting Unique Id for key {}", idKey, e);
         }
+    }
+
+    public static List<DPNTEPsInfo> getDPNTEPListFromDPNId(DataBroker dataBroker, List<BigInteger> dpnIds) {
+        List<DPNTEPsInfo> meshedDpnList = getTunnelMeshInfo(dataBroker) ;
+        List<DPNTEPsInfo> cfgDpnList = new ArrayList<DPNTEPsInfo>();
+        if( null != meshedDpnList) {
+           for(BigInteger dpnId : dpnIds) {
+              for( DPNTEPsInfo teps : meshedDpnList ) {
+                 if( dpnId.equals(teps.getDPNID()))
+                 cfgDpnList.add( teps) ;
+              }
+            }
+        }
+        return cfgDpnList;
     }
 }

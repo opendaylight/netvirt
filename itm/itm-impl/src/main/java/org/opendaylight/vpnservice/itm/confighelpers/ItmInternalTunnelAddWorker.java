@@ -33,9 +33,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnelKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.Tunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.TunnelBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.TunnelKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnelKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.slf4j.Logger;
@@ -150,21 +149,19 @@ public class ItmInternalTunnelAddWorker {
         String trunkInterfaceName = ItmUtils.getTrunkInterfaceName(idManagerService, interfaceName,srcte.getIpAddress().getIpv4Address().getValue(), dstte.getIpAddress().getIpv4Address().getValue()) ;
         IpAddress gwyIpAddress = ( srcte.getSubnetMask().equals(dstte.getSubnetMask()) ) ? null : srcte.getGwIpAddress() ;
         logger.debug(  " Creating Trunk Interface with parameters trunk I/f Name - {}, parent I/f name - {}, source IP - {}, destination IP - {} gateway IP - {}",trunkInterfaceName, interfaceName, srcte.getIpAddress(), dstte.getIpAddress(), gwyIpAddress ) ;
-        Interface iface = ItmUtils.buildTunnelInterface(srcDpnId, trunkInterfaceName, String.format( "%s %s",ifDescription, "Trunk Interface"), true, tunType, srcte.getIpAddress(), dstte.getIpAddress(), gwyIpAddress) ;
+        Interface iface = ItmUtils.buildTunnelInterface(srcDpnId, trunkInterfaceName, String.format( "%s %s",ifDescription, "Trunk Interface"), true, tunType, srcte.getIpAddress(), dstte.getIpAddress(), gwyIpAddress, true) ;
         logger.debug(  " Trunk Interface builder - {} ", iface ) ;
         InstanceIdentifier<Interface> trunkIdentifier = ItmUtils.buildId(trunkInterfaceName);
         logger.debug(  " Trunk Interface Identifier - {} ", trunkIdentifier ) ;
         logger.trace(  " Writing Trunk Interface to Config DS {}, {} ", trunkIdentifier, iface ) ;
         t.merge(LogicalDatastoreType.CONFIGURATION, trunkIdentifier, iface, true);
         // also update itm-state ds?
-        InstanceIdentifier<Tunnel> path = InstanceIdentifier.create(
+        InstanceIdentifier<InternalTunnel> path = InstanceIdentifier.create(
                 TunnelList.class)
-                    .child(Tunnel.class, new TunnelKey(dstDpnId, srcDpnId));   
-        Tunnel tnl = new TunnelBuilder().setKey(new TunnelKey(dstDpnId, srcDpnId))
-                                       .setDestinationDPN(dstDpnId)
-                                       .setSourceDPN(srcDpnId)
-                                       .setTunnelInterfaceName(trunkInterfaceName).build();
-        ItmUtils.asyncUpdate(LogicalDatastoreType.CONFIGURATION, path, tnl, dataBroker, DEFAULT_CALLBACK);
+                    .child(InternalTunnel.class, new InternalTunnelKey( srcDpnId, dstDpnId));   
+        InternalTunnel tnl = ItmUtils.buildInternalTunnel(srcDpnId, dstDpnId, trunkInterfaceName);
+        //ItmUtils.asyncUpdate(LogicalDatastoreType.CONFIGURATION, path, tnl, dataBroker, DEFAULT_CALLBACK);
+        t.merge(LogicalDatastoreType.CONFIGURATION,path, tnl, true) ;
         return true;
     }
 
