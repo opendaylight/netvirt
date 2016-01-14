@@ -66,22 +66,18 @@ public class ItmExternalTunnelAddWorker {
               IpAddress gwyIpAddress = (utils.getInfo().isInRange(dcGwyIpStr) ) ? null : firstEndPt.getGwIpAddress() ;
               String ifDescription = tunType.getName();
               logger.debug(  " Creating Trunk Interface with parameters trunk I/f Name - {}, parent I/f name - {}, source IP - {}, DC Gateway IP - {} gateway IP - {}",trunkInterfaceName, interfaceName, firstEndPt.getIpAddress(), extIp, gwyIpAddress ) ;
-              Interface iface = ItmUtils.buildTunnelInterface(teps.getDPNID(), trunkInterfaceName, String.format( "%s %s",ifDescription, "Trunk Interface"), true, tunType, firstEndPt.getIpAddress(), extIp, gwyIpAddress) ;
+              Interface iface = ItmUtils.buildTunnelInterface(teps.getDPNID(), trunkInterfaceName, String.format( "%s %s",ifDescription, "Trunk Interface"), true, tunType, firstEndPt.getIpAddress(), extIp, gwyIpAddress, false) ;
               logger.debug(  " Trunk Interface builder - {} ", iface ) ;
               InstanceIdentifier<Interface> trunkIdentifier = ItmUtils.buildId(trunkInterfaceName);
               logger.debug(  " Trunk Interface Identifier - {} ", trunkIdentifier ) ;
               logger.trace(  " Writing Trunk Interface to Config DS {}, {} ", trunkIdentifier, iface ) ;
-              //ItmUtils.asyncUpdate(LogicalDatastoreType.CONFIGURATION,trunkIdentifier, iface , dataBroker, ItmUtils.DEFAULT_CALLBACK);
               t.merge(LogicalDatastoreType.CONFIGURATION, trunkIdentifier, iface, true);
-       //       update_external_tunnels_ds(teps.getDPNID(), extIp, trunkInterfaceName, tunType);
+              // update external_tunnel_list ds  
               InstanceIdentifier<ExternalTunnel> path = InstanceIdentifier.create(
                       ExternalTunnelList.class)
-                          .child(ExternalTunnel.class, new ExternalTunnelKey(extIp, teps.getDPNID()));   
-              ExternalTunnel tnl = new ExternalTunnelBuilder().setKey(new ExternalTunnelKey(extIp, teps.getDPNID()))
-                                             .setDestinationIP(extIp)
-                                             .setSourceDPN(teps.getDPNID())
-                                             .setTunnelInterfaceName(trunkInterfaceName).build();
-              ItmUtils.asyncUpdate(LogicalDatastoreType.CONFIGURATION, path, tnl, dataBroker, DEFAULT_CALLBACK);
+                          .child(ExternalTunnel.class, new ExternalTunnelKey(extIp, teps.getDPNID()));
+              ExternalTunnel tnl = ItmUtils.buildExternalTunnel(teps.getDPNID(), extIp, trunkInterfaceName);
+              t.merge(LogicalDatastoreType.CONFIGURATION,path, tnl, true) ;
           }
           futures.add( t.submit()) ;
        }
@@ -91,18 +87,8 @@ public class ItmExternalTunnelAddWorker {
     public static List<ListenableFuture<Void>> buildTunnelsFromDpnToExternalEndPoint(DataBroker dataBroker, IdManagerService idManagerService,
                                                                                      List<BigInteger> dpnId, IpAddress extIp, Class<? extends TunnelTypeBase> tunType) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        List<DPNTEPsInfo> cfgDpnList = new ArrayList<DPNTEPsInfo>() ;
-        List<DPNTEPsInfo> meshedDpnList = ItmUtils.getTunnelMeshInfo(dataBroker) ;
-        if( null != meshedDpnList) {
-    	   for (BigInteger dpn : dpnId){
-    	          for( DPNTEPsInfo teps : meshedDpnList ) {
-    	              if( teps.getDPNID().equals(dpn)) {
-    	                 cfgDpnList.add(teps) ;
-    	              }
-    	           }
-    	   }
+        List<DPNTEPsInfo> cfgDpnList =( dpnId == null ) ? ItmUtils.getTunnelMeshInfo(dataBroker) :ItmUtils.getDPNTEPListFromDPNId(dataBroker, dpnId) ;
           futures = buildTunnelsToExternalEndPoint( dataBroker, idManagerService, cfgDpnList, extIp, tunType) ;
-       }
         return futures ;
     }
 }

@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.vpnservice.itm.confighelpers.ItmExternalTunnelAddWorker;
+import org.opendaylight.vpnservice.itm.confighelpers.ItmExternalTunnelDeleteWorker;
 import org.opendaylight.vpnservice.itm.globals.ITMConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.vpnservice.itm.impl.ItmUtils;
@@ -27,16 +28,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.acti
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.ExternalTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.TunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.DPNTEPsInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnelKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.Tunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.TunnelKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnelKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.AddExternalTunnelEndpointInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.BuildExternalTunnelFromDpnsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.CreateTerminatingServiceActionsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetExternalTunnelInterfaceNameInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetExternalTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetExternalTunnelInterfaceNameOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetInternalOrExternalInterfaceNameInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetInternalOrExternalInterfaceNameOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetInternalOrExternalInterfaceNameOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetTunnelInterfaceNameInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetTunnelInterfaceNameOutputBuilder;
@@ -88,15 +93,15 @@ public class ItmManagerRpcService implements ItmRpcService {
          RpcResultBuilder<GetTunnelInterfaceNameOutput> resultBld = null;
          BigInteger sourceDpn = input.getSourceDpid() ;
          BigInteger destinationDpn = input.getDestinationDpid() ;
-         InstanceIdentifier<Tunnel> path = InstanceIdentifier.create(
+         InstanceIdentifier<InternalTunnel> path = InstanceIdentifier.create(
                  TunnelList.class)
-                     .child(Tunnel.class, new TunnelKey(destinationDpn, sourceDpn));      
+                     .child(InternalTunnel.class, new InternalTunnelKey(destinationDpn, sourceDpn));      
          
-         Optional<Tunnel> tnl = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, path, dataBroker);
+         Optional<InternalTunnel> tnl = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, path, dataBroker);
 
          if( tnl != null && tnl.isPresent())
          {
-              Tunnel tunnel = tnl.get();
+              InternalTunnel tunnel = tnl.get();
               GetTunnelInterfaceNameOutputBuilder output = new GetTunnelInterfaceNameOutputBuilder() ;
               output.setInterfaceName(tunnel.getTunnelInterfaceName()) ;
               resultBld = RpcResultBuilder.success();
@@ -112,8 +117,12 @@ public class ItmManagerRpcService implements ItmRpcService {
     @Override
     public Future<RpcResult<Void>> removeExternalTunnelEndpoint(
             RemoveExternalTunnelEndpointInput input) {
-        // TODO Auto-generated method stub
-        return null;
+         //Ignore the Futures for now
+        final SettableFuture<RpcResult<Void>> result = SettableFuture.create();
+        List<DPNTEPsInfo> meshedDpnList = ItmUtils.getTunnelMeshInfo(dataBroker) ;
+        ItmExternalTunnelDeleteWorker.deleteTunnels(dataBroker, idManagerService,meshedDpnList , input.getDestinationIp(), input.getTunnelType());
+        result.set(RpcResultBuilder.<Void>success().build());
+        return result;
     }
 
     @Override
@@ -121,7 +130,8 @@ public class ItmManagerRpcService implements ItmRpcService {
             RemoveExternalTunnelFromDpnsInput input) {
         //Ignore the Futures for now
         final SettableFuture<RpcResult<Void>> result = SettableFuture.create();
-//        ItmExternalTunnelDeleteWorker.buildTunnelsFromDpnToExternalEndPoint(dataBroker, input.getDpnId(), null, input.getDestinationIp());
+        List<DPNTEPsInfo> cfgDpnList = ItmUtils.getDPNTEPListFromDPNId(dataBroker, input.getDpnId()) ;
+        ItmExternalTunnelDeleteWorker.deleteTunnels(dataBroker, idManagerService, cfgDpnList, input.getDestinationIp(), input.getTunnelType());
         result.set(RpcResultBuilder.<Void>success().build());
         return result;
     }
@@ -131,7 +141,7 @@ public class ItmManagerRpcService implements ItmRpcService {
             BuildExternalTunnelFromDpnsInput input) {
         //Ignore the Futures for now
         final SettableFuture<RpcResult<Void>> result = SettableFuture.create();
-        List<ListenableFuture<Void>> extTunnelResultList = ItmExternalTunnelAddWorker.buildTunnelsFromDpnToExternalEndPoint(dataBroker, idManagerService, input.getDpnId(), input.getDestinationIp(), input.getTunnelType());
+        List<ListenableFuture<Void>> extTunnelResultList = ItmExternalTunnelAddWorker.buildTunnelsFromDpnToExternalEndPoint(dataBroker, idManagerService,input.getDpnId(), input.getDestinationIp(), input.getTunnelType());
         for (ListenableFuture<Void> extTunnelResult : extTunnelResultList) {
             Futures.addCallback(extTunnelResult, new FutureCallback<Void>(){
 
@@ -159,7 +169,8 @@ public class ItmManagerRpcService implements ItmRpcService {
 
         //Ignore the Futures for now
         final SettableFuture<RpcResult<Void>> result = SettableFuture.create();
-    //    ItmExternalTunnelAddWorker.buildTunnelsToExternalEndPoint(dataBroker, null, input.getDestinationIp()) ;
+        List<DPNTEPsInfo> meshedDpnList = ItmUtils.getTunnelMeshInfo(dataBroker) ;
+        ItmExternalTunnelAddWorker.buildTunnelsToExternalEndPoint(dataBroker, idManagerService,meshedDpnList, input.getDestinationIp(), input.getTunnelType()) ;
         result.set(RpcResultBuilder.<Void>success().build());
         return result;
     }
@@ -286,6 +297,51 @@ public class ItmManagerRpcService implements ItmRpcService {
 
     private String getFlowRef(long termSvcTable, int svcId) {
         return new StringBuffer().append(termSvcTable).append(svcId).toString();
+    }
+
+    @Override
+    public Future<RpcResult<GetInternalOrExternalInterfaceNameOutput>> getInternalOrExternalInterfaceName(
+       GetInternalOrExternalInterfaceNameInput input) {
+       RpcResultBuilder<GetInternalOrExternalInterfaceNameOutput> resultBld = null;
+       BigInteger srcDpn = input.getSourceDpid() ;
+       IpAddress dstIp = input.getDestinationIp() ;
+       List<DPNTEPsInfo> meshedDpnList = ItmUtils.getTunnelMeshInfo(dataBroker) ;
+       // Look for external tunnels if not look for internal tunnel
+       for( DPNTEPsInfo teps : meshedDpnList) {
+           TunnelEndPoints firstEndPt = teps.getTunnelEndPoints().get(0) ;
+           if( dstIp.equals(firstEndPt.getIpAddress())) {
+              InstanceIdentifier<InternalTunnel> path = InstanceIdentifier.create(
+                       TunnelList.class)
+                           .child(InternalTunnel.class, new InternalTunnelKey(srcDpn, teps.getDPNID()));      
+               
+               Optional<InternalTunnel> tnl = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, path, dataBroker);
+               if( tnl != null && tnl.isPresent())
+               {
+                    InternalTunnel tunnel = tnl.get();
+                    GetInternalOrExternalInterfaceNameOutputBuilder output = new GetInternalOrExternalInterfaceNameOutputBuilder().setInterfaceName(tunnel.getTunnelInterfaceName() );
+                    resultBld = RpcResultBuilder.success();
+                    resultBld.withResult(output.build()) ;
+               }else {
+                   //resultBld = RpcResultBuilder.failed();
+                   InstanceIdentifier<ExternalTunnel> path1 = InstanceIdentifier.create(
+                           ExternalTunnelList.class)
+                               .child(ExternalTunnel.class, new ExternalTunnelKey(dstIp, srcDpn));      
+                   
+                   Optional<ExternalTunnel> ext = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, path1, dataBroker);
+
+                   if( ext != null && ext.isPresent())
+                   {
+                        ExternalTunnel extTunnel = ext.get();
+                        GetInternalOrExternalInterfaceNameOutputBuilder output = new GetInternalOrExternalInterfaceNameOutputBuilder().setInterfaceName(extTunnel.getTunnelInterfaceName() );
+                        resultBld = RpcResultBuilder.success();
+                        resultBld.withResult(output.build()) ;
+                   }else {
+                       resultBld = RpcResultBuilder.failed();
+                   }
+               }
+           }
+       }
+       return Futures.immediateFuture(resultBld.build());
     }
 
 }

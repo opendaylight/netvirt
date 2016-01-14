@@ -79,7 +79,7 @@ module itm-state {
 
 
       container tunnel-list {
-             list tunnel {
+             list internal-tunnel {
 
                key  "source-DPN destination-DPN";
 
@@ -98,7 +98,7 @@ module itm-state {
                }
              }
           }
-          
+
       container external-tunnel-list {
              list external-tunnel {
 
@@ -120,7 +120,7 @@ module itm-state {
 
              }
           }
-          
+
           notification itm-tunnel-build-complete{
           }
 
