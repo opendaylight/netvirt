@@ -397,8 +397,8 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
     private ListenableFuture<Void> makeTerminatingServiceFlow(IfTunnel tunnelInfo, BigInteger dpnId, BigInteger tunnelKey, List<Instruction> instruction, int addOrRemove) {
         List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {tunnelKey}));
-        short tableId = tunnelInfo.isInternal() ? IfmConstants.INTERNAL_TUNNEL_TABLE :
-                IfmConstants.EXTERNAL_TUNNEL_TABLE;
+        short tableId = tunnelInfo.isInternal() ? NwConstants.INTERNAL_TUNNEL_TABLE :
+                NwConstants.EXTERNAL_TUNNEL_TABLE;
         final String flowRef = getFlowRef(dpnId,tableId, tunnelKey);
         Flow terminatingSerFlow = MDSALUtil.buildFlowNew(tableId, flowRef,
                 5, "TST Flow Entry", 0, 0,
@@ -416,9 +416,9 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
                 new long[]{0x8847L}));
         mkMatches.add(new MatchInfo(MatchFieldType.mpls_label, new String[]{Long.toString(tunnelKey.longValue())}));
         // Install the flow entry in L3_LFIB_TABLE
-        String flowRef = getFlowRef(dpnId, IfmConstants.LFIB_TABLE, tunnelKey);
+        String flowRef = getFlowRef(dpnId, NwConstants.L3_LFIB_TABLE, tunnelKey);
 
-        Flow lfibFlow = MDSALUtil.buildFlowNew(IfmConstants.LFIB_TABLE, flowRef,
+        Flow lfibFlow = MDSALUtil.buildFlowNew(NwConstants.L3_LFIB_TABLE, flowRef,
                 IfmConstants.DEFAULT_FLOW_PRIORITY, "LFIB Entry", 0, 0,
                 IfmConstants.COOKIE_VM_LFIB_TABLE, mkMatches, instruction);
         if (addOrRemove == NwConstants.ADD_FLOW) {

@@ -217,7 +217,7 @@ public class InterfaceManagerTestUtil {
 
     public static String buildflowRef(BigInteger dpId,String servicaName,String boundServicename, short servicePriority)
     {
-        String flowRef = new StringBuffer().append(dpId).append(IfmConstants.VLAN_INTERFACE_INGRESS_TABLE).append(NwConstants.FLOWID_SEPARATOR).
+        String flowRef = new StringBuffer().append(dpId).append(NwConstants.VLAN_INTERFACE_INGRESS_TABLE).append(NwConstants.FLOWID_SEPARATOR).
                 append(servicaName).append(NwConstants.FLOWID_SEPARATOR).append(boundServicename).
                 append(NwConstants.FLOWID_SEPARATOR).append(servicePriority).toString();
         return flowRef;

@@ -82,13 +82,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   private NexthopManager nextHopManager;
   private ItmRpcService itmManager;
   private OdlInterfaceRpcService interfaceManager;
-
-  private static final short L3_FIB_TABLE = 21;
-  private static final short L3_LFIB_TABLE = 20;
-  public static final short INTERNAL_TUNNEL_TABLE = 23;
-  private static final short L3_PROTOCOL_TABLE = 36;
-  private static final short L3_INTERFACE_TABLE = 80;
-  public static final short LPORT_DISPATCHER_TABLE = 30;
   private static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000002", 16);
   private static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
   private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
@@ -278,8 +271,8 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
       mkInstructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
 
-      FlowEntity terminatingServiceTableFlowEntity = MDSALUtil.buildFlowEntity(destDpId, INTERNAL_TUNNEL_TABLE,
-                      getFlowRef(destDpId, INTERNAL_TUNNEL_TABLE,label), 5, String.format("%s:%d","TST Flow Entry ",label),
+      FlowEntity terminatingServiceTableFlowEntity = MDSALUtil.buildFlowEntity(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE,
+                      getFlowRef(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE,label), 5, String.format("%s:%d","TST Flow Entry ",label),
                       0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(label)),mkMatches, mkInstructions);
 
       mdsalManager.installFlow(terminatingServiceTableFlowEntity);
@@ -294,8 +287,8 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         MetaDataUtil.getTunnelIdWithValidVniBitAndVniSet((int)label),
         MetaDataUtil.METADA_MASK_TUNNEL_ID }));
     flowEntity = MDSALUtil.buildFlowEntity(dpId,
-                                           INTERNAL_TUNNEL_TABLE,
-                                           getFlowRef(dpId, INTERNAL_TUNNEL_TABLE, (int)label),
+                                           NwConstants.INTERNAL_TUNNEL_TABLE,
+                                           getFlowRef(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, (int)label),
                                            5, String.format("%s:%d","TST Flow Entry ",label), 0, 0,
                                            COOKIE_TUNNEL.add(BigInteger.valueOf(label)), mkMatches, null);
     mdsalManager.removeFlow(flowEntity);
@@ -500,12 +493,12 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       instructions.add(new InstructionInfo(InstructionType.write_actions, actionInfos));
     }
 
-    String flowRef = getFlowRef(dpId, L3_FIB_TABLE, rd, destPrefix);
+    String flowRef = getFlowRef(dpId, NwConstants.L3_FIB_TABLE, rd, destPrefix);
 
     FlowEntity flowEntity;
 
     int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
-    flowEntity = MDSALUtil.buildFlowEntity(dpId, L3_FIB_TABLE, flowRef,
+    flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef,
                                            priority, flowRef, 0, 0,
                                            COOKIE_VM_FIB_TABLE, matches, instructions);
 
@@ -539,10 +532,10 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
 
     // Install the flow entry in L3_LFIB_TABLE
-    String flowRef = getFlowRef(dpId, L3_LFIB_TABLE, label, nextHop);
+    String flowRef = getFlowRef(dpId, NwConstants.L3_LFIB_TABLE, label, nextHop);
 
     FlowEntity flowEntity;
-    flowEntity = MDSALUtil.buildFlowEntity(dpId, L3_LFIB_TABLE, flowRef,
+    flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_LFIB_TABLE, flowRef,
                                            DEFAULT_FIB_FLOW_PRIORITY, flowRef, 0, 0,
                                            COOKIE_VM_LFIB_TABLE, matches, instructions);
 
@@ -656,13 +649,13 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         final BigInteger COOKIE_TABLE_MISS = new BigInteger("1030000", 16);
         // Instruction to goto L3 InterfaceTable
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { L3_INTERFACE_TABLE }));
+        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_INTERFACE_TABLE }));
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        FlowEntity flowEntityLfib = MDSALUtil.buildFlowEntity(dpnId, L3_LFIB_TABLE,
-                getFlowRef(dpnId, L3_LFIB_TABLE, NwConstants.TABLE_MISS_FLOW),
+        FlowEntity flowEntityLfib = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_LFIB_TABLE,
+                getFlowRef(dpnId, NwConstants.L3_LFIB_TABLE, NwConstants.TABLE_MISS_FLOW),
                 NwConstants.TABLE_MISS_PRIORITY, "Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
 
-        FlowEntity flowEntityFib = MDSALUtil.buildFlowEntity(dpnId,L3_FIB_TABLE, getFlowRef(dpnId, L3_FIB_TABLE, NwConstants.TABLE_MISS_FLOW),
+        FlowEntity flowEntityFib = MDSALUtil.buildFlowEntity(dpnId,NwConstants.L3_FIB_TABLE, getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, NwConstants.TABLE_MISS_FLOW),
                 NwConstants.TABLE_MISS_PRIORITY, "FIB Table Miss Flow", 0, 0, COOKIE_VM_FIB_TABLE,
                 matches, instructions);
 
@@ -691,13 +684,13 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     final BigInteger COOKIE_PROTOCOL_TABLE = new BigInteger("1070000", 16);
     // Instruction to goto L3 InterfaceTable
     List<InstructionInfo> instructions = new ArrayList<>();
-    instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {L3_LFIB_TABLE}));
+    instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {NwConstants.L3_LFIB_TABLE}));
     List<MatchInfo> matches = new ArrayList<MatchInfo>();
     matches.add(new MatchInfo(MatchFieldType.eth_type,
                               new long[] { 0x8847L }));
-    FlowEntity flowEntityToLfib = MDSALUtil.buildFlowEntity(dpnId, L3_PROTOCOL_TABLE,
-                                                          getFlowRef(dpnId, L3_PROTOCOL_TABLE,
-                                                                     L3_LFIB_TABLE),
+    FlowEntity flowEntityToLfib = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_PROTOCOL_TABLE,
+                                                          getFlowRef(dpnId, NwConstants.L3_PROTOCOL_TABLE,
+                                                                  NwConstants.L3_LFIB_TABLE),
                                                           DEFAULT_FIB_FLOW_PRIORITY,
                                                           "Protocol Table For LFIB",
                                                           0, 0,
@@ -741,10 +734,10 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     instructions.add(new InstructionInfo(InstructionType.clear_actions));
     // Instruction to goto L3 InterfaceTable
 
-    instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { LPORT_DISPATCHER_TABLE }));
+    instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.LPORT_DISPATCHER_TABLE }));
 
-    FlowEntity flowEntityL3Intf = MDSALUtil.buildFlowEntity(dpnId, L3_INTERFACE_TABLE,
-            getFlowRef(dpnId, L3_INTERFACE_TABLE, NwConstants.TABLE_MISS_FLOW),
+    FlowEntity flowEntityL3Intf = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_INTERFACE_TABLE,
+            getFlowRef(dpnId, NwConstants.L3_INTERFACE_TABLE, NwConstants.TABLE_MISS_FLOW),
             NwConstants.TABLE_MISS_PRIORITY, "L3 Interface Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
     if (addOrRemove == NwConstants.ADD_FLOW) {
       LOG.info("Invoking MDSAL to install L3 interface Table Miss Entries");

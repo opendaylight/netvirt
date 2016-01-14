@@ -15,6 +15,7 @@ import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
 import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
+import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
@@ -73,7 +74,7 @@ public class FlowBasedServicesStateBindHelper {
 
         if (matches != null) {
             FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface, highestPriorityBoundService,
-                    t, matches, ifaceState.getIfIndex(), IfmConstants.VLAN_INTERFACE_INGRESS_TABLE);
+                    t, matches, ifaceState.getIfIndex(), NwConstants.VLAN_INTERFACE_INGRESS_TABLE);
         }
 
         for (BoundServices boundService : allServices) {
