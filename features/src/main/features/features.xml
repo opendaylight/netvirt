@@ -98,7 +98,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.neutron/dummyprovider/${neutron.version}</bundle>
     <feature version="${project.version}">odl-vpnservice-impl-ui</feature>
   </feature>
-  <feature name='odl-vpnservice-openstack' version='${project.version}' description='OpenDaylight :: vpnservice :: impl :: REST '>
-    <feature version="${project.version}">odl-vpnservice-impl</feature>
+  <feature name='odl-vpnservice-openstack' version='${project.version}' description='OpenDaylight :: vpnservice :: openstack'>
+    <feature version="${neutron.version}">odl-neutron-service</feature>
+    <bundle>mvn:org.opendaylight.neutron/dummyprovider/${neutron.version}</bundle>
+    <feature version="${project.version}">odl-vpnservice-impl-rest</feature>
   </feature>
   </features>
