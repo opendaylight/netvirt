@@ -53,6 +53,7 @@ public interface IMdsalApiManager {
      * @param delayTime
      */
     public void syncRemoveFlow(FlowEntity flowEntity, long delayTime);
+    public void syncInstallFlow(FlowEntity flowEntity, long delayTime);
 
     /**
      * API to install the Group on Data Plane Node synchronously. It internally waits for

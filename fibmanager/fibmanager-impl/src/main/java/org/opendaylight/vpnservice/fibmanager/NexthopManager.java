@@ -83,6 +83,7 @@ public class NexthopManager implements AutoCloseable {
     private static final short FIB_TABLE = 21;
     private static final short DEFAULT_FLOW_PRIORITY = 10;
     private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
+    private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
         new FutureCallback<Void>() {
@@ -285,8 +286,7 @@ public class NexthopManager implements AutoCloseable {
                 addVpnNexthopToDS(dpnId, vpnId, ipAddress, groupId);
 
                 // install Group
-                // FIXME: mdsalManager.syncInstallGroup(groupEntity);
-                mdsalManager.installGroup(groupEntity);
+                mdsalManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
 
             } else {
                 //nexthop exists already; a new flow is going to point to it, increment the flowrefCount by 1
@@ -401,8 +401,7 @@ public class NexthopManager implements AutoCloseable {
                     GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
                             dpnId, nh.getEgressPointer(), ipAddress, GroupTypes.GroupIndirect, null);
                     // remove Group ...
-                    // FIXME: mdsalManager.syncRemoveGroup(groupEntity);
-                    mdsalManager.removeGroup(groupEntity);
+                    mdsalManager.syncRemoveGroup(groupEntity);
                     //update MD-SAL DS
                     removeVpnNexthopFromDS(vpnId, ipAddress);
                     //release groupId
@@ -462,5 +461,11 @@ public class NexthopManager implements AutoCloseable {
         return InstanceIdentifier.builder(VpnInterfaces.class)
             .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).augmentation(
                 Adjacencies.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
+    }
+
+    InstanceIdentifier<Adjacencies> getAdjListPath(String vpnInterfaceName) {
+        return InstanceIdentifier.builder(VpnInterfaces.class)
+                .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).augmentation(
+                        Adjacencies.class).build();
     }
 }

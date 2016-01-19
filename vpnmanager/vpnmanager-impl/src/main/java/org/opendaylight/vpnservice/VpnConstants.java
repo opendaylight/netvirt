@@ -21,4 +21,5 @@ public class VpnConstants {
     public static final BigInteger COOKIE_VM_INGRESS_TABLE = new BigInteger("8000001", 16);
     public static final BigInteger COOKIE_L3_BASE = new BigInteger("8000000", 16);
     public static final String FLOWID_PREFIX = "L3.";
+    public static final long WAIT_TIME_IN_MILLISECONDS = 5000;
 }

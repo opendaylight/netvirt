@@ -32,7 +32,7 @@ module odl-fib {
     }
 
     container fibEntries {
-        config false;
+        config true;
         list vrfTables{
             key "routeDistinguisher";
             leaf routeDistinguisher {type string;}

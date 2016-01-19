@@ -131,6 +131,11 @@ public class MDSALUtilProvider implements BindingAwareConsumer, IMdsalApiManager
     }
 
     @Override
+    public void syncInstallFlow(FlowEntity flowEntity, long delayTime) {
+        mdSalMgr.syncSetUpFlow(flowEntity, delayTime, false);
+    }
+
+    @Override
     public void syncInstallGroup(GroupEntity groupEntity, long delayTime) {
         mdSalMgr.syncSetUpGroup(groupEntity, delayTime, false);
     }

@@ -77,6 +77,7 @@ public class FibManagerTest {
   private static final int label = 10;
   BigInteger Dpn;
   private static final long vpnId = 101L;
+  private static final long vpnIntfCnt = 2;
 
   private void SetupMocks() {
     Dpn = BigInteger.valueOf(100000L);
@@ -114,6 +115,9 @@ public class FibManagerTest {
           public String getVrfId() {
             return testRd;
           }
+
+          @Override
+          public Long getVpnInterfaceCount() { return vpnIntfCnt; }
 
           @Override
           public List<VpnToDpnList> getVpnToDpnList() {

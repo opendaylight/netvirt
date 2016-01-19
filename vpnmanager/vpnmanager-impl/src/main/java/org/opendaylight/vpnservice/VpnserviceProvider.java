@@ -130,7 +130,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
     @Override
     public void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label) {
         LOG.info("Adding extra route with destination {} and nexthop {}", destination, nextHop);
-        vpnInterfaceManager.addExtraRoute(destination, nextHop, rd, routerID, label);
+        vpnInterfaceManager.addExtraRoute(destination, nextHop, rd, routerID, label, null);
     }
 
     @Override

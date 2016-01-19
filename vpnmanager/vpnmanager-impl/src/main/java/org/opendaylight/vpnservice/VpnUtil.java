@@ -34,9 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.PrefixToInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInstanceOpData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInstanceToVpnId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.AdjacenciesBuilder;
@@ -50,6 +48,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instanc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.Vpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.VpnKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdPools;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPoolKey;
@@ -95,6 +98,16 @@ public class VpnUtil {
     static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix) {
         return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
             vpnInterfaceName).setIpAddress(ipPrefix).build();
+    }
+
+    static InstanceIdentifier<Extraroute> getVpnToExtrarouteIdentifier(String vrfId, String ipPrefix) {
+        return InstanceIdentifier.builder(VpnToExtraroute.class)
+                .child(Vpn.class, new VpnKey(vrfId)).child(Extraroute.class,
+                 new ExtrarouteKey(ipPrefix)).build();
+    }
+
+    static Extraroute getVpnToExtraroute(String ipPrefix, String nextHop) {
+        return new ExtrarouteBuilder().setPrefix(ipPrefix).setNexthopIp(nextHop).build();
     }
 
     static Adjacencies
@@ -219,8 +232,21 @@ public class VpnUtil {
             .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
     }
 
-    static VpnInstanceOpDataEntry getVpnInstanceOpData(String rd, long vpnId) {
+    static VpnInstanceOpDataEntry getVpnInstanceOpDataBuilder(String rd, long vpnId) {
         return new VpnInstanceOpDataEntryBuilder().setVrfId(rd).setVpnId(vpnId).build();
+    }
+
+    static VpnInstanceOpDataEntry updateIntfCntInVpnInstOpData(Long count, String vrfId) {
+        return new VpnInstanceOpDataEntryBuilder().setVpnInterfaceCount(count).setVrfId(vrfId).build();
+    }
+
+    static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        if(vpnInstanceOpData.isPresent()) {
+            return vpnInstanceOpData.get();
+        }
+        return null;
     }
 
     static VpnInterface getConfiguredVpnInterface(DataBroker broker, String interfaceName) {

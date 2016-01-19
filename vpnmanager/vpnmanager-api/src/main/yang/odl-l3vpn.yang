@@ -49,6 +49,27 @@ module odl-l3vpn {
         }
     }
 
+    container vpn-to-extraroute {
+        config false;
+        list vpn {
+           key vrf-id;
+           leaf vrf-id {
+              description
+                 "The vrf-id command configures a route distinguisher (RD)
+                  for the IPv4 or IPv6 address family of a VPN instance or
+                  vpn instance name for internal vpn case.";
+              type string;
+           }
+           list extraroute {
+              key prefix;
+              leaf prefix {type string;}
+		      leaf nexthop-ip {
+		          type string;
+		      }
+           }
+        }
+    }
+
     /* Data models to adhere to restart requirements */
     container vpn-instance-to-vpn-id {
        list vpn-instance {
@@ -82,6 +103,7 @@ module odl-l3vpn {
               type string;
            }
 
+           leaf vpn-interface-count { type uint32; }
            uses vpn-route-list;
            list vpn-to-dpn-list {
                key dpnId;
