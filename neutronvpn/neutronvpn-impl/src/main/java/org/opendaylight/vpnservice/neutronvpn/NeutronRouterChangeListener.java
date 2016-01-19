@@ -18,7 +18,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.router
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -83,21 +82,16 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
         if (LOG.isTraceEnabled()) {
             LOG.trace("Removing router : key: " + identifier + ", value=" + input);
         }
-        // check if this router has internal-VPN
         Uuid routerId = input.getUuid();
-        VpnMap vpnmap = NeutronvpnUtils.getVpnMap(broker, routerId);
-        if (vpnmap != null) {
-            // if yes, remove corresponding internal vpn
-            LOG.trace("removing internal-vpn for router {}", routerId);
-            nvpnManager.removeL3Vpn(routerId);
-        } else {
-            // if not, it is associated with some VPN
-            // remove VPN-router association
-            Uuid vpnId = NeutronvpnUtils.getVpnForRouter(broker, routerId);
-            LOG.trace("dissociating router {} from vpn {}", routerId, vpnId);
-            nvpnManager.dissociateRouterFromVpn(vpnId, routerId);
+        // fetch subnets associated to router
+        List<Interfaces> routerInterfaces = input.getInterfaces();
+        List<Uuid> routerSubnetIds = new ArrayList<Uuid>();
+        if (routerInterfaces != null) {
+            for (Interfaces rtrIf : routerInterfaces) {
+                routerSubnetIds.add(rtrIf.getSubnetId());
+            }
         }
-
+        nvpnManager.handleNeutronRouterDeleted(routerId, routerSubnetIds);
     }
 
     @Override
@@ -107,7 +101,11 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
                     update);
         }
         Uuid routerId = update.getUuid();
-        Uuid vpnId = NeutronvpnUtils.getVpnForRouter(broker, routerId);
+        Uuid vpnId = NeutronvpnUtils.getVpnForRouter(broker, routerId, true);
+        // internal vpn always present in case external vpn not found
+        if (vpnId == null) {
+            vpnId = routerId;
+        }
         List<Interfaces> oldInterfaces = (original.getInterfaces() != null) ? original.getInterfaces() : new
                 ArrayList<Interfaces>();
         List<Interfaces> newInterfaces = (update.getInterfaces() != null) ? update.getInterfaces() : new

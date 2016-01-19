@@ -758,7 +758,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
     }
 
     protected void removeL3Vpn(Uuid id) {
-        // read VPN networks
+        // read VPNMaps
         VpnMap vpnMap = NeutronvpnUtils.getVpnMap(broker, id);
         Uuid router = vpnMap.getRouterId();
         // dissociate router
@@ -800,39 +800,40 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
         }
     }
 
-    protected void associateRouterToVpn(Uuid vpn, Uuid router) {
+    protected void associateRouterToVpn(Uuid vpnId, Uuid routerId) {
 
-        // remove existing Router-VPN
-        if (!vpn.equals(router)) {
-            removeL3Vpn(router);
-        }
-        updateVpnMaps(vpn, null, router, null, null);
+        List<Uuid> routerSubnets = NeutronvpnUtils.getNeutronRouterSubnetIds(broker, routerId);
 
-        List<Uuid> routerSubnets = NeutronvpnUtils.getNeutronRouterSubnetIds(broker, router);
-        logger.debug("Adding subnets...");
-        for (Uuid subnet : routerSubnets) {
-            addSubnetToVpn(vpn, subnet);
-        }
-    }
-
-    protected void dissociateRouterFromVpn(Uuid vpn, Uuid router) {
-        clearFromVpnMaps(vpn, router, null);
-
-        // fetching sn from SubnetmapDS for internal VPN because sn already deleted from RouterIf DS on router deletion
-        List<Uuid> routerSubnets = (vpn.equals(router)) ? getSubnetsforVpn(vpn) :
-                NeutronvpnUtils.getNeutronRouterSubnetIds(broker, router);
-
-        logger.debug("dissociateRouter vpn {} router {} Removing subnets...", vpn.getValue(), router.getValue());
-        if (routerSubnets != null) {
-            for (Uuid subnet : routerSubnets) {
-                removeSubnetFromVpn(vpn, subnet);
+        if (!vpnId.equals(routerId)) {
+            logger.debug("Removing subnets from internal vpn {}", routerId.getValue());
+            if (routerSubnets != null) {
+                for (Uuid subnet : routerSubnets) {
+                    removeSubnetFromVpn(routerId, subnet);
+                }
             }
         }
-        // create Router-VPN for this router
-        if (!vpn.equals(router)) {
-            logger.debug("Re-creating vpn-router...");
-            createL3Vpn(router, null, null, null, null, null, router, null);
+        logger.debug("Adding subnets to vpn {}", vpnId.getValue());
+        for (Uuid subnet : routerSubnets) {
+            addSubnetToVpn(vpnId, subnet);
         }
+
+        updateVpnMaps(vpnId, null, routerId, null, null);
+    }
+
+    protected void dissociateRouterFromVpn(Uuid vpnId, Uuid routerId) {
+
+        // remove existing external vpn interfaces
+        List<Uuid> routerSubnets = NeutronvpnUtils.getNeutronRouterSubnetIds(broker, routerId);
+
+        if (routerSubnets != null) {
+            for (Uuid subnet : routerSubnets) {
+                logger.debug("Removing subnets from external vpn {}", vpnId.getValue());
+                removeSubnetFromVpn(vpnId, subnet);
+                logger.debug("Adding subnets to internal vpn {}", routerId.getValue());
+                addSubnetToVpn(routerId, subnet);
+            }
+        }
+        clearFromVpnMaps(vpnId, routerId, null);
     }
 
     protected List<String> associateNetworksToVpn(Uuid vpn, List<Uuid> networks) {
@@ -1054,6 +1055,28 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
         logger.debug("dissociateRouter returns..");
 
         return result;
+    }
+
+    protected void handleNeutronRouterDeleted(Uuid routerId, List<Uuid> routerSubnetIds) {
+        // check if the router is associated to some VPN
+        Uuid vpnId = NeutronvpnUtils.getVpnForRouter(broker, routerId, true);
+        if (vpnId != null) {
+            // remove existing external vpn interfaces
+            for (Uuid subnetId : routerSubnetIds) {
+                removeSubnetFromVpn(vpnId, subnetId);
+            }
+            clearFromVpnMaps(vpnId, routerId, null);
+        } else {
+            // remove existing internal vpn interfaces
+            for (Uuid subnetId : routerSubnetIds) {
+                removeSubnetFromVpn(routerId, subnetId);
+            }
+        }
+        // delete entire vpnMaps node for internal VPN
+        deleteVpnMapsNode(routerId);
+
+        // delete vpn-instance for internal VPN
+        deleteVpnInstance(routerId);
     }
 
     protected Subnet getNeutronSubnet(Uuid subnetId) {

@@ -25,6 +25,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.lockmanager.rev150819.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.lockmanager.rev150819.TimeUnits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.lockmanager.rev150819.TryLockInput;
@@ -104,16 +107,26 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected static Uuid getVpnForRouter(DataBroker broker, Uuid router) {
+    // true for external vpn, false for internal vpn
+    protected static Uuid getVpnForRouter(DataBroker broker, Uuid routerId, Boolean externalVpn) {
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
-        Optional<VpnMaps> optionalVpnMaps = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
+        Optional<VpnMaps> optionalVpnMaps = read(broker, LogicalDatastoreType.CONFIGURATION,
+                vpnMapsIdentifier);
         if (optionalVpnMaps.isPresent()) {
             VpnMaps vpnNets = optionalVpnMaps.get();
             List<VpnMap> allMaps = vpnNets.getVpnMap();
-            if (router != null) {
+            if (routerId != null) {
                 for (VpnMap vpnMap : allMaps) {
-                    if (router.equals(vpnMap.getRouterId())) {
-                        return vpnMap.getVpnId();
+                    if (routerId.equals(vpnMap.getRouterId())) {
+                        if (externalVpn == true) {
+                            if (!routerId.equals(vpnMap.getVpnId())) {
+                                return vpnMap.getVpnId();
+                            }
+                        } else {
+                            if (routerId.equals(vpnMap.getVpnId())) {
+                                return vpnMap.getVpnId();
+                            }
+                        }
                     }
                 }
             }
@@ -201,20 +214,20 @@ public class NeutronvpnUtils {
     protected static List<Uuid> getNeutronRouterSubnetIds(DataBroker broker, Uuid routerId) {
         logger.info("getNeutronRouterSubnetIds for {}", routerId.getValue());
 
-        List<Uuid> subnetNames = new ArrayList<Uuid>();
+        List<Uuid> subnetIdList = new ArrayList<Uuid>();
         Router router = getNeutronRouter(broker, routerId);
         if (router != null) {
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router
-                    .Interfaces> ifs = router.getInterfaces();
-            if (!ifs.isEmpty()) {
+                    .Interfaces> interfacesList = router.getInterfaces();
+            if (!interfacesList.isEmpty()) {
                 for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers
-                        .router.Interfaces iff : ifs) {
-                    subnetNames.add(iff.getSubnetId());
+                        .router.Interfaces interfaces : interfacesList) {
+                    subnetIdList.add(interfaces.getSubnetId());
                 }
             }
         }
         logger.info("returning from getNeutronRouterSubnetIds for {}", routerId.getValue());
-        return subnetNames;
+        return subnetIdList;
     }
 
     protected static String uuidToTapPortName(Uuid id) {
@@ -261,17 +274,10 @@ public class NeutronvpnUtils {
         try {
             Uuid subnetUUID = port.getFixedIps().get(0).getSubnetId();
 
-            org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets
-                    .SubnetKey subnetkey = new org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets
-                    .rev150712.subnets.attributes.subnets.SubnetKey(subnetUUID);
-            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets
-                    .attributes.subnets.Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class).child(org
-                    .opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets
-                    .class).child(org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets
-                    .attributes.subnets.Subnet.class, subnetkey);
-            Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes
-                    .subnets.Subnet> subnet = read(broker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
-
+            SubnetKey subnetkey = new SubnetKey(subnetUUID);
+            InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class).child(Subnets
+                    .class).child(Subnet.class, subnetkey);
+            Optional<Subnet> subnet = read(broker, LogicalDatastoreType.CONFIGURATION,subnetidentifier);
             if (subnet.isPresent()) {
                 cidr = subnet.get().getCidr();
                 // Extract the prefix length from cidr
