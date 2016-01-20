@@ -8,7 +8,7 @@ module ebgp {
   prefix "ericsson-bgp";
 
   // import some basic inet types
-  import ietf-inet-types { prefix inet; }
+  import ietf-inet-types { prefix inet; revision-date "2010-09-24"; }
 
   // meta
   organization
@@ -83,7 +83,6 @@ module ebgp {
     container ebgp-multihop {
       leaf nhops {
         type uint32;
-        mandatory "true";
       }
       leaf peer-ip {
         type leafref {

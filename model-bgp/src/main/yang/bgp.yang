@@ -5,6 +5,7 @@ module bgp {
 
   import ietf-inet-types {
     prefix inet;
+    revision-date "2010-09-24";
   }
   import ietf-yang-types {
     prefix yang;
