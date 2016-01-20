@@ -15,27 +15,11 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.elan.utils.ElanConstants;
-import org.opendaylight.vpnservice.elan.utils.ElanConstants;
 import org.opendaylight.vpnservice.elan.utils.ElanUtils;
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo.InterfaceType;
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.itm.api.IITMProvider;
-import org.opendaylight.vpnservice.itm.globals.ITMConstants;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.ExtensionKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.GeneralAugMatchNodesNodeTableFlow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.GeneralAugMatchNodesNodeTableFlowBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.general.extension.grouping.ExtensionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.general.extension.list.grouping.ExtensionList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.general.extension.list.grouping.ExtensionListBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.reg.grouping.NxmNxRegBuilder;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -70,8 +54,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,8 +61,6 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 
 public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterface> implements AutoCloseable {
@@ -443,8 +423,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
             // LocalBroadcast Group creation with elan-Interfaces
             setupLocalBroadcastGroups(elanInfo, interfaceInfo);
 
-            //Remote-broadcast group & Terminating Service , UnknownDMAC Table.
-            //setupRemoteBroadcastGroups(elanInfo, interfaceInfo);
+            //Terminating Service , UnknownDMAC Table.
             setupTerminateServiceTable(elanInfo, interfaceInfo);
             setupUnknownDMacTable(elanInfo, interfaceInfo);
             setupFilterEqualsTable(elanInfo, interfaceInfo);
@@ -457,13 +436,9 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
     }
 
     public void setupFilterEqualsTable(ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
-        long elanTag = elanInfo.getElanTag();
-        long ifTag = interfaceInfo.getInterfaceTag();
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
-        MatchBuilder mb = new MatchBuilder();
-        addNxRegMatch(mb, RegMatch.of(NxmNxReg1.class, ifTag));
+        int ifTag = interfaceInfo.getInterfaceTag();
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(interfaceInfo.getDpId(), ElanConstants.ELAN_FILTER_EQUALS_TABLE, getFlowRef(ElanConstants.ELAN_FILTER_EQUALS_TABLE, ifTag),
-                9, elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)), getMatchesForFilterEqualsReg1LPortTag(ifTag),
+                9, elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)), getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
                 getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
 
         mdsalManager.installFlow(flowEntity);
@@ -474,45 +449,6 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
 
         mdsalManager.installFlow(flowEntity1);
     }
-
-
-    protected List<ActionInfo> getEgressActionsForInterface(String ifName) {
-        List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
-        try {
-            Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
-                    interfaceManagerRpcService.getEgressActionsForInterface(
-                            new GetEgressActionsForInterfaceInputBuilder().setIntfName(ifName).build());
-            RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
-            System.out.println("Data is populated");
-            if(!rpcResult.isSuccessful()) {
-                logger.warn("RPC Call to Get egress actions for interface {} returned with Errors {}", ifName, rpcResult.getErrors());
-            } else {
-                List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actions =
-                        rpcResult.getResult().getAction();
-                for (Action action : actions) {
-                    org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = action.getAction();
-                    if (actionClass instanceof OutputActionCase) {
-                        System.out.println("Data ");
-                        listActionInfo.add(new ActionInfo(ActionType.output,
-                                new String[] {((OutputActionCase)actionClass).getOutputAction()
-                                        .getOutputNodeConnector().getValue()}));
-                    } else if (actionClass instanceof PushVlanActionCase) {
-                        listActionInfo.add(new ActionInfo(ActionType.push_vlan, new String[] {}));
-                    } else if (actionClass instanceof SetFieldCase) {
-                        if (((SetFieldCase)actionClass).getSetField().getVlanMatch() != null) {
-                            int vlanVid = ((SetFieldCase)actionClass).getSetField().getVlanMatch().getVlanId().getVlanId().getValue();
-                            listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
-                                    new String[] { Long.toString(vlanVid) }));
-                        }
-                    }
-                }
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            logger.warn("Exception when egress actions for interface {}", ifName, e);
-        }
-        return listActionInfo;
-    }
-
 
     private List<BucketInfo> getRemoteBCGroupBucketInfos(ElanInstance elanInfo,
             InterfaceInfo interfaceInfo) {
@@ -540,8 +476,8 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
         return listBucketInfo;
     }
 
-    public ActionInfo getReg1ActionInfo(int interfaceTag) {
-         return new ActionInfo(ActionType.set_field_reg, new String[] {String.valueOf(interfaceTag)});
+    public ActionInfo getTunnelIdActionInfo(int interfaceTag) {
+         return new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[]{BigInteger.valueOf(interfaceTag)});
     }
 
     private void setRemoteBCGrouponOtherDpns(ElanInstance elanInfo,
@@ -726,14 +662,6 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
         mdsalManager.syncRemoveGroup(groupEntity);
     }
 
-    public void setupRemoteBroadcastGroups(ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
-        List<BucketInfo> listBucketInfo = getRemoteBCGroupBucketInfos(elanInfo, interfaceInfo);
-        BigInteger dpnId = interfaceInfo.getDpId();
-        long groupId = ElanUtils.getElanRemoteBCGID(elanInfo.getElanTag());
-        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll, listBucketInfo);
-        mdsalManager.syncInstallGroup(groupEntity, ElanConstants.DELAY_TIME_IN_MILLISECOND);
-    }
-
     public void removeRemoteBroadcastGroup(ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
         List<BucketInfo> listBucketInfo = getRemoteBCGroupBucketInfos(elanInfo, interfaceInfo);
         BigInteger dpnId = interfaceInfo.getDpId();
@@ -850,7 +778,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
 
     private List<ActionInfo> getInterfacePortActionInfos(InterfaceInfo interfaceInfo) {
         List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
-        listActionInfo.add(getReg1ActionInfo(interfaceInfo.getInterfaceTag()));
+        listActionInfo.add(getTunnelIdActionInfo(interfaceInfo.getInterfaceTag()));
         listActionInfo.add(new ActionInfo(ActionType.nx_resubmit, new String[]{}));
         return listActionInfo;
     }
@@ -1028,95 +956,33 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
         }
     }
 
-    private List<MatchInfo> getMatchesForFilterEqualsLPortTag(Long LportTag) {
+    private List<MatchInfo> getMatchesForFilterEqualsLPortTag(int LportTag) {
         List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                ElanUtils.getElanMetadataLabel(LportTag),
-                MetaDataUtil.METADATA_MASK_SERVICE }));
-        mkMatches.add(new MatchInfo(MatchFieldType.reg1, new long[] {LportTag.longValue()}));
+                MetaDataUtil.getLportTagMetaData(LportTag),
+                MetaDataUtil.METADATA_MASK_LPORT_TAG }));
+        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(LportTag)}));
         return mkMatches;
     }
 
 
-    private List<MatchInfo> getMatchesForFilterEqualsReg1LPortTag(Long LportTag) {
+    private List<MatchInfo> getTunnelIdMatchForFilterEqualsLPortTag(int LportTag) {
         List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
         // Matching metadata
-        mkMatches.add(new MatchInfo(MatchFieldType.reg1, new long[] {
-                (LportTag.longValue())}));
+        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {
+                BigInteger.valueOf(LportTag)}));
         return mkMatches;
 
 
-    }
-
-    public static class RegMatch {
-
-        final Class<? extends NxmNxReg> reg;
-        final Long value;
-
-        public RegMatch(Class<? extends NxmNxReg> reg, Long value) {
-            super();
-            this.reg = reg;
-            this.value = value;
-        }
-
-        public static RegMatch of(Class<? extends NxmNxReg> reg, Long value) {
-            return new RegMatch(reg, value);
-        }
-    }
-
-    public static void addNxRegMatch(MatchBuilder match, RegMatch... matches) {
-        ArrayList<ExtensionList> extensions = new ArrayList<>();
-        for (RegMatch rm : matches) {
-            Class<? extends ExtensionKey> key;
-            if (NxmNxReg0.class.equals(rm.reg)) {
-                key = NxmNxReg0Key.class;
-            } else if (NxmNxReg1.class.equals(rm.reg)) {
-                key = NxmNxReg1Key.class;
-            } else if (NxmNxReg2.class.equals(rm.reg)) {
-                key = NxmNxReg2Key.class;
-            } else if (NxmNxReg3.class.equals(rm.reg)) {
-                key = NxmNxReg3Key.class;
-            } else if (NxmNxReg4.class.equals(rm.reg)) {
-                key = NxmNxReg4Key.class;
-            } else if (NxmNxReg5.class.equals(rm.reg)) {
-                key = NxmNxReg5Key.class;
-            } else if (NxmNxReg6.class.equals(rm.reg)) {
-                key = NxmNxReg6Key.class;
-            } else {
-                key = NxmNxReg7Key.class;
-            }
-            NxAugMatchNodesNodeTableFlow am = new NxAugMatchNodesNodeTableFlowBuilder().setNxmNxReg(
-                    new NxmNxRegBuilder().setReg(rm.reg).setValue(rm.value).build()).build();
-            extensions.add(new ExtensionListBuilder().setExtensionKey(key)
-                    .setExtension(new ExtensionBuilder().addAugmentation(NxAugMatchNodesNodeTableFlow.class, am).build())
-                    .build());
-        }
-        GeneralAugMatchNodesNodeTableFlow m = new GeneralAugMatchNodesNodeTableFlowBuilder().setExtensionList(
-                extensions).build();
-        match.addAugmentation(GeneralAugMatchNodesNodeTableFlow.class, m);
-
-    }
-
-
-    private List<InstructionInfo> getInstructionsInPortForOutGroup(
-            long GroupId) {
-        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
-        List <ActionInfo> actionsInfos = new ArrayList <ActionInfo> ();
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{ "123"}));
-        actionsInfos.add(new ActionInfo(ActionType.group, new String[]{Long.toString(GroupId)}));
-        mkInstructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
-        return mkInstructions;
     }
 
     private List<InstructionInfo> getInstructionsInPortForOutGroup(
             String ifName) {
         List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
         List <ActionInfo> actionsInfos = new ArrayList <ActionInfo> ();
-        //TODO: modify in-port action
-        //actionsInfos.add(new ActionInfo(ActionType.set_source_port_field, new String[]{ "255"}));
-        actionsInfos.addAll(getEgressActionsForInterface(ifName));
-        mkInstructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
+        actionsInfos.addAll(ElanUtils.getEgressActionsForInterface(ifName));
+        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         return mkInstructions;
     }
 

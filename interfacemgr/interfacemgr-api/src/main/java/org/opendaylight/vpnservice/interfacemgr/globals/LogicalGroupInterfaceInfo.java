@@ -8,12 +8,8 @@
 package org.opendaylight.vpnservice.interfacemgr.globals;
 
 import java.math.BigInteger;
-import java.net.InetAddress;
-import java.util.*;
-
-import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
-import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
-import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
+import java.util.List;
+import java.util.ArrayList;
 
 public class LogicalGroupInterfaceInfo extends InterfaceInfo {
 
@@ -48,6 +44,4 @@ public class LogicalGroupInterfaceInfo extends InterfaceInfo {
     }
 
 }
-
-/*--------------------------------*/
 

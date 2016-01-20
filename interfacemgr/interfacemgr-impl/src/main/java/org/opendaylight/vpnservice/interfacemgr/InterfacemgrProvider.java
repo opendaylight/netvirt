@@ -198,7 +198,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
         }
 
         if(interfaceType == InterfaceInfo.InterfaceType.VLAN_INTERFACE){
-        	interfaceInfo = IfmUtil.getVlanInterfaceInfo(interfaceName, intf, dpId);
+            interfaceInfo = IfmUtil.getVlanInterfaceInfo(interfaceName, intf, dpId);
         } else if (interfaceType == InterfaceInfo.InterfaceType.VXLAN_TRUNK_INTERFACE || interfaceType == InterfaceInfo.InterfaceType.GRE_TRUNK_INTERFACE) {/*
             trunkInterfaceInfo trunkInterfaceInfo = (TrunkInterfaceInfo) ConfigIfmUtil.getTrunkInterfaceInfo(ifName, ConfigIfmUtil.getInterfaceByIfName(dataBroker, ifName));
             String higherLayerIf = inf.getHigherLayerIf().get(0);
@@ -229,21 +229,21 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     }
 
     @Override
-	public InterfaceInfo getInterfaceInfoFromOperationalDataStore(String interfaceName, InterfaceInfo.InterfaceType interfaceType) {
-		InterfaceInfo interfaceInfo = new InterfaceInfo(interfaceName);
-		org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState = InterfaceManagerCommonUtils
-				.getInterfaceStateFromOperDS(interfaceName, dataBroker);
-		if (ifState == null) {
-			LOG.error("Interface {} is not present", interfaceName);
-			return null;
-		}
+    public InterfaceInfo getInterfaceInfoFromOperationalDataStore(String interfaceName, InterfaceInfo.InterfaceType interfaceType) {
+        InterfaceInfo interfaceInfo = new InterfaceInfo(interfaceName);
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState = InterfaceManagerCommonUtils
+                .getInterfaceStateFromOperDS(interfaceName, dataBroker);
+        if (ifState == null) {
+            LOG.error("Interface {} is not present", interfaceName);
+            return null;
+        }
         Integer lportTag = ifState.getIfIndex();
-		Interface intf = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(new InterfaceKey(interfaceName), dataBroker);
-		NodeConnectorId ncId = IfmUtil.getNodeConnectorIdFromInterface(intf, dataBroker);
-		if (ncId != null) {
-			interfaceInfo.setDpId(new BigInteger(IfmUtil.getDpnFromNodeConnectorId(ncId)));
-			interfaceInfo.setPortNo(Integer.parseInt(IfmUtil.getPortNoFromNodeConnectorId(ncId)));
-		}
+        Interface intf = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(new InterfaceKey(interfaceName), dataBroker);
+        NodeConnectorId ncId = IfmUtil.getNodeConnectorIdFromInterface(intf, dataBroker);
+        if (ncId != null) {
+            interfaceInfo.setDpId(new BigInteger(IfmUtil.getDpnFromNodeConnectorId(ncId)));
+            interfaceInfo.setPortNo(Integer.parseInt(IfmUtil.getPortNoFromNodeConnectorId(ncId)));
+        }
         interfaceInfo.setAdminState((intf.isEnabled() == true) ? InterfaceAdminState.ENABLED : InterfaceAdminState.DISABLED);
         interfaceInfo.setInterfaceName(interfaceName);
         interfaceInfo.setInterfaceTag(lportTag);
@@ -253,7 +253,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
 
 
         return interfaceInfo;
-		}
+    }
 
     @Override
     public BigInteger getDpnForInterface(String ifName) {
