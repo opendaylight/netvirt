@@ -27,7 +27,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <ietf.interfaces.version>2014.05.08.9-SNAPSHOT</ietf.interfaces.version>
     <iana.if.type.version>2014.05.08.9-SNAPSHOT</iana.if.type.version>
     <yang.ext.version>2013.09.07.9-SNAPSHOT</yang.ext.version>
-    <yangtools.version>0.9.0-SNAPSHOT</yangtools.version>
+    <yangtools.version>1.0.0-SNAPSHOT</yangtools.version>
     <mdsal.version>2.1.0-SNAPSHOT</mdsal.version>
     <controller.mdsal.version>1.4.0-SNAPSHOT</controller.mdsal.version>
     <vpns.mdsalutil.version>0.3.0-SNAPSHOT</vpns.mdsalutil.version>
