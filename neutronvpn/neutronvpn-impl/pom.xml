@@ -39,6 +39,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         </dependency>
         <dependency>
             <groupId>org.opendaylight.vpnservice</groupId>
+            <artifactId>elanmanager-api</artifactId>
+            <version>${vpnservices.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.vpnservice</groupId>
             <artifactId>mdsalutil-api</artifactId>
             <version>${vpnservices.version}</version>
         </dependency>
