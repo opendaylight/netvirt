@@ -362,11 +362,13 @@ public class NexthopManager implements AutoCloseable {
                   localDpnId, remoteDpnId, vpnId, prefixIp, nextHopIp);
 
         LOG.trace("getRemoteNextHopPointer: Calling ITM with localDpnId {} ", localDpnId);
-        try{
-            // here use the config for tunnel type param
-            tunnelIfName = getTunnelInterfaceName(remoteDpnId, IpAddressBuilder.getDefaultInstance(nextHopIp));
-        }catch(Exception ex){
-            LOG.error("Error while retrieving nexthop pointer for DC Gateway : ", ex.getMessage());
+        if (nextHopIp != null && !nextHopIp.isEmpty()) {
+            try{
+                // here use the config for tunnel type param
+                tunnelIfName = getTunnelInterfaceName(remoteDpnId, IpAddressBuilder.getDefaultInstance(nextHopIp));
+            }catch(Exception ex){
+            LOG.error("Error while retrieving nexthop pointer for nexthop {} : ", nextHopIp, ex.getMessage());
+            }
         }
         return tunnelIfName;
     }

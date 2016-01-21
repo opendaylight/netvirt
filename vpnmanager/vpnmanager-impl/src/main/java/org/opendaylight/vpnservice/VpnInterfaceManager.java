@@ -182,13 +182,13 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             InterfaceUtils.getInterfaceStateFromOperDS(broker, interfaceName);
         if (interfaceState != null) {
             // Interface state is up
-            processVpnInterfaceUp(interfaceName, interfaceState.getIfIndex());
+            processVpnInterfaceUp(InterfaceUtils.getDpIdFromInterface(interfaceState), interfaceName, interfaceState.getIfIndex());
         } else {
             LOG.trace("VPN interfaces are not yet operational.");
         }
     }
 
-    protected void processVpnInterfaceUp(String interfaceName, int lPortTag) {
+    protected void processVpnInterfaceUp(BigInteger dpId, String interfaceName, int lPortTag) {
 
         VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(broker, interfaceName);
         if(vpnInterface == null) {
@@ -208,7 +208,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
         synchronized (interfaceName.intern()) {
 
-            bindService(vpnName, interfaceName, lPortTag);
+            bindService(dpId, vpnName, interfaceName, lPortTag);
             updateDpnDbs(vpnName, interfaceName, true);
             processVpnInterfaceAdjacencies(VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName()), vpnInterface);
         }
@@ -227,7 +227,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
     }
 
-    private void bindService(String vpnInstanceName, String vpnInterfaceName, int lPortTag) {
+    private void bindService(BigInteger dpId, String vpnInstanceName, String vpnInterfaceName, int lPortTag) {
         int priority = VpnConstants.DEFAULT_FLOW_PRIORITY;
         long vpnId = VpnUtil.getVpnId(broker, vpnInstanceName);
 
@@ -244,7 +244,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                                             VpnConstants.COOKIE_VM_INGRESS_TABLE, instructions);
         VpnUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                           InterfaceUtils.buildServiceId(vpnInterfaceName, VpnConstants.L3VPN_SERVICE_IDENTIFIER), serviceInfo);
-        makeArpFlow(VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName, vpnId, ArpReplyOrRequest.REQUEST, NwConstants.ADD_FLOW);
+        makeArpFlow(dpId, VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName,
+                    vpnId, ArpReplyOrRequest.REQUEST, NwConstants.ADD_FLOW);
 
     }
 
@@ -307,7 +308,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
     }
 
-    private void makeArpFlow(short sIndex, int lPortTag, String vpnInterfaceName, long vpnId, ArpReplyOrRequest replyOrRequest, int addOrRemoveFlow){
+    private void makeArpFlow(BigInteger dpId,short sIndex, int lPortTag, String vpnInterfaceName,
+                             long vpnId, ArpReplyOrRequest replyOrRequest, int addOrRemoveFlow){
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher(lPortTag, ++sIndex, BigInteger.valueOf(vpnId));
         BigInteger metadataMask = MetaDataUtil.getMetaDataMaskForLPortDispatcher(MetaDataUtil.METADATA_MASK_SERVICE_INDEX,
@@ -327,7 +329,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
 
         // Install the flow entry in L3_INTERFACE_TABLE
-        BigInteger dpId = InterfaceUtils.getDpnForInterface(interfaceManager, vpnInterfaceName);
         String flowRef = VpnUtil.getFlowRef(dpId, NwConstants.L3_INTERFACE_TABLE,
                     NwConstants.ETHTYPE_ARP, lPortTag, replyOrRequest.getArpOperation());
         FlowEntity flowEntity;
@@ -446,13 +447,13 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             InterfaceUtils.getInterfaceStateFromOperDS(broker, interfaceName);
 
         if (existingVpnInterface.isPresent() && interfaceState != null) {
-            processVpnInterfaceDown(interfaceName, interfaceState.getIfIndex(), false);
+            processVpnInterfaceDown(InterfaceUtils.getDpIdFromInterface(interfaceState), interfaceName, interfaceState.getIfIndex(), false);
         } else {
             LOG.warn("VPN interface {} was unavailable in operational data store to handle remove event", interfaceName);
         }
     }
 
-    protected void processVpnInterfaceDown(String interfaceName, int lPortTag, boolean isInterfaceStateDown) {
+    protected void processVpnInterfaceDown(BigInteger dpId, String interfaceName, int lPortTag, boolean isInterfaceStateDown) {
         VpnInterface vpnInterface = VpnUtil.getOperationalVpnInterface(broker, interfaceName);
         if(vpnInterface == null) {
             LOG.info("Unable to process delete/down for interface {} as it is not available in operational data store", interfaceName);
@@ -464,7 +465,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         synchronized (interfaceName.intern()) {
             removeAdjacenciesFromVpn(identifier, vpnInterface);
             LOG.info("Unbinding vpn service from interface {} ", interfaceName);
-            unbindService(vpnName, interfaceName, lPortTag, isInterfaceStateDown);
+            unbindService(dpId, vpnName, interfaceName, lPortTag, isInterfaceStateDown);
 
             //wait till DCN for removal of vpn interface in operational DS arrives
             Runnable notifyTask = new VpnNotifyTask();
@@ -513,7 +514,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     }
 
 
-    private void unbindService(String vpnInstanceName, String vpnInterfaceName, int lPortTag, boolean isInterfaceStateDown) {
+    private void unbindService(BigInteger dpId, String vpnInstanceName, String vpnInterfaceName,
+                               int lPortTag, boolean isInterfaceStateDown) {
         if (!isInterfaceStateDown) {
             VpnUtil.delete(broker, LogicalDatastoreType.CONFIGURATION,
                            InterfaceUtils.buildServiceId(vpnInterfaceName,
@@ -521,7 +523,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                            VpnUtil.DEFAULT_CALLBACK);
         }
         long vpnId = VpnUtil.getVpnId(broker, vpnInstanceName);
-        makeArpFlow(VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName,
+        makeArpFlow(dpId, VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName,
                     vpnId, ArpReplyOrRequest.REQUEST, NwConstants.DEL_FLOW);
     }
 

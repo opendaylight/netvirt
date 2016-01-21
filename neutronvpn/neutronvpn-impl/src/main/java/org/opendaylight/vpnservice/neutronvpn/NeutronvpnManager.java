@@ -369,10 +369,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
             return;
         }
         String portname = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
-        String name = new StringBuilder(portname).append(":0").toString();
         List<Adjacency> adjList = new ArrayList<Adjacency>();
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = InstanceIdentifier.builder(VpnInterfaces.class).
-                child(VpnInterface.class, new VpnInterfaceKey(name)).build();
+                child(VpnInterface.class, new VpnInterfaceKey(portname)).build();
         // find router associated to vpn
         Uuid routerId = NeutronvpnUtils.getRouterforVpn(broker, vpnId);
         Router rtr = null;
@@ -392,7 +391,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
             // create extra route adjacency
             if (rtr != null && rtr.getRoutes() != null) {
                 List<String> routeList = rtr.getRoutes();
-                List<Adjacency> erAdjList = addAdjacencyforExtraRoute(routeList, false, name);
+                List<Adjacency> erAdjList = addAdjacencyforExtraRoute(routeList, false, portname);
                 if (erAdjList != null) {
                     adjList.addAll(erAdjList);
                 }
@@ -400,18 +399,18 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
         }
         // create vpn-interface on this neutron port
         Adjacencies adjs = new AdjacenciesBuilder().setAdjacency(adjList).build();
-        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(name)).
-                setName(name).setVpnInstanceName(vpnId.getValue()).addAugmentation(Adjacencies.class, adjs);
+        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(portname)).
+                setName(portname).setVpnInstanceName(vpnId.getValue()).addAugmentation(Adjacencies.class, adjs);
         VpnInterface vpnIf = vpnb.build();
 
-        NeutronvpnUtils.lockVpnInterface(lockManager, name);
+        NeutronvpnUtils.lockVpnInterface(lockManager, portname);
         try {
             logger.debug("Creating vpn interface {}", vpnIf);
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
         } catch (Exception ex) {
-            logger.error("Creation of vpninterface {} failed due to {}", name, ex);
+            logger.error("Creation of vpninterface {} failed due to {}", portname, ex);
         } finally {
-            NeutronvpnUtils.unlockVpnInterface(lockManager, name);
+            NeutronvpnUtils.unlockVpnInterface(lockManager, portname);
         }
     }
 
@@ -419,18 +418,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
 
         if (port != null) {
             String pname = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
-            String name = new StringBuilder(pname).append(":0").toString();
             InstanceIdentifier<VpnInterface> vpnIfIdentifier = InstanceIdentifier.builder(VpnInterfaces.class).
-                    child(VpnInterface.class, new VpnInterfaceKey(name)).build();
+                    child(VpnInterface.class, new VpnInterfaceKey(pname)).build();
 
-            NeutronvpnUtils.lockVpnInterface(lockManager, name);
+            NeutronvpnUtils.lockVpnInterface(lockManager, pname);
             try {
-                logger.debug("Deleting vpn interface {}", name);
+                logger.debug("Deleting vpn interface {}", pname);
                 MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
             } catch (Exception ex) {
-                logger.error("Deletion of vpninterface {} failed due to {}", name, ex);
+                logger.error("Deletion of vpninterface {} failed due to {}", pname, ex);
             } finally {
-                NeutronvpnUtils.unlockVpnInterface(lockManager, name);
+                NeutronvpnUtils.unlockVpnInterface(lockManager, pname);
             }
         }
     }
@@ -689,30 +687,29 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
                     String destination = parts[1];
 
                     String tapPortName = NeutronvpnUtils.getNeutronPortNamefromPortFixedIp(broker, nextHop);
-                    String ifname = new StringBuilder(tapPortName).append(":0").toString();
                     logger.trace("Adding extra route with nexthop {}, destination {}, ifName {}", nextHop,
-                            destination, ifname);
+                            destination, tapPortName);
                     Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination).setNextHopIp(nextHop).setKey
                             (new AdjacencyKey(destination)).build();
                     if (rtrUp == false) {
-                        if (ifname.equals(vpnifname)) {
+                        if (tapPortName.equals(vpnifname)) {
                             adjList.add(erAdj);
                         }
                         continue;
                     }
                     InstanceIdentifier<VpnInterface> vpnIfIdentifier = InstanceIdentifier.builder(VpnInterfaces.class).
-                            child(VpnInterface.class, new VpnInterfaceKey(ifname)).build();
+                            child(VpnInterface.class, new VpnInterfaceKey(tapPortName)).build();
                     Optional<VpnInterface> optionalVpnInterface = NeutronvpnUtils.read(broker, LogicalDatastoreType
                             .CONFIGURATION, vpnIfIdentifier);
                     if (optionalVpnInterface.isPresent()) {
                         Adjacencies erAdjs = new AdjacenciesBuilder().setAdjacency(Arrays.asList(erAdj)).build();
-                        VpnInterface vpnIf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(ifname))
+                        VpnInterface vpnIf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(tapPortName))
                                 .addAugmentation(Adjacencies.class, erAdjs).build();
                         MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
                         logger.trace("extra route {} added successfully", route);
                     } else {
                         logger.error("VM adjacency for interface {} not present ; cannot add extra route adjacency",
-                                ifname);
+                                tapPortName);
                     }
                 } else {
                     logger.error("Incorrect input received for extra route. {}", parts);
@@ -735,11 +732,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
                     String destination = parts[1];
 
                     String tapPortName = NeutronvpnUtils.getNeutronPortNamefromPortFixedIp(broker, nextHop);
-                    String ifname = new StringBuilder(tapPortName).append(":0").toString();
                     logger.trace("Removing extra route with nexthop {}, destination {}, ifName {}", nextHop,
-                            destination, ifname);
+                            destination, tapPortName);
                     InstanceIdentifier<Adjacency> adjacencyIdentifier = InstanceIdentifier.builder(VpnInterfaces.class).
-                            child(VpnInterface.class, new VpnInterfaceKey(ifname)).augmentation(Adjacencies.class)
+                            child(VpnInterface.class, new VpnInterfaceKey(tapPortName)).augmentation(Adjacencies.class)
                             .child(Adjacency.class, new AdjacencyKey(destination)).build();
                     MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, adjacencyIdentifier);
                     logger.trace("extra route {} deleted successfully", route);

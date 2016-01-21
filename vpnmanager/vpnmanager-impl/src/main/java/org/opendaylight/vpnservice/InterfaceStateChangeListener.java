@@ -76,14 +76,14 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
         LOG.info("Received port UP event for interface {} ", interfaceName);
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
             configInterface = InterfaceUtils.getInterface(broker, interfaceName);
+        BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(intrf);
         if (configInterface != null && configInterface.getType().equals(Tunnel.class)) {
-          BigInteger dpnId = InterfaceUtils.getDpnForInterface(interfaceManager, interfaceName);
           if(intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
             //advertise all prefixes in all vpns for this dpn to bgp
             vpnInterfaceManager.updatePrefixesForDPN(dpnId, VpnInterfaceManager.UpdateRouteAction.ADVERTISE_ROUTE);
           }
         } else {
-          vpnInterfaceManager.processVpnInterfaceUp(interfaceName, intrf.getIfIndex());
+          vpnInterfaceManager.processVpnInterfaceUp(dpnId, interfaceName, intrf.getIfIndex());
         }
       } catch (Exception e) {
         LOG.error("Exception caught in Interface Operational State Up event", e);
@@ -103,20 +103,15 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
         LOG.info("Received port DOWN event for interface {} ", interfaceName);
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
             intf = InterfaceUtils.getInterface(broker, interfaceName);
+        BigInteger dpId = InterfaceUtils.getDpIdFromInterface(intrf);
         if (intf != null && intf.getType().equals(Tunnel.class)) {
-          // Get the dpId from del reference itself. Because interfaceManager.getDpnForInterface returns
-          // NPE because entry is already deleted in operational data store
-          BigInteger dpId = getDpIdFromInterface(intrf);
-          if (dpId == null) {
-            return;
-          }
           if(intrf.getOperStatus().equals(Interface.OperStatus.Down)) {
             //withdraw all prefixes in all vpns for this dpn from bgp
             vpnInterfaceManager.updatePrefixesForDPN(dpId, VpnInterfaceManager.UpdateRouteAction.WITHDRAW_ROUTE);
           }
         } else {
           if (VpnUtil.isVpnInterfaceConfigured(broker, interfaceName)) {
-            vpnInterfaceManager.processVpnInterfaceDown(interfaceName, intrf.getIfIndex(), true);
+            vpnInterfaceManager.processVpnInterfaceDown(dpId, interfaceName, intrf.getIfIndex(), true);
           }
         }
       } catch (Exception e) {
@@ -132,7 +127,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
       org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
           intf = InterfaceUtils.getInterface(broker, interfaceName);
       if (intf != null && intf.getType().equals(Tunnel.class)) {
-        BigInteger dpnId = InterfaceUtils.getDpnForInterface(interfaceManager, interfaceName);
+        BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
         if(update.getOperStatus().equals(Interface.OperStatus.Up)) {
           //advertise all prefixes in all vpns for this dpn to bgp
           vpnInterfaceManager.updatePrefixesForDPN(dpnId, VpnInterfaceManager.UpdateRouteAction.ADVERTISE_ROUTE);
@@ -143,13 +138,5 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
       }
 
     }
-
-  public BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface infState) {
-    org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
-        InterfaceUtils.getInterfaceStateFromOperDS(broker, infState.getName());
-    String lowerLayerIf = ifState.getLowerLayerIf().get(0);
-    NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
-    return new BigInteger(InterfaceUtils.getDpnFromNodeConnectorId(nodeConnectorId));
-  }
 
 }
