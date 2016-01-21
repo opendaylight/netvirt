@@ -18,6 +18,7 @@ import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
@@ -33,7 +34,7 @@ import java.util.List;
 
 public class OvsVlanMemberConfigUpdateHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsVlanMemberConfigUpdateHelper.class);
-    public static List<ListenableFuture<Void>> updateConfiguration(DataBroker dataBroker, ParentRefs parentRefsNew,
+    public static List<ListenableFuture<Void>> updateConfiguration(DataBroker dataBroker, AlivenessMonitorService alivenessMonitorService, ParentRefs parentRefsNew,
                                                                    Interface interfaceOld, IfL2vlan ifL2vlanNew,
                                                                    Interface interfaceNew, IdManagerService idManager) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();

@@ -17,6 +17,7 @@ import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsVl
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsVlanMemberConfigUpdateHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
@@ -31,11 +32,14 @@ public class VlanMemberConfigListener extends AsyncDataTreeChangeListenerBase<In
     private static final Logger LOG = LoggerFactory.getLogger(VlanMemberConfigListener.class);
     private DataBroker dataBroker;
     private IdManagerService idManager;
+    private AlivenessMonitorService alivenessMonitorService;
 
-    public VlanMemberConfigListener(final DataBroker dataBroker, final IdManagerService idManager) {
+    public VlanMemberConfigListener(final DataBroker dataBroker, final IdManagerService idManager,
+                                    final AlivenessMonitorService alivenessMonitorService) {
         super(Interface.class, VlanMemberConfigListener.class);
         this.dataBroker = dataBroker;
         this.idManager = idManager;
+        this.alivenessMonitorService = alivenessMonitorService;
     }
 
     @Override
@@ -179,8 +183,8 @@ public class VlanMemberConfigListener extends AsyncDataTreeChangeListenerBase<In
         public List<ListenableFuture<Void>> call() throws Exception {
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
-            return OvsVlanMemberConfigUpdateHelper.updateConfiguration(dataBroker, parentRefsNew, interfaceOld,
-                    ifL2vlanNew, interfaceNew, idManager);
+            return OvsVlanMemberConfigUpdateHelper.updateConfiguration(dataBroker, alivenessMonitorService,
+                    parentRefsNew, interfaceOld, ifL2vlanNew, interfaceNew, idManager);
         }
     }
 

@@ -4,6 +4,7 @@ module interfacemgr-impl {
     prefix "interfacemgr-impl";
 
     import config { prefix config; revision-date 2013-04-05; }
+    import opendaylight-sal-binding-broker-impl { prefix md-sal-binding-impl; revision-date 2013-10-28;}
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
     import odl-interface {prefix odlif; revision-date 2015-03-31;}
     import odl-mdsalutil { prefix odl-mdsal; revision-date 2015-04-10;}
@@ -48,6 +49,14 @@ module interfacemgr-impl {
                         config:required-identity md-sal-binding:binding-rpc-registry;
                     }
                 }
+            }
+            container notification-service {
+                 uses config:service-ref {
+                     refine type {
+                         mandatory true;
+                         config:required-identity md-sal-binding-impl:binding-new-notification-service;
+                     }
+                 }
             }
         }
     }

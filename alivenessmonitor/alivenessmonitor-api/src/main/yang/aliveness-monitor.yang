@@ -4,6 +4,7 @@ module aliveness-monitor {
 
     import ietf-inet-types {
         prefix inet;
+        revision-date "2010-09-24";
     }
 
     revision "2015-06-29" {

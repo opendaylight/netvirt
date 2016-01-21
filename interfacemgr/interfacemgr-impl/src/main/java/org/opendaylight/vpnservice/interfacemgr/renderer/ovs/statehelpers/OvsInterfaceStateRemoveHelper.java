@@ -12,6 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
+import org.opendaylight.vpnservice.interfacemgr.commons.AlivenessMonitorUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
@@ -24,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
@@ -41,6 +43,7 @@ public class OvsInterfaceStateRemoveHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsInterfaceStateRemoveHelper.class);
 
     public static List<ListenableFuture<Void>> removeState(IdManagerService idManager, IMdsalApiManager mdsalApiManager,
+                                                           AlivenessMonitorService alivenessMonitorService,
                                                            InstanceIdentifier<FlowCapableNodeConnector> key,
                                                            DataBroker dataBroker, String portName, FlowCapableNodeConnector fcNodeConnectorOld) {
         LOG.debug("Removing interface-state for port: {}", portName);
@@ -66,7 +69,7 @@ public class OvsInterfaceStateRemoveHelper {
             return futures;
         }
 
-        // If this interface is a tunnel interface, remove the tunnel ingress flow
+        // If this interface is a tunnel interface, remove the tunnel ingress flow and stop lldp monitoring
         IfTunnel tunnel = iface.getAugmentation(IfTunnel.class);
         if(tunnel != null){
             NodeConnectorId nodeConnectorId = InstanceIdentifier.keyOf(key.firstIdentifierOf(NodeConnector.class)).getId();
@@ -74,6 +77,8 @@ public class OvsInterfaceStateRemoveHelper {
             long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
             InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager, tunnel, dpId, portNo, iface,
                     NwConstants.DEL_FLOW);
+            futures.add(transaction.submit());
+            AlivenessMonitorUtils.stopLLDPMonitoring(alivenessMonitorService, dataBroker, iface);
             return futures;
         }
 

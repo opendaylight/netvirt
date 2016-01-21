@@ -12,6 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
+import org.opendaylight.vpnservice.interfacemgr.commons.AlivenessMonitorUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -20,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
@@ -34,6 +36,7 @@ public class OvsInterfaceStateUpdateHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsInterfaceStateUpdateHelper.class);
 
     public static List<ListenableFuture<Void>> updateState(InstanceIdentifier<FlowCapableNodeConnector> key,
+                                                           AlivenessMonitorService alivenessMonitorService,
                                                            DataBroker dataBroker, String portName,
                                                            FlowCapableNodeConnector flowCapableNodeConnectorNew,
                                                            FlowCapableNodeConnector flowCapableNodeConnectorOld) {
@@ -73,13 +76,12 @@ public class OvsInterfaceStateUpdateHelper {
 
         InstanceIdentifier<Interface> ifStateId = IfmUtil.buildStateInterfaceId(portName);
         InterfaceBuilder ifaceBuilder = new InterfaceBuilder();
-
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface = null;
         boolean modified = false;
         if (opstateModified) {
             LOG.debug("Opstate Modified for Port: {}", portName);
             InterfaceKey interfaceKey = new InterfaceKey(portName);
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
-                    InterfaceManagerCommonUtils.getInterfaceFromConfigDS(interfaceKey, dataBroker);
+             iface = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(interfaceKey, dataBroker);
 
             // If interface config admin state is disabled, set operstate of the Interface State entity to Down.
             if (iface != null && !iface.isEnabled()) {
@@ -116,6 +118,11 @@ public class OvsInterfaceStateUpdateHelper {
                     InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryKey, dataBroker);
             if (interfaceParentEntry == null) {
                 futures.add(t.submit());
+                // start/stop monitoring based on opState
+                if(operStatusNew == Interface.OperStatus.Down )
+                    AlivenessMonitorUtils.stopLLDPMonitoring(alivenessMonitorService, dataBroker, iface);
+                else
+                    AlivenessMonitorUtils.startLLDPMonitoring(alivenessMonitorService,dataBroker, iface);
                 return futures;
             }
 

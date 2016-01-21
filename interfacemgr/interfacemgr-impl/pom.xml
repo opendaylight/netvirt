@@ -56,9 +56,18 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.vpnservice</groupId>
+      <artifactId>alivenessmonitor-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>southbound-api</artifactId>
       <version>${vpns.ovsdb.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>sal-binding-broker-impl</artifactId>
     </dependency>
   </dependencies>
 </project>

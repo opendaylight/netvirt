@@ -13,6 +13,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
+import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
@@ -36,9 +38,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceOutput;
@@ -59,6 +63,8 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
 
     private RpcProviderRegistry rpcProviderRegistry;
     private IdManagerService idManager;
+    private NotificationService notificationService;
+    private AlivenessMonitorService alivenessManager;
     private IMdsalApiManager mdsalManager;
     private InterfaceConfigListener interfaceConfigListener;
     private InterfaceTopologyStateListener topologyStateListener;
@@ -66,6 +72,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
     private FlowBasedServicesInterfaceStateListener flowBasedServicesInterfaceStateListener;
     private FlowBasedServicesConfigListener flowBasedServicesConfigListener;
     private VlanMemberConfigListener vlanMemberConfigListener;
+    private org.opendaylight.vpnservice.interfacemgr.listeners.AlivenessMonitorListener alivenessMonitorListener;
     private DataBroker dataBroker;
     private InterfaceManagerRpcService interfaceManagerRpcService;
     private BindingAwareBroker.RpcRegistration<OdlInterfaceRpcService> rpcRegistration;
@@ -78,6 +85,10 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
         this.mdsalManager = mdsalManager;
     }
 
+    public void setNotificationService(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
+
     @Override
     public void onSessionInitiated(ProviderContext session) {
         LOG.info("InterfacemgrProvider Session Initiated");
@@ -86,14 +97,15 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
             idManager = rpcProviderRegistry.getRpcService(IdManagerService.class);
             createIdPool();
 
+            alivenessManager = rpcProviderRegistry.getRpcService(AlivenessMonitorService.class);
             interfaceManagerRpcService = new InterfaceManagerRpcService(dataBroker, mdsalManager);
             rpcRegistration = getRpcProviderRegistry().addRpcImplementation(
                     OdlInterfaceRpcService.class, interfaceManagerRpcService);
 
-            interfaceConfigListener = new InterfaceConfigListener(dataBroker, idManager);
+            interfaceConfigListener = new InterfaceConfigListener(dataBroker, idManager,alivenessManager);
             interfaceConfigListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
 
-            interfaceInventoryStateListener = new InterfaceInventoryStateListener(dataBroker, idManager, mdsalManager);
+            interfaceInventoryStateListener = new InterfaceInventoryStateListener(dataBroker, idManager, mdsalManager, alivenessManager);
             interfaceInventoryStateListener.registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
 
             topologyStateListener = new InterfaceTopologyStateListener(dataBroker);
@@ -107,8 +119,10 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
             flowBasedServicesInterfaceStateListener.registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
 
             vlanMemberConfigListener =
-                               new VlanMemberConfigListener(dataBroker, idManager);
+                               new VlanMemberConfigListener(dataBroker, idManager, alivenessManager);
             vlanMemberConfigListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+            alivenessMonitorListener = new org.opendaylight.vpnservice.interfacemgr.listeners.AlivenessMonitorListener(dataBroker);
+            notificationService.registerNotificationListener(alivenessMonitorListener);
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
         }

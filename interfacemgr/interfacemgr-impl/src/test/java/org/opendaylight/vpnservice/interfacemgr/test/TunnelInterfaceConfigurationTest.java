@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntryKey;
@@ -85,6 +86,7 @@ public class TunnelInterfaceConfigurationTest {
 
     @Mock DataBroker dataBroker;
     @Mock IdManagerService idManager;
+    @Mock AlivenessMonitorService alivenessMonitorService;
     @Mock ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
     @Mock ReadOnlyTransaction mockReadTx;
     @Mock WriteTransaction mockWriteTx;
@@ -198,7 +200,7 @@ public class TunnelInterfaceConfigurationTest {
         ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(tunnelInterfaceEnabled.getName()));
         stateInterface = ifaceBuilder.build();
 
-        removeHelper.removeConfiguration(dataBroker, tunnelInterfaceEnabled, idManager, parentRefs);
+        removeHelper.removeConfiguration(dataBroker, alivenessMonitorService, tunnelInterfaceEnabled, idManager, parentRefs);
 
         //Add some verifications
         verify(mockWriteTx).delete(LogicalDatastoreType.CONFIGURATION, bridgeEntryIid);
@@ -213,7 +215,7 @@ public class TunnelInterfaceConfigurationTest {
         doReturn(Futures.immediateCheckedFuture(expectedStateInterface)).when(mockReadTx).read(
                 LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
 
-        updateHelper.updateConfiguration(dataBroker,idManager,tunnelInterfaceDisabled,tunnelInterfaceEnabled);
+        updateHelper.updateConfiguration(dataBroker, alivenessMonitorService, idManager,tunnelInterfaceDisabled,tunnelInterfaceEnabled);
 
         //verify whether operational data store is updated with the new oper state.
         InterfaceBuilder ifaceBuilder = new InterfaceBuilder();
@@ -234,7 +236,7 @@ public class TunnelInterfaceConfigurationTest {
         doReturn(Futures.immediateCheckedFuture(expectedStateInterface)).when(mockReadTx).read(
                 LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
 
-        updateHelper.updateConfiguration(dataBroker,idManager,tunnelInterfaceEnabled,tunnelInterfaceDisabled);
+        updateHelper.updateConfiguration(dataBroker, alivenessMonitorService, idManager,tunnelInterfaceEnabled,tunnelInterfaceDisabled);
 
         //verify whether operational data store is updated with the new oper state.
         InterfaceBuilder ifaceBuilder = new InterfaceBuilder();

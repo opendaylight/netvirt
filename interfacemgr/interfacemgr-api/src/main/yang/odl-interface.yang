@@ -188,6 +188,16 @@ module odl-interface {
             type inet:ip-address;
             description "gateway IP address";
         }
+
+        leaf monitor-enabled {
+            type boolean;
+            default false;
+        }
+
+        leaf monitor-interval {
+             type uint32;
+              default 10000;
+        }
     }
 
     augment "/if:interfaces/if:interface" {
@@ -216,6 +226,7 @@ module odl-interface {
             description "gateway IP address";
         }
     }
+
     /* MPLS logical port */
     augment "/if:interfaces/if:interface" {
         ext:augment-identifier "if-mpls";

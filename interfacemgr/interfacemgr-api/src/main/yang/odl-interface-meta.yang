@@ -73,5 +73,31 @@ module odl-interface-meta {
                    type string;
                }
            }
+   }
+
+   container interface-monitor-id-map {
+       config false;
+       list interface-monitor-id {
+           key interface-name;
+           leaf interface-name {
+               type string;
+           }
+           leaf-list monitor-id {
+               type uint32;
+           }
        }
+   }
+
+   container monitor-id-interface-map {
+       config false;
+       list monitor-id-interface {
+           key monitor-id;
+           leaf monitor-id {
+               type uint32;
+           }
+           leaf interface-name {
+               type string;
+           }
+       }
+   }
 }

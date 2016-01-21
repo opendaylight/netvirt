@@ -39,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.flow.capable.port.StateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.IfIndexesInterfaceMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterface;
@@ -85,6 +86,7 @@ public class StateInterfaceTest {
     @Mock ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
     @Mock ReadOnlyTransaction mockReadTx;
     @Mock WriteTransaction mockWriteTx;
+    @Mock AlivenessMonitorService alivenessMonitorService;
 
     OvsInterfaceStateAddHelper addHelper;
     OvsInterfaceStateRemoveHelper removeHelper;
@@ -147,7 +149,8 @@ public class StateInterfaceTest {
                 .setIdKey(InterfaceManagerTestUtil.interfaceName).build();
         doReturn(idOutputOptional).when(idManager).allocateId(getIdInput);
 
-        addHelper.addState(dataBroker, idManager, mdsalManager, nodeConnectorId, InterfaceManagerTestUtil.interfaceName, fcNodeConnectorNew);
+        addHelper.addState(dataBroker, idManager, mdsalManager, alivenessMonitorService,
+                nodeConnectorId, InterfaceManagerTestUtil.interfaceName, fcNodeConnectorNew);
 
         //Add some verifications
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier,
@@ -171,7 +174,7 @@ public class StateInterfaceTest {
 
         doReturn(Futures.immediateFuture(RpcResultBuilder.<Void>success().build())).when(idManager).releaseId(getIdInput);
 
-        removeHelper.removeState(idManager, mdsalManager, fcNodeConnectorId, dataBroker, InterfaceManagerTestUtil.interfaceName, fcNodeConnectorNew);
+        removeHelper.removeState(idManager, mdsalManager, alivenessMonitorService, fcNodeConnectorId, dataBroker, InterfaceManagerTestUtil.interfaceName, fcNodeConnectorNew);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, ifIndexId);
@@ -205,7 +208,7 @@ public class StateInterfaceTest {
         fcNodeConnectorOldupdate.setState(b2.build());
         fcNodeConnectorNewupdate.setState(b3.build());
 
-        updateHelper.updateState(fcNodeConnectorId, dataBroker, InterfaceManagerTestUtil.interfaceName, fcNodeConnectorNewupdate.build(), fcNodeConnectorOldupdate.build());
+        updateHelper.updateState(fcNodeConnectorId, alivenessMonitorService, dataBroker, InterfaceManagerTestUtil.interfaceName, fcNodeConnectorNewupdate.build(), fcNodeConnectorOldupdate.build());
 
         verify(mockWriteTx).merge(LogicalDatastoreType.OPERATIONAL,interfaceStateIdentifier,stateInterface);
     }

@@ -15,6 +15,7 @@ import org.opendaylight.idmanager.IdManager;
 import org.opendaylight.vpnservice.VpnConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
+import org.opendaylight.vpnservice.interfacemgr.commons.AlivenessMonitorUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
@@ -28,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
@@ -54,7 +56,8 @@ import java.util.List;
 public class OvsInterfaceStateAddHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsInterfaceStateAddHelper.class);
 
-    public static List<ListenableFuture<Void>> addState(DataBroker dataBroker, IdManagerService idManager, IMdsalApiManager mdsalApiManager,
+    public static List<ListenableFuture<Void>> addState(DataBroker dataBroker, IdManagerService idManager,
+                                                        IMdsalApiManager mdsalApiManager,AlivenessMonitorService alivenessMonitorService,
                                                         NodeConnectorId nodeConnectorId, String portName, FlowCapableNodeConnector fcNodeConnectorNew) {
         LOG.debug("Adding Interface State to Oper DS for port: {}", portName);
         List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -103,6 +106,7 @@ public class OvsInterfaceStateAddHelper {
             InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager, tunnel,dpId, portNo, iface,
                     NwConstants.ADD_FLOW);
             futures.add(transaction.submit());
+            AlivenessMonitorUtils.startLLDPMonitoring(alivenessMonitorService, dataBroker, iface);
             return futures;
         }
 
