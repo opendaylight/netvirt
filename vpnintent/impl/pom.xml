@@ -39,6 +39,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
     <dependency>
       <groupId>org.opendaylight.nic</groupId>
+      <artifactId>intent-mapping-interface</artifactId>
+      <version>${nic.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.nic</groupId>
       <artifactId>utils</artifactId>
       <version>${nic.version}</version>
     </dependency>
@@ -68,11 +73,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.opendaylight.nic</groupId>
-      <artifactId>intent-mapping-interface</artifactId>
-      <version>${nic.version}</version>
-    </dependency>
   </dependencies>
 
 </project>

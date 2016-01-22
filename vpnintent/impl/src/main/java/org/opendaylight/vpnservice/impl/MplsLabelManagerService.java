@@ -33,7 +33,7 @@ public class MplsLabelManagerService {
     public static final InstanceIdentifier<MplsLabels> MPLS_LABELS_IID = IidFactory.getMplsLabelsIid();
     private final DataBroker dataBroker;
     private final Random random = new Random();
-    private MdsalUtils mdsal;
+    private final MdsalUtils mdsal;
 
     public MplsLabelManagerService(DataBroker dataBroker) {
         this.dataBroker = dataBroker;
