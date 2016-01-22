@@ -24,11 +24,28 @@ module vpnintent {
         }
     }
 
+    typedef failover-type {
+        type enumeration {
+            enum fast-reroute {
+                value 1;
+            }
+            enum slow-reroute {
+                value 2;
+            }
+        }
+    }
+
     grouping vpn-intent {
         leaf vpn-name {
             type string;
             description "VPN name";
             mandatory true;
+        }
+        leaf path-protection {
+            type boolean;
+        }
+        leaf failover-type {
+            type failover-type;
         }
         list endpoint {
             key "site-name";
@@ -58,12 +75,18 @@ module vpnintent {
         list label {
             key "label-id";
             leaf "label-id"{
-                type uint64;
-                description "MPLS or other label ID.";
+                type uint32 {
+                    range "0 .. 524288";
+                }
+                description "20 bit MPLS label ID";
                 mandatory true;
             }
             uses endpoint-fields;
             description "Keep track of MPLS/other label endpoint relation.";
         }
      }
+
+    container mpls-labels {
+        uses labels;
+   }
   }

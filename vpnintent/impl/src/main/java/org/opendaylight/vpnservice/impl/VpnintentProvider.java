@@ -12,8 +12,11 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpnintent.rev150105.MplsLabels;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpnintent.rev150105.MplsLabelsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpnintent.rev150105.Vpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpnintent.rev150105.VpnsBuilder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +28,7 @@ public class VpnintentProvider implements BindingAwareProvider, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnintentProvider.class);
     public static final InstanceIdentifier<Vpns> VPN_INTENT_IID = InstanceIdentifier.builder(Vpns.class).build();
+    public static final InstanceIdentifier<MplsLabels> LABELS_IID = InstanceIdentifier.builder(MplsLabels.class).build();
 
     private DataBroker dataBroker;
 
@@ -34,9 +38,11 @@ public class VpnintentProvider implements BindingAwareProvider, AutoCloseable {
         dataBroker = session.getSALService(DataBroker.class);
 
         Vpns vpns = new VpnsBuilder().build();
+        MplsLabels labels = new MplsLabelsBuilder().build();
 
-        // Initialize default config data in MD-SAL data store
+        // Initialize MD-SAL data store for vpn-intents and mpls-labels
         initDatastore(LogicalDatastoreType.CONFIGURATION, VPN_INTENT_IID, vpns);
+        initDatastore(LogicalDatastoreType.OPERATIONAL, LABELS_IID, labels);
     }
 
     @Override
@@ -44,10 +50,10 @@ public class VpnintentProvider implements BindingAwareProvider, AutoCloseable {
         LOG.info("VpnintentProvider Closed");
     }
 
-    private void initDatastore(LogicalDatastoreType store, InstanceIdentifier<Vpns> iid, Vpns mappings) {
-        // Put the Mapping data to MD-SAL data store
+    private <T extends DataObject> void initDatastore(LogicalDatastoreType store, InstanceIdentifier<T> iid, T object) {
+        // Put data to MD-SAL data store
         WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
-        transaction.put(store, iid, mappings);
+        transaction.put(store, iid, object);
 
         // Perform the tx.submit asynchronously
         Futures.addCallback(transaction.submit(), new FutureCallback<Void>() {
@@ -61,6 +67,6 @@ public class VpnintentProvider implements BindingAwareProvider, AutoCloseable {
                 LOG.error("initDatastore for VPN-Intents: transaction failed");
             }
         });
-        LOG.info("initDatastore: VPN-Intents data populated: {}", store, iid, mappings);
+        LOG.info("initDatastore: data populated: {}, {}, {}", store, iid, object);
     }
 }
