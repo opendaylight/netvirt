@@ -94,7 +94,7 @@ public class NeutronBgpvpnChangeListener extends AbstractDataChangeListener<Bgpv
             // generate new RD
         }
         Uuid router = null;
-        if (input.getRouters() != null) {
+        if (input.getRouters() != null && !input.getRouters().isEmpty()) {
             // currently only one router
             router = input.getRouters().get(0);
         }
