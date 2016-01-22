@@ -26,11 +26,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
 
   <dependencies>
     <dependency>
-      <groupId>org.opendaylight.vpnservice</groupId>
-      <artifactId>mdsalutil-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnintent-api</artifactId>
       <version>${project.version}</version>

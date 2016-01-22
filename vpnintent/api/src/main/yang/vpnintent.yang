@@ -88,5 +88,46 @@ module vpnintent {
 
     container mpls-labels {
         uses labels;
-   }
+    }
+
+    rpc add-vpn-endpoint{
+        description
+            "Add VPN endpoint.";
+        input {
+            leaf vpn-name {
+                type string;
+                description "VPN name";
+                mandatory true;
+            }
+            uses endpoint-fields;
+        }
+    }
+
+    rpc remove-vpn-endpoint{
+        description
+            "Remove VPN endpoint.";
+        input {
+            leaf vpn-name {
+                type string;
+                description "VPN name";
+                mandatory true;
+            }
+            leaf site-name{
+                type string;
+                description "VPN member site name.";
+            }
+        }
+    }
+
+    rpc remove-vpn{
+        description
+            "Remove VPN and its endpoints.";
+        input {
+            leaf vpn-name {
+                type string;
+                description "VPN name";
+                mandatory true;
+            }
+        }
+    }
   }

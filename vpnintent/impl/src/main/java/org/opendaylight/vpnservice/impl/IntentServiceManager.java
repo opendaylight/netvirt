@@ -15,6 +15,7 @@ import java.util.UUID;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.nic.utils.MdsalUtils;
+import org.opendaylight.vpnservice.utils.IidFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.intent.constraints.rev150122.FailoverType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.intent.rev150122.Intents;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.intent.rev150122.IntentsBuilder;
@@ -57,7 +58,7 @@ public class IntentServiceManager {
     public static final String FAST_REROUTE = "fast-reroute";
     public static final String SLOW_REROUTE = "slow-reroute";
     private final DataBroker dataBroker;
-    private static final InstanceIdentifier<Intents> INTENTS_IID = InstanceIdentifier.builder(Intents.class).build();
+    private static final InstanceIdentifier<Intents> INTENTS_IID = IidFactory.getIntentsIid();
     private MdsalUtils mdsal;
 
     public IntentServiceManager(DataBroker dataBroker) {
