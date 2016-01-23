@@ -140,8 +140,6 @@ public class OvsInterfaceConfigAddHelper {
             return;
         }
 
-        //createBridgeEntryIfNotPresent(dpId, dataBroker, t);
-
         BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpId);
         BridgeInterfaceEntryKey bridgeInterfaceEntryKey = new BridgeInterfaceEntryKey(interfaceNew.getName());
 
