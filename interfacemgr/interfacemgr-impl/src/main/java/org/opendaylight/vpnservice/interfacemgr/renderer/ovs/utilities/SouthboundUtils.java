@@ -20,11 +20,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.*;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
@@ -54,6 +56,26 @@ public class SouthboundUtils {
         if (ifL2vlan != null) {
             addVlanPortToBridge(bridgeIid, ifL2vlan, bridgeAugmentation, bridgeName, portName, dataBroker, tx);
         }
+        futures.add(tx.submit());
+    }
+
+    public static void addBridge(InstanceIdentifier<OvsdbBridgeAugmentation> bridgeIid,
+                                 OvsdbBridgeAugmentation bridgeAugmentation,
+                                 DataBroker dataBroker, List<ListenableFuture<Void>> futures){
+        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+        NodeId nodeId = InstanceIdentifier.keyOf(bridgeIid.firstIdentifierOf(Node.class)).getNodeId();
+        NodeBuilder bridgeNodeBuilder = new NodeBuilder();
+        bridgeNodeBuilder.setNodeId(nodeId);
+        bridgeNodeBuilder.addAugmentation(OvsdbBridgeAugmentation.class, bridgeAugmentation);
+        tx.put(LogicalDatastoreType.CONFIGURATION, createNodeInstanceIdentifier(nodeId), bridgeNodeBuilder.build(), true);
+        futures.add(tx.submit());
+    }
+
+    public static void deleteBridge(InstanceIdentifier<OvsdbBridgeAugmentation> bridgeIid,
+                                 DataBroker dataBroker, List<ListenableFuture<Void>> futures){
+        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+        NodeId nodeId = InstanceIdentifier.keyOf(bridgeIid.firstIdentifierOf(Node.class)).getNodeId();
+        tx.delete(LogicalDatastoreType.CONFIGURATION, createNodeInstanceIdentifier(nodeId));
         futures.add(tx.submit());
     }
 
@@ -159,5 +181,12 @@ public class SouthboundUtils {
 
         LOG.debug("Termination point InstanceIdentifier generated : {}",terminationPointPath);
         return terminationPointPath;
+    }
+
+    public static InstanceIdentifier<Node> createNodeInstanceIdentifier(NodeId nodeId) {
+        return InstanceIdentifier
+                .create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(OVSDB_TOPOLOGY_ID))
+                .child(Node.class,new NodeKey(nodeId));
     }
 }

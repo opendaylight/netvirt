@@ -41,7 +41,7 @@ public class OvsInterfaceTopologyStateAddHelper {
     public static List<ListenableFuture<Void>> addPortToBridge(InstanceIdentifier<OvsdbBridgeAugmentation> bridgeIid,
                                                                OvsdbBridgeAugmentation bridgeNew, DataBroker dataBroker) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
+        WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
 
         if (bridgeNew.getDatapathId() == null) {
             LOG.warn("DataPathId found as null for Bridge Augmentation: {}... retrying...", bridgeNew);
@@ -62,13 +62,11 @@ public class OvsInterfaceTopologyStateAddHelper {
             return futures;
         }
 
-        BridgeRefEntryKey bridgeRefEntryKey = new BridgeRefEntryKey(dpnId);
-        InstanceIdentifier<BridgeRefEntry> bridgeEntryId =
-                InterfaceMetaUtils.getBridgeRefEntryIdentifier(bridgeRefEntryKey);
-        BridgeRefEntryBuilder tunnelDpnBridgeEntryBuilder =
-                new BridgeRefEntryBuilder().setKey(bridgeRefEntryKey).setDpid(dpnId)
-                        .setBridgeReference(new OvsdbBridgeRef(bridgeIid));
-        t.put(LogicalDatastoreType.OPERATIONAL, bridgeEntryId, tunnelDpnBridgeEntryBuilder.build(), true);
+        // create bridge reference entry in interface meta operational DS
+        InterfaceMetaUtils.createBridgeRefEntry(dpnId, bridgeIid, writeTransaction);
+
+        // FIX for OVSDB Bug - manually copying the bridge info from topology operational DS to config DS
+        SouthboundUtils.addBridge(bridgeIid, bridgeNew, dataBroker, futures);
 
         BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpnId);
         InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier =
@@ -77,7 +75,7 @@ public class OvsInterfaceTopologyStateAddHelper {
                 InterfaceMetaUtils.getBridgeEntryFromConfigDS(bridgeEntryInstanceIdentifier,
                         dataBroker);
         if (bridgeEntry == null) {
-            futures.add(t.submit());
+            futures.add(writeTransaction.submit());
             return futures;
         }
 
@@ -88,12 +86,10 @@ public class OvsInterfaceTopologyStateAddHelper {
             Interface iface = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(interfaceKey, dataBroker);
             if (iface.getAugmentation(IfTunnel.class) != null) {
                 SouthboundUtils.addPortToBridge(bridgeIid, iface, bridgeNew, bridgeName, portName, dataBroker, futures);
-                InterfaceMetaUtils.createBridgeInterfaceEntryInConfigDS(bridgeEntryKey,
-                        new BridgeInterfaceEntryKey(portName), portName, t);
             }
         }
 
-        futures.add(t.submit());
+        futures.add(writeTransaction.submit());
         return futures;
     }
 }

@@ -13,6 +13,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
+import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.utilities.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge.ref.info.BridgeRefEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge.ref.info.BridgeRefEntryKey;
@@ -41,6 +42,9 @@ public class OvsInterfaceTopologyStateRemoveHelper {
         InstanceIdentifier<BridgeRefEntry> bridgeEntryId =
                 InterfaceMetaUtils.getBridgeRefEntryIdentifier(bridgeRefEntryKey);
         t.delete(LogicalDatastoreType.OPERATIONAL, bridgeEntryId);
+
+        // FIX for ovsdb bug for delete TEP
+        SouthboundUtils.deleteBridge(bridgeIid, dataBroker, futures);
 
         futures.add(t.submit());
         return futures;
