@@ -19,11 +19,16 @@ import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.ElanInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.interfaces.ElanInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
         .PortFixedipToPortNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
@@ -123,6 +128,8 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         int portVlanId = NeutronvpnUtils.getVlanFromNeutronPort(port);
         // Create of-port interface for this neutron port
         createOfPortInterface(port, portVlanId);
+        LOG.debug("Creating ELAN Interface");
+        createElanInterface(port, portVlanId);
         LOG.debug("Add port to subnet");
         // add port to local Subnets DS
         Uuid vpnId = addPortToSubnets(port);
@@ -147,6 +154,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         }
         int portVlanId = NeutronvpnUtils.getVlanFromNeutronPort(port);
         // Remove of-port interface for this neutron port
+        // ELAN interface is also implicitly deleted as part of this operation
         deleteOfPortInterface(port, portVlanId);
 
     }
@@ -218,6 +226,22 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, portIdentifier);
         LOG.debug("name-uuid map for port with name: {}, uuid: {} deleted from NeutronPortData DS", name, port
                 .getUuid());
+    }
+
+    private void createElanInterface(Port port, int portVlanId) {
+        String name = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
+        String interfaceName = new StringBuilder(name).append(":").append(Integer.toString(portVlanId)).toString();
+        String elanInstanceName = port.getNetworkId().getValue();
+        List<PhysAddress> physAddresses = new ArrayList<>();
+        physAddresses.add(new PhysAddress(port.getMacAddress()));
+
+        InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
+                .class, new ElanInterfaceKey(interfaceName)).build();
+        ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
+                .setName(interfaceName).setStaticMacEntries(physAddresses).
+                        setKey(new ElanInterfaceKey(interfaceName)).build();
+        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, elanInterface);
+        LOG.debug("Creating new ELan Interface {}", elanInterface);
     }
 
     // adds port to subnet list and creates vpnInterface
