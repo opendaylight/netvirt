@@ -19,6 +19,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.ovsdb/features-ovsdb/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.neutron/features-neutron/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.nic/features-nic/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.ovsdb/hwvtepsouthbound-features/{{VERSION}}/xml/features</repository>
   <feature name='odl-vpnservice-api' version='${project.version}' description='OpenDaylight :: vpnservice :: api '>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
@@ -43,6 +44,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <feature name='odl-vpnservice-impl' version='${project.version}' description='OpenDaylight :: vpnservice :: impl '>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version="${ovsdb.version}">odl-ovsdb-southbound-impl-rest</feature>
+    <feature version='${ovsdb.version}'>odl-ovsdb-hwvtepsouthbound</feature>
     <feature version='${project.version}'>odl-vpnservice-api</feature>
     <feature version="${openflowplugin.version}">odl-openflowplugin-southbound</feature>
     <feature version="${openflowplugin.version}">odl-openflowplugin-flow-services</feature>
