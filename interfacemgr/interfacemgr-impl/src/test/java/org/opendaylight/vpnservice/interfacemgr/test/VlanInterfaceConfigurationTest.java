@@ -33,6 +33,7 @@ import org.opendaylight.idmanager.IdManager;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsInterfaceConfigAddHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsInterfaceConfigRemoveHelper;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -53,7 +54,7 @@ public class VlanInterfaceConfigurationTest {
     @Mock ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
     @Mock ReadOnlyTransaction mockReadTx;
     @Mock WriteTransaction mockWriteTx;
-
+    @Mock IMdsalApiManager mdsalApiManager;
     OvsInterfaceConfigAddHelper addHelper;
     OvsInterfaceConfigRemoveHelper removeHelper;
 
@@ -167,7 +168,8 @@ public class VlanInterfaceConfigurationTest {
         ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(vlanInterfaceEnabled.getName()));
         stateInterface = ifaceBuilder.build();
 
-        removeHelper.removeConfiguration(dataBroker,alivenessMonitorService, vlanInterfaceEnabled, idManager, null);
+        removeHelper.removeConfiguration(dataBroker,alivenessMonitorService, vlanInterfaceEnabled, idManager,
+                mdsalApiManager, null);
 
         //verification
         verify(mockWriteTx).merge(LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier, stateInterface);

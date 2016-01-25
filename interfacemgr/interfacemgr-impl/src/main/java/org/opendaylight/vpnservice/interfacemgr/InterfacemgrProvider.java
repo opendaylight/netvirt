@@ -102,7 +102,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
             rpcRegistration = getRpcProviderRegistry().addRpcImplementation(
                     OdlInterfaceRpcService.class, interfaceManagerRpcService);
 
-            interfaceConfigListener = new InterfaceConfigListener(dataBroker, idManager,alivenessManager);
+            interfaceConfigListener = new InterfaceConfigListener(dataBroker, idManager,alivenessManager, mdsalManager);
             interfaceConfigListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
 
             interfaceInventoryStateListener = new InterfaceInventoryStateListener(dataBroker, idManager, mdsalManager, alivenessManager);

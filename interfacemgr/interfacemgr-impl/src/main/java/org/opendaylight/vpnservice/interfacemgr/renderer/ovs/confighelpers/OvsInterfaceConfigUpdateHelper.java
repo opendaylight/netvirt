@@ -17,6 +17,7 @@ import org.opendaylight.vpnservice.interfacemgr.commons.AlivenessMonitorUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -47,13 +48,13 @@ public class OvsInterfaceConfigUpdateHelper{
     private static final Logger LOG = LoggerFactory.getLogger(OvsInterfaceConfigUpdateHelper.class);
 
     public static List<ListenableFuture<Void>> updateConfiguration(DataBroker dataBroker,  AlivenessMonitorService alivenessMonitorService,
-                                                                   IdManagerService idManager,
+                                                                   IdManagerService idManager, IMdsalApiManager mdsalApiManager,
                                                                    Interface interfaceNew, Interface interfaceOld) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
 
         if(portAttributesModified(interfaceOld, interfaceNew)) {
             futures.addAll(OvsInterfaceConfigRemoveHelper.removeConfiguration(dataBroker, alivenessMonitorService, interfaceOld, idManager,
-                    interfaceOld.getAugmentation(ParentRefs.class)));
+                    mdsalApiManager, interfaceOld.getAugmentation(ParentRefs.class)));
             futures.addAll(OvsInterfaceConfigAddHelper.addConfiguration(dataBroker,
                     interfaceNew.getAugmentation(ParentRefs.class), interfaceNew, idManager));
             return futures;

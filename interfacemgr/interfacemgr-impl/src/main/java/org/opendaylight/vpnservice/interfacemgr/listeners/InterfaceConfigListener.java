@@ -16,6 +16,7 @@ import org.opendaylight.vpnservice.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsInterfaceConfigAddHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsInterfaceConfigRemoveHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsInterfaceConfigUpdateHelper;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
@@ -37,12 +38,16 @@ public class InterfaceConfigListener extends AsyncDataTreeChangeListenerBase<Int
     private DataBroker dataBroker;
     private IdManagerService idManager;
     private AlivenessMonitorService alivenessMonitorService;
+    private IMdsalApiManager mdsalApiManager;
 
-    public InterfaceConfigListener(final DataBroker dataBroker, final IdManagerService idManager, final AlivenessMonitorService alivenessMonitorService) {
+    public InterfaceConfigListener(final DataBroker dataBroker, final IdManagerService idManager,
+                                   final AlivenessMonitorService alivenessMonitorService,
+                                   final IMdsalApiManager mdsalApiManager) {
         super(Interface.class, InterfaceConfigListener.class);
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.alivenessMonitorService = alivenessMonitorService;
+        this.mdsalApiManager = mdsalApiManager;
     }
 
     @Override
@@ -171,7 +176,7 @@ public class InterfaceConfigListener extends AsyncDataTreeChangeListenerBase<Int
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
             return OvsInterfaceConfigUpdateHelper.updateConfiguration(dataBroker, alivenessMonitorService, idManager,
-                    interfaceNew, interfaceOld);
+                    mdsalApiManager, interfaceNew, interfaceOld);
         }
 
         @Override
@@ -207,7 +212,7 @@ public class InterfaceConfigListener extends AsyncDataTreeChangeListenerBase<Int
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
             return OvsInterfaceConfigRemoveHelper.removeConfiguration(dataBroker, alivenessMonitorService,
-                    interfaceOld, idManager, parentRefs);
+                    interfaceOld, idManager, mdsalApiManager, parentRefs);
         }
 
         @Override

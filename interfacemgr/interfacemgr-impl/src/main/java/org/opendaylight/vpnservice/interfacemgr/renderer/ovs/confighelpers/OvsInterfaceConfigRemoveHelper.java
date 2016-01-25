@@ -17,6 +17,8 @@ import org.opendaylight.vpnservice.interfacemgr.commons.AlivenessMonitorUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.utilities.SouthboundUtils;
+import org.opendaylight.vpnservice.mdsalutil.NwConstants;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -55,15 +57,16 @@ public class OvsInterfaceConfigRemoveHelper {
 
     public static List<ListenableFuture<Void>> removeConfiguration(DataBroker dataBroker, AlivenessMonitorService alivenessMonitorService,
                                                                    Interface interfaceOld,
-                                                                   IdManagerService idManager, ParentRefs parentRefs) {
+                                                                   IdManagerService idManager,
+                                                                   IMdsalApiManager mdsalApiManager,
+                                                                   ParentRefs parentRefs) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction t = dataBroker.newWriteOnlyTransaction();
 
         IfTunnel ifTunnel = interfaceOld.getAugmentation(IfTunnel.class);
         if (ifTunnel != null) {
-            removeTunnelConfiguration(alivenessMonitorService, parentRefs, dataBroker, interfaceOld, idManager, t);
-            futures.add(t.submit());
-            AlivenessMonitorUtils.stopLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceOld);
+            removeTunnelConfiguration(alivenessMonitorService, parentRefs, dataBroker, interfaceOld,
+                    idManager, mdsalApiManager, futures);
         }else {
             removeVlanConfiguration(dataBroker, interfaceOld, t);
             futures.add(t.submit());
@@ -132,8 +135,10 @@ public class OvsInterfaceConfigRemoveHelper {
 
     private static void removeTunnelConfiguration(AlivenessMonitorService alivenessMonitorService, ParentRefs parentRefs,
                                                   DataBroker dataBroker, Interface interfaceOld,
-                                                  IdManagerService idManager, WriteTransaction t) {
+                                                  IdManagerService idManager, IMdsalApiManager mdsalApiManager,
+                                                  List<ListenableFuture<Void>> futures) {
 
+        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
         BigInteger dpId = null;
         if (parentRefs != null) {
             dpId = parentRefs.getDatapathNodeIdentifier();
@@ -154,6 +159,15 @@ public class OvsInterfaceConfigRemoveHelper {
             InstanceIdentifier<TerminationPoint> tpIid = SouthboundUtils.createTerminationPointInstanceIdentifier(
                     InstanceIdentifier.keyOf(bridgeIid.firstIdentifierOf(Node.class)), interfaceOld.getName());
             t.delete(LogicalDatastoreType.CONFIGURATION, tpIid);
+
+            // delete tunnel ingress flow
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState = InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceOld.getName(), dataBroker);
+            NodeConnectorId ncId = IfmUtil.getNodeConnectorIdFromInterface(interfaceOld, dataBroker);
+            long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(ncId));
+            InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager,
+                    interfaceOld.getAugmentation(IfTunnel.class),
+                    dpId, portNo, interfaceOld,
+                    NwConstants.DEL_FLOW);
         }
 
         BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpId);
@@ -178,5 +192,8 @@ public class OvsInterfaceConfigRemoveHelper {
                             bridgeInterfaceEntryKey);
             t.delete(LogicalDatastoreType.CONFIGURATION, bridgeInterfaceEntryIid);
         }
+        futures.add(t.submit());
+        // stop LLDP monitoring for the tunnel interface
+        AlivenessMonitorUtils.stopLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceOld);
     }
 }
