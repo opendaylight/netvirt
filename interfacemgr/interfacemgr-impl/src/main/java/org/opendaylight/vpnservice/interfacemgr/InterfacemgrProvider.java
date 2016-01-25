@@ -119,7 +119,7 @@ public class InterfacemgrProvider implements BindingAwareProvider, AutoCloseable
             flowBasedServicesInterfaceStateListener.registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
 
             vlanMemberConfigListener =
-                               new VlanMemberConfigListener(dataBroker, idManager, alivenessManager);
+                               new VlanMemberConfigListener(dataBroker, idManager, alivenessManager,mdsalManager);
             vlanMemberConfigListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
             alivenessMonitorListener = new org.opendaylight.vpnservice.interfacemgr.listeners.AlivenessMonitorListener(dataBroker);
             notificationService.registerNotificationListener(alivenessMonitorListener);

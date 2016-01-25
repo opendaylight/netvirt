@@ -56,7 +56,7 @@ public class OvsInterfaceConfigUpdateHelper{
             futures.addAll(OvsInterfaceConfigRemoveHelper.removeConfiguration(dataBroker, alivenessMonitorService, interfaceOld, idManager,
                     mdsalApiManager, interfaceOld.getAugmentation(ParentRefs.class)));
             futures.addAll(OvsInterfaceConfigAddHelper.addConfiguration(dataBroker,
-                    interfaceNew.getAugmentation(ParentRefs.class), interfaceNew, idManager));
+                    interfaceNew.getAugmentation(ParentRefs.class), interfaceNew, idManager,alivenessMonitorService,mdsalApiManager));
             return futures;
         }
 
@@ -64,7 +64,7 @@ public class OvsInterfaceConfigUpdateHelper{
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceNew.getName(), dataBroker);
         if (ifState == null) {
             futures.addAll(OvsInterfaceConfigAddHelper.addConfiguration(dataBroker,
-                    interfaceNew.getAugmentation(ParentRefs.class), interfaceNew, idManager));
+                    interfaceNew.getAugmentation(ParentRefs.class), interfaceNew, idManager, alivenessMonitorService, mdsalApiManager));
             return futures;
         }
 

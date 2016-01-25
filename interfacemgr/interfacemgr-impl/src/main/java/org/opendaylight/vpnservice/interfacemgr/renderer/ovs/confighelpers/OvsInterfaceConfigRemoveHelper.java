@@ -161,7 +161,6 @@ public class OvsInterfaceConfigRemoveHelper {
             t.delete(LogicalDatastoreType.CONFIGURATION, tpIid);
 
             // delete tunnel ingress flow
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState = InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceOld.getName(), dataBroker);
             NodeConnectorId ncId = IfmUtil.getNodeConnectorIdFromInterface(interfaceOld, dataBroker);
             long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(ncId));
             InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager,

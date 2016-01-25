@@ -15,6 +15,7 @@ import org.opendaylight.vpnservice.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsVlanMemberConfigAddHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsVlanMemberConfigRemoveHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers.OvsVlanMemberConfigUpdateHelper;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
@@ -33,13 +34,16 @@ public class VlanMemberConfigListener extends AsyncDataTreeChangeListenerBase<In
     private DataBroker dataBroker;
     private IdManagerService idManager;
     private AlivenessMonitorService alivenessMonitorService;
+    private IMdsalApiManager mdsalApiManager;
 
     public VlanMemberConfigListener(final DataBroker dataBroker, final IdManagerService idManager,
-                                    final AlivenessMonitorService alivenessMonitorService) {
+                                    final AlivenessMonitorService alivenessMonitorService,
+                                    final IMdsalApiManager mdsalApiManager) {
         super(Interface.class, VlanMemberConfigListener.class);
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.alivenessMonitorService = alivenessMonitorService;
+        this.mdsalApiManager = mdsalApiManager;
     }
 
     @Override
@@ -184,7 +188,7 @@ public class VlanMemberConfigListener extends AsyncDataTreeChangeListenerBase<In
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
             return OvsVlanMemberConfigUpdateHelper.updateConfiguration(dataBroker, alivenessMonitorService,
-                    parentRefsNew, interfaceOld, ifL2vlanNew, interfaceNew, idManager);
+                    parentRefsNew, interfaceOld, ifL2vlanNew, interfaceNew, idManager, mdsalApiManager);
         }
     }
 

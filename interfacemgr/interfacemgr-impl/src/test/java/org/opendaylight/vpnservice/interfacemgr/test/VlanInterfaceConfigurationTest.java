@@ -107,7 +107,8 @@ public class VlanInterfaceConfigurationTest {
         doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(
                LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
 
-        addHelper.addConfiguration(dataBroker, null, vlanInterfaceEnabled, idManager);
+        addHelper.addConfiguration(dataBroker, null, vlanInterfaceEnabled, idManager,
+                alivenessMonitorService, mdsalApiManager);
 
         //Nothing to verify, since when switch is not connected we don't do any datastore operation
 
@@ -123,7 +124,8 @@ public class VlanInterfaceConfigurationTest {
         doReturn(Futures.immediateCheckedFuture(expectedStateInterface)).when(mockReadTx).read(
                 LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
 
-        addHelper.addConfiguration(dataBroker, null, vlanInterfaceEnabled, idManager);
+        addHelper.addConfiguration(dataBroker, null, vlanInterfaceEnabled, idManager,
+                alivenessMonitorService, mdsalApiManager);
 
         //Nothing to verify, since when adminstate is enabled and switch opstate is already up,
         //we don't do any datastore operation
@@ -145,7 +147,8 @@ public class VlanInterfaceConfigurationTest {
         ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(vlanInterfaceEnabled.getName()));
         stateInterface = ifaceBuilder.build();
 
-        addHelper.addConfiguration(dataBroker, null, vlanInterfaceDisabled, idManager);
+        addHelper.addConfiguration(dataBroker, null, vlanInterfaceDisabled, idManager,
+                alivenessMonitorService, mdsalApiManager);
 
         //verification
         verify(mockWriteTx).merge(LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier, stateInterface);

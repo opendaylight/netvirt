@@ -15,6 +15,7 @@ import org.opendaylight.idmanager.IdManager;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
@@ -36,7 +37,8 @@ public class OvsVlanMemberConfigUpdateHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsVlanMemberConfigUpdateHelper.class);
     public static List<ListenableFuture<Void>> updateConfiguration(DataBroker dataBroker, AlivenessMonitorService alivenessMonitorService, ParentRefs parentRefsNew,
                                                                    Interface interfaceOld, IfL2vlan ifL2vlanNew,
-                                                                   Interface interfaceNew, IdManagerService idManager) {
+                                                                   Interface interfaceNew, IdManagerService idManager,
+                                                                   IMdsalApiManager mdsalApiManager) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         ParentRefs parentRefsOld = interfaceOld.getAugmentation(ParentRefs.class);
 
@@ -49,7 +51,7 @@ public class OvsVlanMemberConfigUpdateHelper {
 
         if (interfaceChildEntry == null) {
             futures.addAll(OvsInterfaceConfigAddHelper.addConfiguration(dataBroker,
-                    interfaceNew.getAugmentation(ParentRefs.class), interfaceNew, idManager));
+                    interfaceNew.getAugmentation(ParentRefs.class), interfaceNew, idManager, alivenessMonitorService, mdsalApiManager));
             return futures;
         }
 

@@ -21,6 +21,8 @@ import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUt
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.utilities.SouthboundUtils;
+import org.opendaylight.vpnservice.mdsalutil.NwConstants;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -61,12 +63,15 @@ public class OvsInterfaceConfigAddHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsInterfaceConfigAddHelper.class);
 
     public static List<ListenableFuture<Void>> addConfiguration(DataBroker dataBroker, ParentRefs parentRefs,
-                                                                Interface interfaceNew, IdManagerService idManager) {
+                                                                Interface interfaceNew, IdManagerService idManager,
+                                                                AlivenessMonitorService alivenessMonitorService,
+                                                                IMdsalApiManager mdsalApiManager) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
 
         IfTunnel ifTunnel = interfaceNew.getAugmentation(IfTunnel.class);
         if (ifTunnel != null) {
-            addTunnelConfiguration(dataBroker, parentRefs, interfaceNew, idManager, futures);
+            addTunnelConfiguration(dataBroker, parentRefs, interfaceNew, idManager, alivenessMonitorService,
+                    mdsalApiManager, futures);
             return futures;
         }
 
@@ -132,6 +137,8 @@ public class OvsInterfaceConfigAddHelper {
 
     private static void addTunnelConfiguration(DataBroker dataBroker, ParentRefs parentRefs,
                                               Interface interfaceNew, IdManagerService idManager,
+                                              AlivenessMonitorService alivenessMonitorService,
+                                              IMdsalApiManager mdsalApiManager,
                                               List<ListenableFuture<Void>> futures) {
         LOG.debug("adding tunnel configuration for {}", interfaceNew.getName());
         WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
@@ -173,6 +180,16 @@ public class OvsInterfaceConfigAddHelper {
                 String bridgeName = ovsdbBridgeAugmentation.getBridgeName().getValue();
                 SouthboundUtils.addPortToBridge(bridgeIid, interfaceNew,
                         ovsdbBridgeAugmentation, bridgeName, interfaceNew.getName(), dataBroker, futures);
+
+                // if TEP is already configured on switch, start LLDP monitoring and program tunnel ingress flow
+                NodeConnectorId ncId = IfmUtil.getNodeConnectorIdFromInterface(interfaceNew, dataBroker);
+                if(ncId != null){
+                    long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(ncId));
+                    InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager, interfaceNew.getAugmentation(IfTunnel.class),
+                            dpId, portNo, interfaceNew, NwConstants.ADD_FLOW);
+                    // start LLDP monitoring for the tunnel interface
+                    AlivenessMonitorUtils.startLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceNew);
+                }
             }
         }
     }

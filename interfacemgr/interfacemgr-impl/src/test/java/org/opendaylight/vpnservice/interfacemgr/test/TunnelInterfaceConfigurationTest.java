@@ -162,7 +162,8 @@ public class TunnelInterfaceConfigurationTest {
         doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(
                 LogicalDatastoreType.OPERATIONAL, dpnBridgeEntryIid);
 
-        addHelper.addConfiguration(dataBroker, parentRefs, tunnelInterfaceEnabled, idManager);
+        addHelper.addConfiguration(dataBroker, parentRefs, tunnelInterfaceEnabled, idManager,
+                alivenessMonitorService, mdsalApiManager);
 
         //Add some verifications
         verify(mockWriteTx).put(LogicalDatastoreType.CONFIGURATION, bridgeInterfaceEntryInstanceIdentifier, bridgeInterfaceEntry, true);
@@ -172,13 +173,15 @@ public class TunnelInterfaceConfigurationTest {
     public void testAddGreInterfaceWhenSwitchIsConnected() {
         Optional<BridgeRefEntry> expectedBridgeRefEntry = Optional.of(bridgeRefEntry);
         Optional<OvsdbBridgeAugmentation> expectedOvsdbBridgeAugmentation = Optional.of(ovsdbBridgeAugmentation);
-
+        doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(
+                LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
         doReturn(Futures.immediateCheckedFuture(expectedBridgeRefEntry)).when(mockReadTx).read(
                 LogicalDatastoreType.OPERATIONAL, dpnBridgeEntryIid);
         doReturn(Futures.immediateCheckedFuture(expectedOvsdbBridgeAugmentation)).when(mockReadTx).read(
                 LogicalDatastoreType.OPERATIONAL, ovsdbBridgeAugmentationInstanceIdentifier);
 
-        addHelper.addConfiguration(dataBroker, parentRefs, tunnelInterfaceEnabled, idManager);
+        addHelper.addConfiguration(dataBroker, parentRefs, tunnelInterfaceEnabled, idManager,
+                alivenessMonitorService, mdsalApiManager);
 
         //Add some verifications
         verify(mockWriteTx).put(LogicalDatastoreType.CONFIGURATION, bridgeInterfaceEntryInstanceIdentifier ,
