@@ -116,35 +116,11 @@ public class AlivenessProtocolHandlerLLDP extends AbstractAlivenessProtocolHandl
             LOG.debug("Custom LLDP Value on received packet: " + sTmp);
         }
 
-        BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata();
-        int portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
-        if(portTag == 0) {
-            LOG.trace("Ignoring Packet-in for interface tag 0");
-            return null;
-        }
-
-        String destInterfaceName = null;
-
-        try {
-            GetInterfaceFromIfIndexInput input = new GetInterfaceFromIfIndexInputBuilder().setIfIndex(portTag).build();
-            Future<RpcResult<GetInterfaceFromIfIndexOutput>> output = serviceProvider.getInterfaceManager().getInterfaceFromIfIndex(input);
-            RpcResult<GetInterfaceFromIfIndexOutput> result = output.get();
-            if(result.isSuccessful()) {
-                GetInterfaceFromIfIndexOutput ifIndexOutput = result.getResult();
-                destInterfaceName = ifIndexOutput.getInterfaceName();
-            } else {
-                LOG.warn("RPC call to get interface name for if index {} failed with errors {}", portTag, result.getErrors());
-                return null;
-            }
-        } catch(InterruptedException | ExecutionException e) {
-            LOG.warn("Error retrieving interface Name for tag {}", portTag, e);
-        }
-
         if(!Strings.isNullOrEmpty(interfaceName)) {
             String monitorKey = new StringBuilder().append(interfaceName).append(EtherTypes.LLDP).toString();
             return monitorKey;
         } else {
-            LOG.debug("No interface associated with tag {} to handle received LLDP Packet", portTag);
+            LOG.debug("No associated interface found to handle received LLDP Packet");
         }
         return null;
     }
@@ -174,26 +150,15 @@ public class AlivenessProtocolHandlerLLDP extends AbstractAlivenessProtocolHandl
 
         long nodeId = -1, portNum = -1;
         try {
-            GetDpidFromInterfaceInput dpIdInput = new GetDpidFromInterfaceInputBuilder().setIntfName(sourceInterface).build();
-            Future<RpcResult<GetDpidFromInterfaceOutput>> dpIdOutput = interfaceService.getDpidFromInterface(dpIdInput);
-            RpcResult<GetDpidFromInterfaceOutput> dpIdResult = dpIdOutput.get();
-            if(dpIdResult.isSuccessful()) {
-                GetDpidFromInterfaceOutput output = dpIdResult.getResult();
-                nodeId = output.getDpid().longValue();
-            } else {
-                LOG.error("Could not retrieve DPN Id for interface {}", sourceInterface);
-                return;
-            }
-
-
             GetPortFromInterfaceInput input = new GetPortFromInterfaceInputBuilder().setIntfName(sourceInterface).build();
             Future<RpcResult<GetPortFromInterfaceOutput>> portOutput = interfaceService.getPortFromInterface(input);
             RpcResult<GetPortFromInterfaceOutput> result = portOutput.get();
             if(result.isSuccessful()) {
                 GetPortFromInterfaceOutput output = result.getResult();
+                nodeId = output.getDpid().longValue();
                 portNum = output.getPortno();
             } else {
-                LOG.error("Could not retrieve port number for interface {}", sourceInterface);
+                LOG.error("Could not retrieve port details for interface {}", sourceInterface);
                 return;
             }
         }catch(InterruptedException | ExecutionException e) {
@@ -204,7 +169,7 @@ public class AlivenessProtocolHandlerLLDP extends AbstractAlivenessProtocolHandl
         Ethernet ethenetLLDPPacket = makeLLDPPacket(Long.toString(nodeId), portNum, 0, sourceMac, sourceInterface);
 
         try {
-            List<ActionInfo> actions = getInterfaceActions(sourceInterface);
+            List<ActionInfo> actions = getInterfaceActions(sourceInterface, portNum);
             if(actions.isEmpty()) {
                 LOG.error("No interface actions to send packet out over interface {}", sourceInterface);
                 return;
@@ -217,23 +182,8 @@ public class AlivenessProtocolHandlerLLDP extends AbstractAlivenessProtocolHandl
         }
     }
 
-    private List<ActionInfo> getInterfaceActions(String interfaceName) throws InterruptedException, ExecutionException {
-
-        OdlInterfaceRpcService interfaceService = serviceProvider.getInterfaceManager();
-
-        long portNum = -1;
-        GetPortFromInterfaceInput input = new GetPortFromInterfaceInputBuilder().setIntfName(interfaceName).build();
-        Future<RpcResult<GetPortFromInterfaceOutput>> portOutput = interfaceService.getPortFromInterface(input);
-        RpcResult<GetPortFromInterfaceOutput> result = portOutput.get();
-        if(result.isSuccessful()) {
-            GetPortFromInterfaceOutput output = result.getResult();
-            portNum = output.getPortno();
-        } else {
-            LOG.error("Could not retrieve port number for interface {} to construct actions", interfaceName);
-            return Collections.emptyList();
-        }
-
-        Class<? extends InterfaceType> intfType = null;
+    private List<ActionInfo> getInterfaceActions(String interfaceName, long portNum) throws InterruptedException, ExecutionException {
+        Class<? extends InterfaceType> intfType;
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface interfaceInfo =
                                                                                                      getInterfaceFromConfigDS(interfaceName);
         if(interfaceInfo != null) {
@@ -247,8 +197,7 @@ public class AlivenessProtocolHandlerLLDP extends AbstractAlivenessProtocolHandl
 
         if(Tunnel.class.equals(intfType)) {
             actionInfos.add(new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {
-                                         MetaDataUtil.getTunnelIdWithValidVniBitAndVniSet(0x08000000),
-                                         MetaDataUtil.METADA_MASK_VALID_TUNNEL_ID_BIT_AND_TUNNEL_ID}));
+                    BigInteger.valueOf(0x08000000)}));
         }
         actionInfos.add(new ActionInfo(ActionType.output, new String[] { Long.toString(portNum) }));
         return actionInfos;

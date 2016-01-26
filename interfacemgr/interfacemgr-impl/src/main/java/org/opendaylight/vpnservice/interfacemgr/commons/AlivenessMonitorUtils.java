@@ -60,7 +60,7 @@ public class AlivenessMonitorUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AlivenessMonitorUtils.class);
     private static final int FAILURE_THRESHOLD = 4;
-    private static final int MONITORING_INTERVAL = 10;
+    private static final int MONITORING_INTERVAL = 10000;
     private static final int MONITORING_WINDOW = 4;
 
     public static void startLLDPMonitoring(AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
