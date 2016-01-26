@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.tr
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.transport.zones.transport.zone.subnets.Vteps;
 import org.opendaylight.vpnservice.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.vpnservice.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.vpnservice.itm.impl.ITMManager;
 import org.opendaylight.vpnservice.itm.impl.ItmUtils;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -52,6 +53,7 @@ public class TransportZoneListener extends AsyncDataTreeChangeListenerBase<Trans
     private static final Logger LOG = LoggerFactory.getLogger(TransportZoneListener.class);
     private DataBroker dataBroker;
     private IdManagerService idManagerService;
+    private IMdsalApiManager mdsalManager;
     private ITMManager itmManager;
 
     public TransportZoneListener(final DataBroker dataBroker, final IdManagerService idManagerService) {
@@ -63,6 +65,10 @@ public class TransportZoneListener extends AsyncDataTreeChangeListenerBase<Trans
 
     public void setItmManager(ITMManager itmManager) {
         this.itmManager = itmManager;
+    }
+
+    public void setMdsalManager(IMdsalApiManager mdsalManager) {
+        this.mdsalManager = mdsalManager;
     }
 
     private void initializeTZNode(DataBroker db) {
@@ -106,7 +112,7 @@ public class TransportZoneListener extends AsyncDataTreeChangeListenerBase<Trans
             LOG.trace("Delete: Invoking ItmManager");
            // itmManager.deleteTunnels(opDpnList);
             DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-            ItmTepRemoveWorker removeWorker = new ItmTepRemoveWorker(opDpnList, dataBroker, idManagerService);
+            ItmTepRemoveWorker removeWorker = new ItmTepRemoveWorker(opDpnList, dataBroker, idManagerService, mdsalManager);
             coordinator.enqueueJob(tzOld.getZoneName(), removeWorker);
         }
     }
@@ -128,7 +134,7 @@ public class TransportZoneListener extends AsyncDataTreeChangeListenerBase<Trans
           LOG.trace("Add: Invoking ItmManager with DPN List {} " , opDpnList);
           //itmManager.build_all_tunnels(opDpnList);
           DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-          ItmTepAddWorker addWorker = new ItmTepAddWorker(opDpnList,dataBroker, idManagerService);
+          ItmTepAddWorker addWorker = new ItmTepAddWorker(opDpnList,dataBroker, idManagerService, mdsalManager);
           coordinator.enqueueJob(tzNew.getZoneName(), addWorker);
       }
     }

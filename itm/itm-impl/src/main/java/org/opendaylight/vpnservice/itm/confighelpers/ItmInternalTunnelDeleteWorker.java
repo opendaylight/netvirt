@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.itm.impl.ItmUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.TunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.DPNTEPsInfo;
@@ -34,7 +35,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 public class ItmInternalTunnelDeleteWorker {
    private static final Logger logger = LoggerFactory.getLogger(ItmInternalTunnelDeleteWorker.class) ;
 
-    public static List<ListenableFuture<Void>> deleteTunnels(DataBroker dataBroker, IdManagerService idManagerService,
+    public static List<ListenableFuture<Void>> deleteTunnels(DataBroker dataBroker, IdManagerService idManagerService,IMdsalApiManager mdsalManager,
                                                              List<DPNTEPsInfo> dpnTepsList, List<DPNTEPsInfo> meshedDpnList)
     {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -86,7 +87,7 @@ public class ItmInternalTunnelDeleteWorker {
                         // remove dpn if no vteps exist on dpn
                         if (dpnRead.getTunnelEndPoints() == null || dpnRead.getTunnelEndPoints().size() == 0) {
                             logger.debug( "Removing Terminating Service Table Flow ") ;
-                           // setUpOrRemoveTerminatingServiceTable(dpnRead.getDPNID(), false);
+                           ItmUtils.setUpOrRemoveTerminatingServiceTable(dpnRead.getDPNID(), mdsalManager,false);
                             logger.trace("DPN Removal from DPNTEPSINFO CONFIG DS " + dpnRead);
                             t.delete(LogicalDatastoreType.CONFIGURATION, dpnPath);
                             InstanceIdentifier<DpnEndpoints> tnlContainerPath =
@@ -130,8 +131,10 @@ public class ItmInternalTunnelDeleteWorker {
                 TunnelList.class)
                     .child(InternalTunnel.class, new InternalTunnelKey( srcDpnId, dstDpnId));   
         t.delete(LogicalDatastoreType.CONFIGURATION,path) ;
-        // Release the Id for the forward trunk
-        ItmUtils.releaseId(idManagerService, trunkfwdIfName);
+        // Release the Ids for the forward trunk interface Name
+        ItmUtils.releaseIdForTrunkInterfaceName(idManagerService,srcTep.getInterfaceName(), srcTep.getIpAddress()
+                .getIpv4Address().getValue(), dstTep.getIpAddress().getIpv4Address()
+                .getValue() );
 
         String trunkRevIfName =
                         ItmUtils.getTrunkInterfaceName(idManagerService, dstTep.getInterfaceName(), dstTep.getIpAddress()
@@ -148,7 +151,9 @@ public class ItmInternalTunnelDeleteWorker {
                     .child(InternalTunnel.class, new InternalTunnelKey(dstDpnId, srcDpnId));   
         t.delete(LogicalDatastoreType.CONFIGURATION,path) ;
         
-        // Release the Id for the Reverse trunk
-        ItmUtils.releaseId(idManagerService, trunkRevIfName);
+     // Release the Ids for the reverse trunk interface Name
+        ItmUtils.releaseIdForTrunkInterfaceName(idManagerService, dstTep.getInterfaceName(), dstTep.getIpAddress()
+                .getIpv4Address().getValue(), srcTep.getIpAddress().getIpv4Address()
+                .getValue());
     }
 }
