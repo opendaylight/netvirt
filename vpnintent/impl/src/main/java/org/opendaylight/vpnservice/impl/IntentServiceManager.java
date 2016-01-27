@@ -41,14 +41,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
-
+/**
+ * This class is used to build Intents object and
+ * write it to Network Intent Composition md-sal tree
+ * in order to create/delete intents between two endpoint groups.
+ */
 public class IntentServiceManager {
-
-    /**
-     * This class is used to build Intents object and
-     * write it to Network Intent Composition md-sal tree
-     * in order to create/delete intents between two endpoint groups.
-     */
 
     private static final Logger LOG = LoggerFactory.getLogger(IntentServiceManager.class);
     private static final short FIRST_SUBJECT = 1;
@@ -59,7 +57,7 @@ public class IntentServiceManager {
     public static final String SLOW_REROUTE = "slow-reroute";
     private final DataBroker dataBroker;
     private static final InstanceIdentifier<Intents> INTENTS_IID = IidFactory.getIntentsIid();
-    private MdsalUtils mdsal;
+    private final MdsalUtils mdsal;
 
     public IntentServiceManager(DataBroker dataBroker) {
         this.dataBroker = dataBroker;

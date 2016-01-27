@@ -12,11 +12,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.opendaylight.nic.mapping.api.IntentMappingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
 public class MappingServiceManager {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MappingServiceManager.class);
     private IntentMappingService intentMappingService;
     private String IP_PREFIX_PROPERTY = "ip_prefix";
     private String SWITCH_PORT_ID_PROPERTY = "switch_port";
@@ -79,6 +82,7 @@ public class MappingServiceManager {
             intentMappingService.add(siteName, null);
             return true;
         } catch (Exception e) {
+            LOG.error("Error deleting from NIC's mapping service {}", e);
             throw e;
         }
     }
