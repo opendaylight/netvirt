@@ -457,8 +457,13 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         Iterator<HostRoutes> iter = hostRoutes.iterator();
         while(iter.hasNext()) {
             HostRoutes hostRoute = iter.next();
-            String router = hostRoute.getNexthop().toString();
-            String dest = hostRoute.getDestination().toString();
+            if(hostRoute.getNexthop().getIpv4Address() == null ||
+                hostRoute.getDestination().getIpv4Prefix() == null ) {
+                // we only deal with IPv4 addresses
+                return;
+            }
+            String router = hostRoute.getNexthop().getIpv4Address().getValue();
+            String dest = hostRoute.getDestination().getIpv4Prefix().getValue();
             try {
                 result.write(convertToClasslessRouteOption(dest, router));
             } catch (IOException | NullPointerException e) {
