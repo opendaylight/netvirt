@@ -163,7 +163,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                 System.out.println(getHelp("create"));
             }
         } catch (InterruptedException | ExecutionException e) {
-            Logger.trace("error populating createL3VPN", e);
+            Logger.error("error populating createL3VPN", e);
             System.out.println("error populating createL3VPN : " + e.getMessage());
             System.out.println(getHelp("create"));
         }
@@ -182,7 +182,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
             }
 
         } catch (Exception e) {
-            Logger.trace("error in adding subnet to VPN", e);
+            Logger.error("error in adding subnet to VPN", e);
             System.out.println("error in adding subnet to VPN : " + e.getMessage());
         }
     }
@@ -203,7 +203,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                 }
             }
         } catch (Exception e) {
-            Logger.trace("error in deleting subnet from VPN", e);
+            Logger.error("error in deleting subnet from VPN", e);
             System.out.println("error in deleting subnet from VPN : " + e.getMessage());
         }
 
@@ -222,7 +222,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                 System.out.println(getHelp("delete"));
             }
         } catch (InterruptedException | ExecutionException e) {
-            Logger.trace("error populating deleteL3VPN", e);
+            Logger.error("error populating deleteL3VPN", e);
             System.out.println("error populating deleteL3VPN : " + e.getMessage());
             System.out.println(getHelp("delete"));
         }

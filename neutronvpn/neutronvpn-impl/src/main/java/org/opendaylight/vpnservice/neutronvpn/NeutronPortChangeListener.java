@@ -201,8 +201,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         InstanceIdentifier portIdentifier = NeutronvpnUtils.buildPortNameToPortUuidIdentifier(name);
         PortNameToPortUuidBuilder builder = new PortNameToPortUuidBuilder().setPortName(name).setPortId(port.getUuid());
         MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, portIdentifier, builder.build());
-        LOG.debug("name-uuid map for port with name: {}, uuid: {} added to NeutronPortData DS", name, port.getUuid
-                ());
+        LOG.debug("name-uuid map for port with name: {}, uuid: {} added to NeutronPortData DS", name, port.getUuid());
     }
 
     private void deleteOfPortInterface(Port port, int portVlanId) {

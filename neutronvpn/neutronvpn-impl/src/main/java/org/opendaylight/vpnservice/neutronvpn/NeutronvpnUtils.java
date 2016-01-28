@@ -235,35 +235,38 @@ public class NeutronvpnUtils {
         return new StringBuilder().append("tap").append(tapId).toString();
     }
 
-    protected static void lockVpnInterface(LockManagerService lockManager, String vpnInterfaceName) {
-        TryLockInput input = new TryLockInputBuilder().setLockName(vpnInterfaceName).setTime(5L).setTimeUnit
+    protected static boolean lock(LockManagerService lockManager, String lockName) {
+        TryLockInput input = new TryLockInputBuilder().setLockName(lockName).setTime(5L).setTimeUnit
                 (TimeUnits.Milliseconds).build();
-        Future<RpcResult<Void>> result = lockManager.tryLock(input);
+        boolean islockAquired = false;
         try {
+            Future<RpcResult<Void>> result = lockManager.tryLock(input);
             if ((result != null) && (result.get().isSuccessful())) {
-                logger.debug("Acquired lock for vpninterface {}", vpnInterfaceName);
+                logger.debug("Acquired lock for {}", lockName);
+                islockAquired = true;
             } else {
-                throw new RuntimeException(String.format("Unable to getLock for vpninterface %s", vpnInterfaceName));
+                throw new RuntimeException(String.format("Unable to acquire lock for  %s", lockName));
             }
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Unable to getLock for vpninterface {}", vpnInterfaceName);
-            throw new RuntimeException(String.format("Unable to getLock for vpninterface %s", vpnInterfaceName), e
+            logger.error("Unable to acquire lock for  {}", lockName);
+            throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e
                     .getCause());
         }
+        return islockAquired;
     }
 
-    protected static void unlockVpnInterface(LockManagerService lockManager, String vpnInterfaceName) {
-        UnlockInput input = new UnlockInputBuilder().setLockName(vpnInterfaceName).build();
-        Future<RpcResult<Void>> result = lockManager.unlock(input);
+    protected static void unlock(LockManagerService lockManager, String lockName) {
+        UnlockInput input = new UnlockInputBuilder().setLockName(lockName).build();
         try {
+            Future<RpcResult<Void>> result = lockManager.unlock(input);
             if ((result != null) && (result.get().isSuccessful())) {
-                logger.debug("Unlocked vpninterface{}", vpnInterfaceName);
+                logger.debug("Unlocked {}", lockName);
             } else {
-                logger.debug("Unable to unlock vpninterface {}", vpnInterfaceName);
+                logger.debug("Unable to unlock {}", lockName);
             }
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Unable to unlock vpninterface {}", vpnInterfaceName);
-            throw new RuntimeException(String.format("Unable to unlock vpninterface %s", vpnInterfaceName), e
+            logger.error("Unable to unlock {}", lockName);
+            throw new RuntimeException(String.format("Unable to unlock %s", lockName), e
                     .getCause());
         }
     }
