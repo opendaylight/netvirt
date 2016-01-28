@@ -87,16 +87,21 @@ public class InterfaceManagerCommonUtils {
         return ifStateOptional.get();
     }
     public static void makeTunnelIngressFlow(List<ListenableFuture<Void>> futures, IMdsalApiManager mdsalApiManager,
-                                             IfTunnel tunnel, BigInteger dpnId, long portNo, Interface iface, int addOrRemoveFlow) {
+                                             IfTunnel tunnel, BigInteger dpnId, long portNo, Interface iface, int ifIndex, int addOrRemoveFlow) {
         String flowRef = InterfaceManagerCommonUtils.getTunnelInterfaceFlowRef(dpnId, NwConstants.VLAN_INTERFACE_INGRESS_TABLE, iface.getName());
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
         if (NwConstants.ADD_FLOW == addOrRemoveFlow) {
             matches.add(new MatchInfo(MatchFieldType.in_port, new BigInteger[] {
                     dpnId, BigInteger.valueOf(portNo) }));
+            mkInstructions.add(new InstructionInfo(
+                    InstructionType.write_metadata, new BigInteger[] {
+                    MetaDataUtil.getLportTagMetaData(ifIndex),
+                    MetaDataUtil.METADATA_MASK_LPORT_TAG}));
             short tableId = tunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeMplsOverGre.class) ? NwConstants.L3_LFIB_TABLE :
                     tunnel.isInternal() ? NwConstants.INTERNAL_TUNNEL_TABLE : NwConstants.EXTERNAL_TUNNEL_TABLE;
-            mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {tableId}));}
+            mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {tableId}));
+        }
 
         BigInteger COOKIE_VM_INGRESS_TABLE = new BigInteger("8000001", 16);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.VLAN_INTERFACE_INGRESS_TABLE, flowRef,

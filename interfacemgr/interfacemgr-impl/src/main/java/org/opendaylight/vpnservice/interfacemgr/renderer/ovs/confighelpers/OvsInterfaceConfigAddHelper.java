@@ -182,13 +182,17 @@ public class OvsInterfaceConfigAddHelper {
                         ovsdbBridgeAugmentation, bridgeName, interfaceNew.getName(), dataBroker, futures);
 
                 // if TEP is already configured on switch, start LLDP monitoring and program tunnel ingress flow
-                NodeConnectorId ncId = IfmUtil.getNodeConnectorIdFromInterface(interfaceNew, dataBroker);
-                if(ncId != null){
-                    long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(ncId));
-                    InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager, interfaceNew.getAugmentation(IfTunnel.class),
-                            dpId, portNo, interfaceNew, NwConstants.ADD_FLOW);
-                    // start LLDP monitoring for the tunnel interface
-                    AlivenessMonitorUtils.startLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceNew);
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
+                        InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceNew.getName(), dataBroker);
+                if(ifState != null){
+                    NodeConnectorId ncId = IfmUtil.getNodeConnectorIdFromInterface(ifState);
+                    if(ncId != null) {
+                        long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(ncId));
+                        InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager, interfaceNew.getAugmentation(IfTunnel.class),
+                                dpId, portNo, interfaceNew, ifState.getIfIndex(), NwConstants.ADD_FLOW);
+                        // start LLDP monitoring for the tunnel interface
+                        AlivenessMonitorUtils.startLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceNew);
+                    }
                 }
             }
         }

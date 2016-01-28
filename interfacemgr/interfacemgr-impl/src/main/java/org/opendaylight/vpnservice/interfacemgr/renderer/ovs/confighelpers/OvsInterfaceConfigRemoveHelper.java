@@ -165,7 +165,7 @@ public class OvsInterfaceConfigRemoveHelper {
             long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(ncId));
             InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager,
                     interfaceOld.getAugmentation(IfTunnel.class),
-                    dpId, portNo, interfaceOld,
+                    dpId, portNo, interfaceOld, -1,
                     NwConstants.DEL_FLOW);
         }
 

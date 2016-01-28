@@ -81,11 +81,16 @@ public class OvsVlanMemberConfigAddHelper {
             InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
                     IfmUtil.buildStateInterfaceId(interfaceNew.getName());
             List<String> lowerLayerIfList = new ArrayList<>();
+            lowerLayerIfList.add(ifState.getLowerLayerIf().get(0));
             lowerLayerIfList.add(parentRefs.getParentInterface());
+            Integer ifIndex = IfmUtil.allocateId(idManager, IfmConstants.IFM_IDPOOL_NAME, interfaceNew.getName());
             InterfaceBuilder ifaceBuilder = new InterfaceBuilder().setAdminStatus(adminStatus).setOperStatus(operStatus)
-                    .setPhysAddress(physAddress).setLowerLayerIf(lowerLayerIfList);
+                    .setPhysAddress(physAddress).setLowerLayerIf(lowerLayerIfList).setIfIndex(ifIndex);
             ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(interfaceNew.getName()));
             t.put(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build(), true);
+
+            // create lportTag Interface Map
+            InterfaceMetaUtils.createLportTagInterfaceMap(t, interfaceNew.getName(), ifIndex);
 
             // FIXME: Maybe, add the new interface to the higher-layer if of the parent interface-state.
             // That may not serve any purpose though for interface manager.... Unless some external parties are interested in it.

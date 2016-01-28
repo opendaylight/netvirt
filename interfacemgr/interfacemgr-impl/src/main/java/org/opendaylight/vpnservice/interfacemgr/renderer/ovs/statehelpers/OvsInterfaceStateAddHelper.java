@@ -104,7 +104,7 @@ public class OvsInterfaceStateAddHelper {
             BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
             long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
             InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager, tunnel,dpId, portNo, iface,
-                    NwConstants.ADD_FLOW);
+                    ifIndex, NwConstants.ADD_FLOW);
             futures.add(transaction.submit());
             AlivenessMonitorUtils.startLLDPMonitoring(alivenessMonitorService, dataBroker, iface);
             return futures;
@@ -151,10 +151,14 @@ public class OvsInterfaceStateAddHelper {
             List<String> childLowerLayerIfList = new ArrayList<>();
             childLowerLayerIfList.add(0, nodeConnectorId.getValue());
             childLowerLayerIfList.add(1, iface.getName());
+            ifIndex = IfmUtil.allocateId(idManager, IfmConstants.IFM_IDPOOL_NAME, ifaceChild.getName());
             InterfaceBuilder childIfaceBuilder = new InterfaceBuilder().setAdminStatus(adminStatus).setOperStatus(operStatus)
-                    .setPhysAddress(physAddress).setLowerLayerIf(childLowerLayerIfList);
+                    .setPhysAddress(physAddress).setLowerLayerIf(childLowerLayerIfList).setIfIndex(ifIndex);
             childIfaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(ifaceChild.getName()));
             transaction.put(LogicalDatastoreType.OPERATIONAL, ifChildStateId, childIfaceBuilder.build(), true);
+
+            // create lportTag Interface Map
+            InterfaceMetaUtils.createLportTagInterfaceMap(transaction, ifaceChild.getName(), ifIndex);
         }
 
         /** Below code will be needed if we want to update the vlan-trunks on the of-port
