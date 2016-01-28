@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.elanmanager.exceptions.MacNotFoundException;
@@ -72,7 +73,16 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     //private ElanInterfaceEventListener elanInterfaceEventListener;
     private ElanItmEventListener elanItmEventListener;
-    private IITMProvider itmManager;
+
+    public void setItmRpcService(ItmRpcService itmRpcService) {
+        this.itmRpcService = itmRpcService;
+    }
+
+    public ItmRpcService getItmRpcService() {
+        return itmRpcService;
+    }
+
+    private ItmRpcService itmRpcService;
     private DataBroker broker;
 
     private static final Logger logger = LoggerFactory.getLogger(ElanServiceProvider.class);
@@ -82,15 +92,13 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         createIdPool();
         broker = session.getSALService(DataBroker.class);
 
-        elanForwardingEntriesHandler = new ElanForwardingEntriesHandler(broker, mdsalManager);
-        elanForwardingEntriesHandler.setIITMManager(itmManager);
+        elanForwardingEntriesHandler = new ElanForwardingEntriesHandler(broker);
 
         elanInterfaceManager = ElanInterfaceManager.getElanInterfaceManager();
         elanInterfaceManager.setInterfaceManager(interfaceManager);
         elanInterfaceManager.setIdManager(idManager);
         elanInterfaceManager.setMdSalApiManager(mdsalManager);
         elanInterfaceManager.setDataBroker(broker);
-        elanInterfaceManager.setIITMManager(itmManager);
         elanInterfaceManager.registerListener();
         elanInterfaceManager.setInterfaceManagerRpcService(interfaceManagerRpcService);
         elanInterfaceManager.setElanForwardingEntriesHandler(elanForwardingEntriesHandler);
@@ -110,7 +118,6 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         elanSmacFlowEventListener = new ElanSmacFlowEventListener(broker);
         elanSmacFlowEventListener.setMdSalApiManager(mdsalManager);
         elanSmacFlowEventListener.setInterfaceManager(interfaceManager);
-        elanSmacFlowEventListener.setIITMManager(itmManager);
         elanSmacFlowEventListener.setSalFlowService(session.getRpcService(SalFlowService.class));
         notificationService.registerNotificationListener(elanSmacFlowEventListener);
 
@@ -137,11 +144,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         return mdsalManager;
     }
 
-    public IITMProvider getItmManager() {
-        return itmManager;
-    }
-
-    public DataBroker getBroker() {
+     public DataBroker getBroker() {
         return broker;
     }
 
@@ -155,10 +158,6 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     public OdlInterfaceRpcService getInterfaceManagerRpcService() {
         return interfaceManagerRpcService;
-    }
-
-    public void setItmManager(IITMProvider itmManager) {
-        this.itmManager = itmManager;
     }
 
     private void createIdPool() {

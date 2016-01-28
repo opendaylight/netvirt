@@ -391,4 +391,30 @@ public class MDSALManager implements AutoCloseable {
         }
     }
 
+    public void syncSetUpGroup(BigInteger dpId, Group group, long delayTime, boolean isRemove) {
+        s_logger.trace("syncSetUpGroup for group {} ", group);
+        Node nodeDpn = buildDpnNode(dpId);
+        long groupId = group.getGroupId().getValue();
+        GroupKey groupKey = new GroupKey(new GroupId(groupId));
+        InstanceIdentifier<Group> groupInstanceId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                .child(Group.class, groupKey).build();
+        Runnable notifyTask = new NotifyTask();
+        GroupInfoKey groupInfoKey = new GroupInfoKey(dpId, groupId);
+        synchronized (groupInfoKey.toString().intern()) {
+            s_logger.trace("syncsetupGroupKey groupKey {}", groupInfoKey);
+            groupMap.put(groupInfoKey, notifyTask);
+            if (isRemove) {
+                MDSALUtil.syncDelete(m_dataBroker, LogicalDatastoreType.CONFIGURATION, groupInstanceId);
+            } else {
+                MDSALUtil.syncWrite(m_dataBroker, LogicalDatastoreType.CONFIGURATION, groupInstanceId, group);
+            }
+            synchronized (notifyTask) {
+                try {
+                    notifyTask.wait(delayTime);
+                } catch (InterruptedException e){}
+            }
+        }
+    }
+
 }

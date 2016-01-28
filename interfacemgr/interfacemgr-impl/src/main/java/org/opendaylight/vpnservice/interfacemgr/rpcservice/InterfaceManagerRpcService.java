@@ -20,12 +20,12 @@ import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
-import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
 import org.opendaylight.vpnservice.mdsalutil.*;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
@@ -38,7 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.bridge.entry.BridgeInterfaceEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
@@ -206,7 +205,7 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
         RpcResultBuilder<GetEgressInstructionsForInterfaceOutput> rpcResultBuilder;
         try {
             List<InstructionInfo> instructionInfo = new ArrayList<InstructionInfo>();
-            List<ActionInfo> actionInfo = getEgressActionInfosForInterface(input.getIntfName());
+            List<ActionInfo> actionInfo = IfmUtil.getEgressActionInfosForInterface(input.getIntfName(), 0, dataBroker);
             instructionInfo.add(new InstructionInfo(InstructionType.write_actions, actionInfo));
                     GetEgressInstructionsForInterfaceOutputBuilder output = new GetEgressInstructionsForInterfaceOutputBuilder().
                     setInstruction(buildInstructions(instructionInfo));
@@ -266,8 +265,24 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
     public Future<RpcResult<GetEgressActionsForInterfaceOutput>> getEgressActionsForInterface(GetEgressActionsForInterfaceInput input) {
         RpcResultBuilder<GetEgressActionsForInterfaceOutput> rpcResultBuilder;
         try {
-            List<Action> actionsList = getEgressActionsForInterface(input.getIntfName());
+            List<Action> actionsList = IfmUtil.getEgressActionsForInterface(input.getIntfName(), dataBroker);
             GetEgressActionsForInterfaceOutputBuilder output = new GetEgressActionsForInterfaceOutputBuilder().
+                    setAction(actionsList);
+            rpcResultBuilder = RpcResultBuilder.success();
+            rpcResultBuilder.withResult(output.build());
+        }catch(Exception e){
+            LOG.error("Retrieval of egress actions for the key {} failed due to {}" ,input.getIntfName(), e);
+            rpcResultBuilder = RpcResultBuilder.failed();
+        }
+        return Futures.immediateFuture(rpcResultBuilder.build());
+    }
+
+    @Override
+    public Future<RpcResult<GetEgressActionsOutput>> getEgressActions(GetEgressActionsInput input) {
+        RpcResultBuilder<GetEgressActionsOutput> rpcResultBuilder;
+        try {
+            List<Action> actionsList = IfmUtil.getEgressActions(input.getIntfName(), input.getServiceTag(), dataBroker);
+            GetEgressActionsOutputBuilder output = new GetEgressActionsOutputBuilder().
                     setAction(actionsList);
             rpcResultBuilder = RpcResultBuilder.success();
             rpcResultBuilder.withResult(output.build());

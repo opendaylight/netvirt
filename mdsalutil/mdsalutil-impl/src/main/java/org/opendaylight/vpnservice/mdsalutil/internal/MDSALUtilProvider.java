@@ -22,6 +22,7 @@ import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
 import org.opendaylight.vpnservice.mdsalutil.GroupEntity;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,8 +142,18 @@ public class MDSALUtilProvider implements BindingAwareConsumer, IMdsalApiManager
     }
 
     @Override
+    public void syncInstallGroup(BigInteger dpId, Group group, long delayTime) {
+        mdSalMgr.syncSetUpGroup(dpId, group, delayTime, false);
+    }
+
+    @Override
     public void syncRemoveGroup(GroupEntity groupEntity) {
         mdSalMgr.syncSetUpGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS, true);
+    }
+
+    @Override
+    public void syncRemoveGroup(BigInteger dpId, Group group) {
+        mdSalMgr.syncSetUpGroup(dpId, group, FIXED_DELAY_IN_MILLISECONDS, true);
     }
 
 }

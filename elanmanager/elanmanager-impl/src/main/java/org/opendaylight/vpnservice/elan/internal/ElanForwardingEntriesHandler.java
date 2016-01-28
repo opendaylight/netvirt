@@ -32,24 +32,14 @@ import org.slf4j.LoggerFactory;
 
 
 public class ElanForwardingEntriesHandler extends AbstractDataChangeListener<ElanInterface> implements AutoCloseable {
+
+    private static final Logger logger = LoggerFactory.getLogger(ElanForwardingEntriesHandler.class);
     private DataBroker broker;
     private ListenerRegistration<DataChangeListener> listenerRegistration;
 
-    private IMdsalApiManager mdsalManager;
-
-    private IITMProvider itmManager;
-
-    private static final Logger logger = LoggerFactory.getLogger(ElanForwardingEntriesHandler.class);
-
-
-    public ElanForwardingEntriesHandler(DataBroker db, IMdsalApiManager mdsalManager){
+    public ElanForwardingEntriesHandler(DataBroker db){
         super(ElanInterface.class);
         this.broker = db;
-        this.mdsalManager = mdsalManager;
-    }
-
-    public void setIITMManager(IITMProvider itmManager) {
-        this.itmManager = itmManager;
     }
 
     private InstanceIdentifier<?> getWildCardPath() {

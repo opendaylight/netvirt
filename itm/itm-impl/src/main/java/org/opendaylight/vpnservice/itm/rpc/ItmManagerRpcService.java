@@ -249,7 +249,7 @@ public class ItmManagerRpcService implements ItmRpcService {
                 getFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE,input.getServiceId()), 5, String.format("%s:%d","ITM Flow Entry ",input.getServiceId()),
                 0, 0, ITMConstants.COOKIE_ITM.add(BigInteger.valueOf(input.getServiceId())),getTunnelMatchesForServiceId(input.getServiceId()), null );
 
-        ListenableFuture<Void> installFlowResult = mdsalManager.installFlow(input.getDpnId(), terminatingServiceTableFlow);
+        ListenableFuture<Void> installFlowResult = mdsalManager.removeFlow(input.getDpnId(), terminatingServiceTableFlow);
         Futures.addCallback(installFlowResult, new FutureCallback<Void>(){
 
             @Override
@@ -284,8 +284,7 @@ public class ItmManagerRpcService implements ItmRpcService {
 
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[]{
-                new BigInteger(1, vxLANHeader),
-                MetaDataUtil.METADA_MASK_VALID_TUNNEL_ID_BIT_AND_TUNNEL_ID}));
+        BigInteger.valueOf(serviceId)}));
 
         return mkMatches;
     }
@@ -297,47 +296,45 @@ public class ItmManagerRpcService implements ItmRpcService {
     @Override
     public Future<RpcResult<GetInternalOrExternalInterfaceNameOutput>> getInternalOrExternalInterfaceName(
        GetInternalOrExternalInterfaceNameInput input) {
-       RpcResultBuilder<GetInternalOrExternalInterfaceNameOutput> resultBld = RpcResultBuilder.failed();
+       RpcResultBuilder<GetInternalOrExternalInterfaceNameOutput> resultBld = null;
        BigInteger srcDpn = input.getSourceDpid() ;
        IpAddress dstIp = input.getDestinationIp() ;
-      InstanceIdentifier<ExternalTunnel> path1 = InstanceIdentifier.create(
-          ExternalTunnelList.class)
-          .child(ExternalTunnel.class, new ExternalTunnelKey(dstIp, srcDpn));
+       List<DPNTEPsInfo> meshedDpnList = ItmUtils.getTunnelMeshInfo(dataBroker) ;
+       // Look for external tunnels if not look for internal tunnel
+       for( DPNTEPsInfo teps : meshedDpnList) {
+           TunnelEndPoints firstEndPt = teps.getTunnelEndPoints().get(0) ;
+           if( dstIp.equals(firstEndPt.getIpAddress())) {
+              InstanceIdentifier<InternalTunnel> path = InstanceIdentifier.create(
+                       TunnelList.class)
+                           .child(InternalTunnel.class, new InternalTunnelKey(srcDpn, teps.getDPNID()));      
+               
+               Optional<InternalTunnel> tnl = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, path, dataBroker);
+               if( tnl != null && tnl.isPresent())
+               {
+                    InternalTunnel tunnel = tnl.get();
+                    GetInternalOrExternalInterfaceNameOutputBuilder output = new GetInternalOrExternalInterfaceNameOutputBuilder().setInterfaceName(tunnel.getTunnelInterfaceName() );
+                    resultBld = RpcResultBuilder.success();
+                    resultBld.withResult(output.build()) ;
+               }else {
+                   //resultBld = RpcResultBuilder.failed();
+                   InstanceIdentifier<ExternalTunnel> path1 = InstanceIdentifier.create(
+                           ExternalTunnelList.class)
+                               .child(ExternalTunnel.class, new ExternalTunnelKey(dstIp, srcDpn));      
+                   
+                   Optional<ExternalTunnel> ext = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, path1, dataBroker);
 
-      Optional<ExternalTunnel> ext = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, path1, dataBroker);
-
-      if( ext != null && ext.isPresent())
-      {
-        ExternalTunnel extTunnel = ext.get();
-        GetInternalOrExternalInterfaceNameOutputBuilder output = new GetInternalOrExternalInterfaceNameOutputBuilder().setInterfaceName(extTunnel.getTunnelInterfaceName() );
-        resultBld = RpcResultBuilder.success();
-        resultBld.withResult(output.build()) ;
-      } else {
-        List<DPNTEPsInfo> meshedDpnList = ItmUtils.getTunnelMeshInfo(dataBroker);
-        // Look for external tunnels if not look for internal tunnel
-        for (DPNTEPsInfo teps : meshedDpnList) {
-          TunnelEndPoints firstEndPt = teps.getTunnelEndPoints().get(0);
-          if (dstIp.equals(firstEndPt.getIpAddress())) {
-            InstanceIdentifier<InternalTunnel> path = InstanceIdentifier.create(
-                TunnelList.class)
-                .child(InternalTunnel.class, new InternalTunnelKey(srcDpn, teps.getDPNID()));
-
-            Optional<InternalTunnel>
-                tnl =
-                ItmUtils.read(LogicalDatastoreType.CONFIGURATION, path, dataBroker);
-            if (tnl != null && tnl.isPresent()) {
-              InternalTunnel tunnel = tnl.get();
-              GetInternalOrExternalInterfaceNameOutputBuilder
-                  output =
-                  new GetInternalOrExternalInterfaceNameOutputBuilder()
-                      .setInterfaceName(tunnel.getTunnelInterfaceName());
-              resultBld = RpcResultBuilder.success();
-              resultBld.withResult(output.build());
-              break;
-            }
-          }
-        }
-      }
+                   if( ext != null && ext.isPresent())
+                   {
+                        ExternalTunnel extTunnel = ext.get();
+                        GetInternalOrExternalInterfaceNameOutputBuilder output = new GetInternalOrExternalInterfaceNameOutputBuilder().setInterfaceName(extTunnel.getTunnelInterfaceName() );
+                        resultBld = RpcResultBuilder.success();
+                        resultBld.withResult(output.build()) ;
+                   }else {
+                       resultBld = RpcResultBuilder.failed();
+                   }
+               }
+           }
+       }
        return Futures.immediateFuture(resultBld.build());
     }
 

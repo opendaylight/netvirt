@@ -32,7 +32,6 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
     private final DataBroker broker;
     private IMdsalApiManager mdsalManager;
     private IInterfaceManager interfaceManager;
-    private IITMProvider itmManager;
     private static final Logger logger = LoggerFactory.getLogger(ElanSmacFlowEventListener.class);
 
     public ElanSmacFlowEventListener(DataBroker dataBroker) {
@@ -52,16 +51,13 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
     }
 
 
-    public void setIITMManager(IITMProvider itmManager) {
-        this.itmManager = itmManager;
-    }
     public void setMdSalApiManager(IMdsalApiManager mdsalManager) {
         this.mdsalManager = mdsalManager;
     }
     @Override
     public void onFlowAdded(FlowAdded arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override

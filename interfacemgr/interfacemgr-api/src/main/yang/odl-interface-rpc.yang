@@ -73,6 +73,21 @@ module odl-interface-rpc {
         }
     }
 
+    rpc get-egress-actions {
+        description "used to retrieve group actions to use from interface name";
+        input {
+            leaf intf-name {
+                type string;
+            }
+            leaf service-tag {
+                type uint32;
+            }
+        }
+        output {
+            uses action:action-list;
+        }
+    }
+
     rpc get-egress-instructions-for-interface {
         description "used to retrieve flow instructions to use from interface name";
         input {

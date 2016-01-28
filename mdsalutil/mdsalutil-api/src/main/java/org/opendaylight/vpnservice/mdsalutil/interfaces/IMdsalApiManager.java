@@ -16,6 +16,7 @@ import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
 import org.opendaylight.vpnservice.mdsalutil.GroupEntity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 
 public interface IMdsalApiManager {
 
@@ -62,6 +63,8 @@ public interface IMdsalApiManager {
      */
     public void syncInstallGroup(GroupEntity groupEntity, long delayTime);
 
+    public void syncInstallGroup(BigInteger dpId, Group group, long delayTime);
+
     /**
      * API to remove the Group on Data Plane Node synchronously. It internally waits for
      * Group Change Notification to confirm group delete request is being sent.
@@ -69,4 +72,6 @@ public interface IMdsalApiManager {
      * @param groupEntity
      */
     public void syncRemoveGroup(GroupEntity groupEntity);
+
+    public void syncRemoveGroup(BigInteger dpId, Group groupEntity);
 }

@@ -19,7 +19,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import org.opendaylight.vpnservice.elan.internal.ElanServiceProvider;
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceServiceUtil;
-import org.opendaylight.vpnservice.itm.api.IITMProvider;
+import org.opendaylight.vpnservice.itm.globals.ITMConstants;
 import org.opendaylight.vpnservice.mdsalutil.*;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
@@ -27,12 +27,24 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.set.field._case.SetFieldBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.WriteActionsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActionsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.write.actions._case.WriteActionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.TunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMacKey;
@@ -57,8 +69,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.e
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.forwarding.entries.MacEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.CreateTerminatingServiceActionsInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.CreateTerminatingServiceActionsInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetTunnelInterfaceNameInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetTunnelInterfaceNameInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetTunnelInterfaceNameOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.RemoveTerminatingServiceActionsInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.RemoveTerminatingServiceActionsInputBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -387,11 +412,11 @@ public class ElanUtils {
                                      String macAddress) {
         IMdsalApiManager mdsalApiManager = elanServiceProvider.getMdsalManager();
         DataBroker broker = elanServiceProvider.getBroker();
-        IITMProvider itmManager = elanServiceProvider.getItmManager();
+        ItmRpcService itmRpcService = elanServiceProvider.getItmRpcService();
         synchronized (macAddress) {
             logger.info("Acquired lock for mac : " + macAddress + "Proceeding with install operation.");
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalApiManager);
-            setupTermDmacFlows(interfaceInfo, itmManager);
+            setupTermDmacFlows(interfaceInfo, mdsalApiManager);
             setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, mdsalApiManager, broker);
         }
     }
@@ -436,22 +461,52 @@ public class ElanUtils {
         return flowEntity;
     }
 
-    private static void setupTermDmacFlows(InterfaceInfo interfaceInfo, IITMProvider itmManager) {
+    private static void setupTermDmacFlows(InterfaceInfo interfaceInfo, IMdsalApiManager mdsalApiManager) {
         BigInteger dpId = interfaceInfo.getDpId();
-        long lportGroupId = interfaceInfo.getGroupId();
         int lportTag = interfaceInfo.getInterfaceTag();
-        List <ActionInfo> actionsInfos = new ArrayList <ActionInfo> ();
-        actionsInfos = getEgressActionsForInterface(interfaceInfo.getInterfaceName());
-
-        //FIXME [ELANBE] ITM Service API to invoke Terminating Service
-        //itmManager.createTerminatingServiceActions(dpId, lportTag, actionsInfos);
+        Flow flow = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE, getFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE,lportTag), 5, String.format("%s:%d","ITM Flow Entry ",lportTag), 0, 0, ITMConstants.COOKIE_ITM.add(BigInteger.valueOf(lportTag)), getTunnelIdMatchForFilterEqualsLPortTag(lportTag),
+                getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
+        mdsalApiManager.installFlow(dpId, flow);
         if (logger.isDebugEnabled()) {
             logger.debug("Terminating service table flow entry created on dpn:{} for logical Interface port:{}", dpId, interfaceInfo.getPortName());
         }
     }
 
-    public static List<ActionInfo> getEgressActionsForInterface(String ifName) {
-        List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
+    private static String getFlowRef(short tableId, int elanTag) {
+        return new StringBuffer().append(tableId).append(elanTag).toString();
+    }
+
+    private static List<MatchInfo> getTunnelIdMatchForFilterEqualsLPortTag(int LportTag) {
+        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        // Matching metadata
+        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {
+                BigInteger.valueOf(LportTag)}));
+        return mkMatches;
+
+
+    }
+
+    public static List<Instruction> getInstructionsInPortForOutGroup(
+            String ifName) {
+        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List <Action> actionsInfos = new ArrayList <Action> ();
+        actionsInfos.addAll(ElanUtils.getEgressActionsForInterface(ifName));
+        mkInstructions.add(new InstructionBuilder().setInstruction(new ApplyActionsCaseBuilder().setApplyActions(new ApplyActionsBuilder().setAction(actionsInfos).build()).build())
+                .setKey(new InstructionKey(0)).build());
+             return mkInstructions;
+    }
+
+    public static Instruction getWriteActionInstruction(List<Action> actions) {
+        return new InstructionBuilder().setInstruction(new WriteActionsCaseBuilder().setWriteActions(new WriteActionsBuilder().setAction(actions).build()).build()).setKey(new InstructionKey(0)).build();
+    }
+
+    public static Instruction getApplyActionInstruction(List<Action> actions) {
+        return new InstructionBuilder().setInstruction(new ApplyActionsCaseBuilder().setApplyActions(new ApplyActionsBuilder().setAction(actions).build()).build()).setKey(new InstructionKey(0)).build();
+    }
+
+
+    public static List<Action> getEgressActionsForInterface(String ifName) {
+        List<Action> listAction = new ArrayList<Action>();
         try {
             Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
                     elanServiceProvider.getInterfaceManagerRpcService().getEgressActionsForInterface(
@@ -462,27 +517,12 @@ public class ElanUtils {
             } else {
                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actions =
                         rpcResult.getResult().getAction();
-                for (Action action : actions) {
-                    org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = action.getAction();
-                    if (actionClass instanceof OutputActionCase) {
-                        listActionInfo.add(new ActionInfo(ActionType.output,
-                                new String[] {((OutputActionCase)actionClass).getOutputAction()
-                                        .getOutputNodeConnector().getValue()}));
-                    } else if (actionClass instanceof PushVlanActionCase) {
-                        listActionInfo.add(new ActionInfo(ActionType.push_vlan, new String[] {}));
-                    } else if (actionClass instanceof SetFieldCase) {
-                        if (((SetFieldCase)actionClass).getSetField().getVlanMatch() != null) {
-                            int vlanVid = ((SetFieldCase)actionClass).getSetField().getVlanMatch().getVlanId().getVlanId().getValue();
-                            listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
-                                    new String[] { Long.toString(vlanVid) }));
-                        }
-                    }
-                }
+                listAction = actions;
             }
         } catch (InterruptedException | ExecutionException e) {
             logger.warn("Exception when egress actions for interface {}", ifName, e);
         }
-        return listActionInfo;
+        return listAction;
     }
 
     private static void setupOrigDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
@@ -541,8 +581,8 @@ public class ElanUtils {
 
     private static void setupLocalDmacFlow(long elanTag, BigInteger dpId, String ifName, String macAddress,
                                            String displayName, IMdsalApiManager mdsalApiManager, long ifTag) {
-        FlowEntity flowEntity = getLocalDmacFlowEntry(elanTag, dpId, ifName, macAddress, displayName, ifTag);
-        mdsalApiManager.installFlow(flowEntity);
+        Flow flowEntity = getLocalDmacFlowEntry(elanTag, dpId, ifName, macAddress, displayName, ifTag);
+        mdsalApiManager.installFlow(dpId, flowEntity);
 
     }
 
@@ -554,7 +594,7 @@ public class ElanUtils {
         return new StringBuffer().append(tableId).append(elanTag).append(dpId).append(remoteDpId).append(macAddress).toString();
     }
 
-    public static FlowEntity getLocalDmacFlowEntry(long elanTag, BigInteger dpId, String ifName, String macAddress,
+    public static Flow getLocalDmacFlowEntry(long elanTag, BigInteger dpId, String ifName, String macAddress,
                                                    String displayName, long ifTag) {
         List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
         mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
@@ -562,49 +602,51 @@ public class ElanUtils {
                 MetaDataUtil.METADATA_MASK_SERVICE }));
         mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { macAddress }));
 
-        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
-        List <ActionInfo> actionsInfos = new ArrayList <ActionInfo> ();
+        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List <Action> actionsInfos = new ArrayList <Action> ();
         actionsInfos.addAll(getEgressActionsForInterface(ifName));
-        mkInstructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
+        mkInstructions.add(new InstructionBuilder().setInstruction(new ApplyActionsCaseBuilder().setApplyActions(new ApplyActionsBuilder().setAction(actionsInfos).build()).build())
+                .setKey(new InstructionKey(0)).build());
+        Flow flow = MDSALUtil.buildFlowNew(ElanConstants.ELAN_DMAC_TABLE, getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, dpId, ifTag, macAddress, elanTag),
+                20, displayName, 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)), mkMatches, mkInstructions);
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, ElanConstants.ELAN_DMAC_TABLE,
-                getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, dpId, ifTag, macAddress, elanTag),
-                20, displayName, 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)),
-                mkMatches, mkInstructions);
-        return flowEntity;
+        return flow;
     }
 
     public static void setupRemoteDmacFlow(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag, String macAddress,
                                            String displayName) {
         IMdsalApiManager mdsalApiManager = elanServiceProvider.getMdsalManager();
-        FlowEntity flowEntity = getRemoteDmacFlowEntry(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName);
-        mdsalApiManager.installFlow(flowEntity);
+        Flow flowEntity = getRemoteDmacFlowEntry(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName);
+        mdsalApiManager.installFlow(srcDpId, flowEntity);
     }
 
-    public static FlowEntity getRemoteDmacFlowEntry(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
-                                                    String macAddress, String displayName) {
-        IITMProvider itmManager = elanServiceProvider.getItmManager();
+    public static Flow getRemoteDmacFlowEntry(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
+                                              String macAddress, String displayName) {
+        ItmRpcService itmRpcService = elanServiceProvider.getItmRpcService();
         List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
         mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[]{
                 ElanUtils.getElanMetadataLabel(elanTag),
                 MetaDataUtil.METADATA_MASK_SERVICE }));
         mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { macAddress }));
 
-        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+
         //List of ActionInfo for the provided Source and Destination DPIDs
         try {
-            //FIXME [ELANBE] Removing ITM API for now, will need this for multi dpn.
-            //List<ActionInfo> actionsInfos = itmManager.ITMIngressGetActions(srcDpId, destDpId, lportTag);
-            //mkInstructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
+            List<Action> actionsInfos = getItmEgressAction(srcDpId, destDpId, lportTag);
+            Instruction instruction = new InstructionBuilder().setInstruction(new ApplyActionsCaseBuilder().setApplyActions(new ApplyActionsBuilder().setAction(actionsInfos).build()).build())
+                    .setKey(new InstructionKey(0)).build();
+            mkInstructions.add(instruction);
         } catch (Exception e) {
             logger.error("Interface Not Found exception");
         }
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(srcDpId, ElanConstants.ELAN_DMAC_TABLE,
-                getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, srcDpId, destDpId, macAddress, elanTag),
-                20, displayName, 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)),
-                mkMatches, mkInstructions);
-        return flowEntity;
+
+        Flow flow = MDSALUtil.buildFlowNew(ElanConstants.ELAN_DMAC_TABLE, getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, srcDpId, destDpId, macAddress, elanTag), 20
+                , displayName, 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)), mkMatches, mkInstructions);
+
+        return flow;
+
     }
 
     public static void deleteMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, MacEntry macEntry) {
@@ -624,7 +666,7 @@ public class ElanUtils {
         long ifTag = interfaceInfo.getInterfaceTag();
         List<DpnInterfaces> remoteFEs = getInvolvedDpnsInElan(elanInstanceName);
         IMdsalApiManager mdsalApiManager = elanServiceProvider.getMdsalManager();
-        IITMProvider itmManager = elanServiceProvider.getItmManager();
+        ItmRpcService itmRpcService = elanServiceProvider.getItmRpcService();
         BigInteger srcdpId = interfaceInfo.getDpId();
         String displayName = elanInstanceName;
         long groupId = interfaceInfo.getGroupId();
@@ -634,15 +676,14 @@ public class ElanUtils {
                 if(deleteSmac) {
                     mdsalApiManager.removeFlow(getKnownSmacFlowEntity(elanInfo, interfaceInfo, 0, macAddress));
                 }
-                mdsalApiManager.removeFlow(getLocalDmacFlowEntry(elanTag, dpnInterface.getDpId(), ifName, macAddress, displayName, ifTag));
-
-                //FIXME [ELANBE] Removing ITM API for now, will need this for multi dpn.
-                //itmManager.removeTerminatingServiceAction(dpnInterface.getDpId(), interfaceInfo.getInterfaceTag());
+                mdsalApiManager.removeFlow(dpnInterface.getDpId(), getLocalDmacFlowEntry(elanTag, dpnInterface.getDpId(), ifName, macAddress, displayName, ifTag));
+                RemoveTerminatingServiceActionsInput removeTerminatingServiceActionsInput = new RemoveTerminatingServiceActionsInputBuilder().setServiceId(interfaceInfo.getInterfaceTag()).setDpnId(dpnInterface.getDpId()).build();
+                itmRpcService.removeTerminatingServiceActions(removeTerminatingServiceActionsInput);
                   if (logger.isDebugEnabled()) {
                     logger.debug("All the required flows deleted for elan:{}, logical Interface port:{} and mac address:{} on dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, dpnInterface.getDpId());
                 }
             } else if (isDpnPresent(dpnInterface.getDpId())) {
-                mdsalApiManager.removeFlow(
+                mdsalApiManager.removeFlow(dpnInterface.getDpId(),
                         getRemoteDmacFlowEntry(dpnInterface.getDpId(), srcdpId, interfaceInfo.getInterfaceTag(), elanTag, macAddress,
                                 displayName));
                 if (logger.isDebugEnabled()) {
@@ -728,4 +769,70 @@ public class ElanUtils {
                 .child(BoundServices.class, new BoundServicesKey(serviceIndex)).build();
     }
 
+
+    public static List<Action> getItmEgressAction(BigInteger sourceDpnId,
+                                                      BigInteger destinationDpnId, int serviceTag) {
+        ItmRpcService itmManager = elanServiceProvider.getItmRpcService();
+        OdlInterfaceRpcService interfaceManagerRpcService = elanServiceProvider.getInterfaceManagerRpcService();
+        logger.debug("In getItmIngress Action source {}, destination {}, elanTag {}", sourceDpnId, destinationDpnId, serviceTag);
+        List<Action> actions = new ArrayList<>();
+        String tunnelInterfaceName;
+        GetTunnelInterfaceNameInput input = new GetTunnelInterfaceNameInputBuilder().setDestinationDpid(destinationDpnId).setSourceDpid(sourceDpnId).build();
+        Future<RpcResult<GetTunnelInterfaceNameOutput>> output = itmManager.getTunnelInterfaceName(input);
+        try {
+            GetTunnelInterfaceNameOutput tunnelInterfaceNameOutput = output.get().getResult();
+            tunnelInterfaceName = tunnelInterfaceNameOutput.getInterfaceName();
+            logger.debug("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelInterfaceName);
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Error in RPC call getTunnelInterfaceName {}", e);
+            return actions;
+        }
+        if (tunnelInterfaceName != null && !tunnelInterfaceName.isEmpty()) {
+            GetEgressActionsInput getEgressActionsForInterfaceInput = new GetEgressActionsInputBuilder().setServiceTag(Long.valueOf(serviceTag)).setIntfName(tunnelInterfaceName).build();
+            Future<RpcResult<GetEgressActionsOutput>> egressActionsOutputFuture = interfaceManagerRpcService.getEgressActions(getEgressActionsForInterfaceInput);
+            try {
+                GetEgressActionsOutput egressActionsOutput = egressActionsOutputFuture.get().getResult();
+                List<Action> outputAction = egressActionsOutput.getAction();
+                return outputAction;
+            } catch (InterruptedException | ExecutionException e) {
+                logger.error("Error in RPC call getEgressActionsForInterface {}", e);
+                return actions;
+            }
+        }
+        return actions;
+    }
+
+    public static List<MatchInfo> getTunnelMatchesForServiceId(int elanTag) {
+        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        // Matching metadata
+        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[]{
+                BigInteger.valueOf(elanTag)}));
+
+        return mkMatches;
+    }
+
+    public static void removeTerminatingServiceAction(BigInteger destDpId, int serviceId) {
+        ItmRpcService itmRpcService = elanServiceProvider.getItmRpcService();
+        RemoveTerminatingServiceActionsInput input = new RemoveTerminatingServiceActionsInputBuilder().setDpnId(destDpId).setServiceId(serviceId).build();
+        Future<RpcResult<Void>> futureObject = itmRpcService.removeTerminatingServiceActions(input);
+        try {
+            RpcResult<Void> result = futureObject.get();
+            if (result.isSuccessful()) {
+                logger.debug("Successfully completed removeTerminatingServiceActions");
+            } else {
+                logger.debug("Failure in removeTerminatingServiceAction RPC call");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Error in RPC call removeTerminatingServiceActions {}", e);
+        }
+    }
+
+    public static void createTerminatingServiceActions(BigInteger destDpId, int serviceId, List<Action> actions) {
+        ItmRpcService itmRpcService = elanServiceProvider.getItmRpcService();
+        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        mkInstructions.add(getApplyActionInstruction(actions));
+        CreateTerminatingServiceActionsInput input = new CreateTerminatingServiceActionsInputBuilder().setDpnId(destDpId).setServiceId(serviceId).setInstruction(mkInstructions).build();
+
+        itmRpcService.createTerminatingServiceActions(input);
+    }
 }

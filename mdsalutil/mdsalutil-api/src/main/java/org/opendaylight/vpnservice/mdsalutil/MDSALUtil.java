@@ -54,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.BucketsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.BucketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.BucketKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.GroupBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.GroupKey;
@@ -90,6 +91,9 @@ import com.google.common.util.concurrent.CheckedFuture;
 public class MDSALUtil {
 
     public static final String NODE_PREFIX = "openflow";
+    public static final int GROUP_WEIGHT = 0;
+    public static final long WATCH_PORT = 0xffffffffL;
+    public static final long WATCH_GROUP = 0xffffffffL;
     public static final String SEPARATOR = ":";
     private static final Buckets EMPTY_Buckets = new BucketsBuilder().build();
     private static final Instructions EMPTY_Instructions = new InstructionsBuilder().setInstruction(
@@ -164,6 +168,12 @@ public class MDSALUtil {
         return groupEntity;
     }
 
+    public static Group buildGroup(long groupId, String groupName, GroupTypes groupType, Buckets buckets) {
+        GroupId groupIdentifier = new GroupId(groupId);
+        return new GroupBuilder().setGroupId(groupIdentifier).setKey(new GroupKey(groupIdentifier)).setGroupName(groupName)
+                .setGroupType(groupType).setBuckets(buckets).build();
+    }
+
     public static TransmitPacketInput getPacketOutDefault(List<ActionInfo> actionInfos, byte[] payload, BigInteger dpnId) {
         return new TransmitPacketInputBuilder()
                 .setAction(buildActions(actionInfos))
@@ -185,7 +195,7 @@ public class MDSALUtil {
                 .setIngress(ingress).setEgress(ingress).build();
     }
 
-    private static List<Action> buildActions(List<ActionInfo> actions) {
+    public static List<Action> buildActions(List<ActionInfo> actions) {
         List<Action> actionsList = new ArrayList<Action>();
         for (ActionInfo actionInfo : actions) {
             actionsList.add(actionInfo.buildAction());
@@ -202,6 +212,17 @@ public class MDSALUtil {
         sb.append("/" + mask);
 
         return sb.toString();
+    }
+
+
+    public static Bucket buildBucket(List<Action> actionsList, int weight, int bucketId, long watchPort, long watchGroup) {
+        return  new BucketBuilder().setAction(actionsList).setWeight(weight)
+                .setWatchGroup(watchGroup).setWatchPort(watchPort).setBucketId(new BucketId(Long.valueOf(bucketId))).setKey(new BucketKey(new BucketId(Long.valueOf(bucketId)))).build();
+
+    }
+
+    public static Buckets buildBucketLists(List<Bucket> bucketList) {
+        return new BucketsBuilder().setBucket(bucketList).build();
     }
 
     protected static Buckets buildBuckets(List<BucketInfo> listBucketInfo) {
@@ -352,6 +373,12 @@ public class MDSALUtil {
         instructionBuilder.setInstruction(applyActionsCase);
         instructionBuilder.setKey(new InstructionKey(instructionKey));
         return instructionBuilder.build();
+    }
+
+    public static Action buildAction(int actionKey, int instruction) {
+        return new ActionBuilder().setAction(
+                new PopVlanActionCaseBuilder().setPopVlanAction(new PopVlanActionBuilder().build()).build())
+                .setKey(new ActionKey(actionKey)).build();
     }
 
     public static Instruction buildAndGetWriteMetadaInstruction(BigInteger metadata,

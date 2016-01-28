@@ -32,11 +32,23 @@ public class ActionInfo implements Serializable{
         m_actionType = actionType;
         m_actionKey = 0;
         m_asActionValues = asActionValues;
-    } 
+    }
+
+    public ActionInfo(ActionType actionType, String[] asActionValues, int actionKey) {
+        m_actionType = actionType;
+        m_actionKey = actionKey;
+        m_asActionValues = asActionValues;
+    }
     
     public ActionInfo(ActionType actionType, BigInteger[] aBigIntValues) {
         m_actionType = actionType;
         m_actionKey = 0;
+        m_aBigIntValues = aBigIntValues;
+    }
+
+    public ActionInfo(ActionType actionType, BigInteger[] aBigIntValues, int actionKey) {
+        m_actionType = actionType;
+        m_actionKey = actionKey;
         m_aBigIntValues = aBigIntValues;
     }
 

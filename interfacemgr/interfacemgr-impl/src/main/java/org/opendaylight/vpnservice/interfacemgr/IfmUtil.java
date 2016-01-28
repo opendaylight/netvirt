@@ -22,24 +22,24 @@ import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUt
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.globals.VlanInterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
-import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
+import org.opendaylight.vpnservice.mdsalutil.ActionType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.WriteMetadataCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.write.metadata._case.WriteMetadata;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.overlay.rev150105.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.overlay.rev150105.TunnelTypeGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.overlay.rev150105.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.monitor.profile.create.input.ProfileBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdOutput;
@@ -49,14 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPoolKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.InterfaceMonitorIdMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.MonitorIdInterfaceMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.monitor.id.map.InterfaceMonitorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.monitor.id.map.InterfaceMonitorIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.monitor.id.map.InterfaceMonitorIdKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.monitor.id._interface.map.MonitorIdInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.monitor.id._interface.map.MonitorIdInterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.monitor.id._interface.map.MonitorIdInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan.L2vlanMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
@@ -171,6 +163,66 @@ public class IfmUtil {
 
         return result;
     }
+
+    public static List<Action> getEgressActions(String interfaceName, long serviceTag, DataBroker dataBroker) {
+        List<ActionInfo> listActionInfo = new ArrayList<>();
+        List<ActionInfo> interfaceActionList = IfmUtil.getEgressActionInfosForInterface(interfaceName, serviceTag, dataBroker);
+        listActionInfo.addAll(interfaceActionList);
+        List<Action> actionsList = new ArrayList<>();
+        for (ActionInfo actionInfo : listActionInfo) {
+            actionsList.add(actionInfo.buildAction());
+        }
+        return actionsList;
+    }
+
+    public static List<Action> getEgressActionsForInterface(String interfaceName, DataBroker dataBroker) {
+        List<ActionInfo> listActionInfo = getEgressActionInfosForInterface(interfaceName, 0, dataBroker);
+        List<Action> actionsList = new ArrayList<>();
+        for (ActionInfo actionInfo : listActionInfo) {
+            actionsList.add(actionInfo.buildAction());
+        }
+        return actionsList;
+    }
+
+    public static List<ActionInfo> getEgressActionInfosForInterface(String interfaceName, int actionKeyStart, DataBroker dataBroker) {
+        Interface interfaceInfo = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(new InterfaceKey(interfaceName),
+                dataBroker);
+        List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
+                InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceName, dataBroker);
+
+        String lowerLayerIf = ifState.getLowerLayerIf().get(0);
+        NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
+        String portNo = IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId);
+        Class<? extends InterfaceType> ifType = interfaceInfo.getType();
+        if(L2vlan.class.equals(ifType)){
+            IfL2vlan vlanIface = interfaceInfo.getAugmentation(IfL2vlan.class);
+            LOG.trace("L2Vlan: {}",vlanIface);
+            long vlanVid = (vlanIface == null) ? 0 : vlanIface.getVlanId().getValue();
+            if (vlanVid != 0) {
+                listActionInfo.add(new ActionInfo(ActionType.push_vlan, new String[] {}, actionKeyStart));
+                actionKeyStart++;
+                listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
+                        new String[] { Long.toString(vlanVid) }, actionKeyStart));
+                actionKeyStart++;
+            }
+            listActionInfo.add(new ActionInfo(ActionType.output, new String[] {portNo}, actionKeyStart));
+        }else if(Tunnel.class.equals(ifType)){
+            listActionInfo.add(new ActionInfo(ActionType.output, new String[] { portNo}, actionKeyStart));
+        }
+        return listActionInfo;
+    }
+
+    public static List<ActionInfo> getEgressActionInfosForInterface(String interfaceName, long serviceTag, DataBroker dataBroker) {
+        int actionKey = 0;
+        ActionInfo actionSetTunnel = new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {
+                BigInteger.valueOf(serviceTag)}, actionKey) ;
+        List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
+        listActionInfo.add(actionSetTunnel);
+        actionKey++;
+        listActionInfo.addAll(getEgressActionInfosForInterface(interfaceName, actionKey, dataBroker));
+        return listActionInfo;
+     }
 
     public static NodeId getNodeIdFromNodeConnectorId(NodeConnectorId ncId) {
         return new NodeId(ncId.getValue().substring(0,ncId.getValue().lastIndexOf(":")));
