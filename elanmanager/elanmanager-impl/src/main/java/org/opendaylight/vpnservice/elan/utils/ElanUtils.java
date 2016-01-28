@@ -28,22 +28,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.acti
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice._interface.service.rev150602._interface.service.info.ServiceInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.ExtensionKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.GeneralAugMatchNodesNodeTableFlow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.GeneralAugMatchNodesNodeTableFlowBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.general.extension.grouping.ExtensionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.general.extension.list.grouping.ExtensionList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.general.extension.list.grouping.ExtensionListBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.reg.grouping.NxmNxRegBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMacKey;
@@ -68,9 +57,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.e
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.forwarding.entries.MacEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.*;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfIndexesInterfaceMap;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331._if.indexes._interface.map.IfIndexInterface;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331._if.indexes._interface.map.IfIndexInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -197,54 +183,6 @@ public class ElanUtils {
             return existingElanInterface.get();
         }
         return null;
-    }
-
-    public static class RegMatch {
-
-        final Class<? extends NxmNxReg> reg;
-        final Long value;
-
-        public RegMatch(Class<? extends NxmNxReg> reg, Long value) {
-            super();
-            this.reg = reg;
-            this.value = value;
-        }
-
-        public static RegMatch of(Class<? extends NxmNxReg> reg, Long value) {
-            return new RegMatch(reg, value);
-        }
-    }
-
-    public static void addNxRegMatch(MatchBuilder match, RegMatch... matches) {
-        ArrayList<ExtensionList> extensions = new ArrayList<>();
-        for (RegMatch rm : matches) {
-            Class<? extends ExtensionKey> key;
-            if (NxmNxReg0.class.equals(rm.reg)) {
-                key = NxmNxReg0Key.class;
-            } else if (NxmNxReg1.class.equals(rm.reg)) {
-                key = NxmNxReg1Key.class;
-            } else if (NxmNxReg2.class.equals(rm.reg)) {
-                key = NxmNxReg2Key.class;
-            } else if (NxmNxReg3.class.equals(rm.reg)) {
-                key = NxmNxReg3Key.class;
-            } else if (NxmNxReg4.class.equals(rm.reg)) {
-                key = NxmNxReg4Key.class;
-            } else if (NxmNxReg5.class.equals(rm.reg)) {
-                key = NxmNxReg5Key.class;
-            } else if (NxmNxReg6.class.equals(rm.reg)) {
-                key = NxmNxReg6Key.class;
-            } else {
-                key = NxmNxReg7Key.class;
-            }
-            NxAugMatchNodesNodeTableFlow am = new NxAugMatchNodesNodeTableFlowBuilder().setNxmNxReg(
-                    new NxmNxRegBuilder().setReg(rm.reg).setValue(rm.value).build()).build();
-            extensions.add(new ExtensionListBuilder().setExtensionKey(key)
-                    .setExtension(new ExtensionBuilder().addAugmentation(NxAugMatchNodesNodeTableFlow.class, am).build())
-                    .build());
-        }
-        GeneralAugMatchNodesNodeTableFlow m = new GeneralAugMatchNodesNodeTableFlowBuilder().setExtensionList(
-                extensions).build();
-        match.addAugmentation(GeneralAugMatchNodesNodeTableFlow.class, m);
     }
 
     public static InstanceIdentifier<ElanInterface> getElanInterfaceConfigurationDataPathId(String interfaceName) {
@@ -519,7 +457,6 @@ public class ElanUtils {
                     elanServiceProvider.getInterfaceManagerRpcService().getEgressActionsForInterface(
                             new GetEgressActionsForInterfaceInputBuilder().setIntfName(ifName).build());
             RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
-            System.out.println("Data is populated");
             if(!rpcResult.isSuccessful()) {
                 logger.warn("RPC Call to Get egress actions for interface {} returned with Errors {}", ifName, rpcResult.getErrors());
             } else {
@@ -528,7 +465,6 @@ public class ElanUtils {
                 for (Action action : actions) {
                     org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = action.getAction();
                     if (actionClass instanceof OutputActionCase) {
-                        System.out.println("Data ");
                         listActionInfo.add(new ActionInfo(ActionType.output,
                                 new String[] {((OutputActionCase)actionClass).getOutputAction()
                                         .getOutputNodeConnector().getValue()}));
