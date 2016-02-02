@@ -8,6 +8,8 @@
 package org.opendaylight.vpnservice.neutronvpn;
 
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
@@ -22,7 +24,6 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -110,9 +111,8 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
                 ArrayList<Interfaces>();
         List<Interfaces> newInterfaces = (update.getInterfaces() != null) ? update.getInterfaces() : new
                 ArrayList<Interfaces>();
-        List<String> oldRoutes = (original.getRoutes() != null) ? original.getRoutes() : new ArrayList<String>();
-        List<String> newRoutes = (update.getRoutes() != null) ? update.getRoutes() : new ArrayList<String>();
-
+        List<Routes> oldRoutes = (original.getRoutes() != null) ? original.getRoutes() : new ArrayList<Routes>();
+        List<Routes> newRoutes = (update.getRoutes() != null) ? update.getRoutes() : new ArrayList<Routes>();
         if (!oldInterfaces.equals(newInterfaces)) {
             for (Interfaces intrf : newInterfaces) {
                 if (!oldInterfaces.remove(intrf)) {
@@ -126,9 +126,9 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
             }
         }
         if (!oldRoutes.equals(newRoutes)) {
-            Iterator<String> iterator = newRoutes.iterator();
+            Iterator<Routes> iterator = newRoutes.iterator();
             while (iterator.hasNext()) {
-                String route = iterator.next();
+                Routes route = iterator.next();
                 if (oldRoutes.remove(route)) {
                     iterator.remove();
                 }

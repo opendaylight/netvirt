@@ -7,9 +7,10 @@
  */
 package org.opendaylight.vpnservice.neutronvpn;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.SettableFuture;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
@@ -86,7 +87,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -443,7 +443,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
             adjList.add(vmAdj);
             // create extra route adjacency
             if (rtr != null && rtr.getRoutes() != null) {
-                List<String> routeList = rtr.getRoutes();
+                List<Routes> routeList = rtr.getRoutes();
                 List<Adjacency> erAdjList = addAdjacencyforExtraRoute(routeList, false, portname);
                 if (erAdjList != null && !erAdjList.isEmpty()) {
                     adjList.addAll(erAdjList);
@@ -733,15 +733,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
         }
     }
 
-    protected List<Adjacency> addAdjacencyforExtraRoute(List<String> routeList, boolean rtrUp, String vpnifname) {
+    protected List<Adjacency> addAdjacencyforExtraRoute(List<Routes> routeList, boolean rtrUp, String vpnifname) {
         List<Adjacency> adjList = new ArrayList<Adjacency>();
-        for (String route : routeList) {
-            // assuming extra route is strictly in the format "nexthop destination" > "10.1.1.10 40.0.1.0/24"
-            String[] parts = route.split(" ");
-            if (parts.length == 2) {
+        for (Routes route : routeList) {
+            if (route != null && route.getNexthop() != null && route.getDestination() != null) {
                 boolean isLockAcquired = false;
-                String nextHop = parts[0];
-                String destination = parts[1];
+                String nextHop = String.valueOf(route.getNexthop().getValue());
+                String destination = String.valueOf(route.getDestination().getValue());
 
                 String tapPortName = NeutronvpnUtils.getNeutronPortNamefromPortFixedIp(broker, nextHop);
                 logger.trace("Adding extra route with nexthop {}, destination {}, ifName {}", nextHop,
@@ -778,20 +776,18 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
                     }
                 }
             } else {
-                logger.error("Incorrect input received for extra route. {}", parts);
+                logger.error("Incorrect input received for extra route. {}", route);
             }
         }
         return adjList;
     }
 
-    protected void removeAdjacencyforExtraRoute(List<String> routeList) {
-        for (String route : routeList) {
-            // assuming extra route is strictly in the format "nexthop destination" > "10.1.1.10 40.0.1.0/24"
-            String[] parts = route.split(" ");
-            if (parts.length == 2) {
+    protected void removeAdjacencyforExtraRoute(List<Routes> routeList) {
+        for (Routes route : routeList) {
+            if (route != null && route.getNexthop() != null && route.getDestination() != null) {
                 boolean isLockAcquired = false;
-                String nextHop = parts[0];
-                String destination = parts[1];
+                String nextHop = String.valueOf(route.getNexthop().getValue());
+                String destination = String.valueOf(route.getDestination().getValue());
 
                 String tapPortName = NeutronvpnUtils.getNeutronPortNamefromPortFixedIp(broker, nextHop);
                 logger.trace("Removing extra route with nexthop {}, destination {}, ifName {}", nextHop,
@@ -811,7 +807,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
                     }
                 }
             } else {
-                logger.error("Incorrect input received for extra route. {}", parts);
+                logger.error("Incorrect input received for extra route. {}", route);
             }
         }
     }
