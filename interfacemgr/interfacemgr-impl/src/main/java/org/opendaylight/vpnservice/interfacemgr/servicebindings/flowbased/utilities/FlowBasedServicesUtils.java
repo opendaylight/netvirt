@@ -76,11 +76,10 @@ public class FlowBasedServicesUtils {
         matches.add(new MatchInfo(MatchFieldType.in_port, new BigInteger[] {dpId, BigInteger.valueOf(portNo)}));
         int vlanId = 0;
         IfL2vlan l2vlan = iface.getAugmentation(IfL2vlan.class);
-        if(l2vlan != null){
+        if(l2vlan != null && l2vlan.getVlanId() != null){
             vlanId = l2vlan.getVlanId().getValue();
         }
         if (vlanId > 0) {
-            LOG.error("VlanId matching support is not fully available in Be.");
             matches.add(new MatchInfo(MatchFieldType.vlan_vid, new long[]{vlanId}));
         }
         return matches;
@@ -132,7 +131,7 @@ public class FlowBasedServicesUtils {
         List<Instruction> instructionSet = new ArrayList<Instruction>();
         int vlanId = 0;
         IfL2vlan l2vlan = iface.getAugmentation(IfL2vlan.class);
-        if(l2vlan != null){
+        if(l2vlan != null && l2vlan.getVlanId() != null){
             vlanId = l2vlan.getVlanId().getValue();
         }
         if (vlanId != 0) {

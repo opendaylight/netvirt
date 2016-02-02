@@ -106,7 +106,7 @@ public class SouthboundUtils {
 
         int vlanId = 0;
         IfL2vlan ifL2vlan = iface.getAugmentation(IfL2vlan.class);
-        if (ifL2vlan != null) {
+        if (ifL2vlan != null && ifL2vlan.getVlanId() != null) {
             vlanId = ifL2vlan.getVlanId().getValue();
         }
 
