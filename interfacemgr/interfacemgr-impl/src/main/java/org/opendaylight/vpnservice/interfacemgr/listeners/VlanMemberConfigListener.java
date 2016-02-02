@@ -58,10 +58,6 @@ public class VlanMemberConfigListener extends AsyncDataTreeChangeListenerBase<In
             return;
         }
 
-        if (ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.TrunkMember) {
-            return;
-        }
-
         ParentRefs parentRefs = interfaceOld.getAugmentation(ParentRefs.class);
         if (parentRefs == null) {
             LOG.error("Attempt to remove Vlan Trunk-Member {} without a parent interface", interfaceOld);
@@ -83,11 +79,6 @@ public class VlanMemberConfigListener extends AsyncDataTreeChangeListenerBase<In
     protected void update(InstanceIdentifier<Interface> key, Interface interfaceOld, Interface interfaceNew) {
         IfL2vlan ifL2vlanNew = interfaceNew.getAugmentation(IfL2vlan.class);
         if (ifL2vlanNew == null) {
-            return;
-        }
-        if (ifL2vlanNew.getL2vlanMode() != IfL2vlan.L2vlanMode.TrunkMember) {
-            LOG.error("Configuration Error. Attempt to modify Vlan Mode of interface: {} " +
-                    "to interface: {}", interfaceOld, interfaceNew);
             return;
         }
 
@@ -118,13 +109,8 @@ public class VlanMemberConfigListener extends AsyncDataTreeChangeListenerBase<In
             return;
         }
 
-        if (ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.TrunkMember) {
-            return;
-        }
-
         ParentRefs parentRefs = interfaceNew.getAugmentation(ParentRefs.class);
         if (parentRefs == null) {
-            LOG.error("Attempt to add Vlan Trunk-Member {} without a parent interface", interfaceNew);
             return;
         }
 

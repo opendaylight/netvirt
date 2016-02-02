@@ -18,6 +18,7 @@ import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.globals.VlanInterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
@@ -237,6 +238,14 @@ public class IfmUtil {
 
     public static NodeConnectorId getNodeConnectorIdFromInterface(Interface iface, DataBroker dataBroker) {
         return FlowBasedServicesUtils.getNodeConnectorIdFromInterface(iface, dataBroker);
+    }
+
+    public static NodeConnectorId getNodeConnectorIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState){
+        if(ifState != null) {
+            List<String> ofportIds = ifState.getLowerLayerIf();
+            return new NodeConnectorId(ofportIds.get(0));
+        }
+        return null;
     }
 
     public static InterfaceInfo.InterfaceType getInterfaceType(Interface iface) {
