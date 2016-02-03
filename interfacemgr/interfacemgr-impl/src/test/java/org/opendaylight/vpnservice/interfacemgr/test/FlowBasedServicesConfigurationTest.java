@@ -2,6 +2,7 @@ package org.opendaylight.vpnservice.interfacemgr.test;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -106,7 +107,7 @@ public class FlowBasedServicesConfigurationTest {
                 .setKey(IfmUtil.getStateInterfaceKeyFromName(InterfaceManagerTestUtil.interfaceName))
                 .setName(InterfaceManagerTestUtil.interfaceName);
 
-        stypeOpenflow = InterfaceManagerTestUtil.buildStypeOpenflow(dpId, flowPriority,key,instructions);
+        stypeOpenflow = InterfaceManagerTestUtil.buildStypeOpenflow(dpId, flowPriority,NwConstants.LPORT_DISPATCHER_TABLE,instructions);
         boundServiceNew = InterfaceManagerTestUtil.buildBoundServices(serviceName, key, new BoundServicesKey(key), stypeOpenflow);
         instructionKey = new InstructionKey(instructionKeyval);
         BigInteger[] metadataValues = IfmUtil.mergeOpenflowMetadataWriteInstructions(instructions);
@@ -135,8 +136,10 @@ public class FlowBasedServicesConfigurationTest {
         List<Instruction> instructionList = boundServiceNew.getAugmentation(StypeOpenflow.class).getInstruction();
         String serviceRef = boundServiceNew.getServiceName();
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.in_port, new BigInteger[] {dpId, BigInteger.valueOf(portNum)}));
-        ingressFlow = MDSALUtil.buildFlowNew(stypeOpenflow.getDispatcherTableId(), flowRef, boundServiceNew.getServicePriority(), serviceRef, 0, 0,
+        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
+                MetaDataUtil.getMetaDataForLPortDispatcher(ifaceBuilder.getIfIndex(), boundServiceNew.getServicePriority()),
+                MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
+        ingressFlow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef, boundServiceNew.getServicePriority(), serviceRef, 0, 0,
                 stypeOpenflow.getFlowCookie(), matches, instructionList);
         FlowKey flowKey = new FlowKey(new FlowId(ingressFlow.getId()));
         flowInstanceId = InterfaceManagerTestUtil.getFlowInstanceIdentifier(dpId,ingressFlow.getTableId(),flowKey);

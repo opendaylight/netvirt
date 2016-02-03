@@ -8,6 +8,7 @@
 package org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -17,6 +18,7 @@ import org.opendaylight.vpnservice.interfacemgr.commons.AlivenessMonitorUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.utilities.SouthboundUtils;
+import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
 import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -101,7 +103,12 @@ public class OvsInterfaceConfigRemoveHelper {
             }
         }
         IfL2vlan ifL2vlan = interfaceOld.getAugmentation(IfL2vlan.class);
-        if (ifL2vlan == null || ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
+        if (ifL2vlan == null) {
+            return;
+        }
+        BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
+        FlowBasedServicesUtils.removeIngressFlow(interfaceOld, dpId, t);
+        if (ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
             return;
         }
 
@@ -130,6 +137,8 @@ public class OvsInterfaceConfigRemoveHelper {
             InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifChildStateId =
                     IfmUtil.buildStateInterfaceId(interfaceChildEntry.getChildInterface());
             t.delete(LogicalDatastoreType.OPERATIONAL, ifChildStateId);
+            InterfaceKey childIfKey = new InterfaceKey(interfaceChildEntry.getChildInterface());
+            FlowBasedServicesUtils.removeIngressFlow(InterfaceManagerCommonUtils.getInterfaceFromConfigDS(childIfKey, dataBroker), dpId, t);
         }
     }
 

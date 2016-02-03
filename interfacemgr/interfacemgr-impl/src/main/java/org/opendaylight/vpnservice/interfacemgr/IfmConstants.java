@@ -31,4 +31,8 @@ public class IfmConstants {
     public static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000002", 16);
     public static final String TUNNEL_TABLE_FLOWID_PREFIX = "TUNNEL.";
     public static final BigInteger TUNNEL_TABLE_COOKIE = new BigInteger("9000000", 16);
+    public static final short DEFAULT_SERVICE_INDEX = 0;
+    public static final int FLOW_HIGH_PRIORITY = 10;
+    public static final int FLOW_PRIORITY_FOR_UNTAGGED_VLAN = 4;
+    public static final BigInteger VLAN_TABLE_COOKIE = new BigInteger("8000000", 16);
 }

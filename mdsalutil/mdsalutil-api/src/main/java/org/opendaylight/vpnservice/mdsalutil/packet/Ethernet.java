@@ -38,7 +38,7 @@ public class Ethernet extends Packet {
         etherTypeClassMap.put(EtherTypes.LLDP.shortValue(), LLDP.class);
         etherTypeClassMap.put(EtherTypes.IPv4.shortValue(), IPv4.class);
         // TODO: Add support for more classes here
-        // etherTypeClassMap.put(EtherTypes.VLANTAGGED.shortValue(), IEEE8021Q.class);
+        etherTypeClassMap.put(EtherTypes.VLANTAGGED.shortValue(), IEEE8021Q.class);
         // etherTypeClassMap.put(EtherTypes.OLDQINQ.shortValue(), IEEE8021Q.class);
         // etherTypeClassMap.put(EtherTypes.QINQ.shortValue(), IEEE8021Q.class);
         // etherTypeClassMap.put(EtherTypes.CISCOQINQ.shortValue(), IEEE8021Q.class);

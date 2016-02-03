@@ -8,6 +8,7 @@
 package org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -15,11 +16,14 @@ import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.AlivenessMonitorUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
+import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
@@ -30,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -69,16 +74,27 @@ public class OvsInterfaceStateRemoveHelper {
             return futures;
         }
 
+        NodeConnectorId nodeConnectorId = InstanceIdentifier.keyOf(key.firstIdentifierOf(NodeConnector.class)).getId();
+        BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
         // If this interface is a tunnel interface, remove the tunnel ingress flow and stop lldp monitoring
         IfTunnel tunnel = iface.getAugmentation(IfTunnel.class);
         if(tunnel != null){
-            NodeConnectorId nodeConnectorId = InstanceIdentifier.keyOf(key.firstIdentifierOf(NodeConnector.class)).getId();
-            BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
             long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
             InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager, tunnel, dpId, portNo, iface, -1,
                     NwConstants.DEL_FLOW);
             futures.add(transaction.submit());
             AlivenessMonitorUtils.stopLLDPMonitoring(alivenessMonitorService, dataBroker, iface);
+            return futures;
+        }
+
+        IfL2vlan ifL2vlan = iface.getAugmentation(IfL2vlan.class);
+        if (ifL2vlan == null) {
+            futures.add(transaction.submit());
+            return futures;
+        }
+        FlowBasedServicesUtils.removeIngressFlow(iface, dpId, transaction);
+        if (ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
+            futures.add(transaction.submit());
             return futures;
         }
 
@@ -105,6 +121,8 @@ public class OvsInterfaceStateRemoveHelper {
             if(interfaceState != null) {
                 InterfaceMetaUtils.removeLportTagInterfaceMap(transaction, idManager, dataBroker, childInterfaceState.getName(), childInterfaceState.getIfIndex());
                 transaction.delete(LogicalDatastoreType.OPERATIONAL, ifChildStateId);
+                InterfaceKey childIfKey = new InterfaceKey(interfaceChildEntry.getChildInterface());
+                FlowBasedServicesUtils.removeIngressFlow(InterfaceManagerCommonUtils.getInterfaceFromConfigDS(childIfKey, dataBroker), dpId, transaction);
             }
         }
 

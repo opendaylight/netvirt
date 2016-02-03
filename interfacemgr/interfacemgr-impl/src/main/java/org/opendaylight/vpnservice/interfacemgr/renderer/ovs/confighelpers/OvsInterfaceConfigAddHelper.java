@@ -9,6 +9,7 @@ package org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import org.eclipse.xtend.lib.annotations.Data;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -21,6 +22,8 @@ import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUt
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.utilities.SouthboundUtils;
+import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
+import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddressBuilder;
@@ -90,8 +93,21 @@ public class OvsInterfaceConfigAddHelper {
         }
         updateStateEntry(interfaceNew, transaction, ifState);
 
+        NodeConnectorId nodeConnectorId = new NodeConnectorId(ifState.getLowerLayerIf().get(0));
+        BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
+        long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
+        Integer ifIndex = IfmUtil.allocateId(idManager, IfmConstants.IFM_IDPOOL_NAME, interfaceNew.getName());
         IfL2vlan ifL2vlan = interfaceNew.getAugmentation(IfL2vlan.class);
-        if (ifL2vlan == null || ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
+        if (ifL2vlan == null) {
+            futures.add(transaction.submit());
+            return;
+        }
+        if(interfaceNew.isEnabled() && ifState.getOperStatus() == OperStatus.Up) {
+            List<MatchInfo> matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, interfaceNew);
+            FlowBasedServicesUtils.installVlanFlow(dpId, portNo, interfaceNew, transaction, matches, ifIndex);
+        }
+        if (ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
+            futures.add(transaction.submit());
             return;
         }
 
@@ -99,6 +115,7 @@ public class OvsInterfaceConfigAddHelper {
         InterfaceParentEntry interfaceParentEntry =
                 InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryKey, dataBroker);
         if (interfaceParentEntry == null) {
+            futures.add(transaction.submit());
             return;
         }
 
@@ -110,7 +127,6 @@ public class OvsInterfaceConfigAddHelper {
         OperStatus operStatus = ifState.getOperStatus();
         PhysAddress physAddress = ifState.getPhysAddress();
         AdminStatus adminStatus = ifState.getAdminStatus();
-        NodeConnectorId nodeConnectorId = new NodeConnectorId(ifState.getLowerLayerIf().get(0));
 
         //FIXME: If the no. of child entries exceeds 100, perform txn updates in batches of 100.
         for (InterfaceChildEntry interfaceChildEntry : interfaceChildEntries) {
@@ -127,10 +143,15 @@ public class OvsInterfaceConfigAddHelper {
             List<String> childLowerLayerIfList = new ArrayList<>();
             childLowerLayerIfList.add(0, nodeConnectorId.getValue());
             childLowerLayerIfList.add(1, interfaceNew.getName());
+            ifIndex = IfmUtil.allocateId(idManager, IfmConstants.IFM_IDPOOL_NAME, ifaceChild.getName());
             InterfaceBuilder childIfaceBuilder = new InterfaceBuilder().setAdminStatus(adminStatus)
                     .setOperStatus(operStatus).setPhysAddress(physAddress).setLowerLayerIf(childLowerLayerIfList);
             childIfaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(ifaceChild.getName()));
             transaction.put(LogicalDatastoreType.OPERATIONAL, ifChildStateId, childIfaceBuilder.build(), true);
+            if (operStatus == OperStatus.Up) {
+                List<MatchInfo> matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, ifaceChild);
+                FlowBasedServicesUtils.installVlanFlow(dpId, portNo, ifaceChild, transaction, matches, ifIndex);
+            }
         }
         futures.add(transaction.submit());
     }

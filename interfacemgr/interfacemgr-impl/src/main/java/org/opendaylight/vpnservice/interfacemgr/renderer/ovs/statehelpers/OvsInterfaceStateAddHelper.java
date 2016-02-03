@@ -101,11 +101,11 @@ public class OvsInterfaceStateAddHelper {
             return futures;
         }
 
+        BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
+        long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
         // If this interface is a tunnel interface, create the tunnel ingress flow
         IfTunnel tunnel = iface.getAugmentation(IfTunnel.class);
         if(tunnel != null){
-            BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
-            long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
             InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager, tunnel,dpId, portNo, iface,
                     ifIndex, NwConstants.ADD_FLOW);
             futures.add(transaction.submit());
@@ -116,11 +116,18 @@ public class OvsInterfaceStateAddHelper {
         // If this interface maps to a Vlan trunk entity, operational states of all the vlan-trunk-members
         // should also be created here.
         IfL2vlan ifL2vlan = iface.getAugmentation(IfL2vlan.class);
-        if (ifL2vlan == null || ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
+        if (ifL2vlan == null) {
             futures.add(transaction.submit());
             return futures;
         }
-
+        if(operStatus == Interface.OperStatus.Up) {
+            List<MatchInfo> matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, iface);
+            FlowBasedServicesUtils.installVlanFlow(dpId, portNo, iface, transaction, matches, ifIndex);
+        }
+        if (ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
+            futures.add(transaction.submit());
+            return futures;
+        }
         InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(iface.getName());
         InterfaceParentEntry interfaceParentEntry =
                 InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryKey, dataBroker);
@@ -148,7 +155,6 @@ public class OvsInterfaceStateAddHelper {
             if (!ifaceChild.isEnabled()) {
                 operStatus = Interface.OperStatus.Down;
             }
-
             InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifChildStateId =
                     IfmUtil.buildStateInterfaceId(ifaceChild.getName());
             List<String> childLowerLayerIfList = new ArrayList<>();
@@ -162,6 +168,10 @@ public class OvsInterfaceStateAddHelper {
 
             // create lportTag Interface Map
             InterfaceMetaUtils.createLportTagInterfaceMap(transaction, ifaceChild.getName(), ifIndex);
+            if (operStatus == Interface.OperStatus.Up) {
+                List<MatchInfo> matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, ifaceChild);
+                FlowBasedServicesUtils.installVlanFlow(dpId, portNo, ifaceChild, transaction, matches, ifIndex);
+            }
         }
 
         /** Below code will be needed if we want to update the vlan-trunks on the of-port

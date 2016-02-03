@@ -13,6 +13,7 @@ import static org.mockito.Mockito.*;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
 
@@ -40,8 +41,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdOutputBuilder;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VlanInterfaceConfigurationTest {
@@ -91,10 +97,16 @@ public class VlanInterfaceConfigurationTest {
         nodeConnectorInstanceIdentifier = InterfaceManagerTestUtil.getNcIdent("openflow:1", nodeConnectorId);
         interfaceStateIdentifier = IfmUtil.buildStateInterfaceId(vlanInterfaceEnabled.getName());
         stateInterface = InterfaceManagerTestUtil.buildStateInterface(InterfaceManagerTestUtil.interfaceName, nodeConnectorId);
+        AllocateIdOutput output = new AllocateIdOutputBuilder().setIdValue((long)1).build();
+        RpcResultBuilder<AllocateIdOutput> allocateIdRpcBuilder = RpcResultBuilder.success();
+        allocateIdRpcBuilder.withResult(output);
+        ListenableFuture<RpcResult<AllocateIdOutput>> future = Futures.immediateFuture(allocateIdRpcBuilder.build());
 
         // Setup mocks
         when(dataBroker.newReadOnlyTransaction()).thenReturn(mockReadTx);
         when(dataBroker.newWriteOnlyTransaction()).thenReturn(mockWriteTx);
+
+        when(idManager.allocateId(any(AllocateIdInput.class))).thenReturn(future);
     }
 
     @Test

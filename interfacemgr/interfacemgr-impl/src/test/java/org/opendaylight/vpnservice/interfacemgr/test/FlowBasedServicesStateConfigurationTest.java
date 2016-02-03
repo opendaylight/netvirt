@@ -2,6 +2,7 @@ package org.opendaylight.vpnservice.interfacemgr.test;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,7 +64,7 @@ public class FlowBasedServicesStateConfigurationTest {
     Instruction instruction = null;
     InstructionKey instructionKey = null;
     List<Instruction>instructions = new ArrayList<>();
-    short key =2;
+    short key =0;
     int ifIndexval = 100;
     int flowpriority = 2;
     String serviceName = "VPN";
@@ -101,7 +102,7 @@ public class FlowBasedServicesStateConfigurationTest {
                 .setLowerLayerIf(lowerLayerIfList)
                 .setKey(IfmUtil.getStateInterfaceKeyFromName(InterfaceManagerTestUtil.interfaceName))
                 .setName(InterfaceManagerTestUtil.interfaceName);
-        stypeOpenflow = InterfaceManagerTestUtil.buildStypeOpenflow(dpId,flowpriority, NwConstants.VLAN_INTERFACE_INGRESS_TABLE, instructions);
+        stypeOpenflow = InterfaceManagerTestUtil.buildStypeOpenflow(dpId,flowpriority, NwConstants.LPORT_DISPATCHER_TABLE, instructions);
         instructionKey = new InstructionKey(instructionKeyval);
         BigInteger[] metadataValues = IfmUtil.mergeOpenflowMetadataWriteInstructions(instructions);
         boundService = InterfaceManagerTestUtil.buildBoundServices(serviceName,key,new BoundServicesKey(key),stypeOpenflow);
@@ -125,7 +126,9 @@ public class FlowBasedServicesStateConfigurationTest {
         List<Instruction> instructionList = boundService.getAugmentation(StypeOpenflow.class).getInstruction();
         String serviceRef = boundService.getServiceName();
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.in_port, new BigInteger[]{dpId, BigInteger.valueOf(portNum)}));
+        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
+                MetaDataUtil.getMetaDataForLPortDispatcher(ifaceBuilder.getIfIndex(), boundService.getServicePriority()),
+                MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
         ingressFlow = MDSALUtil.buildFlowNew(stypeOpenflow.getDispatcherTableId(), flowRef, boundService.getServicePriority(), serviceRef, 0, 0,
                 stypeOpenflow.getFlowCookie(), matches, instructionList);
         FlowKey flowKey = new FlowKey(new FlowId(ingressFlow.getId()));

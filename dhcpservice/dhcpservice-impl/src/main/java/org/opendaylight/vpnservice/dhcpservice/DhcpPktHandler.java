@@ -9,18 +9,20 @@ package org.opendaylight.vpnservice.dhcpservice;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.opendaylight.controller.liblldp.EtherTypes;
-import org.opendaylight.controller.liblldp.HexEncode;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -29,38 +31,48 @@ import org.opendaylight.vpnservice.dhcpservice.api.DHCP;
 import org.opendaylight.vpnservice.dhcpservice.api.DHCPConstants;
 import org.opendaylight.vpnservice.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.vpnservice.dhcpservice.api.DHCPUtils;
-import org.opendaylight.vpnservice.mdsalutil.MDSALDataStoreUtils;
+import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
+import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.packet.Ethernet;
+import org.opendaylight.vpnservice.mdsalutil.packet.IEEE8021Q;
 import org.opendaylight.vpnservice.mdsalutil.packet.IPProtocols;
 import org.opendaylight.vpnservice.mdsalutil.packet.IPv4;
 import org.opendaylight.vpnservice.mdsalutil.packet.UDP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.HostRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketInReason;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.SendToController;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetInterfaceFromIfIndexInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetInterfaceFromIfIndexInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetInterfaceFromIfIndexOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
 
 public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(DhcpPktHandler.class);
     private final DataBroker dataBroker;
     private final DhcpManager dhcpMgr;
-
+    private OdlInterfaceRpcService interfaceManagerRpc;
+    private static HashMap<String, ImmutablePair<BigInteger, String>> localCache = new HashMap<String, ImmutablePair<BigInteger, String>>();
     private boolean computeUdpChecksum = true;
     private PacketProcessingService pktService;
 
@@ -75,7 +87,7 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         LOG.trace("Pkt received: {}", packet);
         Class<? extends PacketInReason> pktInReason = packet.getPacketInReason();
         short tableId = packet.getTableId().getValue();
-        if (isPktInReasonSendtoCtrl(pktInReason) && ((DHCPMConstants.DHCP_TABLE == tableId))) {
+        if (isPktInReasonSendtoCtrl(pktInReason) && ((NwConstants.DHCP_TABLE == tableId))) {
             byte[] inPayload = packet.getPayload();
             Ethernet ethPkt = new Ethernet();
             try {
@@ -85,36 +97,33 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
                 return;
             }
             try {
-                DHCP pktIn = getDhcpPktIn(ethPkt);
-                LOG.trace("DHCPPkt received: {}", pktIn);
+                DHCP pktIn;
+                pktIn = getDhcpPktIn(ethPkt);
                 if (pktIn != null) {
-                    NodeConnectorRef inNcRef = packet.getIngress();
-                    FlowCapableNodeConnector fcNc = this.getFlowCapableNodeConnector(inNcRef);
-                    DHCP replyPkt = handleDhcpPacket(pktIn, fcNc);
-                    byte[] pktOut = getDhcpPacketOut(replyPkt, ethPkt, fcNc);
-                    sendPacketOut(pktOut, inNcRef);
+                    LOG.trace("DHCPPkt received: {}", pktIn);
+                    BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
+                    long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
+                    String interfaceName = getInterfaceNameFromTag(portTag);
+                    ImmutablePair<BigInteger, String> pair = getDpnIdPhysicalAddressFromInterfaceName(interfaceName);
+                    DHCP replyPkt = handleDhcpPacket(pktIn, interfaceName);
+                    byte[] pktOut = getDhcpPacketOut(replyPkt, ethPkt, pair.getRight());
+                    sendPacketOut(pktOut, pair.getLeft(), interfaceName);
                 }
             } catch (Exception e) {
-                LOG.warn("Failed to get DHCP Reply", e);
+                LOG.warn("Failed to get DHCP Reply {}", e);
             }
         }
     }
 
-    private void sendPacketOut(byte[] pktOut, NodeConnectorRef ingress) {
-        // We go out the same port we came in on
-        InstanceIdentifier<Node> egressNodePath = getNodePath(ingress.getValue());
-        TransmitPacketInput input = new TransmitPacketInputBuilder()
-            .setPayload(pktOut).setNode(new NodeRef(egressNodePath))
-            .setEgress(ingress).build();
-        LOG.trace("Transmitting packet: {}",input);
-        this.pktService.transmitPacket(input);
+    private void sendPacketOut(byte[] pktOut, BigInteger dpnId, String interfaceName) {
+        LOG.trace("Sending packet out DpId {}, portId {}, vlanId {}, interfaceName {}", dpnId, interfaceName);
+        List<Action> action = getEgressAction(interfaceName);
+        TransmitPacketInput output = MDSALUtil.getPacketOut(action, pktOut, dpnId);
+        LOG.trace("Transmitting packet: {}",output);
+        this.pktService.transmitPacket(output);
     }
 
-    private InstanceIdentifier<Node> getNodePath(InstanceIdentifier<?> nodeInstanceId) {
-        return nodeInstanceId.firstIdentifierOf(Node.class);
-    }
-
-    private DHCP handleDhcpPacket(DHCP dhcpPkt, FlowCapableNodeConnector fcNc) {
+    private DHCP handleDhcpPacket(DHCP dhcpPkt, String interfaceName) {
         LOG.debug("DHCP pkt rcvd {}", dhcpPkt);
         byte msgType = dhcpPkt.getMsgType();
         if (msgType == DHCPConstants.MSG_DECLINE) {
@@ -125,7 +134,7 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
             return null;
         }
 
-        Port nPort = getNeutronPort(fcNc);
+        Port nPort = getNeutronPort(interfaceName);
         Subnet nSubnet = getNeutronSubnet(nPort);
         DhcpInfo dhcpInfo = getDhcpInfo(nPort, nSubnet);
         LOG.trace("NeutronPort: {} \n NeutronSubnet: {}, dhcpInfo{}",nPort, nSubnet, dhcpInfo);
@@ -166,36 +175,29 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         return dhcpMgr.getNeutronSubnet(nPort);
     }
 
-    private Port getNeutronPort(FlowCapableNodeConnector fcNc) {
-            return dhcpMgr.getNeutronPort(fcNc.getName());
+    private Port getNeutronPort(String interfaceName) {
+            return dhcpMgr.getNeutronPort(interfaceName);
     }
 
-    private FlowCapableNodeConnector getFlowCapableNodeConnector(NodeConnectorRef inNcRef) {
-        InstanceIdentifier<NodeConnector> ncId = inNcRef.getValue().firstIdentifierOf(NodeConnector.class);
-        Optional<NodeConnector> nodeConnector = 
-                        MDSALDataStoreUtils.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ncId);
-        if(nodeConnector.isPresent()) {
-            NodeConnector nc = nodeConnector.get();
-            LOG.trace("Incoming pkt's NodeConnector: {}", nc);
-            FlowCapableNodeConnector fcnc = nc.getAugmentation(FlowCapableNodeConnector.class);
-            return fcnc;
+    private DHCP getDhcpPktIn(Ethernet actualEthernetPacket) {
+        Ethernet ethPkt = actualEthernetPacket;
+        LOG.trace("Inside getDhcpPktIn ethPkt {} \n getPayload {}", ethPkt, ethPkt.getPayload());
+        if (ethPkt.getEtherType() == (short)NwConstants.ETHTYPE_802_1Q) {
+            ethPkt = (Ethernet)ethPkt.getPayload();
         }
-        return null;
-    }
-
-    private DHCP getDhcpPktIn(Ethernet ethPkt) {
         if (ethPkt.getPayload() instanceof IPv4) {
             IPv4 ipPkt = (IPv4) ethPkt.getPayload();
             if (ipPkt.getPayload() instanceof UDP) {
                 UDP udpPkt = (UDP) ipPkt.getPayload();
                 if ((udpPkt.getSourcePort() == DHCPMConstants.dhcpClientPort)
                         && (udpPkt.getDestinationPort() == DHCPMConstants.dhcpServerPort)) {
+                    LOG.trace("Matched dhcpClientPort and dhcpServerPort");
                     byte[] rawDhcpPayload = udpPkt.getRawPayload();
                     DHCP reply = new DHCP();
                     try {
                         reply.deserialize(rawDhcpPayload, 0, rawDhcpPayload.length);
                     } catch (PacketException e) {
-                        LOG.warn("Failed to deserialize DHCP pkt", e);
+                        LOG.warn("Failed to deserialize DHCP pkt {}", e);
                         return null;
                     }
                     return reply;
@@ -268,7 +270,7 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         return reply;
     }
 
-    protected byte[] getDhcpPacketOut(DHCP reply, Ethernet etherPkt, FlowCapableNodeConnector fcNc) {
+    protected byte[] getDhcpPacketOut(DHCP reply, Ethernet etherPkt, String phyAddrees) {
         if (reply == null) {
             /*
              * DECLINE or RELEASE don't result in reply packet
@@ -313,11 +315,24 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         ip4Reply.setTtl((byte) 32);
         // create Ethernet Frame
         Ethernet ether = new Ethernet();
+        if (etherPkt.getEtherType() == (short)NwConstants.ETHTYPE_802_1Q) {
+            IEEE8021Q vlanPacket = (IEEE8021Q) etherPkt.getPayload();
+            IEEE8021Q vlanTagged = new IEEE8021Q();
+            vlanTagged.setCFI(vlanPacket.getCfi());
+            vlanTagged.setPriority(vlanPacket.getPriority());
+            vlanTagged.setVlanId(vlanPacket.getVlanId());
+            vlanTagged.setPayload(ip4Reply);
+            vlanTagged.setEtherType(EtherTypes.IPv4.shortValue());
+            ether.setPayload(vlanTagged);
+            ether.setEtherType((short) NwConstants.ETHTYPE_802_1Q);
+        } else {
+            ether.setEtherType(EtherTypes.IPv4.shortValue());
+            ether.setPayload(ip4Reply);
+        }
         //TODO: 
-        ether.setSourceMACAddress(getServerMacAddress(fcNc));
+        ether.setSourceMACAddress(getServerMacAddress(phyAddrees));
         ether.setDestinationMACAddress(etherPkt.getSourceMACAddress());
-        ether.setEtherType(EtherTypes.IPv4.shortValue());
-        ether.setPayload(ip4Reply);
+
         try {
             rawPkt = ether.serialize();
         } catch (PacketException e) {
@@ -327,10 +342,9 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         return rawPkt;
     }
 
-    private byte[] getServerMacAddress(FlowCapableNodeConnector fcNc) {
+    private byte[] getServerMacAddress(String phyAddress) {
         // Should we return ControllerMac instead?
-        MacAddress macAddress = fcNc.getHardwareAddress();
-        return DHCPUtils.strMacAddrtoByteArray(macAddress.getValue());
+        return DHCPUtils.strMacAddrtoByteArray(phyAddress);
     }
 
     public short computeChecksum(byte[] inData, byte[] srcAddr, byte[] destAddr) {
@@ -523,4 +537,79 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         this.pktService = packetService;
     }
 
+    public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {
+        LOG.trace("Registered interfaceManager successfully");;
+        this.interfaceManagerRpc = interfaceManagerRpc;
+    }
+
+    private String getInterfaceNameFromTag(long portTag) {
+        String interfaceName = null;
+        GetInterfaceFromIfIndexInput input = new GetInterfaceFromIfIndexInputBuilder().setIfIndex(new Integer((int)portTag)).build();
+        Future<RpcResult<GetInterfaceFromIfIndexOutput>> futureOutput = interfaceManagerRpc.getInterfaceFromIfIndex(input);
+        try {
+            GetInterfaceFromIfIndexOutput output = futureOutput.get().getResult();
+            interfaceName = output.getInterfaceName();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error while retrieving the interfaceName from tag using getInterfaceFromIfIndex RPC");
+        }
+        LOG.trace("Returning interfaceName {} for tag {} form getInterfaceNameFromTag", interfaceName, portTag);
+        return interfaceName;
+    }
+
+    private org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceStateFromOperDS(String interfaceName) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
+                buildStateInterfaceId(interfaceName);
+        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateOptional =
+                MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, ifStateId, dataBroker);
+        if (!ifStateOptional.isPresent()) {
+            return null;
+        }
+
+        return ifStateOptional.get();
+    }
+
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> buildStateInterfaceId(String interfaceName) {
+        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> idBuilder =
+                InstanceIdentifier.builder(InterfacesState.class)
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class,
+                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(interfaceName));
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> id = idBuilder.build();
+        return id;
+    }
+
+    private List<Action> getEgressAction(String interfaceName) {
+        List<Action> actions = null;
+        try {
+            Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
+                    interfaceManagerRpc.getEgressActionsForInterface(
+                            new GetEgressActionsForInterfaceInputBuilder().setIntfName(interfaceName).build());
+            RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
+            if(!rpcResult.isSuccessful()) {
+                LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}", interfaceName, rpcResult.getErrors());
+            } else {
+                actions = rpcResult.getResult().getAction();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when egress actions for interface {}", interfaceName, e);
+        }
+        return actions;
+    }
+
+    private ImmutablePair<BigInteger, String> getDpnIdPhysicalAddressFromInterfaceName(String interfaceName) {
+        ImmutablePair<BigInteger, String> pair = localCache.get(interfaceName);
+        if (pair!=null && pair.getLeft() != null && pair.getRight() != null) {
+            return pair;
+        }
+        NodeConnectorId nodeConnectorId = null;
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState = getInterfaceStateFromOperDS(interfaceName);
+        if(interfaceState != null) {
+            List<String> ofportIds = interfaceState.getLowerLayerIf();
+            nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
+        }
+        BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        String phyAddress = interfaceState==null ? "":interfaceState.getPhysAddress().getValue();
+        pair = new ImmutablePair<BigInteger, String>(dpId, phyAddress);
+        localCache.put(interfaceName, pair);
+        return null;
+    }
 }

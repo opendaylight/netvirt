@@ -73,7 +73,7 @@ public class NodeListener extends AbstractDataChangeListener<Node> implements Au
         NodeId nodeId = add.getId();
         String[] node =  nodeId.getValue().split(":");
         BigInteger dpId = new BigInteger(node[1]);
-        dhcpManager.installDhcpEntries(dpId);
+        dhcpManager.setupTableMissForDhcpTable(dpId);
     }
 
     @Override

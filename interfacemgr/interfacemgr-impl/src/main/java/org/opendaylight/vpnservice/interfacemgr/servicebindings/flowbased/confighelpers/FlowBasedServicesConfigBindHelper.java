@@ -7,7 +7,12 @@
  */
 package org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.confighelpers;
 
-import com.google.common.util.concurrent.ListenableFuture;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
@@ -24,16 +29,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.ServicesInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.services.info.BoundServices;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class FlowBasedServicesConfigBindHelper {
     private static final Logger LOG = LoggerFactory.getLogger(FlowBasedServicesConfigBindHelper.class);
@@ -41,7 +41,6 @@ public class FlowBasedServicesConfigBindHelper {
     public static List<ListenableFuture<Void>> bindService(InstanceIdentifier<BoundServices> instanceIdentifier,
                                                            BoundServices boundServiceNew, DataBroker dataBroker) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
         String interfaceName =
                 InstanceIdentifier.keyOf(instanceIdentifier.firstIdentifierOf(ServicesInfo.class)).getInterfaceName();
 
@@ -69,25 +68,28 @@ public class FlowBasedServicesConfigBindHelper {
             return futures;
         }
 
+        // Split based on type of interface....
+        if (iface.getType().isAssignableFrom(L2vlan.class)) {
+            return bindServiceOnVlan(boundServiceNew, allServices, iface, ifState.getIfIndex(), dataBroker);
+        } else if (iface.getType().isAssignableFrom(Tunnel.class)) {
+           return bindServiceOnTunnel(boundServiceNew, allServices, iface, ifState.getIfIndex(), dataBroker);
+        }
+        return futures;
+    }
+
+    private static List<ListenableFuture<Void>> bindServiceOnTunnel(BoundServices boundServiceNew, List<BoundServices> allServices, Interface iface, int ifIndex, DataBroker dataBroker) {
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
         NodeConnectorId nodeConnectorId = FlowBasedServicesUtils.getNodeConnectorIdFromInterface(iface, dataBroker);
         long portNo = Long.parseLong(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
         BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
+        WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
 
         if (allServices.size() == 1) {
             // If only one service present, install instructions in table 0.
-            int vlanId = 0;
             List<MatchInfo> matches = null;
-            if (iface.getType().isAssignableFrom(L2vlan.class)) {
-                matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, iface);
-            } else if (iface.getType().isAssignableFrom(Tunnel.class)){
-                matches = FlowBasedServicesUtils.getMatchInfoForTunnelPortAtIngressTable (dpId, portNo, iface);
-            }
-
-            if (matches != null) {
-                FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface, boundServiceNew,
-                        transaction, matches, ifState.getIfIndex(), NwConstants.VLAN_INTERFACE_INGRESS_TABLE);
-            }
-
+            matches = FlowBasedServicesUtils.getMatchInfoForTunnelPortAtIngressTable (dpId, portNo, iface);
+            FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface, boundServiceNew,
+                    transaction, matches, ifIndex, NwConstants.VLAN_INTERFACE_INGRESS_TABLE);
             if (transaction != null) {
                 futures.add(transaction.submit());
             }
@@ -112,17 +114,13 @@ public class FlowBasedServicesConfigBindHelper {
 
         if (!isCurrentServiceHighestPriority) {
             FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, boundServiceNew, iface, transaction,
-                    ifState.getIfIndex());
+                    ifIndex, boundServiceNew.getServicePriority(), (short) (boundServiceNew.getServicePriority()+1));
         } else {
             BoundServices serviceToReplace = tmpServicesMap.get(highestPriority);
             FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, serviceToReplace, iface, transaction,
-                    ifState.getIfIndex());
+                    ifIndex, boundServiceNew.getServicePriority(), (short) (boundServiceNew.getServicePriority()+1));
             List<MatchInfo> matches = null;
-            if (iface.getType().isAssignableFrom(L2vlan.class)) {
-                matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, iface);
-            } else if (iface.getType().isAssignableFrom(Tunnel.class)){
-                matches = FlowBasedServicesUtils.getMatchInfoForTunnelPortAtIngressTable (dpId, portNo, iface);
-            }
+            matches = FlowBasedServicesUtils.getMatchInfoForTunnelPortAtIngressTable (dpId, portNo, iface);
 
             if (matches != null) {
 
@@ -132,7 +130,7 @@ public class FlowBasedServicesConfigBindHelper {
 
                 WriteTransaction installFlowTransaction = dataBroker.newWriteOnlyTransaction();
                 FlowBasedServicesUtils.installInterfaceIngressFlow(dpId, iface, boundServiceNew, installFlowTransaction,
-                        matches, ifState.getIfIndex(), NwConstants.VLAN_INTERFACE_INGRESS_TABLE);
+                        matches, ifIndex, NwConstants.VLAN_INTERFACE_INGRESS_TABLE);
                 futures.add(installFlowTransaction.submit());
             }
         }
@@ -140,6 +138,56 @@ public class FlowBasedServicesConfigBindHelper {
         if (transaction != null) {
             futures.add(transaction.submit());
         }
+        return futures;
+    }
+
+    private static List<ListenableFuture<Void>> bindServiceOnVlan(BoundServices boundServiceNew, List<BoundServices> allServices, Interface iface, int ifIndex, DataBroker dataBroker) {
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        NodeConnectorId nodeConnectorId = FlowBasedServicesUtils.getNodeConnectorIdFromInterface(iface, dataBroker);
+        BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
+        WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
+
+        if (allServices.size() == 1) {
+            //calling LportDispatcherTableForService with current service index as 0 and next service index as some value since this is the only service bound.
+            FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, boundServiceNew, iface,
+                    transaction, ifIndex, IfmConstants.DEFAULT_SERVICE_INDEX,(short) (boundServiceNew.getServicePriority() + 1));
+            if (transaction != null) {
+                futures.add(transaction.submit());
+            }
+            return futures;
+        }
+        allServices.remove(boundServiceNew);
+        BoundServices[] highLowPriorityService = FlowBasedServicesUtils.getHighAndLowPriorityService(allServices, boundServiceNew);
+        BoundServices low = highLowPriorityService[0];
+        BoundServices high = highLowPriorityService[1];
+        BoundServices highest = FlowBasedServicesUtils.getHighestPriorityService(allServices);
+        short currentServiceIndex = IfmConstants.DEFAULT_SERVICE_INDEX;
+        short nextServiceIndex = (short) (boundServiceNew.getServicePriority() + 1); // dummy service index
+        if (low != null) {
+            nextServiceIndex = low.getServicePriority();
+            if (low.equals(highest)) {
+                //In this case the match criteria of existing service should be changed.
+                BoundServices lower = FlowBasedServicesUtils.getHighAndLowPriorityService(allServices, low)[0];
+                short lowerServiceIndex = (short) ((lower!=null) ? lower.getServicePriority() : low.getServicePriority() + 1);
+                LOG.trace("Installing table 30 entry for existing service {} service match on service index {} update with service index {}", low, low.getServicePriority(), lowerServiceIndex);
+                FlowBasedServicesUtils.installLPortDispatcherFlow(dpId,low, iface, transaction, ifIndex,low.getServicePriority(), lowerServiceIndex);
+            } else {
+                currentServiceIndex = boundServiceNew.getServicePriority();
+            }
+        }
+        if (high != null) {
+            currentServiceIndex = boundServiceNew.getServicePriority();
+            if (high.equals(highest)) {
+                LOG.trace("Installing table 30 entry for existing service {} service match on service index {} update with service index {}", high, IfmConstants.DEFAULT_SERVICE_INDEX, currentServiceIndex);
+                FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, high, iface, transaction, ifIndex, IfmConstants.DEFAULT_SERVICE_INDEX, currentServiceIndex);
+            } else {
+                LOG.trace("Installing table 30 entry for existing service {} service match on service index {} update with service index {}", high, high.getServicePriority(), currentServiceIndex);
+                FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, high, iface, transaction, ifIndex, high.getServicePriority(), currentServiceIndex);
+            }
+        }
+        LOG.trace("Installing table 30 entry for new service match on service index {} update with service index {}", currentServiceIndex, nextServiceIndex);
+        FlowBasedServicesUtils.installLPortDispatcherFlow(dpId, boundServiceNew, iface, transaction, ifIndex, currentServiceIndex, nextServiceIndex);
+        futures.add(transaction.submit());
         return futures;
     }
 }

@@ -490,4 +490,15 @@ public class MDSALUtil {
         return null;
     }
 
+    public static TransmitPacketInput getPacketOut(List<Action> actions, byte[] payload, BigInteger dpnId) {
+        NodeConnectorRef ncRef = getDefaultNodeConnRef(dpnId);
+        return new TransmitPacketInputBuilder()
+                .setAction(actions)
+                .setPayload(payload)
+                .setNode(
+                        new NodeRef(InstanceIdentifier.builder(Nodes.class)
+                                .child(Node.class, new NodeKey(new NodeId("openflow:" + dpnId))).toInstance()))
+                .setIngress(ncRef).setEgress(ncRef).build();
+    }
+
 }

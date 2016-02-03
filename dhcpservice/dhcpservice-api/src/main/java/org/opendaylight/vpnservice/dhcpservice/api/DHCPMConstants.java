@@ -12,10 +12,6 @@ import java.math.BigInteger;
 
 public final class DHCPMConstants {
 
-    // DHCP Service Table Ids
-    public static final short DHCP_TABLE = 0;
-    public static final short L3_FIB_TABLE = 20;
-
     public static final long DHCP_TABLE_MAX_ENTRY = 10000;
 
     public static final int DEFAULT_DHCP_FLOW_PRIORITY = 50;
@@ -35,4 +31,6 @@ public final class DHCPMConstants {
 
     public static final int DEFAULT_LEASE_TIME = 86400;
     public static final String DEFAULT_DOMAIN_NAME = "openstacklocal";
+
+    public static final BigInteger INVALID_DPID = new BigInteger("-1");
 }

@@ -8,18 +8,22 @@
 package org.opendaylight.vpnservice.dhcpservice;
 
 import org.opendaylight.vpnservice.neutronvpn.interfaces.INeutronVpnManager;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
+
 import com.google.common.base.Optional;
+
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.google.common.util.concurrent.FutureCallback;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.vpnservice.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
@@ -84,7 +88,7 @@ public class DhcpManager implements AutoCloseable {
 
     public void installDhcpEntries(BigInteger dpnId) {
         logger.debug("Installing Default DHCP Flow tp DPN: {}", dpnId);
-        setupDefaultDhcpFlow(dpnId, DHCPMConstants.DHCP_TABLE, NwConstants.ADD_FLOW);
+        setupDefaultDhcpFlow(dpnId, NwConstants.DHCP_TABLE, NwConstants.ADD_FLOW);
     }
 
     private void setupDefaultDhcpFlow(BigInteger dpId,  short tableId, int addOrRemove) {
@@ -171,4 +175,70 @@ public class DhcpManager implements AutoCloseable {
         return neutronVpnService.getNeutronPort(name);
     }
 
+    public void installDhcpEntries(BigInteger dpnId, String vmMacAddress) {
+        setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.ADD_FLOW);
+    }
+
+    private void setupDhcpFlowEntry(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove) {
+        if (dpId == null || dpId == DHCPMConstants.INVALID_DPID || vmMacAddress == null) {
+            return;
+        }
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+
+        matches.add(new MatchInfo(MatchFieldType.eth_type,
+                new long[] { NwConstants.ETHTYPE_IPV4 }));
+        matches.add(new MatchInfo(MatchFieldType.ip_proto,
+                new long[] { IPProtocols.UDP.intValue() }));
+        matches.add(new MatchInfo(MatchFieldType.udp_src,
+                new long[] { DHCPMConstants.dhcpClientPort }));
+        matches.add(new MatchInfo(MatchFieldType.udp_dst,
+                new long[] { DHCPMConstants.dhcpServerPort }));
+        matches.add(new MatchInfo(MatchFieldType.eth_src,
+                new String[] { vmMacAddress }));
+
+        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+
+        // Punt to controller
+        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
+                new String[] {}));
+        instructions.add(new InstructionInfo(InstructionType.write_actions,
+                actionsInfos));
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
+                    getDhcpFlowRef(dpId, tableId, vmMacAddress),
+                    DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
+                    DHCPMConstants.COOKIE_DHCP_BASE, matches, null);
+            logger.trace("Removing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            mdsalUtil.removeFlow(flowEntity);
+        } else {
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
+                    getDhcpFlowRef(dpId, tableId, vmMacAddress),DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
+                    DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
+            logger.trace("Installing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            mdsalUtil.installFlow(flowEntity);
+        }
+    }
+
+    private String getDhcpFlowRef(BigInteger dpId, long tableId, String vmMacAddress) {
+        return new StringBuffer().append(DHCPMConstants.FLOWID_PREFIX)
+                .append(dpId).append(NwConstants.FLOWID_SEPARATOR)
+                .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
+                .append(vmMacAddress).toString();
+    }
+
+    public void unInstallDhcpEntries(BigInteger dpId, String vmMacAddress) {
+        setupDhcpFlowEntry(dpId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.DEL_FLOW);
+    }
+
+    public void setupTableMissForDhcpTable(BigInteger dpId) {
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.LPORT_DISPATCHER_TABLE }));
+
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DHCP_TABLE, "DHCPTableMissFlow",
+                0, "DHCP Table Miss Flow", 0, 0,
+                DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
+        mdsalUtil.installFlow(flowEntity);
+    }
 }

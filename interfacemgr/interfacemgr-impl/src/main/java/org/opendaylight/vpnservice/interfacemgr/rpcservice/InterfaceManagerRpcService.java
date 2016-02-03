@@ -357,8 +357,13 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
         if(L2vlan.class.equals(ifType)){
             IfL2vlan vlanIface = interfaceInfo.getAugmentation(IfL2vlan.class);
             LOG.trace("L2Vlan: {}",vlanIface);
-            long vlanVid = (vlanIface == null) ? 0 : vlanIface.getVlanId().getValue();
-            if (vlanVid != 0) {
+            long vlanVid = 0;
+            boolean isVlanTransparent = false;
+            if (vlanIface != null) {
+                vlanVid = vlanIface.getVlanId() == null ? 0 : vlanIface.getVlanId().getValue();
+                isVlanTransparent = vlanIface.getL2vlanMode() == IfL2vlan.L2vlanMode.Transparent;
+            }
+            if (vlanVid != 0 && !isVlanTransparent) {
                 listActionInfo.add(new ActionInfo(ActionType.push_vlan, new String[] {}));
                 listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
                         new String[] { Long.toString(vlanVid) }));

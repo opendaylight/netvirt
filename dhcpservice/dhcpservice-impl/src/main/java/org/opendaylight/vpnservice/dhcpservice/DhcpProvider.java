@@ -8,9 +8,9 @@
 package org.opendaylight.vpnservice.dhcpservice;
 
 import org.opendaylight.vpnservice.neutronvpn.interfaces.INeutronVpnManager;
-
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
@@ -30,6 +30,8 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
     private NodeListener dhcpNodeListener;
     private INeutronVpnManager neutronVpnManager;
     private DhcpConfigListener dhcpConfigListener;
+    private OdlInterfaceRpcService interfaceManagerRpc;
+    private DhcpInterfaceEventListener dhcpInterfaceEventListener;
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -42,11 +44,13 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
             dhcpManager.setNeutronVpnService(neutronVpnManager);
             dhcpPktHandler = new DhcpPktHandler(dataBroker, dhcpManager);
             dhcpPktHandler.setPacketProcessingService(pktProcessingService);
+            dhcpPktHandler.setInterfaceManagerRpc(interfaceManagerRpc);
             packetListener = notificationService.registerNotificationListener(dhcpPktHandler);
             dhcpNodeListener = new NodeListener(dataBroker, dhcpManager);
             dhcpConfigListener = new DhcpConfigListener(dataBroker, dhcpManager);
+            dhcpInterfaceEventListener = new DhcpInterfaceEventListener(dhcpManager, dataBroker);
         } catch (Exception e) {
-            LOG.error("Error initializing services", e);
+            LOG.error("Error initializing services {}", e);
         }
     }
 
@@ -77,4 +81,7 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
         this.notificationService = notificationServiceDependency;
     }
 
+    public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {
+        this.interfaceManagerRpc = interfaceManagerRpc;
+    }
 }

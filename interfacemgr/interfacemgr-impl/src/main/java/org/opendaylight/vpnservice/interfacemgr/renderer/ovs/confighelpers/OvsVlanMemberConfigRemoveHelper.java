@@ -7,15 +7,19 @@
  */
 package org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers;
 
-import com.google.common.util.concurrent.ListenableFuture;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.idmanager.IdManager;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
+import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
@@ -27,8 +31,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class OvsVlanMemberConfigRemoveHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsVlanMemberConfigRemoveHelper.class);
@@ -81,9 +84,13 @@ public class OvsVlanMemberConfigRemoveHelper {
                 }
             } */
 
+            String ncStr = ifState.getLowerLayerIf().get(0);
+            NodeConnectorId nodeConnectorId = new NodeConnectorId(ncStr);
+            BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
             InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
                     IfmUtil.buildStateInterfaceId(interfaceOld.getName());
             t.delete(LogicalDatastoreType.OPERATIONAL, ifStateId);
+            FlowBasedServicesUtils.removeIngressFlow(interfaceOld, dpId, t);
         }
 
         futures.add(t.submit());
