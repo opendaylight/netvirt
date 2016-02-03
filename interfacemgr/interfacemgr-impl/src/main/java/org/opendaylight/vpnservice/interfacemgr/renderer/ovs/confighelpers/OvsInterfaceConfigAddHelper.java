@@ -205,6 +205,7 @@ public class OvsInterfaceConfigAddHelper {
         InterfaceBuilder ifaceBuilder = new InterfaceBuilder();
         if (!interfaceNew.isEnabled() && ifState.getOperStatus() != OperStatus.Down) {
             ifaceBuilder.setOperStatus(OperStatus.Down);
+            ifaceBuilder.setType(interfaceNew.getType());
             ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(interfaceNew.getName()));
             transaction.merge(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build());
         }

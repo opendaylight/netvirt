@@ -145,6 +145,7 @@ public class VlanInterfaceConfigurationTest {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder ifaceBuilder = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder();
         ifaceBuilder.setOperStatus(OperStatus.Down);
         ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(vlanInterfaceEnabled.getName()));
+        ifaceBuilder.setType(L2vlan.class);
         stateInterface = ifaceBuilder.build();
 
         addHelper.addConfiguration(dataBroker, null, vlanInterfaceDisabled, idManager,

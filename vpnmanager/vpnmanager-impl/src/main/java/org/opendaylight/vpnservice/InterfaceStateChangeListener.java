@@ -101,14 +101,10 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
       try {
         String interfaceName = intrf.getName();
         LOG.info("Received port DOWN event for interface {} ", interfaceName);
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
-            intf = InterfaceUtils.getInterface(broker, interfaceName);
         BigInteger dpId = InterfaceUtils.getDpIdFromInterface(intrf);
-        if (intf != null && intf.getType().equals(Tunnel.class)) {
-          if(intrf.getOperStatus().equals(Interface.OperStatus.Down)) {
-            //withdraw all prefixes in all vpns for this dpn from bgp
-            vpnInterfaceManager.updatePrefixesForDPN(dpId, VpnInterfaceManager.UpdateRouteAction.WITHDRAW_ROUTE);
-          }
+        if (intrf != null && intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
+          //withdraw all prefixes in all vpns for this dpn from bgp
+          vpnInterfaceManager.updatePrefixesForDPN(dpId, VpnInterfaceManager.UpdateRouteAction.WITHDRAW_ROUTE);
         } else {
           if (VpnUtil.isVpnInterfaceConfigured(broker, interfaceName)) {
             vpnInterfaceManager.processVpnInterfaceDown(dpId, interfaceName, intrf.getIfIndex(), true);

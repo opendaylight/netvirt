@@ -89,6 +89,9 @@ public class OvsInterfaceStateAddHelper {
         InterfaceBuilder ifaceBuilder = new InterfaceBuilder().setOperStatus(operStatus)
                 .setAdminStatus(adminStatus).setPhysAddress(physAddress).setIfIndex(ifIndex).setLowerLayerIf(lowerLayerIfList)
                 .setKey(IfmUtil.getStateInterfaceKeyFromName(portName));
+        if(iface != null) {
+            ifaceBuilder.setType(iface.getType());
+        }
         transaction.put(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build(), true);
 
         // allocate lport tag and set in if-index
@@ -154,7 +157,7 @@ public class OvsInterfaceStateAddHelper {
             ifIndex = IfmUtil.allocateId(idManager, IfmConstants.IFM_IDPOOL_NAME, ifaceChild.getName());
             InterfaceBuilder childIfaceBuilder = new InterfaceBuilder().setAdminStatus(adminStatus).setOperStatus(operStatus)
                     .setPhysAddress(physAddress).setLowerLayerIf(childLowerLayerIfList).setIfIndex(ifIndex);
-            childIfaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(ifaceChild.getName()));
+            childIfaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(ifaceChild.getName())).setType(ifaceChild.getType());
             transaction.put(LogicalDatastoreType.OPERATIONAL, ifChildStateId, childIfaceBuilder.build(), true);
 
             // create lportTag Interface Map

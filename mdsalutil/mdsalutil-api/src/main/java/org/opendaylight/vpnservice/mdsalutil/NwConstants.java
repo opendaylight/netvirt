@@ -50,6 +50,6 @@ public class NwConstants {
     public static final short LPORT_DISPATCHER_TABLE = 30;
     public static final short VLAN_INTERFACE_INGRESS_TABLE = 0;
     public static final short INTERNAL_TUNNEL_TABLE = 36;
-    public static final short EXTERNAL_TUNNEL_TABLE = 38;
+    public static final short EXTERNAL_TUNNEL_TABLE = 36;
 
  }

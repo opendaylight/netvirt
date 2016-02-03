@@ -83,10 +83,11 @@ public class VpnUtil {
                 .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
     }
 
-    static VpnInterface getVpnInterface(String intfName, String vpnName, Adjacencies aug) {
-        return new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(intfName)).setVpnInstanceName(
-            vpnName)
-                .addAugmentation(Adjacencies.class, aug).build();
+    static VpnInterface getVpnInterface(String intfName, String vpnName, Adjacencies aug, boolean opState) {
+        return new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(intfName)).setVpnInstanceName(vpnName)
+                .addAugmentation(Adjacencies.class, aug)
+                .addAugmentation(OpState.class, new OpStateBuilder().setStateUp(opState).build())
+                .build();
     }
 
     static InstanceIdentifier<Prefixes> getPrefixToInterfaceIdentifier(long vpnId, String ipPrefix) {

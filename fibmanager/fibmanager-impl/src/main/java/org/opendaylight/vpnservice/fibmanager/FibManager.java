@@ -41,6 +41,7 @@ import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
 import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.OpState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnToExtraroute;
@@ -275,6 +276,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
   public BigInteger deleteLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry) {
     BigInteger localDpnId = BigInteger.ZERO;
+    boolean isExtraRoute = false;
     VpnNexthop localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, vrfEntry.getDestPrefix());
     String localNextHopIP = vrfEntry.getDestPrefix();
 
@@ -284,13 +286,17 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         if (extra_route != null) {
             localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, extra_route.getNexthopIp());
             localNextHopIP = extra_route.getNexthopIp() + "/32";
+            isExtraRoute = true;
         }
     }
 
 
     if(localNextHopInfo != null) {
       localDpnId = localNextHopInfo.getDpnId();
-      //if (getPrefixToInterface(vpnId, (staticRoute == true) ? extra_route.getNextHopAddress() + "/32" : vrfEntry.getDestPrefix()) == null)
+      Prefixes prefix = getPrefixToInterface(vpnId, isExtraRoute ? localNextHopIP : vrfEntry.getDestPrefix());
+      Optional<OpState> opStateData = FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                                                            FibUtil.getVpnInterfaceOpStateIdentifier(prefix.getVpnInterfaceName()));
+      if(opStateData.isPresent() && !opStateData.get().isStateUp())
       {
         makeConnectedRoute(localDpnId, vpnId, vrfEntry, rd, null /* invalid */,
                            NwConstants.DEL_FLOW);
@@ -423,8 +429,10 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
             if (vpnInterfaces.remove(currVpnInterface)) {
                 if (vpnInterfaces.isEmpty()) {
                     //FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL, id);
+                  LOG.trace("cleanUpOpDataForFib: cleanUpDpnForVpn: {}, {}", dpnId, vpnId);
                     cleanUpDpnForVpn(dpnId, vpnId, rd);
                 } else {
+                  LOG.trace("cleanUpOpDataForFib: delete interface: {} on {}", intfName, dpnId);
                     FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL, id.child(
                             org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data
                                     .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces.class,
@@ -457,12 +465,14 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       if (optAdjacencies.isPresent()) {
           numAdj = optAdjacencies.get().getAdjacency().size();
       }
+      LOG.trace("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId, vrfEntry.getDestPrefix());
       //remove adjacency corr to prefix
       FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL, FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
 
       if((numAdj - 1) == 0) { //there are no adjacencies left for this vpn interface, clean up
         //clean up the vpn interface from DpnToVpn list
           delIntfFromDpnToVpnList(vpnId, prefixInfo.getDpnId(), ifName, rd);
+        LOG.trace("cleanUpOpDataForFib: Delete prefix to interface and vpnInterface ");
           FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
                   FibUtil.getPrefixToInterfaceIdentifier(
                           vpnId,

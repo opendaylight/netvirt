@@ -17,6 +17,8 @@ import org.opendaylight.controller.md.sal.binding.api.*;
 import org.opendaylight.vpnservice.mdsalutil.*;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.OpState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.OpStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -202,15 +204,15 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             LOG.trace("VpnInstance to VPNId mapping is not yet available, bailing out now.");
             return;
         }
-        if (VpnUtil.getOperationalVpnInterface(broker, vpnInterface.getName()) != null) {
-            LOG.trace("VPN Interface already provisioned , bailing out from here.");
-            return;
-        }
         synchronized (interfaceName.intern()) {
+            if (VpnUtil.getOperationalVpnInterface(broker, vpnInterface.getName()) != null) {
+                LOG.trace("VPN Interface already provisioned , bailing out from here.");
+                return;
+            }
 
             bindService(dpId, vpnName, interfaceName, lPortTag);
             updateDpnDbs(vpnName, interfaceName, true);
-            processVpnInterfaceAdjacencies(VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName()), vpnInterface);
+            processVpnInterfaceAdjacencies(VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName()), vpnInterface, true);
         }
 
     }
@@ -249,7 +251,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
     }
 
-    private void processVpnInterfaceAdjacencies(final InstanceIdentifier<VpnInterface> identifier, VpnInterface intf) {
+    private void processVpnInterfaceAdjacencies(final InstanceIdentifier<VpnInterface> identifier, VpnInterface intf,
+                                                boolean vpnInterfaceState) {
         String intfName = intf.getName();
 
         synchronized (intfName) {
@@ -289,7 +292,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 }
 
                 Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(value);
-                VpnInterface opInterface = VpnUtil.getVpnInterface(intfName, intf.getVpnInstanceName(), aug);
+                VpnInterface opInterface = VpnUtil.getVpnInterface(intfName, intf.getVpnInstanceName(),
+                                                                   aug, vpnInterfaceState);
                 InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(intfName);
                 VpnUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface);
                 for (Adjacency nextHop : aug.getAdjacency()) {
@@ -489,6 +493,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
         String rd = VpnUtil.getVpnRd(broker, intf.getVpnInstanceName());
         if (adjacencies.isPresent()) {
+            VpnUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, identifier.augmentation(OpState.class),
+                               new OpStateBuilder().setStateUp(false).build());
             List<Adjacency> nextHops = adjacencies.get().getAdjacency();
 
             if (!nextHops.isEmpty()) {
@@ -581,7 +587,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     }
                     //updatePrefixToBGP(newRd, nextHop, nextHopIp, label);
                 }
-                processVpnInterfaceAdjacencies(identifier, update);
+                processVpnInterfaceAdjacencies(identifier, update, true);
                 VpnUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, identifier, update);
             }
         } else if (oldAdjs != newAdjs) {
@@ -711,7 +717,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     .setIpAddress(prefix).setKey(new AdjacencyKey(prefix)).build());
 
             Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencies);
-            VpnInterface newVpnIntf = VpnUtil.getVpnInterface(currVpnIntf.getName(), currVpnIntf.getVpnInstanceName(), aug);
+            VpnInterface newVpnIntf = VpnUtil.getVpnInterface(currVpnIntf.getName(), currVpnIntf.getVpnInstanceName(),
+                                                              aug, currVpnIntf.getAugmentation(OpState.class).isStateUp());
 
             VpnUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf);
             addExtraRoute(adj.getIpAddress(), adj.getNextHopIp(), rd, currVpnIntf.getVpnInstanceName(), (int) label, currVpnIntf.getName());
@@ -743,7 +750,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                             adjIt.remove();
 
                             Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencies);
-                            VpnInterface newVpnIntf = VpnUtil.getVpnInterface(currVpnIntf.getName(), currVpnIntf.getVpnInstanceName(), aug);
+                            VpnInterface newVpnIntf = VpnUtil.getVpnInterface(currVpnIntf.getName(),
+                                                                              currVpnIntf.getVpnInstanceName(),
+                                                                              aug,
+                                                                              currVpnIntf.getAugmentation(OpState.class).isStateUp());
 
                             VpnUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf);
 
@@ -863,6 +873,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
     protected void updatePrefixesForDPN(BigInteger dpnId, UpdateRouteAction action) {
 
+        LOG.info("Tunnel event triggered {} for Dpn:{} ", action.name(), dpnId);
         InstanceIdentifierBuilder<VpnInstances> idBuilder = InstanceIdentifier.builder(VpnInstances.class);
         InstanceIdentifier<VpnInstances> vpnInstancesId = idBuilder.build();
         Optional<VpnInstances> vpnInstances = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnInstancesId);

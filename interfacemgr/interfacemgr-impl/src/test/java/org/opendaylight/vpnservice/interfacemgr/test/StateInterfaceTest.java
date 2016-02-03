@@ -122,7 +122,7 @@ public class StateInterfaceTest {
         ifaceBuilder.setOperStatus(OperStatus.Up).setAdminStatus(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus.Up)
                 .setPhysAddress(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress.getDefaultInstance("AA:AA:AA:AA:AA:AA"))
                 .setIfIndex(100)
-                .setLowerLayerIf(lowerLayerIfList);
+                .setLowerLayerIf(lowerLayerIfList).setType(L2vlan.class);
         ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(InterfaceManagerTestUtil.interfaceName));
 
         stateInterface = ifaceBuilder.build();
