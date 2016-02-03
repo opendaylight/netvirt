@@ -106,8 +106,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </feature>
   <feature name='odl-vpnservice-intent' version='${project.version}' description='OpenDaylight :: vpnservice :: intent'>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
-    <feature version='${nic.version}'>odl-nic-core-service-mdsal</feature>
-    <feature version='${nic.version}'>odl-nic-core</feature>
     <feature version='${nic.version}'>odl-nic-listeners</feature>
     <bundle>mvn:org.opendaylight.vpnservice/vpnintent-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnintent-impl/{{VERSION}}</bundle>
