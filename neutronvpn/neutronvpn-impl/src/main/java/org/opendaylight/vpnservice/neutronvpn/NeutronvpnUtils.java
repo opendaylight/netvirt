@@ -13,6 +13,9 @@ import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -95,9 +98,8 @@ public class NeutronvpnUtils {
     protected static Uuid getVpnForNetwork(DataBroker broker, Uuid network) {
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optionalVpnMaps = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
-        if (optionalVpnMaps.isPresent()) {
-            VpnMaps vpnMaps = optionalVpnMaps.get();
-            List<VpnMap> allMaps = vpnMaps.getVpnMap();
+        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
+            List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
             for (VpnMap vpnMap : allMaps) {
                 if (vpnMap.getNetworkIds().contains(network)) {
                     return vpnMap.getVpnId();
@@ -112,9 +114,8 @@ public class NeutronvpnUtils {
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optionalVpnMaps = read(broker, LogicalDatastoreType.CONFIGURATION,
                 vpnMapsIdentifier);
-        if (optionalVpnMaps.isPresent()) {
-            VpnMaps vpnNets = optionalVpnMaps.get();
-            List<VpnMap> allMaps = vpnNets.getVpnMap();
+        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
+            List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
             if (routerId != null) {
                 for (VpnMap vpnMap : allMaps) {
                     if (routerId.equals(vpnMap.getRouterId())) {
@@ -238,37 +239,38 @@ public class NeutronvpnUtils {
     protected static boolean lock(LockManagerService lockManager, String lockName) {
         TryLockInput input = new TryLockInputBuilder().setLockName(lockName).setTime(5L).setTimeUnit
                 (TimeUnits.Milliseconds).build();
-        boolean islockAquired = false;
+        boolean islockAcquired = false;
         try {
             Future<RpcResult<Void>> result = lockManager.tryLock(input);
             if ((result != null) && (result.get().isSuccessful())) {
                 logger.debug("Acquired lock for {}", lockName);
-                islockAquired = true;
+                islockAcquired = true;
             } else {
-                throw new RuntimeException(String.format("Unable to acquire lock for  %s", lockName));
+                logger.error("Unable to acquire lock for  {}", lockName);
             }
         } catch (InterruptedException | ExecutionException e) {
             logger.error("Unable to acquire lock for  {}", lockName);
-            throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e
-                    .getCause());
+            throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
         }
-        return islockAquired;
+        return islockAcquired;
     }
 
-    protected static void unlock(LockManagerService lockManager, String lockName) {
+    protected static boolean unlock(LockManagerService lockManager, String lockName) {
         UnlockInput input = new UnlockInputBuilder().setLockName(lockName).build();
+        boolean islockAcquired = false;
         try {
             Future<RpcResult<Void>> result = lockManager.unlock(input);
             if ((result != null) && (result.get().isSuccessful())) {
                 logger.debug("Unlocked {}", lockName);
+                islockAcquired = true;
             } else {
-                logger.debug("Unable to unlock {}", lockName);
+                logger.error("Unable to unlock {}", lockName);
             }
         } catch (InterruptedException | ExecutionException e) {
             logger.error("Unable to unlock {}", lockName);
-            throw new RuntimeException(String.format("Unable to unlock %s", lockName), e
-                    .getCause());
+            throw new RuntimeException(String.format("Unable to unlock %s", lockName), e.getCause());
         }
+        return islockAcquired;
     }
 
     protected static Short getIPPrefixFromPort(DataBroker broker, Port port) {
@@ -296,7 +298,7 @@ public class NeutronvpnUtils {
                 logger.trace("Unable to read on subnet datastore");
             }
         } catch (Exception e) {
-            logger.trace("Failed to retrieve IP prefix from port : ", e);
+            logger.error("Failed to retrieve IP prefix from port : ", e);
             System.out.println("Failed to retrieve IP prefix from port : " + e.getMessage());
         }
         return null;
@@ -317,6 +319,12 @@ public class NeutronvpnUtils {
     static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {
         InstanceIdentifier<NetworkMap> id = InstanceIdentifier.builder(NetworkMaps.class).child(NetworkMap.class, new
                 NetworkMapKey(networkId)).build();
+        return id;
+    }
+
+    static InstanceIdentifier<VpnInterface> buildVpnInterfaceIdentifier(String ifName) {
+        InstanceIdentifier<VpnInterface> id = InstanceIdentifier.builder(VpnInterfaces.class).
+                child(VpnInterface.class, new VpnInterfaceKey(ifName)).build();
         return id;
     }
 

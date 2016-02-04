@@ -18,6 +18,11 @@ module neutronvpn {
               description "UUID representing the subnet ";
             }
 
+            leaf subnet-ip {
+                type    string;
+                description "Specifies the subnet IP in CIDR format";
+            }
+
             leaf tenant-id {
                 type    yang:uuid;
                 description "The UUID of the tenant that will own the subnet.";

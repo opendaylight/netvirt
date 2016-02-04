@@ -133,7 +133,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         // Create of-port interface for this neutron port
         createOfPortInterface(port, portVlanId);
         LOG.debug("Creating ELAN Interface");
-        createElanInterface(port, portVlanId);
+        createElanInterface(port);
         LOG.debug("Add port to subnet");
         // add port to local Subnets DS
         Uuid vpnId = addPortToSubnets(port);
@@ -195,8 +195,8 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 // handle these for trunkport extensions : portVlanId, isVlanTransparent
                 IfL2vlan l2vlan = new IfL2vlanBuilder().setL2vlanMode(IfL2vlan.L2vlanMode.Trunk).build();
                 ParentRefs parentRefs = new ParentRefsBuilder().setParentInterface(name).build();
-                Interface inf = new InterfaceBuilder().setEnabled(true).setName(name).setType(L2vlan.class).
-                        addAugmentation(IfL2vlan.class, l2vlan).addAugmentation(ParentRefs.class, parentRefs).build();
+                Interface inf = new InterfaceBuilder().setEnabled(true).setName(name).setType(L2vlan.class)
+                        .addAugmentation(IfL2vlan.class, l2vlan).addAugmentation(ParentRefs.class, parentRefs).build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
             } else {
                 LOG.error("Interface {} is already present", name);
@@ -234,7 +234,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 .getUuid());
     }
 
-    private void createElanInterface(Port port, int portVlanId) {
+    private void createElanInterface(Port port) {
         String name = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
         String elanInstanceName = port.getNetworkId().getValue();
         List<PhysAddress> physAddresses = new ArrayList<>();
@@ -243,8 +243,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
                 .class, new ElanInterfaceKey(name)).build();
         ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
-                .setName(name).setStaticMacEntries(physAddresses).
-                        setKey(new ElanInterfaceKey(name)).build();
+                .setName(name).setStaticMacEntries(physAddresses).setKey(new ElanInterfaceKey(name)).build();
         MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, elanInterface);
         LOG.debug("Creating new ELan Interface {}", elanInterface);
     }
@@ -268,7 +267,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                     ipValue, name);
 
             subnetId = ip.getSubnetId();
-            Subnetmap subnetmap = nvpnManager.updateSubnetNode(subnetId, null, null, null, null, port.getUuid());
+            Subnetmap subnetmap = nvpnManager.updateSubnetNode(subnetId, null, null, null, null, null, port.getUuid());
             if (vpnId == null && subnetmap != null) {
                 vpnId = subnetmap.getVpnId();
             }

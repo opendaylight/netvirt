@@ -209,7 +209,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 LOG.trace("VPN Interface already provisioned , bailing out from here.");
                 return;
             }
-
             bindService(dpId, vpnName, interfaceName, lPortTag);
             updateDpnDbs(vpnName, interfaceName, true);
             processVpnInterfaceAdjacencies(VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName()), vpnInterface, true);
@@ -543,56 +542,29 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     }
 
     @Override
-    protected void update(InstanceIdentifier<VpnInterface> identifier,
-                                   VpnInterface original, VpnInterface update) {
-        LOG.trace("Update VPN Interface {} , original {}, update {}",
-                                                  identifier, original, update);
-        String vpnName = original.getVpnInstanceName();
-
-        boolean vpnNameChanged = false;
-        String rd = getRouteDistinguisher(vpnName);
-        String newRd = rd;
-        String newVpnName = update.getVpnInstanceName();
-        if(!vpnName.equals(newVpnName)) {
-            //VPN for this interface got changed.
-            //Remove the interface from old VPN and add it to new VPN
-            newRd = getRouteDistinguisher(newVpnName);
-            if(newRd.equals("")) {
-                LOG.warn("VPN Instance {} not found. Update operation aborted", newVpnName);
-                return;
-            }
-            vpnNameChanged = true;
-            LOG.debug("New VPN Name for the interface {} is {}", newVpnName, original.getName());
+    protected void update(InstanceIdentifier<VpnInterface> identifier, VpnInterface original, VpnInterface update) {
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Updating VPN Interface : key " + identifier + ",  original value=" + original + ", update " +
+                    "value=" + update);
         }
-
+        String oldVpnName = original.getVpnInstanceName();
+        String newVpnName = update.getVpnInstanceName();
         List<Adjacency> oldAdjs = original.getAugmentation(Adjacencies.class).getAdjacency();
         List<Adjacency> newAdjs = update.getAugmentation(Adjacencies.class).getAdjacency();
-        if(vpnNameChanged && newAdjs != null && !newAdjs.isEmpty()) {
-            long label = VpnConstants.INVALID_ID;
-            InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
-            Optional<Adjacencies> adjacencies = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, path);
-            if (adjacencies.isPresent()) {
-                List<Adjacency> nextHops = adjacencies.get().getAdjacency();
-                for(Adjacency nextHop : nextHops) {
-                    label = nextHop.getLabel();
-                    if(label == VpnConstants.INVALID_ID) {
-                        //Generate label using ID Manager
-                        label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                                                    VpnUtil.getNextHopLabelKey(newRd, nextHop.getIpAddress()));
-                    }
-                    if (rd != null) {
-                        removePrefixFromBGP(rd, nextHop.getIpAddress());
-                    } else {
-                        removeFibEntryFromDS(vpnName, nextHop.getIpAddress());
-                    }
-                    //updatePrefixToBGP(newRd, nextHop, nextHopIp, label);
-                }
-                processVpnInterfaceAdjacencies(identifier, update, true);
-                VpnUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, identifier, update);
-            }
-        } else if (oldAdjs != newAdjs) {
-            //handle both addition and removal of adjacencies
-            //currently, new adjacency may be an extra route
+        if (oldAdjs == null) {
+            oldAdjs = new ArrayList<>();
+        }
+        if (newAdjs == null) {
+            newAdjs = new ArrayList<>();
+        }
+        //handles switching between <internal VPN - external VPN>
+        if (!oldVpnName.equals(newVpnName)) {
+            remove(identifier, original);
+            add(identifier, update);
+        }
+        //handle both addition and removal of adjacencies
+        //currently, new adjacency may be an extra route
+        if (!oldAdjs.equals(newAdjs)) {
             for (Adjacency adj : newAdjs) {
                 if (oldAdjs.contains(adj)) {
                     oldAdjs.remove(adj);
@@ -601,15 +573,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     addNewAdjToVpnInterface(identifier, adj);
                 }
             }
-
             for (Adjacency adj : oldAdjs) {
                 delAdjFromVpnInterface(identifier, adj);
             }
         }
-        else {
-            LOG.debug("No Update information is available for VPN Interface to proceed");
-        }
-
     }
 
     public void processArpRequest(IpAddress srcIP, PhysAddress srcMac, IpAddress targetIP, String srcInterface){

@@ -76,7 +76,7 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
         if (LOG.isTraceEnabled()) {
             LOG.trace("Adding Subnet : key: " + identifier + ", value=" + input);
         }
-        handleNeutronSubnetCreated(input.getUuid(), input.getNetworkId(), input.getTenantId());
+        handleNeutronSubnetCreated(input.getUuid(), input.getCidr(), input.getNetworkId(), input.getTenantId());
     }
 
     @Override
@@ -96,8 +96,8 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
         handleNeutronSubnetUpdated(update.getUuid(), update.getNetworkId(), update.getTenantId());
     }
 
-    private void handleNeutronSubnetCreated(Uuid subnetId, Uuid networkId, Uuid tenantId) {
-        nvpnManager.updateSubnetNode(subnetId, tenantId, networkId, null, null, null);
+    private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId) {
+        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null, null, null);
         if (networkId != null && NeutronvpnUtils.getNeutronNetwork(broker, networkId) != null) {
             createSubnetToNetworkMapping(subnetId, networkId);
         }
@@ -111,6 +111,7 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
         if (networkId != null)  {
             deleteSubnetToNetworkMapping(subnetId, networkId);
         }
+        nvpnManager.deleteSubnetMapNode(subnetId);
     }
 
     private void handleNeutronSubnetUpdated(Uuid subnetId, Uuid networkId, Uuid tenantId) {
@@ -121,7 +122,7 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
         if (networkId != null && !networkId.equals(oldNetworkId)) {
             createSubnetToNetworkMapping(subnetId, networkId);
         }
-        nvpnManager.updateSubnetNode(subnetId, tenantId, networkId, null, null, null);
+        nvpnManager.updateSubnetNode(subnetId, null, tenantId, networkId, null, null, null);
     }
 
     private void createSubnetToNetworkMapping(Uuid subnetId, Uuid networkId) {
