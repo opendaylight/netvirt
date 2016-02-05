@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,28 +117,34 @@ public class OvsInterfaceStateUpdateHelper {
             InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(portName);
             InterfaceParentEntry interfaceParentEntry =
                     InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryKey, dataBroker);
-            if (interfaceParentEntry == null) {
+            if (interfaceParentEntry == null || interfaceParentEntry.getInterfaceChildEntry() == null) {
                 futures.add(t.submit());
                 // start/stop monitoring based on opState
-                if(operStatusNew == Interface.OperStatus.Down )
-                    AlivenessMonitorUtils.stopLLDPMonitoring(alivenessMonitorService, dataBroker, iface);
-                else
-                    AlivenessMonitorUtils.startLLDPMonitoring(alivenessMonitorService,dataBroker, iface);
+                IfTunnel ifTunnel = iface.getAugmentation(IfTunnel.class);
+                if(ifTunnel != null) {
+                    if (operStatusNew == Interface.OperStatus.Down)
+                        AlivenessMonitorUtils.stopLLDPMonitoring(alivenessMonitorService, dataBroker, iface);
+                    else
+                        AlivenessMonitorUtils.startLLDPMonitoring(alivenessMonitorService, dataBroker, iface);
+                }
                 return futures;
             }
-
-            List<InterfaceChildEntry> interfaceChildEntries = interfaceParentEntry.getInterfaceChildEntry();
-            if (interfaceChildEntries == null) {
-                futures.add(t.submit());
-                return futures;
-            }
-
-            LOG.debug("Updating if-state entries for Vlan-Trunk Members for port: {}", portName);
-            //FIXME: If the no. of child entries exceeds 100, perform txn updates in batches of 100.
-            for (InterfaceChildEntry interfaceChildEntry : interfaceChildEntries) {
-                InstanceIdentifier<Interface> ifChildStateId =
-                        IfmUtil.buildStateInterfaceId(interfaceChildEntry.getChildInterface());
-                t.merge(LogicalDatastoreType.OPERATIONAL, ifChildStateId, ifaceBuilder.build());
+            for(InterfaceChildEntry higherlayerChild : interfaceParentEntry.getInterfaceChildEntry()) {
+                InstanceIdentifier<Interface> higherLayerIfChildStateId =
+                        IfmUtil.buildStateInterfaceId(higherlayerChild.getChildInterface());
+                t.merge(LogicalDatastoreType.OPERATIONAL, higherLayerIfChildStateId, ifaceBuilder.build());
+                InterfaceParentEntryKey higherLayerParentEntryKey = new InterfaceParentEntryKey(higherlayerChild.getChildInterface());
+                InterfaceParentEntry higherLayerParent =
+                        InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(higherLayerParentEntryKey, dataBroker);
+                if(higherLayerParent != null && higherLayerParent.getInterfaceChildEntry() != null) {
+                    for (InterfaceChildEntry interfaceChildEntry : higherLayerParent.getInterfaceChildEntry()) {
+                        LOG.debug("Updating if-state entries for Vlan-Trunk Members for port: {}", portName);
+                        //FIXME: If the no. of child entries exceeds 100, perform txn updates in batches of 100.
+                        InstanceIdentifier<Interface> ifChildStateId =
+                                IfmUtil.buildStateInterfaceId(interfaceChildEntry.getChildInterface());
+                        t.merge(LogicalDatastoreType.OPERATIONAL, ifChildStateId, ifaceBuilder.build());
+                    }
+                }
             }
         }
 

@@ -73,6 +73,7 @@ public class StateInterfaceTest {
     InterfaceParentEntryKey interfaceParentEntryKey = null;
     IfIndexInterface IfindexInterface = null;
     InstanceIdentifier<Interface> interfaceInstanceIdentifier = null;
+    InstanceIdentifier<InterfaceParentEntry> interfaceParentEntryInstanceIdentifier = null;
     InstanceIdentifier<FlowCapableNodeConnector> fcNodeConnectorId = null;
     InstanceIdentifier<IfIndexInterface> ifIndexId =null;
     InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> interfaceStateIdentifier = null;
@@ -144,6 +145,8 @@ public class StateInterfaceTest {
 
         doReturn(Futures.immediateCheckedFuture(expectedInterface)).when(mockReadTx).read(
                 LogicalDatastoreType.CONFIGURATION, interfaceInstanceIdentifier);
+        doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(
+                LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIdentifier);
         AllocateIdInput getIdInput = new AllocateIdInputBuilder()
                 .setPoolName(IfmConstants.IFM_IDPOOL_NAME)
                 .setIdKey(InterfaceManagerTestUtil.interfaceName).build();
@@ -167,6 +170,8 @@ public class StateInterfaceTest {
                 LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
         doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(
                 LogicalDatastoreType.CONFIGURATION, interfaceInstanceIdentifier);
+        doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(
+                LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIdentifier);
 
         ReleaseIdInput getIdInput = new ReleaseIdInputBuilder()
                 .setPoolName(IfmConstants.IFM_IDPOOL_NAME)

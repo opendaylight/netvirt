@@ -47,6 +47,10 @@ public class OvsVlanMemberConfigRemoveHelper {
         InterfaceParentEntry interfaceParentEntry =
                 InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryIid, dataBroker);
 
+        if(interfaceParentEntry == null){
+            return futures;
+        }
+
         List<InterfaceChildEntry> interfaceChildEntries = interfaceParentEntry.getInterfaceChildEntry();
         if (interfaceChildEntries.size() <= 1) {
             t.delete(LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIid);
@@ -90,7 +94,7 @@ public class OvsVlanMemberConfigRemoveHelper {
             InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
                     IfmUtil.buildStateInterfaceId(interfaceOld.getName());
             t.delete(LogicalDatastoreType.OPERATIONAL, ifStateId);
-            FlowBasedServicesUtils.removeIngressFlow(interfaceOld, dpId, t);
+            FlowBasedServicesUtils.removeIngressFlow(interfaceOld.getName(), dpId, t);
         }
 
         futures.add(t.submit());

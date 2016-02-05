@@ -62,7 +62,7 @@ public class ArpUtilProvider implements BindingAwareProvider, AutoCloseable {
 
             arpManager = new ArpUtilImpl( dataBroker, packetProcessingService,
                     notificationPublishService, notificationService,
-                     mdsalApiManager) ;
+                     mdsalApiManager, rpcProviderRegistry) ;
 
             rpcRegistration = rpcProviderRegistry.
                     addRpcImplementation(OdlArputilService.class, arpManager);

@@ -67,15 +67,17 @@ public class InterfaceConfigListener extends AsyncDataTreeChangeListenerBase<Int
         String parentInterface = null;
 
         ParentRefs parentRefs = interfaceOld.getAugmentation(ParentRefs.class);
-        if (parentRefs != null) {
-            parentInterface = parentRefs.getParentInterface();
+        /* parentInterface = parentRefs.getParentInterface();
             if (parentInterface != null && !parentInterface.equals(ifName)) {
                 return;
             }
             if (parentRefs.getDatapathNodeIdentifier() == null) {
                 return;
             }
-        }
+            if(parentInterface == null){
+                LOG.error("parent interface not specified for {}",interfaceOld.getName());
+            }
+        }*/
 
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         RendererConfigRemoveWorker configWorker = new RendererConfigRemoveWorker(key, interfaceOld, ifName, parentRefs);
@@ -88,14 +90,15 @@ public class InterfaceConfigListener extends AsyncDataTreeChangeListenerBase<Int
         String ifNameNew = interfaceNew.getName();
         String parentInterface = null;
 
-        ParentRefs parentRefs = interfaceNew.getAugmentation(ParentRefs.class);
-        if (parentRefs != null) {
-            parentInterface = parentRefs.getParentInterface();
+        /*ParentRefs parentRefs = interfaceNew.getAugmentation(ParentRefs.class);
+        if (parentRefs == null) {
+            LOG.error("parent refs not specified for {}",interfaceNew.getName());
         }
 
-        if (parentInterface != null && !parentInterface.equals(ifNameNew)) {
+        if (parentInterface == null) {
+            LOG.error("parent interface not specified for {}",interfaceOld.getName());
             return;
-        }
+        }*/
 
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         RendererConfigUpdateWorker worker = new RendererConfigUpdateWorker(key, interfaceOld, interfaceNew, ifNameNew);
@@ -109,13 +112,13 @@ public class InterfaceConfigListener extends AsyncDataTreeChangeListenerBase<Int
         String parentInterface = null;
 
         ParentRefs parentRefs = interfaceNew.getAugmentation(ParentRefs.class);
-        if (parentRefs != null) {
-            parentInterface = parentRefs.getParentInterface();
+        if (parentRefs == null) {
+            LOG.error("parent refs not specified for {}",interfaceNew.getName());
         }
 
-        if (parentInterface != null && !parentInterface.equals(ifName)) {
-            return;
-        }
+        /*if(parentInterface == null){
+            LOG.error("parent interface not specified for {}",interfaceNew.getName());
+        }*/
 
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         RendererConfigAddWorker configWorker = new RendererConfigAddWorker(key, interfaceNew, parentRefs, ifName);

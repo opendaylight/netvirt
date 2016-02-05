@@ -353,9 +353,9 @@ public class FlowBasedServicesUtils {
         return String.format("%d:%s:%s", tableId, dpnId, infName);
     }
 
-    public static void removeIngressFlow(Interface iface, BigInteger dpId, WriteTransaction t) {
+    public static void removeIngressFlow(String interfaceName, BigInteger dpId, WriteTransaction t) {
         LOG.debug("Removing Ingress Flows");
-        String flowKeyStr = getFlowRef(IfmConstants.VLAN_INTERFACE_INGRESS_TABLE, dpId, iface.getName());
+        String flowKeyStr = getFlowRef(IfmConstants.VLAN_INTERFACE_INGRESS_TABLE, dpId, interfaceName);
         FlowKey flowKey = new FlowKey(new FlowId(flowKeyStr));
         Node nodeDpn = buildInventoryDpnNode(dpId);
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)

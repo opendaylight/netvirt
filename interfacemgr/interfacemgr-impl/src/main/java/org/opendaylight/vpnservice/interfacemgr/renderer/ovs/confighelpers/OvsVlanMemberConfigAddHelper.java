@@ -12,8 +12,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.idmanager.IdManager;
-import org.opendaylight.vpnservice.VpnUtil;
 import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
@@ -28,12 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -52,9 +44,8 @@ public class OvsVlanMemberConfigAddHelper {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction t = dataBroker.newWriteOnlyTransaction();
 
-        InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(parentRefs.getParentInterface());
-        createInterfaceParentEntryIfNotPresent(dataBroker, t, interfaceParentEntryKey, parentRefs.getParentInterface());
-        createInterfaceChildEntry(dataBroker, idManager, t, interfaceParentEntryKey, interfaceNew.getName());
+        InterfaceManagerCommonUtils.createInterfaceParentEntryIfNotPresent(dataBroker, t, parentRefs.getParentInterface());
+        InterfaceManagerCommonUtils.createInterfaceChildEntry(t, parentRefs.getParentInterface(), interfaceNew.getName());
 
         InterfaceKey interfaceKey = new InterfaceKey(parentRefs.getParentInterface());
         Interface ifaceParent = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(interfaceKey, dataBroker);
@@ -87,7 +78,7 @@ public class OvsVlanMemberConfigAddHelper {
                     IfmUtil.buildStateInterfaceId(interfaceNew.getName());
             List<String> lowerLayerIfList = new ArrayList<>();
             lowerLayerIfList.add(ifState.getLowerLayerIf().get(0));
-            lowerLayerIfList.add(parentRefs.getParentInterface());
+            //lowerLayerIfList.add(parentRefs.getParentInterface());
             Integer ifIndex = IfmUtil.allocateId(idManager, IfmConstants.IFM_IDPOOL_NAME, interfaceNew.getName());
             InterfaceBuilder ifaceBuilder = new InterfaceBuilder().setAdminStatus(adminStatus).setOperStatus(operStatus)
                     .setPhysAddress(physAddress).setLowerLayerIf(lowerLayerIfList).setIfIndex(ifIndex);
@@ -136,36 +127,5 @@ public class OvsVlanMemberConfigAddHelper {
 
         futures.add(t.submit());
         return futures;
-    }
-
-    private static void createInterfaceParentEntryIfNotPresent(DataBroker dataBroker, WriteTransaction t,
-                                                               InterfaceParentEntryKey interfaceParentEntryKey,
-                                                               String parentInterface){
-        InstanceIdentifier<InterfaceParentEntry> interfaceParentEntryIdentifier =
-                InterfaceMetaUtils.getInterfaceParentEntryIdentifier(interfaceParentEntryKey);
-        InterfaceParentEntry interfaceParentEntry =
-                InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryIdentifier, dataBroker);
-
-        if(interfaceParentEntry != null){
-            LOG.info("Not Found entry for Parent Interface: {} in Vlan Trunk-Member Interface Renderer ConfigDS. " +
-                    "Creating...", parentInterface);
-            InterfaceParentEntryBuilder interfaceParentEntryBuilder = new InterfaceParentEntryBuilder()
-                    .setKey(interfaceParentEntryKey).setParentInterface(parentInterface);
-            t.put(LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIdentifier,
-                    interfaceParentEntryBuilder.build(), true);
-        }
-    }
-
-    private static long createInterfaceChildEntry(DataBroker dataBroker, IdManagerService idManager, WriteTransaction t,
-                                                InterfaceParentEntryKey interfaceParentEntryKey, String childInterface){
-
-        long lportTag = IfmUtil.allocateId(idManager, IfmConstants.IFM_IDPOOL_NAME, childInterface);
-        InterfaceChildEntryKey interfaceChildEntryKey = new InterfaceChildEntryKey(childInterface);
-        InstanceIdentifier<InterfaceChildEntry> intfId =
-                InterfaceMetaUtils.getInterfaceChildEntryIdentifier(interfaceParentEntryKey, interfaceChildEntryKey);
-        InterfaceChildEntryBuilder entryBuilder = new InterfaceChildEntryBuilder().setKey(interfaceChildEntryKey)
-              .setChildInterface(childInterface);
-        t.put(LogicalDatastoreType.CONFIGURATION, intfId, entryBuilder.build(),true);
-        return lportTag;
     }
 }

@@ -230,8 +230,13 @@ public class IfmUtil {
 
     public static BigInteger getDpnId(DatapathId datapathId){
         if (datapathId != null) {
+            // Adding logs for a random issue spotted during datapath id conversion
+            LOG.info("Received datapathId {}",datapathId.getValue());
             String dpIdStr = datapathId.getValue().replace(":", "");
-            return new BigInteger(dpIdStr, 16);
+            LOG.info("Received datapathId {}",dpIdStr);
+            BigInteger dpnId =  new BigInteger(dpIdStr, 16);
+            LOG.info("After conversion datapathId {}",dpnId);
+            return dpnId;
         }
         return null;
     }

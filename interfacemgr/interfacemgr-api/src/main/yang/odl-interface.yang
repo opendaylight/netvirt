@@ -143,6 +143,7 @@ module odl-interface {
                         "The VLAN mode transparent.";
                 }
             }
+            default "trunk";
         }
     }
 

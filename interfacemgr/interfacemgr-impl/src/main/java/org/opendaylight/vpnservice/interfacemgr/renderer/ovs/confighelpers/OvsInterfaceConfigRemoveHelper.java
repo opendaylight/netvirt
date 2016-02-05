@@ -8,7 +8,6 @@
 package org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers;
 
 import com.google.common.util.concurrent.ListenableFuture;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -70,75 +69,40 @@ public class OvsInterfaceConfigRemoveHelper {
             removeTunnelConfiguration(alivenessMonitorService, parentRefs, dataBroker, interfaceOld,
                     idManager, mdsalApiManager, futures);
         }else {
-            removeVlanConfiguration(dataBroker, interfaceOld, t);
+            removeVlanConfiguration(dataBroker, parentRefs, interfaceOld, t);
             futures.add(t.submit());
         }
         return futures;
     }
 
-    private static void removeVlanConfiguration(DataBroker dataBroker, Interface interfaceOld, WriteTransaction t) {
+    private static void removeVlanConfiguration(DataBroker dataBroker, ParentRefs parentRefs, Interface interfaceOld, WriteTransaction transaction) {
+        IfL2vlan ifL2vlan = interfaceOld.getAugmentation(IfL2vlan.class);
+        if (ifL2vlan == null || ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
+            return;
+        }
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceOld.getName(), dataBroker);
         if (ifState == null) {
             return;
         }
 
-        String ncStr = ifState.getLowerLayerIf().get(0);
-        NodeConnectorId nodeConnectorId = new NodeConnectorId(ncStr);
-        NodeConnector nodeConnector =
-                InterfaceManagerCommonUtils.getNodeConnectorFromInventoryOperDS(nodeConnectorId, dataBroker);
-        if(nodeConnector != null) {
-            FlowCapableNodeConnector flowCapableNodeConnector =
-                    nodeConnector.getAugmentation(FlowCapableNodeConnector.class);
-            //State state = flowCapableNodeConnector.getState();
-            OperStatus operStatus = flowCapableNodeConnector == null ? OperStatus.Down : OperStatus.Up;
-
-            if (ifState.getOperStatus() != operStatus) {
-                InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
-                        IfmUtil.buildStateInterfaceId(interfaceOld.getName());
-                InterfaceBuilder ifaceBuilder = new InterfaceBuilder();
-                ifaceBuilder.setOperStatus(operStatus);
-                ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(interfaceOld.getName()));
-                t.merge(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build());
-            }
-        }
-        IfL2vlan ifL2vlan = interfaceOld.getAugmentation(IfL2vlan.class);
-        if (ifL2vlan == null) {
-            return;
-        }
-        BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
-        FlowBasedServicesUtils.removeIngressFlow(interfaceOld, dpId, t);
-        if (ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
-            return;
-        }
-
+        InterfaceManagerCommonUtils.updateOperStatus(interfaceOld.getName(), OperStatus.Down, transaction);
+        NodeConnectorId ncId = new NodeConnectorId(ifState.getLowerLayerIf().get(0));
+        BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(ncId));
+        FlowBasedServicesUtils.removeIngressFlow(interfaceOld.getName(), dpId, transaction);
         // For Vlan-Trunk Interface, remove the trunk-member operstates as well...
-        InterfaceKey interfaceKey = new InterfaceKey(interfaceOld.getName());
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
-                InterfaceManagerCommonUtils.getInterfaceFromConfigDS(interfaceKey, dataBroker);
-        if (iface == null) {
-            return;
-        }
 
-        InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(iface.getName());
+        InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(interfaceOld.getName());
         InterfaceParentEntry interfaceParentEntry =
                 InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryKey, dataBroker);
-        if (interfaceParentEntry == null) {
-            return;
-        }
-
-        List<InterfaceChildEntry> interfaceChildEntries = interfaceParentEntry.getInterfaceChildEntry();
-        if (interfaceChildEntries == null) {
+        if (interfaceParentEntry == null || interfaceParentEntry.getInterfaceChildEntry() == null) {
             return;
         }
 
         //FIXME: If the no. of child entries exceeds 100, perform txn updates in batches of 100.
-        for (InterfaceChildEntry interfaceChildEntry : interfaceChildEntries) {
-            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifChildStateId =
-                    IfmUtil.buildStateInterfaceId(interfaceChildEntry.getChildInterface());
-            t.delete(LogicalDatastoreType.OPERATIONAL, ifChildStateId);
-            InterfaceKey childIfKey = new InterfaceKey(interfaceChildEntry.getChildInterface());
-            FlowBasedServicesUtils.removeIngressFlow(InterfaceManagerCommonUtils.getInterfaceFromConfigDS(childIfKey, dataBroker), dpId, t);
+        for (InterfaceChildEntry interfaceChildEntry : interfaceParentEntry.getInterfaceChildEntry()) {
+            InterfaceManagerCommonUtils.deleteStateEntry(interfaceChildEntry.getChildInterface(), transaction);
+            FlowBasedServicesUtils.removeIngressFlow(interfaceChildEntry.getChildInterface(), dpId, transaction);
         }
     }
 

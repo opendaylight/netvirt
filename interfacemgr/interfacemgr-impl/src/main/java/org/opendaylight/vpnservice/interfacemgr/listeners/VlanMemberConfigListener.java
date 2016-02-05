@@ -54,7 +54,7 @@ public class VlanMemberConfigListener extends AsyncDataTreeChangeListenerBase<In
     @Override
     protected void remove(InstanceIdentifier<Interface> key, Interface interfaceOld) {
         IfL2vlan ifL2vlan = interfaceOld.getAugmentation(IfL2vlan.class);
-        if (ifL2vlan == null) {
+        if (ifL2vlan == null || IfL2vlan.L2vlanMode.TrunkMember != ifL2vlan.getL2vlanMode()) {
             return;
         }
 
@@ -78,7 +78,7 @@ public class VlanMemberConfigListener extends AsyncDataTreeChangeListenerBase<In
     @Override
     protected void update(InstanceIdentifier<Interface> key, Interface interfaceOld, Interface interfaceNew) {
         IfL2vlan ifL2vlanNew = interfaceNew.getAugmentation(IfL2vlan.class);
-        if (ifL2vlanNew == null) {
+        if (ifL2vlanNew == null || IfL2vlan.L2vlanMode.TrunkMember != ifL2vlanNew.getL2vlanMode()) {
             return;
         }
 
@@ -105,7 +105,7 @@ public class VlanMemberConfigListener extends AsyncDataTreeChangeListenerBase<In
     @Override
     protected void add(InstanceIdentifier<Interface> key, Interface interfaceNew) {
         IfL2vlan ifL2vlan = interfaceNew.getAugmentation(IfL2vlan.class);
-        if (ifL2vlan == null) {
+        if (ifL2vlan == null || IfL2vlan.L2vlanMode.TrunkMember != ifL2vlan.getL2vlanMode()) {
             return;
         }
 

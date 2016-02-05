@@ -349,28 +349,29 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
         List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceName, dataBroker);
-
-        String lowerLayerIf = ifState.getLowerLayerIf().get(0);
-        NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
-        String portNo = IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId);
-        Class<? extends InterfaceType> ifType = interfaceInfo.getType();
-        if(L2vlan.class.equals(ifType)){
-            IfL2vlan vlanIface = interfaceInfo.getAugmentation(IfL2vlan.class);
-            LOG.trace("L2Vlan: {}",vlanIface);
-            long vlanVid = 0;
-            boolean isVlanTransparent = false;
-            if (vlanIface != null) {
-                vlanVid = vlanIface.getVlanId() == null ? 0 : vlanIface.getVlanId().getValue();
-                isVlanTransparent = vlanIface.getL2vlanMode() == IfL2vlan.L2vlanMode.Transparent;
+        if(ifState != null) {
+            String lowerLayerIf = ifState.getLowerLayerIf().get(0);
+            NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
+            String portNo = IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId);
+            Class<? extends InterfaceType> ifType = interfaceInfo.getType();
+            if (L2vlan.class.equals(ifType)) {
+                IfL2vlan vlanIface = interfaceInfo.getAugmentation(IfL2vlan.class);
+                LOG.trace("L2Vlan: {}", vlanIface);
+                long vlanVid = 0;
+                boolean isVlanTransparent = false;
+                if (vlanIface != null) {
+                    vlanVid = vlanIface.getVlanId() == null ? 0 : vlanIface.getVlanId().getValue();
+                    isVlanTransparent = vlanIface.getL2vlanMode() == IfL2vlan.L2vlanMode.Transparent;
+                }
+                if (vlanVid != 0 && !isVlanTransparent) {
+                    listActionInfo.add(new ActionInfo(ActionType.push_vlan, new String[]{}));
+                    listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
+                            new String[]{Long.toString(vlanVid)}));
+                }
+                listActionInfo.add(new ActionInfo(ActionType.output, new String[]{portNo}));
+            } else if (Tunnel.class.equals(ifType)) {
+                listActionInfo.add(new ActionInfo(ActionType.output, new String[]{portNo}));
             }
-            if (vlanVid != 0 && !isVlanTransparent) {
-                listActionInfo.add(new ActionInfo(ActionType.push_vlan, new String[] {}));
-                listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
-                        new String[] { Long.toString(vlanVid) }));
-            }
-            listActionInfo.add(new ActionInfo(ActionType.output, new String[] {portNo}));
-        }else if(Tunnel.class.equals(ifType)){
-            listActionInfo.add(new ActionInfo(ActionType.output, new String[] { portNo}));
         }
         return listActionInfo;
     }
