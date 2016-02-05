@@ -41,12 +41,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge.ref.info.BridgeRefEntryKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 public class InterfaceMetaUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(InterfaceMetaUtils.class);
     public static InstanceIdentifier<BridgeRefEntry> getBridgeRefEntryIdentifier(BridgeRefEntryKey bridgeRefEntryKey) {
         InstanceIdentifier.InstanceIdentifierBuilder<BridgeRefEntry> bridgeRefEntryInstanceIdentifierBuilder =
                 InstanceIdentifier.builder(BridgeRefInfo.class)
@@ -165,6 +168,7 @@ public class InterfaceMetaUtils {
     }
 
     public static void createLportTagInterfaceMap(WriteTransaction t, String infName, Integer ifIndex) {
+        LOG.debug("creating lport tag to interface map for {}",infName);
         InstanceIdentifier<IfIndexInterface> id = InstanceIdentifier.builder(IfIndexesInterfaceMap.class).child(IfIndexInterface.class, new IfIndexInterfaceKey(ifIndex)).build();
         IfIndexInterface ifIndexInterface = new IfIndexInterfaceBuilder().setIfIndex(ifIndex).setKey(new IfIndexInterfaceKey(ifIndex)).setInterfaceName(infName).build();
         t.put(LogicalDatastoreType.OPERATIONAL, id, ifIndexInterface, true);
@@ -174,6 +178,7 @@ public class InterfaceMetaUtils {
         InstanceIdentifier<IfIndexInterface> id = InstanceIdentifier.builder(IfIndexesInterfaceMap.class).child(IfIndexInterface.class, new IfIndexInterfaceKey(ifIndex)).build();
         Optional<IfIndexInterface> ifIndexesInterface = IfmUtil.read(LogicalDatastoreType.OPERATIONAL, id, broker);
         if(ifIndexesInterface.isPresent()) {
+           LOG.debug("removing lport tag to interface map for {}",infName);
            t.delete(LogicalDatastoreType.OPERATIONAL, id);
         }
         IfmUtil.releaseId(idManager, IfmConstants.IFM_IDPOOL_NAME, infName);

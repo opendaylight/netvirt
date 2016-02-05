@@ -152,12 +152,12 @@ public class ArpUtilImpl implements OdlArputilService,
                 .registerNotificationListener(this);
         LOGGER.info("ArpUtil Manager Initialized ");
     }
-    
+
     OdlInterfaceRpcService getInterfaceRpcService() {
-    	if (intfRpc == null ) {
-    		intfRpc = rpc.getRpcService(OdlInterfaceRpcService.class);
-    	}
-    	return intfRpc;
+        if (intfRpc == null ) {
+            intfRpc = rpc.getRpcService(OdlInterfaceRpcService.class);
+        }
+        return intfRpc;
     }
 
     @Override
@@ -267,8 +267,6 @@ public class ArpUtilImpl implements OdlArputilService,
                 NodeConnectorId id = getNodeConnectorFromInterfaceName(interfaceName);
 
                 GetPortFromInterfaceOutput portResult = getPortFromInterface(interfaceName);
-                //dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(id));
-                //Long portid = MDSALUtil.getOfPortNumberFromPortName(id);
                 dpnId = portResult.getDpid();
                 Long portid = portResult.getPortno();
                 checkArgument(null != dpnId && BigInteger.ZERO != dpnId,
@@ -352,18 +350,9 @@ public class ArpUtilImpl implements OdlArputilService,
 
         try {
             String interfaceName = input.getInterface();
-            //NodeConnectorId id = getNodeConnectorFromInterfaceName(interfaceName);
-
-            //dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(id));
-            //Long portid = MDSALUtil.getOfPortNumberFromPortName(id);
-
             GetPortFromInterfaceOutput portResult = getPortFromInterface(interfaceName);
-            //dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(id));
-            //Long portid = MDSALUtil.getOfPortNumberFromPortName(id);
             dpnId = portResult.getDpid();
             Long portid = portResult.getPortno();
-
-            
             NodeConnectorRef ref = MDSALUtil.getNodeConnRef(dpnId,
                     portid.toString());
             checkArgument(null != dpnId && BigInteger.ZERO != dpnId,
@@ -435,10 +424,8 @@ public class ArpUtilImpl implements OdlArputilService,
 
                 NodeConnectorRef ref = packetReceived.getIngress();
 
-                Metadata i  = packetReceived.getMatch().getMetadata();
-                
-                //String interfaceName = MDSALUtil.getInterfaceName(ref, dataBroker);
-                String interfaceName = getInterfaceName(ref,i, dataBroker);
+                Metadata metadata  = packetReceived.getMatch().getMetadata();
+                String interfaceName = getInterfaceName(ref,metadata, dataBroker);
                 
                 checkAndFireMacChangedNotification(interfaceName, srcInetAddr,
                         srcMac);
@@ -464,31 +451,31 @@ public class ArpUtilImpl implements OdlArputilService,
     }
 
     GetPortFromInterfaceOutput getPortFromInterface(String interfaceName) throws Throwable {
-    	GetPortFromInterfaceInputBuilder x = new GetPortFromInterfaceInputBuilder();
-		x.setIntfName(interfaceName);;
-		Future<RpcResult<GetPortFromInterfaceOutput>> ft = intfRpc.getPortFromInterface(x.build());
-		GetPortFromInterfaceOutput result = ft.get().getResult();
-		LOGGER.trace("getPortFromInterface rpc result is {} ", result);
-		if (result != null) {
-			LOGGER.trace("getPortFromInterface rpc result is {} {} ", result.getDpid(), result.getPortno());
-		}
-		return result;
+        GetPortFromInterfaceInputBuilder getPortFromInterfaceInputBuilder = new GetPortFromInterfaceInputBuilder();
+        getPortFromInterfaceInputBuilder.setIntfName(interfaceName);;
+        Future<RpcResult<GetPortFromInterfaceOutput>> portFromInterface = intfRpc.getPortFromInterface(getPortFromInterfaceInputBuilder.build());
+        GetPortFromInterfaceOutput result = portFromInterface.get().getResult();
+        LOGGER.trace("getPortFromInterface rpc result is {} ", result);
+        if (result != null) {
+            LOGGER.trace("getPortFromInterface rpc result is {} {} ", result.getDpid(), result.getPortno());
+        }
+        return result;
     }
     
     private String getInterfaceName(NodeConnectorRef ref, Metadata metadata, DataBroker dataBroker2) throws Throwable {
-    	LOGGER.debug("metadata received is {} ", metadata);
+        LOGGER.debug("metadata received is {} ", metadata);
     	
-    	GetInterfaceFromIfIndexInputBuilder ifIndexInputBuilder = new GetInterfaceFromIfIndexInputBuilder();
-    	BigInteger lportTag = MetaDataUtil.getLportFromMetadata(metadata.getMetadata());
+        GetInterfaceFromIfIndexInputBuilder ifIndexInputBuilder = new GetInterfaceFromIfIndexInputBuilder();
+        BigInteger lportTag = MetaDataUtil.getLportFromMetadata(metadata.getMetadata());
     	
-    	ifIndexInputBuilder.setIfIndex(lportTag.intValue());
-    	GetInterfaceFromIfIndexInput input = ifIndexInputBuilder.build();
-    	OdlInterfaceRpcService intfRpc = getInterfaceRpcService();
+        ifIndexInputBuilder.setIfIndex(lportTag.intValue());
+        GetInterfaceFromIfIndexInput input = ifIndexInputBuilder.build();
+        OdlInterfaceRpcService intfRpc = getInterfaceRpcService();
 
-		Future<RpcResult<GetInterfaceFromIfIndexOutput>> interfaceFromIfIndex = intfRpc.getInterfaceFromIfIndex(input);
-		GetInterfaceFromIfIndexOutput interfaceFromIfIndexOutput = interfaceFromIfIndex.get().getResult();
+        Future<RpcResult<GetInterfaceFromIfIndexOutput>> interfaceFromIfIndex = intfRpc.getInterfaceFromIfIndex(input);
+        GetInterfaceFromIfIndexOutput interfaceFromIfIndexOutput = interfaceFromIfIndex.get().getResult();
         return interfaceFromIfIndexOutput.getInterfaceName();
-	}
+    }
 
 	class MacResponderTask implements Runnable {
         ARP arp;

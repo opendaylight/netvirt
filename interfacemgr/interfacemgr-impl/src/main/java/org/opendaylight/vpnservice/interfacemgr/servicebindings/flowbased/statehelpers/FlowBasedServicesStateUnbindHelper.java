@@ -52,9 +52,9 @@ public class FlowBasedServicesStateUnbindHelper {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
                     InterfaceManagerCommonUtils.getInterfaceFromConfigDS(interfaceKey, dataBroker);
 
-        if (iface.getType().isAssignableFrom(L2vlan.class)) {
+        if (ifaceState.getType().isAssignableFrom(L2vlan.class)) {
             return unbindServiceOnVlan(allServices, iface, ifaceState.getIfIndex(), dataBroker);
-        } else if (iface.getType().isAssignableFrom(Tunnel.class)){
+        } else if (ifaceState.getType().isAssignableFrom(Tunnel.class)){
              return unbindServiceOnTunnel(allServices, iface, ifaceState.getIfIndex(), dataBroker);
         }
         return futures;

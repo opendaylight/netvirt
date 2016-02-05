@@ -38,6 +38,7 @@ public class OvsVlanMemberConfigRemoveHelper {
     public static List<ListenableFuture<Void>> removeConfiguration(DataBroker dataBroker, ParentRefs parentRefs,
                                                                 Interface interfaceOld, IfL2vlan ifL2vlan,
                                                                 IdManagerService idManager) {
+        LOG.debug("remove vlan member configuration {}",interfaceOld.getName());
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction t = dataBroker.newWriteOnlyTransaction();
 
@@ -53,7 +54,8 @@ public class OvsVlanMemberConfigRemoveHelper {
 
         List<InterfaceChildEntry> interfaceChildEntries = interfaceParentEntry.getInterfaceChildEntry();
         if (interfaceChildEntries.size() <= 1) {
-            t.delete(LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIid);
+            // FIXME..some boundary problem during vlan member deletion..need to revisit
+            //t.delete(LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIid);
         } else {
             InterfaceChildEntryKey interfaceChildEntryKey = new InterfaceChildEntryKey(interfaceOld.getName());
             InstanceIdentifier<InterfaceChildEntry> interfaceChildEntryIid =
@@ -88,6 +90,7 @@ public class OvsVlanMemberConfigRemoveHelper {
                 }
             } */
 
+            LOG.debug("delete vlan member interface state {}",interfaceOld.getName());
             String ncStr = ifState.getLowerLayerIf().get(0);
             NodeConnectorId nodeConnectorId = new NodeConnectorId(ncStr);
             BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));

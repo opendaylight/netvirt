@@ -116,7 +116,7 @@ public class OvsInterfaceStateRemoveHelper {
                         IfmUtil.buildStateInterfaceId(interfaceChildEntry.getChildInterface());
                 /* Remove entry from if-index-interface-name map and deallocate Id from Idmanager. */
                 Interface childInterfaceState = InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceChildEntry.getChildInterface(), dataBroker);
-                if (interfaceState != null) {
+                if (childInterfaceState != null) {
                     InterfaceMetaUtils.removeLportTagInterfaceMap(transaction, idManager, dataBroker, childInterfaceState.getName(), childInterfaceState.getIfIndex());
                     transaction.delete(LogicalDatastoreType.OPERATIONAL, ifChildStateId);
                     FlowBasedServicesUtils.removeIngressFlow(childInterfaceState.getName(), dpId, transaction);

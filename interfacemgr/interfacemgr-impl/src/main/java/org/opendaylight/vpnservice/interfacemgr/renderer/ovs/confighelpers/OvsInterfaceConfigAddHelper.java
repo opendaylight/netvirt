@@ -69,6 +69,7 @@ public class OvsInterfaceConfigAddHelper {
         if (ifL2vlan == null || IfL2vlan.L2vlanMode.Trunk != ifL2vlan.getL2vlanMode()) {
             return;
         }
+        LOG.debug("adding vlan configuration for {}",interfaceNew.getName());
         WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
         InterfaceManagerCommonUtils.createInterfaceChildEntry(transaction,
                 parentRefs.getParentInterface(), interfaceNew.getName());
@@ -77,6 +78,7 @@ public class OvsInterfaceConfigAddHelper {
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(parentRefs.getParentInterface(), dataBroker);
 
         if (ifState == null) {
+            LOG.debug("could not retrieve interface state corresponding to {}",interfaceNew.getName());
             futures.add(transaction.submit());
             return;
         }
@@ -87,6 +89,7 @@ public class OvsInterfaceConfigAddHelper {
         InterfaceParentEntry interfaceParentEntry =
                 InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryKey, dataBroker);
         if (interfaceParentEntry == null || interfaceParentEntry.getInterfaceChildEntry() == null) {
+            LOG.debug("could not retrieve interface parent info for {}",interfaceNew.getName());
             futures.add(transaction.submit());
             return;
         }

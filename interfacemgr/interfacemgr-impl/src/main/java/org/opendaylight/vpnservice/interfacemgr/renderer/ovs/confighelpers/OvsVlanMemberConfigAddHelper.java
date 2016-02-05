@@ -41,6 +41,7 @@ public class OvsVlanMemberConfigAddHelper {
     public static List<ListenableFuture<Void>> addConfiguration(DataBroker dataBroker, ParentRefs parentRefs,
                                                                 Interface interfaceNew, IfL2vlan ifL2vlan,
                                                                 IdManagerService idManager) {
+        LOG.debug("add vlan member configuration {}",interfaceNew.getName());
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction t = dataBroker.newWriteOnlyTransaction();
 
@@ -66,6 +67,7 @@ public class OvsVlanMemberConfigAddHelper {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(parentRefs.getParentInterface(), dataBroker);
         if (ifState != null) {
+            LOG.debug("add interface state info for vlan member {}",interfaceNew.getName());
             OperStatus operStatus = ifState.getOperStatus();
             AdminStatus adminStatus = ifState.getAdminStatus();
             PhysAddress physAddress = ifState.getPhysAddress();

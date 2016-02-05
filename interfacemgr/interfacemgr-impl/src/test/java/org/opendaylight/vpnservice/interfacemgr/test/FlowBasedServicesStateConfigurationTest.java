@@ -20,6 +20,7 @@ import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.stateh
 import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.statehelpers.FlowBasedServicesStateUnbindHelper;
 import org.opendaylight.vpnservice.mdsalutil.*;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -34,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.serviceb
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.ServicesInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.services.info.BoundServicesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeGre;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -101,7 +103,7 @@ public class FlowBasedServicesStateConfigurationTest {
                 .setIfIndex(ifIndexval)
                 .setLowerLayerIf(lowerLayerIfList)
                 .setKey(IfmUtil.getStateInterfaceKeyFromName(InterfaceManagerTestUtil.interfaceName))
-                .setName(InterfaceManagerTestUtil.interfaceName);
+                .setName(InterfaceManagerTestUtil.interfaceName).setType(interfaceEnabled.getType());
         stypeOpenflow = InterfaceManagerTestUtil.buildStypeOpenflow(dpId,flowpriority, NwConstants.LPORT_DISPATCHER_TABLE, instructions);
         instructionKey = new InstructionKey(instructionKeyval);
         BigInteger[] metadataValues = IfmUtil.mergeOpenflowMetadataWriteInstructions(instructions);
