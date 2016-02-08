@@ -55,6 +55,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>org.apache.karaf.shell.console</artifactId>
       <version>3.0.3</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.vpnservice</groupId>
+      <artifactId>interfacemgr-impl</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
   </dependencies>
 
 </project>

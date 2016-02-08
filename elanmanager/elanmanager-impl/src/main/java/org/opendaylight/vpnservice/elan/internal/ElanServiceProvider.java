@@ -63,6 +63,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
     private ElanInterfaceManager elanInterfaceManager;
     private ElanPacketInHandler elanPacketInHandler;
     private ElanSmacFlowEventListener elanSmacFlowEventListener;
+    private ElanInterfaceStateChangeListener elanInterfaceStateChangeListener;
     private ElanNodeListener elanNodeListener;
     private NotificationService notificationService;
     private RpcProviderRegistry rpcProviderRegistry;
@@ -71,7 +72,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         rpcProviderRegistry = rpcRegistry;
     }
 
-    //private ElanInterfaceEventListener elanInterfaceEventListener;
+    //private ElanInterfaceStateChangeListener elanInterfaceEventListener;
     private ElanItmEventListener elanItmEventListener;
 
     public void setItmRpcService(ItmRpcService itmRpcService) {
@@ -125,6 +126,8 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         ElanStatisticsService interfaceStatsService = new ElanStatisticsImpl(broker, interfaceManager, mdsalManager);
         rpcProviderRegistry.addRpcImplementation(ElanStatisticsService.class, interfaceStatsService);
 
+        elanInterfaceStateChangeListener = new ElanInterfaceStateChangeListener(broker, elanInterfaceManager);
+        elanInterfaceStateChangeListener.setInterfaceManager(interfaceManager);
         ElanUtils.setElanServiceProvider(this);
     }
 

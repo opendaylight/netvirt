@@ -147,12 +147,11 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
         removeElanInterface(elanInfo, interfaceName);
     }
 
-    public void removeElanService(ElanInterface del, int vlanId) {
+    public void removeElanService(ElanInterface del, InterfaceInfo interfaceInfo) {
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(del.getElanInstanceName());
         String interfaceName = del.getName();
-        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName, InterfaceType.VLAN_INTERFACE);
         removeElanInterface(elanInstance, interfaceInfo);
-        unbindService(elanInstance, interfaceName, vlanId);
+        unbindService(elanInstance, interfaceName);
     }
 
     public void removeElanInterface(ElanInstance elanInfo, String interfaceName) {
@@ -792,6 +791,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
             removeFilterEqualsTable(elanInfo, interfaceInfo);
         } else {
             setupElanBroadcastGroups(elanInfo, interfaceInfo);
+            setupLocalBroadcastGroups(elanInfo, interfaceInfo);
             removeFilterEqualsTable(elanInfo, interfaceInfo);
         }
     }
