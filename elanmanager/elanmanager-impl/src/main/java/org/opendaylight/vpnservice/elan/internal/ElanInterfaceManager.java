@@ -19,6 +19,7 @@ import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo.InterfaceType;
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 
+import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.itm.globals.ITMConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -753,7 +754,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
 
     public void setupTerminateServiceTable(ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
         long elanTag = elanInfo.getElanTag();
-        Flow flowEntity = MDSALUtil.buildFlowNew(ITMConstants.TERMINATING_SERVICE_TABLE, getFlowRef(ITMConstants.TERMINATING_SERVICE_TABLE, elanTag),
+        Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE, getFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE, elanTag),
                 5, String.format("%s:%d","ITM Flow Entry ",elanTag), 0,  0, ITMConstants.COOKIE_ITM.add(BigInteger.valueOf(elanTag)), ElanUtils.getTunnelMatchesForServiceId((int)elanTag),
                 getInstructionsForOutGroup(ElanUtils.getElanRemoteBCGID(elanTag)));
 
