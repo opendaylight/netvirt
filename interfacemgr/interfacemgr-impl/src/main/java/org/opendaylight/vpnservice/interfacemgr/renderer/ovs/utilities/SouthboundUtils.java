@@ -51,11 +51,6 @@ public class SouthboundUtils {
         if (ifTunnel != null) {
             addTunnelPortToBridge(ifTunnel, bridgeIid, iface, bridgeAugmentation, bridgeName, portName, dataBroker, tx);
         }
-
-        IfL2vlan ifL2vlan = iface.getAugmentation(IfL2vlan.class);
-        if (ifL2vlan != null) {
-            addVlanPortToBridge(bridgeIid, ifL2vlan, bridgeAugmentation, bridgeName, portName, dataBroker, tx);
-        }
         futures.add(tx.submit());
     }
 
@@ -82,8 +77,9 @@ public class SouthboundUtils {
     private static void addVlanPortToBridge(InstanceIdentifier<?> bridgeIid, IfL2vlan ifL2vlan,
                                               OvsdbBridgeAugmentation bridgeAugmentation, String bridgeName,
                                               String portName, DataBroker dataBroker, WriteTransaction t) {
-        int vlanId = ifL2vlan.getVlanId().getValue();
-        addTerminationPoint(bridgeIid, bridgeAugmentation, bridgeName, portName, vlanId, null, null, dataBroker, t);
+        if(ifL2vlan.getVlanId() != null) {
+            addTerminationPoint(bridgeIid, bridgeAugmentation, bridgeName, portName, ifL2vlan.getVlanId().getValue(), null, null, dataBroker, t);
+        }
     }
 
     private static void addTunnelPortToBridge(IfTunnel ifTunnel, InstanceIdentifier<?> bridgeIid, Interface iface,
