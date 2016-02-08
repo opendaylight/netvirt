@@ -101,7 +101,7 @@ public class FlowBasedServicesStateBindHelper {
         Collections.sort(allServices, new Comparator<BoundServices>() {
             @Override
             public int compare(BoundServices serviceInfo1, BoundServices serviceInfo2) {
-                return serviceInfo2.getServicePriority().compareTo(serviceInfo1.getServicePriority());
+                return serviceInfo1.getServicePriority().compareTo(serviceInfo2.getServicePriority());
             }
         });
         BoundServices highestPriority = allServices.remove(0);

@@ -39,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.StypeOpenflow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.ServicesInfo;
@@ -243,9 +242,9 @@ public class FlowBasedServicesUtils {
         installFlow(dpId, ingressFlow, t);
     }
 
-    public static void removeIngressFlow(Interface iface, BoundServices serviceOld, BigInteger dpId, WriteTransaction t) {
+    public static void removeIngressFlow(String name, BoundServices serviceOld, BigInteger dpId, WriteTransaction t) {
         LOG.debug("Removing Ingress Flows");
-        String flowKeyStr = getFlowRef(dpId, iface.getName(), serviceOld, serviceOld.getServicePriority());
+        String flowKeyStr = getFlowRef(dpId, name, serviceOld, serviceOld.getServicePriority());
         FlowKey flowKey = new FlowKey(new FlowId(flowKeyStr));
         Node nodeDpn = buildInventoryDpnNode(dpId);
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
@@ -255,17 +254,17 @@ public class FlowBasedServicesUtils {
         t.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
     }
 
-    public static void removeLPortDispatcherFlow(BigInteger dpId, Interface iface, BoundServices boundServicesOld, WriteTransaction t, short currentServiceIndex) {
+    public static void removeLPortDispatcherFlow(BigInteger dpId, String iface, BoundServices boundServicesOld, WriteTransaction t, short currentServiceIndex) {
         LOG.debug("Removing LPort Dispatcher Flows {}, {}", dpId, iface);
 
         StypeOpenflow stypeOpenFlow = boundServicesOld.getAugmentation(StypeOpenflow.class);
         // build the flow and install it
-        String flowRef = getFlowRef(dpId, iface.getName(), boundServicesOld, currentServiceIndex);
+        String flowRef = getFlowRef(dpId, iface, boundServicesOld, currentServiceIndex);
         FlowKey flowKey = new FlowKey(new FlowId(flowRef));
         Node nodeDpn = buildInventoryDpnNode(dpId);
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
-                .child(Table.class, new TableKey(stypeOpenFlow.getDispatcherTableId())).child(Flow.class, flowKey).build();
+                .child(Table.class, new TableKey(NwConstants.LPORT_DISPATCHER_TABLE)).child(Flow.class, flowKey).build();
 
         t.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
     }
@@ -295,11 +294,11 @@ public class FlowBasedServicesUtils {
         Collections.sort(availableServiceInfos, new Comparator<BoundServices>() {
             @Override
             public int compare(BoundServices serviceInfo1, BoundServices serviceInfo2) {
-                return serviceInfo2.getServicePriority().compareTo(serviceInfo1.getServicePriority());
+                return serviceInfo1.getServicePriority().compareTo(serviceInfo2.getServicePriority());
             }
         });
         for (BoundServices availableServiceInfo: availableServiceInfos) {
-            if (currentServiceInfo.getServicePriority() > availableServiceInfo.getServicePriority()) {
+            if (currentServiceInfo.getServicePriority() < availableServiceInfo.getServicePriority()) {
                 lower = availableServiceInfo;
                 break;
             } else {
@@ -317,7 +316,7 @@ public class FlowBasedServicesUtils {
         BoundServices highPriorityService = availableServiceInfos.get(0);
         availableServiceInfos.remove(0);
         for (BoundServices availableServiceInfo: availableServiceInfos) {
-            if (availableServiceInfo.getServicePriority() > highPriorityService.getServicePriority()) {
+            if (availableServiceInfo.getServicePriority() < highPriorityService.getServicePriority()) {
                 highPriorityService = availableServiceInfo;
             }
         }

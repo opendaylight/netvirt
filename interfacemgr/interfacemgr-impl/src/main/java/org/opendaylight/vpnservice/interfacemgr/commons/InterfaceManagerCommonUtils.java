@@ -8,16 +8,24 @@
 
 package org.opendaylight.vpnservice.interfacemgr.commons;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.idmanager.IdManager;
 import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
-import org.opendaylight.vpnservice.mdsalutil.*;
+import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
+import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
+import org.opendaylight.vpnservice.mdsalutil.InstructionType;
+import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
+import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
+import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
+import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -46,9 +54,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class InterfaceManagerCommonUtils {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceManagerCommonUtils.class);
@@ -143,24 +150,6 @@ public class InterfaceManagerCommonUtils {
 
         LOG.trace("Updating trunk interface {} in Config DS", interfaceName);
         MDSALUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, id, ifaceBuilder.build());
-    }
-
-    public static void createInterfaceParentEntryIfNotPresent(DataBroker dataBroker, WriteTransaction t,
-                                                               String parentInterface){
-        InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(parentInterface);
-        InstanceIdentifier<InterfaceParentEntry> interfaceParentEntryIdentifier =
-                InterfaceMetaUtils.getInterfaceParentEntryIdentifier(interfaceParentEntryKey);
-        InterfaceParentEntry interfaceParentEntry =
-                InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryIdentifier, dataBroker);
-
-        if(interfaceParentEntry != null){
-            LOG.info("Not Found entry for Parent Interface: {} in Vlan Trunk-Member Interface Renderer ConfigDS. " +
-                    "Creating...", parentInterface);
-            InterfaceParentEntryBuilder interfaceParentEntryBuilder = new InterfaceParentEntryBuilder()
-                    .setKey(interfaceParentEntryKey).setParentInterface(parentInterface);
-            t.put(LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIdentifier,
-                    interfaceParentEntryBuilder.build(), true);
-        }
     }
 
     public static void createInterfaceChildEntry( WriteTransaction t,
@@ -292,4 +281,37 @@ public class InterfaceManagerCommonUtils {
                 IfmUtil.buildStateInterfaceId(interfaceName);
         transaction.delete(LogicalDatastoreType.OPERATIONAL, ifChildStateId);
     }
+
+    // For trunk interfaces, binding to a parent interface which is already bound to another trunk interface should not
+    // be allowed
+    public static boolean createInterfaceChildEntryIfNotPresent( DataBroker dataBroker, WriteTransaction t,
+                                               String parentInterface, String childInterface){
+        InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(parentInterface);
+        InstanceIdentifier<InterfaceParentEntry> interfaceParentEntryIdentifier =
+                InterfaceMetaUtils.getInterfaceParentEntryIdentifier(interfaceParentEntryKey);
+        InterfaceParentEntry interfaceParentEntry =
+                InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryIdentifier, dataBroker);
+
+        if(interfaceParentEntry != null){
+            LOG.error("Trying to bind the same parent interface {} to multiple trunk interfaces. ", parentInterface);
+            return false;
+        }
+
+        LOG.info("First vlan trunk {} bound on parent-interface {}", childInterface, parentInterface);
+        InterfaceChildEntryKey interfaceChildEntryKey = new InterfaceChildEntryKey(childInterface);
+        InstanceIdentifier<InterfaceChildEntry> intfId =
+                InterfaceMetaUtils.getInterfaceChildEntryIdentifier(interfaceParentEntryKey, interfaceChildEntryKey);
+        InterfaceChildEntryBuilder entryBuilder = new InterfaceChildEntryBuilder().setKey(interfaceChildEntryKey)
+                .setChildInterface(childInterface);
+        t.put(LogicalDatastoreType.CONFIGURATION, intfId, entryBuilder.build(),true);
+        return true;
+    }
+
+    public static boolean deleteParentInterfaceEntry( WriteTransaction t, String parentInterface){
+        InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(parentInterface);
+        InstanceIdentifier<InterfaceParentEntry> interfaceParentEntryIdentifier = InterfaceMetaUtils.getInterfaceParentEntryIdentifier(interfaceParentEntryKey);
+        t.delete(LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIdentifier);
+        return true;
+    }
+
 }

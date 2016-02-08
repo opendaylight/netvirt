@@ -125,7 +125,7 @@ public class FlowBasedServicesConfigBindHelper {
             if (matches != null) {
 
                 WriteTransaction removeFlowTransaction = dataBroker.newWriteOnlyTransaction();
-                FlowBasedServicesUtils.removeIngressFlow(iface, serviceToReplace, dpId, removeFlowTransaction);
+                FlowBasedServicesUtils.removeIngressFlow(iface.getName(), serviceToReplace, dpId, removeFlowTransaction);
                 futures.add(removeFlowTransaction.submit());
 
                 WriteTransaction installFlowTransaction = dataBroker.newWriteOnlyTransaction();
