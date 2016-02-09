@@ -561,12 +561,24 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
                                                InterfaceInfo interfaceInfo, BigInteger dstDpId) {
         int elanTag = elanInfo.getElanTag().intValue();
         long groupId = ElanUtils.getElanRemoteBCGID(elanTag);
+        DpnInterfaces dpnInterfaces = ElanUtils.getElanInterfaceInfoByElanDpn(elanInfo.getElanInstanceName(), interfaceInfo.getDpId());
         List<DpnInterfaces> elanDpns = ElanUtils.getInvolvedDpnsInElan(elanInfo.getElanInstanceName());
         if(elanDpns != null) {
             for(DpnInterfaces dpnInterface : elanDpns) {
                 int bucketId = 0;
                 List<Bucket> remoteListBucket = new ArrayList<Bucket>();
                 if(ElanUtils.isDpnPresent(dstDpId) && dpnInterface.getDpId().equals(dstDpId) && dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()) {
+                    for(String ifName : dpnInterfaces.getInterfaces()) {
+                        // In case if there is a InterfacePort in the cache which is not in
+                        // operational state, skip processing it
+                        InterfaceInfo ifInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(ifName, interfaceInfo.getInterfaceType());
+                        if (!isOperational(ifInfo)) {
+                            continue;
+                        }
+
+                        remoteListBucket.add(MDSALUtil.buildBucket(getInterfacePortActions(ifInfo), MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
+                        bucketId++;
+                    }
                     try {
                         List<Action> remoteListActionInfo = ElanUtils.getItmEgressAction(interfaceInfo.getDpId(), dstDpId, (int) elanTag);
                         remoteListBucket.add(MDSALUtil.buildBucket(remoteListActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
@@ -575,9 +587,6 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
                         logger.error( "Logical Group Interface not found between source Dpn - {}, destination Dpn - {} " ,dpnInterface.getDpId(), dstDpId);
                         return;
                     }
-                    List<Action> remoteListActionInfo = new ArrayList<Action>();
-                    remoteListActionInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(ElanUtils.getElanLocalBCGID(elanTag))}).buildAction());
-                    remoteListBucket.add(MDSALUtil.buildBucket(remoteListActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
                     Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll, MDSALUtil.buildBucketLists(remoteListBucket));
                     mdsalManager.syncInstallGroup(interfaceInfo.getDpId(), group, ElanConstants.DELAY_TIME_IN_MILLISECOND);
                     break;
@@ -687,7 +696,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
             // In case if there is a InterfacePort in the cache which is not in
             // operational state, skip processing it
             InterfaceInfo ifInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(ifName, interfaceInfo.getInterfaceType());
-            if (!isOperational(ifInfo)) {
+            if (ifInfo == null || !isOperational(ifInfo)) {
                 continue;
             }
 
@@ -699,7 +708,13 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
 
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll, MDSALUtil.buildBucketLists(listBucket));
         logger.trace("installing the localBroadCast Group:{}", group);
-        mdsalManager.syncInstallGroup(dpnId, group, ElanConstants.DELAY_TIME_IN_MILLISECOND);
+        // In the case of OVS disconnected we receive null object when we query Interface Operation datastore
+        // so the size of the bucket will be zero
+        if(listBucket.size() == 0) {
+            mdsalManager.syncRemoveGroup(dpnId, group);
+        } else {
+            mdsalManager.syncInstallGroup(dpnId, group, ElanConstants.DELAY_TIME_IN_MILLISECOND);
+        }
     }
 
     public void setupLocalBroadcastGroups(ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
@@ -713,7 +728,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
             // In case if there is a InterfacePort in the cache which is not in
             // operational state, skip processing it
             InterfaceInfo ifInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(ifName, interfaceInfo.getInterfaceType());
-            if (!isOperational(ifInfo)) {
+            if (ifInfo == null || !isOperational(ifInfo)) {
                 continue;
             }
 
@@ -721,9 +736,16 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
             bucketId++;
         }
 
+
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll, MDSALUtil.buildBucketLists(listBucket));
         logger.trace("installing the localBroadCast Group:{}", group);
-        mdsalManager.syncInstallGroup(dpnId, group, ElanConstants.DELAY_TIME_IN_MILLISECOND);
+        // In the case of OVS disconnected we receive null object for the Interface Operation datastore
+        // so the size of the bucket will be zero
+        if(listBucket.size() == 0) {
+            mdsalManager.syncRemoveGroup(dpnId, group);
+        } else {
+            mdsalManager.syncInstallGroup(dpnId, group, ElanConstants.DELAY_TIME_IN_MILLISECOND);
+        }
     }
 
     public void removeLocalBroadcastGroup(ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
