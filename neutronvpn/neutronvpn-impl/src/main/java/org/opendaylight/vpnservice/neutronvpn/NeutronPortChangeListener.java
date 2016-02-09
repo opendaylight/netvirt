@@ -29,6 +29,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.E
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.interfaces.ElanInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlanBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
         .PortFixedipToPortNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
@@ -189,7 +193,10 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                     interfaceIdentifier);
             if (!optionalInf.isPresent()) {
                 // handle these for trunkport extensions : portVlanId, isVlanTransparent
-                Interface inf = new InterfaceBuilder().setEnabled(true).setName(name).setType(L2vlan.class).build();
+                IfL2vlan l2vlan = new IfL2vlanBuilder().setL2vlanMode(IfL2vlan.L2vlanMode.Trunk).build();
+                ParentRefs parentRefs = new ParentRefsBuilder().setParentInterface(name).build();
+                Interface inf = new InterfaceBuilder().setEnabled(true).setName(name).setType(L2vlan.class).
+                        addAugmentation(IfL2vlan.class, l2vlan).addAugmentation(ParentRefs.class, parentRefs).build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
             } else {
                 LOG.error("Interface {} is already present", name);
@@ -229,16 +236,15 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
 
     private void createElanInterface(Port port, int portVlanId) {
         String name = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
-        String interfaceName = new StringBuilder(name).append(":").append(Integer.toString(portVlanId)).toString();
         String elanInstanceName = port.getNetworkId().getValue();
         List<PhysAddress> physAddresses = new ArrayList<>();
         physAddresses.add(new PhysAddress(port.getMacAddress()));
 
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
-                .class, new ElanInterfaceKey(interfaceName)).build();
+                .class, new ElanInterfaceKey(name)).build();
         ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
-                .setName(interfaceName).setStaticMacEntries(physAddresses).
-                        setKey(new ElanInterfaceKey(interfaceName)).build();
+                .setName(name).setStaticMacEntries(physAddresses).
+                        setKey(new ElanInterfaceKey(name)).build();
         MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, elanInterface);
         LOG.debug("Creating new ELan Interface {}", elanInterface);
     }
