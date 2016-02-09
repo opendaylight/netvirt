@@ -87,7 +87,7 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         LOG.trace("Pkt received: {}", packet);
         Class<? extends PacketInReason> pktInReason = packet.getPacketInReason();
         short tableId = packet.getTableId().getValue();
-        if (isPktInReasonSendtoCtrl(pktInReason) && ((NwConstants.DHCP_TABLE == tableId))) {
+        if (isPktInReasonSendtoCtrl(pktInReason)) {
             byte[] inPayload = packet.getPayload();
             Ethernet ethPkt = new Ethernet();
             try {
