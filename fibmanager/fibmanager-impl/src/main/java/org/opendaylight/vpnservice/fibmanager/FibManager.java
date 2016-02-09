@@ -460,25 +460,34 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       if (prefixInfo == null)
           return; //Don't have any info for this prefix (shouldn't happen); need to return
       String ifName = prefixInfo.getVpnInterfaceName();
-      Optional<Adjacencies> optAdjacencies = FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL, FibUtil.getAdjListPath(ifName));
-      int numAdj = 0;
-      if (optAdjacencies.isPresent()) {
+      Optional<OpState> opStateData = FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                                                   FibUtil.getVpnInterfaceOpStateIdentifier(ifName));
+      if(opStateData.isPresent() && !opStateData.get().isStateUp()) {
+        Optional<Adjacencies>
+            optAdjacencies =
+            FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL, FibUtil.getAdjListPath(ifName));
+        int numAdj = 0;
+        if (optAdjacencies.isPresent()) {
           numAdj = optAdjacencies.get().getAdjacency().size();
-      }
-      LOG.trace("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId, vrfEntry.getDestPrefix());
-      //remove adjacency corr to prefix
-      FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL, FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
+        }
+        LOG.trace("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId,
+                  vrfEntry.getDestPrefix());
+        //remove adjacency corr to prefix
+        FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
+                       FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
 
-      if((numAdj - 1) == 0) { //there are no adjacencies left for this vpn interface, clean up
-        //clean up the vpn interface from DpnToVpn list
+        if ((numAdj - 1) == 0) { //there are no adjacencies left for this vpn interface, clean up
+          //clean up the vpn interface from DpnToVpn list
           delIntfFromDpnToVpnList(vpnId, prefixInfo.getDpnId(), ifName, rd);
-        LOG.trace("cleanUpOpDataForFib: Delete prefix to interface and vpnInterface ");
+          LOG.trace("cleanUpOpDataForFib: Delete prefix to interface and vpnInterface ");
           FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                  FibUtil.getPrefixToInterfaceIdentifier(
-                          vpnId,
-                          (extra_route) ? vrfEntry.getNextHopAddress() + "/32" : vrfEntry.getDestPrefix()));
+                         FibUtil.getPrefixToInterfaceIdentifier(
+                             vpnId,
+                             (extra_route) ? vrfEntry.getNextHopAddress() + "/32"
+                                           : vrfEntry.getDestPrefix()));
           FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                  FibUtil.getVpnInterfaceIdentifier(ifName));
+                         FibUtil.getVpnInterfaceIdentifier(ifName));
+        }
       }
   }
 
@@ -510,17 +519,25 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                                 final VrfEntry vrfEntry) {
     LOG.debug("deleting route "+ vrfEntry.getDestPrefix() + " "+vpnId);
     String rd = vrfTableKey.getRouteDistinguisher();
-    String egressInterface = resolveAdjacency(localDpnId, remoteDpnId, vpnId, vrfEntry, rd);
-    if(egressInterface == null) {
-      LOG.error("Could not get nexthop group id for nexthop: {} in vpn {}",
-                vrfEntry.getNextHopAddress(), rd);
-      LOG.warn("Failed to delete Route: {} in vpn: {}",
-               vrfEntry.getDestPrefix(), rd);
-      return;
+    boolean isRemoteRoute = true;
+    if (localDpnId == null) {
+      // localDpnId is not known when clean up happens for last vm for a vpn on a dpn
+      VpnNexthop localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, vrfEntry.getDestPrefix());
+      if(localNextHopInfo == null) {
+        //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
+        Extraroute extra_route = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
+        if (extra_route != null) {
+          localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, extra_route.getNexthopIp());
+        }
+      }
+      isRemoteRoute = ((localNextHopInfo != null) && (!remoteDpnId.equals(localNextHopInfo.getDpnId())));
     }
-
-    makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW);
-    LOG.debug("Successfully delete fib entry for "+ vrfEntry.getDestPrefix() + " vpnId "+vpnId);
+    if (isRemoteRoute) {
+      makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW);
+      LOG.debug("Successfully delete fib entry for "+ vrfEntry.getDestPrefix() + " vpnId "+vpnId);
+    } else{
+      LOG.debug("Did not delete fib entry rd: {} =, prefix: {} as it is local to dpn {}", rd, vrfEntry.getDestPrefix(), remoteDpnId);
+    }
   }
 
   private long getIpAddress(byte[] rawIpAddress) {
