@@ -7,34 +7,21 @@
  */
 package org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers;
 
-import com.google.common.util.concurrent.ListenableFuture;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
-import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
-import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
-import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
-import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class OvsVlanMemberConfigAddHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsVlanMemberConfigAddHelper.class);
@@ -45,7 +32,6 @@ public class OvsVlanMemberConfigAddHelper {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction t = dataBroker.newWriteOnlyTransaction();
 
-        InterfaceManagerCommonUtils.createInterfaceParentEntryIfNotPresent(dataBroker, t, parentRefs.getParentInterface());
         InterfaceManagerCommonUtils.createInterfaceChildEntry(t, parentRefs.getParentInterface(), interfaceNew.getName());
 
         InterfaceKey interfaceKey = new InterfaceKey(parentRefs.getParentInterface());
@@ -68,35 +54,8 @@ public class OvsVlanMemberConfigAddHelper {
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(parentRefs.getParentInterface(), dataBroker);
         if (ifState != null) {
             LOG.debug("add interface state info for vlan member {}",interfaceNew.getName());
-            OperStatus operStatus = ifState.getOperStatus();
-            AdminStatus adminStatus = ifState.getAdminStatus();
-            PhysAddress physAddress = ifState.getPhysAddress();
+            InterfaceManagerCommonUtils.addStateEntry(interfaceNew.getName(), t, dataBroker, idManager, ifState);
 
-            if (!interfaceNew.isEnabled()) {
-                operStatus = OperStatus.Down;
-            }
-
-            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
-                    IfmUtil.buildStateInterfaceId(interfaceNew.getName());
-            List<String> lowerLayerIfList = new ArrayList<>();
-            lowerLayerIfList.add(ifState.getLowerLayerIf().get(0));
-            //lowerLayerIfList.add(parentRefs.getParentInterface());
-            Integer ifIndex = IfmUtil.allocateId(idManager, IfmConstants.IFM_IDPOOL_NAME, interfaceNew.getName());
-            InterfaceBuilder ifaceBuilder = new InterfaceBuilder().setAdminStatus(adminStatus).setOperStatus(operStatus)
-                    .setPhysAddress(physAddress).setLowerLayerIf(lowerLayerIfList).setIfIndex(ifIndex);
-            ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(interfaceNew.getName()));
-            t.put(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build(), true);
-
-            // create lportTag Interface Map
-            InterfaceMetaUtils.createLportTagInterfaceMap(t, interfaceNew.getName(), ifIndex);
-            //Installing vlan flow for vlan member
-            NodeConnectorId nodeConnectorId = new NodeConnectorId(ifState.getLowerLayerIf().get(0));
-            BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
-            long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
-            if (operStatus == OperStatus.Up) {
-                List<MatchInfo> matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, interfaceNew);
-                FlowBasedServicesUtils.installVlanFlow(dpId, portNo, interfaceNew, t, matches, ifIndex);
-            }
 
             // FIXME: Maybe, add the new interface to the higher-layer if of the parent interface-state.
             // That may not serve any purpose though for interface manager.... Unless some external parties are interested in it.

@@ -7,16 +7,16 @@
  */
 package org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers;
 
-import com.google.common.util.concurrent.ListenableFuture;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.AlivenessMonitorUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
-import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
-import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -33,9 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * This worker is responsible for adding the openflow-interfaces/of-port-info container
@@ -73,12 +71,12 @@ public class OvsInterfaceStateAddHelper {
 
         Interface ifState = InterfaceManagerCommonUtils.addStateEntry(iface, portName, transaction, idManager,
                 physAddress, operStatus, adminStatus, nodeConnectorId);
-        BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
-        long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
         // If this interface is a tunnel interface, create the tunnel ingress flow
         if(iface != null) {
             IfTunnel tunnel = iface.getAugmentation(IfTunnel.class);
             if (tunnel != null) {
+                BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
+                long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
                 InterfaceManagerCommonUtils.makeTunnelIngressFlow(futures, mdsalApiManager, tunnel, dpId, portNo, iface,
                         ifState.getIfIndex(), NwConstants.ADD_FLOW);
                 futures.add(transaction.submit());

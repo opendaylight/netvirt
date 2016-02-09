@@ -7,12 +7,13 @@
  */
 package org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.idmanager.IdManager;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.AlivenessMonitorUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
@@ -39,9 +40,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class OvsInterfaceConfigAddHelper {
     private static final Logger LOG = LoggerFactory.getLogger(OvsInterfaceConfigAddHelper.class);
@@ -69,10 +69,12 @@ public class OvsInterfaceConfigAddHelper {
         if (ifL2vlan == null || IfL2vlan.L2vlanMode.Trunk != ifL2vlan.getL2vlanMode()) {
             return;
         }
-        LOG.debug("adding vlan configuration for {}",interfaceNew.getName());
         WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
-        InterfaceManagerCommonUtils.createInterfaceChildEntry(transaction,
-                parentRefs.getParentInterface(), interfaceNew.getName());
+        if(!InterfaceManagerCommonUtils.createInterfaceChildEntryIfNotPresent(dataBroker, transaction,
+                parentRefs.getParentInterface(), interfaceNew.getName())){
+            return;
+        }
+        LOG.debug("adding vlan configuration for {}",interfaceNew.getName());
 
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(parentRefs.getParentInterface(), dataBroker);

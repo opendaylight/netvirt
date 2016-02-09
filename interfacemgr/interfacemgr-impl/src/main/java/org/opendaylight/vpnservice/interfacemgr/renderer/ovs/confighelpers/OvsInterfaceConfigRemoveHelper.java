@@ -92,6 +92,7 @@ public class OvsInterfaceConfigRemoveHelper {
         NodeConnectorId ncId = new NodeConnectorId(ifState.getLowerLayerIf().get(0));
         BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(ncId));
         FlowBasedServicesUtils.removeIngressFlow(interfaceOld.getName(), dpId, transaction);
+        InterfaceManagerCommonUtils.deleteParentInterfaceEntry(transaction, parentRefs.getParentInterface());
         // For Vlan-Trunk Interface, remove the trunk-member operstates as well...
 
         InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(interfaceOld.getName());
