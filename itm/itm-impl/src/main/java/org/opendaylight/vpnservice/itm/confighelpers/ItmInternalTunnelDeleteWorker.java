@@ -61,9 +61,11 @@ public class ItmInternalTunnelDeleteWorker {
                             for (TunnelEndPoints dstTep : dstDpn.getTunnelEndPoints()) {
                                 logger.trace("Processing dstTep " + dstTep);
                                 if (dstTep.getTransportZone().equals(srcTZone)) {
+                                    if( checkIfTrunkExists(dstDpn.getDPNID(), srcDpn.getDPNID(), dataBroker)) {
                                     // remove all trunk interfaces
                                     logger.trace("Invoking removeTrunkInterface between source TEP {} , Destination TEP {} " ,srcTep , dstTep);
                                     removeTrunkInterface(dataBroker, idManagerService, srcTep, dstTep, srcDpn.getDPNID(), dstDpn.getDPNID(), t, futures);
+                                    }
                                 }
                             }
                         }
@@ -96,7 +98,7 @@ public class ItmInternalTunnelDeleteWorker {
                                                             tnlContainerPath, dataBroker);
                             // remove container if no DPNs are present
                             if (containerOptional.isPresent()) {
-                            	DpnEndpoints deps = containerOptional.get();
+                               DpnEndpoints deps = containerOptional.get();
                                 if (deps.getDPNTEPsInfo() == null || deps.getDPNTEPsInfo().isEmpty()) {
                                     logger.trace("Container Removal from DPNTEPSINFO CONFIG DS");
                                     t.delete(LogicalDatastoreType.CONFIGURATION, tnlContainerPath);
@@ -122,7 +124,7 @@ public class ItmInternalTunnelDeleteWorker {
                                         .getValue());
         logger.trace("Removing forward Trunk Interface " + trunkfwdIfName);
         InstanceIdentifier<Interface> trunkIdentifier = ItmUtils.buildId(trunkfwdIfName);
-        logger.debug(  " Removing Trunk Interface Name - {} , Id - {} from Config DS {}, {} ", trunkfwdIfName, trunkIdentifier ) ;
+        logger.debug(  " Removing Trunk Interface Name - {} , Id - {} from Config DS ", trunkfwdIfName, trunkIdentifier ) ;
         t.delete(LogicalDatastoreType.CONFIGURATION, trunkIdentifier);
 
         // also update itm-state ds -- Delete the forward tunnel-interface from the tunnel list
@@ -138,8 +140,8 @@ public class ItmInternalTunnelDeleteWorker {
                                         .getIpv4Address().getValue(), srcTep.getIpAddress().getIpv4Address()
                                         .getValue());
         logger.trace("Removing Reverse Trunk Interface " + trunkRevIfName);
-        trunkIdentifier = ItmUtils.buildId(trunkfwdIfName);
-        logger.debug(  " Removing Trunk Interface Name - {} , Id - {} from Config DS {}, {} ", trunkfwdIfName, trunkIdentifier ) ;
+        trunkIdentifier = ItmUtils.buildId(trunkRevIfName);
+        logger.debug(  " Removing Trunk Interface Name - {} , Id - {} from Config DS ", trunkRevIfName, trunkIdentifier ) ;
         t.delete(LogicalDatastoreType.CONFIGURATION, trunkIdentifier);
 
      // also update itm-state ds -- Delete the reverse tunnel-interface from the tunnel list
@@ -150,5 +152,15 @@ public class ItmInternalTunnelDeleteWorker {
         
         // Release the Id for the Reverse trunk
         ItmUtils.releaseId(idManagerService, trunkRevIfName);
+    }
+    private static boolean checkIfTrunkExists( BigInteger srcDpnId, BigInteger dstDpnId, DataBroker dataBroker) {
+        boolean existsFlag = false ;
+        InstanceIdentifier<InternalTunnel> path = InstanceIdentifier.create(
+                TunnelList.class)
+                    .child(InternalTunnel.class, new InternalTunnelKey( srcDpnId, dstDpnId));   
+        Optional<InternalTunnel> internalTunnels = ItmUtils.read(LogicalDatastoreType.CONFIGURATION,path, dataBroker) ;
+        if( internalTunnels.isPresent())
+            existsFlag = true ;
+           return existsFlag ;
     }
 }
