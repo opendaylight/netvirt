@@ -198,7 +198,8 @@ public class IfmUtil {
         if(L2vlan.class.equals(ifType)){
             IfL2vlan vlanIface = interfaceInfo.getAugmentation(IfL2vlan.class);
             LOG.trace("L2Vlan: {}",vlanIface);
-            long vlanVid = (vlanIface == null) ? 0 : vlanIface.getVlanId().getValue();
+            long vlanVid = (vlanIface == null) ? 0 :
+                    vlanIface.getVlanId() == null ? 0 : vlanIface.getVlanId().getValue();
             if (vlanVid != 0) {
                 listActionInfo.add(new ActionInfo(ActionType.push_vlan, new String[] {}, actionKeyStart));
                 actionKeyStart++;
