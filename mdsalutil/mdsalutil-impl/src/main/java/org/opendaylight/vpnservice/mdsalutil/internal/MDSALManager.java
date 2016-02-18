@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.ActionType;
@@ -40,12 +42,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.vpnservice.mdsalutil.*;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.OptimisticLockFailedException;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -62,8 +67,11 @@ public class MDSALManager implements AutoCloseable {
     private DataBroker m_dataBroker;
 
     private PacketProcessingService m_packetProcessingService;
+    private ListenerRegistration<DataChangeListener> groupListenerRegistration;
+    private ListenerRegistration<DataChangeListener> flowListenerRegistration;
     private ConcurrentMap<FlowInfoKey, Runnable> flowMap = new ConcurrentHashMap<FlowInfoKey, Runnable>();
     private ConcurrentMap<GroupInfoKey, Runnable> groupMap = new ConcurrentHashMap<GroupInfoKey, Runnable> ();
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /**
      * Writes the flows and Groups to the MD SAL DataStore
@@ -77,12 +85,37 @@ public class MDSALManager implements AutoCloseable {
     public MDSALManager(final DataBroker db, PacketProcessingService pktProcService) {
         m_dataBroker = db;
         m_packetProcessingService = pktProcService;
+        registerListener(db);
         s_logger.info( "MDSAL Manager Initialized ") ;
     }
 
     @Override
     public void close() throws Exception {
+        groupListenerRegistration.close();
+        flowListenerRegistration.close();
         s_logger.info("MDSAL Manager Closed");
+    }
+
+    private void registerListener(DataBroker db) {
+        try {
+            flowListenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, getWildCardFlowPath(),
+                                                                        new FlowListener(),
+                                                                        DataChangeScope.SUBTREE);
+            groupListenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, getWildCardGroupPath(),
+                                                                        new GroupListener(),
+                                                                        DataChangeScope.SUBTREE);
+        } catch (final Exception e) {
+            s_logger.error("GroupEventHandler: DataChange listener registration fail!", e);
+            throw new IllegalStateException("GroupEventHandler: registration Listener failed.", e);
+        }
+    }
+
+    private InstanceIdentifier<Group> getWildCardGroupPath() {
+        return InstanceIdentifier.create(Nodes.class).child(Node.class).augmentation(FlowCapableNode.class).child(Group.class);
+    }
+
+    private InstanceIdentifier<Flow> getWildCardFlowPath() {
+        return InstanceIdentifier.create(Nodes.class).child(Node.class).augmentation(FlowCapableNode.class).child(Table.class).child(Flow.class);
     }
 
     public void installFlow(FlowEntity flowEntity) {
@@ -415,6 +448,77 @@ public class MDSALManager implements AutoCloseable {
                 } catch (InterruptedException e){}
             }
         }
+    }
+
+    class GroupListener extends AbstractDataChangeListener<Group> {
+
+        public GroupListener() {
+            super(Group.class);
+        }
+
+        @Override
+        protected void remove(InstanceIdentifier<Group> identifier, Group del) {
+            BigInteger dpId = getDpnFromString(identifier.firstKeyOf(Node.class, NodeKey.class).getId().getValue());
+            executeNotifyTaskIfRequired(dpId, del);
+        }
+
+        private void executeNotifyTaskIfRequired(BigInteger dpId, Group group) {
+            GroupInfoKey groupKey = new GroupInfoKey(dpId, group.getGroupId().getValue());
+            Runnable notifyTask = groupMap.remove(groupKey);
+            if (notifyTask == null) {
+                return;
+            }
+            executorService.execute(notifyTask);
+        }
+
+        @Override
+        protected void update(InstanceIdentifier<Group> identifier, Group original, Group update) {
+            BigInteger dpId = getDpnFromString(identifier.firstKeyOf(Node.class, NodeKey.class).getId().getValue());
+            executeNotifyTaskIfRequired(dpId, update);
+        }
+
+        @Override
+        protected void add(InstanceIdentifier<Group> identifier, Group add) {
+            BigInteger dpId = getDpnFromString(identifier.firstKeyOf(Node.class, NodeKey.class).getId().getValue());
+            executeNotifyTaskIfRequired(dpId, add);
+        }
+    }
+    
+    class FlowListener extends AbstractDataChangeListener<Flow> {
+
+        public FlowListener() {
+            super(Flow.class);
+        }
+
+        @Override
+        protected void remove(InstanceIdentifier<Flow> identifier, Flow del) {
+            BigInteger dpId = getDpnFromString(identifier.firstKeyOf(Node.class, NodeKey.class).getId().getValue());
+            notifyTaskIfRequired(dpId, del);
+        }
+
+        private void notifyTaskIfRequired(BigInteger dpId, Flow flow) {
+            FlowInfoKey flowKey = new FlowInfoKey(dpId, flow.getTableId(), flow.getMatch(), flow.getId().getValue());
+            Runnable notifyTask = flowMap.remove(flowKey);
+            if (notifyTask == null) {
+                return;
+            }
+            executorService.execute(notifyTask);
+        }
+
+        @Override
+        protected void update(InstanceIdentifier<Flow> identifier, Flow original, Flow update) {
+        }
+
+        @Override
+        protected void add(InstanceIdentifier<Flow> identifier, Flow add) {
+            BigInteger dpId = getDpnFromString(identifier.firstKeyOf(Node.class, NodeKey.class).getId().getValue());
+            notifyTaskIfRequired(dpId, add);
+        }
+    }
+    
+    private BigInteger getDpnFromString(String dpnString) {
+        String[] split = dpnString.split(":");
+        return new BigInteger(split[1]);
     }
 
 }

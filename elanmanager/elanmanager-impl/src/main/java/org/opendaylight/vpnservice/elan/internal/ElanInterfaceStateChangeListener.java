@@ -74,7 +74,12 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
             return;
         }
         ElanInstance elanInfo = ElanUtils.getElanInstanceByName(elanInterface.getElanInstanceName());
-        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
+        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName, 
+                InterfaceInfo.InterfaceType.VLAN_INTERFACE);
+        if (interfaceInfo == null) {
+            logger.warn("Interface {} doesn't exist in operational datastore", interfaceName);
+            return;
+        }
 
         logger.trace("ElanService Interface Operational state has changes for Interface:{}", interfaceName);
         elanInterfaceManager.handleInterfaceUpated(interfaceInfo, elanInfo , isStateUp);
