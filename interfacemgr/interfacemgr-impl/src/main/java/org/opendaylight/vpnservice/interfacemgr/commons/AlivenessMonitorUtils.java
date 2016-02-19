@@ -66,7 +66,7 @@ public class AlivenessMonitorUtils {
     public static void startLLDPMonitoring(AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
                                             Interface trunkInterface) {
         //LLDP monitoring for the trunk interface
-        /*String trunkInterfaceName = trunkInterface.getName();
+        String trunkInterfaceName = trunkInterface.getName();
         IfTunnel ifTunnel = trunkInterface.getAugmentation(IfTunnel.class);
         if(ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
             MonitorStartInput lldpMonitorInput = new MonitorStartInputBuilder().setConfig(new ConfigBuilder()
@@ -90,12 +90,12 @@ public class AlivenessMonitorUtils {
             } catch (InterruptedException | ExecutionException e) {
                 LOG.warn("Exception when starting monitoring", e);
             }
-        }*/
+        }
     }
 
     public static void stopLLDPMonitoring(AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
                                           Interface trunkInterface) {
-        /*IfTunnel ifTunnel = trunkInterface.getAugmentation(IfTunnel.class);
+        IfTunnel ifTunnel = trunkInterface.getAugmentation(IfTunnel.class);
         if(!ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)){
             return;
         }
@@ -113,7 +113,7 @@ public class AlivenessMonitorUtils {
                 removeMonitorIdFromInterfaceMonitorIdMap(dataBroker, interfaceName, monitorId);
                 return;
             }
-        }*/
+        }
     }
 
     public static String getInterfaceFromMonitorId(DataBroker broker, Long monitorId) {

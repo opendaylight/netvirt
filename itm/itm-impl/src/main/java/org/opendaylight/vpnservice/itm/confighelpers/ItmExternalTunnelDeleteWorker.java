@@ -53,8 +53,8 @@ public class ItmExternalTunnelDeleteWorker {
                             ExternalTunnelList.class)
                                 .child(ExternalTunnel.class, new ExternalTunnelKey(extIp, teps.getDPNID()));
                     t.delete(LogicalDatastoreType.CONFIGURATION, path);
-                    // Release the Ids for the trunk interface
-                    ItmUtils.releaseId(idManagerService, trunkInterfaceName);
+                    // Release the Ids for the trunk interface Name
+                    ItmUtils.releaseIdForTrunkInterfaceName(idManagerService,interfaceName,firstEndPt.getIpAddress().getIpv4Address().getValue(), extIp.getIpv4Address().getValue() );
                 }
             }
             futures.add(t.submit()) ;

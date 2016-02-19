@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnelKey;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.vpnservice.itm.globals.ITMConstants;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -62,6 +63,15 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
+import org.opendaylight.vpnservice.mdsalutil.ActionType;
+import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
+import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
+import org.opendaylight.vpnservice.mdsalutil.InstructionType;
+import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
+import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
+import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
+import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
@@ -137,6 +147,12 @@ public class ItmUtils {
         String trunkInterfaceName = String.format("%s:%s:%s", parentInterfaceName, localHostName, remoteHostName);
         trunkInterfaceName = String.format("%s:%s", TUNNEL, getUniqueId(idManager, trunkInterfaceName));
         return trunkInterfaceName;
+    }
+
+    public static void releaseIdForTrunkInterfaceName(IdManagerService idManager, String parentInterfaceName, String localHostName, String remoteHostName) {
+        String trunkInterfaceName = String.format("%s:%s:%s", parentInterfaceName, localHostName, remoteHostName);
+        LOG.trace("Releasing Id for trunkInterface - {}", trunkInterfaceName );
+        releaseId(idManager, trunkInterfaceName) ;
     }
 
     public static InetAddress getInetAddressFromIpAddress(IpAddress ip) {
@@ -259,5 +275,45 @@ public class ItmUtils {
             }
         }
         return cfgDpnList;
+    }
+
+    public static void setUpOrRemoveTerminatingServiceTable(BigInteger dpnId, IMdsalApiManager mdsalManager, boolean addFlag) {
+        String logmsg = ( addFlag == true) ? "Installing" : "Removing";
+        LOG.trace( logmsg + " PUNT to Controller flow in DPN {} ", dpnId );
+        long dpId;
+        List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
+        listActionInfo.add(new ActionInfo(ActionType.punt_to_controller,
+                new String[] {}));
+
+        try {
+            List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+
+            mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {
+                    BigInteger.valueOf(ITMConstants.LLDP_SERVICE_ID) }));
+
+            List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+            mkInstructions.add(new InstructionInfo(InstructionType.apply_actions,
+                   listActionInfo));
+
+            FlowEntity terminatingServiceTableFlowEntity = MDSALUtil
+                    .buildFlowEntity(
+                             dpnId,
+                             NwConstants.INTERNAL_TUNNEL_TABLE,
+                            getFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE,
+                                   ITMConstants.LLDP_SERVICE_ID), 5, String.format("%s:%d","ITM Flow Entry ",ITMConstants.LLDP_SERVICE_ID),
+                            0, 0, ITMConstants.COOKIE_ITM
+                                    .add(BigInteger.valueOf(ITMConstants.LLDP_SERVICE_ID)),
+                                    mkMatches, mkInstructions);
+            if(addFlag)
+                mdsalManager.installFlow(terminatingServiceTableFlowEntity);
+            else
+                mdsalManager.removeFlow(terminatingServiceTableFlowEntity);
+        } catch (Exception e) {
+            LOG.error("Error while setting up Table 36 for {}", dpnId, e);
+        }
+    }
+
+    private static String getFlowRef(long termSvcTable, int svcId) {
+        return new StringBuffer().append(termSvcTable).append(svcId).toString();
     }
 }

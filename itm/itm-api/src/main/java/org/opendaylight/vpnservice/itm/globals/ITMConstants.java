@@ -16,10 +16,5 @@ public class ITMConstants{
   public static final String ITM_IDPOOL_NAME = "Itmservices";
   public static final long ITM_IDPOOL_START = 1L;
   public static final String ITM_IDPOOL_SIZE = "100000";
-                
-    public static final short INTERNAL_TUNNEL_TABLE = 22;
-
-
-
-    public static final short TERMINATING_SERVICE_TABLE = 36;
+  public static int LLDP_SERVICE_ID = 0;
 }

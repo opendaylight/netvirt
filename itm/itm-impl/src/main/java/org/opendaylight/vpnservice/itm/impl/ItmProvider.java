@@ -73,6 +73,7 @@ public class ItmProvider implements BindingAwareProvider, AutoCloseable, IITMPro
             itmManager.setMdsalManager(mdsalManager);
             itmManager.setNotificationPublishService(notificationPublishService);
             itmManager.setMdsalManager(mdsalManager);
+            tzChangeListener.setMdsalManager(mdsalManager);
             tzChangeListener.setItmManager(itmManager);
             tzChangeListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
             createIdPool();
