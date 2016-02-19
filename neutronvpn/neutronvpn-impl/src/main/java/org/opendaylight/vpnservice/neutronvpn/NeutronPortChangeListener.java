@@ -268,7 +268,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
 
             subnetId = ip.getSubnetId();
             Subnetmap subnetmap = nvpnManager.updateSubnetNode(subnetId, null, null, null, null, null, port.getUuid());
-            if (vpnId == null && subnetmap != null) {
+            if (subnetmap != null) {
                 vpnId = subnetmap.getVpnId();
             }
         }

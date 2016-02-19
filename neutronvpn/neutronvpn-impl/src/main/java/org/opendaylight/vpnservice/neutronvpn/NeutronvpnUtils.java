@@ -220,7 +220,7 @@ public class NeutronvpnUtils {
         if (router != null) {
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router
                     .Interfaces> interfacesList = router.getInterfaces();
-            if (!interfacesList.isEmpty()) {
+            if (interfacesList != null) {
                 for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers
                         .router.Interfaces interfaces : interfacesList) {
                     subnetIdList.add(interfaces.getSubnetId());
