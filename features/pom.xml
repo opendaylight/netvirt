@@ -384,7 +384,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
-      <version>${commons.net.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
