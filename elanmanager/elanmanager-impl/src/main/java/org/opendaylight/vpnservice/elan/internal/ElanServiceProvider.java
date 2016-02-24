@@ -192,7 +192,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
            }
         } else {
             ElanInstance elanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName).setMacTimeout(macTimeout).setDescription(description).setKey(new ElanInstanceKey(elanInstanceName)).build();
-            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, ElanUtils.getElanInstanceIdentifier(elanInstanceName), elanInstance);
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstance);
             logger.debug("Creating the new Elan Instance {}", elanInstance);
         }
         return isSuccess;
@@ -219,7 +219,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             return isSuccess;
         }
         logger.debug("Deletion of the existing Elan Instance {}", existingElanInstance);
-        ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION, ElanUtils.getElanInstanceIdentifier(elanInstanceName));
+        ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION, ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName));
         isSuccess = true;
         return isSuccess;
     }

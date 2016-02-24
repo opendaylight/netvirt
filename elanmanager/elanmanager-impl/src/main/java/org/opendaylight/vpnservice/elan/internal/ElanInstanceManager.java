@@ -8,6 +8,7 @@
 package org.opendaylight.vpnservice.elan.internal;
 
 import com.google.common.base.Optional;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
@@ -112,11 +113,12 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
 
     @Override
     protected void update(InstanceIdentifier<ElanInstance> identifier, ElanInstance original, ElanInstance update) {
-        if (original.getElanTag() == update.getElanTag()) {
+        Long existingElanTag = original.getElanTag();
+        if (existingElanTag != null && existingElanTag == update.getElanTag()) {
             return;
         } else if (update.getElanTag() == null) {
             // update the elan-Instance with new properties
-            if(original.getMacTimeout() == update.getMacTimeout() && original.getDescription().equalsIgnoreCase(update.getDescription())) {
+            if(original.getMacTimeout().equals(update.getMacTimeout()) && original.getDescription().equalsIgnoreCase(update.getDescription())) {
                return;
             }
             ElanUtils.UpdateOperationalDataStore(broker, idManager, update);

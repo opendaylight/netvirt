@@ -176,11 +176,6 @@ public class ElanUtils {
         Futures.addCallback(tx.submit(), DEFAULT_CALLBACK);
     }
 
-    public static InstanceIdentifier<ElanInstance> getElanInstanceIdentifier(String elanName) {
-        return InstanceIdentifier.builder(ElanInstances.class)
-                .child(ElanInstance.class, new ElanInstanceKey(elanName)).build();
-    }
-
     public static InstanceIdentifier<ElanInstance> getElanInstanceIdentifier() {
         return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class).build();
     }
@@ -708,7 +703,7 @@ public class ElanUtils {
         MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag), elanTagName);
         ElanInstance elanInstanceWithTag = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName).setDescription(elanInstanceAdded.getDescription()).setMacTimeout(elanInstanceAdded
                 .getMacTimeout() == null ? ElanConstants.DEFAULT_MAC_TIME_OUT : elanInstanceAdded.getMacTimeout()).setKey(elanInstanceAdded.getKey()).setElanTag(elanTag).build();
-        MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, getElanInstanceIdentifier(elanInstanceName), elanInstanceWithTag);
+        MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, getElanInstanceConfigurationDataPath(elanInstanceName), elanInstanceWithTag);
     }
 
     public static boolean isDpnPresent(BigInteger dpnId) {
