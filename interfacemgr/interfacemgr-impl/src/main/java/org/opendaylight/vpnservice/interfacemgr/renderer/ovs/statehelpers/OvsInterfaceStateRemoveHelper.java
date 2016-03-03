@@ -96,11 +96,8 @@ public class OvsInterfaceStateRemoveHelper {
         InterfaceChildEntry higherlayerChild = interfaceParentEntry.getInterfaceChildEntry().get(0);
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface>
                 higerLayerChildIfStateId = IfmUtil.buildStateInterfaceId(higherlayerChild.getChildInterface());
-                /* Remove entry from if-index-interface-name map and deallocate Id from Idmanager. */
         Interface higherLayerIfChildState = InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(higherlayerChild.getChildInterface(), dataBroker);
         if (interfaceState != null) {
-            InterfaceMetaUtils.removeLportTagInterfaceMap(transaction, idManager, dataBroker, higherLayerIfChildState.getName(),
-                    higherLayerIfChildState.getIfIndex());
             transaction.delete(LogicalDatastoreType.OPERATIONAL, higerLayerChildIfStateId);
             FlowBasedServicesUtils.removeIngressFlow(higherLayerIfChildState.getName(), dpId, transaction);
         }
@@ -114,10 +111,8 @@ public class OvsInterfaceStateRemoveHelper {
             for (InterfaceChildEntry interfaceChildEntry : higherLayerParent.getInterfaceChildEntry()) {
                 InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifChildStateId =
                         IfmUtil.buildStateInterfaceId(interfaceChildEntry.getChildInterface());
-                /* Remove entry from if-index-interface-name map and deallocate Id from Idmanager. */
                 Interface childInterfaceState = InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceChildEntry.getChildInterface(), dataBroker);
                 if (childInterfaceState != null) {
-                    InterfaceMetaUtils.removeLportTagInterfaceMap(transaction, idManager, dataBroker, childInterfaceState.getName(), childInterfaceState.getIfIndex());
                     transaction.delete(LogicalDatastoreType.OPERATIONAL, ifChildStateId);
                     FlowBasedServicesUtils.removeIngressFlow(childInterfaceState.getName(), dpId, transaction);
                 }
