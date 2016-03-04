@@ -182,7 +182,6 @@ public class StateInterfaceTest {
         removeHelper.removeState(idManager, mdsalManager, alivenessMonitorService, fcNodeConnectorId, dataBroker, InterfaceManagerTestUtil.interfaceName, fcNodeConnectorNew);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
-        verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, ifIndexId);
 
     }
     @Test

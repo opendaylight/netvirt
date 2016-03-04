@@ -91,9 +91,7 @@ public class OvsVlanMemberConfigRemoveHelper {
             } */
 
             LOG.debug("delete vlan member interface state {}",interfaceOld.getName());
-            String ncStr = ifState.getLowerLayerIf().get(0);
-            NodeConnectorId nodeConnectorId = new NodeConnectorId(ncStr);
-            BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
+            BigInteger dpId = IfmUtil.getDpnFromInterface(ifState);
             InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
                     IfmUtil.buildStateInterfaceId(interfaceOld.getName());
             t.delete(LogicalDatastoreType.OPERATIONAL, ifStateId);

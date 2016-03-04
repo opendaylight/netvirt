@@ -203,15 +203,10 @@ public class VlanInterfaceConfigurationTest {
         doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(
                 LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIdentifier);
 
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder ifaceBuilder = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder();
-        ifaceBuilder.setOperStatus(OperStatus.Down);
-        ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(vlanInterfaceEnabled.getName()));
-        stateInterface = ifaceBuilder.build();
-
         removeHelper.removeConfiguration(dataBroker,alivenessMonitorService, vlanInterfaceEnabled, idManager,
                 mdsalApiManager, vlanInterfaceEnabled.getAugmentation(ParentRefs.class));
 
         //verification
-        verify(mockWriteTx).merge(LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier, stateInterface);
+        verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
     }
 }

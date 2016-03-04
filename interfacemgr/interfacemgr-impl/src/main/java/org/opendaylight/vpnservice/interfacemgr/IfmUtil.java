@@ -70,6 +70,24 @@ public class IfmUtil {
         return split[1];
     }
 
+    public static BigInteger getDpnFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState){
+        NodeConnectorId ncId = getNodeConnectorIdFromInterface(ifState);
+        if(ncId != null){
+            return new BigInteger(getDpnFromNodeConnectorId(ncId));
+        }
+        return null;
+    }
+    public static String getPortNoFromInterfaceName(String ifaceName, DataBroker broker) {
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
+                InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(ifaceName, broker);
+
+        String lowerLayerIf = ifState.getLowerLayerIf().get(0);
+        NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
+        String portNo = IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId);
+
+        return portNo;
+    }
+
     public static String getPortNoFromNodeConnectorId(NodeConnectorId portId) {
         /*
          * NodeConnectorId is of form 'openflow:dpnid:portnum'
