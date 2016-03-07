@@ -52,15 +52,15 @@ public class OvsVlanMemberConfigRemoveHelper {
             return futures;
         }
 
+        //Delete the interface child information
         List<InterfaceChildEntry> interfaceChildEntries = interfaceParentEntry.getInterfaceChildEntry();
-        if (interfaceChildEntries.size() <= 1) {
-            // FIXME..some boundary problem during vlan member deletion..need to revisit
-            //t.delete(LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIid);
-        } else {
-            InterfaceChildEntryKey interfaceChildEntryKey = new InterfaceChildEntryKey(interfaceOld.getName());
-            InstanceIdentifier<InterfaceChildEntry> interfaceChildEntryIid =
+        InterfaceChildEntryKey interfaceChildEntryKey = new InterfaceChildEntryKey(interfaceOld.getName());
+        InstanceIdentifier<InterfaceChildEntry> interfaceChildEntryIid =
                     InterfaceMetaUtils.getInterfaceChildEntryIdentifier(interfaceParentEntryKey, interfaceChildEntryKey);
-            t.delete(LogicalDatastoreType.CONFIGURATION, interfaceChildEntryIid);
+        t.delete(LogicalDatastoreType.CONFIGURATION, interfaceChildEntryIid);
+        //If this is the last child, remove the interface parent info as well.
+        if (interfaceChildEntries.size() <= 1) {
+            t.delete(LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIid);
         }
 
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
