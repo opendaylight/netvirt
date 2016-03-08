@@ -403,7 +403,7 @@ public class NexthopManager implements AutoCloseable {
                     GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
                             dpnId, nh.getEgressPointer(), ipAddress, GroupTypes.GroupIndirect, null);
                     // remove Group ...
-                    mdsalManager.syncRemoveGroup(groupEntity);
+                    mdsalManager.removeGroup(groupEntity);
                     //update MD-SAL DS
                     removeVpnNexthopFromDS(vpnId, ipAddress);
                     //release groupId

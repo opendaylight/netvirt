@@ -59,6 +59,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/fibmanager-impl/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/fibmanager-shell/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/itm-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/neutronvpn-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/neutronvpn-shell/{{VERSION}}</bundle>

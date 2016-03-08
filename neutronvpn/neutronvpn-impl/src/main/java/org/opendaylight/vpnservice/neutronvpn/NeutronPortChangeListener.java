@@ -165,14 +165,14 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
 
     private void handleNeutronPortUpdated(Port portoriginal, Port portupdate) {
         LOG.debug("Add port to subnet");
-        // add port FixedIPs to local Subnets DS
+        // add port FixedIP to local Subnets DS
         Uuid vpnIdup = addPortToSubnets(portupdate);
 
         if (vpnIdup != null) {
             nvpnManager.createVpnInterface(vpnIdup, portupdate);
         }
 
-        // remove port FixedIPs from local Subnets DS
+        // remove port FixedIP from local Subnets DS
         Uuid vpnIdor = removePortFromSubnets(portoriginal);
 
         if (vpnIdor != null) {
@@ -252,25 +252,22 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private Uuid addPortToSubnets(Port port) {
         Uuid subnetId = null;
         Uuid vpnId = null;
-        String name = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
+        Subnetmap subnetmap = null;
+        String infName = port.getUuid().getValue();
 
-        // find all subnets to which this port is associated
-        List<FixedIps> ips = port.getFixedIps();
-        for (FixedIps ip : ips) {
-            String ipValue = ip.getIpAddress().getIpv4Address().getValue();
-
-            InstanceIdentifier id = NeutronvpnUtils.buildFixedIpToPortNameIdentifier(ipValue);
-            PortFixedipToPortNameBuilder builder = new PortFixedipToPortNameBuilder().setPortFixedip(ipValue)
-                    .setPortName(name);
-            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
-            LOG.debug("fixedIp-name map for neutron port with fixedIp: {}, name: {} added to NeutronPortData DS",
-                    ipValue, name);
-
-            subnetId = ip.getSubnetId();
-            Subnetmap subnetmap = nvpnManager.updateSubnetNode(subnetId, null, null, null, null, null, port.getUuid());
-            if (subnetmap != null) {
-                vpnId = subnetmap.getVpnId();
-            }
+        // find the subnet to which this port is associated
+        FixedIps ip = port.getFixedIps().get(0);
+        String ipValue = ip.getIpAddress().getIpv4Address().getValue();
+        InstanceIdentifier id = NeutronvpnUtils.buildFixedIpToPortNameIdentifier(ipValue);
+        PortFixedipToPortNameBuilder builder = new PortFixedipToPortNameBuilder().setPortFixedip(ipValue)
+                .setPortName(infName);
+        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
+        LOG.debug("fixedIp-name map for neutron port with fixedIp: {}, name: {} added to NeutronPortData DS",
+                ipValue, infName);
+        subnetId = ip.getSubnetId();
+        subnetmap = nvpnManager.updateSubnetNode(subnetId, null, null, null, null, null, port.getUuid());
+        if (subnetmap != null) {
+            vpnId = subnetmap.getVpnId();
         }
         return vpnId;
     }
@@ -278,21 +275,18 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private Uuid removePortFromSubnets(Port port) {
         Uuid subnetId = null;
         Uuid vpnId = null;
+        Subnetmap subnetmap = null;
 
-        // find all Subnets to which this port is associated
-        List<FixedIps> ips = port.getFixedIps();
-        for (FixedIps ip : ips) {
-            String ipValue = ip.getIpAddress().getIpv4Address().getValue();
-
-            InstanceIdentifier id = NeutronvpnUtils.buildFixedIpToPortNameIdentifier(ipValue);
-            MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
-            LOG.debug("fixedIp-name map for neutron port with fixedIp: {} deleted from NeutronPortData DS", ipValue);
-
-            subnetId = ip.getSubnetId();
-            Subnetmap subnetmap = nvpnManager.removeFromSubnetNode(subnetId, null, null, null, port.getUuid());
-            if (vpnId == null && subnetmap != null) {
-                vpnId = subnetmap.getVpnId();
-            }
+        // find the subnet to which this port is associated
+        FixedIps ip = port.getFixedIps().get(0);
+        String ipValue = ip.getIpAddress().getIpv4Address().getValue();
+        InstanceIdentifier id = NeutronvpnUtils.buildFixedIpToPortNameIdentifier(ipValue);
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
+        LOG.debug("fixedIp-name map for neutron port with fixedIp: {} deleted from NeutronPortData DS", ipValue);
+        subnetId = ip.getSubnetId();
+        subnetmap = nvpnManager.removeFromSubnetNode(subnetId, null, null, null, port.getUuid());
+        if (subnetmap != null) {
+            vpnId = subnetmap.getVpnId();
         }
         return vpnId;
     }

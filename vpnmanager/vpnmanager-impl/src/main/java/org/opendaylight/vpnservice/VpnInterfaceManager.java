@@ -749,8 +749,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             BigInteger dpnId = InterfaceUtils.getDpnForInterface(interfaceManager, intfName);
             String nextHopIp = InterfaceUtils.getEndpointIpAddressForDPN(broker, dpnId);
             if (nextHopIp == null && !nextHopIp.isEmpty()) {
-                LOG.error("NextHop for interface {} is null. Failed adding extra route for prefix {}", intfName, destination);
-                return;
+                LOG.error("NextHop for interface {} is null. Adding extra route {} without nextHop", intfName,
+                        destination);
             }
             nextHop = nextHopIp;
         }
