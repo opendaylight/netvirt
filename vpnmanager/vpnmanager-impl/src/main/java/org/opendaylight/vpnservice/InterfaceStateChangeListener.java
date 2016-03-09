@@ -80,7 +80,8 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
         if (configInterface != null && configInterface.getType().equals(Tunnel.class)) {
           if(intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
             //advertise all prefixes in all vpns for this dpn to bgp
-            vpnInterfaceManager.updatePrefixesForDPN(dpnId, VpnInterfaceManager.UpdateRouteAction.ADVERTISE_ROUTE);
+            // FIXME: Blocked until tunnel event[vxlan/gre] support is available
+            // vpnInterfaceManager.updatePrefixesForDPN(dpnId, VpnInterfaceManager.UpdateRouteAction.ADVERTISE_ROUTE);
           }
         } else {
           vpnInterfaceManager.processVpnInterfaceUp(dpnId, interfaceName, intrf.getIfIndex());
@@ -104,7 +105,8 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
         BigInteger dpId = InterfaceUtils.getDpIdFromInterface(intrf);
         if (intrf != null && intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
           //withdraw all prefixes in all vpns for this dpn from bgp
-          vpnInterfaceManager.updatePrefixesForDPN(dpId, VpnInterfaceManager.UpdateRouteAction.WITHDRAW_ROUTE);
+          // FIXME: Blocked until tunnel event[vxlan/gre] support is available
+          // vpnInterfaceManager.updatePrefixesForDPN(dpId, VpnInterfaceManager.UpdateRouteAction.WITHDRAW_ROUTE);
         } else {
           if (VpnUtil.isVpnInterfaceConfigured(broker, interfaceName)) {
             vpnInterfaceManager.processVpnInterfaceDown(dpId, interfaceName, intrf.getIfIndex(), true);
@@ -123,14 +125,16 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
       org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
           intf = InterfaceUtils.getInterface(broker, interfaceName);
       if (intf != null && intf.getType().equals(Tunnel.class)) {
+        /*
+        // FIXME: Blocked until tunnel event[vxlan/gre] support is available
         BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
         if(update.getOperStatus().equals(Interface.OperStatus.Up)) {
           //advertise all prefixes in all vpns for this dpn to bgp
-          vpnInterfaceManager.updatePrefixesForDPN(dpnId, VpnInterfaceManager.UpdateRouteAction.ADVERTISE_ROUTE);
+          // vpnInterfaceManager.updatePrefixesForDPN(dpnId, VpnInterfaceManager.UpdateRouteAction.ADVERTISE_ROUTE);
         } else if(update.getOperStatus().equals(Interface.OperStatus.Down)) {
           //withdraw all prefixes in all vpns for this dpn from bgp
-          vpnInterfaceManager.updatePrefixesForDPN(dpnId, VpnInterfaceManager.UpdateRouteAction.WITHDRAW_ROUTE);
-        }
+          // vpnInterfaceManager.updatePrefixesForDPN(dpnId, VpnInterfaceManager.UpdateRouteAction.WITHDRAW_ROUTE);
+        }*/
       }
 
     }
