@@ -373,8 +373,9 @@ public enum ActionType {
 
         @Override
         public Action buildAction(ActionInfo actionInfo) {
+            String[] actionValues = actionInfo.getActionValues();
             NxResubmitBuilder nxarsb = new NxResubmitBuilder();
-            nxarsb.setTable((short) 55);
+            nxarsb.setTable(Short.parseShort(actionValues[0]));
             ActionBuilder ab = new ActionBuilder();
             ab.setAction(new NxActionResubmitRpcAddGroupCaseBuilder().setNxResubmit(nxarsb.build()).build());
             ab.setKey(new ActionKey(actionInfo.getActionKey()));

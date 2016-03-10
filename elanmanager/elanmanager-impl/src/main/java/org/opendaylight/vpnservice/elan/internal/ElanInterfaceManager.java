@@ -884,7 +884,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
         int actionKey = 0;
         listAction.add((new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {BigInteger.valueOf(interfaceInfo.getInterfaceTag())}, actionKey)).buildAction());
         actionKey++;
-        listAction.add((new ActionInfo(ActionType.nx_resubmit, new BigInteger[] {BigInteger.valueOf(55)}, actionKey)).buildAction());
+        listAction.add((new ActionInfo(ActionType.nx_resubmit, new String[] {Short.toString((short)55)}, actionKey)).buildAction());
         return listAction;
     }
 

@@ -41,7 +41,6 @@ import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
 import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.OpState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnToExtraroute;
@@ -71,9 +70,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetTunnelTypeOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthop;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.Adjacencies;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -294,17 +291,12 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     if(localNextHopInfo != null) {
       localDpnId = localNextHopInfo.getDpnId();
       Prefixes prefix = getPrefixToInterface(vpnId, isExtraRoute ? localNextHopIP : vrfEntry.getDestPrefix());
-      Optional<OpState> opStateData = FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                                                            FibUtil.getVpnInterfaceOpStateIdentifier(prefix.getVpnInterfaceName()));
-      if(opStateData.isPresent() && !opStateData.get().isStateUp())
-      {
         makeConnectedRoute(localDpnId, vpnId, vrfEntry, rd, null /* invalid */,
                            NwConstants.DEL_FLOW);
         makeLFibTableEntry(localDpnId, vrfEntry.getLabel(), 0 /* invalid */,
                            vrfEntry.getNextHopAddress(), NwConstants.DEL_FLOW);
         removeTunnelTableEntry(localDpnId, vrfEntry.getLabel());
         deleteLocalAdjacency(localDpnId, vpnId, localNextHopIP);
-      }
     }
     return localDpnId;
   }
@@ -428,11 +420,11 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
             if (vpnInterfaces.remove(currVpnInterface)) {
                 if (vpnInterfaces.isEmpty()) {
-                    //FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL, id);
-                  LOG.trace("cleanUpOpDataForFib: cleanUpDpnForVpn: {}, {}", dpnId, vpnId);
-                    cleanUpDpnForVpn(dpnId, vpnId, rd);
+                  LOG.trace("Last vpn interface {} on dpn {} for vpn {}. Clean up fib in dpn", intfName, dpnId, rd);
+                  FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL, id);
+                  cleanUpDpnForVpn(dpnId, vpnId, rd);
                 } else {
-                  LOG.trace("cleanUpOpDataForFib: delete interface: {} on {}", intfName, dpnId);
+                  LOG.trace("Delete vpn interface {} from dpn {} to vpn {} list.", intfName, dpnId, rd);
                     FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL, id.child(
                             org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data
                                     .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces.class,
@@ -460,35 +452,24 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       if (prefixInfo == null)
           return; //Don't have any info for this prefix (shouldn't happen); need to return
       String ifName = prefixInfo.getVpnInterfaceName();
-      Optional<OpState> opStateData = FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                                                   FibUtil.getVpnInterfaceOpStateIdentifier(ifName));
-      if(opStateData.isPresent() && !opStateData.get().isStateUp()) {
-        Optional<Adjacencies>
-            optAdjacencies =
-            FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL, FibUtil.getAdjListPath(ifName));
-        int numAdj = 0;
-        if (optAdjacencies.isPresent()) {
+      Optional<Adjacencies> optAdjacencies = FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL, FibUtil.getAdjListPath(ifName));
+      int numAdj = 0;
+      if (optAdjacencies.isPresent()) {
           numAdj = optAdjacencies.get().getAdjacency().size();
-        }
-        LOG.trace("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId,
-                  vrfEntry.getDestPrefix());
-        //remove adjacency corr to prefix
+      }
+      LOG.trace("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId, vrfEntry.getDestPrefix());
+      //remove adjacency corr to prefix
+      if (numAdj > 1) {
         FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                       FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
+                         FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
+      }
 
-        if ((numAdj - 1) == 0) { //there are no adjacencies left for this vpn interface, clean up
+      if ((numAdj - 1) == 0) { //there are no adjacencies left for this vpn interface, clean up
           //clean up the vpn interface from DpnToVpn list
-          delIntfFromDpnToVpnList(vpnId, prefixInfo.getDpnId(), ifName, rd);
-          LOG.trace("cleanUpOpDataForFib: Delete prefix to interface and vpnInterface ");
-          FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                         FibUtil.getPrefixToInterfaceIdentifier(
-                             vpnId,
-                             (extra_route) ? vrfEntry.getNextHopAddress() + "/32"
-                                           : vrfEntry.getDestPrefix()));
+          LOG.trace("Clean up vpn interface {} from dpn {} to vpn {} list.", ifName, prefixInfo.getDpnId(), rd);
           FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
                          FibUtil.getVpnInterfaceIdentifier(ifName));
-        }
-      }
+       }
   }
 
   private void deleteFibEntries(final InstanceIdentifier<VrfEntry> identifier,
@@ -530,7 +511,9 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
           localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, extra_route.getNexthopIp());
         }
       }
-      isRemoteRoute = ((localNextHopInfo != null) && (!remoteDpnId.equals(localNextHopInfo.getDpnId())));
+      if (localNextHopInfo != null) {
+        isRemoteRoute = (!remoteDpnId.equals(localNextHopInfo.getDpnId()));
+      }
     }
     if (isRemoteRoute) {
       makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW);
@@ -646,12 +629,33 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   public void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd) {
     LOG.trace("New dpn {} for vpn {} : populateFibOnNewDpn", dpnId, rd);
     InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-    Optional<VrfTables> vrfTable = FibUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
-    if(vrfTable.isPresent()) {
-      for(VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
-        // Passing null as we don't know the dpn
-        // to which prefix is attached at this point
-        createRemoteFibEntry(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry);
+    String lockOnDpnVpn = new String(dpnId.toString()+ vpnId);
+    synchronized (lockOnDpnVpn.intern()) {
+      Optional<VrfTables> vrfTable = FibUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+      if (vrfTable.isPresent()) {
+        for (VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
+          // Passing null as we don't know the dpn
+          // to which prefix is attached at this point
+          createRemoteFibEntry(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry);
+        }
+      }
+    }
+  }
+
+  public void populateFibOnDpn(BigInteger dpnId, long vpnId, String rd, String nexthopIp) {
+    LOG.trace("dpn {} for vpn {}, nexthopIp {} : populateFibOnDpn", dpnId, rd, nexthopIp);
+    InstanceIdentifier<VrfTables> id = buildVrfId(rd);
+    String lockOnDpnVpn = new String(dpnId.toString()+ vpnId);
+    synchronized (lockOnDpnVpn.intern()) {
+      Optional<VrfTables> vrfTable = FibUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+      if (vrfTable.isPresent()) {
+        for (VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
+          // Passing null as we don't know the dpn
+          // to which prefix is attached at this point
+          if (nexthopIp == vrfEntry.getNextHopAddress()) {
+            createRemoteFibEntry(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry);
+          }
+        }
       }
     }
   }
@@ -659,12 +663,33 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd) {
     LOG.trace("Remove dpn {} for vpn {} : cleanUpDpnForVpn", dpnId, rd);
     InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-    Optional<VrfTables> vrfTable = FibUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
-    if(vrfTable.isPresent()) {
-      for(VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
-        // Passing null as we don't know the dpn
-        // to which prefix is attached at this point
-        deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry);
+    String lockOnDpnVpn = new String(dpnId.toString()+ vpnId);
+    synchronized (lockOnDpnVpn.intern()) {
+      Optional<VrfTables> vrfTable = FibUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+      if (vrfTable.isPresent()) {
+        for (VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
+          // Passing null as we don't know the dpn
+          // to which prefix is attached at this point
+          deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry);
+        }
+      }
+    }
+  }
+
+  public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd, String nexthopIp) {
+    LOG.trace("dpn {} for vpn {}, nexthopIp {} : cleanUpDpnForVpn", dpnId, rd, nexthopIp);
+    InstanceIdentifier<VrfTables> id = buildVrfId(rd);
+    String lockOnDpnVpn = new String(dpnId.toString()+ vpnId);
+    synchronized (lockOnDpnVpn.intern()) {
+      Optional<VrfTables> vrfTable = FibUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+      if (vrfTable.isPresent()) {
+        for (VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
+          // Passing null as we don't know the dpn
+          // to which prefix is attached at this point
+          if (nexthopIp == vrfEntry.getNextHopAddress()) {
+            deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry);
+          }
+        }
       }
     }
   }
@@ -816,7 +841,11 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     instructions.add(new InstructionInfo(InstructionType.clear_actions));
     // Instruction to goto L3 InterfaceTable
 
-    instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.LPORT_DISPATCHER_TABLE }));
+    List <ActionInfo> actionsInfos = new ArrayList <ActionInfo> ();
+    actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{
+        Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
+    instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+    //instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.LPORT_DISPATCHER_TABLE }));
 
     FlowEntity flowEntityL3Intf = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_INTERFACE_TABLE,
             getFlowRef(dpnId, NwConstants.L3_INTERFACE_TABLE, NwConstants.TABLE_MISS_FLOW),
