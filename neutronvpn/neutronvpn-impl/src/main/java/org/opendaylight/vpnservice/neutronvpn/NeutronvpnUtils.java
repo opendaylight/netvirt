@@ -26,7 +26,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.router
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -101,7 +103,8 @@ public class NeutronvpnUtils {
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
             for (VpnMap vpnMap : allMaps) {
-                if (vpnMap.getNetworkIds().contains(network)) {
+                List<Uuid> netIds = vpnMap.getNetworkIds();
+                if ((netIds != null) && (netIds.contains(network))) {
                     return vpnMap.getVpnId();
                 }
             }
@@ -229,6 +232,17 @@ public class NeutronvpnUtils {
         }
         logger.info("returning from getNeutronRouterSubnetIds for {}", routerId.getValue());
         return subnetIdList;
+    }
+
+    protected static Port getNeutronPort(DataBroker broker, Uuid portId) {
+        logger.debug("getNeutronPort for {}", portId.getValue());
+        InstanceIdentifier<Port> inst = InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class,
+                new PortKey(portId));
+        Optional<Port> port = read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        if (port.isPresent()) {
+            return port.get();
+        }
+        return null;
     }
 
     protected static String uuidToTapPortName(Uuid id) {

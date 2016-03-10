@@ -120,6 +120,11 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     }
 
     @Override
+    public Port getNeutronPort(Uuid portId) {
+        return nvManager.getNeutronPort(portId);
+    }
+
+    @Override
     public Subnet getNeutronSubnet(Uuid subnetId) {
         return nvManager.getNeutronSubnet(subnetId);
     }
@@ -127,11 +132,6 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     @Override
     public String uuidToTapPortName(Uuid id) {
         return NeutronvpnUtils.uuidToTapPortName(id);
-    }
-
-    @Override
-    public Port getNeutronPort(Uuid portId) {
-        return nvManager.getNeutronPort(portId);
     }
 
     @Override

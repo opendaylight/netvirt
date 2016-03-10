@@ -291,4 +291,19 @@ module neutronvpn {
         }
     }
 
+    rpc get-fixedIPs-for-neutron-port {
+    description "returns neutron port fixed IPs";
+        input {
+            leaf port-id {
+                type yang:uuid;
+            }
+        }
+        output {
+            leaf-list fixedIPs {
+                type    string;
+                description "The neutron port fixedIPs list corresponding to the port uuid";
+            }
+        }
+    }
+
 }
