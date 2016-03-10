@@ -114,7 +114,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
     }
 
     private void waitForOpDataRemoval(String id) {
-        //wait till DCN for removal of all DPNs in VPN arrivaes
+        //wait till DCN for update on VPN Instance Op Data signals that vpn interfaces linked to this vpn instance is zero
         Runnable notifyTask = new VpnNotifyTask();
         synchronized (id.intern()) {
             vpnOpMap.put(id, notifyTask);

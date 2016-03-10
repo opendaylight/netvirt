@@ -287,6 +287,15 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                                 VpnUtil.getPrefixToInterfaceIdentifier(
                                         VpnUtil.getVpnId(broker, intf.getVpnInstanceName()), prefix),
                                 VpnUtil.getPrefixToInterface(dpnId, intf.getName(), prefix));
+                    } else {
+                        //Extra route adjacency
+                        VpnUtil.syncUpdate(
+                                broker,
+                                LogicalDatastoreType.OPERATIONAL,
+                                VpnUtil.getVpnToExtrarouteIdentifier(
+                                        (rd != null) ? rd : intf.getVpnInstanceName(), nextHop.getIpAddress()),
+                                VpnUtil.getVpnToExtraroute(nextHop.getIpAddress(), nextHop.getNextHopIp()));
+
                     }
                 }
 
@@ -296,14 +305,14 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 VpnUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface);
                 for (Adjacency nextHop : aug.getAdjacency()) {
                     long label = nextHop.getLabel();
-                    String adjNextHop = nextHop.getNextHopIp();
+                    //String adjNextHop = nextHop.getNextHopIp();
                     if (rd != null) {
                         addPrefixToBGP(rd, nextHop.getIpAddress(),
-                                            (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop : nextHopIp, label);
+                                            nextHopIp, label);
                     } else {
                         // ### add FIB route directly
                         addFibEntryToDS(intf.getVpnInstanceName(), nextHop.getIpAddress(),
-                                            (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop : nextHopIp, (int) label);
+                                            nextHopIp, (int) label);
                     }
                 }
             }
@@ -790,8 +799,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
             if(ifCnt != 0) {
                 VpnUtil.asyncUpdate(broker, LogicalDatastoreType.OPERATIONAL,
-                                    VpnUtil.getVpnInstanceOpDataIdentifier(rd),
-                                    VpnUtil.updateIntfCntInVpnInstOpData(ifCnt - 1, rd), VpnUtil.DEFAULT_CALLBACK);
+                        VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+                        VpnUtil.updateIntfCntInVpnInstOpData(ifCnt - 1, rd), VpnUtil.DEFAULT_CALLBACK);
             }
 
             // Vpn Interface removed => No more adjacencies from it.

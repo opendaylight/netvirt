@@ -281,7 +281,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
         Extraroute extra_route = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
         if (extra_route != null) {
-            localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, extra_route.getNexthopIp());
+            localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, extra_route.getNexthopIp() + "/32");
             localNextHopIP = extra_route.getNexthopIp() + "/32";
             isExtraRoute = true;
         }
@@ -444,13 +444,19 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
          - vpn interface op DS
      */
       Prefixes prefixInfo = getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
-      boolean extra_route = false;
+      Extraroute extraRoute = null;
       if (prefixInfo == null) {
-          prefixInfo = getPrefixToInterface(vpnId, vrfEntry.getNextHopAddress() + "/32");
-          extra_route = true;
+          extraRoute = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
+          if(extraRoute != null) {
+              prefixInfo = getPrefixToInterface(vpnId, extraRoute.getNexthopIp() + "/32");
+              //clean up the vpn to extra route entry in DS
+              FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL, FibUtil.getVpnToExtrarouteIdentifier(rd, vrfEntry.getDestPrefix()));
+          }
       }
-      if (prefixInfo == null)
+      if (prefixInfo == null) {
+          LOG.debug("Cleanup VPN Data Failed as unable to find prefix Info for " + vrfEntry.getDestPrefix());
           return; //Don't have any info for this prefix (shouldn't happen); need to return
+      }
       String ifName = prefixInfo.getVpnInterfaceName();
       Optional<Adjacencies> optAdjacencies = FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL, FibUtil.getAdjListPath(ifName));
       int numAdj = 0;
@@ -728,8 +734,8 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
         adjacency =
           nextHopManager.getRemoteNextHopPointer(localDpnId, remoteDpnId, vpnId,
-                                                 vrfEntry.getDestPrefix(),
-                  (staticRoute == true) ? extra_route.getNexthopIp() : vrfEntry.getNextHopAddress());
+                  (staticRoute == true) ? extra_route.getNexthopIp() + "/32" : vrfEntry.getDestPrefix(),
+                                                vrfEntry.getNextHopAddress());
     } catch (NullPointerException e) {
       LOG.trace("", e);
     }
