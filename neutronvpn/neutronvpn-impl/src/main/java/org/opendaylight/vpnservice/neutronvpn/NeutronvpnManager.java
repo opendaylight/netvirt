@@ -38,10 +38,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.l
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -61,6 +61,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev15
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.DissociateNetworksOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.DissociateNetworksOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.DissociateRouterInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.GetFixedIPsForNeutronPortInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.GetFixedIPsForNeutronPortOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602
+        .GetFixedIPsForNeutronPortOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.GetL3VPNInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.GetL3VPNInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.GetL3VPNOutput;
@@ -565,7 +569,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
 
         List<L3vpn> vpns = input.getL3vpn();
         for (L3vpn vpn : vpns) {
-            RpcError error;
+            RpcError error = null;
             String msg;
             if (vpn.getRouteDistinguisher() == null || vpn.getImportRT() == null || vpn.getExportRT() == null) {
                 msg = String.format("Creation of L3VPN failed for VPN %s due to absence of RD/iRT/eRT input",
@@ -584,6 +588,51 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
                 errorList.add(error);
                 warningcount++;
                 continue;
+            }
+            if (vpn.getRouterId() != null) {
+                if (NeutronvpnUtils.getNeutronRouter(broker, vpn.getRouterId()) == null) {
+                    msg = String.format("Creation of L3VPN failed for VPN %s due to router not found %s",
+                            vpn.getId().getValue(), vpn.getRouterId().getValue());
+                    logger.warn(msg);
+                    error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                    errorList.add(error);
+                    warningcount++;
+                    continue;
+                }
+                Uuid vpnId = NeutronvpnUtils.getVpnForRouter(broker, vpn.getRouterId(), true);
+                if (vpnId != null) {
+                    msg = String.format("Creation of L3VPN failed for VPN %s due to router %s already associated to " +
+                            "another VPN %s", vpn.getId().getValue(), vpn.getRouterId().getValue(), vpnId.getValue());
+                    logger.warn(msg);
+                    error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                    errorList.add(error);
+                    warningcount++;
+                    continue;
+                }
+            }
+            if (vpn.getNetworkIds() != null) {
+                for (Uuid nw : vpn.getNetworkIds()) {
+                    Network network = NeutronvpnUtils.getNeutronNetwork(broker, nw);
+                    Uuid vpnId = NeutronvpnUtils.getVpnForNetwork(broker, nw);
+                    if (network == null) {
+                        msg = String.format("Creation of L3VPN failed for VPN %s due to network not found %s",
+                                vpn.getId().getValue(), nw.getValue());
+                        logger.warn(msg);
+                        error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                        errorList.add(error);
+                        warningcount++;
+                    } else if (vpnId != null) {
+                        msg = String.format("Creation of L3VPN failed for VPN %s due to network %s already associated" +
+                                " to another VPN %s", vpn.getId().getValue(), nw.getValue(), vpnId.getValue());
+                        logger.warn(msg);
+                        error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                        errorList.add(error);
+                        warningcount++;
+                    }
+                }
+                if (error != null) {
+                    continue;
+                }
             }
             try {
                 createL3Vpn(vpn.getId(), vpn.getName(), vpn.getTenantId(), vpn.getRouteDistinguisher(),
@@ -776,7 +825,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
         if (portList != null) {
             for (Uuid port : sn.getPortList()) {
                 logger.debug("adding vpn-interface for port {}", port.getValue());
-                createVpnInterface(vpnId, getNeutronPort(port));
+                createVpnInterface(vpnId, NeutronvpnUtils.getNeutronPort(broker, port));
             }
         }
     }
@@ -789,7 +838,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
         if (portList != null) {
             for (Uuid port : sn.getPortList()) {
                 logger.debug("Updating vpn-interface for port {}", port.getValue());
-                updateVpnInterface(vpnId, getNeutronPort(port));
+                updateVpnInterface(vpnId, NeutronvpnUtils.getNeutronPort(broker, port));
             }
         }
     }
@@ -873,11 +922,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
         }
     }
 
-    protected void addPortToVpn(Uuid vpnId, Uuid port) {
-        logger.debug("Adding Port to vpn node...");
-        createVpnInterface(vpnId, getNeutronPort(port));
-    }
-
     protected void removeL3Vpn(Uuid id) {
         // read VPNMaps
         VpnMap vpnMap = NeutronvpnUtils.getVpnMap(broker, id);
@@ -897,11 +941,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
         deleteVpnInstance(id);
     }
 
-    protected void removePortFromVpn(Uuid vpnId, Uuid port) {
-        logger.debug("Removing Port from vpn node...");
-        deleteVpnInterface(getNeutronPort(port));
-    }
-
     protected void removeSubnetFromVpn(Uuid vpnId, Uuid subnet) {
         logger.debug("Removing subnet {} from vpn {}", subnet.getValue(), vpnId.getValue());
         Subnetmap sn = NeutronvpnUtils.getSubnetmap(broker, subnet);
@@ -911,7 +950,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
             if (portList != null) {
                 for (Uuid port : sn.getPortList()) {
                     logger.debug("removing vpn-interface for port {}", port.getValue());
-                    deleteVpnInterface(getNeutronPort(port));
+                    deleteVpnInterface(NeutronvpnUtils.getNeutronPort(broker, port));
                 }
             }
             // update subnet-vpn association
@@ -1172,6 +1211,45 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
         return result;
     }
 
+    @Override
+    public Future<RpcResult<GetFixedIPsForNeutronPortOutput>> getFixedIPsForNeutronPort(GetFixedIPsForNeutronPortInput
+                                                                                                input) {
+        GetFixedIPsForNeutronPortOutputBuilder opBuilder = new GetFixedIPsForNeutronPortOutputBuilder();
+        SettableFuture<RpcResult<GetFixedIPsForNeutronPortOutput>> result = SettableFuture.create();
+        Uuid portId = input.getPortId();
+        StringBuilder returnMsg = new StringBuilder();
+        try {
+            List<String> fixedIPList = new ArrayList<>();
+            Port port = NeutronvpnUtils.getNeutronPort(broker, portId);
+            if (port != null) {
+                List<FixedIps> fixedIPs = port.getFixedIps();
+                for (FixedIps ip : fixedIPs) {
+                    fixedIPList.add(ip.getIpAddress().getIpv4Address().getValue());
+                }
+            } else {
+                returnMsg.append("neutron port: ").append(portId.getValue()).append(" not found");
+            }
+            if (returnMsg.length() != 0) {
+                String message = String.format("Retrieval of FixedIPList for neutron port failed due to %s", returnMsg);
+                logger.error(message);
+                result.set(RpcResultBuilder.<GetFixedIPsForNeutronPortOutput>failed().withWarning(ErrorType.PROTOCOL,
+                        "invalid-value", message).build());
+            } else {
+                opBuilder.setFixedIPs(fixedIPList);
+                result.set(RpcResultBuilder.<GetFixedIPsForNeutronPortOutput>success().withResult(opBuilder.build())
+                        .build());
+                result.set(RpcResultBuilder.<GetFixedIPsForNeutronPortOutput>success().build());
+            }
+        } catch (Exception ex) {
+            String message = String.format("Retrieval of FixedIPList for neutron port %s failed due to %s", portId
+                    .getValue(), ex.getMessage());
+            logger.error(message, ex);
+            result.set(RpcResultBuilder.<GetFixedIPsForNeutronPortOutput>failed().withError(ErrorType.APPLICATION,
+                    message).build());
+        }
+        return result;
+    }
+
     protected void handleNeutronRouterDeleted(Uuid routerId, List<Uuid> routerSubnetIds) {
         // check if the router is associated to some VPN
         Uuid vpnId = NeutronvpnUtils.getVpnForRouter(broker, routerId, true);
@@ -1214,28 +1292,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable {
     }
 
     protected Port getNeutronPort(String name) {
-        Uuid portId = NeutronvpnUtils.getNeutronPortIdfromPortName(broker, name);
-        if (portId != null) {
-            InstanceIdentifier<Port> pid = InstanceIdentifier.create(Neutron.class).
-                    child(Ports.class).child(Port.class, new PortKey(portId));
-            Optional<Port> optPort = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, pid);
-            if (optPort.isPresent()) {
-                return optPort.get();
-            }
-        } else {
-            logger.error("Port {} not Found!!", name);
-        }
-        return null;
+        return NeutronvpnUtils.getNeutronPort(broker, new Uuid(name));
     }
 
     protected Port getNeutronPort(Uuid portId) {
-        InstanceIdentifier<Port> pid = InstanceIdentifier.create(Neutron.class).
-                child(Ports.class).child(Port.class, new PortKey(portId));
-        Optional<Port> optPort = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, pid);
-        if (optPort.isPresent()) {
-            return optPort.get();
-        }
-        return null;
+        return NeutronvpnUtils.getNeutronPort(broker, portId);
     }
 
     protected List<Uuid> getSubnetsforVpn(Uuid vpnid) {
