@@ -90,8 +90,8 @@ public class ItmManagerRpcService implements ItmRpcService {
          BigInteger destinationDpn = input.getDestinationDpid() ;
          InstanceIdentifier<InternalTunnel> path = InstanceIdentifier.create(
                  TunnelList.class)
-                     .child(InternalTunnel.class, new InternalTunnelKey(destinationDpn, sourceDpn));      
-         
+                     .child(InternalTunnel.class, new InternalTunnelKey(sourceDpn,destinationDpn));
+
          Optional<InternalTunnel> tnl = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, path, dataBroker);
 
          if( tnl != null && tnl.isPresent())
@@ -179,8 +179,8 @@ public class ItmManagerRpcService implements ItmRpcService {
         IpAddress destinationIp = input.getDestinationIp() ;
         InstanceIdentifier<ExternalTunnel> path = InstanceIdentifier.create(
                 ExternalTunnelList.class)
-                    .child(ExternalTunnel.class, new ExternalTunnelKey(destinationIp, sourceDpn));      
-        
+                    .child(ExternalTunnel.class, new ExternalTunnelKey(destinationIp, sourceDpn));
+
         Optional<ExternalTunnel> ext = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, path, dataBroker);
 
         if( ext != null && ext.isPresent())
@@ -193,13 +193,13 @@ public class ItmManagerRpcService implements ItmRpcService {
         }else {
             resultBld = RpcResultBuilder.failed();
         }
-        
+
         return Futures.immediateFuture(resultBld.build());
     }
 
     @Override
     public Future<RpcResult<java.lang.Void>> createTerminatingServiceActions(final CreateTerminatingServiceActionsInput input) {
-    	LOG.info("create terminatingServiceAction on DpnId = {} for service id {} and instructions {}", input.getDpnId() , input.getServiceId(), input.getInstruction());
+       LOG.info("create terminatingServiceAction on DpnId = {} for service id {} and instructions {}", input.getDpnId() , input.getServiceId(), input.getInstruction());
        final SettableFuture<RpcResult<Void>> result = SettableFuture.create();
        int serviceId = input.getServiceId() ;
        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
