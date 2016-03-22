@@ -144,11 +144,6 @@ module neutronvpn {
 
     /* Data models to adhere to restart requirements */
     container neutron-port-data {
-        list port-name-to-port-uuid {
-            key port-name;
-            leaf port-id { type yang:uuid;}
-            leaf port-name { type string;}
-        }
         list port-fixedip-to-port-name {
             key port-fixedip;
             leaf port-name { type string;}

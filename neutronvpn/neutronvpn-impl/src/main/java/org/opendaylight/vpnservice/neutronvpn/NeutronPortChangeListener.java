@@ -35,8 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
         .PortFixedipToPortNameBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
-        .PortNameToPortUuidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -129,11 +127,10 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
 
     private void handleNeutronPortCreated(Port port) {
         LOG.info("Of-port-interface creation");
-        int portVlanId = NeutronvpnUtils.getVlanFromNeutronPort(port);
         // Create of-port interface for this neutron port
-        createOfPortInterface(port, portVlanId);
+        String portInterfaceName = createOfPortInterface(port);
         LOG.debug("Creating ELAN Interface");
-        createElanInterface(port);
+        createElanInterface(port, portInterfaceName);
         LOG.debug("Add port to subnet");
         // add port to local Subnets DS
         Uuid vpnId = addPortToSubnets(port);
@@ -156,10 +153,9 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             LOG.debug("removing VPN Interface");
             nvpnManager.deleteVpnInterface(port);
         }
-        int portVlanId = NeutronvpnUtils.getVlanFromNeutronPort(port);
         // Remove of-port interface for this neutron port
         // ELAN interface is also implicitly deleted as part of this operation
-        deleteOfPortInterface(port, portVlanId);
+        deleteOfPortInterface(port);
 
     }
 
@@ -180,40 +176,41 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         }
     }
 
-    private void createOfPortInterface(Port port, int portVlanId) {
-        String name = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
-        //String ifname = new StringBuilder(name).append(":").append(Integer.toString(portVlanId)).toString();
-        //Network network = NeutronvpnUtils.getNeutronNetwork(broker, port.getNetworkId());
-        //Boolean isVlanTransparent = network.isVlanTransparent();
+    private String createOfPortInterface(Port port) {
+        Interface inf = createInterface(port);
+        String infName = inf.getName();
 
-        LOG.debug("Creating OFPort Interface {}", name);
-        InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(name);
+        LOG.debug("Creating OFPort Interface {}", infName);
+        InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(infName);
         try {
             Optional<Interface> optionalInf = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
                     interfaceIdentifier);
             if (!optionalInf.isPresent()) {
-                // handle these for trunkport extensions : portVlanId, isVlanTransparent
-                IfL2vlan l2vlan = new IfL2vlanBuilder().setL2vlanMode(IfL2vlan.L2vlanMode.Trunk).build();
-                ParentRefs parentRefs = new ParentRefsBuilder().setParentInterface(name).build();
-                Interface inf = new InterfaceBuilder().setEnabled(true).setName(name).setType(L2vlan.class)
-                        .addAugmentation(IfL2vlan.class, l2vlan).addAugmentation(ParentRefs.class, parentRefs).build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
             } else {
-                LOG.error("Interface {} is already present", name);
+                LOG.error("Interface {} is already present", infName);
             }
         } catch (Exception e) {
-            LOG.error("failed to create interface {} due to the exception {} ", name, e.getMessage());
+            LOG.error("failed to create interface {} due to the exception {} ", infName, e.getMessage());
         }
-
-        InstanceIdentifier portIdentifier = NeutronvpnUtils.buildPortNameToPortUuidIdentifier(name);
-        PortNameToPortUuidBuilder builder = new PortNameToPortUuidBuilder().setPortName(name).setPortId(port.getUuid());
-        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, portIdentifier, builder.build());
-        LOG.debug("name-uuid map for port with name: {}, uuid: {} added to NeutronPortData DS", name, port.getUuid());
+        return infName;
     }
 
-    private void deleteOfPortInterface(Port port, int portVlanId) {
-        String name = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
-        //String ifname = new StringBuilder(name).append(":").append(Integer.toString(portVlanId)).toString();
+    private Interface createInterface(Port port) {
+        String parentRefName = NeutronvpnUtils.uuidToTapPortName(port.getUuid());;
+        String interfaceName = port.getUuid().getValue();
+        IfL2vlan.L2vlanMode l2VlanMode = IfL2vlan.L2vlanMode.Trunk;
+        InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
+        IfL2vlanBuilder ifL2vlanBuilder = new IfL2vlanBuilder();
+        ifL2vlanBuilder.setL2vlanMode(l2VlanMode);
+        ParentRefsBuilder parentRefsBuilder = new ParentRefsBuilder().setParentInterface(parentRefName);
+        interfaceBuilder.setEnabled(true).setName(interfaceName).setType(L2vlan.class).addAugmentation(IfL2vlan
+                .class, ifL2vlanBuilder.build()).addAugmentation(ParentRefs.class, parentRefsBuilder.build());
+        return interfaceBuilder.build();
+    }
+
+    private void deleteOfPortInterface(Port port) {
+        String name = port.getUuid().getValue();
         LOG.debug("Removing OFPort Interface {}", name);
         InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(name);
         try {
@@ -227,15 +224,9 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         } catch (Exception e) {
             LOG.error("Failed to delete interface {} due to the exception {}", name, e.getMessage());
         }
-
-        InstanceIdentifier portIdentifier = NeutronvpnUtils.buildPortNameToPortUuidIdentifier(name);
-        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, portIdentifier);
-        LOG.debug("name-uuid map for port with name: {}, uuid: {} deleted from NeutronPortData DS", name, port
-                .getUuid());
     }
 
-    private void createElanInterface(Port port) {
-        String name = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
+    private void createElanInterface(Port port, String name) {
         String elanInstanceName = port.getNetworkId().getValue();
         List<PhysAddress> physAddresses = new ArrayList<>();
         physAddresses.add(new PhysAddress(port.getMacAddress()));

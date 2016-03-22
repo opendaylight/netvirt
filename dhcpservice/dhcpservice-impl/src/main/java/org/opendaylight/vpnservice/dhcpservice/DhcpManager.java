@@ -172,7 +172,12 @@ public class DhcpManager implements AutoCloseable {
     }
 
     public Port getNeutronPort(String name) {
-        return neutronVpnService.getNeutronPort(name);
+        try {
+            return neutronVpnService.getNeutronPort(name);
+        } catch (Exception ex) {
+            logger.trace("In getNeutronPort interface name passed {} exception message {}.", name, ex.getMessage());
+            return null;
+        }
     }
 
     public void installDhcpEntries(BigInteger dpnId, String vmMacAddress) {

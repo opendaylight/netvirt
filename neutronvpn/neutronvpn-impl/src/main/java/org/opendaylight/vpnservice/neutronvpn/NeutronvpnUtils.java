@@ -49,10 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev15
         .PortFixedipToPortName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
         .PortFixedipToPortNameKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
-        .PortNameToPortUuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
-        .PortNameToPortUuidKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.vpnmaps.VpnMap;
@@ -67,10 +63,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.port.ext.rev151125.TrunkportExt;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.port.ext.rev151125.TrunkportTypeBase;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.port.ext.rev151125.TrunkportTypeSubport;
 
 public class NeutronvpnUtils {
 
@@ -149,15 +141,6 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected static Uuid getNeutronPortIdfromPortName(DataBroker broker, String portname) {
-        InstanceIdentifier id = buildPortNameToPortUuidIdentifier(portname);
-        Optional<PortNameToPortUuid> portNameToPortUuidData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
-        if (portNameToPortUuidData.isPresent()) {
-            return portNameToPortUuidData.get().getPortId();
-        }
-        return null;
-    }
-
     protected static String getNeutronPortNamefromPortFixedIp(DataBroker broker, String fixedIp) {
         InstanceIdentifier id = buildFixedIpToPortNameIdentifier(fixedIp);
         Optional<PortFixedipToPortName> portFixedipToPortNameData = read(broker, LogicalDatastoreType.CONFIGURATION,
@@ -175,22 +158,6 @@ public class NeutronvpnUtils {
             return optionalNetworkMap.get().getSubnetIdList();
         }
         return null;
-    }
-
-    //TODO
-    //Will be done once integrated with TrunkPort Extensions
-    protected static int getVlanFromNeutronPort(Port port) {
-        int vlanId = 0;
-        /*
-        TrunkportExt trunkportExt = port.getAugmentation(TrunkportExt.class);
-        if (trunkportExt != null) {
-            Class<? extends TrunkportTypeBase> trunkportType = trunkportExt.getType();
-            if (trunkportType != null && trunkportType.isAssignableFrom(TrunkportTypeSubport.class)) {
-                vlanId = trunkportExt.getVid();
-            }
-        }
-        */
-        return vlanId;
     }
 
     protected static Router getNeutronRouter(DataBroker broker, Uuid routerId) {
@@ -316,12 +283,6 @@ public class NeutronvpnUtils {
             System.out.println("Failed to retrieve IP prefix from port : " + e.getMessage());
         }
         return null;
-    }
-
-    static InstanceIdentifier<PortNameToPortUuid> buildPortNameToPortUuidIdentifier(String portname) {
-        InstanceIdentifier<PortNameToPortUuid> id = InstanceIdentifier.builder(NeutronPortData.class).child
-                (PortNameToPortUuid.class, new PortNameToPortUuidKey(portname)).build();
-        return id;
     }
 
     static InstanceIdentifier<PortFixedipToPortName> buildFixedIpToPortNameIdentifier(String fixedIp) {

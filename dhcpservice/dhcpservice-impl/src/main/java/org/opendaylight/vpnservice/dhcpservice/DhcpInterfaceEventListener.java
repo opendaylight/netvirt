@@ -106,7 +106,7 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
         List<String> ofportIds = add.getLowerLayerIf();
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
         BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
-        logger.trace("Received add DCN for interface {}, dpid{}", interfaceName, dpId);
+        logger.trace("Received add DCN for interface {}, dpid {}", interfaceName, dpId);
         installDhcpEntries(interfaceName, dpId);
     }
 
@@ -116,7 +116,7 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
             logger.trace("Port found in neutron. Interface Name {}, port {}", interfaceName, port);
             return port.getMacAddress();
         }
-        logger.trace("Port not found in neutron. Interface Name {}, vlanId {}", interfaceName);
+        logger.trace("Port not found in neutron. Interface Name {}", interfaceName);
         return null;
     }
 
