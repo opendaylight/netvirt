@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015, 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -11,10 +11,13 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import com.google.common.util.concurrent.CheckedFuture;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
@@ -22,9 +25,19 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.vpnservice.itm.api.IITMProvider;
+import org.opendaylight.vpnservice.itm.confighelpers.HwVtep;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.VtepConfigSchemas;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.VtepIpPools;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.vtep.config.schemas.VtepConfigSchema;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.vtep.config.schemas.VtepConfigSchemaBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.vtep.config.schemas.VtepConfigSchemaKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.vtep.ip.pools.VtepIpPool;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.vtep.ip.pools.VtepIpPoolKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdOutput;
@@ -32,6 +45,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.interfaces._interface.NodeIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.interfaces._interface.NodeIdentifierBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.interfaces._interface.NodeIdentifierKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.DpnEndpointsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.dpn.endpoints.DPNTEPsInfo;
@@ -46,6 +62,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnelKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeGre;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.vpnservice.itm.globals.ITMConstants;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
@@ -54,7 +71,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.vtep.config.schemas.vtep.config.schema.DpnIds ;
 //import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice._interface.service.rev150602._interface.service.info.ServiceInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.transport.zones.TransportZone;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.vtep.config.schemas.vtep.config.schema.DpnIdsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.vtep.config.schemas.vtep.config.schema.DpnIdsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.vtep.config.schemas.vtep.config.schema.DpnIds;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -62,7 +85,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.ActionType;
 import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
@@ -72,6 +94,7 @@ import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
 import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
 import org.opendaylight.vpnservice.mdsalutil.NwConstants;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
@@ -132,6 +155,16 @@ public class ItmUtils {
         tx.delete(datastoreType, path);
         Futures.addCallback(tx.submit(), callback);
     }
+    public static <T extends DataObject> void asyncBulkRemove(final DataBroker broker,final LogicalDatastoreType datastoreType,
+            List<InstanceIdentifier<T>> pathList, FutureCallback<Void> callback) {
+    if (!pathList.isEmpty()) {
+      WriteTransaction tx = broker.newWriteOnlyTransaction();
+      for (InstanceIdentifier<T> path : pathList) {
+         tx.delete(datastoreType, path);
+      }
+      Futures.addCallback(tx.submit(), callback);
+    }
+    }
 
     public static String getInterfaceName(final BigInteger datapathid, final String portName, final Integer vlanId) {
         return String.format("%s:%s:%s", datapathid, portName, vlanId);
@@ -191,27 +224,56 @@ public class ItmUtils {
     }
 
     public static Interface buildTunnelInterface(BigInteger dpn, String ifName, String desc, boolean enabled, Class<? extends TunnelTypeBase> tunType,
-       IpAddress localIp, IpAddress remoteIp, IpAddress gatewayIp, boolean internal) {
+       IpAddress localIp, IpAddress remoteIp, IpAddress gatewayIp,Integer vlanId, boolean internal, boolean monitorEnabled, Long monitorInterval) {
        InterfaceBuilder builder = new InterfaceBuilder().setKey(new InterfaceKey(ifName)).setName(ifName)
        .setDescription(desc).setEnabled(enabled).setType(Tunnel.class);
        ParentRefs parentRefs = new ParentRefsBuilder().setDatapathNodeIdentifier(dpn).build();
        builder.addAugmentation(ParentRefs.class, parentRefs);
+       if( vlanId > 0) {
+           IfL2vlan l2vlan = new IfL2vlanBuilder().setVlanId(new VlanId(vlanId)).build();
+           builder.addAugmentation(IfL2vlan.class, l2vlan);
+        }
+		//use default monitoring value from Global Constants
+        Long monitoringInterval = 10000L;
+        if(monitorInterval!= null)
+            monitoringInterval = monitorInterval;
        IfTunnel tunnel = new IfTunnelBuilder().setTunnelDestination(remoteIp).setTunnelGateway(gatewayIp).setTunnelSource(localIp)
-       .setTunnelInterfaceType( tunType).setInternal(internal).build();
+       .setTunnelInterfaceType(tunType).setInternal(internal).setMonitorEnabled(monitorEnabled).setMonitorInterval(monitoringInterval).build();
        builder.addAugmentation(IfTunnel.class, tunnel);
        return builder.build();
     }
 
+    public static Interface buildHwTunnelInterface(String tunnelIfName, String desc , boolean enabled, String topo_id, String node_id,
+                                                   Class<? extends TunnelTypeBase> tunType, IpAddress srcIp , IpAddress destIp, IpAddress gWIp,
+                                                   boolean monitor_enabled
+    ){
+        InterfaceBuilder builder = new InterfaceBuilder().setKey(new InterfaceKey(tunnelIfName)).setName(tunnelIfName).setDescription(desc).
+                setEnabled(enabled).setType(Tunnel.class);
+        List<NodeIdentifier> nodeIds = new ArrayList<NodeIdentifier>();
+        NodeIdentifier hWnode = new NodeIdentifierBuilder().setKey(new NodeIdentifierKey(topo_id)).setTopologyId(
+                        topo_id).
+                setNodeId(node_id).build();
+        nodeIds.add(hWnode);
+        ParentRefs parent = new ParentRefsBuilder().setNodeIdentifier(nodeIds).build();
+        builder.addAugmentation(ParentRefs.class , parent);
+        IfTunnel tunnel = new IfTunnelBuilder().setTunnelDestination(destIp).setTunnelGateway(gWIp).setTunnelSource(
+                        srcIp).setMonitorEnabled(monitor_enabled).setTunnelInterfaceType(tunType).setInternal(false).build();
+        builder.addAugmentation(IfTunnel.class, tunnel);
+        LOG.trace("iftunnel {} built from hwvtep {} ",tunnel,node_id);
+        return builder.build();
+    }
+
+
     public static InternalTunnel buildInternalTunnel( BigInteger srcDpnId, BigInteger dstDpnId, String trunkInterfaceName) {
-        InternalTunnel tnl = new InternalTunnelBuilder().setKey(new InternalTunnelKey(srcDpnId, dstDpnId))
-            .setDestinationDPN(dstDpnId)
-            .setSourceDPN(srcDpnId)
+        InternalTunnel tnl = new InternalTunnelBuilder().setKey(new InternalTunnelKey(dstDpnId,srcDpnId)).setDestinationDPN(dstDpnId)
+                        .setSourceDPN(srcDpnId)
             .setTunnelInterfaceName(trunkInterfaceName).build();
         return tnl ;
     }
 
-    public static ExternalTunnel buildExternalTunnel( BigInteger srcDpnId, IpAddress dstIp, String trunkInterfaceName) {
-        ExternalTunnel extTnl = new ExternalTunnelBuilder().setKey(new ExternalTunnelKey(dstIp, srcDpnId)).setSourceDPN(srcDpnId).setDestinationIP(dstIp).setTunnelInterfaceName(trunkInterfaceName).build();
+    public static ExternalTunnel buildExternalTunnel(String srcNode, String dstNode, String trunkInterfaceName) {
+        ExternalTunnel extTnl = new ExternalTunnelBuilder().setKey(
+                        new ExternalTunnelKey(dstNode, srcNode)).setSourceDevice(srcNode).setDestinationDevice(dstNode).setTunnelInterfaceName(trunkInterfaceName).build();
         return extTnl ;
     }
 
@@ -220,12 +282,12 @@ public class ItmUtils {
 
         // Read the EndPoint Info from the operational database
         InstanceIdentifierBuilder<DpnEndpoints> depBuilder = InstanceIdentifier.builder( DpnEndpoints.class) ;
-        InstanceIdentifier<DpnEndpoints> deps = depBuilder.build() ;
+        InstanceIdentifier<DpnEndpoints> deps = depBuilder.build();
         Optional<DpnEndpoints> dpnEps = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, deps, dataBroker);
-        if( dpnEps.isPresent()) {
+        if (dpnEps.isPresent()) {
            DpnEndpoints tn= dpnEps.get() ;
-           dpnTEPs = tn.getDPNTEPsInfo() ;
-           LOG.debug( "Read from CONFIGURATION datastore - No. of Dpns " , dpnTEPs.size() );
+           dpnTEPs = tn.getDPNTEPsInfo();
+            LOG.debug( "Read from CONFIGURATION datastore - No. of Dpns " , dpnTEPs.size() );
         }else
             LOG.debug( "No Dpn information in CONFIGURATION datastore "  );
          return dpnTEPs ;
@@ -251,7 +313,8 @@ public class ItmUtils {
     }
 
     public static void releaseId(IdManagerService idManager, String idKey) {
-        ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(ITMConstants.ITM_IDPOOL_NAME).setIdKey(idKey).build();
+        ReleaseIdInput idInput =
+                        new ReleaseIdInputBuilder().setPoolName(ITMConstants.ITM_IDPOOL_NAME).setIdKey(idKey).build();
         try {
             Future<RpcResult<Void>> result = idManager.releaseId(idInput);
             RpcResult<Void> rpcResult = result.get();
@@ -316,4 +379,297 @@ public class ItmUtils {
     private static String getFlowRef(long termSvcTable, int svcId) {
         return new StringBuffer().append(termSvcTable).append(svcId).toString();
     }
+    public static InstanceIdentifier<VtepConfigSchema> getVtepConfigSchemaIdentifier(String schemaName) {
+        return InstanceIdentifier.builder(VtepConfigSchemas.class)
+                        .child(VtepConfigSchema.class, new VtepConfigSchemaKey(schemaName)).build();
+    }
+
+    public static InstanceIdentifier<VtepConfigSchema> getVtepConfigSchemaIdentifier() {
+        return InstanceIdentifier.builder(VtepConfigSchemas.class).child(VtepConfigSchema.class).build();
+    }
+    public static InstanceIdentifier<VtepConfigSchemas> getVtepConfigSchemasIdentifier() {
+        return InstanceIdentifier.builder(VtepConfigSchemas.class).build();
+    }
+    public static InstanceIdentifier<VtepIpPool> getVtepIpPoolIdentifier(String subnetCidr) {
+        return InstanceIdentifier.builder(VtepIpPools.class).child(VtepIpPool.class, new VtepIpPoolKey(subnetCidr))
+                .build();
+    }
+    public static VtepConfigSchema validateForAddVtepConfigSchema(VtepConfigSchema schema,
+            List<VtepConfigSchema> existingSchemas) {
+        VtepConfigSchema validSchema = validateVtepConfigSchema(schema);
+        for (VtepConfigSchema existingSchema : emptyIfNull(existingSchemas)) {
+            if (!StringUtils.equalsIgnoreCase(schema.getSchemaName(), existingSchema.getSchemaName())
+                    && schema.getSubnet().equals(existingSchema.getSubnet())) {
+                String subnetCidr = getSubnetCidrAsString(schema.getSubnet());
+                Preconditions.checkArgument(false, new StringBuilder("VTEP schema with subnet [").append(subnetCidr)
+                        .append("] already exists. Multiple VTEP schemas with same subnet is not allowed.").toString());
+            }
+        }
+        if (isNotEmpty(getDpnIdList(validSchema.getDpnIds()))) {
+            String tzone = validSchema.getTransportZoneName();
+            List<BigInteger> lstDpns = getConflictingDpnsAlreadyConfiguredWithTz(validSchema.getSchemaName(), tzone,
+            		getDpnIdList(validSchema.getDpnIds()), existingSchemas);
+            if (!lstDpns.isEmpty()) {
+                Preconditions.checkArgument(false,
+                        new StringBuilder("DPN's ").append(lstDpns).append(" already configured for transport zone ")
+                                .append(tzone).append(". Only one end point per transport Zone per Dpn is allowed.")
+                                .toString());
+            }
+            if (schema.getTunnelType().equals(TunnelTypeGre.class)){
+                validateForSingleGreTep(validSchema.getSchemaName(), getDpnIdList(validSchema.getDpnIds()), existingSchemas);
+            }
+        }
+        return validSchema;
+    }
+    private static void validateForSingleGreTep(String schemaName, List<BigInteger> lstDpnsForAdd,
+            List<VtepConfigSchema> existingSchemas) {
+        for (VtepConfigSchema existingSchema : emptyIfNull(existingSchemas)) {
+            if ((TunnelTypeGre.class).equals(existingSchema.getTunnelType())
+                    && !StringUtils.equalsIgnoreCase(schemaName, existingSchema.getSchemaName())) {
+                List<BigInteger> lstConflictingDpns = new ArrayList<>(getDpnIdList(existingSchema.getDpnIds()));
+                lstConflictingDpns.retainAll(emptyIfNull(lstDpnsForAdd));
+                if (!lstConflictingDpns.isEmpty()) {
+                    String errMsg = new StringBuilder("DPN's ").append(lstConflictingDpns)
+                            .append(" already configured with GRE TEP. Mutiple GRE TEP's on a single DPN are not allowed.")
+                            .toString();
+                    Preconditions.checkArgument(false, errMsg);
+                }
+            }
+        }
+    }
+    public static VtepConfigSchema validateVtepConfigSchema(VtepConfigSchema schema) {
+        Preconditions.checkNotNull(schema);
+        Preconditions.checkArgument(StringUtils.isNotBlank(schema.getSchemaName()));
+        Preconditions.checkArgument(StringUtils.isNotBlank(schema.getPortName()));
+        Preconditions.checkArgument((schema.getVlanId() >= 0 && schema.getVlanId() < 4095),
+                "Invalid VLAN ID, range (0-4094)");
+        Preconditions.checkArgument(StringUtils.isNotBlank(schema.getTransportZoneName()));
+        Preconditions.checkNotNull(schema.getSubnet());
+        String subnetCidr = getSubnetCidrAsString(schema.getSubnet());
+        SubnetUtils subnetUtils = new SubnetUtils(subnetCidr);
+        IpAddress gatewayIp = schema.getGatewayIp();
+        if (gatewayIp != null) {
+            String strGatewayIp = String.valueOf(gatewayIp.getValue());
+            if (!strGatewayIp.equals(ITMConstants.DUMMY_IP_ADDRESS) && !subnetUtils.getInfo().isInRange(strGatewayIp)) {
+                Preconditions.checkArgument(false, new StringBuilder("Gateway IP address ").append(strGatewayIp)
+                        .append(" is not in subnet range ").append(subnetCidr).toString());
+            }
+        }
+        ItmUtils.getExcludeIpAddresses(schema.getExcludeIpFilter(), subnetUtils.getInfo());
+        return new VtepConfigSchemaBuilder(schema).setTunnelType(schema.getTunnelType()).build();
+    }
+    public static String validateTunnelType(String tunnelType) {
+        if (tunnelType == null) {
+            tunnelType = ITMConstants.TUNNEL_TYPE_VXLAN;
+        } else {
+            tunnelType = StringUtils.upperCase(tunnelType);
+            String error = new StringBuilder("Invalid tunnel type. Valid values: ")
+                    .append(ITMConstants.TUNNEL_TYPE_VXLAN).append(" | ").append(ITMConstants.TUNNEL_TYPE_GRE)
+                    .toString();
+            Preconditions.checkArgument(ITMConstants.TUNNEL_TYPE_VXLAN.equals(tunnelType)
+                    || ITMConstants.TUNNEL_TYPE_GRE.equals(tunnelType), error);
+        }
+        return tunnelType;
+    }
+    private static List<BigInteger> getConflictingDpnsAlreadyConfiguredWithTz(String schemaName, String tzone,
+            List<BigInteger> lstDpns, List<VtepConfigSchema> existingSchemas) {
+        List<BigInteger> lstConflictingDpns = new ArrayList<>();
+        for (VtepConfigSchema schema : emptyIfNull(existingSchemas)) {
+            if (!StringUtils.equalsIgnoreCase(schemaName, schema.getSchemaName())
+                    && StringUtils.equals(schema.getTransportZoneName(), tzone)) {
+                lstConflictingDpns = new ArrayList<>(getDpnIdList(schema.getDpnIds()));
+                lstConflictingDpns.retainAll(lstDpns);
+                if (!lstConflictingDpns.isEmpty()) {
+                    break;
+                }
+            }
+        }
+        return lstConflictingDpns;
+    }
+    public static VtepConfigSchema constructVtepConfigSchema(String schemaName, String portName, Integer vlanId,
+            String subnetMask, String gatewayIp, String transportZone,String tunnelType, List<BigInteger> dpnIds,
+            String excludeIpFilter) {
+        IpAddress gatewayIpObj = StringUtils.isBlank(gatewayIp) ? null : new IpAddress(gatewayIp.toCharArray());
+        IpPrefix subnet = StringUtils.isBlank(subnetMask) ? null : new IpPrefix(subnetMask.toCharArray());
+        Class<? extends TunnelTypeBase> tunType ;
+        if( tunnelType.equals(ITMConstants.TUNNEL_TYPE_VXLAN))
+            tunType = TunnelTypeVxlan.class ;
+        else
+            tunType = TunnelTypeGre.class ;
+        VtepConfigSchemaBuilder schemaBuilder = new VtepConfigSchemaBuilder().setSchemaName(schemaName)
+                .setPortName(portName).setVlanId(vlanId).setSubnet(subnet).setGatewayIp(gatewayIpObj)
+                .setTransportZoneName(transportZone).setTunnelType(tunType).setDpnIds(getDpnIdsListFromBigInt(dpnIds))
+                .setExcludeIpFilter(excludeIpFilter);
+        return schemaBuilder.build();
+    }
+    public static List<IpAddress> getExcludeIpAddresses(String excludeIpFilter, SubnetInfo subnetInfo) {
+        final List<IpAddress> lstIpAddress = new ArrayList<>();
+        if (StringUtils.isBlank(excludeIpFilter)) {
+            return lstIpAddress;
+        }
+        final String[] arrIps = StringUtils.split(excludeIpFilter, ',');
+        for (String ip : arrIps) {
+            if (StringUtils.countMatches(ip, "-") == 1) {
+                final String[] arrIpRange = StringUtils.split(ip, '-');
+                String strStartIp = StringUtils.trim(arrIpRange[0]);
+                String strEndIp = StringUtils.trim(arrIpRange[1]);
+                Preconditions.checkArgument(InetAddresses.isInetAddress(strStartIp),
+                        new StringBuilder("Invalid exclude IP filter: invalid IP address value ").append(strStartIp)
+                                .toString());
+                Preconditions.checkArgument(InetAddresses.isInetAddress(strEndIp),
+                        new StringBuilder("Invalid exclude IP filter: invalid IP address value ").append(strEndIp)
+                                .toString());
+                Preconditions.checkArgument(subnetInfo.isInRange(strStartIp),
+                        new StringBuilder("Invalid exclude IP filter: IP address [").append(strStartIp)
+                                .append("] not in subnet range ").append(subnetInfo.getCidrSignature()).toString());
+                Preconditions.checkArgument(subnetInfo.isInRange(strEndIp),
+                        new StringBuilder("Invalid exclude IP filter: IP address [").append(strEndIp)
+                                .append("] not in subnet range ").append(subnetInfo.getCidrSignature()).toString());
+                int startIp = subnetInfo.asInteger(strStartIp);
+                int endIp = subnetInfo.asInteger(strEndIp);
+
+                Preconditions.checkArgument(startIp < endIp,
+                        new StringBuilder("Invalid exclude IP filter: Invalid range [").append(ip).append("] ")
+                                .toString());
+                for (int i = startIp; i <= endIp; i++) {
+                    String ipAddress = ipFormat(toIpArray(i));
+                    validateAndAddIpAddressToList(subnetInfo, lstIpAddress, ipAddress);
+                }
+            } else {
+                validateAndAddIpAddressToList(subnetInfo, lstIpAddress, ip);
+            }
+        }
+        return lstIpAddress;
+    }
+    private static void validateAndAddIpAddressToList(SubnetInfo subnetInfo, final List<IpAddress> lstIpAddress,
+            String ipAddress) {
+        String ip = StringUtils.trim(ipAddress);
+        Preconditions.checkArgument(InetAddresses.isInetAddress(ip),
+                new StringBuilder("Invalid exclude IP filter: invalid IP address value ").append(ip).toString());
+        Preconditions.checkArgument(subnetInfo.isInRange(ip),
+                new StringBuilder("Invalid exclude IP filter: IP address [").append(ip).append("] not in subnet range ")
+                        .append(subnetInfo.getCidrSignature()).toString());
+        lstIpAddress.add(new IpAddress(ip.toCharArray()));
+    }
+    private static int[] toIpArray(int val) {
+        int[] ret = new int[4];
+        for (int j = 3; j >= 0; --j) {
+            ret[j] |= ((val >>> 8 * (3 - j)) & (0xff));
+        }
+        return ret;
+    }
+    private static String ipFormat(int[] octets) {
+        StringBuilder str = new StringBuilder();
+        for (int i = 0; i < octets.length; ++i) {
+            str.append(octets[i]);
+            if (i != octets.length - 1) {
+                str.append(".");
+            }
+        }
+        return str.toString();
+    }
+    public static VtepConfigSchema validateForUpdateVtepSchema(String schemaName, List<BigInteger> lstDpnsForAdd,
+            List<BigInteger> lstDpnsForDelete, IITMProvider itmProvider) {
+        Preconditions.checkArgument(StringUtils.isNotBlank(schemaName));
+        if ((lstDpnsForAdd == null || lstDpnsForAdd.isEmpty())
+                && (lstDpnsForDelete == null || lstDpnsForDelete.isEmpty())) {
+            Preconditions.checkArgument(false,
+                    new StringBuilder("DPN ID list for add | delete is null or empty in schema ").append(schemaName)
+                            .toString());
+        }
+        VtepConfigSchema schema = itmProvider.getVtepConfigSchema(schemaName);
+        if (schema == null) {
+            Preconditions.checkArgument(false, new StringBuilder("Specified VTEP Schema [").append(schemaName)
+                    .append("] doesn't exists!").toString());
+        }
+        List<BigInteger> existingDpnIds = getDpnIdList(schema.getDpnIds());
+        if (isNotEmpty(lstDpnsForAdd)) {
+            if (isNotEmpty(existingDpnIds)) {
+                List<BigInteger> lstAlreadyExistingDpns = new ArrayList<>(existingDpnIds);
+                lstAlreadyExistingDpns.retainAll(lstDpnsForAdd);
+                Preconditions.checkArgument(lstAlreadyExistingDpns.isEmpty(),
+                        new StringBuilder("DPN ID's ").append(lstAlreadyExistingDpns)
+                                .append(" already exists in VTEP schema [").append(schemaName).append("]").toString());
+            }
+            if (schema.getTunnelType().equals(TunnelTypeGre.class)) {
+                validateForSingleGreTep(schema.getSchemaName(), lstDpnsForAdd, itmProvider.getAllVtepConfigSchemas());
+            }
+        }
+        if (isNotEmpty(lstDpnsForDelete)) {
+            if (existingDpnIds == null || existingDpnIds.isEmpty()) {
+                StringBuilder builder = new StringBuilder("DPN ID's ").append(lstDpnsForDelete)
+                        .append(" specified for delete from VTEP schema [").append(schemaName)
+                        .append("] are not configured in the schema.");
+                Preconditions.checkArgument(false, builder.toString());
+            } else if (!existingDpnIds.containsAll(lstDpnsForDelete)) {
+                List<BigInteger> lstConflictingDpns = new ArrayList<>(lstDpnsForDelete);
+                lstConflictingDpns.removeAll(existingDpnIds);
+                StringBuilder builder = new StringBuilder("DPN ID's ").append(lstConflictingDpns)
+                        .append(" specified for delete from VTEP schema [").append(schemaName)
+                        .append("] are not configured in the schema.");
+                Preconditions.checkArgument(false, builder.toString());
+            }
+        }
+        return schema;
+    }
+    public static String getSubnetCidrAsString(IpPrefix subnet) {
+        return (subnet == null) ? StringUtils.EMPTY : String.valueOf(subnet.getValue());
+    }
+    public static <T> List<T> emptyIfNull(List<T> list) {
+        return (list == null) ? Collections.<T> emptyList() : list;
+    }
+    public static <T> boolean isEmpty(Collection<T> collection) {
+        return (collection == null || collection.isEmpty()) ? true : false;
+    }
+    public static <T> boolean isNotEmpty(Collection<T> collection) {
+        return !isEmpty(collection);
+    }
+    public static HwVtep createHwVtepObject(String topo_id, String node_id, IpAddress ipAddress, IpPrefix ipPrefix, IpAddress gatewayIP, int vlanID, Class<? extends TunnelTypeBase> tunnel_type, TransportZone transportZone) {
+        HwVtep hwVtep = new HwVtep();
+        hwVtep.setGatewayIP(gatewayIP);
+        hwVtep.setHwIp(ipAddress);
+        hwVtep.setIpPrefix(ipPrefix);
+        hwVtep.setNode_id(node_id);
+        hwVtep.setTopo_id(topo_id);
+        hwVtep.setTransportZone(transportZone.getZoneName());
+        hwVtep.setTunnel_type(tunnel_type);
+        hwVtep.setVlanID(vlanID);
+        return hwVtep;
+    }
+
+    public static String getHwParentIf(String topo_id, String srcNodeid) {
+        return String.format("%s:%s", topo_id, srcNodeid);
+    }
+
+    public static <T extends DataObject> void syncWrite(LogicalDatastoreType datastoreType,
+                    InstanceIdentifier<T> path, T data, DataBroker broker) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.put(datastoreType, path, data, true);
+        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        try {
+            futures.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("ITMUtils:SyncWrite , Error writing to datastore (path, data) : ({}, {})", path, data);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public static List<BigInteger> getDpnIdList( List<DpnIds> dpnIds ) {
+        List<BigInteger> dpnList = new ArrayList<BigInteger>() ;
+        for( DpnIds dpn : dpnIds) {
+           dpnList.add(dpn.getDPN()) ;
+        }
+        return dpnList ;
+    }
+
+    public static List<DpnIds> getDpnIdsListFromBigInt( List<BigInteger> dpnIds) {
+        List<DpnIds> dpnIdList = new ArrayList<DpnIds>() ;
+        DpnIdsBuilder builder = new DpnIdsBuilder() ;
+        for( BigInteger dpnId : dpnIds) {
+              dpnIdList.add(builder.setKey(new DpnIdsKey(dpnId)).setDPN(dpnId).build() );
+        }
+        return dpnIdList;
+    }
+
 }
+

@@ -48,7 +48,9 @@ module itm {
                 type inet:ip-address;
             }
             leaf vlan-id {
-                type uint16;
+                type uint16{
+                range "0..4094";
+            }
             }
             list vteps {
                 key "dpn-id portname";
@@ -62,6 +64,19 @@ module itm {
                     type inet:ip-address;
                 }
             }
+             list device-vteps {
+              key "node-id ip-address";
+                     leaf topology-id {
+                        type string;
+                     }
+                     leaf node-id {
+                       type string;
+                     }
+                     leaf ip-address {
+                     type inet:ip-address;
+                   }
+           }
+
         }
       }
     }

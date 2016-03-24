@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015, 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -28,13 +28,16 @@ public class ItmTepRemoveWorker implements Callable<List<ListenableFuture<Void>>
     private List<DPNTEPsInfo> meshedDpnList ;
     private IdManagerService idManagerService;
     private IMdsalApiManager mdsalManager;
+    private List<HwVtep> cfgdHwVteps;
 
-    public ItmTepRemoveWorker( List<DPNTEPsInfo> delDpnList,  DataBroker broker, IdManagerService idManagerService, IMdsalApiManager mdsalManager) {
+    public ItmTepRemoveWorker( List<DPNTEPsInfo> delDpnList, List<HwVtep> delHwList,  DataBroker broker, IdManagerService idManagerService, IMdsalApiManager mdsalManager) {
         this.delDpnList = delDpnList ;
         this.dataBroker = broker ;
         this.idManagerService = idManagerService;
         this.mdsalManager = mdsalManager;
+        this.cfgdHwVteps = delHwList;
         logger.trace("ItmTepRemoveWorker initialized with  DpnList {}",delDpnList );
+        logger.trace("ItmTepRemoveWorker initialized with  cfgdHwTeps {}",delHwList );
     }
 
     @Override
@@ -44,6 +47,7 @@ public class ItmTepRemoveWorker implements Callable<List<ListenableFuture<Void>>
         futures.addAll( ItmInternalTunnelDeleteWorker.deleteTunnels(dataBroker, idManagerService, mdsalManager, delDpnList, meshedDpnList));
         logger.debug("Invoking Internal Tunnel delete method with DpnList to be deleted {} ; Meshed DpnList {} ",delDpnList, meshedDpnList );
         // IF EXTERNAL TUNNELS NEEDS TO BE DELETED, DO IT HERE, IT COULD BE TO DC GATEWAY OR TOR SWITCH
+        futures.addAll(ItmExternalTunnelDeleteWorker.deleteHwVtepsTunnels(dataBroker, idManagerService,delDpnList,cfgdHwVteps));
         return futures ;
     }
 

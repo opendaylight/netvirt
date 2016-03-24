@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015, 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -38,20 +38,22 @@ public class ItmInternalTunnelDeleteWorker {
     public static List<ListenableFuture<Void>> deleteTunnels(DataBroker dataBroker, IdManagerService idManagerService,IMdsalApiManager mdsalManager,
                                                              List<DPNTEPsInfo> dpnTepsList, List<DPNTEPsInfo> meshedDpnList)
     {
+        logger.trace( "TEPs to be deleted {} " , dpnTepsList );
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction t = dataBroker.newWriteOnlyTransaction();
         try {
             if (dpnTepsList == null || dpnTepsList.size() == 0) {
                 logger.debug("no vtep to delete");
-                return null ;
+                return futures ;
             }
 
             if (meshedDpnList == null || meshedDpnList.size() == 0) {
                 logger.debug("No Meshed Vteps");
-                return null ;
+                return futures ;
             }
             for (DPNTEPsInfo srcDpn : dpnTepsList) {
                 logger.trace("Processing srcDpn " + srcDpn);
+                List<TunnelEndPoints> meshedEndPtCache = new ArrayList<TunnelEndPoints>(srcDpn.getTunnelEndPoints()) ;
                 for (TunnelEndPoints srcTep : srcDpn.getTunnelEndPoints()) {
                     logger.trace("Processing srcTep " + srcTep);
                     String srcTZone = srcTep.getTransportZone();
@@ -79,18 +81,24 @@ public class ItmInternalTunnelDeleteWorker {
 
                     logger.trace("Tep Removal from DPNTEPSINFO CONFIG DS " + srcTep);
                     t.delete(LogicalDatastoreType.CONFIGURATION, tepPath);
+                    // remove the tep from the cache
+                    meshedEndPtCache.remove(srcTep) ;
+                    
                     InstanceIdentifier<DPNTEPsInfo> dpnPath =
                                     InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class, srcDpn.getKey())
                                                     .build();
+                    /*
                     Optional<DPNTEPsInfo> dpnOptional =
                                     ItmUtils.read(LogicalDatastoreType.CONFIGURATION, dpnPath, dataBroker);
                     if (dpnOptional.isPresent()) {
-                        DPNTEPsInfo dpnRead = dpnOptional.get();
+                    */
+                    if( meshedEndPtCache.isEmpty()) {
+                        //DPNTEPsInfo dpnRead = dpnOptional.get();
                         // remove dpn if no vteps exist on dpn
-                        if (dpnRead.getTunnelEndPoints() == null || dpnRead.getTunnelEndPoints().size() == 0) {
+                      //  if (dpnRead.getTunnelEndPoints() == null || dpnRead.getTunnelEndPoints().size() == 0) {
                             logger.debug( "Removing Terminating Service Table Flow ") ;
-                           ItmUtils.setUpOrRemoveTerminatingServiceTable(dpnRead.getDPNID(), mdsalManager,false);
-                            logger.trace("DPN Removal from DPNTEPSINFO CONFIG DS " + dpnRead);
+                           ItmUtils.setUpOrRemoveTerminatingServiceTable(srcDpn.getDPNID(), mdsalManager,false);
+                            logger.trace("DPN Removal from DPNTEPSINFO CONFIG DS " + srcDpn.getDPNID());
                             t.delete(LogicalDatastoreType.CONFIGURATION, dpnPath);
                             InstanceIdentifier<DpnEndpoints> tnlContainerPath =
                                             InstanceIdentifier.builder(DpnEndpoints.class).build();
@@ -105,7 +113,7 @@ public class ItmInternalTunnelDeleteWorker {
                                     t.delete(LogicalDatastoreType.CONFIGURATION, tnlContainerPath);
                                 }
                             }
-                        }
+                        //}
                     }
                 }
             }

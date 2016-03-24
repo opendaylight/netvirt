@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetSourceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.IpMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._3.match.Ipv4MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.TcpMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.UdpMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.DropActionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.drop.action._case.DropAction;
@@ -263,7 +264,7 @@ public enum ActionType {
         }
 
     },
-    set_destination_port_field {
+    set_udp_destination_port {
 
         @Override
         public Action buildAction(ActionInfo actionInfo) {
@@ -280,7 +281,7 @@ public enum ActionType {
         }
 
     },
-    set_source_port_field {
+    set_udp_source_port {
 
         @Override
         public Action buildAction(ActionInfo actionInfo) {
@@ -291,6 +292,40 @@ public enum ActionType {
                     new SetFieldCaseBuilder().setSetField(
                             new SetFieldBuilder().setLayer4Match(
                                     new UdpMatchBuilder().setUdpSourcePort(
+                                            new PortNumber(portNumber)).build())
+                            .build()).build()).setKey(new ActionKey(actionInfo.getActionKey())).build();
+
+        }
+
+    },
+    set_tcp_destination_port {
+
+        @Override
+        public Action buildAction(ActionInfo actionInfo) {
+            String[] actionValues = actionInfo.getActionValues();
+            Integer portNumber = new Integer(actionValues[0]);
+
+            return new ActionBuilder().setAction(
+                    new SetFieldCaseBuilder().setSetField(
+                            new SetFieldBuilder().setLayer4Match(
+                                    new TcpMatchBuilder().setTcpDestinationPort(
+                                            new PortNumber(portNumber)).build())
+                            .build()).build()).setKey(new ActionKey(actionInfo.getActionKey())).build();
+
+        }
+
+    },
+    set_tcp_source_port {
+
+        @Override
+        public Action buildAction(ActionInfo actionInfo) {
+            String[] actionValues = actionInfo.getActionValues();
+            Integer portNumber = new Integer(actionValues[0]);
+
+            return new ActionBuilder().setAction(
+                    new SetFieldCaseBuilder().setSetField(
+                            new SetFieldBuilder().setLayer4Match(
+                                    new TcpMatchBuilder().setTcpSourcePort(
                                             new PortNumber(portNumber)).build())
                             .build()).build()).setKey(new ActionKey(actionInfo.getActionKey())).build();
 
@@ -312,7 +347,7 @@ public enum ActionType {
                     new SetFieldCaseBuilder().setSetField(
                             new SetFieldBuilder().setLayer3Match(
                                     new Ipv4MatchBuilder().setIpv4Source(
-                                            new Ipv4Prefix(sourceIp.getHostAddress())).build()).
+                                            new Ipv4Prefix(sourceIp.getHostAddress() + "/" + actionValues[1])).build()).
                                             build()).build()).setKey(new ActionKey(actionInfo.getActionKey())).build();
 
         }
@@ -333,7 +368,7 @@ public enum ActionType {
                     new SetFieldCaseBuilder().setSetField(
                             new SetFieldBuilder().setLayer3Match(
                                     new Ipv4MatchBuilder().setIpv4Destination(
-                                            new Ipv4Prefix(sourceIp.getHostAddress())).build()).
+                                            new Ipv4Prefix(sourceIp.getHostAddress() + "/" + actionValues[1])).build()).
                                             build()).build()).setKey(new ActionKey(actionInfo.getActionKey())).build();
 
         }

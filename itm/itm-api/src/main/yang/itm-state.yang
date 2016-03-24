@@ -102,14 +102,14 @@ module itm-state {
       container external-tunnel-list {
              list external-tunnel {
 
-               key  "source-DPN destination-IP";
+               key  "source-device destination-device";
 
-               leaf source-DPN {
-                   type uint64;
+               leaf source-device {
+                   type string; //dpnid or node-id
                }
 
-               leaf destination-IP {
-                   type inet:ip-address;
+               leaf destination-device {
+                   type string; //dpn-id or node-id or ip
                }
 
                /* logical-group interface id */
@@ -120,6 +120,7 @@ module itm-state {
 
              }
           }
+
 
           notification itm-tunnel-build-complete{
           }
