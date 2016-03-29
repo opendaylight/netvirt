@@ -80,9 +80,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     }
 
     @Override
-    public String getInstanceName() {
-        return "netvirt-neutron-default";
-    }
+    public String getInstanceName() { return "netvirt-neutron"; }
 
     @Override
     public MavenUrlReference getFeatureRepo() {
