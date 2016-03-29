@@ -30,6 +30,8 @@
     <bundle>mvn:org.opendaylight.ovsdb/utils.southbound-utils/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/openstack.net-virt/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/openstack.net-virt-providers/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/neutron/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/netvirt-api/{{VERSION}}</bundle>
     <bundle>mvn:commons-net/commons-net/{{VERSION}}</bundle>
     <configfile finalname="etc/opendaylight/karaf/netvirt-impl-default-config.xml">mvn:org.opendaylight.netvirt/openstack.net-virt/{{VERSION}}/xml/config</configfile>
     <configfile finalname="etc/opendaylight/karaf/netvirt-providers-impl-default-config.xml">mvn:org.opendaylight.netvirt/openstack.net-virt-providers/{{VERSION}}/xml/config</configfile>
@@ -59,6 +61,8 @@
     <bundle>mvn:org.opendaylight.ovsdb/utils.southbound-utils/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/openstack.net-virt/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/openstack.net-virt-providers/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/neutron/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/netvirt-api/{{VERSION}}</bundle>
     <bundle>mvn:commons-net/commons-net/{{VERSION}}</bundle>
     <configfile finalname="etc/opendaylight/karaf/netvirt-impl-default-config.xml">mvn:org.opendaylight.netvirt/openstack.net-virt/{{VERSION}}/xml/config</configfile>
     <configfile finalname="etc/opendaylight/karaf/netvirt-providers-impl-default-config.xml">mvn:org.opendaylight.netvirt/openstack.net-virt-providers/{{VERSION}}/xml/config</configfile>
@@ -92,9 +96,12 @@
     <configfile finalname="etc/opendaylight/karaf/hwgw-default-config.xml">mvn:org.opendaylight.netvirt/hwgw/{{VERSION}}/xml/config</configfile>
   </feature>
 
-    <feature name='odl-netvirt-neutron' version='${project.version}' description='OpenDaylight :: netvirt :: Neutron Renderer'>
+  <feature name='odl-netvirt-neutron' version='${project.version}' description='OpenDaylight :: netvirt :: Neutron Renderer'>
+    <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
     <feature version="${neutron.version}">odl-neutron-service</feature>
     <feature version="${project.version}">odl-netvirt-ui</feature>
+    <bundle>mvn:org.opendaylight.netvirt/utils.mdsal-utils/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.ovsdb/utils.mdsal-utils/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/neutron/{{VERSION}}</bundle>
     <configfile finalname="etc/opendaylight/karaf/netvirt-neutron-default-config.xml">mvn:org.opendaylight.netvirt/neutron/{{VERSION}}/xml/config</configfile>
   </feature>
