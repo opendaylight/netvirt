@@ -16,27 +16,17 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
-import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
-import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.*;
+import org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.utilities.SouthboundUtils;
+import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInterfaceTopologyStateAddHelper;
+import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInterfaceTopologyStateRemoveHelper;
+import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInterfaceTopologyStateUpdateHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.flow.capable.port.StateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.IfIndexesInterfaceMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.InterfaceBfdStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.InterfaceBfdStatusBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.bridge.entry.BridgeInterfaceEntry;
@@ -51,14 +41,10 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
-import javax.swing.plaf.nimbus.State;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 
 import static org.mockito.Mockito.*;
 
@@ -82,9 +68,11 @@ public class TopologyStateInterfaceTest {
     @Mock ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
     @Mock ReadOnlyTransaction mockReadTx;
     @Mock WriteTransaction mockWriteTx;
+    @Mock OvsdbTerminationPointAugmentation newTerminationPoint;
 
     OvsInterfaceTopologyStateAddHelper addHelper;
     OvsInterfaceTopologyStateRemoveHelper removeHelper;
+    OvsInterfaceTopologyStateUpdateHelper updateHelper;
 
     @Before
     public void setUp() throws Exception {
@@ -165,5 +153,45 @@ public class TopologyStateInterfaceTest {
                 InterfaceMetaUtils.getBridgeRefEntryIdentifier(bridgeRefEntryKey);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL,bridgeEntryId);
+    }
+
+    @Test
+    public void testUpdateBridgeReferenceEntry()
+    {
+        Optional<OvsdbBridgeAugmentation>expectedOvsdbBridgeAugmentation = Optional.of(bridgeNew);
+        Optional<BridgeEntry> expectedBridgeEntry = Optional.of(bridgeEntry);
+        Optional<Interface> expectedInterface = Optional.of(tunnelInterfaceEnabled);
+
+        doReturn(Futures.immediateCheckedFuture(expectedInterface)).when(mockReadTx).read(
+                LogicalDatastoreType.CONFIGURATION, interfaceInstanceIdentifier);
+        doReturn(Futures.immediateCheckedFuture(expectedBridgeEntry)).when(mockReadTx).read(
+                LogicalDatastoreType.CONFIGURATION,bridgeEntryIid);
+        doReturn(Futures.immediateCheckedFuture(expectedOvsdbBridgeAugmentation)).when(mockReadTx).read(
+                LogicalDatastoreType.OPERATIONAL, bridgeIid);
+
+        OvsdbBridgeAugmentationBuilder ovsdbBridgeAugmentation = new OvsdbBridgeAugmentationBuilder(bridgeNew);
+        ovsdbBridgeAugmentation.setDatapathId(DatapathId.getDefaultInstance("00:00:00:00:00:00:00:01"));
+        ovsdbBridgeAugmentation.setBridgeName(OvsdbBridgeName.getDefaultInstance("a"));
+        bridgeNew = ovsdbBridgeAugmentation.build();
+
+        updateHelper.updateBridgeRefEntry(bridgeIid, bridgeNew, bridgeOld, dataBroker);
+    }
+
+    @Test
+    public void testUpdateTunnelState(){
+
+        List<InterfaceBfdStatus> interfaceBfdStatus = new ArrayList<InterfaceBfdStatus>();
+        interfaceBfdStatus.add(new InterfaceBfdStatusBuilder().setBfdStatusKey(SouthboundUtils.BFD_OP_STATE).setBfdStatusValue(SouthboundUtils.BFD_STATE_UP).build());
+        List bfdStatusSpy = spy(interfaceBfdStatus);
+        when(newTerminationPoint.getInterfaceBfdStatus()).thenReturn(bfdStatusSpy);
+        updateHelper.updateTunnelState(dataBroker, newTerminationPoint, null);
+
+        //verify
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
+                IfmUtil.buildStateInterfaceId(null);
+        InterfaceBuilder ifaceBuilder = new InterfaceBuilder().setOperStatus(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus.Up);
+        ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(null));
+        verify(mockWriteTx).merge(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build());
+
     }
 }

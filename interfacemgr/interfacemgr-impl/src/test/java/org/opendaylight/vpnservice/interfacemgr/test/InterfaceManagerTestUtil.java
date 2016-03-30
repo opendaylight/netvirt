@@ -105,6 +105,7 @@ import java.util.*;
 
 public class InterfaceManagerTestUtil {
     public static final String interfaceName = "s1-eth1";
+    public static final String interfaceName2 = "s1-eth2";
     public static final String tunnelInterfaceName = "s2-gre1";
     public static final TopologyId OVSDB_TOPOLOGY_ID = new TopologyId(new Uri("ovsdb:1"));
 
