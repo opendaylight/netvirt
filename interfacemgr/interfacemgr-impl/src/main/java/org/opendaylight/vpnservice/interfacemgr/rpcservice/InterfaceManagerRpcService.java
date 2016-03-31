@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -20,7 +20,14 @@ import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
-import org.opendaylight.vpnservice.mdsalutil.*;
+import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
+import org.opendaylight.vpnservice.mdsalutil.ActionType;
+import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
+import org.opendaylight.vpnservice.mdsalutil.InstructionType;
+import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
+import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
+import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
@@ -60,6 +67,8 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceManagerRpcService.class);
     DataBroker dataBroker;
     IMdsalApiManager mdsalMgr;
+
+
     public InterfaceManagerRpcService(DataBroker dataBroker, IMdsalApiManager mdsalMgr) {
         this.dataBroker = dataBroker;
         this.mdsalMgr = mdsalMgr;
@@ -205,7 +214,10 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
         RpcResultBuilder<GetEgressInstructionsForInterfaceOutput> rpcResultBuilder;
         try {
             List<InstructionInfo> instructionInfo = new ArrayList<InstructionInfo>();
-            List<ActionInfo> actionInfo = IfmUtil.getEgressActionInfosForInterface(input.getIntfName(), 0, dataBroker);
+            List<ActionInfo> actionInfo = IfmUtil.getEgressActionInfosForInterface(input.getIntfName(),
+                                                                                   input.getTunnelKey(),
+                                                                                   0,  /* ActionKey starting value */
+                                                                                   dataBroker);
             instructionInfo.add(new InstructionInfo(InstructionType.write_actions, actionInfo));
                     GetEgressInstructionsForInterfaceOutputBuilder output = new GetEgressInstructionsForInterfaceOutputBuilder().
                     setInstruction(buildInstructions(instructionInfo));
@@ -265,7 +277,10 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
     public Future<RpcResult<GetEgressActionsForInterfaceOutput>> getEgressActionsForInterface(GetEgressActionsForInterfaceInput input) {
         RpcResultBuilder<GetEgressActionsForInterfaceOutput> rpcResultBuilder;
         try {
-            List<Action> actionsList = IfmUtil.getEgressActionsForInterface(input.getIntfName(), dataBroker);
+            LOG.debug("Get Egress Action for interface {} with key {}", input.getIntfName(), input.getTunnelKey());
+            List<Action> actionsList = IfmUtil.getEgressActionsForInterface(input.getIntfName(),
+                                                                            input.getTunnelKey(),
+                                                                            dataBroker);
             GetEgressActionsForInterfaceOutputBuilder output = new GetEgressActionsForInterfaceOutputBuilder().
                     setAction(actionsList);
             rpcResultBuilder = RpcResultBuilder.success();
@@ -277,21 +292,6 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
         return Futures.immediateFuture(rpcResultBuilder.build());
     }
 
-    @Override
-    public Future<RpcResult<GetEgressActionsOutput>> getEgressActions(GetEgressActionsInput input) {
-        RpcResultBuilder<GetEgressActionsOutput> rpcResultBuilder;
-        try {
-            List<Action> actionsList = IfmUtil.getEgressActions(input.getIntfName(), input.getServiceTag(), dataBroker);
-            GetEgressActionsOutputBuilder output = new GetEgressActionsOutputBuilder().
-                    setAction(actionsList);
-            rpcResultBuilder = RpcResultBuilder.success();
-            rpcResultBuilder.withResult(output.build());
-        }catch(Exception e){
-            LOG.error("Retrieval of egress actions for the key {} failed due to {}" ,input.getIntfName(), e);
-            rpcResultBuilder = RpcResultBuilder.failed();
-        }
-        return Futures.immediateFuture(rpcResultBuilder.build());
-    }
 
     @Override
     public Future<RpcResult<GetPortFromInterfaceOutput>> getPortFromInterface(GetPortFromInterfaceInput input) {
@@ -356,48 +356,6 @@ public class InterfaceManagerRpcService implements OdlInterfaceRpcService {
             rpcResultBuilder = RpcResultBuilder.failed();
         }
         return Futures.immediateFuture(rpcResultBuilder.build());
-    }
-
-    public List<ActionInfo> getEgressActionInfosForInterface(String interfaceName) {
-        Interface interfaceInfo = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(new InterfaceKey(interfaceName),
-                dataBroker);
-        List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
-                InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceName, dataBroker);
-        if(ifState != null) {
-            String lowerLayerIf = ifState.getLowerLayerIf().get(0);
-            NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
-            String portNo = IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId);
-            Class<? extends InterfaceType> ifType = interfaceInfo.getType();
-            if (L2vlan.class.equals(ifType)) {
-                IfL2vlan vlanIface = interfaceInfo.getAugmentation(IfL2vlan.class);
-                LOG.trace("L2Vlan: {}", vlanIface);
-                long vlanVid = 0;
-                boolean isVlanTransparent = false;
-                if (vlanIface != null) {
-                    vlanVid = vlanIface.getVlanId() == null ? 0 : vlanIface.getVlanId().getValue();
-                    isVlanTransparent = vlanIface.getL2vlanMode() == IfL2vlan.L2vlanMode.Transparent;
-                }
-                if (vlanVid != 0 && !isVlanTransparent) {
-                    listActionInfo.add(new ActionInfo(ActionType.push_vlan, new String[]{}));
-                    listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
-                            new String[]{Long.toString(vlanVid)}));
-                }
-                listActionInfo.add(new ActionInfo(ActionType.output, new String[]{portNo}));
-            } else if (Tunnel.class.equals(ifType)) {
-                listActionInfo.add(new ActionInfo(ActionType.output, new String[]{portNo}));
-            }
-        }
-        return listActionInfo;
-    }
-
-    public List<Action> getEgressActionsForInterface(String interfaceName) {
-            List<ActionInfo> listActionInfo = getEgressActionInfosForInterface(interfaceName);
-            List<Action> actionsList = new ArrayList<>();
-            for (ActionInfo actionInfo : listActionInfo) {
-                actionsList.add(actionInfo.buildAction());
-            }
-            return actionsList;
     }
 
     protected static List<Instruction> buildInstructions(List<InstructionInfo> listInstructionInfo) {

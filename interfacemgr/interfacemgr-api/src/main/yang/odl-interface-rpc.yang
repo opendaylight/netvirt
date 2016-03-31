@@ -66,21 +66,13 @@ module odl-interface-rpc {
         input {
             leaf intf-name {
                 type string;
+                mandatory true;
             }
-        }
-        output {
-            uses action:action-list;
-        }
-    }
 
-    rpc get-egress-actions {
-        description "used to retrieve group actions to use from interface name";
-        input {
-            leaf intf-name {
-                type string;
-            }
-            leaf service-tag {
+            leaf tunnel-key {
+                description "It can be VNI for VxLAN tunnel ifaces, Gre Key for GRE tunnels, etc.";
                 type uint32;
+                mandatory false;
             }
         }
         output {
@@ -93,6 +85,13 @@ module odl-interface-rpc {
         input {
             leaf intf-name {
                 type string;
+                mandatory true;
+            }
+
+            leaf tunnel-key {
+                description "It can be VNI for VxLAN tunnel ifaces, Gre Key for GRE tunnels, etc.";
+                type uint32;
+                mandatory false;
             }
         }
         output {

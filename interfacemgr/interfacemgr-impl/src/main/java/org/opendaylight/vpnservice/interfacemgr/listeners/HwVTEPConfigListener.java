@@ -13,13 +13,17 @@ import org.opendaylight.vpnservice.datastoreutils.AsyncDataTreeChangeListenerBas
 import org.opendaylight.vpnservice.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.confighelpers.HwVTEPConfigRemoveHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.confighelpers.HwVTEPInterfaceConfigAddHelper;
+import org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.confighelpers.HwVTEPInterfaceConfigUpdateHelper;
+import org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.utilities.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.interfaces._interface.NodeIdentifier;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,11 +51,13 @@ public class HwVTEPConfigListener extends AsyncDataTreeChangeListenerBase<Interf
         IfTunnel ifTunnel = interfaceOld.getAugmentation(IfTunnel.class);
         if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
             ParentRefs parentRefs = interfaceOld.getAugmentation(ParentRefs.class);
-            if (parentRefs != null) {
+            if (parentRefs != null && parentRefs.getNodeIdentifier() != null) {
                 for(NodeIdentifier nodeIdentifier : parentRefs.getNodeIdentifier()) {
-                    if(nodeIdentifier.getNodeId().equals("hwvtep:1")) {
+                    if(SouthboundUtils.HWVTEP_TOPOLOGY.equals(nodeIdentifier.getTopologyId())) {
                         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-                        RendererConfigRemoveWorker configWorker = new RendererConfigRemoveWorker(key, interfaceOld, parentRefs);
+                        RendererConfigRemoveWorker configWorker = new RendererConfigRemoveWorker(key, interfaceOld,
+                                SouthboundUtils.createPhysicalSwitchInstanceIdentifier(nodeIdentifier.getNodeId()),
+                                SouthboundUtils.createGlobalNodeInstanceIdentifier(dataBroker, nodeIdentifier.getNodeId()));
                         coordinator.enqueueJob(interfaceOld.getName(), configWorker);
                     }
                 }
@@ -61,7 +67,22 @@ public class HwVTEPConfigListener extends AsyncDataTreeChangeListenerBase<Interf
 
     @Override
     protected void update(InstanceIdentifier<Interface> key, Interface interfaceOld, Interface interfaceNew) {
-        // TODO
+        // HwVTEPs support only vxlan
+        IfTunnel ifTunnel = interfaceNew.getAugmentation(IfTunnel.class);
+        if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
+            ParentRefs parentRefs = interfaceNew.getAugmentation(ParentRefs.class);
+            if (parentRefs != null && parentRefs.getNodeIdentifier() != null) {
+                for(NodeIdentifier nodeIdentifier : parentRefs.getNodeIdentifier()) {
+                    if(SouthboundUtils.HWVTEP_TOPOLOGY.equals(nodeIdentifier.getTopologyId())) {
+                        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+                        RendererConfigUpdateWorker configWorker = new RendererConfigUpdateWorker(key, interfaceNew,
+                                SouthboundUtils.createPhysicalSwitchInstanceIdentifier(nodeIdentifier.getNodeId()),
+                                SouthboundUtils.createGlobalNodeInstanceIdentifier(dataBroker, nodeIdentifier.getNodeId()), ifTunnel);
+                        coordinator.enqueueJob(interfaceNew.getName(), configWorker, 3);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -70,12 +91,14 @@ public class HwVTEPConfigListener extends AsyncDataTreeChangeListenerBase<Interf
         IfTunnel ifTunnel = interfaceNew.getAugmentation(IfTunnel.class);
         if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
             ParentRefs parentRefs = interfaceNew.getAugmentation(ParentRefs.class);
-            if (parentRefs != null) {
+            if (parentRefs != null && parentRefs.getNodeIdentifier() != null) {
                 for(NodeIdentifier nodeIdentifier : parentRefs.getNodeIdentifier()) {
-                    if(nodeIdentifier.getNodeId().equals("hwvtep:1")) {
+                    if(SouthboundUtils.HWVTEP_TOPOLOGY.equals(nodeIdentifier.getTopologyId())) {
                         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-                        RendererConfigAddWorker configWorker = new RendererConfigAddWorker(key, interfaceNew, parentRefs);
-                        coordinator.enqueueJob(interfaceNew.getName(), configWorker);
+                        RendererConfigAddWorker configWorker = new RendererConfigAddWorker(key, interfaceNew,
+                                SouthboundUtils.createPhysicalSwitchInstanceIdentifier(nodeIdentifier.getNodeId()),
+                                SouthboundUtils.createGlobalNodeInstanceIdentifier(dataBroker, nodeIdentifier.getNodeId()), ifTunnel);
+                        coordinator.enqueueJob(interfaceNew.getName(), configWorker, 3);
                     }
                 }
             }
@@ -90,38 +113,67 @@ public class HwVTEPConfigListener extends AsyncDataTreeChangeListenerBase<Interf
     private class RendererConfigAddWorker implements Callable<List<ListenableFuture<Void>>> {
         InstanceIdentifier<Interface> key;
         Interface interfaceNew;
-        IfL2vlan ifL2vlan;
-        ParentRefs parentRefs;
+        InstanceIdentifier<Node> physicalSwitchNodeId;
+        InstanceIdentifier<Node> globalNodeId;
+        IfTunnel ifTunnel;
 
         public RendererConfigAddWorker(InstanceIdentifier<Interface> key, Interface interfaceNew,
-                                       ParentRefs parentRefs) {
+                                       InstanceIdentifier<Node> physicalSwitchNodeId, InstanceIdentifier<Node> globalNodeId, IfTunnel ifTunnel) {
             this.key = key;
             this.interfaceNew = interfaceNew;
-            this.ifL2vlan = ifL2vlan;
-            this.parentRefs = parentRefs;
+            this.physicalSwitchNodeId = physicalSwitchNodeId;
+            this.globalNodeId = globalNodeId;
+            this.ifTunnel = ifTunnel;
         }
 
         @Override
         public List<ListenableFuture<Void>> call() throws Exception {
-            return HwVTEPInterfaceConfigAddHelper.addConfiguration(dataBroker, parentRefs, interfaceNew);
+            return HwVTEPInterfaceConfigAddHelper.addConfiguration(dataBroker,
+                    physicalSwitchNodeId, globalNodeId, interfaceNew, ifTunnel);
+        }
+    }
+
+    private class RendererConfigUpdateWorker implements Callable<List<ListenableFuture<Void>>> {
+        InstanceIdentifier<Interface> key;
+        Interface interfaceNew;
+        InstanceIdentifier<Node> globalNodeId;
+        InstanceIdentifier<Node> physicalSwitchNodeId;
+        IfTunnel ifTunnel;
+
+        public RendererConfigUpdateWorker(InstanceIdentifier<Interface> key, Interface interfaceNew,
+                                       InstanceIdentifier<Node> physicalSwitchNodeId, InstanceIdentifier<Node> globalNodeId, IfTunnel ifTunnel) {
+            this.key = key;
+            this.interfaceNew = interfaceNew;
+            this.physicalSwitchNodeId = physicalSwitchNodeId;
+            this.ifTunnel = ifTunnel;
+            this.globalNodeId = globalNodeId;
+        }
+
+        @Override
+        public List<ListenableFuture<Void>> call() throws Exception {
+            return HwVTEPInterfaceConfigUpdateHelper.updateConfiguration(dataBroker,
+                    physicalSwitchNodeId, globalNodeId, interfaceNew, ifTunnel);
         }
     }
 
     private class RendererConfigRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
         InstanceIdentifier<Interface> key;
         Interface interfaceOld;
-        ParentRefs parentRefs;
+        InstanceIdentifier<Node> physicalSwitchNodeId;
+        InstanceIdentifier<Node> globalNodeId;
 
         public RendererConfigRemoveWorker(InstanceIdentifier<Interface> key, Interface interfaceOld,
-                                          ParentRefs parentRefs) {
+                                          InstanceIdentifier<Node> physicalSwitchNodeId, InstanceIdentifier<Node> globalNodeId) {
             this.key = key;
             this.interfaceOld = interfaceOld;
-            this.parentRefs = parentRefs;
+            this.physicalSwitchNodeId = physicalSwitchNodeId;
+            this.globalNodeId = globalNodeId;
         }
 
         @Override
         public List<ListenableFuture<Void>> call() throws Exception {
-            return HwVTEPConfigRemoveHelper.removeConfiguration(dataBroker, interfaceOld, parentRefs);
+            return HwVTEPConfigRemoveHelper.removeConfiguration(dataBroker,
+                    interfaceOld, globalNodeId, physicalSwitchNodeId);
         }
     }
 }

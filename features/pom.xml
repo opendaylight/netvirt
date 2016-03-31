@@ -197,6 +197,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>interfacemgr-shell</artifactId>
+      <version>${interfacemgr.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>elanmanager-impl</artifactId>
       <version>${elanmgr.version}</version>
     </dependency>

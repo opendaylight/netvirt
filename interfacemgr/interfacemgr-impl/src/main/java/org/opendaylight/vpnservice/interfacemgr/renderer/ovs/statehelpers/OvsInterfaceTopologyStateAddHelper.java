@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -44,23 +44,10 @@ public class OvsInterfaceTopologyStateAddHelper {
         WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
 
         if (bridgeNew.getDatapathId() == null) {
-            LOG.warn("DataPathId found as null for Bridge Augmentation: {}... retrying...", bridgeNew);
-            Optional<OvsdbBridgeAugmentation> bridgeNodeOptional = IfmUtil.read(LogicalDatastoreType.OPERATIONAL, bridgeIid, dataBroker);
-            if (bridgeNodeOptional.isPresent()) {
-                bridgeNew = bridgeNodeOptional.get();
-            }
-            if (bridgeNew.getDatapathId() == null) {
-                LOG.warn("DataPathId found as null again for Bridge Augmentation: {}. Bailing out.", bridgeNew);
-                return futures;
-            }
-        }
-        String bridgeName = bridgeNew.getBridgeName().getValue();
-        BigInteger dpnId = IfmUtil.getDpnId(bridgeNew.getDatapathId());
-
-        if (dpnId == null) {
-            LOG.warn("Got Null DPID for Bridge: {}", bridgeNew);
+            LOG.warn("DataPathId found as null for Bridge Augmentation: {}... returning...", bridgeNew);
             return futures;
         }
+        BigInteger dpnId = IfmUtil.getDpnId(bridgeNew.getDatapathId());
 
         // create bridge reference entry in interface meta operational DS
         InterfaceMetaUtils.createBridgeRefEntry(dpnId, bridgeIid, writeTransaction);
@@ -68,26 +55,13 @@ public class OvsInterfaceTopologyStateAddHelper {
         // FIX for OVSDB Bug - manually copying the bridge info from topology operational DS to config DS
         SouthboundUtils.addBridge(bridgeIid, bridgeNew, dataBroker, futures);
 
-        BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpnId);
-        InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier =
-                InterfaceMetaUtils.getBridgeEntryIdentifier(bridgeEntryKey);
-        BridgeEntry bridgeEntry =
-                InterfaceMetaUtils.getBridgeEntryFromConfigDS(bridgeEntryInstanceIdentifier,
-                        dataBroker);
+        // handle pre-provisioning of tunnels for the newly connected dpn
+        BridgeEntry bridgeEntry = InterfaceMetaUtils.getBridgeEntryFromConfigDS(dpnId, dataBroker);
         if (bridgeEntry == null) {
             futures.add(writeTransaction.submit());
             return futures;
         }
-
-        List<BridgeInterfaceEntry> bridgeInterfaceEntries = bridgeEntry.getBridgeInterfaceEntry();
-        for (BridgeInterfaceEntry bridgeInterfaceEntry : bridgeInterfaceEntries) {
-            String portName = bridgeInterfaceEntry.getInterfaceName();
-            InterfaceKey interfaceKey = new InterfaceKey(portName);
-            Interface iface = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(interfaceKey, dataBroker);
-            if (iface.getAugmentation(IfTunnel.class) != null) {
-                SouthboundUtils.addPortToBridge(bridgeIid, iface, bridgeNew, bridgeName, portName, dataBroker, futures);
-            }
-        }
+        SouthboundUtils.addAllPortsToBridge(bridgeEntry, dataBroker, bridgeIid, bridgeNew, writeTransaction);
 
         futures.add(writeTransaction.submit());
         return futures;

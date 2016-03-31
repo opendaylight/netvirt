@@ -128,8 +128,6 @@ public class TopologyStateInterfaceTest {
                 LogicalDatastoreType.CONFIGURATION, interfaceInstanceIdentifier);
         doReturn(Futures.immediateCheckedFuture(expectedBridgeEntry)).when(mockReadTx).read(
                 LogicalDatastoreType.CONFIGURATION,bridgeEntryIid);
-        doReturn(Futures.immediateCheckedFuture(expectedOvsdbBridgeAugmentation)).when(mockReadTx).read(
-                LogicalDatastoreType.OPERATIONAL, bridgeIid);
 
         OvsdbBridgeAugmentationBuilder ovsdbBridgeAugmentation = new OvsdbBridgeAugmentationBuilder(bridgeNew);
         ovsdbBridgeAugmentation.setDatapathId(DatapathId.getDefaultInstance("00:00:00:00:00:00:00:01"));
@@ -152,6 +150,8 @@ public class TopologyStateInterfaceTest {
     @Test
     public void testDeleteTopologyStateInterface()
     {
+        doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(
+                LogicalDatastoreType.OPERATIONAL, bridgeIid);
         OvsdbBridgeAugmentationBuilder ovsdbBridgeAugmentation = new OvsdbBridgeAugmentationBuilder(bridgeOld);
         ovsdbBridgeAugmentation.setDatapathId(DatapathId.getDefaultInstance("00:00:00:00:00:00:00:01"));
         ovsdbBridgeAugmentation.setBridgeName(OvsdbBridgeName.getDefaultInstance("b"));

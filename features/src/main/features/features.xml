@@ -60,6 +60,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.vpnservice/mdsalutil-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-impl/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.vpnservice/interfacemgr-shell/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/vpnmanager-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/fibmanager-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.vpnservice/fibmanager-shell/{{VERSION}}</bundle>

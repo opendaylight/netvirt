@@ -25,9 +25,6 @@ public class IfmConstants {
     public static final long VLAN_GROUP_START = 1000;
     public static final long TRUNK_GROUP_START = 20000;
     public static final long LOGICAL_GROUP_START = 100000;
-    public static final short INTERNAL_TUNNEL_TABLE = 22;
-    public static final short EXTERNAL_TUNNEL_TABLE = 23;
-    public static final short LFIB_TABLE = 20;
     public static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000002", 16);
     public static final String TUNNEL_TABLE_FLOWID_PREFIX = "TUNNEL.";
     public static final BigInteger TUNNEL_TABLE_COOKIE = new BigInteger("9000000", 16);

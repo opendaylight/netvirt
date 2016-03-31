@@ -103,13 +103,11 @@ module odl-interface {
             description "an identifier of the dependant underlying configuration protocol";
             leaf "topology-id" {
                 type string;
-                description "A reference to the type of the network node.
-                For example, an ovsdb node will take the format ovsdb:1";
+                description "can be ovsdb configuration protocol";
             }
             leaf "node-id" {
                 type string;
-                description "A reference to a network node. A node can be
-                of type ovsdb,hwvtep or openflow";
+                description "can be hwvtep configuration protocol";
             }
         }
     }

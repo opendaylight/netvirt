@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,22 +8,17 @@
 package org.opendaylight.vpnservice.interfacemgr.commons;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
-import org.eclipse.xtend.lib.annotations.Data;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.idmanager.IdManager;
 import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
-import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.utilities.SouthboundUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.Tunnels;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.BridgeInterfaceInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.BridgeRefInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.IfIndexesInterfaceMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.InterfaceChildInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterfaceKey;
@@ -39,14 +34,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge.ref.info.BridgeRefEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge.ref.info.BridgeRefEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge.ref.info.BridgeRefEntryKey;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.tunnel.instance._interface.map.TunnelInstanceInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.tunnel.instance._interface.map.TunnelInstanceInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.tunnel.instance._interface.map.TunnelInstanceInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 public class InterfaceMetaUtils {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceMetaUtils.class);
@@ -67,10 +65,42 @@ public class InterfaceMetaUtils {
         return bridgeRefEntryOptional.get();
     }
 
+    public static BridgeRefEntry getBridgeReferenceForInterface(Interface interfaceInfo,
+                                                             DataBroker dataBroker) {
+        ParentRefs parentRefs = interfaceInfo.getAugmentation(ParentRefs.class);
+        BigInteger dpn = parentRefs.getDatapathNodeIdentifier();
+        BridgeRefEntryKey BridgeRefEntryKey = new BridgeRefEntryKey(dpn);
+        InstanceIdentifier<BridgeRefEntry> dpnBridgeEntryIid = getBridgeRefEntryIdentifier(BridgeRefEntryKey);
+        BridgeRefEntry bridgeRefEntry = getBridgeRefEntryFromOperDS(dpnBridgeEntryIid, dataBroker);
+        return bridgeRefEntry;
+    }
+
+    public static boolean bridgeExists(BridgeRefEntry bridgeRefEntry,
+                                                                DataBroker dataBroker) {
+        if (bridgeRefEntry != null && bridgeRefEntry.getBridgeReference() != null) {
+            InstanceIdentifier<OvsdbBridgeAugmentation> bridgeIid =
+                    (InstanceIdentifier<OvsdbBridgeAugmentation>) bridgeRefEntry.getBridgeReference().getValue();
+            Optional<OvsdbBridgeAugmentation> bridgeNodeOptional =
+                    IfmUtil.read(LogicalDatastoreType.OPERATIONAL, bridgeIid, dataBroker);
+            if (bridgeNodeOptional.isPresent()) {
+                return true;
+            }
+        }
+        return false;
+    }
     public static InstanceIdentifier<BridgeEntry> getBridgeEntryIdentifier(BridgeEntryKey bridgeEntryKey) {
         InstanceIdentifier.InstanceIdentifierBuilder<BridgeEntry> bridgeEntryIdBuilder =
                 InstanceIdentifier.builder(BridgeInterfaceInfo.class).child(BridgeEntry.class, bridgeEntryKey);
         return bridgeEntryIdBuilder.build();
+    }
+
+    public static BridgeEntry getBridgeEntryFromConfigDS(BigInteger dpnId,
+                                                         DataBroker dataBroker) {
+        BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpnId);
+        InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier =
+                InterfaceMetaUtils.getBridgeEntryIdentifier(bridgeEntryKey);
+        return getBridgeEntryFromConfigDS(bridgeEntryInstanceIdentifier,
+                        dataBroker);
     }
 
     public static BridgeEntry getBridgeEntryFromConfigDS(InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier,
@@ -186,6 +216,8 @@ public class InterfaceMetaUtils {
 
     public static void createBridgeRefEntry(BigInteger dpnId, InstanceIdentifier<?> bridgeIid,
                                             WriteTransaction tx){
+        LOG.debug("Creating bridge ref entry for dpn: {} bridge: {}",
+                dpnId, bridgeIid);
         BridgeRefEntryKey bridgeRefEntryKey = new BridgeRefEntryKey(dpnId);
         InstanceIdentifier<BridgeRefEntry> bridgeEntryId =
                 InterfaceMetaUtils.getBridgeRefEntryIdentifier(bridgeRefEntryKey);
@@ -194,4 +226,55 @@ public class InterfaceMetaUtils {
                         .setBridgeReference(new OvsdbBridgeRef(bridgeIid));
         tx.put(LogicalDatastoreType.OPERATIONAL, bridgeEntryId, tunnelDpnBridgeEntryBuilder.build(), true);
     }
+    public static void deleteBridgeRefEntry(BigInteger dpnId,
+                                            WriteTransaction tx) {
+        LOG.debug("Deleting bridge ref entry for dpn: {}",
+                dpnId);
+        BridgeRefEntryKey bridgeRefEntryKey = new BridgeRefEntryKey(dpnId);
+        InstanceIdentifier<BridgeRefEntry> bridgeEntryId =
+                InterfaceMetaUtils.getBridgeRefEntryIdentifier(bridgeRefEntryKey);
+        tx.delete(LogicalDatastoreType.OPERATIONAL, bridgeEntryId);
+    }
+
+    public static void createTunnelToInterfaceMap(String tunnelInstanceId,
+                                                  String infName,
+                                                  WriteTransaction transaction) {
+        LOG.debug("creating tunnel instance identifier to interface map for {}",infName);
+        InstanceIdentifier<TunnelInstanceInterface> id = InstanceIdentifier.builder(TunnelInstanceInterfaceMap.class).
+                child(TunnelInstanceInterface.class, new TunnelInstanceInterfaceKey(tunnelInstanceId)).build();
+        TunnelInstanceInterface tunnelInstanceInterface = new TunnelInstanceInterfaceBuilder().
+                setTunnelInstanceIdentifier(tunnelInstanceId).setKey(new TunnelInstanceInterfaceKey(tunnelInstanceId)).setInterfaceName(infName).build();
+        transaction.put(LogicalDatastoreType.OPERATIONAL, id, tunnelInstanceInterface, true);
+
+    }
+
+    public static void createTunnelToInterfaceMap(String infName,InstanceIdentifier<Node> nodeId,
+                                                  WriteTransaction transaction,
+                                                  IfTunnel ifTunnel){
+        InstanceIdentifier<Tunnels> tunnelsInstanceIdentifier = org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.utilities.SouthboundUtils.
+                createTunnelsInstanceIdentifier(nodeId,
+                ifTunnel.getTunnelSource(), ifTunnel.getTunnelDestination());
+        createTunnelToInterfaceMap(tunnelsInstanceIdentifier.toString(), infName, transaction);
+    }
+
+    public static void removeTunnelToInterfaceMap(InstanceIdentifier<Node> nodeId,
+                                                  WriteTransaction transaction,
+                                                  IfTunnel ifTunnel){
+        InstanceIdentifier<Tunnels> tunnelsInstanceIdentifier = org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.utilities.SouthboundUtils.
+                createTunnelsInstanceIdentifier(nodeId,
+                        ifTunnel.getTunnelSource(), ifTunnel.getTunnelDestination());
+        transaction.delete(LogicalDatastoreType.OPERATIONAL, tunnelsInstanceIdentifier);
+    }
+
+    public static String getInterfaceForTunnelInstanceIdentifier(String tunnelInstanceId,
+                                                  DataBroker dataBroker) {
+        InstanceIdentifier<TunnelInstanceInterface> id = InstanceIdentifier.builder(TunnelInstanceInterfaceMap.class).
+                child(TunnelInstanceInterface.class, new TunnelInstanceInterfaceKey(tunnelInstanceId)).build();
+        Optional<TunnelInstanceInterface> tunnelInstanceInterfaceOptional = IfmUtil.read(LogicalDatastoreType.OPERATIONAL, id, dataBroker);
+        if(tunnelInstanceInterfaceOptional.isPresent()){
+            return tunnelInstanceInterfaceOptional.get().getInterfaceName();
+        }
+        return null;
+    }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016  Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -72,9 +72,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.TunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.CreateTerminatingServiceActionsInput;
@@ -784,12 +781,18 @@ public class ElanUtils {
             return actions;
         }
         if (tunnelInterfaceName != null && !tunnelInterfaceName.isEmpty()) {
-            GetEgressActionsInput getEgressActionsForInterfaceInput = new GetEgressActionsInputBuilder().setServiceTag(Long.valueOf(serviceTag)).setIntfName(tunnelInterfaceName).build();
-            Future<RpcResult<GetEgressActionsOutput>> egressActionsOutputFuture = interfaceManagerRpcService.getEgressActions(getEgressActionsForInterfaceInput);
-            try {
-                GetEgressActionsOutput egressActionsOutput = egressActionsOutputFuture.get().getResult();
-                List<Action> outputAction = egressActionsOutput.getAction();
-                return outputAction;
+            try{
+                GetEgressActionsForInterfaceInput getEgressActionInput =
+                    new GetEgressActionsForInterfaceInputBuilder().setIntfName(tunnelInterfaceName).setTunnelKey(null).build();
+                Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
+                    interfaceManagerRpcService.getEgressActionsForInterface(getEgressActionInput);
+                RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
+                if (!rpcResult.isSuccessful()) {
+                    logger.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
+                        tunnelInterfaceName, rpcResult.getErrors());
+                } else {
+                    actions = rpcResult.getResult().getAction();
+                }
             } catch (InterruptedException | ExecutionException e) {
                 logger.error("Error in RPC call getEgressActionsForInterface {}", e);
                 return actions;

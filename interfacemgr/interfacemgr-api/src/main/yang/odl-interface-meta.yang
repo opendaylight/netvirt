@@ -100,4 +100,17 @@ module odl-interface-meta {
            }
        }
    }
+
+   container tunnel-instance-interface-map {
+          config false;
+          list tunnel-instance-interface {
+              key tunnel-instance-identifier;
+              leaf tunnel-instance-identifier {
+                  type string;
+              }
+              leaf interface-name {
+                  type string;
+              }
+          }
+      }
 }

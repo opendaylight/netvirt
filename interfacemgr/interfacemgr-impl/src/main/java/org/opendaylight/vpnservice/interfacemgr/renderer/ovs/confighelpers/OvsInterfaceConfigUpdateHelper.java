@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -10,34 +10,22 @@ package org.opendaylight.vpnservice.interfacemgr.renderer.ovs.confighelpers;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.idmanager.IdManager;
-import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.AlivenessMonitorUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
-import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
+import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.utilities.SouthboundUtils;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.LivenessState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.MonitorEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge.ref.info.BridgeRefEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeVxlan;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +40,7 @@ public class OvsInterfaceConfigUpdateHelper{
                                                                    Interface interfaceNew, Interface interfaceOld) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
 
+        // If any of the port attributes are modified, treat it as a delete and recreate scenario
         if(portAttributesModified(interfaceOld, interfaceNew)) {
             futures.addAll(OvsInterfaceConfigRemoveHelper.removeConfiguration(dataBroker, alivenessMonitorService, interfaceOld, idManager,
                     mdsalApiManager, interfaceOld.getAugmentation(ParentRefs.class)));
@@ -60,6 +49,7 @@ public class OvsInterfaceConfigUpdateHelper{
             return futures;
         }
 
+        // If there is no operational state entry for the interface, treat it as create
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =
                 InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(interfaceNew.getName(), dataBroker);
         if (ifState == null) {
@@ -68,40 +58,18 @@ public class OvsInterfaceConfigUpdateHelper{
             return futures;
         }
 
-        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
-        if (interfaceNew.isEnabled() != interfaceOld.isEnabled()) {
-            OperStatus operStatus = InterfaceManagerCommonUtils.updateStateEntry(interfaceNew, dataBroker, t, ifState);
-
-            IfTunnel ifTunnel = interfaceNew.getAugmentation(IfTunnel.class);
-            if(ifTunnel != null){
-                // stop tunnel monitoring if admin state is disabled for a vxlan trunk interface
-                if(!interfaceNew.isEnabled()){
-                    AlivenessMonitorUtils.stopLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceNew);
-                    futures.add(t.submit());
-                    return futures;
-                }
-            }
-
-            IfL2vlan ifL2vlan = interfaceNew.getAugmentation(IfL2vlan.class);
-            if (ifL2vlan == null || ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
-                futures.add(t.submit());
-                return futures;
-            }
-
-            InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(interfaceNew.getName());
-            InterfaceParentEntry interfaceParentEntry =
-                    InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryKey, dataBroker);
-            if (interfaceParentEntry == null || interfaceParentEntry.getInterfaceChildEntry() == null) {
-                futures.add(t.submit());
-                return futures;
-            }
-
-            for (InterfaceChildEntry interfaceChildEntry : interfaceParentEntry.getInterfaceChildEntry()) {
-                InterfaceManagerCommonUtils.updateOperStatus(interfaceChildEntry.getChildInterface(), operStatus, t);
-            }
+        WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
+        if(TunnelMonitoringAttributesModified(interfaceOld, interfaceNew)){
+            handleTunnelMonitorUpdates(futures, transaction, alivenessMonitorService, interfaceNew,
+                    interfaceOld, dataBroker);
+            return futures;
         }
 
-        futures.add(t.submit());
+        if (interfaceNew.isEnabled() != interfaceOld.isEnabled()) {
+            handleInterfaceAdminStateUpdates(futures, transaction, interfaceNew, dataBroker, ifState);
+        }
+
+        futures.add(transaction.submit());
         return futures;
     }
 
@@ -121,10 +89,73 @@ public class OvsInterfaceConfigUpdateHelper{
         IfTunnel ifTunnelOld = interfaceOld.getAugmentation(IfTunnel.class);
         IfTunnel ifTunnelNew = interfaceNew.getAugmentation(IfTunnel.class);
         if (checkAugmentations(ifTunnelOld, ifTunnelNew)) {
-            return true;
+            if(!ifTunnelNew.getTunnelDestination().equals(ifTunnelOld.getTunnelDestination()) ||
+                    !ifTunnelNew.getTunnelSource().equals(ifTunnelOld.getTunnelSource()) ||
+                    !ifTunnelNew.getTunnelGateway().equals(ifTunnelOld.getTunnelGateway())) {
+                return true;
+            }
         }
 
         return false;
+    }
+
+    private static boolean TunnelMonitoringAttributesModified(Interface interfaceOld, Interface interfaceNew) {
+        IfTunnel ifTunnelOld = interfaceOld.getAugmentation(IfTunnel.class);
+        IfTunnel ifTunnelNew = interfaceNew.getAugmentation(IfTunnel.class);
+        if (checkAugmentations(ifTunnelOld, ifTunnelNew)) {
+            return true;
+        }
+        return false;
+    }
+
+    /*
+     * if the tunnel monitoring attributes have changed, handle it based on the tunnel type.
+     * As of now internal vxlan tunnels use LLDP monitoring and external tunnels use BFD monitoring.
+     */
+    private static void handleTunnelMonitorUpdates(List<ListenableFuture<Void>> futures, WriteTransaction transaction,
+                                                   AlivenessMonitorService alivenessMonitorService,
+                                                   Interface interfaceNew, Interface interfaceOld, DataBroker dataBroker){
+        LOG.debug("tunnel monitoring attributes modified for interface {}", interfaceNew.getName());
+        // update termination point on switch, if switch is connected
+        BridgeRefEntry bridgeRefEntry =
+                InterfaceMetaUtils.getBridgeReferenceForInterface(interfaceNew, dataBroker);
+        if(InterfaceMetaUtils.bridgeExists(bridgeRefEntry, dataBroker)) {
+            SouthboundUtils.updateBfdParamtersForTerminationPoint(bridgeRefEntry.getBridgeReference().getValue(),
+                    interfaceNew.getAugmentation(IfTunnel.class),
+                    interfaceNew.getName(), transaction);
+        }
+
+        // stop tunnel monitoring if admin state is disabled for an internal vxlan trunk interface
+        if(interfaceOld.isEnabled() && !interfaceNew.isEnabled()) {
+            AlivenessMonitorUtils.stopLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceNew);
+        }else{
+            AlivenessMonitorUtils.handleTunnelMonitorUpdates(alivenessMonitorService, dataBroker, interfaceOld, interfaceNew);
+        }
+        futures.add(transaction.submit());
+    }
+
+    private static void handleInterfaceAdminStateUpdates(List<ListenableFuture<Void>> futures, WriteTransaction transaction,
+                                                         Interface interfaceNew, DataBroker dataBroker,
+                                                         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState){
+        OperStatus operStatus = InterfaceManagerCommonUtils.updateStateEntry(interfaceNew, dataBroker, transaction, ifState);
+
+        IfL2vlan ifL2vlan = interfaceNew.getAugmentation(IfL2vlan.class);
+        if (ifL2vlan == null || (IfL2vlan.L2vlanMode.Trunk != ifL2vlan.getL2vlanMode() && IfL2vlan.L2vlanMode.Transparent != ifL2vlan.getL2vlanMode())) {
+            futures.add(transaction.submit());
+            return;
+        }
+
+        InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(interfaceNew.getName());
+        InterfaceParentEntry interfaceParentEntry =
+                InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryKey, dataBroker);
+        if (interfaceParentEntry == null || interfaceParentEntry.getInterfaceChildEntry() == null) {
+            futures.add(transaction.submit());
+            return;
+        }
+
+        for (InterfaceChildEntry interfaceChildEntry : interfaceParentEntry.getInterfaceChildEntry()) {
+            InterfaceManagerCommonUtils.updateOperStatus(interfaceChildEntry.getChildInterface(), operStatus, transaction);
+        }
     }
 
     private static<T> boolean checkAugmentations(T oldAug, T newAug) {

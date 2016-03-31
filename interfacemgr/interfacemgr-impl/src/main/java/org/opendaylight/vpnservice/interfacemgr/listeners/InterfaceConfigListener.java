@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -39,6 +39,7 @@ public class InterfaceConfigListener extends AsyncDataTreeChangeListenerBase<Int
     private IdManagerService idManager;
     private AlivenessMonitorService alivenessMonitorService;
     private IMdsalApiManager mdsalApiManager;
+    private static final int MAX_RETRIES = 3;
 
     public InterfaceConfigListener(final DataBroker dataBroker, final IdManagerService idManager,
                                    final AlivenessMonitorService alivenessMonitorService,
@@ -67,16 +68,21 @@ public class InterfaceConfigListener extends AsyncDataTreeChangeListenerBase<Int
         ParentRefs parentRefs = interfaceOld.getAugmentation(ParentRefs.class);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         RendererConfigRemoveWorker configWorker = new RendererConfigRemoveWorker(key, interfaceOld, ifName, parentRefs);
-        coordinator.enqueueJob(ifName, configWorker);
+        coordinator.enqueueJob(ifName, configWorker, MAX_RETRIES);
     }
 
     @Override
     protected void update(InstanceIdentifier<Interface> key, Interface interfaceOld, Interface interfaceNew) {
         LOG.debug("Received Interface Update Event: {}, {}, {}", key, interfaceOld, interfaceNew);
         String ifNameNew = interfaceNew.getName();
+        ParentRefs parentRefs = interfaceNew.getAugmentation(ParentRefs.class);
+        if (parentRefs == null || parentRefs.getDatapathNodeIdentifier() == null && parentRefs.getParentInterface() == null) {
+            LOG.error("parent refs not specified for {}",interfaceNew.getName());
+            return;
+        }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         RendererConfigUpdateWorker worker = new RendererConfigUpdateWorker(key, interfaceOld, interfaceNew, ifNameNew);
-        coordinator.enqueueJob(ifNameNew, worker);
+        coordinator.enqueueJob(ifNameNew, worker, MAX_RETRIES);
     }
 
     @Override
@@ -84,12 +90,13 @@ public class InterfaceConfigListener extends AsyncDataTreeChangeListenerBase<Int
         LOG.debug("Received Interface Add Event: {}, {}", key, interfaceNew);
         String ifName = interfaceNew.getName();
         ParentRefs parentRefs = interfaceNew.getAugmentation(ParentRefs.class);
-        if (parentRefs == null) {
+        if (parentRefs == null || parentRefs.getDatapathNodeIdentifier() == null && parentRefs.getParentInterface() == null) {
             LOG.error("parent refs not specified for {}",interfaceNew.getName());
+            return;
         }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         RendererConfigAddWorker configWorker = new RendererConfigAddWorker(key, interfaceNew, parentRefs, ifName);
-        coordinator.enqueueJob(ifName, configWorker);
+        coordinator.enqueueJob(ifName, configWorker, MAX_RETRIES);
     }
 
     private class RendererConfigAddWorker implements Callable<List<ListenableFuture<Void>>> {

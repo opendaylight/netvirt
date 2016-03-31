@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -17,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
+import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
 import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
 import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
@@ -27,6 +28,7 @@ import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
 import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -80,6 +82,23 @@ public class InterfaceManagerCommonUtils {
         return interfaceInstanceIdentifierBuilder.build();
     }
 
+    public static List<Interface> getAllTunnelInterfaces(DataBroker dataBroker, InterfaceInfo.InterfaceType interfaceType) {
+        List<Interface> vxlanList = new ArrayList<Interface>();
+        InstanceIdentifier<Interfaces> interfacesInstanceIdentifier =  InstanceIdentifier.builder(Interfaces.class).build();
+        Optional<Interfaces> interfacesOptional  = IfmUtil.read(LogicalDatastoreType.CONFIGURATION, interfacesInstanceIdentifier, dataBroker);
+        if (!interfacesOptional.isPresent()) {
+            return vxlanList;
+        }
+        Interfaces interfaces = interfacesOptional.get();
+        List<Interface> interfacesList = interfaces.getInterface();
+        for (Interface iface : interfacesList) {
+            if(IfmUtil.getInterfaceType(iface) == InterfaceInfo.InterfaceType.VXLAN_TRUNK_INTERFACE &&
+                    iface.getAugmentation(IfTunnel.class).isInternal()) {
+                vxlanList.add(iface);
+            }
+        }
+        return vxlanList;
+    }
     public static Interface getInterfaceFromConfigDS(InterfaceKey interfaceKey, DataBroker dataBroker) {
         InstanceIdentifier<Interface> interfaceId = getInterfaceIdentifier(interfaceKey);
         Optional<Interface> interfaceOptional = IfmUtil.read(LogicalDatastoreType.CONFIGURATION, interfaceId, dataBroker);
@@ -112,10 +131,10 @@ public class InterfaceManagerCommonUtils {
                     dpnId, BigInteger.valueOf(portNo) }));
             mkInstructions.add(new InstructionInfo(
                     InstructionType.write_metadata, new BigInteger[] {
-                    MetaDataUtil.getLportTagMetaData(ifIndex),
-                    MetaDataUtil.METADATA_MASK_LPORT_TAG}));
+                            MetaDataUtil.getLportTagMetaData(ifIndex).or(BigInteger.ONE),
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG_SH_FLAG}));
             short tableId = tunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeMplsOverGre.class) ? NwConstants.L3_LFIB_TABLE :
-                    tunnel.isInternal() ? NwConstants.INTERNAL_TUNNEL_TABLE : NwConstants.EXTERNAL_TUNNEL_TABLE;
+                    tunnel.isInternal() ? NwConstants.INTERNAL_TUNNEL_TABLE : NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL;
             mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {tableId}));
         }
 
@@ -312,6 +331,41 @@ public class InterfaceManagerCommonUtils {
         InstanceIdentifier<InterfaceParentEntry> interfaceParentEntryIdentifier = InterfaceMetaUtils.getInterfaceParentEntryIdentifier(interfaceParentEntryKey);
         t.delete(LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIdentifier);
         return true;
+    }
+
+    public static void deleteInterfaceChildEntry(WriteTransaction transaction, DataBroker dataBroker, String parentInterface, String childInterface){
+        InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(parentInterface);
+        InstanceIdentifier<InterfaceParentEntry> interfaceParentEntryIid =
+                InterfaceMetaUtils.getInterfaceParentEntryIdentifier(interfaceParentEntryKey);
+        InterfaceParentEntry interfaceParentEntry =
+                InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryIid, dataBroker);
+
+        if(interfaceParentEntry == null){
+            return;
+        }
+
+        List<InterfaceChildEntry> interfaceChildEntries = interfaceParentEntry.getInterfaceChildEntry();
+        if (interfaceChildEntries.size() <= 1) {
+            transaction.delete(LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIid);
+        } else {
+            InterfaceChildEntryKey interfaceChildEntryKey = new InterfaceChildEntryKey(childInterface);
+            InstanceIdentifier<InterfaceChildEntry> interfaceChildEntryIid =
+                    InterfaceMetaUtils.getInterfaceChildEntryIdentifier(interfaceParentEntryKey, interfaceChildEntryKey);
+            transaction.delete(LogicalDatastoreType.CONFIGURATION, interfaceChildEntryIid);
+        }
+    }
+
+    /*
+     * update operational state of interface based on events like tunnel monitoring
+     */
+    public static void updateOpState(WriteTransaction transaction, String interfaceName,
+                                     org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus operStatus){
+        LOG.debug("updating tep interface state for {}", interfaceName);
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
+                IfmUtil.buildStateInterfaceId(interfaceName);
+        InterfaceBuilder ifaceBuilder = new InterfaceBuilder().setOperStatus(operStatus);
+        ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(interfaceName));
+        transaction.merge(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build());
     }
 
 }

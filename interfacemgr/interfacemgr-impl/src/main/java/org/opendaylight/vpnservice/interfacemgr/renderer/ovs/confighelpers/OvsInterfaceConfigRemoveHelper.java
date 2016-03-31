@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -78,7 +78,7 @@ public class OvsInterfaceConfigRemoveHelper {
     private static void removeVlanConfiguration(DataBroker dataBroker, ParentRefs parentRefs, Interface interfaceOld, WriteTransaction transaction) {
         LOG.debug("removing vlan configuration for {}",interfaceOld.getName());
         IfL2vlan ifL2vlan = interfaceOld.getAugmentation(IfL2vlan.class);
-        if (ifL2vlan == null || ifL2vlan.getL2vlanMode() != IfL2vlan.L2vlanMode.Trunk) {
+        if (ifL2vlan == null || (IfL2vlan.L2vlanMode.Trunk != ifL2vlan.getL2vlanMode() && IfL2vlan.L2vlanMode.Transparent != ifL2vlan.getL2vlanMode())) {
             return;
         }
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState =

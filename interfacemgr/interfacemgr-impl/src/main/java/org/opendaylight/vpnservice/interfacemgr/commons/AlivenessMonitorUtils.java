@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -9,38 +9,20 @@ package org.opendaylight.vpnservice.interfacemgr.commons;
 
 import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.vpnservice.interfacemgr.IfmConstants;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.endpoint.endpoint.type.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.monitor.params.SourceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.monitor.profile.create.input.Profile;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.monitor.profile.create.input.ProfileBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.monitor.start.input.ConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.monitor.id.map.InterfaceMonitorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.monitor.id.map.InterfaceMonitorIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.monitor.id.map.InterfaceMonitorIdKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.bridge.entry.BridgeInterfaceEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.bridge.entry.BridgeInterfaceEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.bridge.entry.BridgeInterfaceEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge.ref.info.BridgeRefEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge.ref.info.BridgeRefEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.monitor.id._interface.map.MonitorIdInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.monitor.id._interface.map.MonitorIdInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.monitor.id._interface.map.MonitorIdInterfaceKey;
@@ -59,22 +41,22 @@ import java.util.concurrent.Future;
 public class AlivenessMonitorUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AlivenessMonitorUtils.class);
-    private static final int FAILURE_THRESHOLD = 4;
-    private static final int MONITORING_INTERVAL = 10000;
-    private static final int MONITORING_WINDOW = 4;
+    private static final long FAILURE_THRESHOLD = 4;
+    private static final long MONITORING_INTERVAL = 10000;
+    private static final long MONITORING_WINDOW = 4;
 
     public static void startLLDPMonitoring(AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
                                             Interface trunkInterface) {
         //LLDP monitoring for the trunk interface
         String trunkInterfaceName = trunkInterface.getName();
         IfTunnel ifTunnel = trunkInterface.getAugmentation(IfTunnel.class);
-        if(ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
-            MonitorStartInput lldpMonitorInput = new MonitorStartInputBuilder().setConfig(new ConfigBuilder()
-                    .setSource(new SourceBuilder().setEndpointType(getInterfaceForMonitoring(trunkInterfaceName,
-                            ifTunnel.getTunnelSource())).build())
-                    .setMode(MonitoringMode.OneOne)
-                    .setProfileId(allocateProfile(alivenessMonitorService, FAILURE_THRESHOLD, MONITORING_INTERVAL, MONITORING_WINDOW,
-                            EtherTypes.Lldp)).build()).build();
+        if(ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class) && ifTunnel.isInternal()) {
+        MonitorStartInput lldpMonitorInput = new MonitorStartInputBuilder().setConfig(new ConfigBuilder()
+             .setSource(new SourceBuilder().setEndpointType(getInterfaceForMonitoring(trunkInterfaceName,
+                     ifTunnel.getTunnelSource())).build())
+             .setMode(MonitoringMode.OneOne)
+             .setProfileId(allocateProfile(alivenessMonitorService, FAILURE_THRESHOLD, ifTunnel.getMonitorInterval(), MONITORING_WINDOW,
+                     EtherTypes.Lldp)).build()).build();
             try {
                 Future<RpcResult<MonitorStartOutput>> result = alivenessMonitorService.monitorStart(lldpMonitorInput);
                 RpcResult<MonitorStartOutput> rpcResult = result.get();
@@ -96,7 +78,7 @@ public class AlivenessMonitorUtils {
     public static void stopLLDPMonitoring(AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
                                           Interface trunkInterface) {
         IfTunnel ifTunnel = trunkInterface.getAugmentation(IfTunnel.class);
-        if(!ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)){
+        if(!(ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)&& ifTunnel.isInternal())){
             return;
         }
         List<Long> monitorIds = getMonitorIdForInterface(dataBroker, trunkInterface.getName());
@@ -153,50 +135,32 @@ public class AlivenessMonitorUtils {
                 endpoint.type.InterfaceBuilder().setInterfaceIp(ipAddress).setInterfaceName(interfaceName).build();
     }
 
-    protected void handleTunnelMonitorEnabledUpdates(AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
-                                                     List<String> interfaceNames, boolean origMonitorEnabled, boolean updatedMonitorEnabled) {
-        for (String interfaceName : interfaceNames) {
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface tunnelInterface =
-                    InterfaceManagerCommonUtils.getInterfaceFromConfigDS(new InterfaceKey(interfaceName), dataBroker);
-            IfTunnel ifTunnel = tunnelInterface.getAugmentation(IfTunnel.class);
-            InterfaceManagerCommonUtils.updateTunnelMonitorDetailsInConfigDS(dataBroker, interfaceName, updatedMonitorEnabled, 3);
-            // Check if monitoring is started already
-            if (getMonitorIdForInterface(dataBroker, interfaceName) != null) {
-                // Get updated Interface details from Config DS
-                if(ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
-                    if (updatedMonitorEnabled) {
-                        startLLDPMonitoring(alivenessMonitorService, dataBroker, tunnelInterface);
-                    } else {
-                        stopLLDPMonitoring(alivenessMonitorService, dataBroker, tunnelInterface);
+    public static void handleTunnelMonitorUpdates(AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
+                                                          Interface interfaceOld, Interface interfaceNew) {
+        String interfaceName = interfaceNew.getName();
+        IfTunnel ifTunnelNew = interfaceNew.getAugmentation(IfTunnel.class);
+        if(!(ifTunnelNew.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)&&
+                ifTunnelNew.isInternal())){
+            return;
+        }
+        LOG.debug("handling tunnel monitoring updates for interface {}", interfaceName);
+        // Restart LLDP monitoring only if it's started already
+        List<Long> monitorIds = getMonitorIdForInterface(dataBroker, interfaceName);
+        if (monitorIds != null && monitorIds.size() > 1) {
+                stopLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceOld);
+                if(ifTunnelNew.isMonitorEnabled()) {
+                    startLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceNew);
+
+                    // Delete old profile from Aliveness Manager
+                    IfTunnel ifTunnelOld = interfaceOld.getAugmentation(IfTunnel.class);
+                    if(ifTunnelNew.getMonitorInterval() != ifTunnelOld.getMonitorInterval()) {
+                        LOG.debug("deleting older monitor profile for interface {}", interfaceName);
+                        long profileId = allocateProfile(alivenessMonitorService, FAILURE_THRESHOLD, ifTunnelOld.getMonitorInterval(), MONITORING_WINDOW, EtherTypes.Lldp);
+                        MonitorProfileDeleteInput profileDeleteInput = new MonitorProfileDeleteInputBuilder().setProfileId(profileId).build();
+                        alivenessMonitorService.monitorProfileDelete(profileDeleteInput);
                     }
                 }
             }
-        }
-    }
-
-    protected void handleTunnelMonitorIntervalUpdates(AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
-                                                      List<String> interfaceNames, long origMonitorInterval, long updatedMonitorInterval) {
-        for (String interfaceName : interfaceNames) {
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface tunnelInterface =
-                    InterfaceManagerCommonUtils.getInterfaceFromConfigDS(new InterfaceKey(interfaceName), dataBroker);
-            IfTunnel ifTunnel = tunnelInterface.getAugmentation(IfTunnel.class);
-            InterfaceManagerCommonUtils.updateTunnelMonitorDetailsInConfigDS(dataBroker, interfaceName, ifTunnel.isMonitorEnabled(), updatedMonitorInterval);
-            // Restart LLDP monitoring only if it's started already
-            List<Long> monitorIds = getMonitorIdForInterface(dataBroker, interfaceName);
-            if (monitorIds != null && monitorIds.size() > 1) {
-                // Get updated Interface details from Config DS
-                if(ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
-                    stopLLDPMonitoring(alivenessMonitorService, dataBroker, tunnelInterface);
-                    startLLDPMonitoring(alivenessMonitorService, dataBroker,tunnelInterface);
-                }
-            }
-        }
-        // Delete old profile from Aliveness Manager
-        if (origMonitorInterval > 0) {
-            long profileId = allocateProfile(alivenessMonitorService, 4, origMonitorInterval, 4, EtherTypes.Lldp);
-            MonitorProfileDeleteInput  profileDeleteInput = new MonitorProfileDeleteInputBuilder().setProfileId(profileId).build();
-            alivenessMonitorService.monitorProfileDelete(profileDeleteInput);
-        }
     }
 
 
@@ -253,11 +217,9 @@ public class AlivenessMonitorUtils {
         return null;
     }
 
-    public static long allocateProfile(AlivenessMonitorService alivenessMonitor, long failureThreshold, long interval, long window, EtherTypes etherType ) {
-        MonitorProfileCreateInput input = new MonitorProfileCreateInputBuilder().setProfile(new ProfileBuilder().setFailureThreshold(failureThreshold)
-                .setMonitorInterval(interval).setMonitorWindow(window).setProtocolType(etherType).build()).build();
+    public static long createMonitorProfile(AlivenessMonitorService alivenessMonitor, MonitorProfileCreateInput monitorProfileCreateInput) {
         try {
-            Future<RpcResult<MonitorProfileCreateOutput>> result = alivenessMonitor.monitorProfileCreate(input);
+            Future<RpcResult<MonitorProfileCreateOutput>> result = alivenessMonitor.monitorProfileCreate(monitorProfileCreateInput);
             RpcResult<MonitorProfileCreateOutput> rpcResult = result.get();
             if(rpcResult.isSuccessful()) {
                 return rpcResult.getResult().getProfileId();
@@ -268,5 +230,27 @@ public class AlivenessMonitorUtils {
             LOG.warn("Exception when allocating profile Id",e);
         }
         return 0;
+    }
+    public static long allocateProfile(AlivenessMonitorService alivenessMonitor, long FAILURE_THRESHOLD, long MONITORING_INTERVAL,
+                                              long MONITORING_WINDOW, EtherTypes etherTypes) {
+        MonitorProfileCreateInput input = new MonitorProfileCreateInputBuilder().
+                setProfile(new ProfileBuilder().setFailureThreshold(FAILURE_THRESHOLD)
+                        .setMonitorInterval(MONITORING_INTERVAL).setMonitorWindow(MONITORING_WINDOW).
+                                setProtocolType(etherTypes).build()).build();
+        return createMonitorProfile(alivenessMonitor, input);
+    }
+
+    public static long allocateDefaultProfile(AlivenessMonitorService alivenessMonitor, EtherTypes etherType ) {
+        MonitorProfileCreateInput input = new MonitorProfileCreateInputBuilder().
+                setProfile(getDefaultMonitorProfile(etherType)).build();
+        return createMonitorProfile(alivenessMonitor, input);
+    }
+
+    public static Profile getDefaultMonitorProfile(EtherTypes etherType) {
+        ProfileBuilder profileBuilder = new ProfileBuilder();
+        profileBuilder.setProtocolType(etherType);
+        profileBuilder.setFailureThreshold(FAILURE_THRESHOLD)
+                    .setMonitorInterval(MONITORING_INTERVAL).setMonitorWindow(MONITORING_WINDOW).setProtocolType(etherType);
+        return profileBuilder.build();
     }
 }
