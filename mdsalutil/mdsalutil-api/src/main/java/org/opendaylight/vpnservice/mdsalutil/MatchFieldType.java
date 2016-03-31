@@ -251,6 +251,64 @@ public enum MatchFieldType {
             }
         }
     },
+    
+    ipv4_destination {
+        @Override
+        protected Class<? extends MatchField> getMatchType() {
+            return Ipv4Dst.class;
+        }
+
+        @Override
+        public void createInnerMatchBuilder(MatchInfo matchInfo, Map<Class<?>, Object> mapMatchBuilder) {
+            Ipv4MatchBuilder ipv4MatchBuilder = (Ipv4MatchBuilder) mapMatchBuilder.get(Ipv4MatchBuilder.class);
+
+            if (ipv4MatchBuilder == null) {
+                ipv4MatchBuilder = new Ipv4MatchBuilder();
+                mapMatchBuilder.put(Ipv4MatchBuilder.class, ipv4MatchBuilder);
+            }
+
+            String[] prefix = matchInfo.getStringMatchValues();
+            ipv4MatchBuilder.setIpv4Destination(new Ipv4Prefix(prefix[0] + "/" + prefix[1])).build();
+        }
+
+        @Override
+        public void setMatch(MatchBuilder matchBuilderInOut, MatchInfo matchInfo, Map<Class<?>, Object> mapMatchBuilder) {
+            Ipv4MatchBuilder ipv4MatchBuilder = (Ipv4MatchBuilder) mapMatchBuilder.remove(Ipv4MatchBuilder.class);
+
+            if (ipv4MatchBuilder != null) {
+                matchBuilderInOut.setLayer3Match(ipv4MatchBuilder.build());
+            }
+        }
+    },
+
+    ipv4_source {
+        @Override
+        protected Class<? extends MatchField> getMatchType() {
+            return Ipv4Src.class;
+        }
+
+        @Override
+        public void createInnerMatchBuilder(MatchInfo matchInfo, Map<Class<?>, Object> mapMatchBuilder) {
+            Ipv4MatchBuilder ipv4MatchBuilder = (Ipv4MatchBuilder) mapMatchBuilder.get(Ipv4MatchBuilder.class);
+
+            if (ipv4MatchBuilder == null) {
+                ipv4MatchBuilder = new Ipv4MatchBuilder();
+                mapMatchBuilder.put(Ipv4MatchBuilder.class, ipv4MatchBuilder);
+            }
+
+            String[] prefix = matchInfo.getStringMatchValues();
+            ipv4MatchBuilder.setIpv4Source(new Ipv4Prefix(prefix[0] + "/" + prefix[1])).build();
+        }
+
+        @Override
+        public void setMatch(MatchBuilder matchBuilderInOut, MatchInfo matchInfo, Map<Class<?>, Object> mapMatchBuilder) {
+            Ipv4MatchBuilder ipv4MatchBuilder = (Ipv4MatchBuilder) mapMatchBuilder.remove(Ipv4MatchBuilder.class);
+
+            if (ipv4MatchBuilder != null) {
+                matchBuilderInOut.setLayer3Match(ipv4MatchBuilder.build());
+            }
+        }
+    },
 
     arp_op {
         @Override

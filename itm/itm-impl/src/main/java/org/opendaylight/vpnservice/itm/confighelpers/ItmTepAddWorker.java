@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015, 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -28,13 +28,16 @@ public class ItmTepAddWorker implements Callable<List<ListenableFuture<Void>>> {
     private List<DPNTEPsInfo> meshedDpnList;
     private List<DPNTEPsInfo> cfgdDpnList ;
     private IMdsalApiManager mdsalManager;
+    private List<HwVtep> cfgdHwVteps;
 
-    public ItmTepAddWorker( List<DPNTEPsInfo> cfgdDpnList,  DataBroker broker, IdManagerService idManagerService, IMdsalApiManager mdsalManager) {
+    public ItmTepAddWorker( List<DPNTEPsInfo> cfgdDpnList, List<HwVtep> hwVtepList, DataBroker broker, IdManagerService idManagerService, IMdsalApiManager mdsalManager) {
         this.cfgdDpnList = cfgdDpnList ;
         this.dataBroker = broker ;
         this.idManagerService = idManagerService;
         this.mdsalManager = mdsalManager;
+        this.cfgdHwVteps = hwVtepList;
         logger.trace("ItmTepAddWorker initialized with  DpnList {}",cfgdDpnList );
+        logger.trace("ItmTepAddWorker initialized with  hwvteplist {}",hwVtepList);
     }
 
     @Override
@@ -45,6 +48,8 @@ public class ItmTepAddWorker implements Callable<List<ListenableFuture<Void>>> {
         futures.addAll( ItmInternalTunnelAddWorker.build_all_tunnels(dataBroker, idManagerService,mdsalManager, cfgdDpnList, meshedDpnList) ) ;
         // IF EXTERNAL TUNNELS NEEDS TO BE BUILT, DO IT HERE. IT COULD BE TO DC GATEWAY OR TOR SWITCH
         //futures.addAll(ItmExternalTunnelAddWorker.buildTunnelsToExternalEndPoint(dataBroker,meshedDpnList, extIp) ;
+        logger.debug("invoking build hwVtepTunnels with hwVteplist {}", cfgdHwVteps );
+        futures.addAll(ItmExternalTunnelAddWorker.buildHwVtepsTunnels(dataBroker, idManagerService,cfgdDpnList,cfgdHwVteps));
         return futures ;
     }
 

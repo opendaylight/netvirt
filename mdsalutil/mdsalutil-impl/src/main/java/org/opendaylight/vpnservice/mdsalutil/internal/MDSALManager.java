@@ -264,7 +264,8 @@ public class MDSALManager implements AutoCloseable {
     public CheckedFuture<Void,TransactionCommitFailedException> removeFlowNew(BigInteger dpnId, Flow flowEntity) {
         s_logger.debug("Remove flow {}",flowEntity);
         Node nodeDpn = buildDpnNode(dpnId);
-        FlowKey flowKey = new FlowKey(new FlowId(flowEntity.getId()));
+		//FlowKey flowKey = new FlowKey(new FlowId(flowEntity.getId()));
+        FlowKey flowKey = new FlowKey(flowEntity.getId());
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
                     .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
                     .child(Table.class, new TableKey(flowEntity.getTableId())).child(Flow.class, flowKey).build();

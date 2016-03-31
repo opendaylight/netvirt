@@ -22,7 +22,9 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PopVlanActionCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.pop.vlan.action._case.PopVlanActionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.set.field._case.SetFieldBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
@@ -39,10 +41,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.M
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.GoToTableCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.WriteActionsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.WriteActionsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.WriteMetadataCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.go.to.table._case.GoToTableBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.write.actions._case.WriteActions;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.write.actions._case.WriteActionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.write.metadata._case.WriteMetadataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
@@ -67,21 +73,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.TunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.controller.liblldp.HexEncode;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.primitives.Bytes;
@@ -89,6 +93,8 @@ import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.CheckedFuture;
 
 public class MDSALUtil {
+
+    public enum MdsalOp {  CREATION_OP, UPDATE_OP, REMOVAL_OP };
 
     public static final String NODE_PREFIX = "openflow";
     public static final int GROUP_WEIGHT = 0;
@@ -136,6 +142,10 @@ public class MDSALUtil {
                 .setBarrier(false).setInstallHw(true).setHardTimeout(hardTimeOut).setIdleTimeout(idleTimeOut)
                 .setFlowName(flowName).setTableId(Short.valueOf(tableId)).setStrict(isStrict)
                 .setCookie(new FlowCookie(cookie)).build();
+    }
+
+    public static Flow buildFlow(short tableId, String flowId) {
+        return new FlowBuilder().setTableId(tableId).setId(new FlowId(flowId)).build();
     }
 
     public static Flow buildFlowNew(short tableId, String flowId, int priority, String flowName, int idleTimeOut,
@@ -195,6 +205,13 @@ public class MDSALUtil {
                 .setIngress(ingress).setEgress(ingress).build();
     }
 
+    public static Action retrieveSetTunnelIdAction(BigInteger tunnelId, int actionKey) {
+        return new ActionBuilder().setAction(
+                new SetFieldCaseBuilder().setSetField(new SetFieldBuilder().setTunnel(new TunnelBuilder()
+                .setTunnelId(tunnelId).build()).build())
+                .build()).setKey(new ActionKey(actionKey)).build();
+    }
+
     public static List<Action> buildActions(List<ActionInfo> actions) {
         List<Action> actionsList = new ArrayList<Action>();
         for (ActionInfo actionInfo : actions) {
@@ -251,7 +268,7 @@ public class MDSALUtil {
         return EMPTY_Buckets;
     }
 
-    protected static Instructions buildInstructions(List<InstructionInfo> listInstructionInfo) {
+    public static Instructions buildInstructions(List<InstructionInfo> listInstructionInfo) {
         if (listInstructionInfo != null) {
             List<Instruction> instructions = new ArrayList<Instruction>();
             int instructionKey = 0;
@@ -345,7 +362,7 @@ public class MDSALUtil {
 
     public static long getDpnIdFromPortName(NodeConnectorId nodeConnectorId) {
         String ofPortName = nodeConnectorId.getValue();
-        return Long.parseLong(ofPortName.substring(ofPortName.indexOf(":")+1, 
+        return Long.parseLong(ofPortName.substring(ofPortName.indexOf(":")+1,
                 ofPortName.lastIndexOf(":")));
     }
 
@@ -366,11 +383,42 @@ public class MDSALUtil {
                 .setKey(new ActionKey(actionKey)).build();
         List<Action> listAction = new ArrayList<Action> ();
         listAction.add(popVlanAction);
+        return buildApplyActionsInstruction(listAction, instructionKey);
+    }
+
+    public static Instruction buildApplyActionsInstruction(List<Action> actions) {
+        return buildApplyActionsInstruction(actions, 0);
+    }
+
+    public static Instruction buildApplyActionsInstruction(List<Action> listAction, int instructionKey) {
         ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
         ApplyActionsCase applyActionsCase = new ApplyActionsCaseBuilder().setApplyActions(applyActions).build();
         InstructionBuilder instructionBuilder = new InstructionBuilder();
 
         instructionBuilder.setInstruction(applyActionsCase);
+        instructionBuilder.setKey(new InstructionKey(instructionKey));
+        return instructionBuilder.build();
+    }
+
+    public static List<Instruction> buildInstructionsDrop() {
+        return buildInstructionsDrop(0);
+    }
+
+    public static List<Instruction> buildInstructionsDrop(int instructionKey) {
+        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List <Action> actionsInfos = new ArrayList <Action> ();
+        actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[]{}).buildAction());
+        mkInstructions.add(getWriteActionsInstruction(actionsInfos, instructionKey));
+        return mkInstructions;
+    }
+
+
+    public static Instruction getWriteActionsInstruction(List<Action> listAction, int instructionKey) {
+        WriteActions writeActions = new WriteActionsBuilder().setAction(listAction).build();
+        WriteActionsCase writeActionsCase = new WriteActionsCaseBuilder().setWriteActions(writeActions).build();
+        InstructionBuilder instructionBuilder = new InstructionBuilder();
+
+        instructionBuilder.setInstruction(writeActionsCase);
         instructionBuilder.setKey(new InstructionKey(instructionKey));
         return instructionBuilder.build();
     }
@@ -529,3 +577,4 @@ public class MDSALUtil {
     }
 
 }
+

@@ -10,14 +10,16 @@ package org.opendaylight.vpnservice.mdsalutil;
 import java.math.BigInteger;
 
 public class MetaDataUtil {
-    public static final BigInteger METADATA_MASK_VRFID = new BigInteger("00000000FFFFFFFF", 16);
-    public static final BigInteger METADATA_MASK_LPORT_TAG = new BigInteger("1FFFFF0000000000", 16);
-    public static final BigInteger METADATA_MASK_SERVICE = new BigInteger("000000FFFF000000", 16);
+    public static final BigInteger METADATA_MASK_VRFID =         new BigInteger("00000000FFFFFFFF", 16);
+    public static final BigInteger METADATA_MASK_LPORT_TAG =     new BigInteger("1FFFFF0000000000", 16);
+    public static final BigInteger METADATA_MASK_SERVICE =       new BigInteger("000000FFFF000000", 16);
     public static final BigInteger METADATA_MASK_SERVICE_INDEX = new BigInteger("E000000000000000", 16);
-    public static final BigInteger METADATA_MASK_LPORT_WRITE = new BigInteger("00FFFF0000000000", 16);
+    public static final BigInteger METADATA_MASK_LPORT_WRITE =   new BigInteger("00FFFF0000000000", 16);
     public static final BigInteger METADA_MASK_VALID_TUNNEL_ID_BIT_AND_TUNNEL_ID = new BigInteger("08000000FFFFFF00", 16);
-    public static final BigInteger METADATA_MASK_LABEL_ITM = new BigInteger("40FFFFFF000000FF", 16);
-    public static final BigInteger METADA_MASK_TUNNEL_ID = new BigInteger("00000000FFFFFF00", 16);
+    public static final BigInteger METADATA_MASK_LABEL_ITM =     new BigInteger("40FFFFFF000000FF", 16);
+    public static final BigInteger METADA_MASK_TUNNEL_ID =       new BigInteger("00000000FFFFFF00", 16);
+    public static final BigInteger METADATA_MASK_SERVICE_SH_FLAG = new BigInteger("000000FFFF000001", 16);
+    public static final BigInteger METADATA_MASK_LPORT_TAG_SH_FLAG =     new BigInteger("1FFFFF0000000001", 16);
 
     public static BigInteger getMetaDataForLPortDispatcher(int lportTag, short serviceIndex) {
         return getServiceIndexMetaData(serviceIndex).or(getLportTagMetaData(lportTag));
@@ -65,5 +67,9 @@ public class MetaDataUtil {
      */
     public static BigInteger getTunnelIdWithValidVniBitAndVniSet(int vni) {
         return BigInteger.valueOf(0X08).shiftLeft(56).or(BigInteger.valueOf(vni).shiftLeft(8));
+    }
+
+    public static long getNatRouterIdFromMetadata(BigInteger metadata){
+        return (metadata.and(METADATA_MASK_VRFID)).longValue();
     }
 }

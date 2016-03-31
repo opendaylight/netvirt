@@ -23,7 +23,7 @@ module itm-rpc {
     import opendaylight-action-types {prefix action;revision-date "2013-11-12";}
     import opendaylight-flow-types {prefix offlow;revision-date "2013-10-26";}
 
-        
+
     revision "2015-12-17" {
         description "ODL Specific Itm Manager Rpcs Module";
     }
@@ -65,13 +65,13 @@ module itm-rpc {
     }
 
     rpc get-external-tunnel-interface-name {
-        description "used to retrieve tunnel interface id between Dpns";
+        description "used to retrieve external tunnel interface id between Dpns/TORs";
         input {
-            leaf source-dpid {
-            type uint64;
+            leaf source-node {
+            type string;
             }
-            leaf destination-ip {
-            type inet:ip-address;
+            leaf destination-node {
+            type string;
             }
         }
         output {
@@ -98,7 +98,7 @@ module itm-rpc {
         }
      }
 
-     rpc add-external-tunnel-endpoint { 
+    rpc add-external-tunnel-endpoint {
         description "used for building tunnels between teps on all Dpns and external node";
         input {
             leaf destination-ip {
@@ -110,7 +110,7 @@ module itm-rpc {
             }
             }
         }
-     }
+    }
     rpc remove-external-tunnel-from-dpns {
         description "used for building tunnels between a Dpn and external node";
         input {
@@ -155,16 +155,46 @@ module itm-rpc {
          }
      }
 
-     rpc remove-terminating-service-actions {
-              description  "used for removing the terminating service actions";
-              input {
-                  leaf dpn-id {
+    rpc remove-terminating-service-actions {
+        description  "used for removing the terminating service actions";
+        input {
+            leaf dpn-id {
                     type uint64;
-                  }
-                  leaf service-id {
-                     type uint16;
-                  }
-              }
-     }
+            }
+            leaf service-id {
+                type uint16;
+            }
+        }
+    }
+
+    rpc add-l2-gw-device {
+        description "used for building tunnels between teps on all Dpns and hwVtep";
+        input {
+            leaf topology-id {
+                type string;
+            }
+            leaf node-id {
+                type string;
+            }
+            leaf ip-address {
+                type inet:ip-address;
+            }
+        }
+    }
+
+    rpc delete-l2-gw-device {
+        description "used for deleting tunnels between teps on all Dpns and hwVtep";
+        input {
+            leaf topology-id {
+                type string;
+            }
+            leaf node-id {
+                type string;
+            }
+            leaf ip-address {
+                type inet:ip-address;
+            }
+        }
+    }
 
 }
