@@ -22,4 +22,11 @@ public class VpnConstants {
     public static final BigInteger COOKIE_L3_BASE = new BigInteger("8000000", 16);
     public static final String FLOWID_PREFIX = "L3.";
     public static final long WAIT_TIME_IN_MILLISECONDS = 5000;
+    public static final int ELAN_GID_MIN = 200000;
+    public static final short ELAN_SMAC_TABLE = 50;
+    public static final short FIB_TABLE = 21;
+    public static byte[] EthernetDestination_Broadcast = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
+    public static byte[] MAC_Broadcast = new byte[] { (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0 };
+
 }

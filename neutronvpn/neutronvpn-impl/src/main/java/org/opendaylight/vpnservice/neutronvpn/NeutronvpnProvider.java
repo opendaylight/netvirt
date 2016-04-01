@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,6 +8,8 @@
 package org.opendaylight.vpnservice.neutronvpn;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
+import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
@@ -23,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.lockmanager.rev150819.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.NeutronvpnService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +46,14 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private L2GatewayProvider l2GatewayProvider;
     private EntityOwnershipService entityOwnershipService;
     private BindingNormalizedNodeSerializer bindingNormalizedNodeSerializer;
+    private NotificationPublishService notificationPublishService;
+    private NotificationService notificationService;
 
-    public NeutronvpnProvider(RpcProviderRegistry rpcRegistry) {
+    public NeutronvpnProvider(RpcProviderRegistry rpcRegistry,NotificationPublishService notificationPublishService,
+                              NotificationService notificationService) {
         this.rpcProviderRegistry = rpcRegistry;
+        this.notificationPublishService = notificationPublishService;
+        this.notificationService = notificationService;
     }
 
     public RpcProviderRegistry getRpcProviderRegistry() {
@@ -76,14 +84,15 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     public void onSessionInitiated(ProviderContext session) {
         try {
             final DataBroker dbx = session.getSALService(DataBroker.class);
-            nvManager = new NeutronvpnManager(dbx, mdsalManager);
+            nvManager = new NeutronvpnManager(dbx, mdsalManager,notificationPublishService,notificationService);
             final BindingAwareBroker.RpcRegistration<NeutronvpnService> rpcRegistration =
                     getRpcProviderRegistry().addRpcImplementation(NeutronvpnService.class, nvManager);
             bgpvpnListener = new NeutronBgpvpnChangeListener(dbx, nvManager);
             networkListener = new NeutronNetworkChangeListener(dbx, nvManager);
             subnetListener = new NeutronSubnetChangeListener(dbx, nvManager);
             routerListener = new NeutronRouterChangeListener(dbx, nvManager);
-            portListener = new NeutronPortChangeListener(dbx, nvManager);
+            portListener = new NeutronPortChangeListener(dbx, nvManager,notificationPublishService,notificationService);
+            portListener.setLockManager(lockManager);
             nvManager.setLockManager(lockManager);
             l2GatewayProvider = new L2GatewayProvider(dbx, rpcProviderRegistry, entityOwnershipService,
                     bindingNormalizedNodeSerializer);

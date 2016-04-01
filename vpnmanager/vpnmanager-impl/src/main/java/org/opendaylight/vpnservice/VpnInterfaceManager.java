@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.JdkFutureAdapters;
 import org.opendaylight.controller.md.sal.binding.api.*;
 import org.opendaylight.vpnservice.mdsalutil.*;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.AdjacencyKey;
@@ -48,6 +49,7 @@ import java.util.concurrent.*;
 
 import com.google.common.base.Optional;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.bgpmanager.api.IBgpManager;
 import org.opendaylight.fibmanager.api.IFibManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
@@ -87,6 +89,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     private ItmRpcService itmProvider;
     private IdManagerService idManager;
     private OdlArputilService arpManager;
+    private NeutronvpnService neuService;
+    private VpnSubnetRouteHandler vpnSubnetRouteHandler;
     private InterfaceStateChangeListener interfaceListener;
     private VpnInterfaceOpListener vpnInterfaceOpListener;
     private ArpNotificationHandler arpNotificationHandler;
@@ -107,6 +111,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         vpnInterfaceOpListener = new VpnInterfaceOpListener();
         arpNotificationHandler = new ArpNotificationHandler(this, broker);
         notificationService.registerNotificationListener(arpNotificationHandler);
+        vpnSubnetRouteHandler = new VpnSubnetRouteHandler(broker, bgpManager, this);
+        notificationService.registerNotificationListener(vpnSubnetRouteHandler);
         registerListener(db);
     }
 
@@ -129,10 +135,17 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
     public void setIdManager(IdManagerService idManager) {
         this.idManager = idManager;
+        vpnSubnetRouteHandler.setIdManager(idManager);
     }
 
     public void setArpManager(OdlArputilService arpManager) {
         this.arpManager = arpManager;
+    }
+
+    public void setNeutronvpnManager(NeutronvpnService neuService) { this.neuService = neuService; }
+
+    public VpnSubnetRouteHandler getVpnSubnetRouteHandler() {
+        return this.vpnSubnetRouteHandler;
     }
 
     @Override
@@ -249,6 +262,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                           InterfaceUtils.buildServiceId(vpnInterfaceName, VpnConstants.L3VPN_SERVICE_IDENTIFIER), serviceInfo);
         makeArpFlow(dpId, VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName,
                     vpnId, ArpReplyOrRequest.REQUEST, NwConstants.ADD_FLOW);
+        makeArpFlow(dpId, VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName,
+                vpnId, ArpReplyOrRequest.REPLY, NwConstants.ADD_FLOW);
 
     }
 
@@ -536,6 +551,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         long vpnId = VpnUtil.getVpnId(broker, vpnInstanceName);
         makeArpFlow(dpId, VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName,
                     vpnId, ArpReplyOrRequest.REQUEST, NwConstants.DEL_FLOW);
+        makeArpFlow(dpId, VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName,
+                vpnId, ArpReplyOrRequest.REPLY, NwConstants.DEL_FLOW);
     }
 
 
@@ -749,12 +766,11 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 (rd != null) ? rd : routerID, destination),
             VpnUtil.getVpnToExtraroute(destination, nextHop));
 
-        if(intfName != null && !intfName.isEmpty()) {
+        if (intfName != null && !intfName.isEmpty()) {
             BigInteger dpnId = InterfaceUtils.getDpnForInterface(interfaceManager, intfName);
             String nextHopIp = InterfaceUtils.getEndpointIpAddressForDPN(broker, dpnId);
-            if (nextHopIp == null && !nextHopIp.isEmpty()) {
-                LOG.error("NextHop for interface {} is null. Adding extra route {} without nextHop", intfName,
-                        destination);
+            if (nextHopIp == null || nextHopIp.isEmpty()) {
+                LOG.warn("NextHop for interface {} is null / empty. Failed advertising extra route for prefix {}", intfName, destination);
             }
             nextHop = nextHopIp;
         }

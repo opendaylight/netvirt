@@ -62,6 +62,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.vpnservice</groupId>
+      <artifactId>neutronvpn-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.vpnservice</groupId>
+      <artifactId>elanmanager-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>sal-binding-broker-impl</artifactId>
     </dependency>

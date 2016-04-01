@@ -9,11 +9,13 @@
 package org.opendaylight.vpnservice;
 
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.List;
 
 import com.google.common.base.Optional;
+import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -24,6 +26,8 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.vpnservice.mdsalutil.NwConstants;
+import org.opendaylight.vpnservice.mdsalutil.packet.ARP;
+import org.opendaylight.vpnservice.mdsalutil.packet.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -53,6 +57,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extr
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.ElanDpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdPools;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPoolKey;
@@ -62,6 +70,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.IfIndexesInterfaceMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.NeutronPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data.PortFixedipToPortName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data.PortFixedipToPortNameKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.tag.name.map.ElanTagName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.ElanTagNameMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.tag.name.map.ElanTagNameKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -309,6 +326,8 @@ public class VpnUtil {
             result = tx.read(datastoreType, path).get();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            tx.close();
         }
 
         return result;
@@ -359,6 +378,83 @@ public class VpnUtil {
             LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data);
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    public static long getRemoteBCGroup(long elanTag) {
+        return VpnConstants.ELAN_GID_MIN + ((elanTag % VpnConstants.ELAN_GID_MIN) *2);
+    }
+
+    // interface-index-tag operational container
+    public static IfIndexInterface getInterfaceInfoByInterfaceTag(DataBroker broker, long interfaceTag) {
+        InstanceIdentifier<IfIndexInterface> interfaceId = getInterfaceInfoEntriesOperationalDataPath(interfaceTag);
+        Optional<IfIndexInterface> existingInterfaceInfo = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, interfaceId);
+        if(existingInterfaceInfo.isPresent()) {
+            return existingInterfaceInfo.get();
+        }
+        return null;
+    }
+
+    private static InstanceIdentifier<IfIndexInterface> getInterfaceInfoEntriesOperationalDataPath(long interfaceTag) {
+        return InstanceIdentifier.builder(IfIndexesInterfaceMap.class).child(IfIndexInterface.class,
+                new IfIndexInterfaceKey((int) interfaceTag)).build();
+    }
+
+    public static String getNeutronPortNamefromPortFixedIp(DataBroker broker, String fixedIp) {
+        InstanceIdentifier id = buildFixedIpToPortNameIdentifier(fixedIp);
+        Optional<PortFixedipToPortName> portFixedipToPortNameData = read(broker, LogicalDatastoreType.CONFIGURATION,
+                id);
+        if (portFixedipToPortNameData.isPresent()) {
+            return portFixedipToPortNameData.get().getPortName();
+        }
+        return null;
+    }
+
+    private static InstanceIdentifier<PortFixedipToPortName> buildFixedIpToPortNameIdentifier(String fixedIp) {
+        InstanceIdentifier<PortFixedipToPortName> id = InstanceIdentifier.builder(NeutronPortData.class).child
+                (PortFixedipToPortName.class, new PortFixedipToPortNameKey(fixedIp)).build();
+        return id;
+    }
+
+    public static ElanTagName getElanInfoByElanTag(DataBroker broker,long elanTag) {
+        InstanceIdentifier<ElanTagName> elanId = getElanInfoEntriesOperationalDataPath(elanTag);
+        Optional<ElanTagName> existingElanInfo = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanId);
+        if(existingElanInfo.isPresent()) {
+            return existingElanInfo.get();
+        }
+        return null;
+    }
+
+    private static InstanceIdentifier<ElanTagName> getElanInfoEntriesOperationalDataPath(long elanTag) {
+        return InstanceIdentifier.builder(ElanTagNameMap.class).child(ElanTagName.class,
+                new ElanTagNameKey(elanTag)).build();
+    }
+
+
+    public static boolean isIpInSubnet(int ipAddress, String subnetCidr) {
+        String[] subSplit = subnetCidr.split("/");
+        LOG.trace("SubnetRoutePacketInHandler: Viewing Subnet Split " + subSplit);
+        if (subSplit.length < 2) {
+            return false;
+        }
+
+        String subnetStr = subSplit[0];
+        int subnet = 0;
+        try {
+            InetAddress subnetAddress = InetAddress.getByName(subnetStr);
+            subnet = Ints.fromByteArray(subnetAddress.getAddress());
+        } catch (Exception ex) {
+            LOG.error("Passed in Subnet IP string not convertible to InetAdddress " + subnetStr);
+            return false;
+        }
+        int prefixLength = Integer.valueOf(subSplit[1]);
+        int mask = -1 << (32 - prefixLength);
+        LOG.trace("SubnetRoutePacketInHandler: prefixLength " + prefixLength + " mask " + mask);
+        LOG.trace("SubnetRoutePacketInHandler: subnet & mask " + (subnet & mask));
+        LOG.trace("SubnetRoutePacketInHandler: subnet & mask " + (ipAddress & mask));
+        if ((subnet & mask) == (ipAddress & mask)) {
+            return true;
+        }
+        return false;
     }
 
 }

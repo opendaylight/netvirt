@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -12,6 +12,8 @@ import com.google.common.base.Optional;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
+import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.mdsalutil.AbstractDataChangeListener;
@@ -33,6 +35,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.ParentRefsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.lockmanager.rev150819.LockManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.PortAddedToSubnetBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.PortRemovedFromSubnetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data
         .PortFixedipToPortNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.subnetmaps.Subnetmap;
@@ -52,13 +57,22 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private NeutronvpnManager nvpnManager;
+    private LockManagerService lockManager;
+    private NotificationPublishService notificationPublishService;
+    private NotificationService notificationService;
 
 
-    public NeutronPortChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr) {
+    public NeutronPortChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,NotificationPublishService notiPublishService, NotificationService notiService) {
         super(Port.class);
         broker = db;
         nvpnManager = nVpnMgr;
+        notificationPublishService = notiPublishService;
+        notificationService = notiService;
         registerListener(db);
+    }
+
+    public void setLockManager(LockManagerService lockManager) {
+        this.lockManager = lockManager;
     }
 
     @Override
@@ -245,6 +259,8 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         Uuid vpnId = null;
         Subnetmap subnetmap = null;
         String infName = port.getUuid().getValue();
+        boolean isLockAcquired = false;
+        String lockName = port.getUuid().getValue();
 
         // find the subnet to which this port is associated
         FixedIps ip = port.getFixedIps().get(0);
@@ -260,6 +276,19 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         if (subnetmap != null) {
             vpnId = subnetmap.getVpnId();
         }
+        if(vpnId != null) {
+            try {
+                isLockAcquired = NeutronvpnUtils.lock(lockManager, lockName);
+                checkAndPublishPortAddNotification(subnetmap.getSubnetIp(), subnetId, port.getUuid());
+                LOG.debug("Port added to subnet notification sent");
+            } catch (Exception e) {
+                LOG.error("Port added to subnet notification failed", e);
+            } finally {
+                if (isLockAcquired) {
+                    NeutronvpnUtils.unlock(lockManager, lockName);
+                }
+            }
+        }
         return vpnId;
     }
 
@@ -267,6 +296,8 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         Uuid subnetId = null;
         Uuid vpnId = null;
         Subnetmap subnetmap = null;
+        boolean isLockAcquired = false;
+        String lockName = port.getUuid().getValue();
 
         // find the subnet to which this port is associated
         FixedIps ip = port.getFixedIps().get(0);
@@ -279,6 +310,43 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         if (subnetmap != null) {
             vpnId = subnetmap.getVpnId();
         }
+        if(vpnId != null) {
+            try {
+                isLockAcquired = NeutronvpnUtils.lock(lockManager, lockName);
+                checkAndPublishPortRemoveNotification(subnetmap.getSubnetIp(), subnetId, port.getUuid());
+                LOG.debug("Port removed from subnet notification sent");
+            } catch (Exception e) {
+                LOG.error("Port removed from subnet notification failed", e);
+            } finally {
+                if (isLockAcquired) {
+                    NeutronvpnUtils.unlock(lockManager, lockName);
+                }
+            }
+        }
         return vpnId;
+    }
+
+    private void checkAndPublishPortAddNotification(String subnetIp, Uuid subnetId, Uuid portId)throws InterruptedException{
+        PortAddedToSubnetBuilder builder = new PortAddedToSubnetBuilder();
+
+        LOG.info("publish notification called");
+
+        builder.setSubnetIp(subnetIp);
+        builder.setSubnetId(subnetId);
+        builder.setPortId(portId);
+
+        notificationPublishService.putNotification(builder.build());
+    }
+
+    private void checkAndPublishPortRemoveNotification(String subnetIp, Uuid subnetId, Uuid portId)throws InterruptedException{
+        PortRemovedFromSubnetBuilder builder = new PortRemovedFromSubnetBuilder();
+
+        LOG.info("publish notification called");
+
+        builder.setPortId(portId);
+        builder.setSubnetIp(subnetIp);
+        builder.setSubnetId(subnetId);
+
+        notificationPublishService.putNotification(builder.build());
     }
 }

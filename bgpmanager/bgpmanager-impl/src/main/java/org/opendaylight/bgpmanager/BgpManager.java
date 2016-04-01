@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -137,6 +137,16 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
     public void deletePrefix(String rd, String prefix) throws Exception {
       fibDSWriter.removeFibEntryFromDS(rd, prefix);
       bcm.delPrefix(rd, prefix);
+    }
+
+    @Override
+    public void advertisePrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception {
+        bcm.addPrefix(rd, prefix, nextHop, vpnLabel);
+    }
+
+    @Override
+    public void withdrawPrefix(String rd, String prefix) throws Exception {
+        bcm.delPrefix(rd, prefix);
     }
 
     public void setQbgpLog(String fileName, String debugLevel) throws Exception {

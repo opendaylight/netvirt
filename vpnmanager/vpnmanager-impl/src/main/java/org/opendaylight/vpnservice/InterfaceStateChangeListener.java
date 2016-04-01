@@ -85,6 +85,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
           }
         } else {
           vpnInterfaceManager.processVpnInterfaceUp(dpnId, interfaceName, intrf.getIfIndex());
+          vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceUp(intrf);
         }
       } catch (Exception e) {
         LOG.error("Exception caught in Interface Operational State Up event", e);
@@ -110,6 +111,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
         } else {
           if (VpnUtil.isVpnInterfaceConfigured(broker, interfaceName)) {
             vpnInterfaceManager.processVpnInterfaceDown(dpId, interfaceName, intrf.getIfIndex(), true);
+            vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceDown(intrf);
           }
         }
       } catch (Exception e) {
@@ -131,9 +133,11 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
         if(update.getOperStatus().equals(Interface.OperStatus.Up)) {
           //advertise all prefixes in all vpns for this dpn to bgp
           // vpnInterfaceManager.updatePrefixesForDPN(dpnId, VpnInterfaceManager.UpdateRouteAction.ADVERTISE_ROUTE);
+                    vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceUp(update);
         } else if(update.getOperStatus().equals(Interface.OperStatus.Down)) {
           //withdraw all prefixes in all vpns for this dpn from bgp
           // vpnInterfaceManager.updatePrefixesForDPN(dpnId, VpnInterfaceManager.UpdateRouteAction.WITHDRAW_ROUTE);
+                   vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceDown(update);
         }*/
       }
 

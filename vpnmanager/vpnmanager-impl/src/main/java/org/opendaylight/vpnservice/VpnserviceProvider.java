@@ -18,6 +18,7 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderCo
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.fibmanager.api.IFibManager;
 import org.opendaylight.vpnmanager.api.IVpnManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
@@ -25,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.arputil.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,9 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
     private ItmRpcService itmProvider;
     private IdManagerService idManager;
     private OdlArputilService arpManager;
+    private NeutronvpnService neuService;
+    private PacketProcessingService m_packetProcessingService;
+    private SubnetRoutePacketInHandler subnetRoutePacketInHandler;
     private NotificationService notificationService;
 
     @Override
@@ -57,6 +62,12 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
             vpnInterfaceManager.setITMProvider(itmProvider);
             vpnInterfaceManager.setIdManager(idManager);
             vpnInterfaceManager.setArpManager(arpManager);
+            vpnInterfaceManager.setNeutronvpnManager(neuService);
+            //Handles subnet route entries
+            subnetRoutePacketInHandler = new SubnetRoutePacketInHandler(dataBroker, idManager);
+            m_packetProcessingService = session.getRpcService(PacketProcessingService.class);
+            subnetRoutePacketInHandler.setPacketProcessingService(m_packetProcessingService);
+            notificationService.registerNotificationListener(subnetRoutePacketInHandler);
             vpnManager.setVpnInterfaceManager(vpnInterfaceManager);
             createIdPool();
         } catch (Exception e) {
@@ -75,10 +86,6 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
 
     public void setMdsalManager(IMdsalApiManager mdsalManager) {
         this.mdsalManager = mdsalManager;
-    }
-
-    public void setFibManager(IFibManager fibManager) {
-        this.fibManager = fibManager;
     }
 
     public void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {

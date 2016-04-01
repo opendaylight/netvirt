@@ -301,4 +301,93 @@ module neutronvpn {
         }
     }
 
+    notification subnet-added-to-vpn{
+            description "new subnet added to vpn";
+            leaf subnet-id {
+                type yang:uuid;
+            }
+            leaf subnet-ip {
+                type string;
+            }
+            leaf vpn-name {
+                type string;
+            }
+            leaf external-vpn {
+                type boolean;
+            }
+            leaf elan-tag {
+                type uint32;
+            }
+    }
+
+    notification subnet-deleted-from-vpn{
+            description "subnet deleted from vpn";
+            leaf subnet-id {
+                type yang:uuid;
+            }
+            leaf subnet-ip {
+                type string;
+            }
+            leaf vpn-name {
+                type string;
+            }
+            leaf external-vpn {
+                type boolean;
+            }
+            leaf elan-tag {
+                type uint32;
+            }
+    }
+
+    notification subnet-updated-in-vpn{
+            description "subnet updated in vpn";
+            leaf subnet-id {
+                 type yang:uuid;
+            }
+            leaf subnet-ip {
+                 type string;
+            }
+            leaf vpn-name {
+                 type string;
+            }
+            leaf external-vpn {
+                 type boolean;
+            }
+            leaf elan-tag {
+                type uint32;
+            }
+    }
+
+    notification port-added-to-subnet{
+            description "new port added to subnet";
+            leaf subnet-id{
+                type yang:uuid;
+            }
+            leaf subnet-ip{
+                type string;
+            }
+            leaf port-id{
+                type yang:uuid;
+            }
+            leaf elan-tag {
+                type uint32;
+            }
+    }
+
+    notification port-removed-from-subnet{
+            description "port removed from subnet";
+            leaf subnet-id{
+                type yang:uuid;
+            }
+            leaf subnet-ip{
+                type string;
+            }
+            leaf port-id{
+                type yang:uuid;
+            }
+            leaf elan-tag {
+                type uint32;
+            }
+    }
+
 }

@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import org.opendaylight.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -63,6 +64,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
     private VpnInterfaceManager vpnInterfaceManager;
     private final FibEntriesListener fibListener;
     private final VpnInstanceOpListener vpnInstOpListener;
+    private NotificationService notificationService;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
             new FutureCallback<Void>() {

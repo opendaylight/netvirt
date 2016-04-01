@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -48,6 +48,22 @@ public interface IBgpManager {
      * @param logLevel
      */
     public void setQbgpLog(String fileName, String logLevel) throws Exception;
+
+    /**
+     * @param rd
+     * @param prefix
+     * @param nextHop
+     * @param vpnLabel
+     */
+    public void advertisePrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception;
+
+    /**
+     *
+     * @param rd
+     * @param prefix
+     */
+    public void withdrawPrefix(String rd, String prefix) throws Exception;
+
 
     public String getDCGwIP();
 

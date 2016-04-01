@@ -68,6 +68,23 @@ module neutronvpn-impl {
                     }
                 }
             }
+
+            container notification-publish-service {
+                uses config:service-ref {
+                    refine type {
+                         mandatory true;
+                         config:required-identity md-sal-binding-impl:binding-new-notification-publish-service;
+                    }
+                }
+            }
+            container notification-service {
+                uses config:service-ref {
+                    refine type {
+                         mandatory true;
+                         config:required-identity md-sal-binding-impl:binding-new-notification-service;
+                         }
+                }
+            }
         }
     }
 }
