@@ -146,7 +146,7 @@ public class AlivenessMonitorUtils {
         LOG.debug("handling tunnel monitoring updates for interface {}", interfaceName);
         // Restart LLDP monitoring only if it's started already
         List<Long> monitorIds = getMonitorIdForInterface(dataBroker, interfaceName);
-        if (monitorIds != null && monitorIds.size() > 1) {
+        if (monitorIds != null && !monitorIds.isEmpty()) {
                 stopLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceOld);
                 if(ifTunnelNew.isMonitorEnabled()) {
                     startLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceNew);
