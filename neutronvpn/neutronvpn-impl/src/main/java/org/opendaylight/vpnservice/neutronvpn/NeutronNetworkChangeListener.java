@@ -76,7 +76,7 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
             LOG.trace("Adding Network : key: " + identifier + ", value=" + input);
         }
         //Create ELAN instance for this network
-        createElanInstance(input.getUuid().getValue());
+        createElanInstance(input);
     }
 
     @Override
@@ -96,13 +96,19 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         }
     }
 
-    private void createElanInstance(String elanInstanceName) {
-        ElanInstance elanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName).setKey(new
-                ElanInstanceKey(elanInstanceName)).build();
+    private void createElanInstance(Network input) {
+        String elanInstanceName = input.getUuid().getValue();
+        String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(input);
+        ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName);
+        if (segmentationId != null) {
+            //TODO: Uncomment below line while ELAN changes are ported
+            //elanInstanceBuilder.setVni(Long.valueOf(segmentationId));
+        }
+        elanInstanceBuilder.setKey(new ElanInstanceKey(elanInstanceName));
+        ElanInstance elanInstance = elanInstanceBuilder.build();
         InstanceIdentifier<ElanInstance> id = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
         MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
-
     }
 
     private void deleteElanInstance(String elanInstanceName) {
