@@ -65,6 +65,17 @@ module aliveness-monitor {
         }
     }
 
+    rpc monitor-profile-get {
+            input {
+                container profile {
+                    uses monitor-profile-params;
+                }
+            }
+            output {
+                leaf profile-id { type uint32; }
+            }
+        }
+
     rpc monitor-start {
         input {
             container config {

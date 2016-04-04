@@ -170,7 +170,7 @@ public class InterfaceManagerTestUtil {
         IpAddress remoteIp = new IpAddress(Ipv4Address.getDefaultInstance(remoteIpStr));
         IpAddress localIp =  new IpAddress(Ipv4Address.getDefaultInstance(localIpStr));
         IfTunnel tunnel = new IfTunnelBuilder().setTunnelDestination(remoteIp).setTunnelGateway(localIp).setTunnelSource(localIp)
-                    .setTunnelInterfaceType( tunType).setInternal(true).build();
+                    .setTunnelInterfaceType( tunType).setInternal(true).setMonitorEnabled(false).build();
         builder.addAugmentation(IfTunnel.class, tunnel);
         return builder.build();
     }

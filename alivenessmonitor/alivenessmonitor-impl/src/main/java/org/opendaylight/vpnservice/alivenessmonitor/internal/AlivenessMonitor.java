@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -52,6 +52,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.MonitorStopInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.MonitorUnpauseInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.MonitoringMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.MonitorProfileGetInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.MonitorProfileGetOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.MonitorProfileGetOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629._interface.monitor.map.InterfaceMonitorEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629._interface.monitor.map.InterfaceMonitorEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629._interface.monitor.map.InterfaceMonitorEntryKey;
@@ -555,10 +558,13 @@ public class AlivenessMonitor implements AlivenessMonitorService, PacketProcessi
                 WriteTransaction tx = broker.newWriteOnlyTransaction();
 
                 tx.put(LogicalDatastoreType.OPERATIONAL, getMonitoringInfoId(monitorId), monitoringInfo, CREATE_MISSING_PARENT);
+                LOG.debug("adding oper monitoring info {}", monitoringInfo);
 
                 tx.put(LogicalDatastoreType.OPERATIONAL, getMonitorStateId(monitoringKey), monitoringState, CREATE_MISSING_PARENT);
+                LOG.debug("adding oper monitoring state {}", monitoringState);
 
                 tx.put(LogicalDatastoreType.OPERATIONAL, getMonitorMapId(monitorId), mapEntry, CREATE_MISSING_PARENT);
+                LOG.debug("adding oper map entry {}", mapEntry);
 
                 Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
                     @Override
@@ -968,6 +974,36 @@ public class AlivenessMonitor implements AlivenessMonitorService, PacketProcessi
             }
         }, callbackExecutorService);
         return result;
+    }
+
+
+    @Override
+    public Future<RpcResult<MonitorProfileGetOutput>> monitorProfileGet(MonitorProfileGetInput input){
+        LOG.debug("Monitor Profile Get operation for input profile- {}", input.getProfile());
+        RpcResultBuilder<MonitorProfileGetOutput> rpcResultBuilder;
+        try{
+            final Long profileId = getExistingProfileId(input);
+
+            MonitorProfileGetOutputBuilder output = new MonitorProfileGetOutputBuilder().setProfileId(profileId);
+            rpcResultBuilder = RpcResultBuilder.success();
+            rpcResultBuilder.withResult(output.build());
+        }catch(Exception e){
+            LOG.error("Retrieval of monitor profile ID for input {} failed due to {}" , input, e);
+            rpcResultBuilder = RpcResultBuilder.failed();
+        }
+        return Futures.immediateFuture(rpcResultBuilder.build());
+    }
+
+    private Long getExistingProfileId(MonitorProfileGetInput input){
+        org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.monitor.profile.get.input.Profile profile = input.getProfile();
+        final Long failureThreshold = profile.getFailureThreshold();
+        final Long monitorInterval = profile.getMonitorInterval();
+        final Long monitorWindow = profile.getMonitorWindow();
+        final EtherTypes ethType = profile.getProtocolType();
+        LOG.debug("getExistingProfileId for profile : {}", input.getProfile());
+        String idKey = getUniqueProfileKey(failureThreshold, monitorInterval, monitorWindow, ethType);
+        LOG.debug("Obtained existing profile ID for profile : {}", input.getProfile());
+        return (Long.valueOf(getUniqueId(idKey)));
     }
 
     private String getUniqueProfileKey(Long failureThreshold,Long monitorInterval,Long monitorWindow,EtherTypes ethType) {

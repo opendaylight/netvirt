@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -23,6 +23,7 @@ import org.opendaylight.controller.liblldp.LLDPTLV;
 import org.opendaylight.controller.liblldp.LLDPTLV.TLVType;
 import org.opendaylight.controller.liblldp.Packet;
 import org.opendaylight.controller.liblldp.PacketException;
+import org.opendaylight.vpnservice.interfacemgr.globals.IfmConstants;
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.ActionType;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
@@ -139,7 +140,8 @@ public class AlivenessProtocolHandlerLLDP extends AbstractAlivenessProtocolHandl
         }
 
         //Get Mac Address for the source interface
-        byte[] sourceMac = getMacAddress(sourceInterface);
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState = getInterfaceFromOperDS(sourceInterface);
+        byte[] sourceMac = getMacAddress(interfaceState, sourceInterface);
         if(sourceMac == null) {
             LOG.error("Could not read mac address for the source interface {} from the Inventory. "
                     + "LLDP packet cannot be send.", sourceInterface);
@@ -150,26 +152,19 @@ public class AlivenessProtocolHandlerLLDP extends AbstractAlivenessProtocolHandl
 
         long nodeId = -1, portNum = -1;
         try {
-            GetPortFromInterfaceInput input = new GetPortFromInterfaceInputBuilder().setIntfName(sourceInterface).build();
-            Future<RpcResult<GetPortFromInterfaceOutput>> portOutput = interfaceService.getPortFromInterface(input);
-            RpcResult<GetPortFromInterfaceOutput> result = portOutput.get();
-            if(result.isSuccessful()) {
-                GetPortFromInterfaceOutput output = result.getResult();
-                nodeId = output.getDpid().longValue();
-                portNum = output.getPortno();
-            } else {
-                LOG.error("Could not retrieve port details for interface {}", sourceInterface);
-                return;
-            }
-        }catch(InterruptedException | ExecutionException e) {
-            LOG.error("Failed to retrieve interface service RPC Result ", e);
+            String lowerLayerIf = interfaceState.getLowerLayerIf().get(0);
+            NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
+            nodeId = Long.valueOf(getDpnFromNodeConnectorId(nodeConnectorId));
+            portNum = Long.valueOf(getPortNoFromNodeConnectorId(nodeConnectorId));
+        }catch(Exception e) {
+            LOG.error("Failed to retrieve node id and port number ", e);
             return;
         }
 
         Ethernet ethenetLLDPPacket = makeLLDPPacket(Long.toString(nodeId), portNum, 0, sourceMac, sourceInterface);
 
         try {
-            List<ActionInfo> actions = getInterfaceActions(sourceInterface, portNum);
+            List<ActionInfo> actions = getInterfaceActions(interfaceState, portNum);
             if(actions.isEmpty()) {
                 LOG.error("No interface actions to send packet out over interface {}", sourceInterface);
                 return;
@@ -182,14 +177,27 @@ public class AlivenessProtocolHandlerLLDP extends AbstractAlivenessProtocolHandl
         }
     }
 
-    private List<ActionInfo> getInterfaceActions(String interfaceName, long portNum) throws InterruptedException, ExecutionException {
+    public static String getDpnFromNodeConnectorId(NodeConnectorId portId) {
+        /*
+         * NodeConnectorId is of form 'openflow:dpnid:portnum'
+         */
+        String[] split = portId.getValue().split(IfmConstants.OF_URI_SEPARATOR);
+        return split[1];
+    }
+
+    public static String getPortNoFromNodeConnectorId(NodeConnectorId portId) {
+        /*
+         * NodeConnectorId is of form 'openflow:dpnid:portnum'
+         */
+        String[] split = portId.getValue().split(IfmConstants.OF_URI_SEPARATOR);
+        return split[2];
+    }
+    private List<ActionInfo> getInterfaceActions(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState,long portNum) throws InterruptedException, ExecutionException {
         Class<? extends InterfaceType> intfType;
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface interfaceInfo =
-                                                                                                     getInterfaceFromConfigDS(interfaceName);
-        if(interfaceInfo != null) {
-            intfType = interfaceInfo.getType();
+        if(interfaceState != null) {
+            intfType = interfaceState.getType();
         } else {
-            LOG.error("Could not retrieve port type for interface {} to construct actions", interfaceName);
+            LOG.error("Could not retrieve port type for interface {} to construct actions", interfaceState.getName());
             return Collections.emptyList();
         }
 

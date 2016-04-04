@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -13,6 +13,7 @@ import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetNodeconnectorIdFromInterfaceInputBuilder;
@@ -81,13 +82,22 @@ abstract class AbstractAlivenessProtocolHandler implements AlivenessProtocolHand
         return new NodeId(ncId.getValue().substring(0,ncId.getValue().lastIndexOf(":")));
     }
 
-    protected byte[] getMacAddress(String interfaceName) {
-        InstanceIdentifier<NodeConnector> ncId = getNodeConnectorId(interfaceName);
-        if(ncId != null) {
-            String macAddress = inventoryReader.getMacAddress(ncId);
-            if(!Strings.isNullOrEmpty(macAddress)) {
-                return AlivenessMonitorUtil.parseMacAddress(macAddress);
-            }
+    protected org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceFromOperDS(String interfaceName){
+        InstanceIdentifier.InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> idBuilder =
+                InstanceIdentifier.builder(InterfacesState.class).child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class,
+                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(interfaceName));
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> id = idBuilder.build();
+        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> interfaceStateOptional = read(LogicalDatastoreType.OPERATIONAL, id);
+        if(interfaceStateOptional.isPresent()) {
+            return interfaceStateOptional.get();
+        }
+        return null;
+    }
+
+    protected byte[] getMacAddress(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState, String interfaceName) {
+        String macAddress = interfaceState.getPhysAddress().getValue();
+        if(!Strings.isNullOrEmpty(macAddress)) {
+            return AlivenessMonitorUtil.parseMacAddress(macAddress);
         }
         return null;
     }

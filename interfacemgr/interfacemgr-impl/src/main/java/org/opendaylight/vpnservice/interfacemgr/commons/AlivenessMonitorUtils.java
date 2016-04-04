@@ -224,13 +224,37 @@ public class AlivenessMonitorUtils {
             if(rpcResult.isSuccessful()) {
                 return rpcResult.getResult().getProfileId();
             } else {
-                LOG.warn("RPC Call to Get Profile Id Id returned with Errors {}", rpcResult.getErrors());
+                LOG.warn("RPC Call to Get Profile Id Id returned with Errors {}.. Trying to fetch existing profile ID", rpcResult.getErrors());
+                try{
+                    Profile createProfile = monitorProfileCreateInput.getProfile();
+                    Future<RpcResult<MonitorProfileGetOutput>> existingProfile = alivenessMonitor.monitorProfileGet(buildMonitorGetProfile(createProfile.getMonitorInterval(), createProfile.getMonitorWindow(), createProfile.getFailureThreshold(), createProfile.getProtocolType()));
+                    RpcResult<MonitorProfileGetOutput> rpcGetResult = existingProfile.get();
+                    if(rpcGetResult.isSuccessful()){
+                        return rpcGetResult.getResult().getProfileId();
+                    }else{
+                        LOG.warn("RPC Call to Get Existing Profile Id returned with Errors {}", rpcGetResult.getErrors());
+                    }
+                }catch(Exception e){
+                    LOG.warn("Exception when getting existing profile",e);
+                }
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when allocating profile Id",e);
         }
         return 0;
     }
+
+    private static MonitorProfileGetInput buildMonitorGetProfile(long monitorInterval, long monitorWindow, long failureThreshold, EtherTypes protocolType){
+        MonitorProfileGetInputBuilder buildGetProfile = new MonitorProfileGetInputBuilder();
+        org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.monitor.profile.get.input.ProfileBuilder profileBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.monitor.profile.get.input.ProfileBuilder();
+        profileBuilder.setFailureThreshold(failureThreshold);
+        profileBuilder.setMonitorInterval(monitorInterval);
+        profileBuilder.setMonitorWindow(monitorWindow);
+        profileBuilder.setProtocolType(protocolType);
+        buildGetProfile.setProfile(profileBuilder.build());
+        return (buildGetProfile.build());
+    };
+
     public static long allocateProfile(AlivenessMonitorService alivenessMonitor, long FAILURE_THRESHOLD, long MONITORING_INTERVAL,
                                               long MONITORING_WINDOW, EtherTypes etherTypes) {
         MonitorProfileCreateInput input = new MonitorProfileCreateInputBuilder().
