@@ -12,8 +12,11 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.vpnservice.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.vpnservice.neutronvpn.l2gw.L2GatewayProvider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -37,6 +40,9 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private NeutronRouterChangeListener routerListener;
     private NeutronPortChangeListener portListener;
     private RpcProviderRegistry rpcProviderRegistry;
+    private L2GatewayProvider l2GatewayProvider;
+    private EntityOwnershipService entityOwnershipService;
+    private BindingNormalizedNodeSerializer bindingNormalizedNodeSerializer;
 
     public NeutronvpnProvider(RpcProviderRegistry rpcRegistry) {
         this.rpcProviderRegistry = rpcRegistry;
@@ -58,6 +64,14 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
         this.lockManager = lockManager;
     }
 
+    public void setEntityOwnershipService(EntityOwnershipService entityOwnershipService) {
+        this.entityOwnershipService = entityOwnershipService;
+    }
+
+    public void setBindingNormalizedNodeSerializer(BindingNormalizedNodeSerializer bindingNormalizedNodeSerializer) {
+        this.bindingNormalizedNodeSerializer = bindingNormalizedNodeSerializer;
+    }
+
     @Override
     public void onSessionInitiated(ProviderContext session) {
         try {
@@ -71,6 +85,8 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
             routerListener = new NeutronRouterChangeListener(dbx, nvManager);
             portListener = new NeutronPortChangeListener(dbx, nvManager);
             nvManager.setLockManager(lockManager);
+            l2GatewayProvider = new L2GatewayProvider(dbx, rpcProviderRegistry, entityOwnershipService,
+                    bindingNormalizedNodeSerializer);
 
             LOG.info("NeutronvpnProvider Session Initiated");
         } catch (Exception e) {
@@ -86,6 +102,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
         networkListener.close();
         bgpvpnListener.close();
         nvManager.close();
+        l2GatewayProvider.close();
         LOG.info("NeutronvpnProvider Closed");
     }
 

@@ -52,6 +52,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>lockmanager-api</artifactId>
             <version>${vpnservices.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.vpnservice</groupId>
+            <artifactId>itm-api</artifactId>
+            <version>${vpnservices.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.ovsdb</groupId>
+            <artifactId>hwvtepsouthbound-api</artifactId>
+            <version>${vpns.ovsdb.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

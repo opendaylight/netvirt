@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.router
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
@@ -180,6 +181,15 @@ public class NeutronvpnUtils {
             return net.get();
         }
         return null;
+    }
+
+    protected static String getSegmentationIdFromNeutronNetwork(Network network) {
+        String segmentationId = null;
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        if (providerExtension != null) {
+            segmentationId = providerExtension.getSegmentationId();
+        }
+        return segmentationId;
     }
 
     protected static List<Uuid> getNeutronRouterSubnetIds(DataBroker broker, Uuid routerId) {
