@@ -6,7 +6,10 @@ module elan {
     import ietf-interfaces {
         prefix if;
     }
-
+    import ietf-inet-types {
+        prefix inet;
+        revision-date "2010-09-24";
+    }
     import ietf-yang-types {
         prefix yang;
     }
@@ -16,47 +19,52 @@ module elan {
         description "elan module";
     }
 
-  /*
-   * elan instance view.
-   */
-  container elan-instances {
-    description
-      "elan instances configuration parameters.
-       elan instances support both the VLAN and VNI based elans.";
-
-    list elan-instance {
-        max-elements "unbounded";
-        min-elements "0";
-        key "elan-instance-name";
+    /*
+    * elan instance view.
+    */
+    container elan-instances {
         description
-            "Specifies the name of the elan instance. It is a string of 1 to 31
-             case-sensitive characters.";
-        leaf elan-instance-name {
-            type string;
-            description
-              "The name of the elan-instance.";
-        }
-        leaf elan-tag {
-            type    uint32;
-            description "ELAN unique identifier which is unique across all the tenants. This will be created internally and if provided, the value will be discarded.";
-        }
-        leaf mac-timeout {
-            type uint32 {
-              range "0..65535";
-            }
-            description "MAC Table entry ageing time in seconds. A value of 0 will indicate that the MAC will never expire.";
-        }
-        leaf description {
-            description
-                "A textual description of elan instance, the elan instance description
-                helps users memorize the elan instance.";
+           "elan instances configuration parameters. Elan instances support both the VLAN and VNI based elans.";
 
-            type string {
-                length "1..254";
+        list elan-instance {
+            max-elements "unbounded";
+            min-elements "0";
+            key "elan-instance-name";
+            description
+                "Specifies the name of the elan instance. It is a string of 1 to 31
+                 case-sensitive characters.";
+            leaf elan-instance-name {
+                type string;
+                description "The name of the elan-instance.";
+            }
+            leaf elan-tag {
+                type    uint32;
+                description "ELAN unique identifier which is unique across all the tenants.
+                             This will be created internally and if provided, the value will be discarded.";
+            }
+            leaf vni {
+                type    uint32;
+                description "Optional. Network identifier. It's mandatory when there are external devices
+                             participating in the ELAN";
+            }
+            leaf mac-timeout {
+                type uint32 {
+                    range "0..65535";
+                }
+                description "MAC Table entry ageing time in seconds.
+                             A value of 0 will indicate that the MAC will never expire.";
+            }
+            leaf description {
+                description
+                    "A textual description of elan instance, the elan instance description
+                    helps users memorize the elan instance.";
+
+                type string {
+                    length "1..254";
+                }
             }
         }
     }
-  }
 
   /*
    * Binding Interfaces to a elan Instance.

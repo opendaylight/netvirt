@@ -140,6 +140,11 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     }
 
     private void handleNeutronPortCreated(Port port) {
+        if (!NeutronvpnUtils.isPortVnicTypeNormal(port)) {
+            LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created",
+                    port.getUuid().getValue());
+            return;
+        }
         LOG.info("Of-port-interface creation");
         // Create of-port interface for this neutron port
         String portInterfaceName = createOfPortInterface(port);

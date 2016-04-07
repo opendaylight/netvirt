@@ -6,6 +6,7 @@ module elanservice-impl {
     import config { prefix config; revision-date 2013-04-05; }
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
     import opendaylight-sal-binding-broker-impl { prefix md-sal-binding-impl; revision-date 2013-10-28;}
+    import opendaylight-entity-ownership-service { prefix eos; revision-date 2015-08-10;}
     import elanmanager-api { prefix elanmgr-api; revision-date 2015-07-07;}
     import odl-mdsalutil { prefix odl-mdsal; revision-date 2015-04-10;}
     import odl-interface {prefix odlif; revision-date 2015-03-31;}
@@ -73,6 +74,22 @@ module elanservice-impl {
                     refine type {
                         mandatory true;
                         config:required-identity md-sal-binding-impl:binding-new-notification-service;
+                    }
+                }
+            }
+            container entity-ownership-service {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity eos:entity-ownership-service;
+                    }
+                }
+            }
+            container binding-normalized-node-serializer {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-normalized-node-serializer;
                     }
                 }
             }

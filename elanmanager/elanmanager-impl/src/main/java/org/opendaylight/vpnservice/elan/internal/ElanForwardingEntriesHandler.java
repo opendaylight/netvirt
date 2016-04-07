@@ -107,6 +107,7 @@ public class ElanForwardingEntriesHandler extends AbstractDataChangeListener<Ela
     public void deleteElanInterfaceForwardingEntries(ElanInstance elanInfo, InterfaceInfo interfaceInfo, MacEntry macEntry) {
         InstanceIdentifier<MacEntry> macEntryId = ElanUtils.getMacEntryOperationalDataPath(elanInfo.getElanInstanceName(), macEntry.getMacAddress());
         ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
+        deleteElanInterfaceForwardingTablesList(interfaceInfo.getInterfaceName(), macEntry);
         ElanUtils.deleteMacFlows(elanInfo, interfaceInfo, macEntry);
     }
 

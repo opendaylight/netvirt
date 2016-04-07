@@ -14,6 +14,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
@@ -223,6 +224,33 @@ public final class HwvtepUtils {
     }
 
     /**
+     * Gets the physical locator.
+     *
+     * @param broker
+     *            the broker
+     * @param datastoreType
+     *            the datastore type
+     * @param nodeId
+     *            the node id
+     * @param phyLocatorIp
+     *            the phy locator ip
+     * @return the physical locator
+     */
+    public static HwvtepPhysicalLocatorAugmentation getPhysicalLocator(DataBroker broker,
+            LogicalDatastoreType datastoreType, NodeId nodeId, final IpAddress phyLocatorIp) {
+        HwvtepPhysicalLocatorAugmentation phyLocatorAug = HwvtepSouthboundUtils
+                .createHwvtepPhysicalLocatorAugmentation(String.valueOf(phyLocatorIp.getValue()));
+        InstanceIdentifier<HwvtepPhysicalLocatorAugmentation> iid = HwvtepSouthboundUtils
+                .createPhysicalLocatorInstanceIdentifier(nodeId, phyLocatorAug)
+                .augmentation(HwvtepPhysicalLocatorAugmentation.class);
+        Optional<HwvtepPhysicalLocatorAugmentation> optPhyLocator = MDSALUtil.read(broker, datastoreType, iid);
+        if (optPhyLocator.isPresent()) {
+            return optPhyLocator.get();
+        }
+        return null;
+    }
+
+    /**
      * Adds the remote ucast macs into config DS.
      *
      * @param broker
@@ -271,8 +299,9 @@ public final class HwvtepUtils {
      */
     public static void putRemoteUcastMac(final WriteTransaction transaction, final NodeId nodeId,
             RemoteUcastMacs remoteUcastMac) {
-        InstanceIdentifier<RemoteUcastMacs> iid = HwvtepSouthboundUtils.createInstanceIdentifier(nodeId).augmentation(HwvtepGlobalAugmentation.class)
-        .child(RemoteUcastMacs.class, new RemoteUcastMacsKey(remoteUcastMac.getLogicalSwitchRef(), remoteUcastMac.getMacEntryKey()));
+        InstanceIdentifier<RemoteUcastMacs> iid = HwvtepSouthboundUtils.createInstanceIdentifier(nodeId)
+                .augmentation(HwvtepGlobalAugmentation.class).child(RemoteUcastMacs.class,
+                        new RemoteUcastMacsKey(remoteUcastMac.getLogicalSwitchRef(), remoteUcastMac.getMacEntryKey()));
         transaction.put(LogicalDatastoreType.CONFIGURATION, iid, remoteUcastMac, true);
     }
 
@@ -342,8 +371,7 @@ public final class HwvtepUtils {
      *            the mac
      */
     public static void deleteRemoteUcastMac(final WriteTransaction transaction, final NodeId nodeId,
-            String logialSwitchName,
-            final MacAddress mac) {
+            String logialSwitchName, final MacAddress mac) {
         transaction.delete(LogicalDatastoreType.CONFIGURATION,
                 HwvtepSouthboundUtils.createRemoteUcastMacsInstanceIdentifier(nodeId, logialSwitchName, mac));
     }
@@ -400,6 +428,30 @@ public final class HwvtepUtils {
         InstanceIdentifier<RemoteMcastMacs> iid = HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(nodeId,
                 remoteMcastMac.getKey());
         transaction.put(LogicalDatastoreType.CONFIGURATION, iid, remoteMcastMac, true);
+    }
+
+    /**
+     * Gets the remote mcast mac.
+     *
+     * @param broker
+     *            the broker
+     * @param datastoreType
+     *            the datastore type
+     * @param nodeId
+     *            the node id
+     * @param remoteMcastMacsKey
+     *            the remote mcast macs key
+     * @return the remote mcast mac
+     */
+    public static RemoteMcastMacs getRemoteMcastMac(DataBroker broker, LogicalDatastoreType datastoreType,
+            NodeId nodeId, RemoteMcastMacsKey remoteMcastMacsKey) {
+        final InstanceIdentifier<RemoteMcastMacs> iid = HwvtepSouthboundUtils
+                .createRemoteMcastMacsInstanceIdentifier(nodeId, remoteMcastMacsKey);
+        Optional<RemoteMcastMacs> optRemoteMcastMac = MDSALUtil.read(broker, datastoreType, iid);
+        if (optRemoteMcastMac.isPresent()) {
+            return optRemoteMcastMac.get();
+        }
+        return null;
     }
 
     /**

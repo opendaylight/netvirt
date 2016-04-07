@@ -11,6 +11,7 @@ package org.opendaylight.vpnservice.neutronvpn.api.l2gw;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -35,6 +36,9 @@ public class L2GatewayDevice {
 
     /** The ucast local macs. */
     List<LocalUcastMacs> ucastLocalMacs = Collections.synchronizedList(new ArrayList<LocalUcastMacs>());
+
+    /** the status of this device connectin */
+    AtomicBoolean connected = new AtomicBoolean(true);
 
     /**
      * VTEP device name mentioned with L2 Gateway.
@@ -179,6 +183,14 @@ public class L2GatewayDevice {
      */
     public void removeUcastLocalMac(LocalUcastMacs localUcastMacs) {
         ucastLocalMacs.remove(localUcastMacs);
+    }
+
+    public boolean isConnected() {
+        return connected.get();
+    }
+
+    public void setConnected(boolean connected) {
+        this.connected.set(connected);
     }
 
     /*

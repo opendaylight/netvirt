@@ -101,8 +101,7 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(input);
         ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName);
         if (segmentationId != null) {
-            //TODO: Uncomment below line while ELAN changes are ported
-            //elanInstanceBuilder.setVni(Long.valueOf(segmentationId));
+            elanInstanceBuilder.setVni(Long.valueOf(segmentationId));
         }
         elanInstanceBuilder.setKey(new ElanInstanceKey(elanInstanceName));
         ElanInstance elanInstance = elanInstanceBuilder.build();

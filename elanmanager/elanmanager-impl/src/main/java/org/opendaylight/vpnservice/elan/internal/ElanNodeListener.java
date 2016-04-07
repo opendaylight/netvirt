@@ -71,6 +71,10 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> {
     protected void add(InstanceIdentifier<Node> identifier, Node add) {
         NodeId nodeId = add.getId();
         String[] node =  nodeId.getValue().split(":");
+        if(node.length < 2) {
+            logger.warn("Unexpected nodeId {}", nodeId.getValue());
+            return;
+        }
         BigInteger dpId = new BigInteger(node[1]);
         createTableMissEntry(dpId);
     }

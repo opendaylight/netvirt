@@ -64,6 +64,9 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
     }
 
 
+    /**
+     * Starts listening for changes in elan.yang:elan-instance container
+     */
     public void registerListener() {
         try {
             elanInstanceListenerRegistration = broker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
@@ -86,19 +89,19 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
     }
 
     @Override
-    protected void remove(InstanceIdentifier<ElanInstance> identifier, ElanInstance del) {
-        logger.trace("Remove ElanInstance - Key: {}, value: {}", identifier, del);
-        String elanName = del.getElanInstanceName();
+    protected void remove(InstanceIdentifier<ElanInstance> identifier, ElanInstance deletedElan) {
+        logger.trace("Remove ElanInstance - Key: {}, value: {}", identifier, deletedElan);
+        String elanName = deletedElan.getElanInstanceName();
         //check the elan Instance present in the Operational DataStore
         Elan existingElan = ElanUtils.getElanByName(elanName);
-        long elanTag = del.getElanTag();
+        long elanTag = deletedElan.getElanTag();
         //Cleaning up the existing Elan Instance
         if(existingElan != null) {
             List<String> elanInterfaces =  existingElan.getElanInterfaces();
             if(elanInterfaces != null && !elanInterfaces.isEmpty()) {
                 for (String elanInterfaceName : elanInterfaces) {
                     InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils.getElanInterfaceConfigurationDataPathId(elanInterfaceName);
-                    elanInterfaceManager.removeElanInterface(del, elanInterfaceName);
+                    elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName);
                     ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
                 }
             }
@@ -118,10 +121,7 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
             return;
         } else if (update.getElanTag() == null) {
             // update the elan-Instance with new properties
-            if(original.getMacTimeout().equals(update.getMacTimeout()) && original.getDescription().equalsIgnoreCase(update.getDescription())) {
-               return;
-            }
-            ElanUtils.UpdateOperationalDataStore(broker, idManager, update);
+            ElanUtils.updateOperationalDataStore(broker, idManager, update);
             return;
         }
         elanInterfaceManager.handleunprocessedElanInterfaces(update);
@@ -131,7 +131,7 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance elanInstanceAdded) {
         Elan elanInfo = ElanUtils.getElanByName(elanInstanceAdded.getElanInstanceName());
         if(elanInfo == null) {
-            ElanUtils.UpdateOperationalDataStore(broker, idManager, elanInstanceAdded);
+            ElanUtils.updateOperationalDataStore(broker, idManager, elanInstanceAdded);
         }
     }
 

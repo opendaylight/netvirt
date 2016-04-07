@@ -5,7 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.elanservice.impl.rev150216;
-public class ElanServiceImplModuleFactory extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.elanservice.impl.rev150216.AbstractElanServiceImplModuleFactory {
+package org.opendaylight.vpnservice.elan.statusanddiag;
+
+public interface ElanStatusMonitorMBean {
+
+    public String acquireServiceStatus();
 
 }

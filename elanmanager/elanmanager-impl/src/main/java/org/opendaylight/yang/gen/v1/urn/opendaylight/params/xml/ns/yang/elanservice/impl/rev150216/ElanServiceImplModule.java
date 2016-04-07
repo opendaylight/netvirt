@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.elanservice.impl.rev150216;
 
 import org.opendaylight.vpnservice.elan.internal.ElanServiceProvider;
@@ -30,7 +37,10 @@ public class ElanServiceImplModule extends org.opendaylight.yang.gen.v1.urn.open
         provider.setInterfaceManager(getOdlinterfaceDependency());
         provider.setInterfaceManagerRpcService(rpcregistryDependency.getRpcService(OdlInterfaceRpcService.class));
         provider.setItmRpcService(rpcregistryDependency.getRpcService(ItmRpcService.class));
+        provider.setItmManager(getItmmanagerDependency());
         provider.setIdManager(idManager);
+        provider.setEntityOwnershipService(getEntityOwnershipServiceDependency());
+        provider.setBindingNormalizedNodeSerializer(getBindingNormalizedNodeSerializerDependency());
         getBrokerDependency().registerProvider(provider);
         return provider;
     }

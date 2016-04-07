@@ -63,5 +63,9 @@
                 <property name="interfaceManager" ref="interfaceManagerRef" />
             </action>
         </command>
+	<command>
+            <action class="org.opendaylight.vpnservice.elan.cli.l2gw.L2GwUtilsCacheCli">
+            </action>
+        </command>
     </command-bundle>
 </blueprint>

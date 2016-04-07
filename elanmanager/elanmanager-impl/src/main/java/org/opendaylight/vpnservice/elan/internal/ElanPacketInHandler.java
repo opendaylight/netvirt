@@ -7,24 +7,27 @@
  */
 package org.opendaylight.vpnservice.elan.internal;
 
+import java.math.BigInteger;
+
+import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.vpnservice.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.vpnservice.elan.utils.ElanConstants;
 import org.opendaylight.vpnservice.elan.utils.ElanUtils;
-//import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
 import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
 import org.opendaylight.vpnservice.mdsalutil.NWUtil;
-import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.vpnservice.mdsalutil.packet.Ethernet;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.NoMatch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketInReason;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.interfacemgr.impl.rev150325.InterfacemgrImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.state.Elan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.tag.name.map.ElanTagName;
@@ -36,8 +39,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class ElanPacketInHandler implements PacketProcessingListener {
 
     private final DataBroker broker;
@@ -72,15 +79,18 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
                 long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
 
-                IfIndexInterface interfaceInfo = ElanUtils.getInterfaceInfoByInterfaceTag(portTag);
-                if (interfaceInfo == null) {
+                Optional<IfIndexInterface> interfaceInfoOp = ElanUtils.getInterfaceInfoByInterfaceTag(portTag);
+                if (!interfaceInfoOp.isPresent()) {
                     logger.warn("There is no interface for given portTag {}", portTag);
                     return;
                 }
-                String interfaceName = interfaceInfo.getInterfaceName();
+                String interfaceName = interfaceInfoOp.get().getInterfaceName();
                 ElanTagName elanTagName = ElanUtils.getElanInfoByElanTag(elanTag);
+                if (elanTagName == null) {
+                    logger.warn("not able to find elanTagName in elan-tag-name-map for elan tag {}", elanTag);
+                    return;
+                }
                 String elanName = elanTagName.getName();
-                Elan elanInfo = ElanUtils.getElanByName(elanName);
                 MacEntry macEntry = ElanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
                 if(macEntry != null && macEntry.getInterface() == interfaceName) {
                     BigInteger macTimeStamp = macEntry.getControllerLearnedForwardingEntryTimestamp();
@@ -122,6 +132,9 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, elanMacEntryId, macEntry);
                 ElanInstance elanInstance = ElanUtils.getElanInstanceByName(elanName);
                 ElanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), elanInstance.getMacTimeout(), macAddress);
+
+                BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
+                ElanL2GatewayUtils.installMacsInElanExternalDevices(elanInstance, dpId, Arrays.asList(physAddress));
             } catch (Exception e) {
                 logger.trace("Failed to decode packet: {}", e);
             }
@@ -150,6 +163,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
             return;
         }
         ElanUtils.deleteMacFlows(elanInfo, oldInterfaceLport, macEntry);
+        ElanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo, Arrays.asList(macEntry.getMacAddress()));
     }
 
 }

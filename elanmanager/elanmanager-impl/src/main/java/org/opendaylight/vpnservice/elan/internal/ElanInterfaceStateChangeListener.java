@@ -82,7 +82,7 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
         }
 
         logger.trace("ElanService Interface Operational state has changes for Interface:{}", interfaceName);
-        elanInterfaceManager.handleInterfaceUpated(interfaceInfo, elanInfo , isStateUp);
+        elanInterfaceManager.handleInterfaceUpdated(interfaceInfo, elanInfo , isStateUp);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
             return;
         }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(delIf.getLowerLayerIf().get(0));
-        BigInteger dpId = MDSALUtil.getDpnIdFromNodeName(nodeConnectorId.getValue());
+        BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         InterfaceInfo interfaceInfo = new InterfaceInfo(dpId, nodeConnectorId.getValue());
         interfaceInfo.setInterfaceName(interfaceName);
         interfaceInfo.setInterfaceType(InterfaceInfo.InterfaceType.VLAN_INTERFACE);
@@ -162,7 +162,7 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
         if (tunnelList.getInternalTunnel() != null) {
             List<InternalTunnel> internalTunnels = tunnelList.getInternalTunnel();
             for (InternalTunnel tunnel : internalTunnels) {
-                if (internalTunnel.getTunnelInterfaceName().equalsIgnoreCase(interfaceName)) {
+                if (tunnel.getTunnelInterfaceName().equalsIgnoreCase(interfaceName)) {
                     internalTunnel = tunnel;
                     break;
                 }
