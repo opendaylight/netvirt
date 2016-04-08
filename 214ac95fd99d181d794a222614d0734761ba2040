@@ -1,0 +1,7 @@
+Verified+1: jenkins-ovsdb <jenkins-ovsdb@opendaylight.org>
+Code-Review+2: Madhu Venugopal <mavenugo@gmail.com>
+Submitted-by: Madhu Venugopal <mavenugo@gmail.com>
+Submitted-at: Fri, 18 Apr 2014 20:33:38 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/6290
+Project: netvirt
+Branch: refs/heads/topic/schema
