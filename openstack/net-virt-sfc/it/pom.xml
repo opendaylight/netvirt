@@ -25,7 +25,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <packaging>jar</packaging>
 
   <properties>
-    <karaf.distro.groupId>org.opendaylight.ovsdb</karaf.distro.groupId>
+    <karaf.distro.groupId>org.opendaylight.netvirt</karaf.distro.groupId>
     <karaf.distro.artifactId>openstack.net-virt-sfc-karaf</karaf.distro.artifactId>
     <karaf.distro.version>${project.version}</karaf.distro.version>
     <karaf.distro.type>zip</karaf.distro.type>

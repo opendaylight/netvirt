@@ -43,7 +43,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <properties>
     <controller.mdsal.version>1.4.0-SNAPSHOT</controller.mdsal.version>
-    <karaf.distro.groupId>org.opendaylight.ovsdb</karaf.distro.groupId>
+    <karaf.distro.groupId>org.opendaylight.netvirt</karaf.distro.groupId>
     <karaf.distro.artifactId>karaf</karaf.distro.artifactId>
     <karaf.distro.version>${project.version}</karaf.distro.version>
     <karaf.distro.type>zip</karaf.distro.type>
