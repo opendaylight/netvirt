@@ -15,7 +15,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <relativePath/>
     </parent>
 
-    <groupId>org.opendaylight.ovsdb</groupId>
+    <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>ovsdb-ui-bundle</artifactId>
     <version>1.2.3-SNAPSHOT</version>
     <packaging>bundle</packaging>
@@ -27,8 +27,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:ssh://git.opendaylight.org:29418/ovsdb.git</connection>
-        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/ovsdb.git</developerConnection>
+        <connection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</connection>
+        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</developerConnection>
         <tag>HEAD</tag>
         <url>https://wiki.opendaylight.org/view/OVSDB_Integration:Main</url>
     </scm>
@@ -44,7 +44,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           <version>${dlux.version}</version>
         </dependency>
         <dependency>
-          <groupId>org.opendaylight.ovsdb</groupId>
+          <groupId>org.opendaylight.netvirt</groupId>
           <artifactId>ovsdb-ui-module</artifactId>
           <version>${project.version}</version>
         </dependency>
@@ -72,7 +72,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                 <configuration>
                <artifactItems>
                    <artifactItem>
-                      <groupId>org.opendaylight.ovsdb</groupId>
+                      <groupId>org.opendaylight.netvirt</groupId>
                       <artifactId>ovsdb-ui-module</artifactId>
                       <version>${project.version}</version>
                       <overWrite>true</overWrite>

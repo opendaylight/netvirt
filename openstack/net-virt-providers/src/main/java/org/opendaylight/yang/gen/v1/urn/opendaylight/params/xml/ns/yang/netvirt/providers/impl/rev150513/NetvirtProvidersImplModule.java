@@ -1,7 +1,7 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.providers.impl.rev150513;
 
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import org.opendaylight.ovsdb.openstack.netvirt.providers.NetvirtProvidersProvider;
+import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
 import org.osgi.framework.BundleContext;
 
 public class NetvirtProvidersImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.providers.impl.rev150513.AbstractNetvirtProvidersImplModule {

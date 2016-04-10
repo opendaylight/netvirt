@@ -19,24 +19,19 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.opendaylight.ovsdb</groupId>
+  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>openstack.net-virt-sfc-impl</artifactId>
   <version>1.2.3-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <properties>
     <openflowplugin.version>0.2.2-SNAPSHOT</openflowplugin.version>
-    <sfc.version>0.2.2-SNAPSHOT</sfc.version>
+    <ovsdb.version>1.3.0-SNAPSHOT</ovsdb.version>
+    <sfc.version>0.3.0-SNAPSHOT</sfc.version>
     <sonar.jacoco.itReportPath>../it/target/jacoco-it.exec</sonar.jacoco.itReportPath>
   </properties>
 
   <dependencies>
-    <!-- project specific dependencies -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>openstack.net-virt-sfc-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>openstack.net-virt</artifactId>
@@ -48,14 +43,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>southbound-api</artifactId>
-      <version>${project.version}</version>
+      <version>${ovsdb.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>southbound-impl</artifactId>
-      <version>${project.version}</version>
+      <version>${ovsdb.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -72,7 +67,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>utils.servicehelper</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- openflowplugin dependencies -->
     <dependency>
       <groupId>org.opendaylight.openflowplugin</groupId>
       <artifactId>openflowplugin-extension-nicira</artifactId>
@@ -93,7 +87,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>model-flow-service</artifactId>
       <version>${openflowplugin.version}</version>
     </dependency>
-    <!-- mdsal dependencies -->
     <dependency>
       <groupId>org.opendaylight.mdsal.model</groupId>
       <artifactId>ietf-topology</artifactId>
@@ -102,7 +95,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <groupId>org.opendaylight.mdsal.model</groupId>
       <artifactId>iana-if-type-2014-05-08</artifactId>
     </dependency>
-    <!-- sfc dependencies -->
     <dependency>
       <groupId>org.opendaylight.sfc</groupId>
       <artifactId>sfc-model</artifactId>
@@ -113,7 +105,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>sfc-provider</artifactId>
       <version>${sfc.version}</version>
     </dependency>
-    <!-- external dependencies -->
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-jacoco-listeners</artifactId>
@@ -125,7 +116,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- testing dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -136,6 +126,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>mockito-all</artifactId>
       <version>1.10.19</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>openstack.net-virt-sfc-api</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
@@ -150,8 +145,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <Embed-Dependency>utils.mdsal-openflow;type=!pom;inline=false</Embed-Dependency>
             <Embed-Transitive>true</Embed-Transitive>
             <Export-Package>
-              org.opendaylight.ovsdb.openstack.netvirt.sfc,
-              org.opendaylight.ovsdb.openstack.netvirt.sfc.workaround.services
+              org.opendaylight.netvirt.openstack.netvirt.sfc,
+              org.opendaylight.netvirt.openstack.netvirt.sfc.workaround.services
             </Export-Package>
           </instructions>
         </configuration>
