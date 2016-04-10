@@ -10,7 +10,7 @@
     <relativePath/>
   </parent>
 
-  <groupId>org.opendaylight.ovsdb</groupId>
+  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>utils.mdsal-utils</artifactId>
   <version>1.2.3-SNAPSHOT</version>
   <packaging>bundle</packaging>
@@ -23,8 +23,8 @@
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:ssh://git.opendaylight.org:29418/ovsdb.git</connection>
-    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/ovsdb.git</developerConnection>
+    <connection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</connection>
+    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</developerConnection>
     <tag>HEAD</tag>
     <url>https://wiki.opendaylight.org/view/OVSDB_Integration:Main</url>
   </scm>
@@ -34,13 +34,6 @@
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>sal-binding-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.opendaylight.ovsdb</groupId>
-      <artifactId>southbound-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <!-- testing dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -62,7 +55,7 @@
         <configuration>
           <instructions>
             <Export-Package>
-              org.opendaylight.ovsdb.utils.mdsal.utils
+              org.opendaylight.netvirt.utils.mdsal.utils
             </Export-Package>
           </instructions>
         </configuration>

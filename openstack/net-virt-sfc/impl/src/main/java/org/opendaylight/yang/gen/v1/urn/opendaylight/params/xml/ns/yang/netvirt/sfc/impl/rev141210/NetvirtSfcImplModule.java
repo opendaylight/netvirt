@@ -8,7 +8,7 @@
 
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.sfc.impl.rev141210;
 
-import org.opendaylight.ovsdb.openstack.netvirt.sfc.NetvirtSfcProvider;
+import org.opendaylight.netvirt.openstack.netvirt.sfc.NetvirtSfcProvider;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

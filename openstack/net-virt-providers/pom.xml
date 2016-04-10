@@ -17,7 +17,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.opendaylight.ovsdb</groupId>
+  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>openstack.net-virt-providers</artifactId>
   <version>1.2.3-SNAPSHOT</version>
   <packaging>bundle</packaging>
@@ -37,8 +37,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:ssh://git.opendaylight.org:29418/ovsdb.git</connection>
-    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/ovsdb.git</developerConnection>
+    <connection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</connection>
+    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</developerConnection>
     <tag>HEAD</tag>
     <url>https://wiki.opendaylight.org/view/OVSDB_Integration:Main</url>
   </scm>
@@ -46,33 +46,32 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <properties>
     <liblldp.version>0.10.2-SNAPSHOT</liblldp.version>
     <openflowplugin.version>0.2.2-SNAPSHOT</openflowplugin.version>
+    <ovsdb.version>1.2.3-SNAPSHOT</ovsdb.version>
     <powermock.version>1.6.4</powermock.version>
     <sonar.jacoco.itReportPath>../net-virt-it/target/jacoco-it.exec</sonar.jacoco.itReportPath>
   </properties>
 
   <dependencies>
-    <!-- project specific dependencies -->
     <dependency>
-      <groupId>org.opendaylight.ovsdb</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>openstack.net-virt</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.ovsdb</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>utils.mdsal-openflow</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>southbound-api</artifactId>
-      <version>${project.version}</version>
+      <version>${ovsdb.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.ovsdb</groupId>
+      <groupId>org.opendaylight.netvirt</groupId>
       <artifactId>utils.servicehelper</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- openflowplugin dependencies -->
     <dependency>
       <groupId>org.opendaylight.openflowplugin.model</groupId>
       <artifactId>model-flow-base</artifactId>
@@ -98,7 +97,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>openflowplugin-api</artifactId>
       <version>${openflowplugin.version}</version>
     </dependency>
-    <!-- mdsal dependencies -->
     <dependency>
       <groupId>org.opendaylight.mdsal.model</groupId>
       <artifactId>ietf-inet-types</artifactId>
@@ -115,13 +113,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <groupId>org.opendaylight.mdsal.model</groupId>
       <artifactId>ietf-topology</artifactId>
     </dependency>
-    <!-- controller dependencies -->
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>liblldp</artifactId>
       <version>${liblldp.version}</version>
     </dependency>
-    <!-- external dependencies -->
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
@@ -145,7 +141,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- testing dependencies -->
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
@@ -200,8 +195,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <Embed-Dependency>utils.config,utils.mdsal-openflow;type=!pom;inline=false</Embed-Dependency>
             <Embed-Transitive>true</Embed-Transitive>
             <Export-Package>
-              org.opendaylight.ovsdb.openstack.netvirt.providers,
-              org.opendaylight.ovsdb.openstack.netvirt.providers.openflow13,
+              org.opendaylight.netvirt.openstack.netvirt.providers,
+              org.opendaylight.netvirt.openstack.netvirt.providers.openflow13,
               org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.providers.config.rev160109
             </Export-Package>
           </instructions>
@@ -211,7 +206,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <excludes>
+         <excludes>
             <exclude>**/services/*Test.java</exclude>
           </excludes>
           <properties>
