@@ -44,7 +44,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           <version>${dlux.version}</version>
         </dependency>
         <dependency>
-          <groupId>org.opendaylight.netvirt</groupId>
+          <groupId>${project.groupId}</groupId>
           <artifactId>ovsdb-ui-module</artifactId>
           <version>${project.version}</version>
         </dependency>
