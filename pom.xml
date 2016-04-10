@@ -18,8 +18,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <relativePath/>
   </parent>
 
-  <groupId>org.opendaylight.ovsdb</groupId>
-  <artifactId>ovsdb</artifactId>
+  <groupId>org.opendaylight.netvirt</groupId>
+  <artifactId>netvirt</artifactId>
   <version>1.3.0-SNAPSHOT</version>
   <name>${project.artifactId}</name> <!-- Used by Sonar to set project name -->
   <packaging>pom</packaging>
@@ -39,8 +39,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:ssh://git.opendaylight.org:29418/ovsdb.git</connection>
-    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/ovsdb.git</developerConnection>
+    <connection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</connection>
+    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</developerConnection>
     <tag>HEAD</tag>
     <url>https://wiki.opendaylight.org/view/OVSDB_Integration:Main</url>
   </scm>
@@ -50,22 +50,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </prerequisites>
 
   <modules>
-    <!-- Parent POM files -->
     <module>commons</module>
-
-    <module>library</module>
-    <!-- Aggregations -->
     <module>features</module>
     <module>karaf</module>
-    <!-- OVSDB Components -->
-    <module>southbound</module>
-    <module>openstack</module>
-    <module>ovsdb-artifacts</module>
-    <module>schemas</module>
-    <module>utils</module>
-    <module>ovsdb-ui</module>
-    <module>hwvtepsouthbound</module>
     <module>netvirt</module>
+    <module>openstack</module>
+    <module>netvirt-artifacts</module>
+    <module>ovsdb-ui</module>
+    <module>utils</module>
   </modules>
 
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->

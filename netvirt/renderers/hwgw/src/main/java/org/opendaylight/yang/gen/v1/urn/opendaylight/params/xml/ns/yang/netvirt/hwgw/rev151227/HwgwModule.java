@@ -7,7 +7,7 @@
  */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.hwgw.rev151227;
 
-import org.opendaylight.ovsdb.netvirt.renderers.hwgw.HwgwProvider;
+import org.opendaylight.netvirt.netvirt.renderers.hwgw.HwgwProvider;
 
 public class HwgwModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.hwgw.rev151227.AbstractHwgwModule {
     public HwgwModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {

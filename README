@@ -6,14 +6,8 @@ DIRECTORY ORGANIZATION
 
 - features : This folder contains all the Karaf related files.
 
-- hwvtepsouthbound : Contains the hw_vtep southbound plugin.
-
 - karaf : Builds a working controller distribution based on the controller + ovsdb modules and other
           dependant modules such as openflowplugin
-
-- library : Contains Schema-independent library that is a reference implementation for RFC 7047.
-            This module doesn't depend on any of the Opendaylight components.
-            This library module can also be used independently in a non-OSGi environment.
 
 - openstack
   +-- net-virt : Handles the Openstack Neutron ML2 and Network Service calls and performs all the logic required
@@ -26,12 +20,6 @@ DIRECTORY ORGANIZATION
 
 - resources : Contains some useful resources such as scripts, testing utilities and tools used for deployment
               or testing the binaries generated from the OVSDB project.
-
-- schemas :
-  +-- openvswitch : Schema wrapper that represents http://openvswitch.org/ovs-vswitchd.conf.db.5.pdf
-  +-- hardwarevtep: Schema wrapper that represents http://openvswitch.org/docs/vtep.5.pdf
-
-- southbound : contains the plugin for converting from the OVSDB protocol to mdsal and vice-versa.
 
 - utils : MD-SAL OpenFlow and OVSDB common utilities.
 
