@@ -290,5 +290,17 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <classifier>features</classifier>
       <type>xml</type>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>utils.netvirt-it-utils</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.ovsdb</groupId>
+      <artifactId>utils.ovsdb-it-utils</artifactId>
+      <version>${ovsdb.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
