@@ -77,25 +77,6 @@ public class HwVTEPInterfaceConfigAddHelper {
         return tpPath;
     }
 
-
-    private static InstanceIdentifier<TerminationPoint> createLocalPhysicalLocatorEntryIfNotPresent(List<ListenableFuture<Void>> futures,
-                                                                    DataBroker dataBroker,
-                                                                    WriteTransaction transaction,
-                                                                    IfTunnel ifTunnel,
-                                                                    InstanceIdentifier<Node> nodeIid){
-        String localIp = ifTunnel.getTunnelSource().getIpv4Address().getValue();
-        LOG.debug("creating local physical locator entry {}", localIp);
-        TerminationPointKey tpKey = SouthboundUtils.getTerminationPointKey(localIp);
-        InstanceIdentifier<TerminationPoint> tpPath =
-                SouthboundUtils.createInstanceIdentifier(nodeIid, tpKey);
-        // if local tep is not present, create it
-        TerminationPoint terminationPoint = SouthboundUtils.getTEPFromConfigDS(tpPath, dataBroker);
-        if(terminationPoint == null) {
-          createPhysicalLocatorEntry(transaction, futures, tpPath, tpKey, ifTunnel.getTunnelSource());
-        }
-        return tpPath;
-    }
-
     /*
      * This method writes the termination end point details to the topology Config DS
      */

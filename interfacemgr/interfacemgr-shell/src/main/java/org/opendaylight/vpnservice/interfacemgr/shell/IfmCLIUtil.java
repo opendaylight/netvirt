@@ -9,7 +9,6 @@ package org.opendaylight.vpnservice.interfacemgr.shell;
 
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo.InterfaceOpState;
-import org.opendaylight.vpnservice.interfacemgr.globals.VlanInterfaceInfo;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
@@ -95,11 +94,11 @@ public class IfmCLIUtil {
                 ifTunnel.getTunnelSource().getIpv4Address().getValue(),
                 ifTunnel.getTunnelDestination().getIpv4Address().getValue(),
                 ifTunnel.getTunnelGateway() == null ? UNSET : ifTunnel.getTunnelGateway().getIpv4Address().getValue(),
-                (interfaceInfo == null) ? UNSET : interfaceInfo.getAdminState()));
+                (interfaceInfo == null) ? InterfaceInfo.InterfaceAdminState.DISABLED : interfaceInfo.getAdminState()));
         sb.setLength(0);
         ParentRefs parentRefs = iface.getAugmentation(ParentRefs.class);
         System.out.println(fmt.format(VXLAN_OUTPUT_FORMAT + "\n",
-                (interfaceInfo == null) ? UNSET : interfaceInfo.getOpState(),
+                (interfaceInfo == null) ? InterfaceOpState.DOWN : interfaceInfo.getOpState(),
                 String.format("%s/%s", parentRefs.getDatapathNodeIdentifier(),
                 parentRefs.getParentInterface()),
                 (interfaceInfo == null) ? UNSET : interfaceInfo.getInterfaceTag(), ""));
