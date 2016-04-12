@@ -36,8 +36,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:ssh://git.opendaylight.org:29418/ovsdb.git</connection>
-    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/ovsdb.git</developerConnection>
+    <connection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</connection>
+    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</developerConnection>
     <tag>HEAD</tag>
     <url>https://wiki.opendaylight.org/view/OVSDB_Integration:Main</url>
   </scm>
