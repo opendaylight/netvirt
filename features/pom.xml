@@ -231,13 +231,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>utils.it-utils</artifactId>
-      <version>${project.version}</version>
-      <!-- TODO: understand why the test scope can't be used with beryllium, but can in boron -->
-      <!--<scope>test</scope>-->
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>ovsdb-ui-bundle</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -271,6 +264,24 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${dlux.version}</version>
       <classifier>features</classifier>
       <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>utils.netvirt-it-utils</artifactId>
+      <version>${project.version}</version>
+      <!--<scope>test</scope>-->
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.ovsdb</groupId>
+      <artifactId>utils.ovsdb-it-utils</artifactId>
+      <version>${ovsdb.version}</version>
+      <!--<scope>test</scope>-->
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.ovsdb</groupId>
+      <artifactId>utils.southbound-utils</artifactId>
+      <version>${ovsdb.version}</version>
+      <!--<scope>test</scope>-->
     </dependency>
   </dependencies>
 </project>
