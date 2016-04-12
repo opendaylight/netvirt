@@ -66,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "1a494da4_b091de54",
+        "filename": "features/src/main/features/features.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-12T14:51:45Z",
+      "side": 1,
+      "message": "OK, I added netvirt mdsal-utils. This was causing a jenkins test failure that I missed because I didn\u0027t run tests before posting this patch, again.... duh",
+      "parentUuid": "1a494da4_70cf56b1",
+      "revId": "9e4f89d409c05c2ad6eb92b79b9322fc0c17ccc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a494da4_f0ba4609",
         "filename": "netvirt/renderers/neutron/src/main/config/default-config.xml",
         "patchSetId": 1
@@ -77,6 +95,24 @@
       "writtenOn": "2016-04-12T13:34:45Z",
       "side": 1,
       "message": "go ahead and remove the default. I started changing this for other configs.",
+      "revId": "9e4f89d409c05c2ad6eb92b79b9322fc0c17ccc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_f0724648",
+        "filename": "netvirt/renderers/neutron/src/main/config/default-config.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-12T14:51:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a494da4_f0ba4609",
       "revId": "9e4f89d409c05c2ad6eb92b79b9322fc0c17ccc7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -100,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "1a494da4_b0fefe36",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/Constants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-12T14:51:45Z",
+      "side": 1,
+      "message": "I don\u0027t think it fits over there. It might be clearer if this was renamed, to something like NetvirtConstants.",
+      "parentUuid": "1a494da4_5037bab0",
+      "revId": "9e4f89d409c05c2ad6eb92b79b9322fc0c17ccc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a494da4_9041420e",
         "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/MdsalHelper.java",
         "patchSetId": 1
@@ -111,6 +165,24 @@
       "writtenOn": "2016-04-12T13:34:45Z",
       "side": 1,
       "message": "Wonder if this would be better to go into a NetvirtUtils since these looks like methods that would be used by all the renderers.",
+      "revId": "9e4f89d409c05c2ad6eb92b79b9322fc0c17ccc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_30c14ee5",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/MdsalHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-12T14:51:45Z",
+      "side": 1,
+      "message": "Yea, that probably makes sense.\n\nSince this is mdsal related, I\u0027ll move it to netvirt.utils.mdsal-utils. \n\nSound ok?",
+      "parentUuid": "1a494da4_9041420e",
       "revId": "9e4f89d409c05c2ad6eb92b79b9322fc0c17ccc7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -140,6 +212,30 @@
     },
     {
       "key": {
+        "uuid": "1a494da4_b069de27",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-12T14:51:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a494da4_905822fc",
+      "range": {
+        "startLine": 52,
+        "startChar": 18,
+        "endLine": 52,
+        "endChar": 25
+      },
+      "revId": "9e4f89d409c05c2ad6eb92b79b9322fc0c17ccc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a494da4_705d96e9",
         "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/params/xml/ns/yang/netvirt/neutron/rev160308/NeutronModule.java",
         "patchSetId": 1
@@ -157,6 +253,24 @@
     },
     {
       "key": {
+        "uuid": "1a494da4_f04a46ab",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/params/xml/ns/yang/netvirt/neutron/rev160308/NeutronModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-12T14:51:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a494da4_705d96e9",
+      "revId": "9e4f89d409c05c2ad6eb92b79b9322fc0c17ccc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a494da4_b06efe94",
         "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronProviderTest.java",
         "patchSetId": 1
@@ -168,6 +282,24 @@
       "writtenOn": "2016-04-12T13:34:45Z",
       "side": 1,
       "message": "why is this commented out?",
+      "revId": "9e4f89d409c05c2ad6eb92b79b9322fc0c17ccc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_50c7ba12",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronProviderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-12T14:51:45Z",
+      "side": 1,
+      "message": "The test was failing, and I wasn\u0027t quite sure how to fix this quickly.\n\nUnit and IT test code is next on the list, after getting L2GW Neutron code done.",
+      "parentUuid": "1a494da4_b06efe94",
       "revId": "9e4f89d409c05c2ad6eb92b79b9322fc0c17ccc7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
