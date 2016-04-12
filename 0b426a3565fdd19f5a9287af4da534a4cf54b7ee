@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a494da4_7588e8e7",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-12T11:47:15Z",
+      "side": 1,
+      "message": "can the ITutils.getDataBroker be used?",
+      "revId": "0b426a3565fdd19f5a9287af4da534a4cf54b7ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_f54a38ab",
+        "filename": "utils/netvirt-it-utils/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-12T11:47:15Z",
+      "side": 1,
+      "message": "to be consistent, this package should likely be org.opendaylight.netvirt.utils.netvirt.it.utils. The directory where the impl is also needs to reflect the change.",
+      "revId": "0b426a3565fdd19f5a9287af4da534a4cf54b7ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_55c7ac12",
+        "filename": "utils/netvirt-it-utils/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-12T11:47:15Z",
+      "side": 1,
+      "message": "can you move this up - just a nitpick, but makes the code look like the other bundles",
+      "revId": "0b426a3565fdd19f5a9287af4da534a4cf54b7ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_75d628c7",
+        "filename": "utils/netvirt-it-utils/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-12T11:47:15Z",
+      "side": 1,
+      "message": "We have also always used Embed-Transitive. Is that not needed?\n\nAnd type!\u003dpom.\n\nIt would be best to have all the code consistent. Other usages can be fixed later, but it would be good to have a plan.",
+      "range": {
+        "startLine": 93,
+        "startChar": 27,
+        "endLine": 93,
+        "endChar": 28
+      },
+      "revId": "0b426a3565fdd19f5a9287af4da534a4cf54b7ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_d5da9ce8",
+        "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/it/utils/ItConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-12T11:47:15Z",
+      "side": 1,
+      "message": "dir structure should be utils/netvirt/it/utils",
+      "revId": "0b426a3565fdd19f5a9287af4da534a4cf54b7ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_b5d710bf",
+        "filename": "utils/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-12T11:47:15Z",
+      "side": 1,
+      "message": "can you move this down to be in alphabetical order",
+      "revId": "0b426a3565fdd19f5a9287af4da534a4cf54b7ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
