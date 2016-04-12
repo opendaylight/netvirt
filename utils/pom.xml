@@ -50,7 +50,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </prerequisites>
   <modules>
     <module>config</module>
-    <module>it-utils</module>
+    <module>netvirt-it-utils</module>
     <module>mdsal-openflow</module>
     <module>mdsal-utils</module>
     <module>neutron-utils</module>
