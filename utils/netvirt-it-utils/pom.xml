@@ -19,7 +19,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.netvirt</groupId>
-  <artifactId>utils.it-utils</artifactId>
+  <artifactId>utils.netvirt-it-utils</artifactId>
   <version>1.3.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
@@ -60,6 +60,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           <version>${project.version}</version>
       </dependency>
       <dependency>
+          <groupId>org.opendaylight.netvirt</groupId>
+          <artifactId>utils.mdsal-openflow</artifactId>
+          <version>${project.version}</version>
+      </dependency>
+      <dependency>
           <groupId>org.opendaylight.mdsal.model</groupId>
           <artifactId>ietf-inet-types</artifactId>
       </dependency>
@@ -73,4 +78,23 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           <scope>compile</scope>
       </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Embed-Dependency>
+              utils.mdsal-openflow;groupId=org.opendaylight.netvirt;inline=false
+            </Embed-Dependency>
+            <Export-Package>
+              org.opendaylight.netvirt.utils.netvirt.it.utils
+            </Export-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

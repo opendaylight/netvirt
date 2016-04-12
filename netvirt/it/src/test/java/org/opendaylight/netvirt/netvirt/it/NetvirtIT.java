@@ -36,8 +36,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.mdsal.it.base.AbstractMdsalTestBase;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.neutron.spi.NeutronNetwork;
-import org.opendaylight.netvirt.utils.it.utils.ItConstants;
-import org.opendaylight.netvirt.utils.it.utils.ItUtils;
+import org.opendaylight.netvirt.utils.netvirt.it.utils.ItConstants;
+import org.opendaylight.netvirt.utils.netvirt.it.utils.NetvirtItUtils;
 import org.opendaylight.netvirt.utils.neutron.utils.NeutronModelsDataStoreHelper;
 import org.opendaylight.netvirt.utils.neutron.utils.NeutronUtils;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
@@ -62,7 +62,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static final Logger LOG = LoggerFactory.getLogger(NetvirtIT.class);
     private static final String FEATURE = "odl-netvirt-it";
     private static DataBroker dataBroker = null;
-    private static ItUtils itUtils;
+    private static NetvirtItUtils itUtils;
     private static String addressStr;
     private static String portStr;
     private static String connectionType;
@@ -200,8 +200,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             }
         }
 
-        dataBroker = ItUtils.getDatabroker(getProviderContext());
-        itUtils = new ItUtils(dataBroker);
+        dataBroker = NetvirtItUtils.getDatabroker(getProviderContext());
+        itUtils = new NetvirtItUtils(dataBroker);
         mdsalUtils = new MdsalUtils(dataBroker);
         assertNotNull("mdsalUtils should not be null", mdsalUtils);
         // TODO: Not used yet since openstack is not running to write the netvirt:1 to mdsal
