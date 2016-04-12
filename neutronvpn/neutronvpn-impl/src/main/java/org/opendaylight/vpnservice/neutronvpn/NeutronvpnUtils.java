@@ -20,13 +20,17 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
@@ -68,6 +72,7 @@ import java.util.concurrent.Future;
 public class NeutronvpnUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(NeutronvpnUtils.class);
+    public static final String VNIC_TYPE_NORMAL = "normal";
 
     protected static Subnetmap getSubnetmap(DataBroker broker, Uuid subnetId) {
         InstanceIdentifier id = buildSubnetMapIdentifier(subnetId);
@@ -188,6 +193,17 @@ public class NeutronvpnUtils {
         NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
         if (providerExtension != null) {
             segmentationId = providerExtension.getSegmentationId();
+            if (segmentationId == null) {
+                List<Segments> providerSegments = providerExtension.getSegments();
+                if (providerSegments != null && providerSegments.size() > 0) {
+                    for (Segments providerSegment: providerSegments) {
+                        if (isNetworkSegmentTypeVxlan(providerSegment)) {
+                            segmentationId = providerSegment.getSegmentationId();
+                            break;
+                        }
+                    }
+                }
+            }
         }
         return segmentationId;
     }
@@ -225,6 +241,16 @@ public class NeutronvpnUtils {
     protected static String uuidToTapPortName(Uuid id) {
         String tapId = id.getValue().substring(0, 11);
         return new StringBuilder().append("tap").append(tapId).toString();
+    }
+
+    protected static boolean isPortVnicTypeNormal(Port port) {
+        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        if(portBinding == null || portBinding.getVnicType() == null) {
+            // By default, VNIC_TYPE is NORMAL
+            return true;
+        }
+        String vnicType = portBinding.getVnicType().trim().toLowerCase();
+        return vnicType.equals(VNIC_TYPE_NORMAL);
     }
 
     protected static boolean lock(LockManagerService lockManager, String lockName) {
@@ -340,4 +366,8 @@ public class NeutronvpnUtils {
         return result;
     }
 
+    static boolean isNetworkSegmentTypeVxlan(Segments providerSegment) {
+        Class<? extends NetworkTypeBase> networkType = providerSegment.getNetworkType();
+        return (networkType != null && networkType.isAssignableFrom(NetworkTypeVxlan.class));
+    }
 }

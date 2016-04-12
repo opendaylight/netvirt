@@ -109,12 +109,12 @@ public class HwvtepSouthboundUtils {
     public static InstanceIdentifier<RemoteUcastMacs> createRemoteUcastMacsInstanceIdentifier(NodeId nodeId,
             String logicalSwitchName,
             MacAddress mac) {
-        InstanceIdentifier<LogicalSwitches> logicalSwitch = createLogicalSwitchesInstanceIdentifier(nodeId, 
+        InstanceIdentifier<LogicalSwitches> logicalSwitch = createLogicalSwitchesInstanceIdentifier(nodeId,
                 new HwvtepNodeName(logicalSwitchName));
         return createInstanceIdentifier(nodeId).augmentation(HwvtepGlobalAugmentation.class)
                 .child(RemoteUcastMacs.class, new RemoteUcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch), mac));
     }
-    
+
     /**
      * Creates the local ucast macs instance identifier.
      *
@@ -127,19 +127,29 @@ public class HwvtepSouthboundUtils {
     public static InstanceIdentifier<LocalUcastMacs> createLocalUcastMacsInstanceIdentifier(NodeId nodeId,
             String logicalSwitchName,
             MacAddress mac) {
-        InstanceIdentifier<LogicalSwitches> logicalSwitch = createLogicalSwitchesInstanceIdentifier(nodeId, 
+        InstanceIdentifier<LogicalSwitches> logicalSwitch = createLogicalSwitchesInstanceIdentifier(nodeId,
                 new HwvtepNodeName(logicalSwitchName));
         return createInstanceIdentifier(nodeId).augmentation(HwvtepGlobalAugmentation.class).child(LocalUcastMacs.class,
                 new LocalUcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch), mac));
     }
 
+    /**
+     * Creates the remote mcast macs instance identifier.
+     *
+     * @param nodeId
+     *            the node id
+     * @param logicalSwitchName
+     *            the logical switch name
+     * @param mac
+     *            the mac
+     * @return the instance identifier
+     */
     public static InstanceIdentifier<RemoteMcastMacs> createRemoteMcastMacsInstanceIdentifier(NodeId nodeId,
-            String logicalSwitchName,
-            MacAddress mac) {
-        InstanceIdentifier<LogicalSwitches> logicalSwitch = createLogicalSwitchesInstanceIdentifier(nodeId, 
+            String logicalSwitchName, MacAddress mac) {
+        InstanceIdentifier<LogicalSwitches> logicalSwitch = createLogicalSwitchesInstanceIdentifier(nodeId,
                 new HwvtepNodeName(logicalSwitchName));
-        return createInstanceIdentifier(nodeId).augmentation(HwvtepGlobalAugmentation.class).child(RemoteMcastMacs.class,
-                new RemoteMcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch), mac));
+        return createInstanceIdentifier(nodeId).augmentation(HwvtepGlobalAugmentation.class)
+                .child(RemoteMcastMacs.class, new RemoteMcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch), mac));
     }
 
     /**

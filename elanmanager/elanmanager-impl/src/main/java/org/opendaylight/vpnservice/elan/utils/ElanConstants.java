@@ -31,5 +31,6 @@ public class ElanConstants {
     public static final short ELAN_FILTER_EQUALS_TABLE = 55;
     public static final BigInteger COOKIE_ELAN_FILTER_EQUALS = new BigInteger("8800000", 16);
 
-
+    public static final String L2GATEWAY_DS_JOB_NAME = "L2GW";
+    public static final String UNKNOWN_DMAC = "00:00:00:00:00:00";
 }
