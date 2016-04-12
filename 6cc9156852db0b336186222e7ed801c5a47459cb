@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a494da4_64183b85",
+        "filename": "utils/netvirt-it-utils/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-12T19:28:59Z",
+      "side": 1,
+      "message": "All the other places where we embed dependencies we use the below form.\n- !pom was added to not include any pom dependencies.\n- Embed-Transitive is to ensure everything needed is included.\n\n\u003cEmbed-Dependency\u003eutils.config,utils.mdsal-openflow;type\u003d!pom;inline\u003dfalse\u003c/Embed-Dependency\u003e\n\u003cEmbed-Transitive\u003etrue\u003c/Embed-Transitive\u003e",
+      "revId": "6cc9156852db0b336186222e7ed801c5a47459cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
