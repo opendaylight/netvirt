@@ -41,6 +41,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.mdsal.it.base.AbstractMdsalTestBase;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
+import org.opendaylight.netvirt.utils.netvirt.it.utils.NetvirtItUtils;
 import org.opendaylight.neutron.spi.INeutronPortCRUD;
 import org.opendaylight.neutron.spi.INeutronSecurityGroupCRUD;
 import org.opendaylight.neutron.spi.INeutronSecurityRuleCRUD;
@@ -55,8 +56,8 @@ import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
-import org.opendaylight.netvirt.utils.it.utils.ItUtils;
-import org.opendaylight.netvirt.utils.it.utils.NodeInfo;
+import org.opendaylight.ovsdb.utils.ovsdb.it.utils.OvsdbItUtils;
+import org.opendaylight.ovsdb.utils.ovsdb.it.utils.NodeInfo;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.servicehelper.ServiceHelper;
@@ -93,7 +94,8 @@ import org.slf4j.LoggerFactory;
 public class NetvirtIT extends AbstractMdsalTestBase {
     private static final Logger LOG = LoggerFactory.getLogger(NetvirtIT.class);
     private static DataBroker dataBroker = null;
-    private static ItUtils itUtils;
+    private static OvsdbItUtils itUtils;
+    private static NetvirtItUtils nvItUtils;
     private static String addressStr;
     private static String portStr;
     private static String connectionType;
@@ -240,8 +242,9 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             }
         }
 
-        dataBroker = getDatabroker(getProviderContext());
-        itUtils = new ItUtils(dataBroker);
+        dataBroker = NetvirtItUtils.getDatabroker(getProviderContext());
+        itUtils = new OvsdbItUtils(dataBroker);
+        nvItUtils = new NetvirtItUtils(dataBroker);
         mdsalUtils = new MdsalUtils(dataBroker);
         assertNotNull("mdsalUtils should not be null", mdsalUtils);
         assertTrue("Did not find " + NETVIRT_TOPOLOGY_ID, getNetvirtTopology());
@@ -276,12 +279,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             LOG.warn("Interrupted while waiting for other provider", e);
         }
         return providerContext;
-    }
-
-    private DataBroker getDatabroker(BindingAwareBroker.ProviderContext providerContext) {
-        DataBroker dataBroker = providerContext.getSALService(DataBroker.class);
-        assertNotNull("dataBroker should not be null", dataBroker);
-        return dataBroker;
     }
 
     private Boolean getNetvirtTopology() {
@@ -391,13 +388,13 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 staticPipelineFound.add(service);
             }
             String flowId = "DEFAULT_PIPELINE_FLOW_" + pipelineOrchestrator.getTable(service);
-            verifyFlow(datapathId, flowId, service);
+            nvItUtils.verifyFlow(datapathId, flowId, pipelineOrchestrator.getTable(service));
         }
         assertEquals("did not find all expected flows in static pipeline",
                 staticPipeline.size(), staticPipelineFound.size());
 
         String flowId = "TableOffset_" + pipelineOrchestrator.getTable(Service.CLASSIFIER);
-        verifyFlow(datapathId, flowId, Service.CLASSIFIER.getTable());
+        nvItUtils.verifyFlow(datapathId, flowId, Service.CLASSIFIER.getTable());
 
         Assert.assertTrue(southboundUtils.deleteBridge(connectionInfo, NetvirtITConstants.INTEGRATION_BRIDGE_NAME));
         Thread.sleep(1000);
@@ -454,7 +451,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 staticPipelineFound.add(service);
             }
             String flowId = "DEFAULT_PIPELINE_FLOW_" + pipelineOrchestrator.getTable(service);
-            verifyFlow(nodeInfo.datapathId, flowId, service);
+            nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(service));
         }
         assertEquals("did not find all expected flows in static pipeline",
                 staticPipeline.size(), staticPipelineFound.size());
@@ -520,7 +517,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         Thread.sleep(1000);
 
         String flowId = "Egress_DHCP_Client"  + "_Permit_";
-        verifyFlow(nodeInfo.datapathId, flowId, Service.EGRESS_ACL);
+        nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.EGRESS_ACL));
 
         testDefaultSG(nport, nodeInfo.datapathId, nn, tenantId, portId);
         Thread.sleep(1000);
@@ -583,10 +580,10 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         LOG.info("Neutron ports have been added");
         Thread.sleep(10000);
         String flowId = "Egress_IP" + nn.getProviderSegmentationID() + "_" + nport.getMacAddress() + "_Permit_";
-        verifyFlow(datapathId, flowId, Service.EGRESS_ACL);
+        nvItUtils.verifyFlow(datapathId, flowId, pipelineOrchestrator.getTable(Service.EGRESS_ACL));
 
         flowId = "Ingress_IP" + nn.getProviderSegmentationID() + "_" + nport.getMacAddress() + "_Permit_";
-        verifyFlow(datapathId, flowId, Service.INGRESS_ACL);
+        nvItUtils.verifyFlow(datapathId, flowId, pipelineOrchestrator.getTable(Service.INGRESS_ACL));
     }
 
     private Flow getFlow (
@@ -606,21 +603,5 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             Thread.sleep(1000);
         }
         return flow;
-    }
-
-    private void verifyFlow(long datapathId, String flowId, short table) throws InterruptedException {
-        org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder nodeBuilder =
-                FlowUtils.createNodeBuilder(datapathId);
-        FlowBuilder flowBuilder =
-                FlowUtils.initFlowBuilder(new FlowBuilder(), flowId, table);
-        Flow flow = getFlow(flowBuilder, nodeBuilder, LogicalDatastoreType.CONFIGURATION);
-        assertNotNull("Could not find flow in config: " + flowBuilder.build() + "--" + nodeBuilder.build(), flow);
-        flow = getFlow(flowBuilder, nodeBuilder, LogicalDatastoreType.OPERATIONAL);
-        assertNotNull("Could not find flow in operational: " + flowBuilder.build() + "--" + nodeBuilder.build(),
-                flow);
-    }
-
-    private void verifyFlow(long datapathId, String flowId, Service service) throws InterruptedException {
-        verifyFlow(datapathId, flowId, pipelineOrchestrator.getTable(service));
     }
 }
