@@ -15,7 +15,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <relativePath/>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.opendaylight.ovsdb</groupId>
+  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>openstack.net-virt-sfc-karaf</artifactId>
   <version>1.3.0-SNAPSHOT</version>
   <name>${project.artifactId}</name>
@@ -44,10 +44,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <artifactId>framework</artifactId>
       <type>kar</type>
     </dependency>
-
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>openstack.net-virt-sfc-features-test</artifactId>
+      <artifactId>openstack.net-virt-sfc-features</artifactId>
       <version>${project.version}</version>
       <classifier>features</classifier>
       <type>xml</type>

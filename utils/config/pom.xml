@@ -18,7 +18,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <relativePath/>
   </parent>
 
-  <groupId>org.opendaylight.ovsdb</groupId>
+  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>utils.config</artifactId>
   <name>${project.artifactId}</name>
   <version>1.3.0-SNAPSHOT</version>
@@ -39,15 +39,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:ssh://git.opendaylight.org:29418/ovsdb.git</connection>
-    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/ovsdb.git</developerConnection>
+    <connection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</connection>
+    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</developerConnection>
     <tag>HEAD</tag>
     <url>https://wiki.opendaylight.org/view/OVSDB_Integration:Main</url>
   </scm>
-
-  <properties>
-    <powermock.version>1.6.4</powermock.version>
-  </properties>
 
   <dependencies>
     <!-- testing dependencies -->
@@ -61,19 +57,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
       <scope>test</scope>
-      <version>${powermock.version}</version>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-core</artifactId>
-      <version>${powermock.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
       <scope>test</scope>
-      <version>${powermock.version}</version>
     </dependency>
   </dependencies>
 

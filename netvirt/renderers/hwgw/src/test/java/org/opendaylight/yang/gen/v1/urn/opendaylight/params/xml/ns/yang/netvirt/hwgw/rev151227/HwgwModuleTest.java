@@ -12,7 +12,7 @@ import org.opendaylight.controller.config.api.DependencyResolver;
 import org.opendaylight.controller.config.api.JmxAttribute;
 import org.opendaylight.controller.config.api.ModuleIdentifier;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import org.opendaylight.ovsdb.netvirt.renderers.hwgw.HwgwProvider;
+import org.opendaylight.netvirt.netvirt.renderers.hwgw.HwgwProvider;
 
 import javax.management.ObjectName;
 

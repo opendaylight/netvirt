@@ -2,23 +2,20 @@ package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.routemg
 
 import com.google.common.base.Preconditions;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.ovsdb.routemgr.net.OvsdbDataListener;
+import org.opendaylight.netvirt.routemgr.net.OvsdbDataListener;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.SalGroupService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.opendaylight.ovsdb.routemgr.net.PktHandler;
-import org.opendaylight.ovsdb.routemgr.net.NetDataListener;
-import org.opendaylight.ovsdb.routemgr.net.IPv6RtrFlow;
+import org.opendaylight.netvirt.routemgr.net.PktHandler;
+import org.opendaylight.netvirt.routemgr.net.NetDataListener;
+import org.opendaylight.netvirt.routemgr.net.IPv6RtrFlow;
 
 public class RoutemgrImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.routemgr.impl.rev141210.AbstractRoutemgrImplModule {
 

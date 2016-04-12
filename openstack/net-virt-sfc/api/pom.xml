@@ -17,7 +17,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.opendaylight.ovsdb</groupId>
+  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>openstack.net-virt-sfc-api</artifactId>
   <version>1.3.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
@@ -58,6 +58,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
               org.opendaylight.yang.gen.v1.*,
               org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.sfc.acl.rev150105,
               org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.sfc.classifier.rev150105,
+              org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.sfc.classifier.rev150105.Classifiers,
               org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.sfc.rev150105,
             </Export-Package>
           </instructions>
