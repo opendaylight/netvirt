@@ -16,6 +16,24 @@
       "revId": "6cc9156852db0b336186222e7ed801c5a47459cb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_3a2be883",
+        "filename": "utils/netvirt-it-utils/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-04-13T07:22:21Z",
+      "side": 1,
+      "message": "I added those lines for the same of consistency though they are not required in this instance.",
+      "parentUuid": "1a494da4_64183b85",
+      "revId": "6cc9156852db0b336186222e7ed801c5a47459cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
