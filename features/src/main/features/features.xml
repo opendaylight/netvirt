@@ -16,7 +16,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.openflowplugin/features-openflowplugin/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.openflowplugin/features-openflowplugin-extension/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.netconf/features-restconf/{{VERSION}}/xml/features</repository>
-  <repository>mvn:org.opendaylight.ovsdb/features-ovsdb/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.ovsdb/southbound-features/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.neutron/features-neutron/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.nic/features-nic/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.ovsdb/hwvtepsouthbound-features/{{VERSION}}/xml/features</repository>
