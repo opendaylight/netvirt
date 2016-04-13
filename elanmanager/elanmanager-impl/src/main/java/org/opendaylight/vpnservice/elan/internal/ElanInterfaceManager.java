@@ -964,7 +964,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
         long elanTag = elanInfo.getElanTag();
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE, getFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE, elanTag),
                 5, String.format("%s:%d","ITM Flow Entry ",elanTag), 0,  0, ITMConstants.COOKIE_ITM.add(BigInteger.valueOf(elanTag)), ElanUtils.getTunnelMatchesForServiceId((int)elanTag),
-                getInstructionsForOutGroup(ElanUtils.getElanRemoteBCGID(elanTag)));
+                getInstructionsForOutGroup(ElanUtils.getElanLocalBCGID(elanTag)));
 
         mdsalManager.installFlow(interfaceInfo.getDpId(), flowEntity);
     }
