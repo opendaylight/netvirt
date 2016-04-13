@@ -143,9 +143,11 @@ public class SouthboundUtils {
                                                                               InstanceIdentifier<TerminationPoint> remoteTEPInstanceIdentifier) {
         TunnelsKey tunnelsKey = new TunnelsKey(new HwvtepPhysicalLocatorRef(localTEPInstanceIdentifier),
                 new HwvtepPhysicalLocatorRef(remoteTEPInstanceIdentifier));
-        return InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(HWVTEP_TOPOLOGY_ID))
+
+        InstanceIdentifier<Tunnels> tunnelInstanceId = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(HWVTEP_TOPOLOGY_ID))
                 .child(Node.class, new NodeKey(nodeId.firstKeyOf(Node.class))).augmentation(PhysicalSwitchAugmentation.class)
                 .child(Tunnels.class, tunnelsKey).build();
+        return tunnelInstanceId;
     }
 
     public static String getTerminationPointKeyString(String ipAddress) {

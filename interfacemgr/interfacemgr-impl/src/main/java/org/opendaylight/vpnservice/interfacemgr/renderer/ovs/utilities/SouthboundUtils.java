@@ -91,6 +91,7 @@ public class SouthboundUtils {
     public static void addBridge(InstanceIdentifier<OvsdbBridgeAugmentation> bridgeIid,
                                  OvsdbBridgeAugmentation bridgeAugmentation,
                                  DataBroker dataBroker, List<ListenableFuture<Void>> futures){
+        LOG.debug("adding bridge: {}", bridgeAugmentation.getBridgeName());
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         NodeId nodeId = InstanceIdentifier.keyOf(bridgeIid.firstIdentifierOf(Node.class)).getNodeId();
         NodeBuilder bridgeNodeBuilder = new NodeBuilder();

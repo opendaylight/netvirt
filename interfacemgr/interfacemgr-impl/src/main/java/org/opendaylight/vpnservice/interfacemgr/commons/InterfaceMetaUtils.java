@@ -99,6 +99,7 @@ public class InterfaceMetaUtils {
         BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpnId);
         InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier =
                 InterfaceMetaUtils.getBridgeEntryIdentifier(bridgeEntryKey);
+        LOG.debug("Trying to retrieve bridge entry from config for Id: {}", bridgeEntryInstanceIdentifier);
         return getBridgeEntryFromConfigDS(bridgeEntryInstanceIdentifier,
                         dataBroker);
     }

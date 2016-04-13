@@ -58,6 +58,7 @@ public class OvsInterfaceTopologyStateAddHelper {
         // handle pre-provisioning of tunnels for the newly connected dpn
         BridgeEntry bridgeEntry = InterfaceMetaUtils.getBridgeEntryFromConfigDS(dpnId, dataBroker);
         if (bridgeEntry == null) {
+            LOG.debug("Bridge entry not found in config DS for dpn: {}", dpnId);
             futures.add(writeTransaction.submit());
             return futures;
         }
