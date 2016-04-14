@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a494da4_e96c1c39",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-04-14T16:02:07Z",
+      "side": 1,
+      "message": "Would it make sense to use a builder here instead of mocking the class? Sometimes it\u0027s too painful but it might be worth trying...",
+      "revId": "6725305f663daeb461d6468ca4591b400c15b5e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_8988f8e8",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-04-14T16:02:07Z",
+      "side": 1,
+      "message": "If we\u0027re just throwing the exception, we might as well remove the try/catch construct.",
+      "revId": "6725305f663daeb461d6468ca4591b400c15b5e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_49cc3036",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-04-14T16:02:07Z",
+      "side": 1,
+      "message": "As above.",
+      "revId": "6725305f663daeb461d6468ca4591b400c15b5e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_a9d174cf",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-04-14T16:02:07Z",
+      "side": 1,
+      "message": "As above. In fact I\u0027d pull the \"read a port from MD-SAL\" code out into a helper function.",
+      "revId": "6725305f663daeb461d6468ca4591b400c15b5e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_09e2289f",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-04-14T16:02:07Z",
+      "side": 1,
+      "message": "I\u0027d typical structure this differently. Basically I like to see @Test methods which can be read as-is, telling a little story...\n\n    @Test\n    public void testRemove() {\n        // Given ...\n        // (this is where I set things up, so the broker, and adding the port)\n\n        // When ...\n        // (remove the port)\n\n        // Then\n        // assert that the port is removed\n\nIn particular, the assertions are in the main test method, which allows tests to be composed using private supporting methods as you\u0027ve done, but understood without going into the details of the supporting methods. Here I can\u0027t figure out what the test is verifying without going into the details of the supporting methods.\n\nAnother thing I like to see in tests is a certain level of trust: don\u0027t bother re-testing things. So testAdd() verifies that ports are added correctly; testUpdate() and testRemove() need to add a port, but their job isn\u0027t to verify that adding a port works, so they don\u0027t need to assert anything related to that — all they assert is that, respectively, the port data has been updated, and the port has been removed.",
+      "revId": "6725305f663daeb461d6468ca4591b400c15b5e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
