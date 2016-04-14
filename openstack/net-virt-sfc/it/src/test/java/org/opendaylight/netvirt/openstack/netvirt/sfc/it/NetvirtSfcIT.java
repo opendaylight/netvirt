@@ -189,6 +189,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
     private static final String SF2IP = "10.2.1.2";
     private static final String SF1DPLNAME = "sf1";
     private static final String SF2DPLNAME = "sf2";
+    private static final String SF1DPLPORTNAME = "tap-123456789ab";
     // Use 192.168.50.70 when running against vagrant vm for workaround testing, eg. netvirtsfc-env.
     // Use 192.168.1.129 (or whatever address is dhcp'ed) for tacker-vm.
     // "192.168.50.70"; "127.0.0.1"; "192.168.1.129";
@@ -508,10 +509,12 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
         String sf1Ip = SF1IP;
         String sff1Name = SFF1NAME;
         String sf1DplName = SF1DPLNAME;
+        String sf1DplportName = SF1DPLPORTNAME;
         int port = GPEUDPPORT;
 
         ServiceFunctionBuilder serviceFunctionBuilder =
-                serviceFunctionUtils.serviceFunctionBuilder(sf1Ip, port, sf1DplName, sff1Name, sf1Name);
+                serviceFunctionUtils.serviceFunctionBuilder(sf1Ip, port, sf1DplName, sf1DplportName,
+                        sff1Name, sf1Name);
         List<ServiceFunction> serviceFunctionList = serviceFunctionUtils.list(
                 new ArrayList<ServiceFunction>(), serviceFunctionBuilder);
 
@@ -672,7 +675,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
 
         Map<String, String> externalIds = Maps.newHashMap();
         externalIds.put("attached-mac", "f6:00:00:0f:00:01");
-        southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, SF1DPLNAME, "internal", null, externalIds);
+        southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, SF1DPLPORTNAME, "internal", null, externalIds);
         externalIds.clear();
         externalIds.put("attached-mac", "f6:00:00:0c:00:01");
         southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, "vm1", "internal");
@@ -681,7 +684,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
         southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, "vm2", "internal");
 
         InstanceIdentifier<TerminationPoint> tpIid =
-                southboundUtils.createTerminationPointInstanceIdentifier(nodeInfo.bridgeNode, SFFDPL1NAME);
+                southboundUtils.createTerminationPointInstanceIdentifier(nodeInfo.bridgeNode, SF1DPLPORTNAME);
         final NotifyingDataChangeListener portOperationalListener =
                 new NotifyingDataChangeListener(LogicalDatastoreType.OPERATIONAL, tpIid, waitList);
         portOperationalListener.registerDataChangeListener(dataBroker);
@@ -736,7 +739,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
         //verifyFlow(nodeInfo.datapathId, flowId, Service.CLASSIFIER.getTable());
 
         LOG.info("check for flows!!!!!!!!!!!!!");
-        Thread.sleep(30000);
+        //Thread.sleep(30000);
         InstanceIdentifier<Flow> flowIid = createFlowIid(nodeInfo.datapathId, flowId,
                 pipelineOrchestrator.getTable(Service.CLASSIFIER));
 
