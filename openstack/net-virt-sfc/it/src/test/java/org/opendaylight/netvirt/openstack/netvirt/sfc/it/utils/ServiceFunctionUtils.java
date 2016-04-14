@@ -16,8 +16,8 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev1
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SftType;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.ServiceFunctionsBuilder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.entry.SfDataPlaneLocator;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.entry.SfDataPlaneLocatorBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.base.SfDataPlaneLocator;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.base.SfDataPlaneLocatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunctionBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sl.rev140701.VxlanGpe;
@@ -28,9 +28,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 
 public class ServiceFunctionUtils extends AbstractUtils {
     public SfDataPlaneLocatorBuilder sfDataPlaneLocatorBuilder(SfDataPlaneLocatorBuilder sfDataPlaneLocatorBuilder,
-                                                               String ip, int port, String dplName, String sffName) {
+                                                               String ip, int port, String dplName,
+                                                               String sf1DplPortName, String sffName) {
         SfDplOvsAugmentationBuilder sfDplOvsAugmentationBuilder = new SfDplOvsAugmentationBuilder();
-        OvsPortBuilder ovsPortBuilder = new OvsPortBuilder().setPortId(dplName);
+        OvsPortBuilder ovsPortBuilder = new OvsPortBuilder().setPortId(sf1DplPortName);
         sfDplOvsAugmentationBuilder.setOvsPort(ovsPortBuilder.build());
 
         return sfDataPlaneLocatorBuilder
@@ -59,11 +60,12 @@ public class ServiceFunctionUtils extends AbstractUtils {
     }
 
     public ServiceFunctionBuilder serviceFunctionBuilder(String sfIp, int port, String sf1DplName,
+                                                         String sf1DplPortName,
                                                          String sffname, String sfName) {
         SfDataPlaneLocatorBuilder sfDataPlaneLocator =
-                sfDataPlaneLocatorBuilder(new SfDataPlaneLocatorBuilder(), sfIp, port, sf1DplName, sffname);
-        List<SfDataPlaneLocator> sfDataPlaneLocatorList =
-                list(new ArrayList<SfDataPlaneLocator>(), sfDataPlaneLocator);
+                sfDataPlaneLocatorBuilder(new SfDataPlaneLocatorBuilder(), sfIp, port, sf1DplName,
+                        sf1DplPortName, sffname);
+        List<SfDataPlaneLocator> sfDataPlaneLocatorList = list(new ArrayList<>(), sfDataPlaneLocator);
         return serviceFunctionBuilder(
                 new ServiceFunctionBuilder(), sfIp, sfName, sfDataPlaneLocatorList, new SftType("firewall"));
     }

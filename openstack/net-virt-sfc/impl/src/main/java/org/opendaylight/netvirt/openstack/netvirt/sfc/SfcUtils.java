@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev1407
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.ServiceFunctionPaths;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.service.function.paths.ServiceFunctionPath;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sl.rev140701.data.plane.locator.locator.type.Ip;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sf.ovs.rev160107.SfDplOvsAugmentation;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev150317.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev150317.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev150317.access.lists.acl.AccessListEntries;
@@ -192,6 +193,27 @@ public class SfcUtils {
         }
 
         sfDplName = serviceFunction.getSfDataPlaneLocator().get(0).getName().getValue();
+        return sfDplName;
+    }
+
+    public String getSfDplPortId(ServiceFunction serviceFunction) {
+        String sfDplName = null;
+        if (serviceFunction != null &&
+                serviceFunction.getSfDataPlaneLocator() != null &&
+                serviceFunction.getSfDataPlaneLocator().get(0) != null &&
+                serviceFunction.getSfDataPlaneLocator().get(0).getAugmentation(SfDplOvsAugmentation.class) != null ) {
+
+            SfDplOvsAugmentation sfDplOvsAugmentation =
+                    serviceFunction.getSfDataPlaneLocator().get(0).getAugmentation(SfDplOvsAugmentation.class);
+            if (sfDplOvsAugmentation.getOvsPort() != null) {
+                sfDplName = sfDplOvsAugmentation.getOvsPort().getPortId();
+            } else {
+                LOG.warn("getSfDplPortId: OvsPort is null");
+            }
+        } else {
+            LOG.warn("getSfDplPortId: ServiceFunction is null");
+        }
+
         return sfDplName;
     }
 

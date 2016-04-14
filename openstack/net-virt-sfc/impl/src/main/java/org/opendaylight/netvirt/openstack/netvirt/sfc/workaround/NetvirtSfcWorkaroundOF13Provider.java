@@ -270,8 +270,8 @@ public class NetvirtSfcWorkaroundOF13Provider implements INetvirtSfcOF13Provider
             LOG.info("handleSff: last hop processing {} - {}",
                     bridgeNode.getNodeId().getValue(), serviceFunctionForwarder.getName().getValue());
             short lastServiceindex = (short)((lastHop.getServiceIndex()).intValue() - 1);
-            String sfDplName = sfcUtils.getSfDplName(serviceFunction);
-            long sfOfPort = getSfPort(bridgeNode, sfDplName);
+            String sfDplPortName = sfcUtils.getSfDplPortId(serviceFunction);
+            long sfOfPort = getSfPort(bridgeNode, sfDplPortName);
             // TODO: Coexistence: SFC flows should take this using new egressTable REST
             sfcClassifierService.programEgressClassifier(dataPathId, vxGpeOfPort, rsp.getPathId(),
                     lastServiceindex, sfOfPort, 0, rsp.getName().getValue(), true);
@@ -294,18 +294,18 @@ public class NetvirtSfcWorkaroundOF13Provider implements INetvirtSfcOF13Provider
             Ip ip = sfcUtils.getSfIp(serviceFunction);
             String sfIpAddr = String.valueOf(ip.getIp().getValue());
             int sfIpPort = ip.getPort().getValue(); //GPE_PORT
-            String sfDplName = sfcUtils.getSfDplName(serviceFunction);
-            long sfOfPort = getSfPort(bridgeNode, sfDplName);
-            String sfMac = getMacFromExternalIds(bridgeNode, sfDplName);
+            String sfDplPortName = sfcUtils.getSfDplPortId(serviceFunction);
+            long sfOfPort = getSfPort(bridgeNode, sfDplPortName);
+            String sfMac = getMacFromExternalIds(bridgeNode, sfDplPortName);
             if (sfMac == null) {
-                LOG.warn("handleSff: could not find mac for {} on {}", sfDplName, bridgeNode);
+                LOG.warn("handleSff: could not find mac for {} on {}", sfDplPortName, bridgeNode);
                 return;
             }
             //should be sffdplport, but they should all be the same 6633/4790
             // TODO: Coexistence: SFC flows should take this using new sf dpl augmentation
             if (addSfFlows == true) {
                 sfcClassifierService.program_sfEgress(dataPathId, sfIpPort, rsp.getName().getValue(), true);
-                sfcClassifierService.program_sfIngress(dataPathId, sfIpPort, sfOfPort, sfIpAddr, sfDplName,
+                sfcClassifierService.program_sfIngress(dataPathId, sfIpPort, sfOfPort, sfIpAddr, sfDplPortName,
                         rsp.getName().getValue(), true);
             }
             sfcClassifierService.programStaticArpEntry(dataPathId, 0L, sfMac, sfIpAddr,
@@ -347,8 +347,8 @@ public class NetvirtSfcWorkaroundOF13Provider implements INetvirtSfcOF13Provider
     }
 
     private boolean isSfOnBridge(Node bridgeNode, ServiceFunction serviceFunction) {
-        String sfDplName = sfcUtils.getSfDplName(serviceFunction);
-        long sfOfPort = getSfPort(bridgeNode, sfDplName);
+        String sfDplPortName = sfcUtils.getSfDplPortId(serviceFunction);
+        long sfOfPort = getSfPort(bridgeNode, sfDplPortName);
         LOG.info("isSfOnBridge: {}: {}, sfOfPort: {}", bridgeNode.getNodeId().getValue(), sfOfPort != 0L, sfOfPort);
         return sfOfPort != 0L;
     }
