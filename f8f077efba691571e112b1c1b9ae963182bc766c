@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a494da4_734abb84",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/HostConfigService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2016-04-14T07:27:30Z",
+      "side": 1,
+      "message": "2016?",
+      "revId": "f8f077efba691571e112b1c1b9ae963182bc766c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_d35aaf4f",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/HostConfigService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2016-04-14T07:27:30Z",
+      "side": 1,
+      "message": "What\u0027s the point to define those variables?\n\nCan\u0027t we use OS_HOST_CONFIG_XXX directly?",
+      "revId": "f8f077efba691571e112b1c1b9ae963182bc766c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_f35d2b4a",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/HostConfigService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2016-04-14T07:27:30Z",
+      "side": 1,
+      "message": "When action \u003d\u003d DELETE, doesn\u0027t this fail?",
+      "revId": "f8f077efba691571e112b1c1b9ae963182bc766c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_b3444375",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/HostConfigService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2016-04-14T07:27:30Z",
+      "side": 1,
+      "message": "external_id should be used.\nnot other_config.",
+      "revId": "f8f077efba691571e112b1c1b9ae963182bc766c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_73311b0b",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/HostConfigService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2016-04-14T07:27:30Z",
+      "side": 1,
+      "message": "private?",
+      "revId": "f8f077efba691571e112b1c1b9ae963182bc766c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_53369f04",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/HostConfigService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2016-04-14T07:27:30Z",
+      "side": 1,
+      "message": "private?",
+      "revId": "f8f077efba691571e112b1c1b9ae963182bc766c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
