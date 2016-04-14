@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a494da4_e9889cc8",
+        "filename": "features/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-14T16:16:19Z",
+      "side": 0,
+      "message": "this package is still used so why remove it?",
+      "revId": "2e917d69ffcb4f26ca8686ee164d12be21944324",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
