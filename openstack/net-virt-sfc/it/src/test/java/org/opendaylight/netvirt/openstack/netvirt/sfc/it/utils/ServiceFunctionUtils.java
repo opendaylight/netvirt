@@ -28,9 +28,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 
 public class ServiceFunctionUtils extends AbstractUtils {
     public SfDataPlaneLocatorBuilder sfDataPlaneLocatorBuilder(SfDataPlaneLocatorBuilder sfDataPlaneLocatorBuilder,
-                                                               String ip, int port, String dplName, String sffName) {
+                                                               String ip, int port, String dplName,
+                                                               String sf1DplPortName, String sffName) {
         SfDplOvsAugmentationBuilder sfDplOvsAugmentationBuilder = new SfDplOvsAugmentationBuilder();
-        OvsPortBuilder ovsPortBuilder = new OvsPortBuilder().setPortId(dplName);
+        OvsPortBuilder ovsPortBuilder = new OvsPortBuilder().setPortId(sf1DplPortName);
         sfDplOvsAugmentationBuilder.setOvsPort(ovsPortBuilder.build());
 
         return sfDataPlaneLocatorBuilder
@@ -59,9 +60,11 @@ public class ServiceFunctionUtils extends AbstractUtils {
     }
 
     public ServiceFunctionBuilder serviceFunctionBuilder(String sfIp, int port, String sf1DplName,
+                                                         String sf1DplPortName,
                                                          String sffname, String sfName) {
         SfDataPlaneLocatorBuilder sfDataPlaneLocator =
-                sfDataPlaneLocatorBuilder(new SfDataPlaneLocatorBuilder(), sfIp, port, sf1DplName, sffname);
+                sfDataPlaneLocatorBuilder(new SfDataPlaneLocatorBuilder(), sfIp, port, sf1DplName,
+                        sf1DplPortName, sffname);
         List<SfDataPlaneLocator> sfDataPlaneLocatorList =
                 list(new ArrayList<SfDataPlaneLocator>(), sfDataPlaneLocator);
         return serviceFunctionBuilder(
