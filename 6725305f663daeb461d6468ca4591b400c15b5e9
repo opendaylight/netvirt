@@ -55,6 +55,42 @@
     },
     {
       "key": {
+        "uuid": "1a494da4_73047615",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-04-15T09:55:03Z",
+      "side": 1,
+      "message": "I tend to think of tests as one way to check how sensible the APIs are, which involves using the APIs directly as far as possible. Mocking is there to allow tests to be written when an instance of an object is needed but is to hard to create, or doesn\u0027t do what we want it to do (typically, some layer below that\u0027s complex to set up — say for instance you wanted to test some code which accesses a database, without having to set up the database).\n\nSo the approach I tend to take is to write code without mocking as far as possible, and use mocks when necessary. In this case I would start by writing with a builder, and only if that\u0027s too complicated, or if I wanted to use Mockito\u0027s verification stuff, switch to a mock (or a spy perhaps). If using a builder is too complicated, that\u0027s possibly an indication that the builder is too hard to use, and the fix then would be to improve the builder, not use a mock.",
+      "parentUuid": "1a494da4_6d52d714",
+      "revId": "6725305f663daeb461d6468ca4591b400c15b5e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_331aee6e",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-04-15T09:55:03Z",
+      "side": 1,
+      "message": "Let\u0027s use the builders here, and if it makes sense to share code move it to a utility class...",
+      "parentUuid": "1a494da4_2d1d6fbe",
+      "revId": "6725305f663daeb461d6468ca4591b400c15b5e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a494da4_8988f8e8",
         "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
         "patchSetId": 2
