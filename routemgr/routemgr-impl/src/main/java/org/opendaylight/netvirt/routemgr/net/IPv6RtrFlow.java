@@ -8,10 +8,10 @@
 
 package org.opendaylight.netvirt.routemgr.net;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.CheckedFuture;
+import java.math.BigInteger;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -20,8 +20,14 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.openflowplugin.api.OFConstants;
+import org.opendaylight.ovsdb.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActions;
@@ -33,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowModFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowRef;
@@ -47,48 +52,42 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.output.action._case.OutputActionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.Icmpv6MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.IpMatchBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.RemoveFlowOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.RemoveFlowInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
-
-import java.math.BigInteger;
 
 
 public class IPv6RtrFlow {
 
     private static final Logger LOG = LoggerFactory.getLogger(IPv6RtrFlow.class);
-    private static SalFlowService salFlow;
     private AtomicLong ipv6FlowId = new AtomicLong();
     private AtomicLong ipv6Cookie = new AtomicLong();
-    private static final short TABEL_FOR_ICMPv6_FLOW = 0;
+    private static final short TABEL_FOR_ICMPv6_FLOW = Service.ARP_RESPONDER.getTable();
     private static int FLOW_HARD_TIMEOUT = 0;
     private static int FLOW_IDLE_TIMEOUT = 0;
-    private static final int ICMPv6_TO_CONTROLLER_FLOW_PRIORITY = 10000;
+    private static final int ICMPv6_TO_CONTROLLER_FLOW_PRIORITY = 1024;
     private static final int ICMPv6_TYPE = 135;
     private static final String ICMPv6_TO_CONTROLLER_FLOW_NAME = "GatewayIcmpv6ToController";
     public static final String OPENFLOW_NODE_PREFIX = "openflow:";
     private ConcurrentMap<String, Flow> gatewayToIcmpv6FlowMap;
+    private static DataBroker dataBroker;
 
     public IPv6RtrFlow() {
         gatewayToIcmpv6FlowMap = new ConcurrentHashMap<String, Flow>();
     }
 
-    public static void setSalFlow(SalFlowService salFlowService) {
-        Preconditions.checkNotNull(salFlowService, "salFlowService should not be null.");
-        salFlow = salFlowService;
+    public static void setDataBroker(DataBroker dataBrokerService) {
+        dataBroker = Preconditions.checkNotNull(dataBrokerService, "DataBrokerService should not be null");
     }
 
     private long getDataPathId(String dpId) {
@@ -110,22 +109,16 @@ public class IPv6RtrFlow {
 
         final InstanceIdentifier<Flow> flowIid = createFlowIid(icmpv6ToControllerFlow, nodeIid);
         final NodeRef nodeRef = new NodeRef(nodeIid);
+        WriteTransaction write = dataBroker.newWriteOnlyTransaction();
+        write.put(LogicalDatastoreType.CONFIGURATION, flowIid, icmpv6ToControllerFlow, true);
+        CheckedFuture<Void, TransactionCommitFailedException> checkFuture = write.submit();
 
         try {
-            //Install flow
-            Future<RpcResult<AddFlowOutput>> addFlowResult = salFlow.addFlow(new AddFlowInputBuilder(
-                    icmpv6ToControllerFlow).setFlowRef(new FlowRef(flowIid)).setNode(nodeRef).build());
-
-            if (addFlowResult != null) {
-                if (addFlowResult.get(5, TimeUnit.SECONDS).isSuccessful() == true) {
-                    LOG.debug("ICMPv6 to controller flow added to node {}", flowIid);
-                    gatewayToIcmpv6FlowMap.put(dpId, icmpv6ToControllerFlow);
-                } else {
-                    LOG.error("ICMPv6 to controller flow add failed for node {}", flowIid);
-                }
-            }
-        } catch (InterruptedException | ExecutionException | TimeoutException excep) {
-            LOG.error("received interrupt in ICMPv6 flow add " + excep.toString());
+            checkFuture.checkedGet();
+            LOG.debug("Transaction success for write of Flow {}", flowIid);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            write.cancel();
         }
     }
 
@@ -226,20 +219,16 @@ public class IPv6RtrFlow {
         Flow icmpv6ToControllerFlow = gatewayToIcmpv6FlowMap.get(dpId);
         final InstanceIdentifier<Flow> flowIid = createFlowIid(icmpv6ToControllerFlow, nodeIid);
 
-        final RemoveFlowInputBuilder builder = new RemoveFlowInputBuilder(icmpv6ToControllerFlow);
-        builder.setNode(new NodeRef(nodeIid));
-        builder.setFlowRef(new FlowRef(flowIid));
+        WriteTransaction write = dataBroker.newWriteOnlyTransaction();
+        write.delete(LogicalDatastoreType.CONFIGURATION, flowIid);
+        CheckedFuture<Void, TransactionCommitFailedException> checkFuture = write.submit();
 
-        Future<RpcResult<RemoveFlowOutput>> result = salFlow.removeFlow(builder.build());
         try {
-            if (result.get(5, TimeUnit.SECONDS).isSuccessful() == true) {
-                LOG.debug("ICMPv6 to controller flow removed from node {}", flowIid);
-                gatewayToIcmpv6FlowMap.remove(dpId);
-            } else {
-                LOG.error("ICMPv6 to controller flow removal failed for node {}", flowIid);
-            }
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            LOG.error("received interrupt in ICMPv6 flow removal " + e.toString());
+            checkFuture.checkedGet();
+            LOG.debug("Transaction success for delete of Flow {}", flowIid);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            write.cancel();
         }
     }
 }

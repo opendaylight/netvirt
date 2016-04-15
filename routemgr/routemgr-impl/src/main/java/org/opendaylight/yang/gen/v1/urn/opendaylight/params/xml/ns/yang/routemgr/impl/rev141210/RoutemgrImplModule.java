@@ -5,7 +5,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.routemgr.net.OvsdbDataListener;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
@@ -45,9 +44,8 @@ public class RoutemgrImplModule extends org.opendaylight.yang.gen.v1.urn.openday
         NotificationProviderService notificationService = getNotificationServiceDependency();
         DataBroker dataService = getDataBrokerDependency();
         RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency();
-        SalFlowService salFlowService = rpcRegistryDependency.getRpcService(SalFlowService.class);
 
-        IPv6RtrFlow.setSalFlow (salFlowService);
+        IPv6RtrFlow.setDataBroker (dataService);
 
         Preconditions.checkNotNull(dataService);
         Preconditions.checkNotNull(rpcRegistryDependency);
@@ -61,7 +59,7 @@ public class RoutemgrImplModule extends org.opendaylight.yang.gen.v1.urn.openday
         ipPktHandler = new PktHandler();
         ipPktHandler.setDataBrokerService(dataService);
         packetListener = notificationService.registerNotificationListener(ipPktHandler);
-        LOG.debug ("started the packethandler to receive lacp pdus");
+        LOG.debug ("started the packethandler to receive pdus");
 
         PacketProcessingService packetProcessingService =
                 rpcRegistryDependency.getRpcService(PacketProcessingService.class);
@@ -73,7 +71,7 @@ public class RoutemgrImplModule extends org.opendaylight.yang.gen.v1.urn.openday
         LOG.debug("starting to read from data store");
         netDataListener.readDataStore();
 
-        final class CloseLacpResources implements AutoCloseable {
+        final class CloseRtrMgrResources implements AutoCloseable {
             @Override
             public void close() throws Exception {
                 if (packetListener != null)
@@ -94,7 +92,7 @@ public class RoutemgrImplModule extends org.opendaylight.yang.gen.v1.urn.openday
             }
         }
 
-        AutoCloseable ret = new CloseLacpResources();
+        AutoCloseable ret = new CloseRtrMgrResources();
         LOG.info("Routemgr (instance {}) initialized.", ret);
         return ret;
     }
