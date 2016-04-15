@@ -154,6 +154,24 @@
     },
     {
       "key": {
+        "uuid": "1a494da4_ed226700",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/Constants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-15T00:45:04Z",
+      "side": 1,
+      "message": "I guess there are really two different sets in here. There are neutron specific constants and then conversions of those to netvirt. Seems like the neutron stuff could be in the NeutronUtils and then referenced here.",
+      "parentUuid": "1a494da4_b0fefe36",
+      "revId": "9e4f89d409c05c2ad6eb92b79b9322fc0c17ccc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a494da4_9041420e",
         "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/MdsalHelper.java",
         "patchSetId": 1
@@ -183,6 +201,24 @@
       "side": 1,
       "message": "Yea, that probably makes sense.\n\nSince this is mdsal related, I\u0027ll move it to netvirt.utils.mdsal-utils. \n\nSound ok?",
       "parentUuid": "1a494da4_9041420e",
+      "revId": "9e4f89d409c05c2ad6eb92b79b9322fc0c17ccc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_4d20bbf7",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/MdsalHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-15T00:45:04Z",
+      "side": 1,
+      "message": "No, the MdsalUtils are specific to only mdsal operations. The stuff here is specific to the netvirt model which is where I had the idea for a NetvirtUtils. We have SouthboundUtils for the southbound model and we have NeutronUtils for the neutron model. So we should have a NetvirtUtils for the netvirt model.\n\nWe have other examples of MdsalHelper which do some similar stuff but I think they can be rolled into the respective ModelUtils.",
+      "parentUuid": "1a494da4_30c14ee5",
       "revId": "9e4f89d409c05c2ad6eb92b79b9322fc0c17ccc7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
