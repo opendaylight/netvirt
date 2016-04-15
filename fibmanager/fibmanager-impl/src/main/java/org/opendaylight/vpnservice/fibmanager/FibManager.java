@@ -778,6 +778,17 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       Optional<VrfTables> vrfTable = FibUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
       if (vrfTable.isPresent()) {
         for (VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
+                        /* Handle subnet routes here */
+            RdToElanOpEntry rdToElanOpEntry= getRdToElanOpEntry(broker, rd,
+                    vrfEntry.getDestPrefix());
+            if (rdToElanOpEntry != null) {
+                LOG.trace("Cleaning subnetroute {} on dpn {} for vpn {} : cleanUpDpnForVpn", vrfEntry.getDestPrefix(),
+                        dpnId, rd);
+                makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW);
+                makeLFibTableEntry(dpnId, vrfEntry.getLabel(), null,
+                        vrfEntry.getNextHopAddress(),NwConstants.DEL_FLOW);
+                continue;
+            }
           // Passing null as we don't know the dpn
           // to which prefix is attached at this point
           deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry);
