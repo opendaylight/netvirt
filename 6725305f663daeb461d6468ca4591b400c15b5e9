@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1a494da4_2d1d6fbe",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-15T00:45:04Z",
+      "side": 1,
+      "message": "I kind of like the idea of the builder. In many of the IT tests we have builder classes to set everything up. Maybe we could leverage the builders across both IT and UT?\n\nStephen, we have a NeutronUtils class which does some stuff like below to create neutron northbound model structures. Would that make sense to beef those up and then use them here for the builders?",
+      "parentUuid": "1a494da4_6d52d714",
+      "revId": "6725305f663daeb461d6468ca4591b400c15b5e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a494da4_8988f8e8",
         "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
         "patchSetId": 2
