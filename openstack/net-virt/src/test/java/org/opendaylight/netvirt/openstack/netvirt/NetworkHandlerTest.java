@@ -74,7 +74,7 @@ public class NetworkHandlerTest {
      */
     @Test
     public void testCanCreateNetwork() {
-        assertEquals("Error, did not return the correct HTTP flag", HttpURLConnection.HTTP_NOT_ACCEPTABLE, networkHandler.canCreateNetwork(sharedNeutronNetwork));
+        assertEquals("Error, did not return the correct HTTP flag", HttpURLConnection.HTTP_OK, networkHandler.canCreateNetwork(sharedNeutronNetwork));
         assertEquals("Error, did not return the correct HTTP flag", HttpURLConnection.HTTP_OK, networkHandler.canCreateNetwork(nonSharedNeutronNetwork));
     }
 
@@ -83,7 +83,7 @@ public class NetworkHandlerTest {
      */
     @Test
     public void testCanUpdateNetwork() {
-        assertEquals("Error, did not return the correct HTTP flag", HttpURLConnection.HTTP_NOT_ACCEPTABLE, networkHandler.canUpdateNetwork(sharedNeutronNetwork, sharedNeutronNetwork));
+        assertEquals("Error, did not return the correct HTTP flag", HttpURLConnection.HTTP_OK, networkHandler.canUpdateNetwork(sharedNeutronNetwork, sharedNeutronNetwork));
         assertEquals("Error, did not return the correct HTTP flag", HttpURLConnection.HTTP_OK, networkHandler.canUpdateNetwork(nonSharedNeutronNetwork, nonSharedNeutronNetwork));
     }
 
