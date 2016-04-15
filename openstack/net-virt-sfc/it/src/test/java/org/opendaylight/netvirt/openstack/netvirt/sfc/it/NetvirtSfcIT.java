@@ -60,12 +60,13 @@ import org.opendaylight.netvirt.openstack.netvirt.sfc.it.utils.NetvirtConfigUtil
 import org.opendaylight.netvirt.openstack.netvirt.sfc.it.utils.ServiceFunctionForwarderUtils;
 import org.opendaylight.netvirt.openstack.netvirt.sfc.it.utils.NetvirtSfcUtils;
 import org.opendaylight.netvirt.openstack.netvirt.sfc.workaround.services.FlowNames;
+import org.opendaylight.netvirt.utils.netvirt.it.utils.NetvirtItUtils;
 import org.opendaylight.ovsdb.southbound.SouthboundConstants;
-import org.opendaylight.netvirt.utils.it.utils.ItUtils;
+import org.opendaylight.ovsdb.utils.ovsdb.it.utils.OvsdbItUtils;
+import org.opendaylight.ovsdb.utils.ovsdb.it.utils.NodeInfo;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
-import org.opendaylight.netvirt.utils.it.utils.NodeInfo;
 import org.opendaylight.ovsdb.utils.mdsal.utils.NotifyingDataChangeListener;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.sfc.provider.api.SfcProviderRenderedPathAPI;
@@ -170,7 +171,8 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
     private static PipelineOrchestrator pipelineOrchestrator;
     private static Southbound southbound;
     private static DataBroker dataBroker;
-    private static ItUtils itUtils;
+    private static OvsdbItUtils itUtils;
+    private static NetvirtItUtils nvItUtils;
     public static final String CONTROLLER_IPADDRESS = "ovsdb.controller.address";
     public static final String SERVER_IPADDRESS = "ovsdbserver.ipaddress";
     public static final String SERVER_PORT = "ovsdbserver.port";
@@ -346,7 +348,8 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
         getProperties();
 
         dataBroker = getDatabroker(getProviderContext());
-        itUtils = new ItUtils(dataBroker);
+        itUtils = new OvsdbItUtils(dataBroker);
+        nvItUtils = new NetvirtItUtils(dataBroker);
         mdsalUtils = new MdsalUtils(dataBroker);
         org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils sbMdsalUtils =
                 new org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils(dataBroker);
@@ -639,7 +642,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
         nodeInfo.connect();
 
         String flowId = "DEFAULT_PIPELINE_FLOW_" + pipelineOrchestrator.getTable(Service.SFC_CLASSIFIER);
-        verifyFlow(nodeInfo.datapathId, flowId, Service.SFC_CLASSIFIER);
+        nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.SFC_CLASSIFIER));
 
         nodeInfo.disconnect();
     }
@@ -671,7 +674,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
         nodeInfo.connect();
 
         String flowId = "DEFAULT_PIPELINE_FLOW_" + pipelineOrchestrator.getTable(Service.SFC_CLASSIFIER);
-        verifyFlow(nodeInfo.datapathId, flowId, Service.SFC_CLASSIFIER);
+        nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.SFC_CLASSIFIER));
 
         Map<String, String> externalIds = Maps.newHashMap();
         externalIds.put("attached-mac", "f6:00:00:0f:00:01");
@@ -723,18 +726,18 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
         assertNotNull("RSP was not found", rsp);
 
         flowId = FlowNames.getSfcIngressClass(RULENAME, rsp.getPathId(), rsp.getStartingIndex());
-        verifyFlow(nodeInfo.datapathId, flowId, Service.SFC_CLASSIFIER);
+        nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.SFC_CLASSIFIER));
         RenderedServicePathHop lastHop = sfcUtils.getLastHop(rsp);
         short lastServiceindex = (short)((lastHop.getServiceIndex()).intValue() - 1);
         flowId = FlowNames.getSfcEgressClass(vxGpeOfPort, rsp.getPathId(), lastServiceindex);
-        verifyFlow(nodeInfo.datapathId, flowId, Service.SFC_CLASSIFIER);
+        nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.SFC_CLASSIFIER));
         flowId = FlowNames.getSfcEgressClassBypass(rsp.getPathId(), lastServiceindex, 1);
-        verifyFlow(nodeInfo.datapathId, flowId, Service.CLASSIFIER);
+        nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.CLASSIFIER));
         flowId = FlowNames.getArpResponder(SF1IP);
-        verifyFlow(nodeInfo.datapathId, flowId, Service.ARP_RESPONDER);
+        nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.ARP_RESPONDER));
         // Only verify these flows if NetVirt adds them and not SFC
         //flowId = FlowNames.getSfEgress(GPEUDPPORT);
-        //verifyFlow(nodeInfo.datapathId, flowId, Service.SFC_CLASSIFIER);
+        //verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.SFC_CLASSIFIER));
         //flowId = FlowNames.getSfIngress(GPEUDPPORT, SF1IP);
         //verifyFlow(nodeInfo.datapathId, flowId, Service.CLASSIFIER.getTable());
 
@@ -878,22 +881,6 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
             Thread.sleep(1000);
         }
         return flow;
-    }
-
-    private void verifyFlow(long datapathId, String flowId, short table) throws InterruptedException {
-        org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder nodeBuilder =
-                FlowUtils.createNodeBuilder(datapathId);
-        FlowBuilder flowBuilder =
-                FlowUtils.initFlowBuilder(new FlowBuilder(), flowId, table);
-        Flow flow = getFlow(flowBuilder, nodeBuilder, LogicalDatastoreType.CONFIGURATION);
-        assertNotNull("Could not find flow in config: " + flowBuilder.build() + "--" + nodeBuilder.build(), flow);
-        flow = getFlow(flowBuilder, nodeBuilder, LogicalDatastoreType.OPERATIONAL);
-        assertNotNull("Could not find flow in operational: " + flowBuilder.build() + "--" + nodeBuilder.build(),
-                flow);
-    }
-
-    private void verifyFlow(long datapathId, String flowId, Service service) throws InterruptedException {
-        verifyFlow(datapathId, flowId, pipelineOrchestrator.getTable(service));
     }
 
     private void readwait() {
