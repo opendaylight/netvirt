@@ -17,9 +17,15 @@
     <feature version="${neutron.version}">odl-neutron-transcriber</feature>
     <feature version="1.3.0-SNAPSHOT">odl-ovsdb-southbound-impl</feature>
     <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
+    <feature version="${openflowplugin.version}">odl-openflowplugin-nxm-extensions</feature>
 <!--
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
 -->
+    <bundle>mvn:org.opendaylight.netvirt/utils.servicehelper/1.3.0-SNAPSHOT</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/utils.neutron-utils/1.3.0-SNAPSHOT</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/utils.mdsal-utils/1.3.0-SNAPSHOT</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/openstack.net-virt/1.3.0-SNAPSHOT</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/openstack.net-virt-providers/1.3.0-SNAPSHOT</bundle>
     <bundle>mvn:com.google.code.gson/gson/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/routemgr-impl/${project.version}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/routemgr-api/${project.version}</bundle>

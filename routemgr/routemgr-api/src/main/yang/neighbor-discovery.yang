@@ -8,7 +8,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
 module neighbor-discovery {
     yang-version 1;
-    namespace "urn:opendaylight:ovsdb:routemgr:nd:packet";
+    namespace "urn:opendaylight:netvirt:routemgr:nd:packet";
     prefix nd;
 
     import ietf-yang-types {prefix yang; revision-date "2010-09-24";}
