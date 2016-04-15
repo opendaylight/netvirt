@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a494da4_f692349e",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/MdsalHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-15T15:27:49Z",
+      "side": 1,
+      "message": "This file was deleted after splitting the code to Listener and Processor classes.",
+      "revId": "6725305f663daeb461d6468ca4591b400c15b5e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a494da4_e96c1c39",
         "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
         "patchSetId": 2
@@ -84,6 +101,42 @@
       "writtenOn": "2016-04-15T09:55:03Z",
       "side": 1,
       "message": "Let\u0027s use the builders here, and if it makes sense to share code move it to a utility class...",
+      "parentUuid": "1a494da4_2d1d6fbe",
+      "revId": "6725305f663daeb461d6468ca4591b400c15b5e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_d6f3b808",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-15T15:27:49Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "1a494da4_331aee6e",
+      "revId": "6725305f663daeb461d6468ca4591b400c15b5e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_76ee2424",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-15T15:27:49Z",
+      "side": 1,
+      "message": "I\u0027ve converted this to use the neutron PortBuilder.\n\nI looked at NeutronUtils class. I didn\u0027t find any usage references, maybe this is no longer used?\n\nOne observation, NeutronUtils is using neutron SPI to create NeutronPort objects. From a side chat with Stephen, it seems \npreferable to use API (PortBuilder()) vs. SPI.",
       "parentUuid": "1a494da4_2d1d6fbe",
       "revId": "6725305f663daeb461d6468ca4591b400c15b5e9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
