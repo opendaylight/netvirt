@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_bde6eb14",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-04-18T09:31:58Z",
+      "side": 1,
+      "message": "Can you please elaborate a bit on this. What is the issue? and how OFP Li feature addresses it?",
+      "revId": "d6e67f0ae0e501c973dc44f7c64f13f66e6db59b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
