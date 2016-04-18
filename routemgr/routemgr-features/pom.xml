@@ -141,22 +141,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
    <!-- openflowplugin dependencies -->
     <dependency>
       <groupId>org.opendaylight.openflowplugin</groupId>
-      <artifactId>features-openflowplugin</artifactId>
-      <version>${openflowplugin.version}</version>
-      <type>xml</type>
-      <classifier>features</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.openflowplugin</groupId>
-      <artifactId>features-openflowplugin-extension</artifactId>
-      <version>${openflowplugin.version}</version>
-      <classifier>features</classifier>
-      <type>xml</type>
-    </dependency>
-
-    <!-- openflowplugin dependencies for net-virt clustering-->
-    <dependency>
-      <groupId>org.opendaylight.openflowplugin</groupId>
       <artifactId>features-openflowplugin-li</artifactId>
       <version>${openflowplugin.version}</version>
       <classifier>features</classifier>

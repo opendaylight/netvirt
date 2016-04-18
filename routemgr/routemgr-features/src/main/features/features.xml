@@ -7,8 +7,6 @@
 -->
   <repository>mvn:org.opendaylight.yangtools/features-yangtools/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.neutron/features-neutron/{{VERSION}}/xml/features</repository>
-  <repository>mvn:org.opendaylight.openflowplugin/features-openflowplugin-extension/{{VERSION}}/xml/features</repository>
-  <repository>mvn:org.opendaylight.openflowplugin/features-openflowplugin/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.openflowplugin/features-openflowplugin-extension-li/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.openflowplugin/features-openflowplugin-li/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.ovsdb/southbound-features/1.3.0-SNAPSHOT/xml/features</repository>
@@ -17,7 +15,7 @@
     <feature version="${neutron.version}">odl-neutron-transcriber</feature>
     <feature version="1.3.0-SNAPSHOT">odl-ovsdb-southbound-impl</feature>
     <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
-    <feature version="${openflowplugin.version}">odl-openflowplugin-nxm-extensions</feature>
+    <feature version="${openflowplugin.version}">odl-openflowplugin-nxm-extensions-li</feature>
 <!--
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
 -->
