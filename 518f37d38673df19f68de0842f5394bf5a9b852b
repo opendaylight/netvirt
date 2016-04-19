@@ -2,6 +2,304 @@
   "comments": [
     {
       "key": {
+        "uuid": "fa57193c_6f877110",
+        "filename": "features/src/main/features/features.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "I think we shouldn\u0027t bring both as AFAIK they are doing the exact same thing",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 77
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_0f76b53e",
+        "filename": "netvirt/api/src/main/yang/netvirt-ports.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "add space",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_ef726148",
+        "filename": "netvirt/api/src/main/yang/netvirt-ports.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "please add space",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_4f8f0d24",
+        "filename": "netvirt/api/src/main/yang/netvirt-ports.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "likewise",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_2f945936",
+        "filename": "netvirt/api/src/main/yang/netvirt-ports.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "likewise",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_8f992571",
+        "filename": "netvirt/renderers/neutron/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "do you need this?",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 17
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_2fbbb9c5",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/DelegatingDataTreeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "I don\u0027t know how much this listener will be impacted, but having one fixed thread pool might be a bottleneck in a scaled setup",
+      "range": {
+        "startLine": 30,
+        "startChar": 52,
+        "endLine": 30,
+        "endChar": 84
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_efa9c17c",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/DelegatingDataTreeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "this is going to spam the log output, changes is pretty big. This log should be turned to trace and or fine grained logging should be done in the different cases",
+      "range": {
+        "startLine": 54,
+        "startChar": 8,
+        "endLine": 54,
+        "endChar": 79
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_4fb6eddd",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/DelegatingDataTreeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "same as previous comment",
+      "range": {
+        "startLine": 58,
+        "startChar": 12,
+        "endLine": 59,
+        "endChar": 52
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_8fb005df",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronNetworkDataProcessor.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "could be final as well",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 34
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_6fec91c8",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronNetworkDataProcessor.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "change isntead of original?",
+      "range": {
+        "startLine": 84,
+        "startChar": 35,
+        "endLine": 84,
+        "endChar": 43
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_afcd0960",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronNetworkDataProcessor.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "this is done twice",
+      "range": {
+        "startLine": 87,
+        "startChar": 8,
+        "endLine": 87,
+        "endChar": 37
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_4f126db5",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "I think you should hold their reference and use the #close() function in the close() function bellow, to release the ListenerRegistration.",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 59
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_cf3e7d29",
+        "filename": "netvirt/renderers/neutron/src/main/yang/netvirt-neutron.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-19T13:41:35Z",
+      "side": 1,
+      "message": "why not a capital N? This is the java name prefix, so the generated pojo will use this as prefix. I believe having a capital N will render better",
+      "range": {
+        "startLine": 20,
+        "startChar": 32,
+        "endLine": 20,
+        "endChar": 33
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_af6ea994",
         "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
         "patchSetId": 3
