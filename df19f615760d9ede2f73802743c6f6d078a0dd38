@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_6f1131ac",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-19T15:19:29Z",
+      "side": 1,
+      "message": "would be nice if our pipeline services included a helper method to create the flow names",
+      "revId": "df19f615760d9ede2f73802743c6f6d078a0dd38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_015209dd",
+        "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetvirtItUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-19T15:19:29Z",
+      "side": 1,
+      "message": "Move store out to a separate log. The store in each output is redundant for each log. As well as the other static log. Maybe dumping a formatted table would be better.",
+      "revId": "df19f615760d9ede2f73802743c6f6d078a0dd38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_811459f6",
+        "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NeutronNetItUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-19T15:19:29Z",
+      "side": 1,
+      "message": "Can the values be passed in for mac (and maybe others)? Some tests need more than one port and we will need the ability to set enough data to keep them different.\n\nI realize the later code changes the last byte to get the values unique and that might work, but we need to update the current tests to use that also.\n\nIf we stick with the index suffix scheme, then maybe some helper methods to return the mac and ip generated would be helpful to the calling test so it knows what values are in use.",
+      "revId": "df19f615760d9ede2f73802743c6f6d078a0dd38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_815d79ec",
+        "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NeutronNetItUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-19T15:19:29Z",
+      "side": 1,
+      "message": "Can we use the NotifyingDataChangeListener for when the neutron data is in mdsal configuration rather than the sleap?",
+      "revId": "df19f615760d9ede2f73802743c6f6d078a0dd38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

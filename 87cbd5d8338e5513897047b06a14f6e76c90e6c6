@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_81461922",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-19T15:19:29Z",
+      "side": 0,
+      "message": "Aswin, can you look at this change?",
+      "revId": "87cbd5d8338e5513897047b06a14f6e76c90e6c6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
