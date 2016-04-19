@@ -122,6 +122,12 @@ module odl-l3vpn {
                       type string;
                   }
                }
+               list ip-addresses {
+                  key ip-address;
+                  leaf ip-address {
+                      type string;
+                  }
+               }
            }
         }
     }
@@ -233,5 +239,23 @@ module odl-l3vpn {
             }
         }
     }
+
+    grouping dpn-in-vpn-event {
+            leaf dpn-id { type uint64; }
+            leaf vpn-name { type string; }
+            leaf rd { type string; }
+        }
+
+        notification add-dpn-event {
+            container add-event-data {
+               uses dpn-in-vpn-event;
+            }
+        }
+
+        notification remove-dpn-event {
+            container remove-event-data {
+               uses dpn-in-vpn-event;
+            }
+        }
 
 }

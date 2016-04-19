@@ -12,9 +12,12 @@ import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
+import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.fibmanager.api.IFibManager;
 import org.opendaylight.vpnmanager.api.IVpnManager;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
@@ -33,6 +36,8 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
   private ItmRpcService itmManager;
   private OdlInterfaceRpcService interfaceManager;
   private FibNodeCapableListener fibNcListener;
+  private RpcProviderRegistry rpcProviderRegistry;
+  private RpcRegistration<FibRpcService> rpcRegistration;
 
   @Override
   public void onSessionInitiated(ProviderContext session) {
@@ -51,6 +56,8 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
       fibManager.setITMRpcService(itmManager);
       fibManager.setInterfaceManager(interfaceManager);
       fibNcListener = new FibNodeCapableListener(dataBroker, fibManager);
+      FibRpcService fibRpcService = new FibRpcServiceImpl(dataBroker, mdsalManager, this);
+      rpcRegistration = getRpcProviderRegistry().addRpcImplementation(FibRpcService.class, fibRpcService);
     } catch (Exception e) {
       LOG.error("Error initializing services", e);
     }
@@ -109,4 +116,13 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
   public void deleteStaticRoute(String prefix, String rd) {
     this.vpnmanager.delExtraRoute(prefix, rd, null);
   }
+
+  public void setRpcProviderRegistry(RpcProviderRegistry rpcProviderRegistry) {
+    this.rpcProviderRegistry = rpcProviderRegistry;
+  }
+
+  private RpcProviderRegistry getRpcProviderRegistry() {
+    return rpcProviderRegistry;
+  }
+
 }
