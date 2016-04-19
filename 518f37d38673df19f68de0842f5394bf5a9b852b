@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_af6ea994",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-04-19T13:09:06Z",
+      "side": 1,
+      "message": "Optional has this:\n\n    return data.orNull();",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_6f2bf130",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-04-19T13:09:06Z",
+      "side": 1,
+      "message": "The neutronPortDataProcessor setup deserves its own method, doesn\u0027t it?",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_8f264567",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-04-19T13:09:06Z",
+      "side": 1,
+      "message": "If we just say\n\n    assertNotNull(readFromMdsal(neutronPort.getUuid()));\n\nand further down\n\n    assertNull(readFromMdsal(neutronPort.getUuid()));\n\nwe can drop the unwieldy netvirtPort declaration entirely...",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
