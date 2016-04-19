@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Assert;
@@ -42,6 +43,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.mdsal.it.base.AbstractMdsalTestBase;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.netvirt.utils.netvirt.it.utils.NetvirtItUtils;
+import org.opendaylight.netvirt.utils.netvirt.it.utils.NeutronNetItUtil;
 import org.opendaylight.netvirt.utils.neutron.utils.NeutronUtils;
 import org.opendaylight.neutron.spi.INeutronPortCRUD;
 import org.opendaylight.neutron.spi.INeutronSecurityGroupCRUD;
@@ -59,7 +61,6 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineO
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.OvsdbItUtils;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.NodeInfo;
-import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.servicehelper.ServiceHelper;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
@@ -523,6 +524,11 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         testDefaultSG(nport, nodeInfo.datapathId, nn, tenantId, portId);
         Thread.sleep(1000);
 
+        assertTrue(neutronUtils.removeNeutronPort(dhcp.getID()));
+        assertTrue(neutronUtils.removeNeutronPort(nport.getID()));
+        assertTrue(neutronUtils.removeNeutronSubnet(ns.getID()));
+        assertTrue(neutronUtils.removeNeutronNetwork(nn.getID()));
+
         nodeInfo.disconnect();
     }
 
@@ -585,24 +591,82 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
         flowId = "Ingress_IP" + nn.getProviderSegmentationID() + "_" + nport.getMacAddress() + "_Permit_";
         nvItUtils.verifyFlow(datapathId, flowId, pipelineOrchestrator.getTable(Service.INGRESS_ACL));
+
+        ineutronSecurityGroupCRUD.remove(neutronSG.getID());
+        ineutronSecurityRuleCRUD.removeNeutronSecurityRule(nsrEG.getID());
+        ineutronSecurityRuleCRUD.removeNeutronSecurityRule(nsrIN.getID());
     }
 
-    private Flow getFlow (
-            FlowBuilder flowBuilder,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder nodeBuilder,
-            LogicalDatastoreType store) throws InterruptedException {
+    /**
+     * Test a basic neutron use case. This test constructs a Neutron network, subnet, dhcp port, and two "vm" ports
+     * and validates that the correct flows are installed on OVS.
+     * @throws InterruptedException if we're interrupted while waiting for some mdsal operation to complete
+     */
+    @Test
+    public void testNeutronNet() throws InterruptedException {
+        LOG.warn("testNetWithTwoVms: starting test");
+        ConnectionInfo connectionInfo = SouthboundUtils.getConnectionInfo(addressStr, portStr);
+        NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
+        nodeInfo.connect();
+        LOG.warn("testNetWithTwoVms: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
 
-        Flow flow = null;
-        for (int i = 0; i < 10; i++) {
-            LOG.info("getFlow try {} from {}: looking for flow: {}, node: {}",
-                    i, store, flowBuilder.build(), nodeBuilder.build());
-            flow = FlowUtils.getFlow(flowBuilder, nodeBuilder, dataBroker.newReadOnlyTransaction(), store);
-            if (flow != null) {
-                LOG.info("getFlow try {} from {}: found flow: {}", i, store, flow);
-                break;
-            }
-            Thread.sleep(1000);
+        // Create the objects
+        NeutronNetItUtil net = new NeutronNetItUtil(southboundUtils, UUID.randomUUID().toString());
+        net.create();
+        net.createPort(nodeInfo.bridgeNode, "dhcp", "network:dhcp");
+        net.createPort(nodeInfo.bridgeNode, "vm1");
+        net.createPort(nodeInfo.bridgeNode, "vm2");
+
+
+        // Check flows created for all ports
+        for (int i = 1; i <= net.neutronPorts.size(); i++) {
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "DropFilter_"  + i,
+                                                                pipelineOrchestrator.getTable(Service.CLASSIFIER));
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "LocalMac_" + net.segId + "_" + i + "_" + net.macFor(i),
+                                                                pipelineOrchestrator.getTable(Service.CLASSIFIER));
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "ArpResponder_" + net.segId + "_"  + net.ipFor(i),
+                                                                pipelineOrchestrator.getTable(Service.ARP_RESPONDER));
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "UcastOut_" + net.segId + "_" + i + "_"  + net.macFor(i),
+                                                                pipelineOrchestrator.getTable(Service.L2_FORWARDING));
         }
-        return flow;
+
+        // Check flows created for vm ports only
+        for (int i = 2; i <= net.neutronPorts.size(); i++) {
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "Ingress_ARP_" + net.segId + "_" + i + "_",
+                                                                pipelineOrchestrator.getTable(Service.INGRESS_ACL));
+
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_Allow_VM_IP_MAC_" + i + net.macFor(i) + "_Permit_",
+                    pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_ARP_" + net.segId + "_" + i + "_",
+                    pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCP_Server_" + i + "_DROP_",
+                    pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCPv6_Server_" + i + "_DROP_",
+                    pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+        }
+
+        // Check ingress/egress acl flows for DHCP
+        nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCP_Client_Permit_",
+                pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+        nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCPv6_Client_Permit_",
+                pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+        nvItUtils.verifyFlow(nodeInfo.datapathId, "Ingress_DHCPv6_Server" + net.segId + "_"
+                                    + net.macFor(1) + "_Permit_", pipelineOrchestrator.getTable(Service.INGRESS_ACL));
+        nvItUtils.verifyFlow(nodeInfo.datapathId, "Ingress_DHCP_Server" + net.segId + "_"
+                + net.macFor(1) + "_Permit_", pipelineOrchestrator.getTable(Service.INGRESS_ACL));
+
+        // Check l2 broadcast flows
+        nvItUtils.verifyFlow(nodeInfo.datapathId, "TunnelFloodOut_" + net.segId,
+                                                pipelineOrchestrator.getTable(Service.L2_FORWARDING));
+        nvItUtils.verifyFlow(nodeInfo.datapathId, "BcastOut_" + net.segId,
+                                                pipelineOrchestrator.getTable(Service.L2_FORWARDING));
+
+        //TBD Figure out why this does not work:
+        //nvItUtils.verifyFlow(nodeInfo.datapathId, "TunnelMiss_" + net.segId,
+        //        pipelineOrchestrator.getTable(Service.L2_FORWARDING));
+
+        net.destroy();
+        nodeInfo.disconnect();
     }
+
 }
