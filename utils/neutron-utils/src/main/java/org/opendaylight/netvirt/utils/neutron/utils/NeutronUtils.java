@@ -43,6 +43,12 @@ public class NeutronUtils {
         return np;
     }
 
+    public boolean removeNeutronPort(String uuid) {
+        INeutronPortCRUD iNeutronPortCRUD =
+                (INeutronPortCRUD) ServiceHelper.getGlobalInstance(INeutronPortCRUD.class, this);
+        return iNeutronPortCRUD.removePort(uuid);
+    }
+
     public NeutronSubnet createNeutronSubnet(String subnetId, String tenantId,
                                               String networkId, String cidr) {
         INeutronSubnetCRUD iNeutronSubnetCRUD =
@@ -57,6 +63,12 @@ public class NeutronUtils {
         return ns;
     }
 
+    public boolean removeNeutronSubnet(String uuid) {
+        INeutronSubnetCRUD iNeutronSubnetCRUD =
+                (INeutronSubnetCRUD) ServiceHelper.getGlobalInstance(INeutronSubnetCRUD.class, this);
+        return iNeutronSubnetCRUD.removeSubnet(uuid);
+    }
+
     public NeutronNetwork createNeutronNetwork(String uuid, String tenantID, String networkTypeVxlan, String segId) {
         INeutronNetworkCRUD iNeutronNetworkCRUD =
                 (INeutronNetworkCRUD) ServiceHelper.getGlobalInstance(INeutronNetworkCRUD.class, this);
@@ -68,5 +80,12 @@ public class NeutronUtils {
         nn.setProviderSegmentationID(segId);
         iNeutronNetworkCRUD.addNetwork(nn);
         return nn;
+    }
+
+    public boolean removeNeutronNetwork(String uuid) {
+        INeutronNetworkCRUD iNeutronNetworkCRUD =
+                (INeutronNetworkCRUD) ServiceHelper.getGlobalInstance(INeutronNetworkCRUD.class, this);
+        return iNeutronNetworkCRUD.removeNetwork(uuid);
+
     }
 }
