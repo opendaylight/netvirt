@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_e4f7238b",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/HostConfigService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5322
+      },
+      "writtenOn": "2016-04-19T21:39:52Z",
+      "side": 1,
+      "message": "When action is DELETE the ovsdbUpdate function is called before the action is taken and MDSAL datastore can be updated based on that.",
+      "parentUuid": "1a494da4_f35d2b4a",
+      "revId": "f8f077efba691571e112b1c1b9ae963182bc766c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a494da4_b3444375",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/HostConfigService.java",
         "patchSetId": 1
