@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_01c1692e",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-04-19T16:11:19Z",
+      "side": 1,
+      "message": "I was thinking the same exact thing. I might get to that.",
+      "parentUuid": "fa57193c_6f1131ac",
+      "revId": "df19f615760d9ede2f73802743c6f6d078a0dd38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_015209dd",
         "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetvirtItUtils.java",
         "patchSetId": 1
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_41e241d6",
+        "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NeutronNetItUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-04-19T16:11:19Z",
+      "side": 1,
+      "message": "You can specify the ip and mac \"prefixes\" in the other ctor. Is that what you were asking about?\n\nI can work on transitioning the older tests to use this tomorrow.\n\nThere are mac and IP helper methods further down in this file.",
+      "parentUuid": "fa57193c_811459f6",
+      "revId": "df19f615760d9ede2f73802743c6f6d078a0dd38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_815d79ec",
         "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NeutronNetItUtil.java",
         "patchSetId": 1
@@ -64,6 +100,24 @@
       "writtenOn": "2016-04-19T15:19:29Z",
       "side": 1,
       "message": "Can we use the NotifyingDataChangeListener for when the neutron data is in mdsal configuration rather than the sleap?",
+      "revId": "df19f615760d9ede2f73802743c6f6d078a0dd38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_a1e7dde3",
+        "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NeutronNetItUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-04-19T16:11:19Z",
+      "side": 1,
+      "message": "At the very worst, I\u0027ll put a TBD comment but I should be able to get this too.",
+      "parentUuid": "fa57193c_815d79ec",
       "revId": "df19f615760d9ede2f73802743c6f6d078a0dd38",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
