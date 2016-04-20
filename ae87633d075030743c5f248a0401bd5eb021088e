@@ -22,6 +22,30 @@
       "revId": "ae87633d075030743c5f248a0401bd5eb021088e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_7781074a",
+        "filename": "features/src/main/features/features.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-20T00:51:14Z",
+      "side": 1,
+      "message": "then we should just add back the -ui to the ovsdb-southbound-impl and not the openflowplugin one. That will get us back to how it was before. opnfv must be loading more features. thinking now, I belirve the do load odl-restconf first.",
+      "parentUuid": "fa57193c_d76733e9",
+      "range": {
+        "startLine": 23,
+        "startChar": 53,
+        "endLine": 23,
+        "endChar": 67
+      },
+      "revId": "ae87633d075030743c5f248a0401bd5eb021088e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
