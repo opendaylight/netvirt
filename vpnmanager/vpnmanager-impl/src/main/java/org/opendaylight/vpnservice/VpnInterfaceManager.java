@@ -499,7 +499,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 vpnIntfMap.put(interfaceName, notifyTask);
                 synchronized (notifyTask) {
                     try {
-                        notifyTask.wait(VpnConstants.WAIT_TIME_IN_MILLISECONDS);
+                        notifyTask.wait(VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS);
                     } catch (InterruptedException e) {
                     }
                 }
@@ -514,6 +514,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         Optional<Adjacencies> adjacencies = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, path);
 
         String rd = VpnUtil.getVpnRd(broker, intf.getVpnInstanceName());
+        LOG.trace("removeAdjacenciesFromVpn: For interface {} RD recovered for vpn {} as rd {}", intf.getName(),
+                intf.getVpnInstanceName(), rd);
         if (adjacencies.isPresent()) {
             List<Adjacency> nextHops = adjacencies.get().getAdjacency();
 
@@ -801,42 +803,57 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         protected void remove(InstanceIdentifier<VpnInterface> identifier, VpnInterface del) {
             final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
             String interfaceName = key.getName();
+            String vpnName = del.getVpnInstanceName();
 
-            //increment the vpn interface count in Vpn Instance Op Data
-            Long ifCnt = 0L;
-            String rd = getRouteDistinguisher(del.getVpnInstanceName());
-            if(rd == null || rd.isEmpty()) rd = del.getVpnInstanceName();
-            VpnInstanceOpDataEntry vpnInstOp = VpnUtil.getVpnInstanceOpData(broker, rd);
-            if(vpnInstOp != null && vpnInstOp.getVpnInterfaceCount() != null) {
-                ifCnt = vpnInstOp.getVpnInterfaceCount();
-            }
+            LOG.trace("VpnInterfaceOpListener removed: interface name {} vpnName {}", interfaceName, vpnName);
+            //decrement the vpn interface count in Vpn Instance Op Data
+            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance>
+                    id = VpnUtil.getVpnInstanceToVpnIdIdentifier(vpnName);
+            Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance> vpnInstance
+                    = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
 
-            LOG.trace("VpnInterfaceOpListener remove: interface name {} rd {} interface count in Vpn Op Instance {}", interfaceName, rd, ifCnt);
+            if (vpnInstance.isPresent()) {
+                String rd = null;
+                rd = vpnInstance.get().getVrfId();
+                //String rd = getRouteDistinguisher(del.getVpnInstanceName());
 
-            if(ifCnt != 0) {
-                VpnUtil.asyncUpdate(broker, LogicalDatastoreType.OPERATIONAL,
-                        VpnUtil.getVpnInstanceOpDataIdentifier(rd),
-                        VpnUtil.updateIntfCntInVpnInstOpData(ifCnt - 1, rd), VpnUtil.DEFAULT_CALLBACK);
-            }
+                VpnInstanceOpDataEntry vpnInstOp = VpnUtil.getVpnInstanceOpData(broker, rd);
+                LOG.trace("VpnInterfaceOpListener removed: interface name {} rd {} vpnName {} in Vpn Op Instance {}",
+                        interfaceName, rd, vpnName, vpnInstOp);
 
-            // Vpn Interface removed => No more adjacencies from it.
-            // Hence clean up interface from vpn-dpn-interface list.
-            Adjacency adjacency = del.getAugmentation(Adjacencies.class).getAdjacency().get(0);
-            Optional<Prefixes> prefixToInterface = Optional.absent();
-            prefixToInterface = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                         VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                                VpnUtil.getIpPrefix(adjacency.getIpAddress())));
-            if (!prefixToInterface.isPresent()) {
-                prefixToInterface = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                                                 VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                                         VpnUtil.getIpPrefix(adjacency.getNextHopIp())));
-            }
-            if (prefixToInterface.isPresent()) {
-                VpnUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                               VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                                 prefixToInterface.get().getIpAddress()),
-                               VpnUtil.DEFAULT_CALLBACK);
-                updateDpnDbs(prefixToInterface.get().getDpnId(), del.getVpnInstanceName(), interfaceName, false);
+                if (vpnInstOp != null) {
+                    Long ifCnt = 0L;
+                    ifCnt = vpnInstOp.getVpnInterfaceCount();
+                    LOG.trace("VpnInterfaceOpListener removed: interface name {} rd {} vpnName {} Intf count {}",
+                            interfaceName, rd, vpnName, ifCnt);
+                    if ((ifCnt != null) && (ifCnt > 0)) {
+                        VpnUtil.asyncUpdate(broker, LogicalDatastoreType.OPERATIONAL,
+                                VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+                                VpnUtil.updateIntfCntInVpnInstOpData(ifCnt - 1, rd), VpnUtil.DEFAULT_CALLBACK);
+                    }
+
+                    // Vpn Interface removed => No more adjacencies from it.
+                    // Hence clean up interface from vpn-dpn-interface list.
+                    Adjacency adjacency = del.getAugmentation(Adjacencies.class).getAdjacency().get(0);
+                    Optional<Prefixes> prefixToInterface = Optional.absent();
+                    prefixToInterface = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                            VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
+                                    VpnUtil.getIpPrefix(adjacency.getIpAddress())));
+                    if (!prefixToInterface.isPresent()) {
+                        prefixToInterface = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                                VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
+                                        VpnUtil.getIpPrefix(adjacency.getNextHopIp())));
+                    }
+                    if (prefixToInterface.isPresent()) {
+                        VpnUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
+                                VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
+                                        prefixToInterface.get().getIpAddress()),
+                                VpnUtil.DEFAULT_CALLBACK);
+                        updateDpnDbs(prefixToInterface.get().getDpnId(), del.getVpnInstanceName(), interfaceName, false);
+                    }
+                }
+            } else {
+                LOG.error("rd not retrievable as vpninstancetovpnid for vpn {} is absent, trying rd as ", vpnName, vpnName);
             }
             notifyTaskIfRequired(interfaceName);
         }

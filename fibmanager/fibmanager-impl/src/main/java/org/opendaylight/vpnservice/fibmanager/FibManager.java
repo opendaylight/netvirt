@@ -159,19 +159,19 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   @Override
   protected void add(final InstanceIdentifier<VrfEntry> identifier,
                      final VrfEntry vrfEntry) {
-    LOG.trace("key: " + identifier + ", value=" + vrfEntry );
+    LOG.trace("Add key: " + identifier + ", value=" + vrfEntry );
     createFibEntries(identifier, vrfEntry);
   }
 
   @Override
   protected void remove(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry) {
-    LOG.trace("key: " + identifier + ", value=" + vrfEntry);
+    LOG.trace("Remove key: " + identifier + ", value=" + vrfEntry);
     deleteFibEntries(identifier, vrfEntry);
   }
 
   @Override
   protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
-    LOG.trace("key: " + identifier + ", original=" + original + ", update=" + update );
+    LOG.trace("Update key: " + identifier + ", original=" + original + ", update=" + update );
     createFibEntries(identifier, update);
   }
 

@@ -98,7 +98,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
                     getWildCardPath(), VpnManager.this, DataChangeScope.SUBTREE);
             fibListenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
                     getFibEntryListenerPath(), fibListener, DataChangeScope.BASE);
-            opListenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+            opListenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
                     getVpnInstanceOpListenerPath(), vpnInstOpListener, DataChangeScope.SUBTREE);
 
         } catch (final Exception e) {
@@ -115,14 +115,14 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         this.vpnInterfaceManager = vpnInterfaceManager;
     }
 
-    private void waitForOpDataRemoval(String id) {
+    private void waitForOpDataRemoval(String id, long timeout) {
         //wait till DCN for update on VPN Instance Op Data signals that vpn interfaces linked to this vpn instance is zero
         Runnable notifyTask = new VpnNotifyTask();
         synchronized (id.intern()) {
             vpnOpMap.put(id, notifyTask);
             synchronized (notifyTask) {
                 try {
-                    notifyTask.wait(VpnConstants.WAIT_TIME_IN_MILLISECONDS);
+                    notifyTask.wait(timeout);
                 } catch (InterruptedException e) {
                 }
             }
@@ -132,30 +132,69 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
 
     @Override
     protected void remove(InstanceIdentifier<VpnInstance> identifier, VpnInstance del) {
-        LOG.trace("Remove VPN event - Key: {}, value: {}", identifier, del);
+        LOG.trace("Remove VPN event key: {}, value: {}", identifier, del);
         String vpnName = del.getVpnInstanceName();
 
-        //Clean up vpn Interface
-        InstanceIdentifier<VpnInterfaces> vpnInterfacesId = InstanceIdentifier.builder(VpnInterfaces.class).build();
-        Optional<VpnInterfaces> optionalVpnInterfaces = read(LogicalDatastoreType.OPERATIONAL, vpnInterfacesId);
-
-        if(optionalVpnInterfaces.isPresent()) {
-            List<VpnInterface> vpnInterfaces = optionalVpnInterfaces.get().getVpnInterface();
-            for(VpnInterface vpnInterface : vpnInterfaces) {
-                if(vpnInterface.getVpnInstanceName().equals(vpnName)) {
-                    LOG.debug("VpnInterface {} will be removed from VPN {}", vpnInterface.getName(), vpnName);
-                    vpnInterfaceManager.remove(
-                            VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName()), vpnInterface);
-                }
-            }
-        }
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance>
-            vpnIdentifier = VpnUtil.getVpnInstanceToVpnIdIdentifier(vpnName);
-        delete(LogicalDatastoreType.CONFIGURATION, vpnIdentifier);
-
-        VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME, vpnName);
         String rd = del.getIpv4Family().getRouteDistinguisher();
 
+//        //Clean up vpn Interface
+//        InstanceIdentifier<VpnInterfaces> vpnInterfacesId = InstanceIdentifier.builder(VpnInterfaces.class).build();
+//        Optional<VpnInterfaces> optionalVpnInterfaces = read(LogicalDatastoreType.OPERATIONAL, vpnInterfacesId);
+//
+//        if(optionalVpnInterfaces.isPresent()) {
+//            List<VpnInterface> vpnInterfaces = optionalVpnInterfaces.get().getVpnInterface();
+//            for(VpnInterface vpnInterface : vpnInterfaces) {
+//                if(vpnInterface.getVpnInstanceName().equals(vpnName)) {
+//                    LOG.debug("VpnInterface {} will be removed from VPN {}", vpnInterface.getName(), vpnName);
+//                    vpnInterfaceManager.remove(
+//                            VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName()), vpnInterface);
+//                }
+//            }
+//        }
+
+        //TODO(vpnteam): Entire code would need refactoring to listen only on the parent object - VPNInstance
+        Optional<VpnInstanceOpDataEntry> vpnOpValue = null;
+        if ((rd != null) && (!rd.isEmpty())) {
+            vpnOpValue = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                    VpnUtil.getVpnInstanceOpDataIdentifier(rd));
+        } else {
+            vpnOpValue = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                    VpnUtil.getVpnInstanceOpDataIdentifier(vpnName));
+        }
+
+        if ((vpnOpValue != null) && (vpnOpValue.isPresent())) {
+            VpnInstanceOpDataEntry vpnOpEntry = null;
+            long timeout = VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
+            Long intfCount = 0L;
+
+            vpnOpEntry = vpnOpValue.get();
+            intfCount = vpnOpEntry.getVpnInterfaceCount();
+            if (intfCount != null && intfCount > 0) {
+                // Minimum wait time of 10 seconds for one VPN Interface clearance (inclusive of full trace on)
+                timeout = intfCount * 10000;
+                // Maximum wait time of 90 seconds for all VPN Interfaces clearance (inclusive of full trace on)
+                if (timeout > VpnConstants.MAX_WAIT_TIME_IN_MILLISECONDS) {
+                    timeout = VpnConstants.MAX_WAIT_TIME_IN_MILLISECONDS;
+                }
+                LOG.trace("VPNInstance removal interface count at {} for for rd {}, vpnname {}",
+                        intfCount, rd, vpnName);
+            }
+            LOG.trace("VPNInstance removal thread waiting for {} seconds for rd {}, vpnname {}",
+                    (timeout/1000), rd, vpnName);
+
+            if ((rd != null)  && (!rd.isEmpty())) {
+                waitForOpDataRemoval(rd, timeout);
+            } else {
+                waitForOpDataRemoval(vpnName, timeout);
+            }
+
+            LOG.trace("Returned out of waiting for  Op Data removal for rd {}, vpnname {}", rd, vpnName);
+        }
+
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance>
+                vpnIdentifier = VpnUtil.getVpnInstanceToVpnIdIdentifier(vpnName);
+        delete(LogicalDatastoreType.CONFIGURATION, vpnIdentifier);
+        LOG.trace("Removed vpnIdentifier for  rd{} vpnname {}", rd, vpnName);
         if (rd !=null) {
 
             try {
@@ -163,24 +202,26 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
             } catch (Exception e) {
                 LOG.error("Exception when removing VRF from BGP", e);
             }
-            waitForOpDataRemoval(rd);
+
             delete(LogicalDatastoreType.OPERATIONAL, VpnUtil.getVpnInstanceOpDataIdentifier(rd));
         } else {
-            waitForOpDataRemoval(vpnName);
+
             delete(LogicalDatastoreType.OPERATIONAL, VpnUtil.getVpnInstanceOpDataIdentifier(vpnName));
         }
+
+        VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME, vpnName);
     }
 
     @Override
     protected void update(InstanceIdentifier<VpnInstance> identifier,
             VpnInstance original, VpnInstance update) {
-        LOG.trace("Update event - Key: {}, value: {}", identifier, update);
+        LOG.trace("Update VPN event key: {}, value: {}", identifier, update);
     }
 
     @Override
     protected void add(InstanceIdentifier<VpnInstance> identifier,
             VpnInstance value) {
-        LOG.trace("VPN Instance key: {}, value: {}", identifier, value);
+        LOG.trace("Add VPN event key: {}, value: {}", identifier, value);
         VpnAfConfig config = value.getIpv4Family();
         String rd = config.getRouteDistinguisher();
 
@@ -230,7 +271,6 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
             }
         }
         //Try to add up vpn Interfaces if already in Operational Datastore
-        LOG.trace("Trying to add the vpn interfaces  -1.");
         InstanceIdentifier<VpnInterfaces> vpnInterfacesId = InstanceIdentifier.builder(VpnInterfaces.class).build();
         Optional<VpnInterfaces> optionalVpnInterfaces = read(LogicalDatastoreType.CONFIGURATION, vpnInterfacesId);
 
