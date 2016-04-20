@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_b041e50d",
+        "filename": "features/src/main/features/features.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "From a previous comment from Sam, these are both needed.\n\n\n\"The netvirt mdsal.utils should be used also. You will still need the ovsdb.mdsal.utils though to keep the southboundutils happy for the netvirt-it.\"",
+      "parentUuid": "fa57193c_6f877110",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 77
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_0f76b53e",
         "filename": "netvirt/api/src/main/yang/netvirt-ports.yang",
         "patchSetId": 3
@@ -36,6 +60,24 @@
       "writtenOn": "2016-04-19T13:41:35Z",
       "side": 1,
       "message": "add space",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_95b933ec",
+        "filename": "netvirt/api/src/main/yang/netvirt-ports.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_0f76b53e",
       "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_f5cd0f88",
+        "filename": "netvirt/api/src/main/yang/netvirt-ports.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_ef726148",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_4f8f0d24",
         "filename": "netvirt/api/src/main/yang/netvirt-ports.yang",
         "patchSetId": 3
@@ -70,6 +130,24 @@
       "writtenOn": "2016-04-19T13:41:35Z",
       "side": 1,
       "message": "likewise",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_d5ca8b6d",
+        "filename": "netvirt/api/src/main/yang/netvirt-ports.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_4f8f0d24",
       "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_35c82774",
+        "filename": "netvirt/api/src/main/yang/netvirt-ports.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_2f945936",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_8f992571",
         "filename": "netvirt/renderers/neutron/pom.xml",
         "patchSetId": 3
@@ -104,6 +200,30 @@
       "writtenOn": "2016-04-19T13:41:35Z",
       "side": 1,
       "message": "do you need this?",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 17
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_705e2deb",
+        "filename": "netvirt/renderers/neutron/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "No, this is not needed, removed. Thanks.",
+      "parentUuid": "fa57193c_8f992571",
       "range": {
         "startLine": 51,
         "startChar": 0,
@@ -139,6 +259,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_95b013f6",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/DelegatingDataTreeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Will keep this in consideration, may need to increase # of threads if needed. Thanks.",
+      "parentUuid": "fa57193c_2fbbb9c5",
+      "range": {
+        "startLine": 30,
+        "startChar": 52,
+        "endLine": 30,
+        "endChar": 84
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_efa9c17c",
         "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/DelegatingDataTreeListener.java",
         "patchSetId": 3
@@ -162,6 +306,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_f594ef45",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/DelegatingDataTreeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Agree, I removed this log. It was more for initial debugging.",
+      "parentUuid": "fa57193c_efa9c17c",
+      "range": {
+        "startLine": 54,
+        "startChar": 8,
+        "endLine": 54,
+        "endChar": 79
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_4fb6eddd",
         "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/DelegatingDataTreeListener.java",
         "patchSetId": 3
@@ -173,6 +341,30 @@
       "writtenOn": "2016-04-19T13:41:35Z",
       "side": 1,
       "message": "same as previous comment",
+      "range": {
+        "startLine": 58,
+        "startChar": 12,
+        "endLine": 59,
+        "endChar": 52
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_d591eb53",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/DelegatingDataTreeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_4fb6eddd",
       "range": {
         "startLine": 58,
         "startChar": 12,
@@ -231,6 +423,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_506329b1",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronNetworkDataProcessor.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Done. Nice catch.",
+      "parentUuid": "fa57193c_6fec91c8",
+      "range": {
+        "startLine": 84,
+        "startChar": 35,
+        "endLine": 84,
+        "endChar": 43
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_afcd0960",
         "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronNetworkDataProcessor.java",
         "patchSetId": 3
@@ -242,6 +458,30 @@
       "writtenOn": "2016-04-19T13:41:35Z",
       "side": 1,
       "message": "this is done twice",
+      "range": {
+        "startLine": 87,
+        "startChar": 8,
+        "endLine": 87,
+        "endChar": 37
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_b058c5fb",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronNetworkDataProcessor.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Removed. Thanks.",
+      "parentUuid": "fa57193c_afcd0960",
       "range": {
         "startLine": 87,
         "startChar": 8,
@@ -277,6 +517,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_70058dc1",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Done. Nice catch.",
+      "parentUuid": "fa57193c_4f126db5",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 59
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_cf3e7d29",
         "filename": "netvirt/renderers/neutron/src/main/yang/netvirt-neutron.yang",
         "patchSetId": 3
@@ -288,6 +552,30 @@
       "writtenOn": "2016-04-19T13:41:35Z",
       "side": 1,
       "message": "why not a capital N? This is the java name prefix, so the generated pojo will use this as prefix. I believe having a capital N will render better",
+      "range": {
+        "startLine": 20,
+        "startChar": 32,
+        "endLine": 20,
+        "endChar": 33
+      },
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_300315ba",
+        "filename": "netvirt/renderers/neutron/src/main/yang/netvirt-neutron.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Reverted this change.\n\n I changed this earlier when debugging some config setup issues. As it turns out, this change was not required.",
+      "parentUuid": "fa57193c_cf3e7d29",
       "range": {
         "startLine": 20,
         "startChar": 32,
@@ -317,6 +605,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_d578cb2d",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "fa57193c_af6ea994",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_6f2bf130",
         "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
         "patchSetId": 3
@@ -334,6 +640,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_1573634e",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Yea, I optimized this, thanks.",
+      "parentUuid": "fa57193c_6f2bf130",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_8f264567",
         "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
         "patchSetId": 3
@@ -345,6 +669,24 @@
       "writtenOn": "2016-04-19T13:09:06Z",
       "side": 1,
       "message": "If we just say\n\n    assertNotNull(readFromMdsal(neutronPort.getUuid()));\n\nand further down\n\n    assertNull(readFromMdsal(neutronPort.getUuid()));\n\nwe can drop the unwieldy netvirtPort declaration entirely...",
+      "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_758f3f24",
+        "filename": "netvirt/renderers/neutron/src/test/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronPortDataProcessorTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-20T18:27:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_8f264567",
       "revId": "518f37d38673df19f68de0842f5394bf5a9b852b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
