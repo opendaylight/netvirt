@@ -159,6 +159,12 @@ public class SfcClassifier {
 
     private List<Action> getNshAction(NshUtils header) {
         // Build the Actions to Add the NSH Header
+        org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action pushNsh =
+                ActionUtils.nxPushNshAction();
+        org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshMdtypeLoad =
+                ActionUtils.nxLoadNshMdtypeAction(Short.valueOf((short)0x1));
+        org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshNpLoad =
+                ActionUtils.nxLoadNshNpAction(Short.valueOf((short)0x3));
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshC1Load =
                 ActionUtils.nxLoadNshc1RegAction(header.getNshMetaC1());
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshC2Load =
@@ -174,6 +180,9 @@ public class SfcClassifier {
 
         int count = 0;
         List<Action> actionList = Lists.newArrayList();
+        actionList.add(new ActionBuilder().setOrder(count++).setAction(pushNsh).build());
+        actionList.add(new ActionBuilder().setOrder(count++).setAction(nshMdtypeLoad).build());
+        actionList.add(new ActionBuilder().setOrder(count++).setAction(nshNpLoad).build());
         actionList.add(new ActionBuilder().setOrder(count++).setAction(nshC1Load).build());
         actionList.add(new ActionBuilder().setOrder(count++).setAction(nshC2Load).build());
         actionList.add(new ActionBuilder().setOrder(count++).setAction(nspLoad).build());
