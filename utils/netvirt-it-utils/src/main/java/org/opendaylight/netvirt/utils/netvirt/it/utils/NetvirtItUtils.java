@@ -18,6 +18,7 @@ import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.mdsal.utils.NotifyingDataChangeListener;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -105,6 +106,34 @@ public class NetvirtItUtils {
                         dataBroker.newReadOnlyTransaction(), LogicalDatastoreType.OPERATIONAL);
         assertNotNull("Could not find flow in operational: " + flowBuilder.build() + "--" + nodeBuilder.build(),
                 flow);
+    }
+
+    /**
+     * Log the flows in a given table.
+     * @param datapathId dpid
+     * @param tableNum table number
+     * @param store configuration or operational
+     */
+    public void logFlows(long datapathId, short tableNum, LogicalDatastoreType store) {
+        org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder nodeBuilder =
+                FlowUtils.createNodeBuilder(datapathId);
+        Table table = FlowUtils.getTable(nodeBuilder, tableNum, dataBroker.newReadOnlyTransaction(), store);
+        if (table == null) {
+            LOG.info("logFlows: Could not find table {} in {}", tableNum, store);
+        }
+        //TBD: Log table and store in one line, flows in following lines
+        for (Flow flow : table.getFlow()) {
+            LOG.info("logFlows: table {} flow {} in {}", tableNum, flow.getFlowName(), store);
+        }
+    }
+
+    /**
+     * Log the flows in a given table.
+     * @param datapathId dpid
+     * @param table table number
+     */
+    public void logFlows(long datapathId, short table) {
+        logFlows(datapathId, table, LogicalDatastoreType.CONFIGURATION);
     }
 
     /**

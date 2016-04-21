@@ -152,10 +152,6 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
             if (neutronPort.getDeviceOwner().contains("dhcp")) {
                 return neutronPort;
             }
-            /* if the current port is a DHCP port, return the same*/
-            if (neutronPort.getDeviceOwner().contains("dhcp")) {
-                return neutronPort;
-            }
             /*Since all the fixed ip assigned to a port should be
              *from the same network, first port is sufficient.*/
             List<Neutron_IPs> fixedIps = neutronPort.getFixedIPs();
