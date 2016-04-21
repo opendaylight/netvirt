@@ -487,6 +487,12 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
 
     private List<Action> getNshAction(NshUtils header, List<Action> actionList) {
         // Build the Actions to Add the NSH Header
+        org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action pushNsh =
+                ActionUtils.nxPushNshAction();
+        org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshMdtypeLoad =
+                ActionUtils.nxLoadNshMdtypeAction(Short.valueOf((short)0x1));
+        org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshNpLoad =
+                ActionUtils.nxLoadNshNpAction(Short.valueOf((short)0x3));
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshC1Load =
                 ActionUtils.nxLoadNshc1RegAction(header.getNshMetaC1());
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nspLoad =
@@ -499,6 +505,12 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
                 ActionUtils.nxLoadTunIPv4Action(header.getNshTunIpDst().getValue(), false);
 
         int count = actionList.size();
+        actionList.add(new ActionBuilder()
+                .setKey(new ActionKey(count)).setOrder(count++).setAction(pushNsh).build());
+        actionList.add(new ActionBuilder()
+                .setKey(new ActionKey(count)).setOrder(count++).setAction(nshMdtypeLoad).build());
+        actionList.add(new ActionBuilder()
+                .setKey(new ActionKey(count)).setOrder(count++).setAction(nshNpLoad).build());
         actionList.add(new ActionBuilder()
                 .setKey(new ActionKey(count)).setOrder(count++).setAction(nshC1Load).build());
         actionList.add(new ActionBuilder()
