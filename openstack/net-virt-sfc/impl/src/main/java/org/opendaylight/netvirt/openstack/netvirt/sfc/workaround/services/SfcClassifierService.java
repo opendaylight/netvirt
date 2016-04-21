@@ -313,15 +313,35 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
         flowBuilder.setMatch(matchBuilder.build());
 
         if (write) {
-            InstructionsBuilder isb = new InstructionsBuilder();
+            ActionBuilder ab = new ActionBuilder();
+            org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action popNshAction =
+                ActionUtils.nxPopNshAction();
+            ab.setAction(popNshAction);
+            ab.setOrder(0);
+            ab.setKey(new ActionKey(0));
+
+            List<Action> actionList = new ArrayList<>();
+            actionList.add(ab.build());
+
+            ApplyActionsBuilder aab = new ApplyActionsBuilder();
+            aab.setAction(actionList);
+
+            InstructionBuilder popNshIb = new InstructionBuilder();
+            popNshIb.setInstruction(new ApplyActionsCaseBuilder().setApplyActions(aab.build()).build());
+            popNshIb.setOrder(0);
+            popNshIb.setKey(new InstructionKey(0));
+
+            // This will do a goto table
+            InstructionBuilder mutableIb;
+            mutableIb = this.getMutablePipelineInstructionBuilder();
+            mutableIb.setOrder(1);
+            mutableIb.setKey(new InstructionKey(1));
+
             List<Instruction> instructions = Lists.newArrayList();
+            instructions.add(popNshIb.build());
+            instructions.add(mutableIb.build());
 
-            InstructionBuilder ib;
-            ib = this.getMutablePipelineInstructionBuilder();
-            ib.setOrder(0);
-            ib.setKey(new InstructionKey(0));
-            instructions.add(ib.build());
-
+            InstructionsBuilder isb = new InstructionsBuilder();
             isb.setInstruction(instructions);
             flowBuilder.setInstructions(isb.build());
             writeFlow(flowBuilder, nodeBuilder, rspName, FlowID.FLOW_EGRESSCLASSBYPASS);
@@ -487,6 +507,12 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
 
     private List<Action> getNshAction(NshUtils header, List<Action> actionList) {
         // Build the Actions to Add the NSH Header
+        org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action pushNsh =
+                ActionUtils.nxPushNshAction();
+        org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshMdtypeLoad =
+                ActionUtils.nxLoadNshMdtypeAction(Short.valueOf((short)0x1));
+        org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshNpLoad =
+                ActionUtils.nxLoadNshNpAction(Short.valueOf((short)0x3));
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshC1Load =
                 ActionUtils.nxLoadNshc1RegAction(header.getNshMetaC1());
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nspLoad =
@@ -499,6 +525,12 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
                 ActionUtils.nxLoadTunIPv4Action(header.getNshTunIpDst().getValue(), false);
 
         int count = actionList.size();
+        actionList.add(new ActionBuilder()
+                .setKey(new ActionKey(count)).setOrder(count++).setAction(pushNsh).build());
+        actionList.add(new ActionBuilder()
+                .setKey(new ActionKey(count)).setOrder(count++).setAction(nshMdtypeLoad).build());
+        actionList.add(new ActionBuilder()
+                .setKey(new ActionKey(count)).setOrder(count++).setAction(nshNpLoad).build());
         actionList.add(new ActionBuilder()
                 .setKey(new ActionKey(count)).setOrder(count++).setAction(nshC1Load).build());
         actionList.add(new ActionBuilder()
