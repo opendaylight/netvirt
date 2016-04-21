@@ -79,6 +79,13 @@ public class FlowUtils {
                 .child(Flow.class, flowBuilder.getKey()).build();
     }
 
+    public static InstanceIdentifier<Table> createTablePath(NodeBuilder nodeBuilder, short table) {
+        return InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, nodeBuilder.getKey())
+                .augmentation(FlowCapableNode.class)
+                .child(Table.class, new TableKey(table)).build();
+    }
+
     public static InstanceIdentifier<Node> createNodePath(NodeBuilder nodeBuilder) {
         return InstanceIdentifier.builder(Nodes.class).child(Node.class, nodeBuilder.getKey()).build();
     }
@@ -95,6 +102,21 @@ public class FlowUtils {
         }
 
         LOG.info("Cannot find data for Flow {} in {}", flowBuilder.getFlowName(), store);
+        return null;
+    }
+
+    public static Table getTable(NodeBuilder nodeBuilder, short table,
+                                    ReadOnlyTransaction readTx, final LogicalDatastoreType store) {
+        try {
+            Optional<Table> data = readTx.read(store, createTablePath(nodeBuilder, table)).get();
+            if (data.isPresent()) {
+                return data.get();
+            }
+        } catch (InterruptedException|ExecutionException e) {
+            LOG.error("Failed to get table {}", table, e);
+        }
+
+        LOG.info("Cannot find data for table {} in {}", table, store);
         return null;
     }
 
