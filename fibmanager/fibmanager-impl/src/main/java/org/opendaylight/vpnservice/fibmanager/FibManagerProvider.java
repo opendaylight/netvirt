@@ -55,6 +55,7 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
       fibManager.setNextHopManager(nexthopManager);
       fibManager.setITMRpcService(itmManager);
       fibManager.setInterfaceManager(interfaceManager);
+      fibManager.setIdManager(idManager);
       fibNcListener = new FibNodeCapableListener(dataBroker, fibManager);
       FibRpcService fibRpcService = new FibRpcServiceImpl(dataBroker, mdsalManager, this);
       rpcRegistration = getRpcProviderRegistry().addRpcImplementation(FibRpcService.class, fibRpcService);

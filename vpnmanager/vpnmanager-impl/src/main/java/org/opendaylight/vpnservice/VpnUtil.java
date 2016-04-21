@@ -61,6 +61,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.E
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdPools;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.id.pools.IdPoolKey;
@@ -73,6 +76,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.IfIndexesInterfaceMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.L3nexthop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.l3nexthop.VpnNexthops;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.NeutronPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data.PortFixedipToPortName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.neutron.port.data.PortFixedipToPortNameKey;
@@ -457,4 +463,66 @@ public class VpnUtil {
         return false;
     }
 
+    public static void removePrefixToInterfaceForVpnId(DataBroker broker, long vpnId) {
+        try {
+            // Clean up PrefixToInterface Operational DS
+            delete(broker, LogicalDatastoreType.OPERATIONAL,
+                    InstanceIdentifier.builder(PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId)).build(),
+                    DEFAULT_CALLBACK);
+        } catch (Exception e) {
+            LOG.error("Exception during cleanup of PrefixToInterface for VPN ID {}", vpnId, e);
+        }
+    }
+
+    public static void removeVpnExtraRouteForVpn(DataBroker broker, String vpnName) {
+        try {
+            // Clean up VPNExtraRoutes Operational DS
+            delete(broker, LogicalDatastoreType.OPERATIONAL,
+                    InstanceIdentifier.builder(VpnToExtraroute.class).child(Vpn.class, new VpnKey(vpnName)).build(),
+                    DEFAULT_CALLBACK);
+        } catch (Exception e) {
+            LOG.error("Exception during cleanup of VPNToExtraRoute for VPN {}", vpnName, e);
+        }
+    }
+
+    public static void removeVpnOpInstance(DataBroker broker, String vpnName) {
+        try {
+            // Clean up VPNInstanceOpDataEntry
+            delete(broker, LogicalDatastoreType.OPERATIONAL, getVpnInstanceOpDataIdentifier(vpnName),
+                    DEFAULT_CALLBACK);
+        } catch (Exception e) {
+            LOG.error("Exception during cleanup of VPNInstanceOpDataEntry for VPN {}", vpnName, e);
+        }
+    }
+
+    public static void removeVpnInstanceToVpnId(DataBroker broker, String vpnName) {
+        try {
+            delete(broker, LogicalDatastoreType.CONFIGURATION, getVpnInstanceToVpnIdIdentifier(vpnName),
+                    DEFAULT_CALLBACK);
+        } catch (Exception e) {
+            LOG.error("Exception during clean up of VpnInstanceToVpnId for VPN {}", vpnName, e);
+        }
+    }
+
+    public static void removeVrfTableForVpn(DataBroker broker, String vpnName) {
+        // Clean up FIB Entries Config DS
+        try {
+            delete(broker, LogicalDatastoreType.CONFIGURATION,
+                    InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(vpnName)).build(),
+                    DEFAULT_CALLBACK);
+        } catch (Exception e) {
+            LOG.error("Exception during clean up of VrfTable from FIB for VPN {}", vpnName, e);
+        }
+    }
+
+    public static void removeL3nexthopForVpnId(DataBroker broker, long vpnId) {
+        try {
+            // Clean up L3NextHop Operational DS
+            delete(broker, LogicalDatastoreType.OPERATIONAL,
+                    InstanceIdentifier.builder(L3nexthop.class).child(VpnNexthops.class, new VpnNexthopsKey(vpnId)).build(),
+                    DEFAULT_CALLBACK);
+        } catch (Exception e) {
+            LOG.error("Exception during cleanup of L3NextHop for VPN ID {}", vpnId, e);
+        }
+    }
 }

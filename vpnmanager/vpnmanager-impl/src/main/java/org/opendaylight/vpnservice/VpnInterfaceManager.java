@@ -522,9 +522,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             if (!nextHops.isEmpty()) {
                 LOG.trace("NextHops are " + nextHops);
                 for (Adjacency nextHop : nextHops) {
-                    VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                    // Commenting the release of ID here as it will be released by FIB
+                   /* VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                                       VpnUtil.getNextHopLabelKey(rd, nextHop.getIpAddress()));
-                    /*VpnUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
+                    VpnUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
                                    VpnUtil.getPrefixToInterfaceIdentifier(
                                        VpnUtil.getVpnId(broker, intf.getVpnInstanceName()),
                                        nextHop.getIpAddress()),
@@ -736,8 +737,9 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     while (adjIt.hasNext()) {
                         Adjacency adjElem = adjIt.next();
                         if (adjElem.getIpAddress().equals(adj.getIpAddress())) {
-                            VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                                    VpnUtil.getNextHopLabelKey(rd, adj.getIpAddress()));
+                            // Commenting the release of ID here as it will be released by FIB
+                           /* VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                                    VpnUtil.getNextHopLabelKey(rd, adj.getIpAddress()));*/
                             adjIt.remove();
 
                             Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencies);
@@ -822,16 +824,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                         interfaceName, rd, vpnName, vpnInstOp);
 
                 if (vpnInstOp != null) {
-                    Long ifCnt = 0L;
-                    ifCnt = vpnInstOp.getVpnInterfaceCount();
-                    LOG.trace("VpnInterfaceOpListener removed: interface name {} rd {} vpnName {} Intf count {}",
-                            interfaceName, rd, vpnName, ifCnt);
-                    if ((ifCnt != null) && (ifCnt > 0)) {
-                        VpnUtil.asyncUpdate(broker, LogicalDatastoreType.OPERATIONAL,
-                                VpnUtil.getVpnInstanceOpDataIdentifier(rd),
-                                VpnUtil.updateIntfCntInVpnInstOpData(ifCnt - 1, rd), VpnUtil.DEFAULT_CALLBACK);
-                    }
-
                     // Vpn Interface removed => No more adjacencies from it.
                     // Hence clean up interface from vpn-dpn-interface list.
                     Adjacency adjacency = del.getAugmentation(Adjacencies.class).getAdjacency().get(0);
@@ -850,6 +842,15 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                                         prefixToInterface.get().getIpAddress()),
                                 VpnUtil.DEFAULT_CALLBACK);
                         updateDpnDbs(prefixToInterface.get().getDpnId(), del.getVpnInstanceName(), interfaceName, false);
+                    }
+                    Long ifCnt = 0L;
+                    ifCnt = vpnInstOp.getVpnInterfaceCount();
+                    LOG.trace("VpnInterfaceOpListener removed: interface name {} rd {} vpnName {} Intf count {}",
+                            interfaceName, rd, vpnName, ifCnt);
+                    if ((ifCnt != null) && (ifCnt > 0)) {
+                        VpnUtil.asyncUpdate(broker, LogicalDatastoreType.OPERATIONAL,
+                                VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+                                VpnUtil.updateIntfCntInVpnInstOpData(ifCnt - 1, rd), VpnUtil.DEFAULT_CALLBACK);
                     }
                 }
             } else {

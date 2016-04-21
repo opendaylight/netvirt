@@ -15,4 +15,6 @@ public class FibConstants {
     static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
     static final String FLOWID_PREFIX = "L3.";
+    static final String VPN_IDPOOL_NAME = "vpnservices";
+    static final String SEPARATOR = ".";
 }

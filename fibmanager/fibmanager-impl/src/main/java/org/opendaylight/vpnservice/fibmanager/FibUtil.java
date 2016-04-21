@@ -21,12 +21,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.Adjacencies
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInputBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class FibUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FibUtil.class);
@@ -98,6 +105,24 @@ public class FibUtil {
         return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.VpnToExtraroute.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.Vpn.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.VpnKey(vrfId)).child(org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute.class,
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey(ipPrefix)).build();
+    }
+
+    static String getNextHopLabelKey(String rd, String prefix){
+        String key = rd + FibConstants.SEPARATOR + prefix;
+        return key;
+    }
+
+    static void releaseId(IdManagerService idManager, String poolName, String idKey) {
+        ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
+        try {
+            Future<RpcResult<Void>> result = idManager.releaseId(idInput);
+            RpcResult<Void> rpcResult = result.get();
+            if(!rpcResult.isSuccessful()) {
+                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when getting Unique Id for key {}", idKey, e);
+        }
     }
 
     static final FutureCallback<Void> DEFAULT_CALLBACK =

@@ -56,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instanc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.overlay.rev150105.TunnelTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.Vpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.to.extraroute.VpnKey;
@@ -93,6 +94,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   private NexthopManager nextHopManager;
   private ItmRpcService itmManager;
   private OdlInterfaceRpcService interfaceManager;
+  private IdManagerService idManager;
   private static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000002", 16);
   private static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
   private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
@@ -140,6 +142,10 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       this.interfaceManager = ifManager;
   }
 
+  public void setIdManager(IdManagerService idManager) {
+      this.idManager = idManager;
+  }
+
   private void registerListener(final DataBroker db) {
     try {
       listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
@@ -182,12 +188,13 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     Preconditions.checkNotNull(vrfEntry, "VrfEntry cannot be null or empty!");
 
     VpnInstanceOpDataEntry vpnInstance = getVpnInstance(vrfTableKey.getRouteDistinguisher());
-    Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available!");
-    Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId() + "has null vpnId!");
+    Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
+    Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId() + " has null vpnId!");
 
     Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
     Long vpnId = vpnInstance.getVpnId();
-    RdToElanOpEntry rdToElanOpEntry = getRdToElanOpEntry(broker, vrfTableKey.getRouteDistinguisher(),
+    String rd = vrfTableKey.getRouteDistinguisher();
+    RdToElanOpEntry rdToElanOpEntry = getRdToElanOpEntry(broker, rd,
             vrfEntry.getDestPrefix());
     if (rdToElanOpEntry!=null) {
         if (vpnToDpnList!=null) {
@@ -198,14 +205,14 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         return;
     }
     BigInteger localDpnId = createLocalFibEntry(vpnInstance.getVpnId(),
-              vrfTableKey.getRouteDistinguisher(), vrfEntry);
+            rd, vrfEntry);
     if (vpnToDpnList != null) {
-      for (VpnToDpnList curDpn : vpnToDpnList) {
-        if (!curDpn.getDpnId().equals(localDpnId)) {
-          createRemoteFibEntry(localDpnId, curDpn.getDpnId(), vpnInstance.getVpnId(),
-                               vrfTableKey, vrfEntry);
+        for (VpnToDpnList curDpn : vpnToDpnList) {
+            if (!curDpn.getDpnId().equals(localDpnId)) {
+                createRemoteFibEntry(localDpnId, curDpn.getDpnId(), vpnInstance.getVpnId(),
+                        vrfTableKey, vrfEntry);
+            }
         }
-      }
     }
   }
 
@@ -567,7 +574,11 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
           LOG.trace("Clean up vpn interface {} from dpn {} to vpn {} list.", ifName, prefixInfo.getDpnId(), rd);
           FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
                          FibUtil.getVpnInterfaceIdentifier(ifName));
-       }
+      }
+
+      FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
+         FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
+
   }
 
   private void deleteFibEntries(final InstanceIdentifier<VrfEntry> identifier,
@@ -576,8 +587,12 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     Preconditions.checkNotNull(vrfTableKey, "VrfTablesKey cannot be null or empty!");
     Preconditions.checkNotNull(vrfEntry, "VrfEntry cannot be null or empty!");
 
+    String rd  = vrfTableKey.getRouteDistinguisher();
     VpnInstanceOpDataEntry vpnInstance = getVpnInstance(vrfTableKey.getRouteDistinguisher());
-    Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available!");
+    if (vpnInstance == null) {
+        LOG.debug("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
+        return;
+    }
     Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
     RdToElanOpEntry rdToElanOpEntry= getRdToElanOpEntry(broker,vrfTableKey.getRouteDistinguisher(),
             vrfEntry.getDestPrefix());
@@ -595,16 +610,18 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         InstanceIdentifier<RdToElanOpEntry> id = getRdToElanOpEntryDataPath(vrfTableKey.getRouteDistinguisher(),
                 vrfEntry.getDestPrefix());
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL,id);
+        FibUtil.releaseId(idManager,FibConstants.VPN_IDPOOL_NAME,
+                FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
         return;
     }
     BigInteger localDpnId = deleteLocalFibEntry(vpnInstance.getVpnId(),
-              vrfTableKey.getRouteDistinguisher(), vrfEntry);
+            vrfTableKey.getRouteDistinguisher(), vrfEntry);
     if (vpnToDpnList != null) {
-      for (VpnToDpnList curDpn : vpnToDpnList) {
-        if (!curDpn.getDpnId().equals(localDpnId)) {
-          deleteRemoteRoute(localDpnId, curDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry);
+        for (VpnToDpnList curDpn : vpnToDpnList) {
+            if (!curDpn.getDpnId().equals(localDpnId)) {
+                deleteRemoteRoute(localDpnId, curDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry);
+            }
         }
-      }
     }
     //The flow/group entry has been deleted from config DS; need to clean up associated operational
     //DS entries in VPN Op DS, VpnInstanceOpData and PrefixToInterface to complete deletion
