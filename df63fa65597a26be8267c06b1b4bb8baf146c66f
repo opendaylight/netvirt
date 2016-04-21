@@ -33,6 +33,47 @@
       "revId": "df63fa65597a26be8267c06b1b4bb8baf146c66f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_ebac0b38",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-04-21T19:12:01Z",
+      "side": 1,
+      "message": "Sridhar/Kalai, can u plz point me to the code where programming of flows  for IPv6 hosts to punt RS, NS for Router Interface controller is happening?",
+      "parentUuid": "fa57193c_d701f33a",
+      "revId": "df63fa65597a26be8267c06b1b4bb8baf146c66f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_4b9377fa",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-04-21T19:12:01Z",
+      "side": 1,
+      "message": "It would be good if this variable is defined in RoutemgrUtil class which can be used in multiple places. Same with UNSPECIFIED_ADDR variable.",
+      "range": {
+        "startLine": 225,
+        "startChar": 32,
+        "endLine": 225,
+        "endChar": 52
+      },
+      "revId": "df63fa65597a26be8267c06b1b4bb8baf146c66f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
