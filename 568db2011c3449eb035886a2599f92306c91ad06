@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_fc3973d9",
+        "filename": "features/src/main/features/features.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-22T13:59:41Z",
+      "side": 1,
+      "message": "Agree. Removed.",
+      "parentUuid": "fa57193c_51aa081a",
+      "revId": "568db2011c3449eb035886a2599f92306c91ad06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_31a79451",
         "filename": "features/src/main/features/features.xml",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2016-04-22T13:40:54Z",
       "side": 1,
       "message": "same comment",
+      "revId": "568db2011c3449eb035886a2599f92306c91ad06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_dc362fe7",
+        "filename": "features/src/main/features/features.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-22T13:59:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_31a79451",
       "revId": "568db2011c3449eb035886a2599f92306c91ad06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_7c4d6372",
+        "filename": "netvirt/renderers/neutron/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-22T13:59:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_7168ecf5",
+      "revId": "568db2011c3449eb035886a2599f92306c91ad06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_b149e48d",
         "filename": "utils/mdsal-utils/src/main/java/org/opendaylight/netvirt/utils/mdsal/utils/MdsalHelper.java",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2016-04-22T13:40:54Z",
       "side": 1,
       "message": "This file should be in a NetvirtUtils package and not in the MdsalUtils package since they are Netvirt specific.\n\nFor the time being you can just leave this over in the netvirt bundle.",
+      "revId": "568db2011c3449eb035886a2599f92306c91ad06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_bc57fb01",
+        "filename": "utils/mdsal-utils/src/main/java/org/opendaylight/netvirt/utils/mdsal/utils/MdsalHelper.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2016-04-22T13:59:41Z",
+      "side": 1,
+      "message": "OK, I moved it to the netvirt bundle.",
+      "parentUuid": "fa57193c_b149e48d",
       "revId": "568db2011c3449eb035886a2599f92306c91ad06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
