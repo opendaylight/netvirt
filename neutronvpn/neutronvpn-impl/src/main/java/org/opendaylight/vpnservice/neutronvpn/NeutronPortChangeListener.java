@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataCh
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.vpnservice.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
@@ -140,7 +141,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     }
 
     private void handleNeutronPortCreated(Port port) {
-        if (!NeutronvpnUtils.isPortVnicTypeNormal(port)) {
+        if (!NeutronUtils.isPortVnicTypeNormal(port)) {
             LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created",
                     port.getUuid().getValue());
             return;

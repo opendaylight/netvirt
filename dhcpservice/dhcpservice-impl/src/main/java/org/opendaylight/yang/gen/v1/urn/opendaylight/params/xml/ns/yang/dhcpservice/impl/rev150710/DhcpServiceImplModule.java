@@ -3,6 +3,7 @@ package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpser
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.vpnservice.dhcpservice.DhcpProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
 
 public class DhcpServiceImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.impl.rev150710.AbstractDhcpServiceImplModule {
     public DhcpServiceImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -26,6 +27,8 @@ public class DhcpServiceImplModule extends org.opendaylight.yang.gen.v1.urn.open
         dhcpProvider.setMdsalManager(getMdsalutilDependency());
         dhcpProvider.setNeutronVpnManager(getNeutronvpnDependency());
         dhcpProvider.setInterfaceManagerRpc(rpcregistryDependency.getRpcService(OdlInterfaceRpcService.class));
+        dhcpProvider.setItmRpcService(rpcregistryDependency.getRpcService(ItmRpcService.class));
+        dhcpProvider.setEntityOwnershipService(getEntityOwnershipServiceDependency());
         getBrokerDependency().registerProvider(dhcpProvider);
         return dhcpProvider;
     }

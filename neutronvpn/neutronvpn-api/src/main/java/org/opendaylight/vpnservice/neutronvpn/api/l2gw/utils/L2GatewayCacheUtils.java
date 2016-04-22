@@ -38,4 +38,9 @@ public class L2GatewayCacheUtils {
                 .getCache(L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME);
         return cachedMap.get(devicename);
     }
+
+    public static ConcurrentMap<String, L2GatewayDevice> getCache() {
+        return (ConcurrentMap<String, L2GatewayDevice>) CacheUtil
+                .getCache(L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME);
+    }
 }

@@ -188,26 +188,6 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected static String getSegmentationIdFromNeutronNetwork(Network network) {
-        String segmentationId = null;
-        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
-        if (providerExtension != null) {
-            segmentationId = providerExtension.getSegmentationId();
-            if (segmentationId == null) {
-                List<Segments> providerSegments = providerExtension.getSegments();
-                if (providerSegments != null && providerSegments.size() > 0) {
-                    for (Segments providerSegment: providerSegments) {
-                        if (isNetworkSegmentTypeVxlan(providerSegment)) {
-                            segmentationId = providerSegment.getSegmentationId();
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return segmentationId;
-    }
-
     protected static List<Uuid> getNeutronRouterSubnetIds(DataBroker broker, Uuid routerId) {
         logger.info("getNeutronRouterSubnetIds for {}", routerId.getValue());
 
@@ -241,16 +221,6 @@ public class NeutronvpnUtils {
     protected static String uuidToTapPortName(Uuid id) {
         String tapId = id.getValue().substring(0, 11);
         return new StringBuilder().append("tap").append(tapId).toString();
-    }
-
-    protected static boolean isPortVnicTypeNormal(Port port) {
-        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
-        if(portBinding == null || portBinding.getVnicType() == null) {
-            // By default, VNIC_TYPE is NORMAL
-            return true;
-        }
-        String vnicType = portBinding.getVnicType().trim().toLowerCase();
-        return vnicType.equals(VNIC_TYPE_NORMAL);
     }
 
     protected static boolean lock(LockManagerService lockManager, String lockName) {
@@ -364,10 +334,5 @@ public class NeutronvpnUtils {
         }
 
         return result;
-    }
-
-    static boolean isNetworkSegmentTypeVxlan(Segments providerSegment) {
-        Class<? extends NetworkTypeBase> networkType = providerSegment.getNetworkType();
-        return (networkType != null && networkType.isAssignableFrom(NetworkTypeVxlan.class));
     }
 }
