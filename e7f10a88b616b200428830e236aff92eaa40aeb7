@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_31031411",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/HostConfigService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-22T14:06:56Z",
+      "side": 1,
+      "message": "Move this to trace level. I know the SouthboundHandler also has it at info level but we need to move that.\n\npossibly even move the log down to just before the switch, since we don\u0027t care unless this is a node update with other_config.",
+      "revId": "e7f10a88b616b200428830e236aff92eaa40aeb7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_9c25d7ad",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/HostConfigService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-22T14:06:56Z",
+      "side": 1,
+      "message": "Remove this log since the method does not do anything.\n\nOr should we have code in here which reads from the southbound and populates the mdsal? triggerUpdates() is typically called when an openflow node is first added to update anything that might have happened previously - like a set of compute nodes were up and tunnels already created but now this new node needs to be included.\n\nThis probably isn\u0027t a likely scenario, though, since the ovsdbUpdate() should be called - and that is where you would likely call triggerUpdates().",
+      "revId": "e7f10a88b616b200428830e236aff92eaa40aeb7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_5c797f92",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/HostConfigService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-22T14:06:56Z",
+      "side": 1,
+      "message": "maybe a different name for the method since it is doing extract from ovsdb and creating Hostconfig.",
+      "revId": "e7f10a88b616b200428830e236aff92eaa40aeb7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_fc405337",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/HostConfigService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-22T14:06:56Z",
+      "side": 1,
+      "message": "Probably don\u0027t need to log this since it is valid that there is no config.",
+      "revId": "e7f10a88b616b200428830e236aff92eaa40aeb7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_3c4beb5a",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/HostConfigService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-22T14:06:56Z",
+      "side": 1,
+      "message": "same for these warn\u0027s - we could end up with numerous warnings in the logs which don\u0027t add value and might be distracting.",
+      "revId": "e7f10a88b616b200428830e236aff92eaa40aeb7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
