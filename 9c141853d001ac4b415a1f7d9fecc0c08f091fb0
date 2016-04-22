@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_9cb037f6",
+        "filename": "openstack/net-virt-sfc/impl/src/main/java/org/opendaylight/netvirt/openstack/netvirt/sfc/workaround/services/SfcClassifierService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-04-22T15:38:55Z",
+      "side": 1,
+      "message": "are there any openflowplugin constants that can be used instead of 0x1?",
+      "revId": "9c141853d001ac4b415a1f7d9fecc0c08f091fb0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
