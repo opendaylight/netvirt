@@ -28,6 +28,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.packet.ARP;
 import org.opendaylight.vpnservice.mdsalutil.packet.Ethernet;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -232,6 +233,19 @@ public class VpnUtil {
         String rd = null;
         if(vpnInstance.isPresent()) {
             rd = vpnInstance.get().getVrfId();
+        }
+        return rd;
+    }
+
+    static String getVpnRdFromVpnInstanceConfig(DataBroker broker, String vpnName) {
+        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+        Optional<VpnInstance> vpnInstance = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        String rd = null;
+        if(vpnInstance.isPresent()) {
+            VpnInstance instance = vpnInstance.get();
+            VpnAfConfig config = instance.getIpv4Family();
+            rd = config.getRouteDistinguisher();
         }
         return rd;
     }

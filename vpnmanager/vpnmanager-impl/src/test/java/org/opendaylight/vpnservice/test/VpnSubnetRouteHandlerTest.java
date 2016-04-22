@@ -26,6 +26,10 @@ import org.opendaylight.vpnservice.VpnInterfaceManager;
 import org.opendaylight.vpnservice.VpnSubnetRouteHandler;
 import org.opendaylight.vpnservice.interfacemgr.globals.IfmConstants;
 import org.opendaylight.vpnservice.utilities.InterfaceUtils;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4Family;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance
+        .Ipv4FamilyBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddressBuilder;
@@ -109,6 +113,7 @@ public class VpnSubnetRouteHandlerTest {
     SubnetToDpn subnetToDpn = null;
     RdToElanOpEntry rdToElanOpEntry = null;
     String subnetIp = "10.1.1.24";
+    String routeDistinguisher = "100:1";
     String nexthopIp = null;
     String poolName = null;
     String interfaceName = "VPN";
@@ -131,9 +136,11 @@ public class VpnSubnetRouteHandlerTest {
     DPNTEPsInfo dpntePsInfo = null;
     TunnelEndPoints tunlEndPts = null;
     IpAddress ipAddress = null;
+    Ipv4Family ipv4Family = null;
     String idKey = null;
     AllocateIdOutput allocateIdOutput = null;
     AllocateIdInput allocateIdInput = null;
+    org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance vpnInstnce;
 
     InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
             .state.Interface> ifStateId = InterfaceUtils.buildStateInterfaceId(portKey);
@@ -153,6 +160,11 @@ public class VpnSubnetRouteHandlerTest {
             child(RdToElanOpEntry.class, new RdToElanOpEntryKey(interfaceName, subnetIp)).build();
     InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.to.vpn.id
             .VpnInstance> instVpnInstance = getVpnInstanceToVpnIdIdentifier(interfaceName);
+    InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.
+            VpnInstance> vpnInstanceIdentifier = InstanceIdentifier.builder(VpnInstances.class).child(org.opendaylight
+            .yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance.class,
+            new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances
+                    .VpnInstanceKey(interfaceName)).build();
 
     @Mock DataBroker dataBroker;
     @Mock ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
@@ -174,6 +186,8 @@ public class VpnSubnetRouteHandlerTest {
     Optional<RdToElanOpEntry> optionalRd;
     Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance>
             optionalVpnInstnce;
+    Optional<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance>
+            vpnInstanceOptional;
 
     @Before
     public void setUp() throws Exception {
@@ -198,6 +212,7 @@ public class VpnSubnetRouteHandlerTest {
         optionalSubnetMap = Optional.of(subnetmap);
         optionalRd = Optional.of(rdToElanOpEntry);
         optionalVpnInstnce = Optional.of(vpnInstance);
+        vpnInstanceOptional = Optional.of(vpnInstnce);
 
         doReturn(Futures.immediateCheckedFuture(optionalRd)).when(mockReadTx).read(LogicalDatastoreType.OPERATIONAL,
                 rdIdentifier);
@@ -219,13 +234,15 @@ public class VpnSubnetRouteHandlerTest {
                 .CONFIGURATION, subMapid);
         doReturn(Futures.immediateCheckedFuture(optionalVpnInstnce)).when(mockReadTx).read(LogicalDatastoreType
                 .CONFIGURATION, instVpnInstance);
+        doReturn(Futures.immediateCheckedFuture(vpnInstanceOptional)).when(mockReadTx).read(LogicalDatastoreType
+                .CONFIGURATION,vpnInstanceIdentifier);
         doReturn(idOutputOptional).when(idManager).allocateId(allocateIdInput);
     }
 
     private void setupMocks() {
 
         nexthopIp = "10.1.1.25";
-        idKey = "VPN.10.1.1.24";
+        idKey = "100:1.10.1.1.24";
         poolName = "vpnservices";
         elanTag = Long.valueOf(2);
         longId = Long.valueOf("100");
@@ -271,7 +288,7 @@ public class VpnSubnetRouteHandlerTest {
                 .setSubnetIp(subnetIp).setVpnName(interfaceName).setElanTag(elanTag).build();
         subnetOp = new SubnetOpDataEntryBuilder().setElanTag(elanTag).setNhDpnId(dpId).setSubnetCidr(subnetIp)
                 .setSubnetId(subnetId).setKey(new SubnetOpDataEntryKey(subnetId)).setVpnName(interfaceName)
-                .setVrfId(interfaceName).setSubnetToDpn(subToDpn).setRouteAdvState(TaskState.Done).build();
+                .setVrfId(routeDistinguisher).setSubnetToDpn(subToDpn).setRouteAdvState(TaskState.Done).build();
         vpnInstance = new VpnInstanceBuilder().setVpnId(elanTag).setVpnInstanceName(interfaceName).setVrfId
                 (interfaceName).setKey(new VpnInstanceKey(interfaceName)).build();
         subnetmap = new SubnetmapBuilder().setSubnetIp(subnetIp).setId(subnetId).setNetworkId(portId).setKey(new
@@ -286,6 +303,11 @@ public class VpnSubnetRouteHandlerTest {
         rdToElanOpEntry = new RdToElanOpEntryBuilder().setElanTag(elanTag).setRd(interfaceName).setVpnName
                 (interfaceName).setNextHopIp(nexthopIp)
                 .setKey(new RdToElanOpEntryKey(interfaceName, subnetIp)).setSubnetIp(subnetIp).build();
+        ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher(routeDistinguisher).build();
+        vpnInstnce = new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances
+                .VpnInstanceBuilder().setKey(new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn
+                .rev140815.vpn.instances.VpnInstanceKey(interfaceName)).setVpnInstanceName(interfaceName)
+                .setIpv4Family(ipv4Family).build();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();

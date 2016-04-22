@@ -107,7 +107,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder().setKey(new SubnetOpDataEntryKey(subnetId));
                 subOpBuilder.setSubnetId(subnetId);
                 subOpBuilder.setSubnetCidr(subnetIp);
-                String rd = VpnUtil.getVpnRd(broker, vpnName);
+                String rd = VpnUtil.getVpnRdFromVpnInstanceConfig(broker, vpnName);
                 if (rd == null) {
                     logger.error("onSubnetAddedToVpn: The VPN Instance name " + notification.getVpnName() + " does not have RD ");
                     return;

@@ -220,12 +220,22 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                                        long vpnId, VrfEntry vrfEntry){
       makeSubnetRouteFlow(dpnId);
       List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-      List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
       Long elanTag = rdToElanOpEntry.getElanTag();
+
       instructions.add(new InstructionInfo(InstructionType.write_metadata,  new BigInteger[] { (BigInteger.valueOf(elanTag)).shiftLeft(24), MetaDataUtil.METADATA_MASK_SERVICE }));
       instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_SUBNET_ROUTE_TABLE }));
       makeConnectedRoute(dpnId,vpnId,vrfEntry,rdToElanOpEntry.getRd(),
               instructions,NwConstants.ADD_FLOW);
+
+      List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+      // reinitialize instructions list for LFIB Table
+      instructions = new ArrayList<InstructionInfo>();
+
+      actionsInfos.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
+      instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+      instructions.add(new InstructionInfo(InstructionType.write_metadata,  new BigInteger[] { (BigInteger.valueOf(elanTag)).shiftLeft(24), MetaDataUtil.METADATA_MASK_SERVICE }));
+      instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_SUBNET_ROUTE_TABLE }));
+
       makeLFibTableEntry(dpnId,vrfEntry.getLabel(),instructions,
               vrfEntry.getNextHopAddress(),NwConstants.ADD_FLOW);
       // TODO makeTunnelTableEntry();
