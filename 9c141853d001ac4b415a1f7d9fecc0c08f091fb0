@@ -16,6 +16,24 @@
       "revId": "9c141853d001ac4b415a1f7d9fecc0c08f091fb0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_623138a2",
+        "filename": "openstack/net-virt-sfc/impl/src/main/java/org/opendaylight/netvirt/openstack/netvirt/sfc/workaround/services/SfcClassifierService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 3327
+      },
+      "writtenOn": "2016-04-23T03:02:15Z",
+      "side": 1,
+      "message": "this is for NSH, openflowplugin doesn\u0027t provide this constant, it is metadata type in NSH, NSH spec defined two kinds ok metadata type, currently we implemented metadata type 1, will implement metadata type 2 later on.\n\n\nI\u0027ll change it as a static constant.",
+      "parentUuid": "fa57193c_9cb037f6",
+      "revId": "9c141853d001ac4b415a1f7d9fecc0c08f091fb0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
