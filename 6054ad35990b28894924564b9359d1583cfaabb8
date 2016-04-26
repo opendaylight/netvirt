@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_e5f38f08",
+        "filename": "features/src/main/features/features.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2016-04-26T04:37:32Z",
+      "side": 1,
+      "message": "Delete.  These are repeating the two lines above now.",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 111
+      },
+      "revId": "6054ad35990b28894924564b9359d1583cfaabb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_c5f80be8",
+        "filename": "features/src/main/features/features.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2016-04-26T04:37:32Z",
+      "side": 1,
+      "message": "I think we should delete this whole feature now since the only difference with the above feature was the -li plugin.",
+      "revId": "6054ad35990b28894924564b9359d1583cfaabb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
