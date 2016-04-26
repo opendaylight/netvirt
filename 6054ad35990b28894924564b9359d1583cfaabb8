@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "fa57193c_25c46791",
+        "filename": "features/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2016-04-26T04:43:25Z",
+      "side": 1,
+      "message": "these are duplicates too, I now realize.  patch 2 cleans it up.",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 182,
+        "endChar": 17
+      },
+      "revId": "6054ad35990b28894924564b9359d1583cfaabb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_e5f38f08",
         "filename": "features/src/main/features/features.xml",
         "patchSetId": 1
