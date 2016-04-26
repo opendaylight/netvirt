@@ -218,7 +218,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
   private void installSubnetRouteInFib(BigInteger dpnId, RdToElanOpEntry rdToElanOpEntry,
                                        long vpnId, VrfEntry vrfEntry){
-      makeSubnetRouteFlow(dpnId);
       List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
       Long elanTag = rdToElanOpEntry.getElanTag();
 
@@ -269,20 +268,24 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       return result;
   }
 
-  private void makeSubnetRouteFlow(BigInteger dpnId) {
-      //Ask Vivek cookie
+  private void makeSubnetRouteTableMissFlow(BigInteger dpnId, int addOrRemove) {
       final BigInteger COOKIE_TABLE_MISS = new BigInteger("8000004", 16);
       List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
       List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
       actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[]{}));
-      instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
+      instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
       List<MatchInfo> matches = new ArrayList<MatchInfo>();
       String flowRef = getFlowRef(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, NwConstants.TABLE_MISS_FLOW);
       FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, flowRef,
               NwConstants.TABLE_MISS_PRIORITY, "Subnet Route Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
 
-      LOG.debug("Invoking MDSAL to install Table Miss Entries");
-      mdsalManager.syncInstallFlow(flowEntity,1);
+      if (addOrRemove == NwConstants.ADD_FLOW) {
+          LOG.debug("Invoking MDSAL to install SubnetRoute Table Miss Entries for DPN" + dpnId);
+          mdsalManager.installFlow(flowEntity);
+      } else {
+          LOG.debug("Invoking MDSAL to remove SubnetRoute Table Miss Entries for DPN " + dpnId);
+          mdsalManager.removeFlow(flowEntity);
+      }
   }
 
   private Collection<BigInteger> getDpnsForVpn(VpnInstanceOpDataEntry vpnInstance) {
@@ -898,6 +901,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpnId);
         makeTableMissFlow(dpnId, NwConstants.ADD_FLOW);
         makeL3IntfTblMissFlow(dpnId, NwConstants.ADD_FLOW);
+        makeSubnetRouteTableMissFlow(dpnId, NwConstants.ADD_FLOW);
     }
 
     private void makeTableMissFlow(BigInteger dpnId, int addOrRemove) {

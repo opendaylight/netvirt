@@ -352,7 +352,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
-        instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
         // Install the flow entry in L3_INTERFACE_TABLE
         String flowRef = VpnUtil.getFlowRef(dpId, NwConstants.L3_INTERFACE_TABLE,

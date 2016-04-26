@@ -52,6 +52,7 @@ import java.nio.charset.StandardCharsets;
 import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
 import org.opendaylight.vpnservice.mdsalutil.ActionType;
 import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
+import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 
 public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
@@ -70,17 +71,22 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
     public void onPacketReceived(PacketReceived notification) {
 
-        s_logger.debug("SubnetRoutePacketInHandler: PacketReceived invoked...");
+        s_logger.trace("SubnetRoutePacketInHandler: PacketReceived invoked...");
 
         short tableId = notification.getTableId().getValue();
         byte[] data = notification.getPayload();
         BigInteger metadata = notification.getMatch().getMetadata().getMetadata();
         Ethernet res = new Ethernet();
 
-        if (notification.getPacketInReason() == SendToController.class) { /*&& tableId == VpnConstants.FIB_TABLE) {*/
+        if (tableId == NwConstants.L3_SUBNET_ROUTE_TABLE) {
+            s_logger.trace("SubnetRoutePacketInHandler: Some packet received as {}", notification);
             try {
-                s_logger.debug("SubnetRoutePacketInHandler: Some packet received");
                 res.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
+            } catch (Exception e) {
+                s_logger.warn("SubnetRoutePacketInHandler: Failed to decode Packet ", e);
+                return;
+            }
+            try {
                 Packet pkt = res.getPayload();
                 if (pkt instanceof IPv4) {
                     IPv4 ipv4 = (IPv4) pkt;
@@ -96,25 +102,40 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                         return;
                     }
                     long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
-                    s_logger.debug("SubnetRoutePacketInHandler: Elan Tag obtained as {}" , elanTag);
                     if (elanTag == 0) {
                         s_logger.error("SubnetRoutePacketInHandler: elanTag value from metadata found to be 0, for IPv4 " +
                                 "Packet received with Target IP {}", dstIpStr);
                         return;
                     }
                     s_logger.info("SubnetRoutePacketInHandler: Processing IPv4 Packet received with Source IP {} "
-                            + "and Target IP {}", srcIpStr, dstIpStr);
-                    BigInteger dpnId = getTargetDpnForPacketOut(broker, elanTag,  ipv4.getDestinationAddress());
+                            + "and Target IP {} and elan Tag {}", srcIpStr, dstIpStr, elanTag);
+                    BigInteger dpnId = getTargetDpnForPacketOut(broker, elanTag, ipv4.getDestinationAddress());
                     //Handle subnet routes ip requests
                     if (dpnId != BigInteger.ZERO) {
                         long groupid = VpnUtil.getRemoteBCGroup(elanTag);
                         String key = srcIpStr + dstIpStr;
                         sendArpRequest(dpnId, groupid, srcMac, srcIp, dstIp);
-                        arpList.add(key);
                     }
                     return;
                 }
+            } catch (Exception ex) {
+                //Failed to handle packet
+                s_logger.error("SubnetRoutePacketInHandler: Failed to handle subnetroute packets ", ex);
+            }
+            return;
+        }
 
+        if (tableId == NwConstants.L3_INTERFACE_TABLE) {
+            s_logger.trace("SubnetRoutePacketInHandler: Packet from Table {} received as {}",
+                    NwConstants.L3_INTERFACE_TABLE, notification);
+            try {
+                res.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
+            } catch (Exception e) {
+                s_logger.warn("SubnetRoutePacketInHandler: Failed to decode Table " + NwConstants.L3_INTERFACE_TABLE + " Packet ", e);
+                return;
+            }
+            try {
+                Packet pkt = res.getPayload();
                 if (pkt instanceof ARP) {
                     s_logger.debug("SubnetRoutePacketInHandler: ARP packet received");
                     ARP arpPacket = (ARP) pkt;
@@ -126,57 +147,58 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                         byte[] respDst = arpPacket.getTargetProtocolAddress();
                         String respIp = toStringIpAddress(respSrc);
                         String check = toStringIpAddress(respDst) + respIp;
-                        if (arpList.contains(check)) {
-                            s_logger.debug("SubnetRoutePacketInHandler: ARP reply received for listening target IP " + respIp);
-                            String destination = VpnUtil.getIpPrefix(respIp);
-                            long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
-                            s_logger.debug("SubnetRoutePacketInHandler Lport Tag of arp replier " + portTag);
-                            IfIndexInterface interfaceInfo = VpnUtil.getInterfaceInfoByInterfaceTag(broker, portTag);
-                            String ifName = interfaceInfo.getInterfaceName();
-                            InstanceIdentifier<VpnInterface> vpnIfIdentifier = VpnUtil.getVpnInterfaceIdentifier(ifName);
-                            VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(broker, ifName);
+                        if (VpnUtil.getNeutronPortNamefromPortFixedIp(broker, respIp) != null) {
+                            s_logger.debug("SubnetRoutePacketInHandler: ARP reply Packet received with "
+                                    + "Source IP {} which is a valid Neutron port, ignoring subnet route processing", respIp);
+                            return;
+                        }
+                        String destination = VpnUtil.getIpPrefix(respIp);
+                        long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
+                        s_logger.info("SubnetRoutePacketInHandler: ARP reply received for target IP {} from LPort {}" + respIp, portTag);
+                        IfIndexInterface interfaceInfo = VpnUtil.getInterfaceInfoByInterfaceTag(broker, portTag);
+                        String ifName = interfaceInfo.getInterfaceName();
+                        InstanceIdentifier<VpnInterface> vpnIfIdentifier = VpnUtil.getVpnInterfaceIdentifier(ifName);
+                        VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(broker, ifName);
 
-                            //Get VPN interface adjacencies
-                            if (vpnInterface != null) {
-                                InstanceIdentifier<Adjacencies> path = vpnIfIdentifier.augmentation(Adjacencies.class);
-                                Optional<Adjacencies> adjacencies = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
-                                String nextHopIpAddr = null;
-                                String nextHopMacAddress = null;
-                                if (adjacencies.isPresent()) {
-                                    List<Adjacency> adjacencyList = adjacencies.get().getAdjacency();
-                                    for (Adjacency adjacs : adjacencyList) {
-                                        if (adjacs.getMacAddress() != null && !adjacs.getMacAddress().isEmpty()) {
-                                            nextHopIpAddr = adjacs.getIpAddress();
-                                            nextHopMacAddress = adjacs.getMacAddress();
-                                            break;
-                                        }
-                                    }
-                                    if (nextHopMacAddress != null && destination != null) {
-                                        String rd = VpnUtil.getVpnRd(broker, vpnInterface.getVpnInstanceName());
-                                        long label =
-                                                VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                                                        VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnInterface.getVpnInstanceName(), destination));
-                                        String nextHopIp = nextHopIpAddr.split("/")[0];
-                                        Adjacency newAdj = new AdjacencyBuilder().setIpAddress(destination).setKey
-                                                (new AdjacencyKey(destination)).setNextHopIp(nextHopIp).build();
-                                        adjacencyList.add(newAdj);
-                                        Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
-                                        VpnInterface newVpnIntf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(vpnInterface.getName())).
-                                                setName(vpnInterface.getName()).setVpnInstanceName(vpnInterface.getVpnInstanceName()).
-                                                addAugmentation(Adjacencies.class, aug).build();
-                                        VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, newVpnIntf);
-                                        s_logger.debug("SubnetRoutePacketInHandler: Successfully stored subnetroute Adjacency into VpnInterface {}", newVpnIntf);
+                        //Get VPN interface adjacencies
+                        if (vpnInterface != null) {
+                            InstanceIdentifier<Adjacencies> path = vpnIfIdentifier.augmentation(Adjacencies.class);
+                            Optional<Adjacencies> adjacencies = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
+                            String nextHopIpAddr = null;
+                            String nextHopMacAddress = null;
+                            if (adjacencies.isPresent()) {
+                                List<Adjacency> adjacencyList = adjacencies.get().getAdjacency();
+                                for (Adjacency adjacs : adjacencyList) {
+                                    if (adjacs.getMacAddress() != null && !adjacs.getMacAddress().isEmpty()) {
+                                        nextHopIpAddr = adjacs.getIpAddress();
+                                        nextHopMacAddress = adjacs.getMacAddress();
+                                        break;
                                     }
                                 }
+                                if (nextHopMacAddress != null && destination != null) {
+                                    String rd = VpnUtil.getVpnRd(broker, vpnInterface.getVpnInstanceName());
+                                    long label =
+                                            VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                                                    VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnInterface.getVpnInstanceName(), destination));
+                                    String nextHopIp = nextHopIpAddr.split("/")[0];
+                                    Adjacency newAdj = new AdjacencyBuilder().setIpAddress(destination).setKey
+                                            (new AdjacencyKey(destination)).setNextHopIp(nextHopIp).build();
+                                    adjacencyList.add(newAdj);
+                                    Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
+                                    VpnInterface newVpnIntf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(vpnInterface.getName())).
+                                            setName(vpnInterface.getName()).setVpnInstanceName(vpnInterface.getVpnInstanceName()).
+                                            addAugmentation(Adjacencies.class, aug).build();
+                                    VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, newVpnIntf);
+                                    s_logger.debug("SubnetRoutePacketInHandler: Successfully stored subnetroute Adjacency into VpnInterface {}", newVpnIntf);
+                                }
                             }
-                            //Remove from list once response was processed
-                            arpList.remove(check);
                         }
                     }
                 }
             } catch (Exception ex) {
                 //Failed to decode packet
-                s_logger.error("SubnetRoutePacketInHandler: Failed to handle subnetroute packets {}", ex);
+                s_logger.error("SubnetRoutePacketInHandler: Failed to handle subnetroute Table " + NwConstants.L3_INTERFACE_TABLE +
+                        " packets ", ex);
             }
         }
     }
@@ -190,10 +212,6 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         }
         InstanceIdentifier<NetworkMap> networkId = InstanceIdentifier.builder(NetworkMaps.class)
                 .child(NetworkMap.class, new NetworkMapKey(new Uuid(elanInfo.getName()))).build();
-        s_logger.trace("SubnetRoutePacketInHandler: Obtained target ip address as " + ipAddress);
-        s_logger.trace("SubnetRoutePacketInHandler: Obtained elanTag as " + elanTag);
-        s_logger.trace("SubnetRoutePacketInHandler: Obtained elanInfo as " + elanInfo);
-        s_logger.trace("SubnetRoutePacketInHandler: Obtained network name as " + elanInfo.getName());
 
         Optional<NetworkMap> optionalNetworkMap = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, networkId);
         if (optionalNetworkMap.isPresent()) {
@@ -207,9 +225,9 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 if (!optionalSubs.isPresent()) {
                     continue;
                 }
-                s_logger.trace("SubnetRoutePacketInHandler: Viewing Subnet " + subnetId.getValue());
                 SubnetOpDataEntry subOpEntry = optionalSubs.get();
                 if (subOpEntry.getNhDpnId() != null) {
+                    s_logger.trace("SubnetRoutePacketInHandler: Viewing Subnet " + subnetId);
                     boolean match = VpnUtil.isIpInSubnet(ipAddress, subOpEntry.getSubnetCidr());
                     s_logger.trace("SubnetRoutePacketInHandler: Viewing Subnet " + subnetId + " matching " + match);
                     if (match) {
@@ -256,8 +274,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private void sendArpRequest(BigInteger dpnId, long groupId, byte[] abySenderMAC, byte[] abySenderIpAddress,
                                 byte[] abyTargetIpAddress) {
 
-        s_logger.info("SubnetRoutePacketInHandler: sendArpRequest dpnId {}, groupId {}, senderMAC {}, senderIPAddress {}, targetIPAddress {}",
-                dpnId, groupId,new String(abySenderMAC, StandardCharsets.UTF_8),
+        s_logger.info("SubnetRoutePacketInHandler: sendArpRequest dpnId {}, groupId {}, senderIPAddress {}, targetIPAddress {}",
+                dpnId, groupId,
                 toStringIpAddress(abySenderIpAddress),toStringIpAddress(abyTargetIpAddress));
         if (abySenderIpAddress != null) {
             byte[] arpPacket;
@@ -293,8 +311,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             arp.setTargetProtocolAddress(targetIP);
             rawArpPkt = arp.serialize();
         } catch (Exception ex) {
-            s_logger.error("VPNUtil:  Serialized ARP packet with senderMacAddress {} senderIp {} targetIP {} exception {}",
-                    senderMacAddress, senderIP, targetIP, ex);
+            s_logger.error("VPNUtil:  Serialized ARP packet with senderIp {} targetIP {} exception ",
+                    senderIP, targetIP, ex);
         }
 
         return rawArpPkt;
@@ -310,7 +328,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             ethernet.setRawPayload(arp);
             rawEthPkt = ethernet.serialize();
         } catch (Exception ex) {
-            s_logger.error("VPNUtil:  Serialized Ethernet packet with sourceMacAddress {} targetMacAddress {} exception {}",
+            s_logger.error("VPNUtil:  Serialized Ethernet packet with sourceMacAddress {} targetMacAddress {} exception ",
                     sourceMAC, targetMAC, ex);
         }
         return rawEthPkt;
