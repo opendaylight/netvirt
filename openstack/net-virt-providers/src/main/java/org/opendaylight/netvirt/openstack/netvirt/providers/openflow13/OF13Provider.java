@@ -1175,7 +1175,15 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                     }
 
                     if (sourceTunnelStatus) {
-                        programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, intf, true);
+                        boolean srcFlowNeeded = tenantNetworkManager.isTenantNetworkPresentInNode(srcBridgeNode, segmentationId);
+                        boolean destFlowNeeded = tenantNetworkManager.isTenantNetworkPresentInNode(dstBridgeNode, segmentationId);
+                        //Check whether the network is present in src & dst node
+                        //If only present , add vxlan ports in TunnelRules for both nodes (bug# 5614)
+                        if (srcFlowNeeded && destFlowNeeded) {
+                            LOG.info("flowNeeded::");
+                            programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, intf, true);
+                            programTunnelRules(networkType, segmentationId, src, dstBridgeNode, intf, true);
+                        }
                     }
                     if (destTunnelStatus) {
                         programTunnelRules(networkType, segmentationId, src, dstBridgeNode, intf, false);
@@ -1260,12 +1268,21 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                                 + intf.getName() + " on srcNode " + srcNode.getNodeId().getValue());
                         removeTunnelRules(tunnelType, network.getProviderSegmentationID(),
                                 dst, srcNode, intf, true, isLastInstanceOnNode);
+                        Node srcBridgeNode = southbound.getBridgeNode(srcNode, configurationService.getIntegrationBridgeName());
                         Node dstBridgeNode = southbound.getBridgeNode(dstNode, Constants.INTEGRATION_BRIDGE);
+                        String segmentationId = network.getProviderSegmentationID();
+                        //While removing last instance , check whether the network present in src node 
+                        //If network is not present in src node , remove the vxlan port of src from dst node in TunnelRules(Bug# 5614)
+                        boolean srcFlowNeeded = tenantNetworkManager.isTenantNetworkPresentInNode(srcBridgeNode, segmentationId);
+                        if (!srcFlowNeeded) {
+                            removeTunnelRules(tunnelType, network.getProviderSegmentationID(),
+                                src, dstBridgeNode, intf, true, isLastInstanceOnNode);
+                        }
                         if (dstBridgeNode != null){
                             LOG.info("Remove tunnel rules for interface "
                                     + intf.getName() + " on dstNode " + dstNode.getNodeId().getValue());
-                            removeTunnelRules(tunnelType, network.getProviderSegmentationID(),
-                                    src, dstBridgeNode, intf, false, isLastInstanceOnNode);
+                            removeTunnelRules(tunnelType, segmentationId, src,
+                                    dstBridgeNode, intf, false, isLastInstanceOnNode);
                         }
                     } else {
                         LOG.warn("Tunnel end-point configuration missing. Please configure it in "
