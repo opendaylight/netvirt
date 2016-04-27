@@ -16,6 +16,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyShort;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -364,6 +365,10 @@ public class OF13ProviderTest {
         MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "programLocalRules", String.class, String.class, Node.class, OvsdbTerminationPointAugmentation.class));
         MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "programVlanRules", NeutronNetwork.class, Node.class, OvsdbTerminationPointAugmentation.class));
 
+        TenantNetworkManager tenantNetworkManager = mock(TenantNetworkManager.class);
+        MemberModifier.field(OF13Provider.class, "tenantNetworkManager").set(of13Provider, tenantNetworkManager);
+        when(tenantNetworkManager.isTenantNetworkPresentInNode(any(Node.class), eq(ID))).thenReturn(true);
+
         assertTrue("Error, did not update the interface correclty", of13Provider.handleInterfaceUpdate(neutronNetwork, mock(Node.class), mock(OvsdbTerminationPointAugmentation.class)));
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("programLocalRules", anyString(), anyString(), any(Node.class), any(OvsdbTerminationPointAugmentation.class));
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("programVlanRules", any(NeutronNetwork.class), any(Node.class), any(OvsdbTerminationPointAugmentation.class));
@@ -375,7 +380,7 @@ public class OF13ProviderTest {
 
         assertTrue("Error, did not update the interface correclty", of13Provider.handleInterfaceUpdate(neutronNetwork, mock(Node.class), mock(OvsdbTerminationPointAugmentation.class)));
         PowerMockito.verifyPrivate(of13Provider, times(2)).invoke("addTunnelPort", any(Node.class), anyString(), any(InetAddress.class), any(InetAddress.class));
-        PowerMockito.verifyPrivate(of13Provider, times(2)).invoke("programTunnelRules", anyString(), anyString(), any(InetAddress.class), any(Node.class), any(OvsdbTerminationPointAugmentation.class), anyBoolean());
+        PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("programTunnelRules", anyString(), anyString(), any(InetAddress.class), any(Node.class), any(OvsdbTerminationPointAugmentation.class), anyBoolean());
     }
 
     private static final String INTF = "interface";
@@ -436,12 +441,16 @@ public class OF13ProviderTest {
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("removeLocalRules",  anyString(), anyString(), any(Node.class), any(OvsdbTerminationPointAugmentation.class));
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("removeVlanRules",  any(NeutronNetwork.class), any(Node.class), any(OvsdbTerminationPointAugmentation.class), anyBoolean());
 
+        TenantNetworkManager tenantNetworkManager = mock(TenantNetworkManager.class);
+        MemberModifier.field(OF13Provider.class, "tenantNetworkManager").set(of13Provider, tenantNetworkManager);
+        when(tenantNetworkManager.isTenantNetworkPresentInNode(any(Node.class), eq(ID))).thenReturn(true);
+
         when(neutronNetwork.getProviderNetworkType()).thenReturn(NetworkHandler.NETWORK_TYPE_GRE);
         when(southbound.getBridgeNode(any(Node.class), anyString())).thenReturn(node);
         MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "removeTunnelRules", String.class, String.class, InetAddress.class, Node.class, OvsdbTerminationPointAugmentation.class, boolean.class, boolean.class));
 
         assertTrue("Error, did not delete the interface correclty", of13Provider.handleInterfaceDelete(TYPE,  neutronNetwork, node, intf, false));
-        PowerMockito.verifyPrivate(of13Provider, times(2)).invoke("removeTunnelRules", anyString(), anyString(), any(InetAddress.class), any(Node.class), any(OvsdbTerminationPointAugmentation.class), any(boolean.class), any(boolean.class));
+        PowerMockito.verifyPrivate(of13Provider, times(3)).invoke("removeTunnelRules", anyString(), anyString(), any(InetAddress.class), any(Node.class), any(OvsdbTerminationPointAugmentation.class), any(boolean.class), any(boolean.class));
     }
 
     // Problem with methods signatures: initializeFlowRules(Node) has the same signature than initializeFlowRules(Node, String)
