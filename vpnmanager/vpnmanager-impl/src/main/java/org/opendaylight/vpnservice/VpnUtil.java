@@ -452,7 +452,6 @@ public class VpnUtil {
 
     public static boolean isIpInSubnet(int ipAddress, String subnetCidr) {
         String[] subSplit = subnetCidr.split("/");
-        LOG.trace("SubnetRoutePacketInHandler: Viewing Subnet Split " + subSplit);
         if (subSplit.length < 2) {
             return false;
         }
@@ -468,9 +467,6 @@ public class VpnUtil {
         }
         int prefixLength = Integer.valueOf(subSplit[1]);
         int mask = -1 << (32 - prefixLength);
-        LOG.trace("SubnetRoutePacketInHandler: prefixLength " + prefixLength + " mask " + mask);
-        LOG.trace("SubnetRoutePacketInHandler: subnet & mask " + (subnet & mask));
-        LOG.trace("SubnetRoutePacketInHandler: subnet & mask " + (ipAddress & mask));
         if ((subnet & mask) == (ipAddress & mask)) {
             return true;
         }
