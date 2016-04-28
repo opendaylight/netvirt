@@ -8,6 +8,10 @@
 
 package org.opendaylight.netvirt.routemgr.net;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.slf4j.Logger;
@@ -19,16 +23,12 @@ public class VirtualPort  {
 
     private Uuid      intfUUID;
     private Uuid      nodeUUID;
-    private Uuid      subnetID;
     private Uuid      networkID;
-    private IpAddress ipAddr;
     private String    macAddress;
     private Boolean   routerIntfFlag;
     private String    dpId;
     private Long      ofPort;
-
-    // associated subnet
-    private VirtualSubnet subnet = null;
+    private HashMap<Uuid, SubnetInfo> snetInfo;
 
     // associated router if any
     private VirtualRouter router = null;
@@ -39,6 +39,10 @@ public class VirtualPort  {
      * Logger instance.
      */
     static final Logger logger = LoggerFactory.getLogger(VirtualPort.class);
+
+    public VirtualPort() {
+        snetInfo = new HashMap<Uuid, SubnetInfo>();
+    }
 
     public Uuid getIntfUUID() {
         return intfUUID;
@@ -58,15 +62,6 @@ public class VirtualPort  {
         return this;
     }
 
-    public Uuid getSubnetID() {
-        return subnetID;
-    }
-
-    public VirtualPort setSubnetID(Uuid subnetID) {
-        this.subnetID = subnetID;
-        return this;
-    }
-
     public Uuid getNetworkID() {
         return intfUUID;
     }
@@ -76,13 +71,47 @@ public class VirtualPort  {
         return this;
     }
 
-    public IpAddress getIpAddr() {
-        return ipAddr;
+    public VirtualPort setSubnetInfo(Uuid snetID, IpAddress fixedIp) {
+        SubnetInfo sInfo = snetInfo.get(snetID);
+        if (sInfo == null) {
+            sInfo = new SubnetInfo(snetID, fixedIp);
+            snetInfo.put(snetID, sInfo);
+        } else {
+            sInfo.setIpAddr(fixedIp);
+        }
+        return this;
     }
 
-    public VirtualPort setIpAddr(IpAddress ipAddr) {
-        this.ipAddr = ipAddr;
-        return this;
+    public void removeSubnetInfo(Uuid snetID) {
+        this.snetInfo.remove(snetID);
+    }
+
+    public void setSubnet(Uuid snetID, VirtualSubnet subnet) {
+        SubnetInfo sInfo = snetInfo.get(snetID);
+        if (sInfo == null) {
+            logger.info("Subnet {} not associated with the virtual port {}",
+                snetID, intfUUID);
+            return;
+        }
+        sInfo.setSubnet(subnet);
+    }
+
+    public List<VirtualSubnet> getSubnets() {
+        List<VirtualSubnet> subnetList = new ArrayList<>();
+        for(SubnetInfo sInfo : snetInfo.values()) {
+            if(sInfo.getSubnet() != null) {
+                subnetList.add(sInfo.getSubnet());
+            }
+        }
+        return subnetList;
+    }
+
+    public List<IpAddress> getIpAddresses() {
+        List<IpAddress> ipAddrList = new ArrayList<>();
+        for(SubnetInfo sInfo : snetInfo.values()) {
+            ipAddrList.add(sInfo.getIpAddr());
+        }
+        return ipAddrList;
     }
 
     public String getMacAddress() {
@@ -111,14 +140,6 @@ public class VirtualPort  {
         return router;
     }
 
-    public void setSubnet(VirtualSubnet subnet) {
-        this.subnet = subnet;
-    }
-
-    public VirtualSubnet getSubnet() {
-        return subnet;
-    }
-
     public VirtualPort setDpId(String dpId) {
         this.dpId = dpId;
         return this;
@@ -143,8 +164,48 @@ public class VirtualPort  {
             }
         }
 
-        if (subnet != null) {
-            subnet.removeInterface(this);
+        for (SubnetInfo sInfo: snetInfo.values()) {
+            if(sInfo.getSubnet() != null) {
+                sInfo.getSubnet().removeInterface(this);
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "VirtualPort[IntfUUid=" + intfUUID + " NodeUUId=" + nodeUUID+" subnetInfo=" +
+            snetInfo + " NetworkId=" + networkID + " mac=" + " ofPort=" + ofPort +
+            macAddress + " routerFlag=" + routerIntfFlag + " dpId=" + dpId + "]";
+    }
+
+    private class SubnetInfo {
+        private Uuid      subnetID;
+        private IpAddress ipAddr;
+        // associated subnet
+        private VirtualSubnet subnet = null;
+
+        public SubnetInfo(Uuid subnetId, IpAddress ipAddr) {
+            this.subnetID = subnetId;
+            this.ipAddr = ipAddr;
+        }
+        public Uuid getSubnetID() {
+            return subnetID;
+        }
+        public IpAddress getIpAddr() {
+            return ipAddr;
+        }
+        public void setIpAddr(IpAddress ipAddr) {
+            this.ipAddr = ipAddr;
+        }
+        public VirtualSubnet getSubnet() {
+            return subnet;
+        }
+        public void setSubnet(VirtualSubnet subnet) {
+            this.subnet = subnet;
+        }
+        @Override
+        public String toString() {
+            return "subnetInfot[subnetId=" + subnetID + " ipAddr=" + ipAddr +" ]";
         }
     }
 }
