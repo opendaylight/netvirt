@@ -8,15 +8,18 @@
 
 package org.opendaylight.netvirt.routemgr.net;
 
+import com.google.common.net.InetAddresses;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.AllocationPools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class IfMgr {
 
@@ -29,11 +32,12 @@ public class IfMgr {
     private HashMap<Uuid, VirtualRouter> vrouters;
     private HashMap<Uuid, VirtualSubnet> vsubnets;
     private HashMap<Uuid, VirtualPort> vintfs;
+    private HashMap<Ipv6Address, VirtualPort> v6IntfMap;
     private HashMap<Uuid, List<VirtualPort>> unprocessedRouterIntfs;
     private HashMap<Uuid, List<VirtualPort>> unprocessedSubnetIntfs;
     private static final IfMgr IFMGR_INSTANCE = new IfMgr();
 
-    private IfMgr () {
+    private IfMgr() {
         init();
     }
 
@@ -41,6 +45,7 @@ public class IfMgr {
         this.vrouters = new HashMap<>();
         this.vsubnets = new HashMap<>();
         this.vintfs = new HashMap<>();
+        this.v6IntfMap = new HashMap<>();
         this.unprocessedRouterIntfs = new HashMap<>();
         this.unprocessedSubnetIntfs = new HashMap<>();
         logger.info("IfMgr is enabled");
@@ -70,7 +75,7 @@ public class IfMgr {
             List<VirtualPort> intfList = unprocessedRouterIntfs.get(rtrUuid);
 
             if (intfList == null) {
-                logger.info ("intfList is null for {}", rtrUuid);
+                logger.info("intfList is null for {}", rtrUuid);
                 return;
             }
 
@@ -79,9 +84,8 @@ public class IfMgr {
                     intf.setRouter(rtr);
                     rtr.addInterface(intf);
 
-                    VirtualSubnet snet = intf.getSubnet();
-                    if (snet != null) {
-                        snet.setRouter(rtr);
+                    for (VirtualSubnet snet : intf.getSubnets()) {
+                        rtr.addSubnet(snet);
                     }
                 }
             }
@@ -143,12 +147,12 @@ public class IfMgr {
 
             List<VirtualPort> intfList = unprocessedSubnetIntfs.get(snetId);
             if (intfList == null) {
-                logger.info ("interfaces are not available for the subnet {}", snetId);
+                logger.info("interfaces are not available for the subnet {}", snetId);
                 return;
             }
             for (VirtualPort intf : intfList) {
                 if (intf != null) {
-                    intf.setSubnet(snet);
+                    intf.setSubnet(snetId, snet);
                     snet.addInterface(intf);
 
                     VirtualRouter rtr = intf.getRouter();
@@ -187,6 +191,14 @@ public class IfMgr {
 
     public void addRouterIntf(Uuid portId, Uuid rtrId, Uuid snetId,
                               Uuid networkId, IpAddress fixedIp, String macAddress) {
+        logger.debug("addRouterIntf portId {}, rtrId {}, snetId {}, networkId {}, ip {}, mac {}",
+            portId, rtrId, snetId, networkId, fixedIp, macAddress);
+        //Save the interface ipv6 address in its fully expanded format
+        if (fixedIp.getIpv6Address() != null) {
+            Ipv6Address addr = new Ipv6Address
+                (InetAddresses.forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
+            fixedIp = new IpAddress(addr);
+        }
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
             intf = new VirtualPort();
@@ -194,38 +206,48 @@ public class IfMgr {
                 vintfs.put(portId, intf);
             } else {
                 logger.error("Create rtr intf failed for :{}", portId);
+                return;
             }
-        }
-
-        if (intf != null) {
             intf.setIntfUUID(portId)
                     .setNodeUUID(rtrId)
-                    .setSubnetID(snetId)
-                    .setIpAddr(fixedIp)
+                    .setSubnetInfo(snetId, fixedIp)
                     .setNetworkID(networkId)
                     .setMacAddress(macAddress)
                     .setRouterIntfFlag(true);
+        } else {
+            intf.setSubnetInfo(snetId, fixedIp);
+        }
 
-            VirtualRouter rtr = vrouters.get(rtrId);
-            VirtualSubnet snet = vsubnets.get(snetId);
+        VirtualRouter rtr = vrouters.get(rtrId);
+        VirtualSubnet snet = vsubnets.get(snetId);
 
-            if (rtr != null && snet != null) {
-                snet.setRouter(rtr);
-                intf.setSubnet(snet);
-                rtr.addSubnet(snet);
-            } else if (snet != null) {
-                intf.setSubnet(snet);
-                addUnprocessed(unprocessedRouterIntfs, rtrId, intf);
-            } else {
-                addUnprocessed(unprocessedRouterIntfs, rtrId, intf);
-                addUnprocessed(unprocessedSubnetIntfs, snetId, intf);
-            }
+        if (rtr != null && snet != null) {
+            snet.setRouter(rtr);
+            intf.setSubnet(snetId, snet);
+            rtr.addSubnet(snet);
+        } else if (snet != null) {
+            intf.setSubnet(snetId, snet);
+            addUnprocessed(unprocessedRouterIntfs, rtrId, intf);
+        } else {
+            addUnprocessed(unprocessedRouterIntfs, rtrId, intf);
+            addUnprocessed(unprocessedSubnetIntfs, snetId, intf);
+        }
+        if (fixedIp.getIpv6Address() != null) {
+            v6IntfMap.put(fixedIp.getIpv6Address(), intf);
         }
         return;
     }
 
     public void addHostIntf(Uuid portId, Uuid snetId, Uuid networkId,
                             IpAddress fixedIp, String macAddress) {
+        logger.debug("addHostIntf portId {}, snetId {}, networkId {}, ip {}, mac {}",
+            portId, snetId, networkId, fixedIp, macAddress);
+        //Save the interface ipv6 address in its fully expanded format
+        if (fixedIp.getIpv6Address() != null) {
+            Ipv6Address addr = new Ipv6Address
+                (InetAddresses.forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
+            fixedIp = new IpAddress(addr);
+        }
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
             intf = new VirtualPort();
@@ -233,33 +255,38 @@ public class IfMgr {
                 vintfs.put(portId, intf);
             } else {
                 logger.error("Create host intf failed for :{}", portId);
+                return;
             }
-        }
-
-        if (intf != null) {
             intf.setIntfUUID(portId)
-                    .setSubnetID(snetId)
-                    .setIpAddr(fixedIp)
+                    .setSubnetInfo(snetId, fixedIp)
                     .setNetworkID(networkId)
                     .setMacAddress(macAddress)
                     .setRouterIntfFlag(false);
+        } else {
+            intf.setSubnetInfo(snetId, fixedIp);
+        }
 
-            VirtualSubnet snet = vsubnets.get(snetId);
+        VirtualSubnet snet = vsubnets.get(snetId);
 
-            if (snet != null) {
-                intf.setSubnet(snet);
-            } else {
-                addUnprocessed(unprocessedSubnetIntfs, snetId, intf);
-            }
+        if (snet != null) {
+            intf.setSubnet(snetId, snet);
+        } else {
+            addUnprocessed(unprocessedSubnetIntfs, snetId, intf);
+        }
+        if (fixedIp.getIpv6Address() != null) {
+            v6IntfMap.put(fixedIp.getIpv6Address(), intf);
         }
         return;
     }
 
     public void updateInterface(Uuid portId, String dpId, Long ofPort) {
+        logger.debug("in updateInterface portId {}, dpId {}, ofPort {}",
+            portId, dpId, ofPort);
         VirtualPort intf = vintfs.get(portId);
 
         if (intf == null) {
             intf = new VirtualPort();
+            intf.setIntfUUID(portId);
             if (intf != null) {
                 vintfs.put(portId, intf);
             } else {
@@ -278,6 +305,11 @@ public class IfMgr {
         VirtualPort intf = vintfs.get(portId);
         if (intf != null) {
             intf.removeSelf();
+            for (IpAddress ipAddr : intf.getIpAddresses()) {
+                if (ipAddr.getIpv6Address() != null) {
+                    v6IntfMap.remove(ipAddr.getIpv6Address());
+                }
+            }
             vintfs.remove(portId);
             intf = null;
         } else {
@@ -312,4 +344,8 @@ public class IfMgr {
         return;
     }
 
+    public VirtualPort getInterfaceForAddress(Ipv6Address addr) {
+        logger.debug("obtaining the virtual interface for {}", addr);
+        return (v6IntfMap.get(addr));
+    }
 }

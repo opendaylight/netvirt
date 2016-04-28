@@ -3,6 +3,9 @@ package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.routemg
 import com.google.common.base.Preconditions;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.routemgr.net.OvsdbDataListener;
+import org.opendaylight.netvirt.routemgr.net.PktHandler;
+import org.opendaylight.netvirt.routemgr.net.NetDataListener;
+import org.opendaylight.netvirt.routemgr.net.IPv6RtrFlow;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
@@ -12,9 +15,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.opendaylight.netvirt.routemgr.net.PktHandler;
-import org.opendaylight.netvirt.routemgr.net.NetDataListener;
-import org.opendaylight.netvirt.routemgr.net.IPv6RtrFlow;
 
 public class RoutemgrImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.routemgr.impl.rev141210.AbstractRoutemgrImplModule {
 
@@ -56,17 +56,13 @@ public class RoutemgrImplModule extends org.opendaylight.yang.gen.v1.urn.openday
         ovsdbDataListener = new OvsdbDataListener(dataService);
         ovsdbDataListener.registerDataChangeListener();
 
-        ipPktHandler = new PktHandler();
-        ipPktHandler.setDataBrokerService(dataService);
-        packetListener = notificationService.registerNotificationListener(ipPktHandler);
-        LOG.debug ("started the packethandler to receive pdus");
-
         PacketProcessingService packetProcessingService =
                 rpcRegistryDependency.getRpcService(PacketProcessingService.class);
-
-	/* TODO:: Spawn the Default threads - PDU Decoder and Tx Threads */
-
-
+        ipPktHandler = new PktHandler();
+        ipPktHandler.setDataBrokerService(dataService);
+        ipPktHandler.setPacketProcessingService(packetProcessingService);
+        packetListener = notificationService.registerNotificationListener(ipPktHandler);
+        LOG.debug ("started the packethandler to receive pdus");
 
         LOG.debug("starting to read from data store");
         netDataListener.readDataStore();
