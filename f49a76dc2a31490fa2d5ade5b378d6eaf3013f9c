@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_3cf63dd8",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1178,
+      "author": {
+        "id": 5805
+      },
+      "writtenOn": "2016-04-28T13:13:05Z",
+      "side": 1,
+      "message": "variable name and comments given below does not match. Please use appropriate variable name\nSame is applicable for \"destFlowNeeded\" variable as well",
+      "range": {
+        "startLine": 1178,
+        "startChar": 32,
+        "endLine": 1178,
+        "endChar": 45
+      },
+      "revId": "f49a76dc2a31490fa2d5ade5b378d6eaf3013f9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_7c00b5aa",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1183,
+      "author": {
+        "id": 5805
+      },
+      "writtenOn": "2016-04-28T13:13:05Z",
+      "side": 1,
+      "message": "Please remove this log statement.",
+      "range": {
+        "startLine": 1183,
+        "startChar": 0,
+        "endLine": 1183,
+        "endChar": 28
+      },
+      "revId": "f49a76dc2a31490fa2d5ade5b378d6eaf3013f9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_1c27f965",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 5805
+      },
+      "writtenOn": "2016-04-28T13:13:05Z",
+      "side": 1,
+      "message": "This can be above for loop.",
+      "range": {
+        "startLine": 1271,
+        "startChar": 29,
+        "endLine": 1271,
+        "endChar": 42
+      },
+      "revId": "f49a76dc2a31490fa2d5ade5b378d6eaf3013f9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_5ce7b112",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1273,
+      "author": {
+        "id": 5805
+      },
+      "writtenOn": "2016-04-28T13:13:05Z",
+      "side": 1,
+      "message": "This can be above for loop",
+      "range": {
+        "startLine": 1273,
+        "startChar": 31,
+        "endLine": 1273,
+        "endChar": 45
+      },
+      "revId": "f49a76dc2a31490fa2d5ade5b378d6eaf3013f9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_bcd88d54",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1276,
+      "author": {
+        "id": 5805
+      },
+      "writtenOn": "2016-04-28T13:13:05Z",
+      "side": 1,
+      "message": "Use appropriate variable name, should match the purpose.",
+      "range": {
+        "startLine": 1276,
+        "startChar": 32,
+        "endLine": 1276,
+        "endChar": 45
+      },
+      "revId": "f49a76dc2a31490fa2d5ade5b378d6eaf3013f9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_9c1ae915",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1278,
+      "author": {
+        "id": 5805
+      },
+      "writtenOn": "2016-04-28T13:13:05Z",
+      "side": 1,
+      "message": "This value has been already stored in \"segmentationId\" variable, same can be used here.",
+      "range": {
+        "startLine": 1278,
+        "startChar": 66,
+        "endLine": 1278,
+        "endChar": 91
+      },
+      "revId": "f49a76dc2a31490fa2d5ade5b378d6eaf3013f9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
