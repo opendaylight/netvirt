@@ -24,6 +24,7 @@ import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInt
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.statehelpers.OvsInterfaceTopologyStateUpdateHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.InterfaceBfdStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.InterfaceBfdStatusBuilder;
@@ -60,6 +61,7 @@ public class TopologyStateInterfaceTest {
     BridgeEntry bridgeEntry = null;
     ParentRefs parentRefs = null;
     InstanceIdentifier<Interface> interfaceInstanceIdentifier = null;
+    InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> interfaceStateIdentifier = null;
     Interface tunnelInterfaceEnabled = null;
     BridgeInterfaceEntry bridgeInterfaceEntry;
     BridgeInterfaceEntryKey bridgeInterfaceEntryKey;
@@ -95,6 +97,7 @@ public class TopologyStateInterfaceTest {
         bridgeOld = InterfaceManagerTestUtil.getOvsdbBridgeRef("s1");
         bridgeEntryIid = InterfaceMetaUtils.getBridgeEntryIdentifier(new BridgeEntryKey(dpId));
         interfaceInstanceIdentifier = IfmUtil.buildId(InterfaceManagerTestUtil.tunnelInterfaceName);
+        interfaceStateIdentifier = IfmUtil.buildStateInterfaceId(newTerminationPoint.getName());
         bridgeInterfaceEntryKey = new BridgeInterfaceEntryKey(InterfaceManagerTestUtil.tunnelInterfaceName);
         bridgeInterfaceEntry =
                 new BridgeInterfaceEntryBuilder().setKey(bridgeInterfaceEntryKey)
@@ -184,8 +187,14 @@ public class TopologyStateInterfaceTest {
         interfaceBfdStatus.add(new InterfaceBfdStatusBuilder().setBfdStatusKey(SouthboundUtils.BFD_OP_STATE).setBfdStatusValue(SouthboundUtils.BFD_STATE_UP).build());
         List bfdStatusSpy = spy(interfaceBfdStatus);
         when(newTerminationPoint.getInterfaceBfdStatus()).thenReturn(bfdStatusSpy);
-        updateHelper.updateTunnelState(dataBroker, newTerminationPoint, null);
 
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState = new InterfaceBuilder().setKey(new InterfaceKey(InterfaceManagerTestUtil.interfaceName)).build();
+        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> expectedInterface = Optional.of(ifState);
+
+        doReturn(Futures.immediateCheckedFuture(expectedInterface)).when(mockReadTx).read(
+                LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
+        updateHelper.updateTunnelState(dataBroker, newTerminationPoint, null);
+        
         //verify
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
                 IfmUtil.buildStateInterfaceId(null);

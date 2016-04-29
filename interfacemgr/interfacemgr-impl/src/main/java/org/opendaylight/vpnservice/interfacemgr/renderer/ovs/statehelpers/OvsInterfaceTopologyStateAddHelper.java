@@ -52,9 +52,6 @@ public class OvsInterfaceTopologyStateAddHelper {
         // create bridge reference entry in interface meta operational DS
         InterfaceMetaUtils.createBridgeRefEntry(dpnId, bridgeIid, writeTransaction);
 
-        // FIX for OVSDB Bug - manually copying the bridge info from topology operational DS to config DS
-        SouthboundUtils.addBridge(bridgeIid, bridgeNew, dataBroker, futures);
-
         // handle pre-provisioning of tunnels for the newly connected dpn
         BridgeEntry bridgeEntry = InterfaceMetaUtils.getBridgeEntryFromConfigDS(dpnId, dataBroker);
         if (bridgeEntry == null) {

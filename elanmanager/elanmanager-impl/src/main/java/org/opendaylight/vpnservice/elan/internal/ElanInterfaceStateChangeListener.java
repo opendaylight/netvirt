@@ -107,7 +107,7 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
         logger.trace("Operation Interface update event - Old: {}, New: {}", original, update);
         String interfaceName = update.getName();
-        if(update.getType().equals(Tunnel.class)) {
+        if(update.getType() != null && update.getType().equals(Tunnel.class)) {
             if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                 InternalTunnel internalTunnel = getTunnelState(interfaceName);
                 if (internalTunnel != null) {

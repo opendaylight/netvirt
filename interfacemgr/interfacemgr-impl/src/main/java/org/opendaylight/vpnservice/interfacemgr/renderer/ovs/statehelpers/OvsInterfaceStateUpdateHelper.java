@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -15,21 +15,25 @@ import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.AlivenessMonitorUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.vpnservice.interfacemgr.servicebindings.flowbased.utilities.FlowBasedServicesUtils;
+import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.alivenessmonitor.rev150629.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,112 +47,135 @@ public class OvsInterfaceStateUpdateHelper {
                                                            FlowCapableNodeConnector flowCapableNodeConnectorOld) {
         LOG.debug("Update of Interface State for port: {}", portName);
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        WriteTransaction t = dataBroker.newWriteOnlyTransaction();
+        WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
 
-        Interface.OperStatus operStatusNew =
-                flowCapableNodeConnectorNew.getState().isLinkDown() ? Interface.OperStatus.Down : Interface.OperStatus.Up;
-        Interface.AdminStatus adminStatusNew =
-                flowCapableNodeConnectorNew.getState().isBlocked() ? Interface.AdminStatus.Down : Interface.AdminStatus.Up;
+        Interface.OperStatus operStatusNew = getOpState(flowCapableNodeConnectorNew);
         MacAddress macAddressNew = flowCapableNodeConnectorNew.getHardwareAddress();
 
-        Interface.OperStatus operStatusOld =
-                flowCapableNodeConnectorOld.getState().isLinkDown() ? Interface.OperStatus.Down : Interface.OperStatus.Up;
-        Interface.AdminStatus adminStatusOld =
-                flowCapableNodeConnectorOld.getState().isBlocked() ? Interface.AdminStatus.Down : Interface.AdminStatus.Up;
+        Interface.OperStatus operStatusOld = getOpState(flowCapableNodeConnectorOld);
         MacAddress macAddressOld = flowCapableNodeConnectorOld.getHardwareAddress();
 
         boolean opstateModified = false;
-        boolean adminStateModified = false;
         boolean hardwareAddressModified = false;
         if (!operStatusNew.equals(operStatusOld)) {
             opstateModified = true;
-        }
-        if (!adminStatusNew.equals(adminStatusOld)) {
-            adminStateModified = true;
         }
         if (!macAddressNew.equals(macAddressOld)) {
             hardwareAddressModified = true;
         }
 
-        if (!opstateModified && !adminStateModified && !hardwareAddressModified) {
+        if (!opstateModified && !hardwareAddressModified) {
             LOG.debug("If State entry for port: {} Not Modified.", portName);
             return futures;
         }
 
-        InstanceIdentifier<Interface> ifStateId = IfmUtil.buildStateInterfaceId(portName);
         InterfaceBuilder ifaceBuilder = new InterfaceBuilder();
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface = null;
-        boolean modified = false;
-        if (opstateModified) {
-            LOG.debug("Opstate Modified for Port: {}", portName);
-            InterfaceKey interfaceKey = new InterfaceKey(portName);
-             iface = InterfaceManagerCommonUtils.getInterfaceFromConfigDS(interfaceKey, dataBroker);
-
-            // If interface config admin state is disabled, set operstate of the Interface State entity to Down.
-            if (iface != null && !iface.isEnabled()) {
-                operStatusNew = Interface.OperStatus.Down;
-            }
-
-            ifaceBuilder.setOperStatus(operStatusNew);
-            modified = true;
-        }
-
-        if (adminStateModified) {
-            LOG.debug("Admin state Modified for Port: {}", portName);
-            ifaceBuilder.setAdminStatus(adminStatusNew);
-            modified = true;
-        }
-
         if (hardwareAddressModified) {
             LOG.debug("Hw-Address Modified for Port: {}", portName);
             PhysAddress physAddress = new PhysAddress(macAddressNew.getValue());
             ifaceBuilder.setPhysAddress(physAddress);
-            modified = true;
         }
 
-        /* FIXME: Is there chance that lower layer node-connector info is updated.
-                  Not Considering for now.
-         */
+        NodeConnectorId nodeConnectorId = InstanceIdentifier.keyOf(key.firstIdentifierOf(NodeConnector.class)).getId();
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
+                handleInterfaceStateUpdates(portName, nodeConnectorId,
+                transaction, dataBroker, ifaceBuilder, opstateModified, operStatusNew);
 
-        if (modified) {
-            ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(portName));
-            t.merge(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build());
-
-            InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(portName);
-            InterfaceParentEntry interfaceParentEntry =
-                    InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryKey, dataBroker);
-            if (interfaceParentEntry == null || interfaceParentEntry.getInterfaceChildEntry() == null) {
-                futures.add(t.submit());
-                // start/stop monitoring based on opState
-                IfTunnel ifTunnel = iface.getAugmentation(IfTunnel.class);
-                if(ifTunnel != null) {
-                    if (operStatusNew == Interface.OperStatus.Down)
-                        AlivenessMonitorUtils.stopLLDPMonitoring(alivenessMonitorService, dataBroker, iface);
-                    else
-                        AlivenessMonitorUtils.startLLDPMonitoring(alivenessMonitorService, dataBroker, iface);
-                }
-                return futures;
-            }
-            for(InterfaceChildEntry higherlayerChild : interfaceParentEntry.getInterfaceChildEntry()) {
-                InstanceIdentifier<Interface> higherLayerIfChildStateId =
-                        IfmUtil.buildStateInterfaceId(higherlayerChild.getChildInterface());
-                t.merge(LogicalDatastoreType.OPERATIONAL, higherLayerIfChildStateId, ifaceBuilder.build());
-                InterfaceParentEntryKey higherLayerParentEntryKey = new InterfaceParentEntryKey(higherlayerChild.getChildInterface());
+        InterfaceParentEntry interfaceParentEntry =
+                InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(portName, dataBroker);
+        if (interfaceParentEntry != null && interfaceParentEntry.getInterfaceChildEntry() != null) {
+            for (InterfaceChildEntry higherlayerChild : interfaceParentEntry.getInterfaceChildEntry()) {
+                handleInterfaceStateUpdates(higherlayerChild.getChildInterface(),
+                        nodeConnectorId, transaction, dataBroker, ifaceBuilder, opstateModified, operStatusNew);
                 InterfaceParentEntry higherLayerParent =
-                        InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(higherLayerParentEntryKey, dataBroker);
-                if(higherLayerParent != null && higherLayerParent.getInterfaceChildEntry() != null) {
+                        InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(higherlayerChild.getChildInterface(), dataBroker);
+                if (higherLayerParent != null && higherLayerParent.getInterfaceChildEntry() != null) {
                     for (InterfaceChildEntry interfaceChildEntry : higherLayerParent.getInterfaceChildEntry()) {
-                        LOG.debug("Updating if-state entries for Vlan-Trunk Members for port: {}", portName);
                         //FIXME: If the no. of child entries exceeds 100, perform txn updates in batches of 100.
-                        InstanceIdentifier<Interface> ifChildStateId =
-                                IfmUtil.buildStateInterfaceId(interfaceChildEntry.getChildInterface());
-                        t.merge(LogicalDatastoreType.OPERATIONAL, ifChildStateId, ifaceBuilder.build());
+                        handleInterfaceStateUpdates(interfaceChildEntry.getChildInterface(), nodeConnectorId,
+                                transaction, dataBroker, ifaceBuilder, opstateModified, operStatusNew);
                     }
                 }
             }
+        }else {
+            handleTunnelMonitoringUpdates(alivenessMonitorService, dataBroker, iface, operStatusNew, opstateModified);
+        }
+        futures.add(transaction.submit());
+        return futures;
+    }
+
+    public static Interface.OperStatus getOpState(FlowCapableNodeConnector flowCapableNodeConnector){
+        Interface.OperStatus operStatus =
+                (flowCapableNodeConnector.getState().isLive() &&
+                        !flowCapableNodeConnector.getConfiguration().isPORTDOWN())
+                        ? Interface.OperStatus.Up: Interface.OperStatus.Down;
+        return operStatus;
+    }
+
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
+    handleInterfaceStateUpdates(String interfaceName, NodeConnectorId nodeConnectorId,WriteTransaction transaction,
+                                DataBroker dataBroker, InterfaceBuilder ifaceBuilder, boolean opStateModified,
+                                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus opState){
+        LOG.debug("updating interface state entry for {}", interfaceName);
+        InstanceIdentifier<Interface> ifStateId = IfmUtil.buildStateInterfaceId(interfaceName);
+        ifaceBuilder.setKey(new InterfaceKey(interfaceName));
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
+                InterfaceManagerCommonUtils.getInterfaceFromConfigDS(interfaceName, dataBroker);
+        if (modifyOpState(iface, opStateModified)) {
+            LOG.debug("updating interface oper status as {} for {}", opState.name(), interfaceName);
+            ifaceBuilder.setOperStatus(opState);
+        }
+        transaction.merge(LogicalDatastoreType.OPERATIONAL, ifStateId, ifaceBuilder.build());
+
+        // if opstate has changed, add or remove ingress flow for l2vlan interfaces accordingly
+        if(modifyIngressFlow(iface, opStateModified)) {
+            handleVlanIngressFlowUpdates(dataBroker, opState, transaction, iface, nodeConnectorId, ifStateId);
+        }
+        return iface;
+    }
+
+    public static void handleTunnelMonitoringUpdates(AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
+                                                     org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface,
+                                                     Interface.OperStatus operStatus, boolean opStateModified){
+        // start/stop monitoring based on opState
+        if(!modifyTunnel(iface, opStateModified)){
+            return;
         }
 
-        futures.add(t.submit());
-        return futures;
+        LOG.debug("handling tunnel monitoring updates for {} due to opstate modification", iface.getName());
+        if (operStatus == Interface.OperStatus.Down)
+            AlivenessMonitorUtils.stopLLDPMonitoring(alivenessMonitorService, dataBroker, iface);
+        else
+            AlivenessMonitorUtils.startLLDPMonitoring(alivenessMonitorService, dataBroker, iface);
+    }
+
+    public static boolean modifyOpState(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface,
+                                        boolean opStateModified){
+        return (opStateModified && (iface == null || iface != null && iface.isEnabled()));
+    }
+
+    public static boolean modifyIngressFlow(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface,
+                                        boolean opStateModified){
+        return modifyOpState(iface, opStateModified) && iface != null && iface.getAugmentation(IfTunnel.class) == null;
+    }
+
+    public static boolean modifyTunnel(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface,
+                                            boolean opStateModified){
+        return modifyOpState(iface, opStateModified) && iface != null && iface.getAugmentation(IfTunnel.class) != null;
+    }
+
+    public static void handleVlanIngressFlowUpdates(DataBroker dataBroker, Interface.OperStatus opState, WriteTransaction transaction,
+                                                    org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface,
+                                                    NodeConnectorId nodeConnectorId, InstanceIdentifier<Interface> ifStateId){
+        LOG.debug("handling vlan ingress flow updates for {}", iface.getName());
+        Interface ifState = InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(ifStateId, dataBroker);
+        BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
+        if (opState == org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus.Up) {
+            long portNo = Long.valueOf(IfmUtil.getPortNoFromNodeConnectorId(nodeConnectorId));
+            List<MatchInfo> matches = FlowBasedServicesUtils.getMatchInfoForVlanPortAtIngressTable(dpId, portNo, iface);
+            FlowBasedServicesUtils.installVlanFlow(dpId, portNo, iface, transaction, matches, ifState.getIfIndex());
+        } else {
+            FlowBasedServicesUtils.removeIngressFlow(iface.getName(), dpId, transaction);
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -36,6 +36,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.flow.capable.port.State;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.flow.capable.port.StateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
@@ -49,9 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info.InterfaceParentEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._interface.child.info._interface.parent.entry.InterfaceChildEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeGre;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeVxlan;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -123,16 +123,16 @@ public class StateInterfaceTest {
         IfindexInterface = InterfaceManagerTestUtil.buildIfIndexInterface(100, InterfaceManagerTestUtil.interfaceName);
         ifIndexId = InstanceIdentifier.builder(IfIndexesInterfaceMap.class).child(IfIndexInterface.class, new IfIndexInterfaceKey(100)).build();
         interfaceInstanceIdentifier = InterfaceManagerCommonUtils.getInterfaceIdentifier(new InterfaceKey(InterfaceManagerTestUtil.interfaceName));
-        childInterfaceInstanceIdentifier = InterfaceManagerCommonUtils.getInterfaceIdentifier(new InterfaceKey(InterfaceManagerTestUtil.interfaceName2));
+        childInterfaceInstanceIdentifier = InterfaceManagerCommonUtils.getInterfaceIdentifier(new InterfaceKey(InterfaceManagerTestUtil.childInterface));
         interfaceStateIdentifier = IfmUtil.buildStateInterfaceId(InterfaceManagerTestUtil.interfaceName);
-        childInterfaceStateIdentifier = IfmUtil.buildStateInterfaceId(InterfaceManagerTestUtil.interfaceName2);
+        childInterfaceStateIdentifier = IfmUtil.buildStateInterfaceId(InterfaceManagerTestUtil.childInterface);
         vlanInterfaceEnabled = InterfaceManagerTestUtil.buildInterface(InterfaceManagerTestUtil.interfaceName, "Test Vlan Interface1", true, L2vlan.class, BigInteger.valueOf(1));
         vlanInterfaceDisabled = InterfaceManagerTestUtil.buildInterface(InterfaceManagerTestUtil.interfaceName, "Test Vlan Interface1", false, L2vlan.class, BigInteger.valueOf(1));
         tunnelInterfaceEnabled = InterfaceManagerTestUtil.buildTunnelInterface(dpId, InterfaceManagerTestUtil.tunnelInterfaceName ,"Test Tunnel Interface", true, TunnelTypeGre.class, "192.168.56.101", "192.168.56.102");
-        childVlanInterfaceEnabled = InterfaceManagerTestUtil.buildInterface(InterfaceManagerTestUtil.interfaceName2, "Test Vlan Interface2", true, L2vlan.class, BigInteger.valueOf(1));
+        childVlanInterfaceEnabled = InterfaceManagerTestUtil.buildInterface(InterfaceManagerTestUtil.childInterface, "Test Vlan Interface2", true, L2vlan.class, BigInteger.valueOf(1));
         interfaceParentEntryKey = new InterfaceParentEntryKey(InterfaceManagerTestUtil.interfaceName);
         interfaceParentEntryIdentifier = InterfaceMetaUtils.getInterfaceParentEntryIdentifier(interfaceParentEntryKey);
-        higherLayerInterfaceParentEntryKey = new InterfaceParentEntryKey(InterfaceManagerTestUtil.interfaceName2);
+        higherLayerInterfaceParentEntryKey = new InterfaceParentEntryKey(InterfaceManagerTestUtil.childInterface);
         higherLevelInterfaceParentEntryIdentifier= InterfaceMetaUtils.getInterfaceParentEntryIdentifier(higherLayerInterfaceParentEntryKey);
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder ifaceBuilder = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder();
         List<String> lowerLayerIfList = new ArrayList<>();
@@ -147,7 +147,7 @@ public class StateInterfaceTest {
 
         InterfaceParentEntryBuilder ifaceParentEntryBuilder = new InterfaceParentEntryBuilder();
         List<InterfaceChildEntry> ifaceChildEntryList= new ArrayList<>();
-        ifaceChildEntryList.add(new InterfaceChildEntryBuilder().setChildInterface(InterfaceManagerTestUtil.interfaceName2).build());
+        ifaceChildEntryList.add(new InterfaceChildEntryBuilder().setChildInterface(InterfaceManagerTestUtil.childInterface).build());
         interfaceParentEntry = ifaceParentEntryBuilder.setInterfaceChildEntry(ifaceChildEntryList).build();
 
         InterfaceParentEntryBuilder higherLayerIfParentEntryBuilder = new InterfaceParentEntryBuilder();
@@ -185,7 +185,7 @@ public class StateInterfaceTest {
         doReturn(idOutputOptional).when(idManager).allocateId(getIdInput);
         AllocateIdInput getIdInput2 = new AllocateIdInputBuilder()
                 .setPoolName(IfmConstants.IFM_IDPOOL_NAME)
-                .setIdKey(InterfaceManagerTestUtil.interfaceName2).build();
+                .setIdKey(InterfaceManagerTestUtil.childInterface).build();
         doReturn(idOutputOptional2).when(idManager).allocateId(getIdInput2);
 
         addHelper.addState(dataBroker, idManager, mdsalManager, alivenessMonitorService,
@@ -277,6 +277,8 @@ public class StateInterfaceTest {
 
         doReturn(Futures.immediateCheckedFuture(expectedStateInterface)).when(mockReadTx).read(
                 LogicalDatastoreType.OPERATIONAL, interfaceStateIdentifier);
+        doReturn(Futures.immediateCheckedFuture(expectedStateInterface)).when(mockReadTx).read(
+                LogicalDatastoreType.OPERATIONAL, childInterfaceStateIdentifier);
         doReturn(Futures.immediateCheckedFuture(expectedParentEntry)).when(mockReadTx).read(
                 LogicalDatastoreType.CONFIGURATION, interfaceParentEntryIdentifier);
         doReturn(Futures.immediateCheckedFuture(higherLayerParentOptional)).when(mockReadTx).read(
@@ -286,26 +288,15 @@ public class StateInterfaceTest {
         doReturn(Futures.immediateCheckedFuture(expectedChildInterface)).when(mockReadTx).read(
                 LogicalDatastoreType.CONFIGURATION, childInterfaceInstanceIdentifier);
 
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder ifaceBuilder = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder();
-        ifaceBuilder.setAdminStatus(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus.Up)
-                .setPhysAddress(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress.getDefaultInstance("AA:AA:AA:AA:AA:AA"));
-        ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(InterfaceManagerTestUtil.interfaceName));
-        ifaceBuilder.setOperStatus(OperStatus.Down);
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface parentInterface = InterfaceManagerTestUtil.buildStateInterface(InterfaceManagerTestUtil.interfaceName, null, OperStatus.Down);
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface childInterface = InterfaceManagerTestUtil.buildStateInterface(InterfaceManagerTestUtil.childInterface, null, OperStatus.Down);
 
-        stateInterface = ifaceBuilder.build();
+        FlowCapableNodeConnector fcNodeConnectorOld = InterfaceManagerTestUtil.buildFlowCapableNodeConnector(false, true, "AA:AA:AA:AA:AA:AA");
+        FlowCapableNodeConnector fcNodeConnectorNew = InterfaceManagerTestUtil.buildFlowCapableNodeConnector(true, false, "AA:AA:AA:AA:AA:AA");
 
-        FlowCapableNodeConnectorBuilder fcNodeConnectorOldupdate = new FlowCapableNodeConnectorBuilder().setHardwareAddress(MacAddress.getDefaultInstance("AA:AA:AA:AA:AA:AB"));
-        FlowCapableNodeConnectorBuilder fcNodeConnectorNewupdate = new FlowCapableNodeConnectorBuilder().setHardwareAddress(MacAddress.getDefaultInstance("AA:AA:AA:AA:AA:AA"));
+        updateHelper.updateState(fcNodeConnectorId, alivenessMonitorService, dataBroker, InterfaceManagerTestUtil.interfaceName, fcNodeConnectorNew, fcNodeConnectorOld);
 
-        StateBuilder b2 = new StateBuilder().setBlocked(true).setLinkDown(false);
-        StateBuilder b3 = new StateBuilder().setBlocked(false).setLinkDown(true);
-
-        fcNodeConnectorOldupdate.setState(b2.build());
-        fcNodeConnectorNewupdate.setState(b3.build());
-
-        updateHelper.updateState(fcNodeConnectorId, alivenessMonitorService, dataBroker, InterfaceManagerTestUtil.interfaceName, fcNodeConnectorNewupdate.build(), fcNodeConnectorOldupdate.build());
-
-        verify(mockWriteTx).merge(LogicalDatastoreType.OPERATIONAL,interfaceStateIdentifier,stateInterface);
-        verify(mockWriteTx).merge(LogicalDatastoreType.OPERATIONAL,childInterfaceStateIdentifier,stateInterface);
+        verify(mockWriteTx).merge(LogicalDatastoreType.OPERATIONAL,interfaceStateIdentifier,parentInterface);
+        verify(mockWriteTx).merge(LogicalDatastoreType.OPERATIONAL,childInterfaceStateIdentifier,childInterface);
     }
 }

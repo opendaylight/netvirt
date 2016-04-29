@@ -81,6 +81,7 @@ public class AlivenessMonitorUtils {
         if(!(ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)&& ifTunnel.isInternal())){
             return;
         }
+        LOG.debug("stop LLDP monitoring for {}", trunkInterface.getName());
         List<Long> monitorIds = getMonitorIdForInterface(dataBroker, trunkInterface.getName());
         if (monitorIds == null) {
             LOG.error("Monitor Id doesn't exist for Interface {}", trunkInterface);
@@ -144,23 +145,20 @@ public class AlivenessMonitorUtils {
             return;
         }
         LOG.debug("handling tunnel monitoring updates for interface {}", interfaceName);
-        // Restart LLDP monitoring only if it's started already
-        List<Long> monitorIds = getMonitorIdForInterface(dataBroker, interfaceName);
-        if (monitorIds != null && !monitorIds.isEmpty()) {
-                stopLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceOld);
-                if(ifTunnelNew.isMonitorEnabled()) {
-                    startLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceNew);
 
-                    // Delete old profile from Aliveness Manager
-                    IfTunnel ifTunnelOld = interfaceOld.getAugmentation(IfTunnel.class);
-                    if(ifTunnelNew.getMonitorInterval() != ifTunnelOld.getMonitorInterval()) {
-                        LOG.debug("deleting older monitor profile for interface {}", interfaceName);
-                        long profileId = allocateProfile(alivenessMonitorService, FAILURE_THRESHOLD, ifTunnelOld.getMonitorInterval(), MONITORING_WINDOW, EtherTypes.Lldp);
-                        MonitorProfileDeleteInput profileDeleteInput = new MonitorProfileDeleteInputBuilder().setProfileId(profileId).build();
-                        alivenessMonitorService.monitorProfileDelete(profileDeleteInput);
-                    }
-                }
+        stopLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceOld);
+        if(ifTunnelNew.isMonitorEnabled()) {
+            startLLDPMonitoring(alivenessMonitorService, dataBroker, interfaceNew);
+
+            // Delete old profile from Aliveness Manager
+            IfTunnel ifTunnelOld = interfaceOld.getAugmentation(IfTunnel.class);
+            if(ifTunnelNew.getMonitorInterval() != ifTunnelOld.getMonitorInterval()) {
+                LOG.debug("deleting older monitor profile for interface {}", interfaceName);
+                long profileId = allocateProfile(alivenessMonitorService, FAILURE_THRESHOLD, ifTunnelOld.getMonitorInterval(), MONITORING_WINDOW, EtherTypes.Lldp);
+                MonitorProfileDeleteInput profileDeleteInput = new MonitorProfileDeleteInputBuilder().setProfileId(profileId).build();
+                alivenessMonitorService.monitorProfileDelete(profileDeleteInput);
             }
+        }
     }
 
 

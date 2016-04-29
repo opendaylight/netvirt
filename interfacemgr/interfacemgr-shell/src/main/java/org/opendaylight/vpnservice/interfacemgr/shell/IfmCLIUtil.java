@@ -100,7 +100,7 @@ public class IfmCLIUtil {
         System.out.println(fmt.format(VXLAN_OUTPUT_FORMAT + "\n",
                 (interfaceInfo == null) ? InterfaceOpState.DOWN : interfaceInfo.getOpState(),
                 String.format("%s/%s", parentRefs.getDatapathNodeIdentifier(),
-                parentRefs.getParentInterface()),
+                        iface.getName()),
                 (interfaceInfo == null) ? UNSET : interfaceInfo.getInterfaceTag(), ""));
         fmt.close();
     }

@@ -43,13 +43,6 @@ public class OvsInterfaceTopologyStateRemoveHelper {
         //delete bridge reference entry in interface meta operational DS
         InterfaceMetaUtils.deleteBridgeRefEntry(dpnId, transaction);
 
-        // Workaround for ovsdb bug for delete TEP..
-        Optional<OvsdbBridgeAugmentation> bridgeNodeOptional =
-                IfmUtil.read(LogicalDatastoreType.OPERATIONAL, bridgeIid, dataBroker);
-        if (!bridgeNodeOptional.isPresent()) {
-            SouthboundUtils.deleteBridge(bridgeIid, dataBroker, futures);
-        }
-
         futures.add(transaction.submit());
         return futures;
     }

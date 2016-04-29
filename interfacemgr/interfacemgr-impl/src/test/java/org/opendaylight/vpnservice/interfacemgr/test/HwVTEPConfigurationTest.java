@@ -25,6 +25,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.confighelpers.HwVTEPConfigRemoveHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.confighelpers.HwVTEPInterfaceConfigAddHelper;
+import org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.statehelpers.HwVTEPInterfaceStateRemoveHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.statehelpers.HwVTEPInterfaceStateUpdateHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.utilities.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -73,6 +74,7 @@ public class HwVTEPConfigurationTest {
     HwVTEPInterfaceConfigAddHelper addHelper;
     HwVTEPConfigRemoveHelper removeHelper;
     HwVTEPInterfaceStateUpdateHelper updateHelper;
+    HwVTEPInterfaceStateRemoveHelper stateRemoveHelper;
 
     BigInteger dpId = BigInteger.valueOf(1);
     Interface hwVTEPInterfaceEnabled;
@@ -205,5 +207,14 @@ public class HwVTEPConfigurationTest {
         tBuilder.setBfdParams(bfdParams);
         //Verify
         verify(mockWriteTx).put(LogicalDatastoreType.CONFIGURATION, tunnelsInstanceIdentifier, tBuilder.build(), true);
+    }
+
+    @Test
+    public void testRemoveExternalTunnels(){
+
+        stateRemoveHelper.removeExternalTunnel(dataBroker, tunnelsInstanceIdentifier);
+
+        //Verify
+        verify(mockWriteTx).delete(LogicalDatastoreType.CONFIGURATION, tunnelsInstanceIdentifier);
     }
 }

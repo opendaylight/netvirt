@@ -122,17 +122,6 @@ public class InterfaceMetaUtils {
 
     }
 
-    public static BridgeInterfaceEntry getBridgeInterfaceEntryFromConfigDS(
-            InstanceIdentifier<BridgeInterfaceEntry> bridgeInterfaceEntryInstanceIdentifier, DataBroker dataBroker) {
-        Optional<BridgeInterfaceEntry> bridgeInterfaceEntryOptional =
-                IfmUtil.read(LogicalDatastoreType.CONFIGURATION, bridgeInterfaceEntryInstanceIdentifier, dataBroker);
-        if (!bridgeInterfaceEntryOptional.isPresent()) {
-            return null;
-        }
-        return bridgeInterfaceEntryOptional.get();
-    }
-
-
     public static void createBridgeInterfaceEntryInConfigDS(BridgeEntryKey bridgeEntryKey,
                                                              BridgeInterfaceEntryKey bridgeInterfaceEntryKey,
                                                              String childInterface,
@@ -159,6 +148,14 @@ public class InterfaceMetaUtils {
                         .child(InterfaceParentEntry.class, interfaceParentEntryKey)
                         .child(InterfaceChildEntry.class, interfaceChildEntryKey);
         return intfIdBuilder.build();
+    }
+
+    public static InterfaceParentEntry getInterfaceParentEntryFromConfigDS(
+            String interfaceName, DataBroker dataBroker) {
+        InterfaceParentEntryKey interfaceParentEntryKey = new InterfaceParentEntryKey(interfaceName);
+        InterfaceParentEntry interfaceParentEntry =
+                InterfaceMetaUtils.getInterfaceParentEntryFromConfigDS(interfaceParentEntryKey, dataBroker);
+        return interfaceParentEntry;
     }
 
     public static InterfaceParentEntry getInterfaceParentEntryFromConfigDS(
@@ -203,16 +200,6 @@ public class InterfaceMetaUtils {
         InstanceIdentifier<IfIndexInterface> id = InstanceIdentifier.builder(IfIndexesInterfaceMap.class).child(IfIndexInterface.class, new IfIndexInterfaceKey(ifIndex)).build();
         IfIndexInterface ifIndexInterface = new IfIndexInterfaceBuilder().setIfIndex(ifIndex).setKey(new IfIndexInterfaceKey(ifIndex)).setInterfaceName(infName).build();
         t.put(LogicalDatastoreType.OPERATIONAL, id, ifIndexInterface, true);
-    }
-
-    public static void removeLportTagInterfaceMap(WriteTransaction t, IdManagerService idManager, DataBroker broker, String infName, Integer ifIndex) {
-        InstanceIdentifier<IfIndexInterface> id = InstanceIdentifier.builder(IfIndexesInterfaceMap.class).child(IfIndexInterface.class, new IfIndexInterfaceKey(ifIndex)).build();
-        Optional<IfIndexInterface> ifIndexesInterface = IfmUtil.read(LogicalDatastoreType.OPERATIONAL, id, broker);
-        if(ifIndexesInterface.isPresent()) {
-           LOG.debug("removing lport tag to interface map for {}",infName);
-           t.delete(LogicalDatastoreType.OPERATIONAL, id);
-        }
-        IfmUtil.releaseId(idManager, IfmConstants.IFM_IDPOOL_NAME, infName);
     }
 
     public static void createBridgeRefEntry(BigInteger dpnId, InstanceIdentifier<?> bridgeIid,

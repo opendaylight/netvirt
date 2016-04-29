@@ -102,18 +102,6 @@ public class SouthboundUtils {
         return (InstanceIdentifier<Node>) physicalSwitchAugmentation.getManagedBy().getValue();
     }
 
-    public static InstanceIdentifier<TerminationPoint> createTerminationPointInstanceIdentifier(NodeKey nodekey,
-                                                                                                String portName){
-        InstanceIdentifier<TerminationPoint> terminationPointPath = InstanceIdentifier
-                .create(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(HWVTEP_TOPOLOGY_ID))
-                .child(Node.class,nodekey)
-                .child(TerminationPoint.class, new TerminationPointKey(new TpId(portName)));
-
-        LOG.debug("Termination point InstanceIdentifier generated : {}",terminationPointPath);
-        return terminationPointPath;
-    }
-
     public static InstanceIdentifier<TerminationPoint> createTEPInstanceIdentifier
             (InstanceIdentifier<Node> nodeIid,  IpAddress ipAddress) {
         TerminationPointKey localTEP = SouthboundUtils.getTerminationPointKey(ipAddress.getIpv4Address().getValue());
@@ -166,16 +154,6 @@ public class SouthboundUtils {
             tpKey = new TerminationPointKey(new TpId(tpKeyStr));
         }
         return tpKey;
-    }
-
-    public static TerminationPoint getTEPFromConfigDS(InstanceIdentifier<TerminationPoint> tpPath,
-                                                      DataBroker dataBroker) {
-        Optional<TerminationPoint> terminationPointOptional =
-                IfmUtil.read(LogicalDatastoreType.CONFIGURATION, tpPath, dataBroker);
-        if (!terminationPointOptional.isPresent()) {
-            return null;
-        }
-        return terminationPointOptional.get();
     }
 
     public static void setDstIp(HwvtepPhysicalLocatorAugmentationBuilder tpAugmentationBuilder, IpAddress ipAddress) {

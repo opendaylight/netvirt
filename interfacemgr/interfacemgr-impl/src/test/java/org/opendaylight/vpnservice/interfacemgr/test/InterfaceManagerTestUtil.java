@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorBuilder;
@@ -40,6 +41,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.flow.capable.port.State;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.flow.capable.port.StateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
@@ -105,9 +109,20 @@ import java.util.*;
 
 public class InterfaceManagerTestUtil {
     public static final String interfaceName = "s1-eth1";
-    public static final String interfaceName2 = "s1-eth2";
+    public static final String childInterface = "s1-eth1-trunk";
     public static final String tunnelInterfaceName = "s2-gre1";
     public static final TopologyId OVSDB_TOPOLOGY_ID = new TopologyId(new Uri("ovsdb:1"));
+
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface buildStateInterface(String ifaceName, String physAddress,
+                                                                                                                                                    org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus opState){
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder ifaceBuilder = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder();
+        if(physAddress != null) {
+            ifaceBuilder.setPhysAddress(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress.getDefaultInstance(physAddress));
+        }
+        ifaceBuilder.setKey(IfmUtil.getStateInterfaceKeyFromName(ifaceName));
+        ifaceBuilder.setOperStatus(opState);
+        return ifaceBuilder.build();
+    }
 
     public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface buildStateInterface(
             String ifName, NodeConnectorId ncId) {
@@ -237,6 +252,14 @@ public class InterfaceManagerTestUtil {
         FlowCapableNodeConnectorBuilder flowCapableNodeConnectorBuilder = new FlowCapableNodeConnectorBuilder().setHardwareAddress(MacAddress.getDefaultInstance("AA:AA:AA:AA:AA:AA"));
         ncBuilder.addAugmentation(FlowCapableNodeConnector.class,flowCapableNodeConnectorBuilder.build());
         return ncBuilder.build();
+    }
+
+    public static FlowCapableNodeConnector buildFlowCapableNodeConnector(boolean isPortDown, boolean isLive, String macAddress) {
+        PortConfig portConfig = new PortConfig(false, false, false, isPortDown);
+        State state = new StateBuilder().setBlocked(true).setLinkDown(false).setLive(isLive).build();
+        FlowCapableNodeConnectorBuilder fcNodeConnector = new FlowCapableNodeConnectorBuilder().
+                setHardwareAddress(MacAddress.getDefaultInstance(macAddress)).setConfiguration(portConfig).setState(state);
+        return fcNodeConnector.build();
     }
 
     public static NodeConnectorId buildNodeConnectorId(BigInteger dpn, long portNo) {

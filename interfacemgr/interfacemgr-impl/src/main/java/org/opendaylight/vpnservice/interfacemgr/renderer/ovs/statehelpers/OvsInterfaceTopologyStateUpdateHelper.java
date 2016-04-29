@@ -14,15 +14,10 @@ import org.opendaylight.vpnservice.interfacemgr.IfmUtil;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.vpnservice.interfacemgr.commons.InterfaceMetaUtils;
 import org.opendaylight.vpnservice.interfacemgr.renderer.ovs.utilities.SouthboundUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.InterfaceBfdStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.BridgeEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.bridge._interface.info.bridge.entry.BridgeInterfaceEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +65,9 @@ public class OvsInterfaceTopologyStateUpdateHelper {
                                                                  OvsdbTerminationPointAugmentation terminationPointOld) {
         List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
 
+        if (InterfaceManagerCommonUtils.getInterfaceStateFromOperDS(terminationPointNew.getName(), dataBroker) == null) {
+            return futures;
+        }
         // update opstate of interface if TEP has gone down/up as a result of BFD monitoring
         LOG.debug("updating tunnel state for interface {}", terminationPointNew.getName());
         WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();

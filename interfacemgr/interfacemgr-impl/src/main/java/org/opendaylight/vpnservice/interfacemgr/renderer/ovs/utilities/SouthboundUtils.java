@@ -88,27 +88,6 @@ public class SouthboundUtils {
         }
     }
 
-    public static void addBridge(InstanceIdentifier<OvsdbBridgeAugmentation> bridgeIid,
-                                 OvsdbBridgeAugmentation bridgeAugmentation,
-                                 DataBroker dataBroker, List<ListenableFuture<Void>> futures){
-        LOG.debug("adding bridge: {}", bridgeAugmentation.getBridgeName());
-        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-        NodeId nodeId = InstanceIdentifier.keyOf(bridgeIid.firstIdentifierOf(Node.class)).getNodeId();
-        NodeBuilder bridgeNodeBuilder = new NodeBuilder();
-        bridgeNodeBuilder.setNodeId(nodeId);
-        bridgeNodeBuilder.addAugmentation(OvsdbBridgeAugmentation.class, bridgeAugmentation);
-        tx.put(LogicalDatastoreType.CONFIGURATION, createNodeInstanceIdentifier(nodeId), bridgeNodeBuilder.build(), true);
-        futures.add(tx.submit());
-    }
-
-    public static void deleteBridge(InstanceIdentifier<OvsdbBridgeAugmentation> bridgeIid,
-                                 DataBroker dataBroker, List<ListenableFuture<Void>> futures){
-        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-        NodeId nodeId = InstanceIdentifier.keyOf(bridgeIid.firstIdentifierOf(Node.class)).getNodeId();
-        tx.delete(LogicalDatastoreType.CONFIGURATION, createNodeInstanceIdentifier(nodeId));
-        futures.add(tx.submit());
-    }
-
     private static void addVlanPortToBridge(InstanceIdentifier<?> bridgeIid, IfL2vlan ifL2vlan, IfTunnel ifTunnel,
                                               OvsdbBridgeAugmentation bridgeAugmentation, String bridgeName,
                                               String portName, DataBroker dataBroker, WriteTransaction t) {
@@ -143,7 +122,9 @@ public class SouthboundUtils {
         }
 
         Map<String, String> options = Maps.newHashMap();
-        options.put("key", "flow");
+        if(!ifTunnel.getTunnelInterfaceType().equals(TunnelTypeMplsOverGre.class) ) {
+            options.put("key", "flow");
+        }
 
         IpAddress localIp = ifTunnel.getTunnelSource();
         options.put("local_ip", localIp.getIpv4Address().getValue());
@@ -232,18 +213,6 @@ public class SouthboundUtils {
         return bfdBuilder.build();
     }
 
-    private static InstanceIdentifier<TerminationPoint> createTerminationPointInstanceIdentifier(Node node,
-                                                                                                 String portName){
-        InstanceIdentifier<TerminationPoint> terminationPointPath = InstanceIdentifier
-                .create(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(OVSDB_TOPOLOGY_ID))
-                .child(Node.class,node.getKey())
-                .child(TerminationPoint.class, new TerminationPointKey(new TpId(portName)));
-
-        LOG.debug("Termination point InstanceIdentifier generated : {}", terminationPointPath);
-        return terminationPointPath;
-    }
-
     public static InstanceIdentifier<TerminationPoint> createTerminationPointInstanceIdentifier(NodeKey nodekey,
                                                                                                 String portName){
         InstanceIdentifier<TerminationPoint> terminationPointPath = InstanceIdentifier
@@ -254,12 +223,5 @@ public class SouthboundUtils {
 
         LOG.debug("Termination point InstanceIdentifier generated : {}",terminationPointPath);
         return terminationPointPath;
-    }
-
-    public static InstanceIdentifier<Node> createNodeInstanceIdentifier(NodeId nodeId) {
-        return InstanceIdentifier
-                .create(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(OVSDB_TOPOLOGY_ID))
-                .child(Node.class,new NodeKey(nodeId));
     }
 }

@@ -48,7 +48,7 @@ public class TerminationPointStateListener extends AsyncDataChangeListenerBase<O
 
     @Override
     protected AsyncDataBroker.DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.ONE;
+        return AsyncDataBroker.DataChangeScope.SUBTREE;
     }
 
     @Override
@@ -60,10 +60,11 @@ public class TerminationPointStateListener extends AsyncDataChangeListenerBase<O
     protected void update(InstanceIdentifier<OvsdbTerminationPointAugmentation> identifier,
                           OvsdbTerminationPointAugmentation tpOld,
                           OvsdbTerminationPointAugmentation tpNew) {
-        LOG.debug("Received Update DataChange Notification for ovsdb termination point identifier: {},  old: {}, new: {}.",
-                identifier, tpOld, tpNew);
+        LOG.debug("Received Update DataChange Notification for ovsdb termination point {}", tpNew.getName());
         if (tpNew.getInterfaceBfdStatus() != null &&
                 !tpNew.getInterfaceBfdStatus().equals(tpOld.getInterfaceBfdStatus())) {
+            LOG.trace("Bfd Status changed for ovsdb termination point identifier: {},  old: {}, new: {}.",
+                    identifier, tpOld, tpNew);
             DataStoreJobCoordinator jobCoordinator = DataStoreJobCoordinator.getInstance();
             RendererStateUpdateWorker rendererStateAddWorker = new RendererStateUpdateWorker(identifier, tpNew, tpOld);
             jobCoordinator.enqueueJob(tpNew.getName(), rendererStateAddWorker);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -55,35 +55,6 @@ public class OvsVlanMemberConfigAddHelper {
         if (ifState != null) {
             LOG.debug("add interface state info for vlan member {}",interfaceNew.getName());
             InterfaceManagerCommonUtils.addStateEntry(interfaceNew.getName(), t, dataBroker, idManager, ifState);
-
-
-            // FIXME: Maybe, add the new interface to the higher-layer if of the parent interface-state.
-            // That may not serve any purpose though for interface manager.... Unless some external parties are interested in it.
-
-            /* FIXME -- Below code is needed to add vlan-trunks to the of-port. Is this really needed.
-            String lowerLayerIf = ifState.getLowerLayerIf().get(0);
-
-            NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
-            BigInteger dpId = new BigInteger(IfmUtil.getDpnFromNodeConnectorId(nodeConnectorId));
-
-            BridgeRefEntryKey BridgeRefEntryKey = new BridgeRefEntryKey(dpId);
-            InstanceIdentifier<BridgeRefEntry> dpnBridgeEntryIid =
-                    InterfaceMetaUtils.getBridgeRefEntryIdentifier(BridgeRefEntryKey);
-            BridgeRefEntry bridgeRefEntry =
-                    InterfaceMetaUtils.getBridgeRefEntryFromOperDS(dpnBridgeEntryIid, dataBroker);
-            if (bridgeRefEntry != null) {
-                InstanceIdentifier<OvsdbBridgeAugmentation> bridgeIid =
-                        (InstanceIdentifier<OvsdbBridgeAugmentation>)bridgeRefEntry.getBridgeReference().getValue();
-                Optional<OvsdbBridgeAugmentation> bridgeNodeOptional =
-                        IfmUtil.read(LogicalDatastoreType.OPERATIONAL, bridgeIid, dataBroker);
-                if (bridgeNodeOptional.isPresent()) {
-                    OvsdbBridgeAugmentation ovsdbBridgeAugmentation = bridgeNodeOptional.get();
-                    String bridgeName = ovsdbBridgeAugmentation.getBridgeName().getValue();
-                    VlanTrunkSouthboundUtils.addVlanPortToBridge(bridgeIid, ifL2vlan,
-                            ovsdbBridgeAugmentation, bridgeName, parentRefs.getParentInterface(), dataBroker, t);
-                }
-            } */
-            // FIXME: Need to add the Group here with actions: Push-Vlan, output_port. May not be needed here...
         }
 
         futures.add(t.submit());

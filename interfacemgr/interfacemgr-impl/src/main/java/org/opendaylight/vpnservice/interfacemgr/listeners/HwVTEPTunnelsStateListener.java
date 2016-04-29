@@ -13,6 +13,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.vpnservice.datastoreutils.AsyncDataChangeListenerBase;
 import org.opendaylight.vpnservice.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.statehelpers.HwVTEPInterfaceStateRemoveHelper;
 import org.opendaylight.vpnservice.interfacemgr.renderer.hwvtep.statehelpers.HwVTEPInterfaceStateUpdateHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.Tunnels;
@@ -52,15 +53,18 @@ public class HwVTEPTunnelsStateListener extends AsyncDataChangeListenerBase<Tunn
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Tunnels> identifier, Tunnels tunnelOld) {
-        LOG.info("Received Remove DataChange Notification for identifier: {}, physicalSwitchAugmentation: {}",
-                identifier, tunnelOld);
+    protected void remove(InstanceIdentifier<Tunnels> identifier, Tunnels tunnel) {
+        LOG.debug("Received Remove DataChange Notification for identifier: {}, physicalSwitchAugmentation: {}",
+                identifier, tunnel);
+        DataStoreJobCoordinator jobCoordinator = DataStoreJobCoordinator.getInstance();
+        RendererStateRemoveWorker rendererStateRemoveWorker = new RendererStateRemoveWorker(identifier, tunnel);
+        jobCoordinator.enqueueJob(tunnel.getTunnelUuid().getValue(), rendererStateRemoveWorker);
     }
 
     @Override
     protected void update(InstanceIdentifier<Tunnels> identifier, Tunnels tunnelOld,
                           Tunnels tunnelNew) {
-        LOG.info("Received Update Tunnel Update Notification for identifier: {}", identifier);
+        LOG.debug("Received Update Tunnel Update Notification for identifier: {}", identifier);
         DataStoreJobCoordinator jobCoordinator = DataStoreJobCoordinator.getInstance();
         RendererStateUpdateWorker rendererStateUpdateWorker = new RendererStateUpdateWorker(identifier, tunnelNew, tunnelOld);
         jobCoordinator.enqueueJob(tunnelNew.getTunnelUuid().getValue(), rendererStateUpdateWorker);
@@ -68,7 +72,7 @@ public class HwVTEPTunnelsStateListener extends AsyncDataChangeListenerBase<Tunn
 
     @Override
     protected void add(InstanceIdentifier<Tunnels> identifier, Tunnels tunnelNew) {
-        LOG.info("Received Add DataChange Notification for identifier: {}, tunnels: {}",
+        LOG.debug("Received Add DataChange Notification for identifier: {}, tunnels: {}",
                 identifier, tunnelNew);
         DataStoreJobCoordinator jobCoordinator = DataStoreJobCoordinator.getInstance();
         RendererStateAddWorker rendererStateAddWorker = new RendererStateAddWorker(identifier, tunnelNew);
@@ -111,6 +115,24 @@ public class HwVTEPTunnelsStateListener extends AsyncDataChangeListenerBase<Tunn
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
             return HwVTEPInterfaceStateUpdateHelper.startBfdMonitoring(dataBroker, instanceIdentifier, tunnelsNew);
+        }
+    }
+
+    private class RendererStateRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
+        InstanceIdentifier<Tunnels> instanceIdentifier;
+        Tunnels tunnel;
+
+        public RendererStateRemoveWorker(InstanceIdentifier<Tunnels> instanceIdentifier,
+                                      Tunnels tunnel) {
+            this.instanceIdentifier = instanceIdentifier;
+            this.tunnel = tunnel;
+        }
+
+        @Override
+        public List<ListenableFuture<Void>> call() throws Exception {
+            // If another renderer(for eg : CSS) needs to be supported, check can be performed here
+            // to call the respective helpers.
+            return HwVTEPInterfaceStateRemoveHelper.removeExternalTunnel(dataBroker, instanceIdentifier);
         }
     }
 }
