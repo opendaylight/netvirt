@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_05603831",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-04-29T19:10:16Z",
+      "side": 1,
+      "message": "A router interface can have multiple ipv6 addresses (i.e., when you create additional ipv6 subnets on the network and associate them to the router, the ipaddress is configured to the same interface instead of creating a new interface).\n\nCan you please check if this use-case is broken here?",
+      "revId": "e1b0856590117a339d12a434df9497406e55e3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_65549454",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-04-29T19:10:16Z",
+      "side": 1,
+      "message": "Similarly a VM port can have multiple ipv6 addresses.",
+      "revId": "e1b0856590117a339d12a434df9497406e55e3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_45519061",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-04-29T19:10:16Z",
+      "side": 1,
+      "message": "Ideally this case should never hit as we do not want un-necessary packets to be punted to the controller. I know that you know this :)",
+      "revId": "e1b0856590117a339d12a434df9497406e55e3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_854ba8af",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-04-29T19:10:16Z",
+      "side": 1,
+      "message": "Please add some MACROS in place of numbers.",
+      "revId": "e1b0856590117a339d12a434df9497406e55e3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
