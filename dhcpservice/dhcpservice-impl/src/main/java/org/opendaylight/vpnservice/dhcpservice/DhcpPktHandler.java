@@ -13,7 +13,6 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -72,11 +71,12 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
     private final DataBroker dataBroker;
     private final DhcpManager dhcpMgr;
     private OdlInterfaceRpcService interfaceManagerRpc;
-    private static HashMap<String, ImmutablePair<BigInteger, String>> localCache = new HashMap<String, ImmutablePair<BigInteger, String>>();
     private boolean computeUdpChecksum = true;
     private PacketProcessingService pktService;
+    private DhcpExternalTunnelManager dhcpExternalTunnelManager;
 
-    public DhcpPktHandler(final DataBroker broker, final DhcpManager dhcpManager) {
+    public DhcpPktHandler(final DataBroker broker, final DhcpManager dhcpManager, final DhcpExternalTunnelManager dhcpExternalTunnelManager) {
+        this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = broker;
         dhcpMgr = dhcpManager;
     }
@@ -84,16 +84,15 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
     //TODO: Handle this in a separate thread
     @Override
     public void onPacketReceived(PacketReceived packet) {
-        LOG.trace("Pkt received: {}", packet);
         Class<? extends PacketInReason> pktInReason = packet.getPacketInReason();
-        short tableId = packet.getTableId().getValue();
         if (isPktInReasonSendtoCtrl(pktInReason)) {
             byte[] inPayload = packet.getPayload();
             Ethernet ethPkt = new Ethernet();
             try {
                 ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NumBitsInAByte);
             } catch (Exception e) {
-                LOG.warn("Failed to decode DHCP Packet", e);
+                LOG.warn("Failed to decode DHCP Packet {}", e);
+                LOG.trace("Received packet {}", packet);
                 return;
             }
             try {
@@ -101,29 +100,33 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
                 pktIn = getDhcpPktIn(ethPkt);
                 if (pktIn != null) {
                     LOG.trace("DHCPPkt received: {}", pktIn);
+                    LOG.trace("Received Packet: {}", packet);
                     BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
                     long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
+                    String macAddress = DHCPUtils.byteArrayToString(ethPkt.getSourceMACAddress());
+                    BigInteger tunnelId = packet.getMatch().getTunnel() == null ? null : packet.getMatch().getTunnel().getTunnelId();
                     String interfaceName = getInterfaceNameFromTag(portTag);
                     ImmutablePair<BigInteger, String> pair = getDpnIdPhysicalAddressFromInterfaceName(interfaceName);
-                    DHCP replyPkt = handleDhcpPacket(pktIn, interfaceName);
+                    DHCP replyPkt = handleDhcpPacket(pktIn, interfaceName, macAddress, tunnelId);
                     byte[] pktOut = getDhcpPacketOut(replyPkt, ethPkt, pair.getRight());
-                    sendPacketOut(pktOut, pair.getLeft(), interfaceName);
+                    sendPacketOut(pktOut, pair.getLeft(), interfaceName, tunnelId);
                 }
             } catch (Exception e) {
-                LOG.warn("Failed to get DHCP Reply {}", e);
+                LOG.warn("Failed to get DHCP Reply");
+                LOG.trace("Reason for failure {}", e);
             }
         }
     }
 
-    private void sendPacketOut(byte[] pktOut, BigInteger dpnId, String interfaceName) {
+    private void sendPacketOut(byte[] pktOut, BigInteger dpnId, String interfaceName, BigInteger tunnelId) {
         LOG.trace("Sending packet out DpId {}, portId {}, vlanId {}, interfaceName {}", dpnId, interfaceName);
-        List<Action> action = getEgressAction(interfaceName);
+        List<Action> action = getEgressAction(interfaceName, tunnelId);
         TransmitPacketInput output = MDSALUtil.getPacketOut(action, pktOut, dpnId);
         LOG.trace("Transmitting packet: {}",output);
         this.pktService.transmitPacket(output);
     }
 
-    private DHCP handleDhcpPacket(DHCP dhcpPkt, String interfaceName) {
+    private DHCP handleDhcpPacket(DHCP dhcpPkt, String interfaceName, String macAddress, BigInteger tunnelId) {
         LOG.debug("DHCP pkt rcvd {}", dhcpPkt);
         byte msgType = dhcpPkt.getMsgType();
         if (msgType == DHCPConstants.MSG_DECLINE) {
@@ -133,8 +136,12 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
             LOG.debug("DHCPRELEASE received");
             return null;
         }
-
-        Port nPort = getNeutronPort(interfaceName);
+        Port nPort;
+        if (tunnelId != null) {
+            nPort = dhcpExternalTunnelManager.readVniMacToPortCache(tunnelId, macAddress);
+        } else {
+            nPort = getNeutronPort(interfaceName);
+        }
         Subnet nSubnet = getNeutronSubnet(nPort);
         DhcpInfo dhcpInfo = getDhcpInfo(nPort, nSubnet);
         LOG.trace("NeutronPort: {} \n NeutronSubnet: {}, dhcpInfo{}",nPort, nSubnet, dhcpInfo);
@@ -160,13 +167,6 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
             dhcpInfo.setClientIp(clientIp).setServerIp(serverIp)
                 .setCidr(nSubnet.getCidr()).setHostRoutes(nSubnet.getHostRoutes())
                 .setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
-        } else {
-            //FIXME: Delete this test code
-            LOG.error("TestOnly Code");
-            dhcpInfo = new DhcpInfo();
-            dhcpInfo.setClientIp("1.1.1.3").setServerIp("1.1.1.1")
-                .setCidr("1.1.1.0/24").addDnsServer("1.1.1.1");
-            LOG.warn("Failed to get Subnet info for DHCP reply");
         }
         return dhcpInfo;
     }
@@ -181,7 +181,6 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
 
     private DHCP getDhcpPktIn(Ethernet actualEthernetPacket) {
         Ethernet ethPkt = actualEthernetPacket;
-        LOG.trace("Inside getDhcpPktIn ethPkt {} \n getPayload {}", ethPkt, ethPkt.getPayload());
         if (ethPkt.getEtherType() == (short)NwConstants.ETHTYPE_802_1Q) {
             ethPkt = (Ethernet)ethPkt.getPayload();
         }
@@ -197,7 +196,8 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
                     try {
                         reply.deserialize(rawDhcpPayload, 0, rawDhcpPayload.length);
                     } catch (PacketException e) {
-                        LOG.warn("Failed to deserialize DHCP pkt {}", e);
+                        LOG.warn("Failed to deserialize DHCP pkt");
+                        LOG.trace("Reason for failure {}", e);
                         return null;
                     }
                     return reply;
@@ -329,7 +329,6 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
             ether.setEtherType(EtherTypes.IPv4.shortValue());
             ether.setPayload(ip4Reply);
         }
-        //TODO: 
         ether.setSourceMACAddress(getServerMacAddress(phyAddrees));
         ether.setDestinationMACAddress(etherPkt.getSourceMACAddress());
 
@@ -577,12 +576,15 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         return id;
     }
 
-    private List<Action> getEgressAction(String interfaceName) {
+    private List<Action> getEgressAction(String interfaceName, BigInteger tunnelId) {
         List<Action> actions = null;
         try {
+            GetEgressActionsForInterfaceInputBuilder egressAction = new GetEgressActionsForInterfaceInputBuilder().setIntfName(interfaceName);
+            if (tunnelId != null) {
+                egressAction.setTunnelKey(tunnelId.longValue());
+            }
             Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
-                    interfaceManagerRpc.getEgressActionsForInterface(
-                            new GetEgressActionsForInterfaceInputBuilder().setIntfName(interfaceName).build());
+                    interfaceManagerRpc.getEgressActionsForInterface(egressAction.build());
             RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
             if(!rpcResult.isSuccessful()) {
                 LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}", interfaceName, rpcResult.getErrors());
@@ -596,7 +598,7 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
     }
 
     private ImmutablePair<BigInteger, String> getDpnIdPhysicalAddressFromInterfaceName(String interfaceName) {
-        ImmutablePair<BigInteger, String> pair = localCache.get(interfaceName);
+        ImmutablePair<BigInteger, String> pair = dhcpMgr.getInterfaceCache(interfaceName);
         if (pair!=null && pair.getLeft() != null && pair.getRight() != null) {
             return pair;
         }
@@ -609,7 +611,7 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         String phyAddress = interfaceState==null ? "":interfaceState.getPhysAddress().getValue();
         pair = new ImmutablePair<BigInteger, String>(dpId, phyAddress);
-        localCache.put(interfaceName, pair);
-        return null;
+        dhcpMgr.updateInterfaceCache(interfaceName, pair);
+        return pair;
     }
 }

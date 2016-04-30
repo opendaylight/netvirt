@@ -86,4 +86,14 @@ public abstract class DHCPUtils {
         return result;
     }
 
+    public static String byteArrayToString(byte[] bytes) {
+        StringBuilder str = new StringBuilder();
+        for (byte b : bytes) {
+            str.append(Integer.toHexString((b >>> 4) & 0x0F));
+            str.append(Integer.toHexString(b & 0x0F));
+            str.append(":");
+        }
+        str.deleteCharAt(str.lastIndexOf(":"));
+        return str.toString();
+    }
 }
