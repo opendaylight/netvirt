@@ -338,7 +338,7 @@
             "version": 2,
             "preRequestScript": "",
             "tests": "",
-            "rawModeData": "{\n    \"netvirt-providers-config\": {\n        \"table-offset\": 10\n    }\n}"
+            "rawModeData": "{\n    \"netvirt-providers-config\": {\n        \"table-offset\": 1\n    }\n}"
         },
         {
             "id": "a1bd4157-09e1-d6a8-2ee7-8c503747511c",
