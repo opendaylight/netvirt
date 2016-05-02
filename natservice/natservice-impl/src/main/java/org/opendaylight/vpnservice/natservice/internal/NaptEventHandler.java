@@ -62,10 +62,23 @@ public class NaptEventHandler {
     */
         Long routerId = naptEntryEvent.getRouterId();
         LOG.info("NAT Service : handleEvent() entry for IP {}, port {}, routerID {}", naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId);
+
+        //Get the DPN ID
         BigInteger dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
+        long bgpVpnId = NatConstants.INVALID_ID;
         if(dpnId == null ){
-            LOG.error("NAT Service : dpnId is null");
-            return;
+            LOG.warn("NAT Service : dpnId is null. Assuming the router ID {} as the BGP VPN ID and proceeding....", routerId);
+            bgpVpnId = routerId;
+            LOG.debug("NAT Service : BGP VPN ID {}", bgpVpnId);
+            String vpnName = NatUtil.getRouterName(dataBroker, bgpVpnId);
+            String routerName = NatUtil.getRouterIdfromVpnId(dataBroker, vpnName);
+            routerId = NatUtil.getVpnId(dataBroker, routerName);
+            LOG.debug("NAT Service : Router ID {}", routerId);
+            dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
+            if(dpnId == null){
+                LOG.error("NAT Service : dpnId is null for the router {}", routerId);
+                return;
+            }
         }
         if(naptEntryEvent.getOperation() == NAPTEntryEvent.Operation.ADD) {
             LOG.debug("NAT Service : Inside Add operation of NaptEventHandler");
@@ -94,23 +107,24 @@ public class NaptEventHandler {
             //Get the external IP address for the corresponding internal IP address
             SessionAddress externalAddress = naptManager.getExternalAddressMapping(routerId, internalAddress, naptEntryEvent.getProtocol());
             if(externalAddress == null ){
-                LOG.error("NAT Service : externalAddress is null");
-                return;
+                if(externalAddress == null){
+                    LOG.error("NAT Service : externalAddress is null");
+                    return;
+                }
             }
-
             //Build and install the NAPT translation flows in the Outbound and Inbound NAPT tables
-            buildAndInstallNatFlows(dpnId, NatConstants.OUTBOUND_NAPT_TABLE, vpnId, routerId, internalAddress, externalAddress, protocol);
-            buildAndInstallNatFlows(dpnId, NatConstants.INBOUND_NAPT_TABLE, vpnId, routerId, externalAddress, internalAddress, protocol);
+            buildAndInstallNatFlows(dpnId, NatConstants.OUTBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId, internalAddress, externalAddress, protocol);
+            buildAndInstallNatFlows(dpnId, NatConstants.INBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId, externalAddress, internalAddress, protocol);
 
         }else{
             LOG.debug("NAT Service : Inside delete Operation of NaptEventHandler");
-            removeNatFlows(dpnId, routerId, naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber());
+            removeNatFlows(dpnId, NatConstants.INBOUND_NAPT_TABLE, routerId, naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber());
         }
 
         LOG.info("NAT Service : handleNaptEvent() exited for IP, port, routerID : {}", naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId);
     }
 
-    public static void buildAndInstallNatFlows(BigInteger dpnId, short tableId, long vpnId, long routerId, SessionAddress actualSourceAddress,
+    public static void buildAndInstallNatFlows(BigInteger dpnId, short tableId, long vpnId, long routerId, long bgpVpnId, SessionAddress actualSourceAddress,
                                          SessionAddress translatedSourceAddress, NAPTEntryEvent.Protocol protocol){
         LOG.debug("NAT Service : Build and install NAPT flows in InBound and OutBound tables for dpnId {} and routerId {}", dpnId, routerId);
         //Build the flow for replacing the actual IP and port with the translated IP and port.
@@ -125,9 +139,17 @@ public class NaptEventHandler {
         long metaDataValue = routerId;
         String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(metaDataValue), actualIp, actualPort);
 
+        long intranetVpnId;
+        if(bgpVpnId != NatConstants.INVALID_ID){
+            intranetVpnId = bgpVpnId;
+        }else{
+            intranetVpnId = routerId;
+        }
+        LOG.debug("NAT Service : Intranet VPN ID {}", intranetVpnId);
+        LOG.debug("NAT Service : Router ID {}", routerId);
         FlowEntity snatFlowEntity = MDSALUtil.buildFlowEntity(dpnId, tableId, switchFlowRef, NatConstants.DEFAULT_NAPT_FLOW_PRIORITY, NatConstants.NAPT_FLOW_NAME,
-                idleTimeout, 0, NatUtil.getCookieNaptFlow(metaDataValue), buildAndGetMatchInfo(actualIp, actualPort, tableId, protocol, routerId, vpnId),
-                buildAndGetSetActionInstructionInfo(translatedIp, translatedPort, routerId, vpnId, tableId, protocol));
+                idleTimeout, 0, NatUtil.getCookieNaptFlow(metaDataValue), buildAndGetMatchInfo(actualIp, actualPort, tableId, protocol, intranetVpnId, vpnId),
+                buildAndGetSetActionInstructionInfo(translatedIp, translatedPort, intranetVpnId, vpnId, tableId, protocol));
 
         snatFlowEntity.setSendFlowRemFlag(true);
 
@@ -150,7 +172,7 @@ public class NaptEventHandler {
             return null;
         }
 
-        MatchInfo metaDataMatchInfo;
+        MatchInfo metaDataMatchInfo = null;
         if(tableId == NatConstants.OUTBOUND_NAPT_TABLE){
             ipMatchInfo = new MatchInfo(MatchFieldType.ipv4_source, new String[] {ipAddressAsString, "32" });
             if(protocol == NAPTEntryEvent.Protocol.TCP) {
@@ -170,18 +192,20 @@ public class NaptEventHandler {
                 protocolMatchInfo = new MatchInfo(MatchFieldType.ip_proto, new long[] {IPProtocols.UDP.intValue()});
                 portMatchInfo = new MatchInfo(MatchFieldType.udp_dst, new long[]{port});
             }
-            metaDataMatchInfo = new MatchInfo(MatchFieldType.metadata, new BigInteger[]{BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID});
+            //metaDataMatchInfo = new MatchInfo(MatchFieldType.metadata, new BigInteger[]{BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID});
         }
         ArrayList<MatchInfo> matchInfo = new ArrayList<>();
         matchInfo.add(new MatchInfo(MatchFieldType.eth_type, new long[] { 0x0800L }));
         matchInfo.add(ipMatchInfo);
         matchInfo.add(protocolMatchInfo);
         matchInfo.add(portMatchInfo);
-        matchInfo.add(metaDataMatchInfo);
+        if(tableId == NatConstants.OUTBOUND_NAPT_TABLE){
+            matchInfo.add(metaDataMatchInfo);
+        }
         return matchInfo;
     }
 
-    private static List<InstructionInfo> buildAndGetSetActionInstructionInfo(String ipAddress, String port, long routerId, long vpnId, short tableId, NAPTEntryEvent.Protocol protocol) {
+    private static List<InstructionInfo> buildAndGetSetActionInstructionInfo(String ipAddress, String port, long segmentId, long vpnId, short tableId, NAPTEntryEvent.Protocol protocol) {
         ActionInfo ipActionInfo = null;
         ActionInfo portActionInfo = null;
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
@@ -202,7 +226,7 @@ public class NaptEventHandler {
             } else if(protocol == NAPTEntryEvent.Protocol.UDP) {
                portActionInfo = new ActionInfo( ActionType.set_udp_destination_port, new String[] {port});
             }
-            instructionInfo.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[]{BigInteger.valueOf(routerId), MetaDataUtil.METADATA_MASK_VRFID}));
+            instructionInfo.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[]{BigInteger.valueOf(segmentId), MetaDataUtil.METADATA_MASK_VRFID}));
         }
 
         listActionInfo.add(ipActionInfo);
@@ -214,12 +238,15 @@ public class NaptEventHandler {
         return instructionInfo;
     }
 
-    private void removeNatFlows(BigInteger dpnId, long routerId, String externalIp, int externalPort){
-        LOG.debug("NAT Service : Remove NAPT flows for dpnId {} and routerId {}", dpnId, routerId);
+    void removeNatFlows(BigInteger dpnId, short tableId ,long segmentId, String ip, int port){
+        if(dpnId == null || dpnId.equals(BigInteger.ZERO)){
+            LOG.error("NAT Service : DPN ID {} is invalid" , dpnId);
+        }
+        LOG.debug("NAT Service : Remove NAPT flows for dpnId {}, segmentId {}, ip {} and port {} ", dpnId, segmentId, ip, port);
 
-        //Build the flow with the externalPort IP and port as the match info.
-        String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NatConstants.INBOUND_NAPT_TABLE, String.valueOf(routerId), externalIp, externalPort);
-        FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, NatConstants.INBOUND_NAPT_TABLE, switchFlowRef);
+        //Build the flow with the port IP and port as the match info.
+        String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(segmentId), ip, port);
+        FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, tableId, switchFlowRef);
         LOG.debug("NAT Service : Remove the flow in the table {} for the switch with the DPN ID {}", NatConstants.INBOUND_NAPT_TABLE, dpnId);
         mdsalManager.removeFlow(snatFlowEntity);
 

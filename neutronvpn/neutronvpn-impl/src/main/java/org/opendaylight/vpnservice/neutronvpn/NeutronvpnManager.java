@@ -37,6 +37,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.Adjacencies
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.RouterInterfacesMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.router.interfaces.map.RouterInterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.router.interfaces.map.RouterInterfacesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.router.interfaces.map.router.interfaces.InterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.router.interfaces.map.router.interfaces.InterfacesKey;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
@@ -814,8 +822,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         InstanceIdentifier<ElanInstance>elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
         Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
         long elanTag = elanInstance.get().getElanTag();
-        if(vpnId.equals(NeutronvpnUtils.getVpnMap(broker,vpnId).getRouterId())){isExternalVpn = false;}
-        else {isExternalVpn = true;}
+        Uuid routerId = NeutronvpnUtils.getVpnMap(broker, vpnId).getRouterId();
+        if (vpnId.equals(routerId)) {
+            isExternalVpn = false;
+        } else {
+            isExternalVpn = true;
+        }
         try {
             isLockAcquired = NeutronvpnUtils.lock(lockManager, lockName);
             checkAndPublishSubnetAddNotification(subnet, sn.getSubnetIp(), vpnId.getValue(), isExternalVpn, elanTag);
@@ -863,6 +875,53 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
             for (Uuid port : sn.getPortList()) {
                 logger.debug("Updating vpn-interface for port {}", port.getValue());
                 updateVpnInterface(vpnId, NeutronvpnUtils.getNeutronPort(broker, port));
+            }
+        }
+    }
+
+
+
+        // router-interfaces-map
+//    list router-interfaces {
+//        key router-id;
+//        leaf router-id { type yang:uuid; }
+//        list interfaces {
+//            key interface-id;
+//            leaf interface-id { type yang:uuid; }
+//        }
+//    }
+////}
+    InstanceIdentifier<RouterInterfaces> getRouterInterfacesId(Uuid routerId) {
+        return InstanceIdentifier.builder(RouterInterfacesMap.class)
+                .child(RouterInterfaces.class, new RouterInterfacesKey(routerId)).build();
+    }
+    void addToNeutronRouterInterfacesMap(Uuid routerId, String interfaceName) {
+        InstanceIdentifier<RouterInterfaces> routerInterfacesId =  getRouterInterfacesId(routerId);
+        Optional<RouterInterfaces> optRouterInterfaces = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId);
+        Interfaces routerInterface = new InterfacesBuilder().setKey(new InterfacesKey(interfaceName)).setInterfaceId(interfaceName).build();
+        if(optRouterInterfaces.isPresent()) {
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId.child(Interfaces.class, new InterfacesKey(interfaceName)), routerInterface);
+        } else {
+            RouterInterfacesBuilder builder = new RouterInterfacesBuilder().setRouterId(routerId);
+            List<Interfaces> interfaces = new ArrayList<>();
+            interfaces.add(routerInterface);
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId, builder.setInterfaces(interfaces).build());
+        }
+    }
+    
+    void removeFromNeutronRouterInterfacesMap(Uuid routerId, String interfaceName) {
+        InstanceIdentifier<RouterInterfaces> routerInterfacesId =  getRouterInterfacesId(routerId);
+        Optional<RouterInterfaces> optRouterInterfaces = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId);
+        Interfaces routerInterface = new InterfacesBuilder().setKey(new InterfacesKey(interfaceName)).setInterfaceId(interfaceName).build();
+        if(optRouterInterfaces.isPresent()) {
+            RouterInterfaces routerInterfaces = optRouterInterfaces.get();
+            List<Interfaces> interfaces = routerInterfaces.getInterfaces();
+            if(interfaces != null && interfaces.remove(routerInterface)) {
+                if(interfaces.isEmpty()) {
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId);
+                } else {
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId.child(Interfaces.class, new InterfacesKey(interfaceName)));
+                }
             }
         }
     }
@@ -974,8 +1033,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         InstanceIdentifier<ElanInstance>elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
         Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
         long elanTag = elanInstance.get().getElanTag();
-        if(vpnId.equals(NeutronvpnUtils.getVpnMap(broker,vpnId).getRouterId())){isExternalVpn = false;}
-        else {isExternalVpn = true;}
+        Uuid routerId = NeutronvpnUtils.getVpnMap(broker, vpnId).getRouterId();
+        if (vpnId.equals(routerId)) {
+            isExternalVpn = false;
+        } else {
+            isExternalVpn = true;
+        }
         try {
             isLockAcquired = NeutronvpnUtils.lock(lockManager, lockName);
             checkAndPublishSubnetDelNotification(subnet, sn.getSubnetIp(), vpnId.getValue(), isExternalVpn, elanTag);
@@ -994,6 +1057,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
                 for (Uuid port : sn.getPortList()) {
                     logger.debug("removing vpn-interface for port {}", port.getValue());
                     deleteVpnInterface(NeutronvpnUtils.getNeutronPort(broker, port));
+                    if (routerId != null) {
+                        removeFromNeutronRouterInterfacesMap(routerId, port.getValue());
+                    }
                 }
             }
             // update subnet-vpn association

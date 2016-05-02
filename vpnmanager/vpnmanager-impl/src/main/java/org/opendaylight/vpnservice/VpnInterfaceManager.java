@@ -16,11 +16,21 @@ import com.google.common.util.concurrent.JdkFutureAdapters;
 import org.opendaylight.controller.md.sal.binding.api.*;
 import org.opendaylight.vpnservice.mdsalutil.*;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.neutron.router.dpns.RouterDpnListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.neutron.router.dpns.RouterDpnListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListBuilder;
@@ -961,6 +971,93 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     }
                 } catch (Exception e) {
                     LOG.error("updatePrefixesForDPN {} in vpn {} failed", dpnId, vpnInstance.getVpnInstanceName(), e);
+                }
+            }
+        }
+    }
+
+	InstanceIdentifier<DpnVpninterfacesList> getRouterDpnId(String routerName, BigInteger dpnId) {
+        return InstanceIdentifier.builder(NeutronRouterDpns.class)
+            .child(RouterDpnList.class, new RouterDpnListKey(routerName))
+            .child(DpnVpninterfacesList.class, new DpnVpninterfacesListKey(dpnId)).build();
+    }
+
+    InstanceIdentifier<RouterDpnList> getRouterId(String routerName) {
+        return InstanceIdentifier.builder(NeutronRouterDpns.class)
+            .child(RouterDpnList.class, new RouterDpnListKey(routerName)).build();
+    }
+
+    protected void addToNeutronRouterDpnsMap(String routerName, String vpnInterfaceName) {
+        BigInteger dpId = InterfaceUtils.getDpnForInterface(interfaceManager, vpnInterfaceName);
+        if(dpId.equals(BigInteger.ZERO)) {
+            LOG.warn("Could not retrieve dp id for interface {} to handle router {} association model", vpnInterfaceName, routerName);
+            return;
+        }
+        InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
+
+        Optional<DpnVpninterfacesList> optionalRouterDpnList = VpnUtil.read(broker, LogicalDatastoreType
+                .CONFIGURATION, routerDpnListIdentifier);
+        RouterInterfaces routerInterface = new RouterInterfacesBuilder().setKey(new RouterInterfacesKey(vpnInterfaceName)).setInterface(vpnInterfaceName).build();
+        if (optionalRouterDpnList.isPresent()) {
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routerDpnListIdentifier.child(
+                    RouterInterfaces.class,  new RouterInterfacesKey(vpnInterfaceName)), routerInterface);
+        } else {
+            MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION,
+                    getRouterId(routerName),
+                    new RouterDpnListBuilder().setRouterId(routerName).build());
+            //VpnToDpnListBuilder vpnToDpnList = new VpnToDpnListBuilder().setDpnId(dpnId);
+            DpnVpninterfacesListBuilder dpnVpnList = new DpnVpninterfacesListBuilder().setDpnId(dpId);
+            List<RouterInterfaces> routerInterfaces =  new ArrayList<>();
+            routerInterfaces.add(routerInterface);
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routerDpnListIdentifier,
+                    dpnVpnList.setRouterInterfaces(routerInterfaces).build());
+        }
+    }
+
+    protected void removeFromNeutronRouterDpnsMap(String routerName, String vpnInterfaceName) {
+        BigInteger dpId = InterfaceUtils.getDpnForInterface(interfaceManager, vpnInterfaceName);
+        if(dpId.equals(BigInteger.ZERO)) {
+            LOG.warn("Could not retrieve dp id for interface {} to handle router {} dissociation model", vpnInterfaceName, routerName);
+            return;
+        }
+        InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
+        Optional<DpnVpninterfacesList> optionalRouterDpnList = VpnUtil.read(broker, LogicalDatastoreType
+                .CONFIGURATION, routerDpnListIdentifier);
+        if (optionalRouterDpnList.isPresent()) {
+            List<RouterInterfaces> routerInterfaces = optionalRouterDpnList.get().getRouterInterfaces();
+            RouterInterfaces routerInterface = new RouterInterfacesBuilder().setKey(new RouterInterfacesKey(vpnInterfaceName)).setInterface(vpnInterfaceName).build();
+
+            if (routerInterfaces != null && routerInterfaces.remove(routerInterface)) {
+                if (routerInterfaces.isEmpty()) {
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerDpnListIdentifier);
+                } else {
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerDpnListIdentifier.child(
+                            RouterInterfaces.class,
+                            new RouterInterfacesKey(vpnInterfaceName)));
+                }
+            }
+        }
+    }
+	
+	protected void removeFromNeutronRouterDpnsMap(String routerName, String vpnInterfaceName,BigInteger dpId) {
+        if(dpId.equals(BigInteger.ZERO)) {
+            LOG.warn("Could not retrieve dp id for interface {} to handle router {} dissociation model", vpnInterfaceName, routerName);
+            return;
+        }
+        InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
+        Optional<DpnVpninterfacesList> optionalRouterDpnList = VpnUtil.read(broker, LogicalDatastoreType
+                .CONFIGURATION, routerDpnListIdentifier);
+        if (optionalRouterDpnList.isPresent()) {
+            List<RouterInterfaces> routerInterfaces = optionalRouterDpnList.get().getRouterInterfaces();
+            RouterInterfaces routerInterface = new RouterInterfacesBuilder().setKey(new RouterInterfacesKey(vpnInterfaceName)).setInterface(vpnInterfaceName).build();
+
+            if (routerInterfaces != null && routerInterfaces.remove(routerInterface)) {
+                if (routerInterfaces.isEmpty()) {
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerDpnListIdentifier);
+                } else {
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerDpnListIdentifier.child(
+                            RouterInterfaces.class,
+                            new RouterInterfacesKey(vpnInterfaceName)));
                 }
             }
         }

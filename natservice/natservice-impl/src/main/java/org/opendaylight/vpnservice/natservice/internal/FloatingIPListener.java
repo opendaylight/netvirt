@@ -153,8 +153,14 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
     }
 
     private FlowEntity buildPreDNATFlowEntity(BigInteger dpId, String internalIp, String externalIp, long routerId, long vpnId) {
+        return buildPreDNATFlowEntity(dpId, internalIp, externalIp, routerId, vpnId, NatConstants.INVALID_ID);
+    }
 
+    private FlowEntity buildPreDNATFlowEntity(BigInteger dpId, String internalIp, String externalIp, long routerId, long vpnId, long associatedVpn) {
         LOG.info("Bulding DNAT Flow entity for ip {} ", externalIp);
+
+        long segmentId = (associatedVpn == NatConstants.INVALID_ID) ? routerId : associatedVpn;
+        LOG.debug("Segment id {} in build preDNAT Flow", segmentId);
 
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
@@ -171,11 +177,11 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
 
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf
-                (routerId), MetaDataUtil.METADATA_MASK_VRFID }));
+                (segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.DNAT_TABLE }));
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.PDNAT_TABLE, externalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.PDNAT_TABLE, routerId, externalIp);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PDNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
@@ -187,12 +193,19 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
 
 
     private FlowEntity buildDNATFlowEntity(BigInteger dpId, String internalIp, String externalIp, long routerId) {
+        return buildDNATFlowEntity(dpId, internalIp, externalIp, routerId, NatConstants.INVALID_ID);
+    }
+
+    private FlowEntity buildDNATFlowEntity(BigInteger dpId, String internalIp, String externalIp, long routerId, long associatedVpn) {
 
         LOG.info("Bulding DNAT Flow entity for ip {} ", externalIp);
 
+        long segmentId = (associatedVpn == NatConstants.INVALID_ID) ? routerId : associatedVpn;
+        LOG.debug("Segment id {} in build DNAT", segmentId);
+
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
+                BigInteger.valueOf(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
@@ -211,7 +224,7 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         //instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.L3_FIB_TABLE }));
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.DNAT_TABLE, externalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.DNAT_TABLE, routerId, externalIp);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.DNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
@@ -222,8 +235,16 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
     }
 
     private FlowEntity buildPreSNATFlowEntity(BigInteger dpId, String internalIp, String externalIp, long vpnId, long routerId) {
+        return buildPreSNATFlowEntity(dpId, internalIp, externalIp, vpnId, routerId, NatConstants.INVALID_ID);
+    }
+
+    private FlowEntity buildPreSNATFlowEntity(BigInteger dpId, String internalIp, String externalIp, long vpnId, long routerId, long associatedVpn) {
 
         LOG.info("Building PSNAT Flow entity for ip {} ", internalIp);
+
+        long segmentId = (associatedVpn == NatConstants.INVALID_ID) ? routerId : associatedVpn;
+
+        LOG.debug("Segment id {} in build preSNAT flow", segmentId);
 
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
@@ -233,7 +254,7 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
                 internalIp, "32" }));
 
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
+                BigInteger.valueOf(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
         actionsInfos.add(new ActionInfo(ActionType.set_source_ip, new String[]{ externalIp, "32" }));
@@ -243,7 +264,7 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.SNAT_TABLE }));
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.PSNAT_TABLE, internalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.PSNAT_TABLE, routerId, internalIp);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PSNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
@@ -282,7 +303,7 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         //instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.L3_FIB_TABLE }));
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.SNAT_TABLE, internalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.SNAT_TABLE, vpnId, internalIp);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.SNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
@@ -293,11 +314,11 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
 
     }
 
-    private void createDNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId, long vpnId) {
-        FlowEntity pFlowEntity = buildPreDNATFlowEntity(dpnId, internalIp, externalIp, routerId, vpnId );
+    private void createDNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId, long vpnId, long associatedVpnId) {
+        FlowEntity pFlowEntity = buildPreDNATFlowEntity(dpnId, internalIp, externalIp, routerId, vpnId, associatedVpnId );
         mdsalManager.installFlow(pFlowEntity);
 
-        FlowEntity flowEntity = buildDNATFlowEntity(dpnId, internalIp, externalIp, routerId);
+        FlowEntity flowEntity = buildDNATFlowEntity(dpnId, internalIp, externalIp, routerId, associatedVpnId);
         mdsalManager.installFlow(flowEntity);
     }
 
@@ -309,8 +330,8 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
         mdsalManager.removeFlow(flowEntity);
     }
 
-    private void createSNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long vpnId, long routerId, String macAddress) {
-        FlowEntity pFlowEntity = buildPreSNATFlowEntity(dpnId, internalIp, externalIp, vpnId , routerId);
+    private void createSNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long vpnId, long routerId, String macAddress, long associatedVpnId) {
+        FlowEntity pFlowEntity = buildPreSNATFlowEntity(dpnId, internalIp, externalIp, vpnId , routerId, associatedVpnId);
         mdsalManager.installFlow(pFlowEntity);
 
         FlowEntity flowEntity = buildSNATFlowEntity(dpnId, internalIp, externalIp, vpnId, macAddress);
@@ -318,11 +339,11 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
 
     }
 
-    private void removeSNATTblEntry(BigInteger dpnId, String internalIp, String externalIp) {
-        FlowEntity pFlowEntity = buildPreSNATDeleteFlowEntity(dpnId, internalIp, externalIp);
+    private void removeSNATTblEntry(BigInteger dpnId, String internalIp, long routerId, String externalIp, long vpnId) {
+        FlowEntity pFlowEntity = buildPreSNATDeleteFlowEntity(dpnId, internalIp, routerId, externalIp);
         mdsalManager.removeFlow(pFlowEntity);
 
-        FlowEntity flowEntity = buildSNATDeleteFlowEntity(dpnId, internalIp, externalIp);
+        FlowEntity flowEntity = buildSNATDeleteFlowEntity(dpnId, internalIp, vpnId, externalIp);
         mdsalManager.removeFlow(flowEntity);
 
     }
@@ -353,7 +374,6 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
 
         //Get the id using the VPN UUID (also vpn instance name)
         return NatUtil.readVpnId(broker, vpnUuid.getValue());
-
     }
 
     private void processFloatingIPAdd(final InstanceIdentifier<IpMapping> identifier,
@@ -416,6 +436,18 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
             LOG.warn("Could not retrieve router id for {} to create NAT Flow entries", routerName);
             return;
         }
+        //Check if the router to vpn association is present
+        //long associatedVpnId = NatUtil.getAssociatedVpn(broker, routerName);
+        Uuid associatedVpn = NatUtil.getVpnForRouter(broker, routerName);
+        long associatedVpnId = NatConstants.INVALID_ID;
+        if(associatedVpn == null) {
+            LOG.debug("Router {} is not assicated with any BGP VPN instance", routerName);
+        } else {
+            LOG.debug("Router {} is associated with VPN Instance with Id {}", routerName, associatedVpn);
+            associatedVpnId = NatUtil.getVpnId(broker, associatedVpn.getValue());
+            LOG.debug("vpninstance Id is {} for VPN {}", associatedVpnId, associatedVpn);
+            //routerId = associatedVpnId;
+        }
 
         Uuid extNwId = getExtNetworkId(pIdentifier);
         if(extNwId == null) {
@@ -431,11 +463,11 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
         }
 
         //Create the DNAT and SNAT table entries
-        createDNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), routerId, vpnId);
+        createDNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), routerId, vpnId, associatedVpnId);
 
 
         String macAddr = getExternalGatewayMacAddress(routerName);
-        createSNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), vpnId, routerId, macAddr);
+        createSNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), vpnId, routerId, macAddr, associatedVpnId);
 
         handler.onAddFloatingIp(dpnId, routerName, extNwId, interfaceName, mapping.getExternalIp(), mapping
                 .getInternalIp());
@@ -447,18 +479,60 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
             LOG.warn("Could not retrieve router id for {} to create NAT Flow entries", routerName);
             return;
         }
+        //Check if the router to vpn association is present
+        long associatedVpnId = NatUtil.getAssociatedVpn(broker, routerName);
+        if(associatedVpnId == NatConstants.INVALID_ID) {
+            LOG.debug("Router {} is not assicated with any BGP VPN instance", routerName);
+        } else {
+            LOG.debug("Router {} is associated with VPN Instance with Id {}", routerName, associatedVpnId);
+            //routerId = associatedVpnId;
+        }
+        
         long vpnId = getVpnId(externalNetworkId);
         if(vpnId < 0) {
             LOG.error("Unable to create SNAT table entry for fixed ip {}", internalIp);
             return;
         }
         //Create the DNAT and SNAT table entries
-        createDNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId);
+        createDNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId, associatedVpnId);
 
         String macAddr = getExternalGatewayMacAddress(routerName);
-        createSNATTblEntry(dpnId, internalIp, externalIp, vpnId, routerId, macAddr);
+        createSNATTblEntry(dpnId, internalIp, externalIp, vpnId, routerId, macAddr, associatedVpnId);
 
         handler.onAddFloatingIp(dpnId, routerName, externalNetworkId, interfaceName, externalIp, internalIp);
+    }
+
+    void createNATOnlyFlowEntries(BigInteger dpnId,  String interfaceName, String routerName, String associatedVPN, Uuid externalNetworkId, String internalIp, String externalIp) {
+        //String segmentId = associatedVPN == null ? routerName : associatedVPN;
+        LOG.debug("Retrieving vpn id for VPN {} to proceed with create NAT Flows", routerName);
+        long routerId = NatUtil.getVpnId(broker, routerName);
+        if(routerId == NatConstants.INVALID_ID) {
+            LOG.warn("Could not retrieve vpn id for {} to create NAT Flow entries", routerName);
+            return;
+        }
+        long associatedVpnId = NatUtil.getVpnId(broker, associatedVPN);
+        LOG.debug("Associated VPN Id {} for router {}", associatedVpnId, routerName);
+        long vpnId = getVpnId(externalNetworkId);
+        if(vpnId < 0) {
+            LOG.error("Unable to create SNAT table entry for fixed ip {}", internalIp);
+            return;
+        }
+        //Create the DNAT and SNAT table entries
+        //createDNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId);
+        FlowEntity pFlowEntity = buildPreDNATFlowEntity(dpnId, internalIp, externalIp, routerId, vpnId, associatedVpnId );
+        mdsalManager.installFlow(pFlowEntity);
+
+        FlowEntity flowEntity = buildDNATFlowEntity(dpnId, internalIp, externalIp, routerId, associatedVpnId);
+        mdsalManager.installFlow(flowEntity);
+
+        String macAddr = getExternalGatewayMacAddress(routerName);
+        //createSNATTblEntry(dpnId, internalIp, externalIp, vpnId, routerId, macAddr);
+        pFlowEntity = buildPreSNATFlowEntity(dpnId, internalIp, externalIp, vpnId , routerId, associatedVpnId);
+        mdsalManager.installFlow(pFlowEntity);
+
+        flowEntity = buildSNATFlowEntity(dpnId, internalIp, externalIp, vpnId, macAddr);
+        mdsalManager.installFlow(flowEntity);
+
     }
 
     private String getExternalGatewayMacAddress(String routerName) {
@@ -486,22 +560,32 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
             LOG.warn("Could not retrieve router id for {} to remove NAT Flow entries", routerName);
             return;
         }
+        //if(routerId == NatConstants.INVALID_ID) {
+        //The router could be associated with BGP VPN
+        Uuid associatedVPN = NatUtil.getVpnForRouter(broker, routerName);
+        long associatedVpnId = NatConstants.INVALID_ID;
+        if(associatedVPN == null) {
+            LOG.warn("Could not retrieve router id for {} to remove NAT Flow entries", routerName);
+        } else {
+            LOG.debug("Retrieving vpn id for VPN {} to proceed with remove NAT Flows", associatedVPN.getValue());
+            associatedVpnId = NatUtil.getVpnId(broker, associatedVPN.getValue());
+        }
 
         //Delete the DNAT and SNAT table entries
         removeDNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), routerId);
 
-//        Uuid extNwId = getExtNetworkId(pIdentifier);
-//        if(extNwId == null) {
-//            LOG.error("External network associated with interface {} could not be retrieved", interfaceName);
-//            return;
-//        }
-//        long vpnId = getVpnId(extNwId);
-//        if(vpnId < 0) {
-//            LOG.error("No VPN associated with ext nw {}. Unable to delete SNAT table entry for fixed ip {}", 
-//                    extNwId, mapping.getInternalIp());
-//            return;
-//        }
-        removeSNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp());
+        Uuid extNwId = getExtNetworkId(pIdentifier);
+        if(extNwId == null) {
+            LOG.error("External network associated with interface {} could not be retrieved", interfaceName);
+            return;
+        }
+        long vpnId = getVpnId(extNwId);
+        if(vpnId < 0) {
+            LOG.error("No VPN associated with ext nw {}. Unable to delete SNAT table entry for fixed ip {}", 
+                    extNwId, mapping.getInternalIp());
+            return;
+        }
+        removeSNATTblEntry(dpnId, mapping.getInternalIp(), routerId, mapping.getExternalIp(), vpnId);
 
         long label = getOperationalIpMapping(routerName, interfaceName, mapping.getInternalIp());
         if(label < 0) {
@@ -509,11 +593,11 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
             return;
         }
         //Uuid extNwId = getExtNetworkId(pIdentifier);
-        Uuid extNwId = getExternalNetworkForRouter(routerName);
-        if(extNwId == null) {
-            LOG.error("External network associated with router {} could not be retrieved", routerName);
-            return;
-        }
+//        Uuid extNwId = getExternalNetworkForRouter(routerName);
+//        if(extNwId == null) {
+//            LOG.error("External network associated with router {} could not be retrieved", routerName);
+//            return;
+//        }
         handler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping.getExternalIp(), mapping.getInternalIp(), (int) label);
         removeOperationalDS(routerName, interfaceName, mapping.getInternalIp(), mapping.getExternalIp());
 
@@ -522,18 +606,19 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
     void removeNATFlowEntries(BigInteger dpnId, String interfaceName, String vpnName, String routerName, Uuid externalNetworkId, String internalIp, String externalIp) {
         long routerId = NatUtil.getVpnId(broker, routerName);
         if(routerId == NatConstants.INVALID_ID) {
-            LOG.warn("Could not retrieve router id for {} to create NAT Flow entries", routerName);
+            LOG.warn("Could not retrieve router id for {} to remove NAT Flow entries", routerName);
             return;
         }
+
+        long vpnId = NatUtil.getVpnId(broker, vpnName);
+        if(vpnId == NatConstants.INVALID_ID) {
+            LOG.warn("VPN Id not found for {} to remove NAT flow entries {}", vpnName, internalIp);
+        }
+
         //Delete the DNAT and SNAT table entries
         removeDNATTblEntry(dpnId, internalIp, externalIp, routerId);
 
-//        long vpnId = getVpnId(externalNetworkId);
-//        if(vpnId < 0) {
-//            LOG.error("Unable to delete SNAT table entry for fixed ip {}", internalIp);
-//            return;
-//        }
-        removeSNATTblEntry(dpnId, internalIp, externalIp);
+        removeSNATTblEntry(dpnId, internalIp, routerId, externalIp, vpnId);
 
         long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
         if(label < 0) {
@@ -543,6 +628,21 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
         //handler.onRemoveFloatingIp(dpnId, routerName, externalNetworkId, externalIp, internalIp, (int)label);
         ((VpnFloatingIpHandler)handler).cleanupFibEntries(dpnId, vpnName, externalIp, label);
         removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
+    }
+
+    void removeNATOnlyFlowEntries(BigInteger dpnId, String interfaceName, String routerName, String associatedVPN,
+                                                                          String internalIp, String externalIp) {
+        String segmentId = associatedVPN == null ? routerName : associatedVPN;
+        LOG.debug("Retrieving vpn id for VPN {} to proceed with remove NAT Flows", segmentId);
+        long routerId = NatUtil.getVpnId(broker, segmentId);
+        if(routerId == NatConstants.INVALID_ID) {
+            LOG.warn("Could not retrieve vpn id for {} to remove NAT Flow entries", segmentId);
+            return;
+        }
+        //Delete the DNAT and SNAT table entries
+        removeDNATTblEntry(dpnId, internalIp, externalIp, routerId);
+
+        //removeSNATTblEntry(dpnId, internalIp, routerId, externalIp);
     }
 
     private long getOperationalIpMapping(String routerId, String interfaceName, String internalIp) {
@@ -593,7 +693,7 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
 
         LOG.info("Bulding Delete DNAT Flow entity for ip {} ", externalIp);
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.PDNAT_TABLE, externalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.PDNAT_TABLE, routerId, externalIp);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PDNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
@@ -608,7 +708,7 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
 
         LOG.info("Bulding Delete DNAT Flow entity for ip {} ", externalIp);
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.DNAT_TABLE, externalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.DNAT_TABLE, routerId, externalIp);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.DNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
@@ -618,11 +718,11 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
 
     }
 
-    private FlowEntity buildPreSNATDeleteFlowEntity(BigInteger dpId, String internalIp, String externalIp) {
+    private FlowEntity buildPreSNATDeleteFlowEntity(BigInteger dpId, String internalIp, long routerId, String externalIp) {
 
         LOG.info("Building Delete PSNAT Flow entity for ip {} ", internalIp);
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.PSNAT_TABLE, internalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.PSNAT_TABLE, routerId, internalIp);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PSNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
@@ -631,11 +731,11 @@ public class FloatingIPListener extends org.opendaylight.vpnservice.mdsalutil.Ab
         return flowEntity;
     }
 
-    private FlowEntity buildSNATDeleteFlowEntity(BigInteger dpId, String internalIp, String externalIp) {
+    private FlowEntity buildSNATDeleteFlowEntity(BigInteger dpId, String internalIp, long routerId, String externalIp) {
 
         LOG.info("Building Delete SNAT Flow entity for ip {} ", internalIp);
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.SNAT_TABLE, internalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.SNAT_TABLE, routerId, internalIp);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.SNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,

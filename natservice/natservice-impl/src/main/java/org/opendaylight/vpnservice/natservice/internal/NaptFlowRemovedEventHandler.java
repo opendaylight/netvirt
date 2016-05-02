@@ -70,7 +70,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
         short tableId = switchFlowRemoved.getTableId();
         RemovedReasonFlags removedReasonFlag = switchFlowRemoved.getRemovedReason();
 
-        if (tableId == NatConstants.OUTBOUND_NAPT_TABLE) {
+        if (tableId == NatConstants.OUTBOUND_NAPT_TABLE && removedReasonFlag.isIDLETIMEOUT()) {
             LOG.info("NaptFlowRemovedEventHandler : onSwitchFlowRemoved() entry");
 
             //Get the internal internal IP address and the port number from the IPv4 match.
@@ -137,28 +137,26 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
             InstanceIdentifier<Node> nodeRef = switchFlowRemoved.getNode().getValue().firstIdentifierOf(Node.class);
             String dpn = nodeRef.firstKeyOf(Node.class).getId().getValue();
             BigInteger dpnId = getDpnId(dpn);
+            String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(metadata), internalIpv4HostAddress, internalPortNumber);
 
             //Inform the MDSAL manager to inform about the flow removal.
-            String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(metadata), internalIpv4HostAddress, internalPortNumber);
             LOG.debug("NaptFlowRemovedEventHandler : DPN ID {}, Metadata {}, SwitchFlowRef {}, internalIpv4HostAddress{}", dpnId, metadata, switchFlowRef, internalIpv4AddressAsString);
             FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, tableId, switchFlowRef);
             mdsalManager.removeFlow(snatFlowEntity);
 
-            if(removedReasonFlag.isIDLETIMEOUT()) {
-                LOG.debug("Received flow removed notification due to idleTimeout of flow from switch for flowref {}",switchFlowRef);
-                //Remove the SourceIP:Port key from the Napt packet handler map.
-                String internalIpPortKey = internalIpv4HostAddress + ":" + internalPortNumber;
-                naptPacketInHandler.removeIncomingPacketMap(internalIpPortKey);
+            LOG.debug("Received flow removed notification due to idleTimeout of flow from switch for flowref {}",switchFlowRef);
+            //Remove the SourceIP:Port key from the Napt packet handler map.
+            String internalIpPortKey = internalIpv4HostAddress + ":" + internalPortNumber;
+            naptPacketInHandler.removeIncomingPacketMap(internalIpPortKey);
 
-                //Remove the mapping of internal fixed ip/port to external ip/port from the datastore.
-                SessionAddress internalSessionAddress = new SessionAddress(internalIpv4HostAddress, internalPortNumber);
-                naptManager.releaseIpExtPortMapping(routerId, internalSessionAddress, protocol);
-            } else {
-                LOG.debug("Received flow removed notification due to flowdelete from switch for flowref {}",switchFlowRef);
-            }
-
+            //Remove the mapping of internal fixed ip/port to external ip/port from the datastore.
+            SessionAddress internalSessionAddress = new SessionAddress(internalIpv4HostAddress, internalPortNumber);
+            naptManager.releaseIpExtPortMapping(routerId, internalSessionAddress, protocol);
             LOG.info("NaptFlowRemovedEventHandler : onSwitchFlowRemoved() exit");
+        }else {
+            LOG.debug("Received flow removed notification due to flowdelete from switch for flowref");
         }
+
     }
 
     private BigInteger getDpnId(String node) {

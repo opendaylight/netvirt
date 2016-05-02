@@ -7,6 +7,7 @@
  */
 package org.opendaylight.vpnservice;
 
+import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
@@ -16,6 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.router.interfaces.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -86,6 +88,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
         } else {
           vpnInterfaceManager.processVpnInterfaceUp(dpnId, interfaceName, intrf.getIfIndex());
           vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceUp(intrf);
+          handleRouterInterfacesUpEvent(interfaceName);
         }
       } catch (Exception e) {
         LOG.error("Exception caught in Interface Operational State Up event", e);
@@ -112,6 +115,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
           if (VpnUtil.isVpnInterfaceConfigured(broker, interfaceName)) {
             vpnInterfaceManager.processVpnInterfaceDown(dpId, interfaceName, intrf.getIfIndex(), true);
             vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceDown(intrf);
+            handleRouterInterfacesDownEvent(interfaceName,dpId);
           }
         }
       } catch (Exception e) {
@@ -133,14 +137,38 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
         if(update.getOperStatus().equals(Interface.OperStatus.Up)) {
           //advertise all prefixes in all vpns for this dpn to bgp
           // vpnInterfaceManager.updatePrefixesForDPN(dpnId, VpnInterfaceManager.UpdateRouteAction.ADVERTISE_ROUTE);
-                    vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceUp(update);
+          vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceUp(update);
         } else if(update.getOperStatus().equals(Interface.OperStatus.Down)) {
           //withdraw all prefixes in all vpns for this dpn from bgp
           // vpnInterfaceManager.updatePrefixesForDPN(dpnId, VpnInterfaceManager.UpdateRouteAction.WITHDRAW_ROUTE);
-                   vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceDown(update);
+          vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceDown(update);
         }*/
       }
 
+    }
+
+    void handleRouterInterfacesUpEvent(String interfaceName) {
+        Optional<RouterInterface> optRouterInterface = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, VpnUtil.getRouterInterfaceId(interfaceName));
+        if(optRouterInterface.isPresent()) {
+            RouterInterface routerInterface = optRouterInterface.get();
+            String routerName = routerInterface.getRouterName();
+            LOG.debug("Handling UP event for router interface {} in Router {}", interfaceName, routerName);
+            vpnInterfaceManager.addToNeutronRouterDpnsMap(routerName, interfaceName);
+        } else {
+            LOG.debug("No Router interface configured to handle UP event for {}", interfaceName);
+        }
+    }
+
+    void handleRouterInterfacesDownEvent(String interfaceName,BigInteger dpnId) {
+        Optional<RouterInterface> optRouterInterface = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, VpnUtil.getRouterInterfaceId(interfaceName));
+        if(optRouterInterface.isPresent()) {
+            RouterInterface routerInterface = optRouterInterface.get();
+            String routerName = routerInterface.getRouterName();
+            LOG.debug("Handling DOWN event for router interface {} in Router {}", interfaceName, routerName);
+            vpnInterfaceManager.removeFromNeutronRouterDpnsMap(routerName, interfaceName,dpnId);
+        } else {
+            LOG.debug("No Router interface configured to handle  DOWN event for {}", interfaceName);
+        }
     }
 
 }

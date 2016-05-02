@@ -70,6 +70,9 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
             notificationService.registerNotificationListener(subnetRoutePacketInHandler);
             vpnManager.setVpnInterfaceManager(vpnInterfaceManager);
             createIdPool();
+			
+			RouterInterfaceListener routerListener = new RouterInterfaceListener(dataBroker);
+            routerListener.setVpnInterfaceManager(vpnInterfaceManager);
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
         }

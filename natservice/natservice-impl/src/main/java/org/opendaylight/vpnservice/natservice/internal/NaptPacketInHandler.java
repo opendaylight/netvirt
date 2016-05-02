@@ -9,7 +9,6 @@ package org.opendaylight.vpnservice.natservice.internal;
 
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
-import org.opendaylight.vpnservice.mdsalutil.NWUtil;
 import org.opendaylight.vpnservice.mdsalutil.packet.Ethernet;
 import org.opendaylight.vpnservice.mdsalutil.packet.IPv4;
 import org.opendaylight.vpnservice.mdsalutil.packet.TCP;
@@ -67,11 +66,19 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                     if (ipPkt.getPayload() instanceof TCP) {
                         TCP tcpPkt = (TCP) ipPkt.getPayload();
                         portNumber = tcpPkt.getSourcePort();
+                        if(portNumber < 0){
+                            portNumber = 32767 + portNumber + 32767 + 2;
+                            LOG.trace("Retrieved and extracted TCP portNumber {}", portNumber);
+                        }
                         protocol = NAPTEntryEvent.Protocol.TCP;
                         LOG.trace("Retrieved TCP portNumber {}", portNumber);
                     } else if (ipPkt.getPayload() instanceof UDP) {
                         UDP udpPkt = (UDP) ipPkt.getPayload();
                         portNumber = udpPkt.getSourcePort();
+                        if(portNumber < 0){
+                            portNumber = 32767 + portNumber + 32767 + 2;
+                            LOG.trace("Retrieved and extracted UDP portNumber {}", portNumber);
+                        }
                         protocol = NAPTEntryEvent.Protocol.UDP;
                         LOG.trace("Retrieved UDP portNumber {}", portNumber);
                     } else {

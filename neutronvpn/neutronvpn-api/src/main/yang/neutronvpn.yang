@@ -151,6 +151,19 @@ module neutronvpn {
         }
     }
 
+
+    container router-interfaces-map {
+        list router-interfaces {
+            key router-id;
+            leaf router-id { type yang:uuid; }
+            list interfaces {
+                key interface-id;
+                leaf interface-id { type string; }
+            }
+        }
+    }
+
+
     /* container for DHCP Configuration */
     container dhcp-config {
         list configs {
@@ -389,5 +402,25 @@ module neutronvpn {
                 type uint32;
             }
     }
+
+    notification router-associated-to-vpn {
+                description "router association to vpn";
+                leaf router-id{
+                    type yang:uuid;
+                }
+                leaf vpn-id{
+                    type yang:uuid;
+                }
+        }
+
+        notification router-disassociated-from-vpn {
+                description "router disassociation from vpn";
+                leaf router-id{
+                    type yang:uuid;
+                }
+                leaf vpn-id{
+                    type yang:uuid;
+                }
+        }
 
 }
