@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_70dbb4ed",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-02T09:15:00Z",
+      "side": 1,
+      "message": "The VirtualPort has a list of IpAddress. So for the multiple ipv6 addresses for the same router interface all the addresses will be available in the intf ds. The v6IntfMap has keys with the ipv6 address. So for a single interface with multiple ip addresses, multiple entries will be available in the v6IntfMap with multiple keys and a single intf node.",
+      "parentUuid": "fa57193c_05603831",
+      "revId": "e1b0856590117a339d12a434df9497406e55e3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_65549454",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_b0e54caa",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-02T09:15:00Z",
+      "side": 1,
+      "message": "The host interface also internally takes up the VirtualPort so can hold multiple ipv6 addresses",
+      "parentUuid": "fa57193c_65549454",
+      "revId": "e1b0856590117a339d12a434df9497406e55e3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_45519061",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2016-04-29T19:10:16Z",
       "side": 1,
       "message": "Ideally this case should never hit as we do not want un-necessary packets to be punted to the controller. I know that you know this :)",
+      "revId": "e1b0856590117a339d12a434df9497406e55e3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_f0eea48a",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-02T09:15:00Z",
+      "side": 1,
+      "message": "Any packets received on the controller will be processed here. Ideally when we have programmed OF rules to punt only icmpv6 packets other packets will not be punted to controller and processed here. But this log message can be used for debugging any issues arising out of incorrect decoding of the received packet. This is just a log to point to the user incase any incorrect packet was received here.",
+      "parentUuid": "fa57193c_45519061",
       "revId": "e1b0856590117a339d12a434df9497406e55e3cf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
