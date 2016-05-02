@@ -15,7 +15,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.itm.api.IITMProvider;
 import org.opendaylight.vpnservice.itm.impl.ItmUtils;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.TunnelsState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.TunnelList ;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 import java.util.ArrayList;
@@ -33,18 +33,16 @@ import java.util.List;
 
     @Override
     protected Object doExecute() throws Exception {
-        /*
+        
         DataBroker broker = itmProvider.getDataBroker();
         List<String> result = new ArrayList<String>();
-        InstanceIdentifier<TunnelsState> path = InstanceIdentifier.builder(TunnelsState.class).build();
-        Optional<TunnelsState> tunnels = ItmUtils.read(LogicalDatastoreType.OPERATIONAL, path, broker);
+        InstanceIdentifier<TunnelList> path = InstanceIdentifier.builder(TunnelList.class).build();
+        Optional<TunnelList> tunnels = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, path, broker);
         if (tunnels.isPresent()) {
             itmProvider.showState(tunnels.get());
         }
         else
-            System.out.println("No Logical Tunnels Exist");
-            */
-        System.out.println( "Logical Tunnels state is not currently supported");
+            System.out.println("No Internal Tunnels Exist");
         return null;
     }
 }

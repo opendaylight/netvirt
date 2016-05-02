@@ -24,9 +24,12 @@ import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.itm.api.IITMProvider;
 import org.opendaylight.vpnservice.itm.cli.TepCommandHelper;
 import org.opendaylight.vpnservice.itm.globals.ITMConstants;
-import org.opendaylight.vpnservice.itm.impl.ItmUtils;
+import org.opendaylight.vpnservice.itm.listeners.InterfaceStateListener;
 import org.opendaylight.vpnservice.itm.listeners.TransportZoneListener;
+import org.opendaylight.vpnservice.itm.listeners.TunnelMonitorChangeListener;
+import org.opendaylight.vpnservice.itm.listeners.TunnelMonitorIntervalListener;
 import org.opendaylight.vpnservice.itm.listeners.VtepConfigSchemaListener;
+import org.opendaylight.vpnservice.itm.monitoring.ItmTunnelEventListener;
 import org.opendaylight.vpnservice.itm.rpc.ItmManagerRpcService;
 import org.opendaylight.vpnservice.itm.snd.ITMStatusMonitor;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
@@ -40,8 +43,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev15
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.TunnelList ;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,9 +65,13 @@ public class ItmProvider implements BindingAwareProvider, AutoCloseable, IITMPro
     private NotificationService notificationService;
     private TepCommandHelper tepCommandHelper;
     private TransportZoneListener tzChangeListener;
+    private TunnelMonitorChangeListener tnlToggleListener;
+    private TunnelMonitorIntervalListener tnlIntervalListener;
     private VtepConfigSchemaListener vtepConfigSchemaListener;
+    private InterfaceStateListener ifStateListener;
     private RpcProviderRegistry rpcProviderRegistry;
     private static final ITMStatusMonitor itmStatusMonitor = ITMStatusMonitor.getInstance();
+    private ItmTunnelEventListener itmStateListener;
     static short flag = 0;
 
     public ItmProvider() {
@@ -92,6 +99,9 @@ public class ItmProvider implements BindingAwareProvider, AutoCloseable, IITMPro
             tzChangeListener = new TransportZoneListener(dataBroker, idManager) ;
             itmRpcService = new ItmManagerRpcService(dataBroker, idManager);
             vtepConfigSchemaListener = new VtepConfigSchemaListener(dataBroker);
+            this.ifStateListener = new InterfaceStateListener(dataBroker);
+            tnlToggleListener = new TunnelMonitorChangeListener(dataBroker);
+            tnlIntervalListener = new TunnelMonitorIntervalListener(dataBroker);
             tepCommandHelper = new TepCommandHelper(dataBroker);
             final BindingAwareBroker.RpcRegistration<ItmRpcService> rpcRegistration = getRpcProviderRegistry().addRpcImplementation(ItmRpcService.class, itmRpcService);
             itmRpcService.setMdsalManager(mdsalManager);
@@ -101,8 +111,11 @@ public class ItmProvider implements BindingAwareProvider, AutoCloseable, IITMPro
             tzChangeListener.setMdsalManager(mdsalManager);
             tzChangeListener.setItmManager(itmManager);
             tzChangeListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+            tnlIntervalListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+            tnlToggleListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
             tepCommandHelper = new TepCommandHelper(dataBroker);
             tepCommandHelper.setInterfaceManager(interfaceManager);
+            itmStateListener =new ItmTunnelEventListener(dataBroker);
             createIdPool();
             itmStatusMonitor.reportStatus("OPERATIONAL");
         } catch (Exception e) {
@@ -134,7 +147,12 @@ public class ItmProvider implements BindingAwareProvider, AutoCloseable, IITMPro
         if (tzChangeListener != null) {
             tzChangeListener.close();
         }
-
+        if (tnlIntervalListener != null) {
+            tnlIntervalListener.close();
+        }
+        if(tnlToggleListener!= null){
+            tnlToggleListener.close();
+        }
         LOG.info("ItmProvider Closed");
     }
 
@@ -182,6 +200,12 @@ public class ItmProvider implements BindingAwareProvider, AutoCloseable, IITMPro
     public void showTeps() {
         tepCommandHelper.showTeps(itmManager.getTunnelMonitorEnabledFromConfigDS(),
                 itmManager.getTunnelMonitorIntervalFromConfigDS());
+    }
+    public void showState(TunnelList tunnels) {
+        if (tunnels != null)
+           tepCommandHelper.showState(tunnels, itmManager.getTunnelMonitorEnabledFromConfigDS());
+        else
+            LOG.debug("No tunnels available");
     }
 
     public void deleteVtep(BigInteger dpnId, String portName, Integer vlanId, String ipAddress, String subnetMask,
@@ -272,21 +296,27 @@ public class ItmProvider implements BindingAwareProvider, AutoCloseable, IITMPro
                 this);
         if (ItmUtils.getDpnIdList(schema.getDpnIds()) == null) {
             VtepConfigSchemaBuilder builder = new VtepConfigSchemaBuilder(schema);
+        if (ItmUtils.getDpnIdList(schema.getDpnIds()).isEmpty()) {
             builder.setDpnIds(schema.getDpnIds());
             schema = builder.build();
         } else {
             if (lstDpnsForAdd != null && !lstDpnsForAdd.isEmpty()) {
-                ItmUtils.getDpnIdList(schema.getDpnIds()).addAll(lstDpnsForAdd);
+                List<BigInteger> originalDpnList = ItmUtils.getDpnIdList(schema.getDpnIds()) ;
+                originalDpnList.addAll(lstDpnsForAdd) ;
+                builder.setDpnIds(ItmUtils.getDpnIdsListFromBigInt(originalDpnList));
             }
             if (lstDpnsForDelete != null && !lstDpnsForDelete.isEmpty()) {
-                 ItmUtils.getDpnIdList(schema.getDpnIds()).removeAll(lstDpnsForDelete);
+                List<BigInteger> originalDpnList = ItmUtils.getDpnIdList(schema.getDpnIds()) ;
+                originalDpnList.removeAll(lstDpnsForAdd) ;
+                builder.setDpnIds(ItmUtils.getDpnIdsListFromBigInt(originalDpnList)) ;
             }
         }
+        schema = builder.build();
         MDSALUtil.syncWrite(this.dataBroker, LogicalDatastoreType.CONFIGURATION,
                 ItmUtils.getVtepConfigSchemaIdentifier(schemaName), schema);
         LOG.debug("Vtep config schema {} updated to config DS with DPN's {}", schemaName, ItmUtils.getDpnIdList(schema.getDpnIds()));
     }
-
+    }
     /*
      * (non-Javadoc)
      * 

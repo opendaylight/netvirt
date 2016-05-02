@@ -22,16 +22,24 @@ import org.opendaylight.vpnservice.interfacemgr.exceptions.InterfaceNotFoundExce
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 //import org.opendaylight.vpnservice.interfacemgr.util.OperationalIfmUtil;
 import org.opendaylight.vpnservice.itm.globals.ITMConstants;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfL2vlan;
 import org.opendaylight.vpnservice.itm.impl.ItmUtils;
 import org.opendaylight.vpnservice.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.TunnelMonitorEnabled;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.TunnelMonitorEnabledBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.TunnelMonitorInterval;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.TunnelMonitorIntervalBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.TunnelList ;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.tunnel.list.InternalTunnelKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.TransportZones;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.TransportZonesBuilder;
@@ -44,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.tr
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.transport.zones.transport.zone.subnets.Vteps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.transport.zones.transport.zone.subnets.VtepsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rev150701.transport.zones.transport.zone.subnets.VtepsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -436,9 +445,9 @@ public class TepCommandHelper {
             result.add(String.format("Tunnel Monitoring (for VXLAN tunnels): %s", (monitorEnabled ? "On" : "Off")));
             result.add(String.format("Tunnel Monitoring Interval (for VXLAN tunnels): %d", monitorInterval));
             result.add(System.lineSeparator());
-            result.add(String.format("%-16s  %-16s  %-16s  %-12s  %-12s %-12s %-12s %-12s", "TransportZone", "TunnelType", "SubnetMask",
+            result.add(String.format("%-16s  %-16s  %-16s  %-12s  %-12s %-12s %-16s %-12s", "TransportZone", "TunnelType", "SubnetMask",
                             "GatewayIP", "VlanID", "DpnID", "IPAddress", "PortName"));
-            result.add("--------------------------------------------------------------------------------------------------------------");
+            result.add("------------------------------------------------------------------------------------------------------------------------------");
             for (TransportZone tZ : tZones.getTransportZone()) {
                 if (tZ.getSubnets() == null || tZ.getSubnets().isEmpty()) {
                     LOG.error("Transport Zone " + tZ.getZoneName() + "has no subnets");
@@ -456,7 +465,7 @@ public class TepCommandHelper {
                           strTunnelType = ITMConstants.TUNNEL_TYPE_GRE ;
                         else
                           strTunnelType = ITMConstants.TUNNEL_TYPE_VXLAN ;
-                        result.add(String.format("%-16s  %-16s  %-16s  %-12s  %-12s %-12s %-12s %-12s", tZ.getZoneName(), strTunnelType, sub
+                        result.add(String.format("%-16s  %-16s  %-16s  %-12s  %-12s %-12s %-16s %-12s", tZ.getZoneName(), strTunnelType, sub
                                         .getPrefix().getIpv4Prefix().getValue(), sub.getGatewayIp().getIpv4Address()
                                         .getValue(), sub.getVlanId().toString(), vtep.getDpnId().toString(), vtep
                                         .getIpAddress().getIpv4Address().getValue(), vtep.getPortname().toString()));
@@ -628,46 +637,60 @@ public class TepCommandHelper {
             e.printStackTrace();
         }
     }
-/*
-    public void showState(TunnelsState tunnelsState, boolean tunnelMonitorEnabled) {
-        List<StateTunnelList> tunnelLists = tunnelsState.getStateTunnelList();
+
+    public void showState(TunnelList tunnels, boolean tunnelMonitorEnabled) {
+        IfTunnel tunnelInterface = null;
+        IfL2vlan l2Vlan = null;
+        List<InternalTunnel> tunnelLists = tunnels.getInternalTunnel();
         if (tunnelLists == null || tunnelLists.isEmpty()) {
-            System.out.println("No Logical Tunnels Exist");
+            System.out.println("No Internal Tunnels Exist");
             return;
         }
         if (!tunnelMonitorEnabled) {
             System.out.println("Tunnel Monitoring is Off");
         }
-        System.out.println(String.format("%-16s  %-16s  %-16s  %-10s  %-16s %-8s  %-10s  %-10s", "Source-DPN",
-                        "Destination-DPN", "SourcePortName", "Source-IP", "Destination-IP", "VLan-ID", "Trunk-State",
-                        "Logical-Tunnel-State"));
-        System.out.println("----------------------------------------------------------------------------------------------------------------------");
+        String displayFormat = "%-16s  %-16s  %-16s  %-16s  %-16s  %-8s  %-10s  %-10s";
+        System.out.println(String.format(displayFormat, "Tunnel Name", "Source-DPN",
+                        "Destination-DPN", "Source-IP", "Destination-IP", "Vlan Id", "Trunk-State", "Transport Type"));
+        System.out.println("-------------------------------------------------------------------------------------------------------------------------------------");
 
-        for (StateTunnelList tunnel : tunnelLists) {
-            String logicaltunnelState = (tunnel.isLogicalTunnelState()) ? "UP" : "DOWN";
-            try {
-                List<String> trunks =
-                                interfaceManager.getTunnelInterfacesOfLogicalGroup(tunnel.getLogicalTunnelGroupName());
-                if (trunks != null && !trunks.isEmpty()) {
-                    for (String trunk : trunks) {
-                        List<String> params = Arrays.asList(trunk.split(":"));
-                        LOG.trace("trunk {} for LogicalIf {} ", trunk, tunnel.getLogicalTunnelGroupName());
-                        String trunkState = (OperationalIfmUtil.isInterfaceUp(dataBroker, trunk)) ? "UP" : "DOWN";
-                        System.out.println(String.format("%-16s  %-16s  %-16s  %-10s  %-16s %-8s  %-10s  %-10s", tunnel
-                                        .getSourceDPN().toString(), tunnel.getDestinationDPN().toString(), params
-                                        .get(1), params.get(3), params.get(4), params.get(2), trunkState,
-                                        logicaltunnelState));
-                    }
-                } else {
-                    LOG.error("No trunks for " + tunnel.getLogicalTunnelGroupName());
+        for (InternalTunnel tunnel : tunnelLists) {
+            String tunnelInterfaceName = tunnel.getTunnelInterfaceName();
+            LOG.trace("tunnelInterfaceName::: {}", tunnelInterfaceName);
+            
+            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
+                    ItmUtils.buildStateInterfaceId(tunnelInterfaceName);
+            Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateOptional =
+                  ItmUtils.read(LogicalDatastoreType.OPERATIONAL, ifStateId, dataBroker);
+            String tunnelState = "DOWN" ;
+            if (ifStateOptional.isPresent()) {
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface iface = ifStateOptional.get() ;
+                if(iface.getAdminStatus() == AdminStatus.Up && iface.getOperStatus() == OperStatus.Up)
+                tunnelState = "UP" ;
+            }
+                InstanceIdentifier<Interface> trunkIdentifier = ItmUtils.buildId(tunnelInterfaceName);
+                Optional<Interface> ifaceObj = ItmUtils.read(LogicalDatastoreType.CONFIGURATION, trunkIdentifier, dataBroker) ;
+                if (ifaceObj.isPresent()) {
+                    l2Vlan = (IfL2vlan) ifaceObj.get().getAugmentation(IfL2vlan.class);
+                    tunnelInterface = (IfTunnel) ifaceObj.get().getAugmentation(IfTunnel.class);
                 }
 
-            } catch (InterfaceNotFoundException e) {
-                LOG.error("if not found " + tunnel.getLogicalTunnelGroupName());
-            }
-        }
+                Class<? extends TunnelTypeBase> tunType = tunnelInterface.getTunnelInterfaceType();
+                String tunnelType = ITMConstants.TUNNEL_TYPE_VXLAN;
+                if( tunType.equals(TunnelTypeVxlan.class))
+                    tunnelType = ITMConstants.TUNNEL_TYPE_VXLAN ;
+                else if( tunType.equals(TunnelTypeGre.class) )
+                    tunnelType = ITMConstants.TUNNEL_TYPE_GRE ;
+                int vlanId = 0;
+                if( l2Vlan != null ) {
+                   vlanId = l2Vlan.getVlanId().getValue() ;
+                }
+                System.out.println(String.format(displayFormat, tunnel.getTunnelInterfaceName(), tunnel
+                                .getSourceDPN().toString(), tunnel.getDestinationDPN().toString(), tunnelInterface.getTunnelSource().getIpv4Address().getValue(), tunnelInterface.getTunnelDestination().getIpv4Address().getValue(),vlanId, tunnelState ,
+                                tunnelType));
+         }
     }
-*/
+
     // deletes from ADD-cache if it exists.
     public boolean isInCache(BigInteger dpnId, String portName, Integer vlanId, String ipAddress, String subnetMask,
                     String gatewayIp, String transportZone) {

@@ -27,6 +27,27 @@ module itm-state {
 
         /* Operational state */
 
+    identity tep-type-base {
+        description "Base TEP device type";
+    }
+    identity tep-type-internal {
+        base tep-type-base;
+        description "TEP type internal e.g. Compute OVS";
+    }
+    identity tep-type-external {
+        base tep-type-base;
+        description "TEP type external e.g. DC Gateway";
+    }
+    identity tep-type-hwvtep {
+        base tep-type-base;
+        description "TEP type Hwvtep e.g. TOR devices";
+    }
+    typedef tep-type {
+        type identityref {
+            base tep-type-base;
+        }
+        description "This type is used to refer to an TEP Device Type.";
+    }
       container dpn-endpoints {
 
         list DPN-TEPs-info {
@@ -43,8 +64,8 @@ module itm-state {
 
           /* Minimum 1 port. We may for now support only two ports */
           list tunnel-end-points {
-
-               key "portname VLAN-ID ip-address"; /* Multiple tunnels on the same physical port but on different VLAN can be supported */
+                ordered-by user;
+               key "portname VLAN-ID ip-address tunnel-type"; /* Multiple tunnels on the same physical port but on different VLAN can be supported */
 
                  leaf portname {
                      type string;
@@ -81,7 +102,7 @@ module itm-state {
       container tunnel-list {
              list internal-tunnel {
 
-               key  "source-DPN destination-DPN";
+               key  "source-DPN destination-DPN transport-type";
 
                leaf source-DPN {
                    type uint64;
@@ -89,6 +110,11 @@ module itm-state {
 
                leaf destination-DPN {
                    type uint64;
+               }
+               leaf transport-type {
+                    type identityref {
+                        base odlif:tunnel-type-base;
+                    }
                }
 
                /* logical-group interface id */
@@ -102,7 +128,7 @@ module itm-state {
       container external-tunnel-list {
              list external-tunnel {
 
-               key  "source-device destination-device";
+               key  "source-device destination-device transport-type";
 
                leaf source-device {
                    type string; //dpnid or node-id
@@ -112,6 +138,11 @@ module itm-state {
                    type string; //dpn-id or node-id or ip
                }
 
+               leaf transport-type {
+                    type identityref {
+                        base odlif:tunnel-type-base;
+                    }
+               }
                /* logical-group interface id */
 
                leaf tunnel-interface-name {
@@ -121,7 +152,43 @@ module itm-state {
              }
           }
 
+        grouping tep-info-attributes {
+            leaf tep-device-type {
+                type identityref {
+                    base tep-type-base;
+                }
+            }
+            leaf tep-device-id {
+                type string; //dpnid or node-id
+            }
+            leaf tep-ip {
+                type inet:ip-address; //dpnid or node-id
+            }
+        }
 
+      container tunnels_state {
+        list state-tunnel-list {
+            key  "tunnel-interface-name";
+            leaf tunnel-interface-name {
+                type string;
+            }
+            leaf tunnel-state {
+                type boolean;
+                config false;
+            }
+            container src-info {
+                uses tep-info-attributes;
+            }
+            container dst-info {
+                uses tep-info-attributes;
+            }
+            leaf transport-type {
+                type identityref {
+                    base odlif:tunnel-type-base;
+                }
+            }
+        }
+      }
           notification itm-tunnel-build-complete{
           }
 

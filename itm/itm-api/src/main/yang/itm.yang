@@ -29,6 +29,7 @@ module itm {
 
     container transport-zones {
       list transport-zone {
+      ordered-by user;
         key zone-name;
         leaf zone-name {
             type string;

@@ -110,7 +110,7 @@ public class TransportZoneListener extends AsyncDataTreeChangeListenerBase<Trans
         LOG.trace("Delete: Invoking deleteTunnels in ItmManager with DpnList {}", opDpnList);
         if(opDpnList.size()>0 || hwVtepList.size()>0) {
             LOG.trace("Delete: Invoking ItmManager");
-            LOG.trace("Add: Invoking ItmManager with hwVtep List {} " , hwVtepList);
+            LOG.trace("Delete: Invoking ItmManager with hwVtep List {} " , hwVtepList);
             // itmManager.deleteTunnels(opDpnList);
             DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
             ItmTepRemoveWorker removeWorker = new ItmTepRemoveWorker(opDpnList,hwVtepList, dataBroker, idManagerService, mdsalManager);
@@ -220,12 +220,15 @@ public class TransportZoneListener extends AsyncDataTreeChangeListenerBase<Trans
                     int vlanID = subnet.getVlanId();
                     LOG.trace("IpPrefix: {}, gatewayIP: {}, vlanID: {} ", ipPrefix, gatewayIP, vlanID);
                     List<Vteps> vtepsList = subnet.getVteps();
+                    if(vtepsList!=null && !vtepsList.isEmpty()) {
                     for (Vteps vteps : vtepsList) {
                         BigInteger dpnID = vteps.getDpnId();
                         String port = vteps.getPortname();
                         IpAddress ipAddress = vteps.getIpAddress();
                         LOG.trace("DpnID: {}, port: {}, ipAddress: {}", dpnID, port, ipAddress);
-                    TunnelEndPoints tunnelEndPoints = ItmUtils.createTunnelEndPoints(dpnID, ipAddress, port, vlanID, ipPrefix, gatewayIP, zone_name, tunnel_type);
+                            TunnelEndPoints tunnelEndPoints =
+                                            ItmUtils.createTunnelEndPoints(dpnID, ipAddress, port, vlanID, ipPrefix,
+                                                            gatewayIP, zone_name, tunnel_type);
                         List<TunnelEndPoints> tunnelEndPointsList = mapDPNToTunnelEndpt.get(dpnID);
                         if (tunnelEndPointsList != null) {
                             LOG.trace("Existing DPN info list in the Map: {} ", dpnID);
@@ -235,6 +238,7 @@ public class TransportZoneListener extends AsyncDataTreeChangeListenerBase<Trans
                             tunnelEndPointsList = new ArrayList<TunnelEndPoints>();
                             tunnelEndPointsList.add(tunnelEndPoints);
                             mapDPNToTunnelEndpt.put(dpnID, tunnelEndPointsList);
+                            }
                         }
                     }
                 }

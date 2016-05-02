@@ -147,26 +147,34 @@ public class ItmInternalTunnelAddWorker {
         logger.trace( "Wiring between source tunnel end points {}, destination tunnel end points {} " , srcte, dstte );
         String interfaceName = srcte.getInterfaceName() ;
         Class<? extends TunnelTypeBase> tunType = srcte.getTunnelType();
-        String ifDescription = srcte.getTunnelType().getName();
+        String tunTypeStr = srcte.getTunnelType().getName();
         // Form the trunk Interface Name
-        String trunkInterfaceName = ItmUtils.getTrunkInterfaceName(idManagerService, interfaceName,srcte.getIpAddress().getIpv4Address().getValue(), dstte.getIpAddress().getIpv4Address().getValue()) ;
-        IpAddress gwyIpAddress = ( srcte.getSubnetMask().equals(dstte.getSubnetMask()) ) ? null : srcte.getGwIpAddress() ;
+        String trunkInterfaceName = ItmUtils.getTrunkInterfaceName( idManagerService, interfaceName,
+                                                                    srcte.getIpAddress().getIpv4Address().getValue(),
+                                                                    dstte.getIpAddress().getIpv4Address().getValue(),
+                                                                    tunTypeStr) ;
+        IpAddress gatewayIpObj = new IpAddress("0.0.0.0".toCharArray());
+        IpAddress gwyIpAddress = ( srcte.getSubnetMask().equals(dstte.getSubnetMask()) ) ? gatewayIpObj : srcte.getGwIpAddress() ;
         logger.debug(  " Creating Trunk Interface with parameters trunk I/f Name - {}, parent I/f name - {}, source IP - {}, destination IP - {} gateway IP - {}",trunkInterfaceName, interfaceName, srcte.getIpAddress(), dstte.getIpAddress(), gwyIpAddress ) ;
-        Interface iface = ItmUtils.buildTunnelInterface(srcDpnId, trunkInterfaceName,
-                        String.format("%s %s", ifDescription, "Trunk Interface"), true, tunType, srcte.getIpAddress(),
-                        dstte.getIpAddress(), gwyIpAddress, srcte.getVLANID(), true, false, null);
+        Boolean monitorEnabled = ItmUtils.readMonitoringStateFromDS(dataBroker);
+        Integer monitorInterval = ItmUtils.readMonitorIntervalfromDS(dataBroker);
+        if(monitorInterval == null)
+            monitorInterval = ITMConstants.DEFAULT_MONITOR_INTERVAL;
+        Interface iface = ItmUtils.buildTunnelInterface(srcDpnId, trunkInterfaceName, String.format( "%s %s",ItmUtils.convertTunnelTypetoString(srcte.getTunnelType()), "Trunk Interface"), true, tunType, srcte.getIpAddress(), dstte.getIpAddress(), gwyIpAddress, srcte.getVLANID(), true, monitorEnabled, monitorInterval*1000);
         logger.debug(  " Trunk Interface builder - {} ", iface ) ;
         InstanceIdentifier<Interface> trunkIdentifier = ItmUtils.buildId(trunkInterfaceName);
         logger.debug(  " Trunk Interface Identifier - {} ", trunkIdentifier ) ;
         logger.trace(  " Writing Trunk Interface to Config DS {}, {} ", trunkIdentifier, iface ) ;
         t.merge(LogicalDatastoreType.CONFIGURATION, trunkIdentifier, iface, true);
+        ItmUtils.itmCache.addInterface(iface);
         // also update itm-state ds?
         InstanceIdentifier<InternalTunnel> path = InstanceIdentifier.create(
                 TunnelList.class)
-                    .child(InternalTunnel.class, new InternalTunnelKey( dstDpnId,srcDpnId ));
-        InternalTunnel tnl = ItmUtils.buildInternalTunnel(srcDpnId, dstDpnId, trunkInterfaceName);
+                    .child(InternalTunnel.class, new InternalTunnelKey( dstDpnId, srcDpnId, tunType)); 
+        InternalTunnel tnl = ItmUtils.buildInternalTunnel(srcDpnId, dstDpnId, tunType, trunkInterfaceName);
         //ItmUtils.asyncUpdate(LogicalDatastoreType.CONFIGURATION, path, tnl, dataBroker, DEFAULT_CALLBACK);
         t.merge(LogicalDatastoreType.CONFIGURATION,path, tnl, true) ;
+        ItmUtils.itmCache.addInternalTunnel(tnl);
         return true;
     }
 }

@@ -16,7 +16,7 @@ import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 //import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.config.rev151102.vtep.config.schemas.VtepConfigSchema;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.config.rev151102.vtep.config.schemas.VtepConfigSchema; 
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.TunnelsState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.TunnelList ;
 
 public interface IITMProvider {
 	// APIs used by i
@@ -27,6 +27,7 @@ public interface IITMProvider {
     public DataBroker getDataBroker();
 
     public void showTeps();
+    public void showState(TunnelList tunnels);
 
     public void deleteVtep(BigInteger dpnId, String portName, Integer vlanId, String ipAddress, String subnetMask,
                     String gatewayIp, String transportZone);

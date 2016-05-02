@@ -17,7 +17,7 @@ public class ItmModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.vpn
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-    	ItmProvider provider = new ItmProvider();
+        ItmProvider provider = new ItmProvider();
         provider.setMdsalApiManager(getMdsalutilDependency());
         provider.setNotificationPublishService(getNotificationPublishServiceDependency());
         provider.setNotificationService(getNotificationServiceDependency());

@@ -39,6 +39,11 @@ module itm-rpc {
             leaf destination-dpid {
                  type uint64;
             }
+            leaf tunnel-type {
+                type identityref {
+                    base odlif:tunnel-type-base;
+                }
+            }
         }
         output {
             leaf interface-name {
@@ -56,6 +61,11 @@ module itm-rpc {
                 leaf destination-ip {
                 type inet:ip-address;
                 }
+                leaf tunnel-type {
+                    type identityref {
+                        base odlif:tunnel-type-base;
+                    }
+                }
             }
             output {
                 leaf interface-name {
@@ -72,6 +82,11 @@ module itm-rpc {
             }
             leaf destination-node {
             type string;
+            }
+            leaf tunnel-type {
+                type identityref {
+                    base odlif:tunnel-type-base;
+                }
             }
         }
         output {
@@ -182,6 +197,20 @@ module itm-rpc {
         }
     }
 
+    rpc add-l2-gw-mlag-device {
+            description "used for building tunnels between teps on all Dpns and hwVtep";
+            input {
+                leaf topology-id {
+                    type string;
+                }
+                leaf-list node-id {
+                    type string;
+                }
+                leaf ip-address {
+                    type inet:ip-address;
+                }
+            }
+        }
     rpc delete-l2-gw-device {
         description "used for deleting tunnels between teps on all Dpns and hwVtep";
         input {
@@ -197,4 +226,18 @@ module itm-rpc {
         }
     }
 
+      rpc delete-l2-gw-mlag-device {
+            description "used for deleting tunnels between teps on all Dpns and hwVtep";
+            input {
+                leaf topology-id {
+                    type string;
+                }
+                leaf-list node-id {
+                    type string;
+                }
+                leaf ip-address {
+                    type inet:ip-address;
+                }
+            }
+        }
 }

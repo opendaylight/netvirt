@@ -20,8 +20,11 @@ public class ITMConstants{
   //Tunnel Monitoring
   public static final boolean DEFAULT_MONITOR_ENABLED = true;
   public static final int DEFAULT_MONITOR_INTERVAL = 10;
+  public static final int BFD_DEFAULT_MONITOR_INTERVAL = 100;
   public static final String DUMMY_IP_ADDRESS = "0.0.0.0";
   public static final String TUNNEL_TYPE_VXLAN = "VXLAN";
   public static final String TUNNEL_TYPE_GRE = "GRE";
+  public static final String TUNNEL_TYPE_MPLS_OVER_GRE = "MPLS_OVER_GRE";
+  public static final String TUNNEL_TYPE_INVALID = "Invalid";
 }
 
