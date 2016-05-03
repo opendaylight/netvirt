@@ -42,6 +42,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <idmanager.version>${vpnservices.version}</idmanager.version>
     <itm.version>${vpnservices.version}</itm.version>
     <neutronvpn.version>${vpnservices.version}</neutronvpn.version>
+    <fcaps.manager.version>${vpnservices.version}</fcaps.manager.version>
+
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -436,6 +438,22 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <version>${vpnservices.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>alarmmanager</artifactId>
+      <version>${fcaps.manager.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>countermanager</artifactId>
+      <version>${fcaps.manager.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>fcaps-api</artifactId>
+      <version>${fcaps.manager.version}</version>
     </dependency>
   </dependencies>
 </project>
