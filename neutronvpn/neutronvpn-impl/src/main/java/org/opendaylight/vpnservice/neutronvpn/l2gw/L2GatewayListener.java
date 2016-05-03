@@ -13,7 +13,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -54,15 +53,12 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
     private final DataBroker broker;
     private ItmRpcService itmRpcService;
     private EntityOwnershipService entityOwnershipService;
-    private BindingNormalizedNodeSerializer bindingNormalizedNodeSerializer;
 
     public L2GatewayListener(final DataBroker db, RpcProviderRegistry rpcRegistry,
-            EntityOwnershipService entityOwnershipService,
-            BindingNormalizedNodeSerializer bindingNormalizedNodeSerializer) {
+            EntityOwnershipService entityOwnershipService) {
         super(L2gateway.class, L2GatewayListener.class);
         broker = db;
         this.entityOwnershipService = entityOwnershipService;
-        this.bindingNormalizedNodeSerializer = bindingNormalizedNodeSerializer;
         itmRpcService = rpcRegistry.getRpcService(ItmRpcService.class);
         registerListener(db);
     }
@@ -135,8 +131,8 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
                 final String hwvtepId = l2GwDevice.getHwvtepNodeId();
                 InstanceIdentifier<Node> iid = HwvtepSouthboundUtils.createInstanceIdentifier(new NodeId(hwvtepId));
                 ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                        entityOwnershipService, HwvtepSouthboundConstants.HWVTEP_ENTITY_TYPE,
-                        bindingNormalizedNodeSerializer.toYangInstanceIdentifier(iid));
+                        entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                        HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
                 final List<IpAddress> tunnelIps = l2GwDevice.getTunnelIps();
                 Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
                     @Override
@@ -184,8 +180,8 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
                     final String hwvtepId = l2GwDevice.getHwvtepNodeId();
                     InstanceIdentifier<Node> iid = HwvtepSouthboundUtils.createInstanceIdentifier(new NodeId(hwvtepId));
                     ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                            entityOwnershipService, HwvtepSouthboundConstants.HWVTEP_ENTITY_TYPE,
-                            bindingNormalizedNodeSerializer.toYangInstanceIdentifier(iid));
+                            entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                            HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
                     final List<IpAddress> tunnelIps = l2GwDevice.getTunnelIps();
                     Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
                         @Override

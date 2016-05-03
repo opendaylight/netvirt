@@ -85,7 +85,7 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
             return;
         }
         ConcurrentMap<String, L2GatewayDevice> elanDevices = ElanL2GwCacheUtils
-                .getAllElanL2GatewayDevicesFromCache(elanName);
+                .getInvolvedL2GwDevices(elanName);
         print(elanName, elanDevices);
     }
 

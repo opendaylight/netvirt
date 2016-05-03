@@ -9,10 +9,12 @@ package org.opendaylight.vpnservice.elan.utils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -33,6 +35,10 @@ import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
 import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
 import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -90,13 +96,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007.IfIndexesInterfaceMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.ExternalTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.TunnelList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnelKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.CreateTerminatingServiceActionsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.CreateTerminatingServiceActionsInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetExternalTunnelInterfaceNameInput;
@@ -110,6 +122,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev1512
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.RemoveTerminatingServiceActionsInputBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,8 +134,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 public class ElanUtils {
-
-    private static final ArrayList EMPTY_LIST = new ArrayList();
 
     private static OdlInterfaceRpcService interfaceMgrRpcService;
 
@@ -571,7 +582,6 @@ public class ElanUtils {
         synchronized (macAddress) {
             logger.info("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalMgr);
-            setupTermDmacFlows(interfaceInfo, mdsalMgr);
             setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, mdsalMgr, dataBroker);
         }
     }
@@ -633,7 +643,7 @@ public class ElanUtils {
      * @param interfaceInfo
      * @param mdsalApiManager
      */
-    private static void setupTermDmacFlows(InterfaceInfo interfaceInfo, IMdsalApiManager mdsalApiManager) {
+    public static void setupTermDmacFlows(InterfaceInfo interfaceInfo, IMdsalApiManager mdsalApiManager) {
         BigInteger dpId = interfaceInfo.getDpId();
         int lportTag = interfaceInfo.getInterfaceTag();
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
@@ -788,7 +798,7 @@ public class ElanUtils {
     public static List<DpnInterfaces> getInvolvedDpnsInElan(String elanName) {
         List<DpnInterfaces> dpns = ElanInstanceManager.getElanInstanceManager().getElanDPNByName(elanName);
         if (dpns == null) {
-            return EMPTY_LIST;
+            return Collections.emptyList();
         }
         return dpns;
     }
@@ -932,8 +942,6 @@ public class ElanUtils {
                 }
                 mdsalMgr.removeFlow(srcdpId, MDSALUtil.buildFlow(ElanConstants.ELAN_DMAC_TABLE,
                         getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)));
-                RemoveTerminatingServiceActionsInput removeTerminatingServiceActionsInput = new RemoveTerminatingServiceActionsInputBuilder().setServiceId(interfaceInfo.getInterfaceTag()).setDpnId(srcdpId).build();
-                itmRpcService.removeTerminatingServiceActions(removeTerminatingServiceActionsInput);
                 if (logger.isDebugEnabled()) {
                     logger.debug("All the required flows deleted for elan:{}, logical Interface port:{} and mac address:{} on dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, srcdpId);
                 }
@@ -1058,7 +1066,7 @@ public class ElanUtils {
      * @return the list
      */
     public static List<Action> buildItmEgressActions(String tunnelIfaceName, Long tunnelKey) {
-        List<Action> result = EMPTY_LIST;
+        List<Action> result = Collections.emptyList();
         if (tunnelIfaceName != null && !tunnelIfaceName.isEmpty()) {
             GetEgressActionsForInterfaceInput getEgressActInput = new GetEgressActionsForInterfaceInputBuilder()
                     .setIntfName(tunnelIfaceName).setTunnelKey(tunnelKey).build();
@@ -1096,10 +1104,10 @@ public class ElanUtils {
      * @return the external itm egress action
      */
     public static List<Action> getExternalItmEgressAction(BigInteger srcDpnId, NodeId torNode, long vni ) {
-        List<Action> result = EMPTY_LIST;
+        List<Action> result = Collections.emptyList();
 
         GetExternalTunnelInterfaceNameInput input = new GetExternalTunnelInterfaceNameInputBuilder()
-                .setDestinationNode(torNode.getValue()).setSourceNode(srcDpnId.toString()).build();
+                .setDestinationNode(torNode.getValue()).setSourceNode(srcDpnId.toString()).setTunnelType(TunnelTypeVxlan.class).build();
         Future<RpcResult<GetExternalTunnelInterfaceNameOutput>> output =
                 itmRpcService.getExternalTunnelInterfaceName(input);
         try {
@@ -1136,13 +1144,13 @@ public class ElanUtils {
      */
     public static List<Action> getInternalItmEgressAction(BigInteger sourceDpnId, BigInteger destinationDpnId,
             long serviceTag) {
-        List<Action> result = EMPTY_LIST;
+        List<Action> result = Collections.emptyList();
 
         logger.debug("In getInternalItmEgressAction Action source {}, destination {}, elanTag {}",
                      sourceDpnId, destinationDpnId, serviceTag);
-
+        Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
         GetTunnelInterfaceNameInput input = new GetTunnelInterfaceNameInputBuilder()
-                .setDestinationDpid(destinationDpnId).setSourceDpid(sourceDpnId).build();
+                .setDestinationDpid(destinationDpnId).setSourceDpid(sourceDpnId).setTunnelType(tunType).build();
         Future<RpcResult<GetTunnelInterfaceNameOutput>> output = itmRpcService.getTunnelInterfaceName(input);
         try {
             if (output.get().isSuccessful()) {
@@ -1197,6 +1205,69 @@ public class ElanUtils {
             return tunnelList.get();
         }
         return null;
+    }
+
+    /**
+     * Gets the external tunnel.
+     *
+     * @param sourceDevice
+     *            the source device
+     * @param destinationDevice
+     *            the destination device
+     * @param datastoreType
+     *            the datastore type
+     * @return the external tunnel
+     */
+    public static ExternalTunnel getExternalTunnel(String sourceDevice, String destinationDevice,
+            LogicalDatastoreType datastoreType) {
+        ExternalTunnel externalTunnel = null;
+        Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class ;
+        InstanceIdentifier<ExternalTunnel> iid = InstanceIdentifier.builder(ExternalTunnelList.class)
+                .child(ExternalTunnel.class, new ExternalTunnelKey(destinationDevice, sourceDevice, tunType)).build();
+        Optional<ExternalTunnel> tunnelList = read(dataBroker, datastoreType, iid);
+        if (tunnelList.isPresent()) {
+            externalTunnel = tunnelList.get();
+        }
+        return externalTunnel;
+    }
+
+    /**
+     * Gets the external tunnel.
+     *
+     * @param interfaceName
+     *            the interface name
+     * @param datastoreType
+     *            the datastore type
+     * @return the external tunnel
+     */
+    public static ExternalTunnel getExternalTunnel(String interfaceName, LogicalDatastoreType datastoreType) {
+        ExternalTunnel externalTunnel = null;
+        List<ExternalTunnel> externalTunnels = getAllExternalTunnels(datastoreType);
+        for (ExternalTunnel tunnel : externalTunnels) {
+            if (StringUtils.equalsIgnoreCase(interfaceName, tunnel.getTunnelInterfaceName())) {
+                externalTunnel = tunnel;
+                break;
+            }
+        }
+        return externalTunnel;
+    }
+
+    /**
+     * Gets the all external tunnels.
+     *
+     * @return the all external tunnels
+     */
+    public static List<ExternalTunnel> getAllExternalTunnels(LogicalDatastoreType datastoreType) {
+        List<ExternalTunnel> result = null;
+        InstanceIdentifier<ExternalTunnelList> iid = InstanceIdentifier.builder(ExternalTunnelList.class).build();
+        Optional<ExternalTunnelList> tunnelList = read(dataBroker, datastoreType, iid);
+        if (tunnelList.isPresent()) {
+            result = tunnelList.get().getExternalTunnel();
+        }
+        if (result == null) {
+            result = Collections.emptyList();
+        }
+        return result;
     }
 
     /**
@@ -1462,6 +1533,64 @@ public class ElanUtils {
             logger.error("Failed to get the DPN ID: {} for interface {}: {} ", dpId, interfaceName, e);
         }
         return dpId;
+    }
+
+    /**
+     * Checks if is interface operational.
+     *
+     * @param interfaceName
+     *            the interface name
+     * @param dataBroker
+     *            the data broker
+     * @return true, if is interface operational
+     */
+    public static boolean isInterfaceOperational(String interfaceName, DataBroker dataBroker) {
+        if (StringUtils.isBlank(interfaceName)) {
+            return false;
+        }
+        Interface ifState = getInterfaceStateFromOperDS(interfaceName, dataBroker);
+        if (ifState == null) {
+            return false;
+        }
+        return ((ifState.getOperStatus() == OperStatus.Up) && (ifState.getAdminStatus() == AdminStatus.Up));
+    }
+
+    /**
+     * Gets the interface state from operational ds.
+     *
+     * @param interfaceName
+     *            the interface name
+     * @param dataBroker
+     *            the data broker
+     * @return the interface state from oper ds
+     */
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceStateFromOperDS(
+            String interfaceName, DataBroker dataBroker) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId = createInterfaceStateInstanceIdentifier(
+                interfaceName);
+        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateOptional = MDSALUtil
+                .read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
+        if (ifStateOptional.isPresent()) {
+            return ifStateOptional.get();
+        }
+        return null;
+    }
+
+    /**
+     * Creates the interface state instance identifier.
+     *
+     * @param interfaceName
+     *            the interface name
+     * @return the instance identifier
+     */
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> createInterfaceStateInstanceIdentifier(
+            String interfaceName) {
+        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> idBuilder = InstanceIdentifier
+                .builder(InterfacesState.class)
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class,
+                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(
+                                interfaceName));
+        return idBuilder.build();
     }
 
 }

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.vpnservice.elan.l2gw.listeners;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,9 +24,13 @@ import org.opendaylight.vpnservice.elan.utils.ElanUtils;
 import org.opendaylight.vpnservice.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.vpnservice.utils.SystemPropertyReader;
 import org.opendaylight.vpnservice.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.locator.set.attributes.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -50,6 +55,8 @@ public class HwvtepRemoteMcastMacListener
     /** The node id. */
     private NodeId nodeId;
 
+    private List<IpAddress> expectedPhyLocatorIps;
+
     DataBroker broker;
 
     String logicalSwitchName;
@@ -57,43 +64,71 @@ public class HwvtepRemoteMcastMacListener
     AtomicBoolean executeTask = new AtomicBoolean(true);
 
     Callable<List<ListenableFuture<Void>>> taskToRun;
+
+    static DataStoreJobCoordinator dataStoreJobCoordinator;
+
+    public static void setDataStoreJobCoordinator(DataStoreJobCoordinator ds) {
+        dataStoreJobCoordinator = ds;
+    }
+
     /**
      * Instantiates a new remote mcast mac listener.
      *
      * @param broker
      *            the mdsal databroker reference
      * @param logicalSwitchName
+     *            the logical switch name
      * @param l2GatewayDevice
      *            the l2 gateway device
+     * @param expectedPhyLocatorIps
+     *            the expected phy locator ips
      * @param task
      *            the task to be run upon data presence
      * @throws Exception
+     *             the exception
      */
     public HwvtepRemoteMcastMacListener(DataBroker broker, String logicalSwitchName, L2GatewayDevice l2GatewayDevice,
-            Callable<List<ListenableFuture<Void>>> task) throws Exception {
+            List<IpAddress> expectedPhyLocatorIps, Callable<List<ListenableFuture<Void>>> task) throws Exception {
         super(RemoteMcastMacs.class, HwvtepRemoteMcastMacListener.class);
         this.nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
         this.broker = broker;
         this.taskToRun = task;
         this.logicalSwitchName = logicalSwitchName;
-        LOG.debug("registering the listener for mcast mac ");
+        this.expectedPhyLocatorIps = expectedPhyLocatorIps;
+        LOG.info("registering the listener for mcast mac ");
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        LOG.info("registered the listener for mcast mac ");
         if (isDataPresentInOpDs(getWildCardPath())) {
-            LOG.debug("mcast mac already present running the task ");
+            LOG.info("mcast mac already present running the task ");
             if (executeTask.compareAndSet(true, false)) {
                 runTask();
             }
         }
     }
 
-    private boolean isDataPresentInOpDs(InstanceIdentifier<? extends DataObject> path) throws Exception {
-        Optional<? extends DataObject> mac = null;
+    private boolean isDataPresentInOpDs(InstanceIdentifier<RemoteMcastMacs> path) throws Exception {
+        Optional<RemoteMcastMacs> mac = null;
         try {
             mac = ElanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, path);
         } catch (Throwable e) {
         }
         if (mac == null || !mac.isPresent()) {
             return false;
+        }
+        if (this.expectedPhyLocatorIps != null && !this.expectedPhyLocatorIps.isEmpty()) {
+            RemoteMcastMacs remoteMcastMac = mac.get();
+            if (remoteMcastMac.getLocatorSet() == null || remoteMcastMac.getLocatorSet().isEmpty()) {
+                return false;
+            }
+            for (IpAddress ip : this.expectedPhyLocatorIps) {
+                boolean ipExists = ElanL2GatewayUtils.checkIfPhyLocatorAlreadyExistsInRemoteMcastEntry(this.nodeId,
+                        remoteMcastMac, ip);
+                if (!ipExists) {
+                    LOG.trace("IP [{}] not found in RemoteMcastMacs for node [{}]", String.valueOf(ip.getValue()),
+                            this.nodeId.getValue());
+                    return false;
+                }
+            }
         }
         return true;
     }
@@ -175,8 +210,9 @@ public class HwvtepRemoteMcastMacListener
      */
     @Override
     protected void add(InstanceIdentifier<RemoteMcastMacs> identifier, RemoteMcastMacs mcastMac) {
-        LOG.debug("Received Add DataChange Notification for identifier: {}, RemoteMcastMacs: {}", identifier,
-                mcastMac);
+        LOG.debug("Received Add DataChange Notification for identifier: {}, RemoteMcastMacs: {}", identifier, mcastMac);
+        // No isDataPresentInOpDs check is done as assuming all the expected phy
+        // locator ips will be available during add
         if (executeTask.compareAndSet(true, false)) {
             runTask();
         }
@@ -184,9 +220,9 @@ public class HwvtepRemoteMcastMacListener
 
     void runTask() {
         try {
-            DataStoreJobCoordinator jobCoordinator = DataStoreJobCoordinator.getInstance();
-            String jobKey = ElanL2GatewayUtils.getL2GatewayConnectionJobKey(nodeId.getValue(), ElanConstants.UNKNOWN_DMAC);
-            jobCoordinator.enqueueJob(jobKey, taskToRun, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
+
+            String jobKey = ElanL2GatewayUtils.getL2GatewayConnectionJobKey(nodeId.getValue(), nodeId.getValue());
+            dataStoreJobCoordinator.enqueueJob(jobKey, taskToRun, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         } catch (Exception e) {
             LOG.error("Failed to handle remote mcast mac - add: {}", e);
         } finally {

@@ -1,0 +1,103 @@
+/*
+ * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.opendaylight.vpnservice.elan.internal;
+
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.vpnservice.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.vpnservice.elan.utils.ElanClusterUtils;
+import org.opendaylight.vpnservice.elan.utils.ElanUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.op.rev150701.external.tunnel.list.ExternalTunnel;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ElanInterfaceStateClusteredListener extends
+        AsyncClusteredDataChangeListenerBase<Interface, ElanInterfaceStateClusteredListener> implements AutoCloseable {
+    private DataBroker broker;
+    private ElanInterfaceManager elanInterfaceManager;
+    private ListenerRegistration<DataChangeListener> listenerRegistration;
+
+    private static final Logger logger = LoggerFactory.getLogger(ElanInterfaceStateClusteredListener.class);
+
+    public ElanInterfaceStateClusteredListener(final DataBroker db, final ElanInterfaceManager ifManager) {
+        super(Interface.class, ElanInterfaceStateClusteredListener.class);
+        broker = db;
+        elanInterfaceManager = ifManager;
+        registerListener(db);
+    }
+
+    private void registerListener(final DataBroker db) {
+        try {
+            listenerRegistration = broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                    getWildCardPath(), ElanInterfaceStateClusteredListener.this, AsyncDataBroker.DataChangeScope.BASE);
+        } catch (final Exception e) {
+            logger.error("Elan Interfaces DataChange listener registration fail!", e);
+            throw new IllegalStateException("ElanInterface registration Listener failed.", e);
+        }
+    }
+
+    @Override
+    public InstanceIdentifier<Interface> getWildCardPath() {
+        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
+    }
+
+    @Override
+    protected ClusteredDataChangeListener getDataChangeListener() {
+        return ElanInterfaceStateClusteredListener.this;
+    }
+
+    @Override
+    protected AsyncDataBroker.DataChangeScope getDataChangeScope() {
+        return AsyncDataBroker.DataChangeScope.BASE;
+    }
+
+    @Override
+    protected void remove(InstanceIdentifier<Interface> identifier, Interface delIf) {
+    }
+
+    @Override
+    protected void update(InstanceIdentifier<Interface> identifier, Interface original, final Interface update) {
+        add(identifier, update);
+    }
+
+    @Override
+    protected void add(InstanceIdentifier<Interface> identifier, final Interface intrf) {
+        if (intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
+            if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
+                final String interfaceName = intrf.getName();
+
+                ElanClusterUtils.runOnlyInLeaderNode(new Runnable() {
+                    @Override
+                    public void run() {
+                        logger.debug("running external tunnel update job for interface {} added", interfaceName);
+                        handleExternalTunnelUpdate(interfaceName, intrf);
+                    }
+                });
+            }
+        }
+    }
+
+    private void handleExternalTunnelUpdate(String interfaceName, Interface update) {
+        ExternalTunnel externalTunnel = ElanUtils.getExternalTunnel(interfaceName, LogicalDatastoreType.CONFIGURATION);
+        if (externalTunnel != null) {
+            logger.debug("handling external tunnel update event for ext device dst {}  src {} ",
+                    externalTunnel.getDestinationDevice(), externalTunnel.getSourceDevice());
+            elanInterfaceManager.handleExternalTunnelStateEvent(externalTunnel, update);
+        } else {
+            logger.trace("External tunnel not found with interfaceName: {}", interfaceName);
+        }
+    }
+}

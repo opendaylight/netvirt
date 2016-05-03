@@ -19,6 +19,7 @@ import org.opendaylight.vpnservice.datastoreutils.AsyncClusteredDataChangeListen
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
 import org.opendaylight.vpnservice.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
@@ -90,6 +91,13 @@ public class DhcpUCastMacListener extends AsyncClusteredDataChangeListenerBase<L
         }
         LogicalSwitches logicalSwitch = logicalSwitchOptional.get();
         String elanInstanceName = logicalSwitch.getHwvtepNodeName().getValue();
+        String macAddress = add.getMacEntryKey().getValue();
+        BigInteger vni = new BigInteger(logicalSwitch.getTunnelKey());
+        Port port = dhcpExternalTunnelManager.readVniMacToPortCache(vni, macAddress);
+        if (port == null) {
+            logger.trace("No neutron port created for macAddress {}, tunnelKey {}", macAddress, vni);
+            return;
+        }
         L2GatewayDevice device = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanInstanceName, torNodeId.getValue());
         if (device == null) {
             logger.error("Logical Switch Device with name {} is not present in L2GWCONN cache", elanInstanceName);
@@ -97,7 +105,7 @@ public class DhcpUCastMacListener extends AsyncClusteredDataChangeListenerBase<L
         }
         IpAddress tunnelIp = device.getTunnelIp();
         BigInteger designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, elanInstanceName);
-        dhcpExternalTunnelManager.installDhcpFlowsForVms(tunnelIp, elanInstanceName, DhcpServiceUtils.getListOfDpns(broker), designatedDpnId, add.getMacEntryKey().getValue());
+        dhcpExternalTunnelManager.installDhcpFlowsForVms(tunnelIp, elanInstanceName, DhcpServiceUtils.getListOfDpns(broker), designatedDpnId, macAddress);
     }
 
     @Override

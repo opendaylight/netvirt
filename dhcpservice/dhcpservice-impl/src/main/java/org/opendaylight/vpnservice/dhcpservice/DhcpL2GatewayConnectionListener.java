@@ -58,20 +58,13 @@ public class DhcpL2GatewayConnectionListener extends AsyncClusteredDataChangeLis
                 .child(L2gateway.class, new L2gatewayKey(gatewayId));
         Optional<L2gateway> l2Gateway = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, inst);
         if (!l2Gateway.isPresent()) {
+            logger.trace("L2Gw not present id {}", gatewayId);
             return;
         }
         Uuid networkUuid = del.getNetworkId();
-        boolean isLastConnection = true;
-        InstanceIdentifier<L2gatewayConnections> l2gatewayConnectionIdentifier = InstanceIdentifier.create(Neutron.class).child(L2gatewayConnections.class);
-        Optional<L2gatewayConnections> l2GwConnection = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, l2gatewayConnectionIdentifier);
-        List<L2gatewayConnection> l2GatewayConnectionList = l2GwConnection.get().getL2gatewayConnection();
-        for (L2gatewayConnection l2gatewayConnection : l2GatewayConnectionList) {
-            if (networkUuid.equals(l2gatewayConnection.getNetworkId())) {
-                isLastConnection = false;
-                break;
-            }
-        }
+        boolean isLastConnection = isLastGatewayConnection(networkUuid);
         if (!isLastConnection) {
+            logger.trace("Not the last L2GatewayConnection. Not removing flows.");
             return;
         }
         List<Devices> l2Devices = l2Gateway.get().getDevices();
@@ -86,6 +79,20 @@ public class DhcpL2GatewayConnectionListener extends AsyncClusteredDataChangeLis
             }
             dhcpExternalTunnelManager.removeDesignatedSwitchForExternalTunnel(designatedDpnId, tunnelIp, del.getNetworkId().getValue());
         }
+    }
+
+    private boolean isLastGatewayConnection(Uuid networkUuid) {
+        boolean isLastConnection = true;
+        InstanceIdentifier<L2gatewayConnections> l2gatewayConnectionIdentifier = InstanceIdentifier.create(Neutron.class).child(L2gatewayConnections.class);
+        Optional<L2gatewayConnections> l2GwConnection = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, l2gatewayConnectionIdentifier);
+        List<L2gatewayConnection> l2GatewayConnectionList = l2GwConnection.get().getL2gatewayConnection();
+        for (L2gatewayConnection l2gatewayConnection : l2GatewayConnectionList) {
+            if (networkUuid.equals(l2gatewayConnection.getNetworkId())) {
+                isLastConnection = false;
+                break;
+            }
+        }
+        return isLastConnection;
     }
 
     @Override

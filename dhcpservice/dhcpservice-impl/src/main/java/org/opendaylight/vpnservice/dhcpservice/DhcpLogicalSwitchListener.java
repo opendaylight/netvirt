@@ -132,7 +132,7 @@ public class DhcpLogicalSwitchListener extends AbstractDataChangeListener<Logica
         BigInteger designatedDpnId;
         designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, elanInstanceName);
         if (designatedDpnId == null || designatedDpnId.equals(DHCPMConstants.INVALID_DPID)) {
-            logger.error("Could not find designated DPN ID");
+            logger.info("Could not find designated DPN ID");
             return;
         }
         dhcpExternalTunnelManager.removeDesignatedSwitchForExternalTunnel(designatedDpnId, tunnelIp, elanInstanceName);
@@ -143,7 +143,7 @@ public class DhcpLogicalSwitchListener extends AbstractDataChangeListener<Logica
         BigInteger designatedDpnId;
         designatedDpnId = dhcpExternalTunnelManager.designateDpnId(tunnelIp, elanInstanceName, dpns);
         if (designatedDpnId == null || designatedDpnId.equals(DHCPMConstants.INVALID_DPID)) {
-            logger.error("Unable to designate a DPN");
+            logger.info("Unable to designate a DPN");
             return;
         }
     }

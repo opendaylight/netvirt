@@ -8,17 +8,20 @@
 package org.opendaylight.vpnservice.elan.internal;
 
 
-import com.google.common.base.Optional;
+import java.math.BigInteger;
+import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.vpnservice.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.vpnservice.elan.utils.ElanConstants;
 import org.opendaylight.vpnservice.elan.utils.ElanUtils;
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -31,9 +34,6 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.util.List;
 
 public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener<Interface> implements AutoCloseable {
     private DataBroker broker;
@@ -67,24 +67,6 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
         this.interfaceManager = interfaceManager;
     }
 
-    private void handleVlanInterfaceOperationalStateChange(String interfaceName, boolean isStateUp) {
-        //fetching the elanInstanceName from elan-interface config data-store
-        ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
-        if (elanInterface == null) {
-            return;
-        }
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(elanInterface.getElanInstanceName());
-        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName, 
-                InterfaceInfo.InterfaceType.VLAN_INTERFACE);
-        if (interfaceInfo == null) {
-            logger.warn("Interface {} doesn't exist in operational datastore", interfaceName);
-            return;
-        }
-
-        logger.trace("ElanService Interface Operational state has changes for Interface:{}", interfaceName);
-        elanInterfaceManager.handleInterfaceUpdated(interfaceInfo, elanInfo , isStateUp);
-    }
-
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface delIf) {
         logger.trace("Received interface {} Down event", delIf);
@@ -100,34 +82,29 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
         interfaceInfo.setInterfaceName(interfaceName);
         interfaceInfo.setInterfaceType(InterfaceInfo.InterfaceType.VLAN_INTERFACE);
         interfaceInfo.setInterfaceTag(delIf.getIfIndex());
-        elanInterfaceManager.removeElanService(elanInterface, interfaceInfo);
+        String elanInstanceName = elanInterface.getElanInstanceName();
+        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(elanInstanceName);
+        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+        ElanInterfaceRemoveWorker removeWorker = new ElanInterfaceRemoveWorker(elanInstanceName, elanInstance, 
+                interfaceName, interfaceInfo, elanInterfaceManager);
+        coordinator.enqueueJob(elanInstanceName, removeWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
     @Override
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
         logger.trace("Operation Interface update event - Old: {}, New: {}", original, update);
         String interfaceName = update.getName();
-        if(update.getType() != null && update.getType().equals(Tunnel.class)) {
+        if (update.getType() == null) {
+            logger.trace("Interface type for interface {} is null", interfaceName);
+            return;
+        }
+        if(update.getType().equals(Tunnel.class)) {
             if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                 InternalTunnel internalTunnel = getTunnelState(interfaceName);
                 if (internalTunnel != null) {
-                    elanInterfaceManager.handleTunnelStateEvent(internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
+                    elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
                 }
             }
-        } else if(update.getType().equals(L2vlan.class)) {
-            ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
-            if(elanInterface == null) {
-                logger.debug("No Elan Interface is created for the interface:{} ", interfaceName);
-                return;
-            }
-            if (update.getOperStatus().equals(Interface.OperStatus.Up) && update.getAdminStatus() == Interface.AdminStatus.Up) {
-                logger.trace("Operation Status for Interface:{}  event state UP ", interfaceName);
-                handleVlanInterfaceOperationalStateChange(interfaceName, true);
-            } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
-                logger.trace("Operation Status for Interface:{}  event state DOWN ", interfaceName);
-                handleVlanInterfaceOperationalStateChange(interfaceName, false);
-            }
-
         }
     }
 
@@ -141,7 +118,8 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
                 if(intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
                     InternalTunnel internalTunnel = getTunnelState(interfaceName);
                     if (internalTunnel != null) {
-                        elanInterfaceManager.handleTunnelStateEvent(internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
+                        elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
+                                internalTunnel.getDestinationDPN());
                     }
                 }
             }
@@ -159,7 +137,7 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
     public  InternalTunnel getTunnelState(String interfaceName) {
         InternalTunnel internalTunnel = null;
         TunnelList tunnelList = ElanUtils.buildInternalTunnel(broker);
-        if (tunnelList.getInternalTunnel() != null) {
+        if (tunnelList != null && tunnelList.getInternalTunnel() != null) {
             List<InternalTunnel> internalTunnels = tunnelList.getInternalTunnel();
             for (InternalTunnel tunnel : internalTunnels) {
                 if (tunnel.getTunnelInterfaceName().equalsIgnoreCase(interfaceName)) {

@@ -23,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -160,15 +159,6 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
                 }
             }
             return;
-        }
-        if (update.getOperStatus() == OperStatus.Down) {
-            unInstallDhcpEntries(interfaceName, dpId);
-            dhcpManager.removeInterfaceCache(interfaceName);
-        } else if (update.getOperStatus() == OperStatus.Up) {
-            if (!dpId.equals(DHCPMConstants.INVALID_DPID)) {
-                installDhcpEntries(interfaceName, dpId);
-                dhcpManager.updateInterfaceCache(interfaceName, new ImmutablePair<BigInteger, String>(dpId, update.getPhysAddress().getValue()));
-            }
         }
     }
 

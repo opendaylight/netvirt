@@ -126,13 +126,13 @@ public class DhcpServiceUtils {
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),
                     DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, null);
-            logger.trace("Removing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            logger.trace("Removing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             mdsalUtil.removeFlow(flowEntity);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
-            logger.trace("Installing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            logger.trace("Installing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             mdsalUtil.installFlow(flowEntity);
         }
     }

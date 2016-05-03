@@ -27,6 +27,18 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 public class ClusteringUtils {
 
+    static DataStoreJobCoordinator dataStoreJobCoordinator;
+
+    static DataStoreJobCoordinator getDataStoreJobCoordinator() {
+        if (dataStoreJobCoordinator == null) {
+            dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
+        }
+        return dataStoreJobCoordinator;
+    }
+    public static void setDataStoreJobCoordinator(DataStoreJobCoordinator ds) {
+        dataStoreJobCoordinator = ds;
+    }
+
     public static ListenableFuture<Boolean> checkNodeEntityOwner(EntityOwnershipService entityOwnershipService,
             String entityType, String nodeId) {
         return checkNodeEntityOwner(entityOwnershipService, new Entity(entityType, nodeId),
@@ -42,10 +54,9 @@ public class ClusteringUtils {
     public static ListenableFuture<Boolean> checkNodeEntityOwner(EntityOwnershipService entityOwnershipService,
             Entity entity, long sleepBetweenRetries, int maxRetries) {
         SettableFuture<Boolean> checkNodeEntityfuture = SettableFuture.create();
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         CheckEntityOwnerTask checkEntityOwnerTask = new CheckEntityOwnerTask(entityOwnershipService, entity,
                 checkNodeEntityfuture, sleepBetweenRetries, maxRetries);
-        dataStoreCoordinator.enqueueJob(entityOwnershipService.toString(), checkEntityOwnerTask);
+        getDataStoreJobCoordinator().enqueueJob(entityOwnershipService.toString(), checkEntityOwnerTask);
         return checkNodeEntityfuture;
     }
 

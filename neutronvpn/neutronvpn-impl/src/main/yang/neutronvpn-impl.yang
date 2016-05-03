@@ -51,24 +51,6 @@ module neutronvpn-impl {
                     }
                 }
             }
-            container entity-ownership-service {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity eos:entity-ownership-service;
-                    }
-                }
-            }
-
-            container binding-normalized-node-serializer {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity md-sal-binding:binding-normalized-node-serializer;
-                    }
-                }
-            }
-
             container notification-publish-service {
                 uses config:service-ref {
                     refine type {
@@ -83,6 +65,15 @@ module neutronvpn-impl {
                          mandatory true;
                          config:required-identity md-sal-binding-impl:binding-new-notification-service;
                          }
+                    }
+            }
+
+            container entity-ownership-service {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity eos:entity-ownership-service;
+                    }
                 }
             }
         }

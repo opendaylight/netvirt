@@ -7,28 +7,25 @@
  */
 package org.opendaylight.vpnservice.elan.l2gw.listeners;
 
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.elanmanager.utils.ElanL2GwCacheUtils;
+import org.opendaylight.vpnservice.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.vpnservice.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.vpnservice.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.vpnservice.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.instances.ElanInstance;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.vpnservice.elan.l2gw.utils.ElanL2GatewayUtils;
-import org.opendaylight.vpnservice.datastoreutils.AsyncClusteredDataChangeListenerBase;
-import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
-import org.opendaylight.vpnservice.utils.hwvtep.HwvtepUtils;
-import org.opendaylight.vpnservice.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.elanmanager.utils.ElanL2GwCacheUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 /**
  * A listener for Ucast MAC entries that are added/removed to/from an External Device (e.g., TOR).
@@ -42,19 +39,14 @@ public class HwvtepLocalUcastMacListener extends
         AsyncClusteredDataChangeListenerBase<LocalUcastMacs, HwvtepLocalUcastMacListener> implements AutoCloseable {
 
     private DataBroker broker;
-    private EntityOwnershipService entityOwnershipService;
-    private BindingNormalizedNodeSerializer bindingNormalizedNodeSerializer;
     private ListenerRegistration<DataChangeListener> lstnerRegistration;
 
     private static final Logger logger = LoggerFactory.getLogger(HwvtepLocalUcastMacListener.class);
 
-    public HwvtepLocalUcastMacListener(DataBroker broker, EntityOwnershipService entityOwnershipService,
-            BindingNormalizedNodeSerializer bindingNormalizedNodeSerializer) {
+    public HwvtepLocalUcastMacListener(DataBroker broker) {
         super(LocalUcastMacs.class, HwvtepLocalUcastMacListener.class);
 
         this.broker = broker;
-        this.entityOwnershipService = entityOwnershipService;
-        this.bindingNormalizedNodeSerializer = bindingNormalizedNodeSerializer;
         registerListener();
     }
 
@@ -103,8 +95,9 @@ public class HwvtepLocalUcastMacListener extends
         // Remove MAC from cache
         elanL2GwDevice.removeUcastLocalMac(macRemoved);
 
-        ElanL2GatewayUtils.unInstallL2GwUcastMacFromElan(entityOwnershipService, bindingNormalizedNodeSerializer, elan,
-                elanL2GwDevice, macRemoved);    }
+        ElanL2GatewayUtils.unInstallL2GwUcastMacFromElan(elan, elanL2GwDevice,
+                Lists.newArrayList(macRemoved.getMacEntryKey()));
+    }
 
     @Override
     protected void update(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs original,
@@ -136,8 +129,7 @@ public class HwvtepLocalUcastMacListener extends
         // Cache MAC for furthur processing later
         elanL2GwDevice.addUcastLocalMac(macAdded);
 
-        ElanL2GatewayUtils.installL2GwUcastMacInElan(entityOwnershipService, bindingNormalizedNodeSerializer, elan,
-                elanL2GwDevice, macAddress);
+        ElanL2GatewayUtils.installL2GwUcastMacInElan(elan, elanL2GwDevice, macAddress);
     }
 
     @Override

@@ -10,7 +10,6 @@ package org.opendaylight.vpnservice.elan.l2gw.listeners;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.vpnservice.datastoreutils.AsyncClusteredDataChangeListenerBase;
@@ -19,7 +18,6 @@ import org.opendaylight.vpnservice.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -31,16 +29,11 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListene
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
-    private EntityOwnershipService entityOwnershipService;
-    private BindingNormalizedNodeSerializer bindingNormalizedNodeSerializer;
     private ElanInstanceManager elanInstanceManager;
 
-    public L2GatewayConnectionListener(final DataBroker db, EntityOwnershipService entityOwnershipService,
-            BindingNormalizedNodeSerializer bindingNormalizedNodeSerializer, ElanInstanceManager elanInstanceManager) {
+    public L2GatewayConnectionListener(final DataBroker db, ElanInstanceManager elanInstanceManager) {
         super(L2gatewayConnection.class, L2GatewayConnectionListener.class);
         broker = db;
-        this.entityOwnershipService = entityOwnershipService;
-        this.bindingNormalizedNodeSerializer = bindingNormalizedNodeSerializer;
         this.elanInstanceManager = elanInstanceManager;
         registerListener(db);
     }
@@ -74,33 +67,30 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListene
     @Override
     protected void add(final InstanceIdentifier<L2gatewayConnection> identifier, final L2gatewayConnection input) {
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Adding L2gatewayConnection : key: " + identifier + ", value=" + input);
+            LOG.trace("Adding L2gatewayConnection: {}", input);
         }
 
         // Get associated L2GwId from 'input'
         // Create logical switch in each of the L2GwDevices part of L2Gw
         // Logical switch name is network UUID
         // Add L2GwDevices to ELAN
-        L2GatewayConnectionUtils.addL2GatewayConnection(broker, entityOwnershipService, bindingNormalizedNodeSerializer,
-                elanInstanceManager, input);
+        L2GatewayConnectionUtils.addL2GatewayConnection(input);
     }
 
     @Override
     protected void remove(InstanceIdentifier<L2gatewayConnection> identifier, L2gatewayConnection input) {
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Removing L2gatewayConnection : key: " + identifier + ", value=" + input);
+            LOG.trace("Removing L2gatewayConnection: {}", input);
         }
 
-        L2GatewayConnectionUtils.deleteL2GatewayConnection(broker, entityOwnershipService, bindingNormalizedNodeSerializer,
-                elanInstanceManager, input);
+        L2GatewayConnectionUtils.deleteL2GatewayConnection(input);
     }
 
     @Override
     protected void update(InstanceIdentifier<L2gatewayConnection> identifier, L2gatewayConnection original,
             L2gatewayConnection update) {
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Updating L2gatewayConnection : key: " + identifier + ", original value=" + original
-                    + ", update value=" + update);
+            LOG.trace("Updating L2gatewayConnection : original value={}, updated value={}", original, update);
         }
     }
 

@@ -8,6 +8,7 @@
 
 package org.opendaylight.vpnservice.utils.hwvtep;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -16,6 +17,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorAugmentation;
@@ -64,10 +66,17 @@ public final class HwvtepUtils {
     public static ListenableFuture<Void> addLogicalSwitch(DataBroker broker, NodeId nodeId,
             LogicalSwitches logicalSwitch) {
         WriteTransaction transaction = broker.newWriteOnlyTransaction();
-        putLogicalSwitch(transaction, nodeId, logicalSwitch);
+        putLogicalSwitch(transaction,LogicalDatastoreType.CONFIGURATION, nodeId, logicalSwitch);
         return transaction.submit();
     }
 
+    public static ListenableFuture<Void> addLogicalSwitch(DataBroker broker, LogicalDatastoreType logicalDatastoreType,
+                                                          NodeId nodeId,
+                                                          LogicalSwitches logicalSwitch) {
+        WriteTransaction transaction = broker.newWriteOnlyTransaction();
+        putLogicalSwitch(transaction,logicalDatastoreType, nodeId, logicalSwitch);
+        return transaction.submit();
+    }
     /**
      * Put the logical switches in the transaction.
      *
@@ -82,7 +91,7 @@ public final class HwvtepUtils {
             final List<LogicalSwitches> lstSwitches) {
         if (lstSwitches != null) {
             for (LogicalSwitches logicalSwitch : lstSwitches) {
-                putLogicalSwitch(transaction, nodeId, logicalSwitch);
+                putLogicalSwitch(transaction,LogicalDatastoreType.CONFIGURATION, nodeId, logicalSwitch);
             }
         }
     }
@@ -97,11 +106,11 @@ public final class HwvtepUtils {
      * @param logicalSwitch
      *            the logical switch
      */
-    public static void putLogicalSwitch(final WriteTransaction transaction, final NodeId nodeId,
-            final LogicalSwitches logicalSwitch) {
+    public static void putLogicalSwitch(final WriteTransaction transaction,LogicalDatastoreType logicalDatastoreType,
+                                        final NodeId nodeId, final LogicalSwitches logicalSwitch) {
         InstanceIdentifier<LogicalSwitches> iid = HwvtepSouthboundUtils.createLogicalSwitchesInstanceIdentifier(nodeId,
                 logicalSwitch.getHwvtepNodeName());
-        transaction.put(LogicalDatastoreType.CONFIGURATION, iid, logicalSwitch, true);
+        transaction.put(logicalDatastoreType, iid, logicalSwitch, true);
     }
 
     /**
@@ -430,6 +439,13 @@ public final class HwvtepUtils {
         transaction.put(LogicalDatastoreType.CONFIGURATION, iid, remoteMcastMac, true);
     }
 
+    public static void putRemoteMcastMac(final WriteTransaction transaction,LogicalDatastoreType logicalDatastoreType,
+                                         final NodeId nodeId,
+                                         RemoteMcastMacs remoteMcastMac) {
+        InstanceIdentifier<RemoteMcastMacs> iid = HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(nodeId,
+                remoteMcastMac.getKey());
+        transaction.put(logicalDatastoreType, iid, remoteMcastMac, true);
+    }
     /**
      * Gets the remote mcast mac.
      *
@@ -605,4 +621,37 @@ public final class HwvtepUtils {
         }
         return null;
     }
+
+    /**
+     * Installs a list of Mac Addresses as remote Ucast address in an external
+     * device using the hwvtep-southbound.
+     *
+     * @param deviceNodeId
+     *            NodeId if the ExternalDevice where the macs must be installed
+     *            in.
+     * @param macAddresses
+     *            List of Mac addresses to be installed in the external device.
+     * @param logicalSwitchName
+     *            the logical switch name
+     * @param remoteVtepIp
+     *            VTEP's IP in this CSS used for the tunnel with external
+     *            device.
+     */
+    public static ListenableFuture<Void> installUcastMacs(DataBroker broker,
+                                                          String deviceNodeId, List<PhysAddress> macAddresses,
+                                                          String logicalSwitchName, IpAddress remoteVtepIp) {
+        NodeId nodeId = new NodeId(deviceNodeId);
+        HwvtepPhysicalLocatorAugmentation phyLocatorAug = HwvtepSouthboundUtils
+                .createHwvtepPhysicalLocatorAugmentation(String.valueOf(remoteVtepIp.getValue()));
+        List<RemoteUcastMacs> macs = new ArrayList<RemoteUcastMacs>();
+        for (PhysAddress mac : macAddresses) {
+            // TODO: Query ARP cache to get IP address corresponding to
+            // the MAC
+            IpAddress ipAddress = null;
+            macs.add(HwvtepSouthboundUtils.createRemoteUcastMac(nodeId, mac.getValue(), ipAddress, logicalSwitchName,
+                    phyLocatorAug));
+        }
+        return HwvtepUtils.addRemoteUcastMacs(broker, nodeId, macs);
+    }
+
 }

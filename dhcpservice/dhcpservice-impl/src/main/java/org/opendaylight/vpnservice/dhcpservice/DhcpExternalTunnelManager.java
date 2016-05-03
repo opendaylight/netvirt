@@ -34,6 +34,7 @@ import org.opendaylight.vpnservice.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.vpnservice.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.vpnservice.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.vpnservice.utils.clustering.ClusteringUtils;
+import org.opendaylight.vpnservice.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.vpnservice.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.vpnservice.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -57,6 +58,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.dhcp.rev160428.d
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnelKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetExternalTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetExternalTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
@@ -336,9 +339,6 @@ public class DhcpExternalTunnelManager {
                     designatedDpnId = dpn;
                 }
             }
-            if (!elanDpnAvailableFlag) {
-                installRemoteMcastMac(designatedDpnId, device, elanInstanceName);
-            }
             writeDesignatedSwitchForExternalTunnel(designatedDpnId, tunnelIp, elanInstanceName);
             return designatedDpnId;
         }
@@ -357,7 +357,8 @@ public class DhcpExternalTunnelManager {
     public void installDhcpEntries(final BigInteger dpnId, final String vmMacAddress, EntityOwnershipService eos) {
         final String nodeId = DhcpServiceUtils.getNodeIdFromDpnId(dpnId);
         ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                eos, MDSALUtil.NODE_PREFIX, nodeId);
+                eos, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
         Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean isOwner) {
@@ -382,7 +383,8 @@ public class DhcpExternalTunnelManager {
     public void unInstallDhcpEntries(final BigInteger dpnId, final String vmMacAddress, EntityOwnershipService eos) {
         final String nodeId = DhcpServiceUtils.getNodeIdFromDpnId(dpnId);
         ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                eos, MDSALUtil.NODE_PREFIX, nodeId);
+                eos, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
         Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean isOwner) {
@@ -407,7 +409,8 @@ public class DhcpExternalTunnelManager {
     public void installDhcpDropAction(final BigInteger dpnId, final String vmMacAddress, EntityOwnershipService eos) {
         final String nodeId = DhcpServiceUtils.getNodeIdFromDpnId(dpnId);
         ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                eos, MDSALUtil.NODE_PREFIX, nodeId);
+                eos, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
         Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean isOwner) {
@@ -511,10 +514,11 @@ public class DhcpExternalTunnelManager {
 
     public String getExternalTunnelInterfaceName(String sourceNode, String dstNode) {
         String tunnelInterfaceName = null;
+        Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
         try {
             Future<RpcResult<GetExternalTunnelInterfaceNameOutput>> output = itmRpcService
                     .getExternalTunnelInterfaceName(new GetExternalTunnelInterfaceNameInputBuilder()
-                            .setSourceNode(sourceNode).setDestinationNode(dstNode).build());
+                            .setSourceNode(sourceNode).setDestinationNode(dstNode).setTunnelType(tunType).build());
 
             RpcResult<GetExternalTunnelInterfaceNameOutput> rpcResult = output.get();
             if (rpcResult.isSuccessful()) {
@@ -569,22 +573,42 @@ public class DhcpExternalTunnelManager {
         return transaction;
     }
 
-    private void installRemoteMcastMac(BigInteger designatedDpnId, L2GatewayDevice device, String elanInstanceName) {
-        String tunnelInterfaceName = getExternalTunnelInterfaceName(String.valueOf(designatedDpnId), device.getHwvtepNodeId());
-        IpAddress internalTunnelIp = null;
-        if (tunnelInterfaceName != null) {
-            Interface tunnelInterface = DhcpServiceUtils.getInterfaceFromConfigDS(tunnelInterfaceName, broker);
-            if (tunnelInterface == null) {
-                logger.debug("Tunnel Interface is not present {}", tunnelInterfaceName);
-                return;
-            }
-            internalTunnelIp = tunnelInterface.getAugmentation(IfTunnel.class).getTunnelSource();
-            WriteTransaction transaction = broker.newWriteOnlyTransaction();
-            putRemoteMcastMac(transaction, elanInstanceName, device, internalTunnelIp);
-            if (transaction != null) {
-                transaction.submit();
-            }
+    public void installRemoteMcastMac(final BigInteger designatedDpnId, final IpAddress tunnelIp, final String elanInstanceName) {
+        if (designatedDpnId.equals(DHCPMConstants.INVALID_DPID)) {
+            return;
         }
+        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
+        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean isOwner) {
+                if (isOwner) {
+                    logger.info("Installing remote McastMac");
+                    L2GatewayDevice device = getDeviceFromTunnelIp(elanInstanceName, tunnelIp);
+                    String tunnelInterfaceName = getExternalTunnelInterfaceName(String.valueOf(designatedDpnId), device.getHwvtepNodeId());
+                    IpAddress internalTunnelIp = null;
+                    if (tunnelInterfaceName != null) {
+                        Interface tunnelInterface = DhcpServiceUtils.getInterfaceFromConfigDS(tunnelInterfaceName, broker);
+                        if (tunnelInterface == null) {
+                            logger.trace("Tunnel Interface is not present {}", tunnelInterfaceName);
+                            return;
+                        }
+                        internalTunnelIp = tunnelInterface.getAugmentation(IfTunnel.class).getTunnelSource();
+                        WriteTransaction transaction = broker.newWriteOnlyTransaction();
+                        putRemoteMcastMac(transaction, elanInstanceName, device, internalTunnelIp);
+                        if (transaction != null) {
+                            transaction.submit();
+                        }
+                    }
+                } else {
+                      logger.info("Installing remote McastMac is not executed for this node.");
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                logger.error("Failed to install remote McastMac", error);
+            }
+        });
     }
 
     private L2GatewayDevice getDeviceFromTunnelIp(String elanInstanceName, IpAddress tunnelIp) {

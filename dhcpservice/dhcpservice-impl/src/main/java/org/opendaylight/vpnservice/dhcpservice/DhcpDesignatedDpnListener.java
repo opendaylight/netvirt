@@ -64,10 +64,10 @@ public class DhcpDesignatedDpnListener extends AsyncClusteredDataChangeListenerB
         String elanInstanceName = update.getElanInstanceName();
         dhcpExternalTunnelManager.removeFromLocalCache(BigInteger.valueOf(original.getDpId()), original.getTunnelRemoteIpAddress(), original.getElanInstanceName());
         dhcpExternalTunnelManager.updateLocalCache(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
-/*        List<BigInteger> elanDpns = DhcpServiceUtils.getDpnsForElan(elanInstanceName, broker);
+        List<BigInteger> elanDpns = DhcpServiceUtils.getDpnsForElan(elanInstanceName, broker);
         if (elanDpns == null || elanDpns.isEmpty()) {
             dhcpExternalTunnelManager.installRemoteMcastMac(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
-        }*/
+        }
     }
 
     @Override
@@ -76,10 +76,10 @@ public class DhcpDesignatedDpnListener extends AsyncClusteredDataChangeListenerB
         IpAddress tunnelRemoteIpAddress = add.getTunnelRemoteIpAddress();
         String elanInstanceName = add.getElanInstanceName();
         dhcpExternalTunnelManager.updateLocalCache(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
-/*        List<BigInteger> elanDpns = DhcpServiceUtils.getDpnsForElan(elanInstanceName, broker);
+        List<BigInteger> elanDpns = DhcpServiceUtils.getDpnsForElan(elanInstanceName, broker);
         if (elanDpns == null || elanDpns.isEmpty()) {
             dhcpExternalTunnelManager.installRemoteMcastMac(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
-        }*/
+        }
     }
 
     @Override

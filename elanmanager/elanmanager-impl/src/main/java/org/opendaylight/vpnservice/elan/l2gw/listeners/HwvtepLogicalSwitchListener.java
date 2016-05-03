@@ -7,22 +7,16 @@
  */
 package org.opendaylight.vpnservice.elan.l2gw.listeners;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-import org.opendaylight.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.vpnservice.datastoreutils.AsyncDataChangeListenerBase;
 import org.opendaylight.vpnservice.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.vpnservice.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
-import org.opendaylight.vpnservice.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.vpnservice.elan.l2gw.jobs.LogicalSwitchAddedJob;
 import org.opendaylight.vpnservice.elan.l2gw.utils.L2GatewayConnectionUtils;
-import org.opendaylight.vpnservice.elan.utils.ElanUtils;
 import org.opendaylight.vpnservice.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.vpnservice.utils.SystemPropertyReader;
 import org.opendaylight.vpnservice.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
@@ -30,8 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * The listener class for listening to {@code LogicalSwitches}
@@ -60,6 +52,15 @@ public class HwvtepLogicalSwitchListener
     /** The default vlan id. */
     private Integer defaultVlanId;
 
+    /** Id of L2 Gateway connection responsible for this logical switch creation */
+    private Uuid l2GwConnId;
+
+    static DataStoreJobCoordinator dataStoreJobCoordinator;
+
+    public static void setDataStoreJobCoordinator(DataStoreJobCoordinator ds) {
+        dataStoreJobCoordinator = ds;
+    }
+
     /**
      * Instantiates a new hardware vtep logical switch listener.
      *
@@ -71,15 +72,18 @@ public class HwvtepLogicalSwitchListener
      *            the physical device
      * @param defaultVlanId
      *            the default vlan id
+     * @param l2GwConnId
+     *            the l2 gateway connection id
      */
     public HwvtepLogicalSwitchListener(L2GatewayDevice l2GatewayDevice, String logicalSwitchName,
-            Devices physicalDevice, Integer defaultVlanId) {
+            Devices physicalDevice, Integer defaultVlanId, Uuid l2GwConnId) {
         super(LogicalSwitches.class, HwvtepLogicalSwitchListener.class);
         this.nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
         this.logicalSwitchName = logicalSwitchName;
         this.physicalDevice = physicalDevice;
         this.l2GatewayDevice = l2GatewayDevice;
         this.defaultVlanId = defaultVlanId;
+        this.l2GwConnId = l2GwConnId;
     }
 
     /*
@@ -162,12 +166,12 @@ public class HwvtepLogicalSwitchListener
         LOG.debug("Received Add DataChange Notification for identifier: {}, LogicalSwitches: {}", identifier,
                 logicalSwitchNew);
         try {
-            L2GatewayConnectionUtils.addL2DeviceToElanL2GwCache(logicalSwitchNew.getHwvtepNodeName().getValue(), l2GatewayDevice);
-            DataStoreJobCoordinator jobCoordinator = DataStoreJobCoordinator.getInstance();
-            LogicalSwitchAddedWorker logicalSwitchAddedWorker = new LogicalSwitchAddedWorker(nodeId, logicalSwitchNew);
-            String jobKey = ElanL2GatewayUtils.getL2GatewayConnectionJobKey(nodeId.getValue(),
-                    logicalSwitchNew.getHwvtepNodeName().getValue());
-            jobCoordinator.enqueueJob(jobKey, logicalSwitchAddedWorker,
+            L2GatewayDevice elanDevice = L2GatewayConnectionUtils.addL2DeviceToElanL2GwCache(
+                    logicalSwitchNew.getHwvtepNodeName().getValue(), l2GatewayDevice, l2GwConnId);
+
+            LogicalSwitchAddedJob logicalSwitchAddedWorker = new LogicalSwitchAddedJob(
+                    logicalSwitchName, physicalDevice, elanDevice, defaultVlanId);
+            dataStoreJobCoordinator.enqueueJob(logicalSwitchAddedWorker.getJobKey(), logicalSwitchAddedWorker,
                     SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
 
         } catch (Exception e) {
@@ -185,66 +189,4 @@ public class HwvtepLogicalSwitchListener
         }
     }
 
-    /**
-     * The Class LogicalSwitchAddedWorker.
-     */
-    private class LogicalSwitchAddedWorker implements Callable<List<ListenableFuture<Void>>> {
-        /** The logical switch new. */
-        LogicalSwitches logicalSwitchNew;
-
-        /**
-         * Instantiates a new logical switch added worker.
-         *
-         * @param nodeId
-         *            the node id
-         * @param logicalSwitchNew
-         *            the logical switch new
-         */
-        public LogicalSwitchAddedWorker(NodeId nodeId, LogicalSwitches logicalSwitchNew) {
-            this.logicalSwitchNew = logicalSwitchNew;
-        }
-
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.util.concurrent.Callable#call()
-         */
-        @Override
-        public List<ListenableFuture<Void>> call() throws Exception {
-            try {
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                String elan = ElanL2GatewayUtils.getElanFromLogicalSwitch(logicalSwitchName);
-                final L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils
-                        .getL2GatewayDeviceFromCache(elan, l2GatewayDevice.getHwvtepNodeId());
-                if (elanL2GwDevice == null) {
-                    LOG.error("Could not find L2GatewayDevice for ELAN: {}, nodeID:{} from cache",
-                            l2GatewayDevice.getHwvtepNodeId());
-                    return null;
-                } else {
-                    LOG.trace("got logical switch device {}", elanL2GwDevice);
-                    futures.add(ElanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(
-                            new NodeId(elanL2GwDevice.getHwvtepNodeId()), logicalSwitchName, physicalDevice, defaultVlanId));
-                    futures.add(ElanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceAdd(logicalSwitchName, elanL2GwDevice));
-
-                    HwvtepRemoteMcastMacListener list = new HwvtepRemoteMcastMacListener(ElanUtils.getDataBroker(),
-                            logicalSwitchName, elanL2GwDevice,
-                            new Callable<List<ListenableFuture<Void>>>() {
-
-                            @Override
-                            public List<ListenableFuture<Void>> call() {
-                                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                                futures.add(ElanL2GatewayUtils.installElanMacsInL2GatewayDevice(
-                                        logicalSwitchName, elanL2GwDevice));
-                                return futures;
-                            }}
-                        );
-                    return futures;
-                }
-            } catch (Throwable e) {
-                LOG.error("failed to add ls ", e);
-                return null;
-            }
-        }
-
-    }
 }

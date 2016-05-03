@@ -8,11 +8,10 @@
 
 package org.opendaylight.elanmanager.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import org.opendaylight.vpnservice.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.vpnservice.utils.cache.CacheUtil;
@@ -57,32 +56,32 @@ public class ElanL2GwCacheUtils {
     }
 
 
-    public static L2GatewayDevice removeL2GatewayDeviceFromCache(String elanName, String deviceName) {
+    public static L2GatewayDevice removeL2GatewayDeviceFromCache(String elanName, String l2gwDeviceNodeId) {
         ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
                 (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
                         ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
         ConcurrentMap<String, L2GatewayDevice> deviceMap = cachedMap.get(elanName);
         if (deviceMap != null) {
-            L2GatewayDevice device = deviceMap.remove(deviceName);
+            L2GatewayDevice device = deviceMap.remove(l2gwDeviceNodeId);
             return device;
         } else {
             return null;
         }
     }
 
-    public static L2GatewayDevice getL2GatewayDeviceFromCache(String elanName, String deviceName) {
+    public static L2GatewayDevice getL2GatewayDeviceFromCache(String elanName, String l2gwDeviceNodeId) {
         ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
                 (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
                         ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
         ConcurrentMap<String, L2GatewayDevice> deviceMap = cachedMap.get(elanName);
         if (deviceMap != null) {
-            return deviceMap.get(deviceName);
+            return deviceMap.get(l2gwDeviceNodeId);
         } else {
             return null;
         }
     }
 
-    public static ConcurrentMap<String, L2GatewayDevice> getAllElanL2GatewayDevicesFromCache(String elanName) {
+    public static ConcurrentMap<String, L2GatewayDevice> getInvolvedL2GwDevices(String elanName) {
         ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap = (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil
                 .getCache(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
         ConcurrentMap<String, L2GatewayDevice> result = cachedMap.get(elanName);

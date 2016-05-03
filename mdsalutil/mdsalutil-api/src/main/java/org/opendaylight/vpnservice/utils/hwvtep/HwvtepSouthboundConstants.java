@@ -21,5 +21,7 @@ public class HwvtepSouthboundConstants {
     public static final Object PSWITCH_URI_PREFIX = "physicalswitch";
     public static final ImmutableBiMap<Class<? extends EncapsulationTypeBase>, String> ENCAPS_TYPE_MAP = new ImmutableBiMap.Builder<Class<? extends EncapsulationTypeBase>, String>()
             .put(EncapsulationTypeVxlanOverIpv4.class, "vxlan_over_ipv4").build();
-
+    public static final String ELAN_ENTITY_TYPE = "elan";
+    public static final String ELAN_ENTITY_NAME = "elan";
+    public static final String TEP_PREFIX = "vxlan_over_ipv4:";
 }

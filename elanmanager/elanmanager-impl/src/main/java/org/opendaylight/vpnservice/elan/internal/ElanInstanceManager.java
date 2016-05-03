@@ -13,6 +13,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
+import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
 import org.opendaylight.vpnservice.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.vpnservice.elan.utils.ElanConstants;
 import org.opendaylight.vpnservice.elan.utils.ElanUtils;
@@ -39,6 +41,7 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
     private ListenerRegistration<DataChangeListener> elanInstanceListenerRegistration;
     private IdManagerService idManager;
     private ElanInterfaceManager elanInterfaceManager;
+    private IInterfaceManager interfaceManager;
 
     private static final Logger logger = LoggerFactory.getLogger(ElanInstanceManager.class);
 
@@ -61,6 +64,10 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
 
     public void setElanInterfaceManager(ElanInterfaceManager elanInterfaceManager) {
         this.elanInterfaceManager = elanInterfaceManager;
+    }
+
+    public void setInterfaceManager(IInterfaceManager interfaceManager) {
+        this.interfaceManager = interfaceManager;
     }
 
 
@@ -101,7 +108,8 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
             if(elanInterfaces != null && !elanInterfaces.isEmpty()) {
                 for (String elanInterfaceName : elanInterfaces) {
                     InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils.getElanInterfaceConfigurationDataPathId(elanInterfaceName);
-                    elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName);
+                    InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterfaceName);
+                    elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName, interfaceInfo);
                     ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
                 }
             }

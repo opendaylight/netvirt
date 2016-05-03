@@ -39,7 +39,6 @@ public class NeutronvpnImplModule extends org.opendaylight.yang.gen.v1.urn.opend
         provider.setMdsalManager(getMdsalutilDependency());
         provider.setLockManager(lockManagerService);
         provider.setEntityOwnershipService(getEntityOwnershipServiceDependency());
-        provider.setBindingNormalizedNodeSerializer(getBindingNormalizedNodeSerializerDependency());
         getBrokerDependency().registerProvider(provider);
         return provider;
     }

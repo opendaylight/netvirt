@@ -9,19 +9,26 @@
 package org.opendaylight.vpnservice.elan.l2gw.internal;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.elanmanager.utils.ElanL2GwCacheUtils;
+import org.opendaylight.vpnservice.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.vpnservice.elan.internal.ElanInstanceManager;
 import org.opendaylight.vpnservice.elan.internal.ElanInterfaceManager;
 import org.opendaylight.vpnservice.elan.internal.ElanServiceProvider;
 import org.opendaylight.vpnservice.elan.l2gw.listeners.HwvtepLocalUcastMacListener;
+import org.opendaylight.vpnservice.elan.l2gw.listeners.HwvtepLogicalSwitchListener;
 import org.opendaylight.vpnservice.elan.l2gw.listeners.HwvtepNodeListener;
+import org.opendaylight.vpnservice.elan.l2gw.listeners.HwvtepPhysicalLocatorListener;
+import org.opendaylight.vpnservice.elan.l2gw.listeners.HwvtepRemoteMcastMacListener;
 import org.opendaylight.vpnservice.elan.l2gw.listeners.L2GatewayConnectionListener;
 import org.opendaylight.vpnservice.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.vpnservice.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.vpnservice.elan.l2gw.utils.L2GatewayConnectionUtils;
+import org.opendaylight.vpnservice.utils.clustering.EntityOwnerUtils;
+import org.opendaylight.vpnservice.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +41,6 @@ public class ElanL2GatewayProvider implements AutoCloseable {
 
     private DataBroker broker;
     private EntityOwnershipService entityOwnershipService;
-    private BindingNormalizedNodeSerializer bindingNormalizedNodeSerializer;
     private ItmRpcService itmRpcService;
     private ElanInstanceManager elanInstanceManager;
     private ElanInterfaceManager elanInterfaceManager;
@@ -42,6 +48,9 @@ public class ElanL2GatewayProvider implements AutoCloseable {
     private L2GatewayConnectionListener l2GwConnListener;
     private HwvtepNodeListener hwvtepNodeListener;
     private HwvtepLocalUcastMacListener torMacsListener;
+    private HwvtepPhysicalLocatorListener physicalLocatorListener;
+
+    static DataStoreJobCoordinator dataStoreJobCoordinator;
 
     /**
      * Instantiates a new elan l2 gateway provider.
@@ -52,11 +61,10 @@ public class ElanL2GatewayProvider implements AutoCloseable {
     public ElanL2GatewayProvider(ElanServiceProvider elanServiceProvider) {
         this.broker = elanServiceProvider.getBroker();
         this.entityOwnershipService = elanServiceProvider.getEntityOwnershipService();
-        this.bindingNormalizedNodeSerializer = elanServiceProvider.getBindingNormalizedNodeSerializer();
         this.itmRpcService = elanServiceProvider.getItmRpcService();
         this.elanInstanceManager = elanServiceProvider.getElanInstanceManager();
         this.elanInterfaceManager = elanServiceProvider.getElanInterfaceManager();
-
+        dataStoreJobCoordinator = elanServiceProvider.getDataStoreJobCoordinator();
         init();
 
         LOG.info("ElanL2GatewayProvider Initialized");
@@ -69,18 +77,33 @@ public class ElanL2GatewayProvider implements AutoCloseable {
         ElanL2GwCacheUtils.createElanL2GwDeviceCache();
         ElanL2GatewayUtils.setDataBroker(broker);
         ElanL2GatewayUtils.setItmRpcService(itmRpcService);
+        ElanL2GatewayUtils.setDataStoreJobCoordinator(dataStoreJobCoordinator);
 
         ElanL2GatewayMulticastUtils.setBroker(broker);
         ElanL2GatewayMulticastUtils.setElanInstanceManager(elanInstanceManager);
         ElanL2GatewayMulticastUtils.setElanInterfaceManager(elanInterfaceManager);
+        ElanL2GatewayMulticastUtils.setDataStoreJobCoordinator(dataStoreJobCoordinator);
 
-        this.torMacsListener = new HwvtepLocalUcastMacListener(broker, entityOwnershipService,
-                bindingNormalizedNodeSerializer);
-        this.l2GwConnListener = new L2GatewayConnectionListener(broker, entityOwnershipService,
-                bindingNormalizedNodeSerializer, elanInstanceManager);
-        this.hwvtepNodeListener = new HwvtepNodeListener(broker, entityOwnershipService,
-                bindingNormalizedNodeSerializer, elanInstanceManager, itmRpcService);
+        L2GatewayConnectionUtils.setElanInstanceManager(elanInstanceManager);
+        L2GatewayConnectionUtils.setBroker(broker);
+        L2GatewayConnectionUtils.setDataStoreJobCoordinator(dataStoreJobCoordinator);
+
+        HwvtepRemoteMcastMacListener.setDataStoreJobCoordinator(dataStoreJobCoordinator);
+        HwvtepLogicalSwitchListener.setDataStoreJobCoordinator(dataStoreJobCoordinator);
+
+        this.torMacsListener = new HwvtepLocalUcastMacListener(broker);
+        this.l2GwConnListener = new L2GatewayConnectionListener(broker, elanInstanceManager);
+        this.hwvtepNodeListener = new HwvtepNodeListener(broker, elanInstanceManager, itmRpcService);
         this.hwvtepNodeListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+
+        physicalLocatorListener = new HwvtepPhysicalLocatorListener(broker);
+        try {
+            EntityOwnerUtils.registerEntityCandidateForOwnerShip(entityOwnershipService,
+                    HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                    null/*listener*/);
+        } catch (CandidateAlreadyRegisteredException e) {
+            LOG.error("failed to register the entity");
+        }
     }
 
     /*

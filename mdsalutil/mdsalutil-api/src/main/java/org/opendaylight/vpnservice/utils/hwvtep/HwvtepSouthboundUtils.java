@@ -82,6 +82,11 @@ public class HwvtepSouthboundUtils {
                 .child(Node.class, new NodeKey(nodeId));
     }
 
+
+    public static InstanceIdentifier<TerminationPoint> createTerminationPointId(NodeId nodeId,
+                                                                                TerminationPointKey tpKey) {
+        return createInstanceIdentifier(nodeId).child(TerminationPoint.class, tpKey);
+    }
     /**
      * Creates the logical switches instance identifier.
      *
@@ -372,6 +377,23 @@ public class HwvtepSouthboundUtils {
         HwvtepLogicalSwitchRef lsRef = new HwvtepLogicalSwitchRef(lSwitchIid);
         vbBuilder.setLogicalSwitchRef(lsRef);
         return vbBuilder.build();
+    }
+
+    public static TerminationPointKey getTerminationPointKey(String ipAddress) {
+        TerminationPointKey tpKey = null;
+        String tpKeyStr = getTerminationPointKeyString(ipAddress);
+        if(tpKeyStr != null) {
+            tpKey = new TerminationPointKey(new TpId(tpKeyStr));
+        }
+        return tpKey;
+    }
+    public static String getTerminationPointKeyString(String ipAddress) {
+        String tpKeyStr = null;
+        if(ipAddress != null) {
+            tpKeyStr = new StringBuilder(HwvtepSouthboundConstants.TEP_PREFIX).
+                    append(ipAddress).toString();
+        }
+        return tpKeyStr;
     }
 
 }

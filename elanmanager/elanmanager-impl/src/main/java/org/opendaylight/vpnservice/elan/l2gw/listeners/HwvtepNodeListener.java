@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -39,7 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,18 +49,13 @@ public class HwvtepNodeListener
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepNodeListener.class);
 
     private DataBroker dataBroker;
-    private EntityOwnershipService entityOwnershipService;
-    private BindingNormalizedNodeSerializer bindingNormalizedNodeSerializer;
     private ItmRpcService itmRpcService;
     ElanInstanceManager elanInstanceManager;
 
-    public HwvtepNodeListener(final DataBroker dataBroker, EntityOwnershipService entityOwnershipService,
-            BindingNormalizedNodeSerializer bindingNormalizedNodeSerializer, ElanInstanceManager elanInstanceManager,
+    public HwvtepNodeListener(final DataBroker dataBroker, ElanInstanceManager elanInstanceManager,
             ItmRpcService itmRpcService) {
         super(Node.class, HwvtepNodeListener.class);
         this.dataBroker = dataBroker;
-        this.entityOwnershipService = entityOwnershipService;
-        this.bindingNormalizedNodeSerializer = bindingNormalizedNodeSerializer;
         this.itmRpcService = itmRpcService;
         this.elanInstanceManager = elanInstanceManager;
     }
@@ -85,43 +78,63 @@ public class HwvtepNodeListener
 
     @Override
     protected void remove(InstanceIdentifier<Node> key, Node nodeDeleted) {
-        LOG.debug("Received Node Remove Event: {}, {}", key, nodeDeleted.getNodeId().getValue());
+        String nodeId = nodeDeleted.getNodeId().getValue();
+        LOG.debug("Received Node Remove Event for {}", nodeId);
 
         PhysicalSwitchAugmentation psAugmentation = nodeDeleted.getAugmentation(PhysicalSwitchAugmentation.class);
         if (psAugmentation != null) {
             String psName = psAugmentation.getHwvtepNodeName().getValue();
+            LOG.info("Physical switch {} removed from node {} event received", psName, nodeId);
+
             L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(psName);
             if (l2GwDevice != null) {
                 if (!L2GatewayConnectionUtils.isGatewayAssociatedToL2Device(l2GwDevice)) {
                     L2GatewayCacheUtils.removeL2DeviceFromCache(psName);
+                    LOG.debug("{} details removed from L2Gateway Cache", psName);
+                } else {
+                    LOG.debug("{} details are not removed from L2Gateway Cache as it has L2Gateway refrence", psName);
                 }
+
                 l2GwDevice.setConnected(false);
                 ElanL2GwCacheUtils.removeL2GatewayDeviceFromAllElanCache(psName);
             } else {
                 LOG.error("Unable to find L2 Gateway details for {}", psName);
             }
+        } else {
+            LOG.trace("Received Node Remove Event for {} is not related to Physical switch; it's not processed",
+                    nodeId);
         }
     }
 
     @Override
     protected void update(InstanceIdentifier<Node> key, Node nodeBefore, Node nodeAfter) {
-        LOG.debug("Received Node Update Event: {}, {}, {}", key, nodeBefore, nodeAfter);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Received Node Update Event: Node Before: {}, Node After: {}", nodeBefore, nodeAfter);
+        }
     }
 
     @Override
     protected void add(InstanceIdentifier<Node> key, Node nodeAdded) {
-        LOG.debug("Received Node Add Event: {}, {}", key, nodeAdded.getNodeId().getValue());
+        String nodeId = nodeAdded.getNodeId().getValue();
+        LOG.debug("Received Node Add Event for {}", nodeId);
 
         PhysicalSwitchAugmentation psAugmentation = nodeAdded.getAugmentation(PhysicalSwitchAugmentation.class);
         if (psAugmentation != null) {
             String psName = psAugmentation.getHwvtepNodeName().getValue();
+            LOG.info("Physical switch {} added to node {} event received", psName, nodeId);
+
             L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(psName);
             if (l2GwDevice == null) {
+                LOG.debug("{} details are not present in L2Gateway Cache; added now!", psName);
+
                 l2GwDevice = new L2GatewayDevice();
                 l2GwDevice.setDeviceName(psName);
                 L2GatewayCacheUtils.addL2DeviceToCache(psName, l2GwDevice);
+            } else {
+                LOG.debug("{} details are present in L2Gateway Cache and same reference used for updates", psName);
             }
 
+            l2GwDevice.setConnected(true);
             String hwvtepNodeId = getManagedByNodeId(psAugmentation.getManagedBy());
             l2GwDevice.setHwvtepNodeId(hwvtepNodeId);
             List<TunnelIps> tunnelIps = psAugmentation.getTunnelIps();
@@ -130,6 +143,11 @@ public class HwvtepNodeListener
                     IpAddress tunnelIpAddr = tunnelIp.getTunnelIpsKey();
                     l2GwDevice.addTunnelIp(tunnelIpAddr);
                     if (L2GatewayConnectionUtils.isGatewayAssociatedToL2Device(l2GwDevice)) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("L2Gateway {} associated for {} physical switch; creating ITM tunnels for {}",
+                                    l2GwDevice.getL2GatewayIds(), psName, tunnelIpAddr);
+                        }
+
                         // It's a pre-provision scenario
                         // Initiate ITM tunnel creation
                         ElanL2GatewayUtils.createItmTunnels(itmRpcService, hwvtepNodeId, psName, tunnelIpAddr);
@@ -139,15 +157,25 @@ public class HwvtepNodeListener
                         List<L2gatewayConnection> l2GwConns = getAssociatedL2GwConnections(dataBroker,
                                 l2GwDevice.getL2GatewayIds());
                         if (l2GwConns != null) {
+                            LOG.debug("L2GatewayConnections associated for {} physical switch", psName);
+
                             for (L2gatewayConnection l2GwConn : l2GwConns) {
-                                L2GatewayConnectionUtils.addL2GatewayConnection(dataBroker, entityOwnershipService,
-                                        bindingNormalizedNodeSerializer, elanInstanceManager, l2GwConn, psName);
+                                LOG.trace("L2GatewayConnection {} changes executed on physical switch {}",
+                                        l2GwConn.getL2gatewayId(), psName);
+
+                                L2GatewayConnectionUtils.addL2GatewayConnection(l2GwConn, psName);
                             }
                         }
                         //TODO handle deleted l2gw connections while the device is offline
                     }
                 }
             }
+
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("L2Gateway cache updated with below details: {}", l2GwDevice);
+            }
+        } else {
+            LOG.trace("Received Node Add Event for {} is not related to Physical switch; it's not processed", nodeId);
         }
     }
 
