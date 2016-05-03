@@ -43,7 +43,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <itm.version>${vpnservices.version}</itm.version>
     <neutronvpn.version>${vpnservices.version}</neutronvpn.version>
     <fcaps.manager.version>${vpnservices.version}</fcaps.manager.version>
-
+    <fcaps.app.version>${vpnservices.version}</fcaps.app.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -439,7 +439,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <classifier>config</classifier>
       <type>xml</type>
     </dependency>
-
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>alarmmanager</artifactId>
@@ -454,6 +453,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>fcaps-api</artifactId>
       <version>${fcaps.manager.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>fcapsapplication-jmxapi</artifactId>
+      <version>${fcaps.app.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>fcapsapplication-impl</artifactId>
+      <version>${fcaps.app.version}</version>
     </dependency>
   </dependencies>
 </project>
