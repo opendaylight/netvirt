@@ -15,6 +15,7 @@ import java.util.Arrays;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.EthernetHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.Ipv6Header;
 import org.slf4j.Logger;
@@ -174,5 +175,32 @@ public class RoutemgrUtil {
         buf.put(IetfInetUtil.INSTANCE.ipv6AddressBytes(ip6Pdu.getSourceIpv6()));
         buf.put(IetfInetUtil.INSTANCE.ipv6AddressBytes(ip6Pdu.getDestinationIpv6()));
         return data;
+    }
+
+    public Ipv6Address getIpv6LinkLocalAddressFromMac(MacAddress mac) {
+        byte[] octets = bytesFromHexString(mac.getValue());
+
+        /* As per the RFC2373, steps involved to generate a LLA include
+           1. Convert the 48 bit MAC address to 64 bit value by inserting 0xFFFE
+              between OUI and NIC Specific part.
+           2. Invert the Universal/Local flag in the OUI portion of the address.
+           3. Use the prefix "FE80::/10" along with the above 64 bit Interface
+              identifier to generate the IPv6 LLA. */
+
+        StringBuffer interfaceID = new StringBuffer();
+        short u8byte = (short) (octets[0] & 0xff);
+        u8byte ^= 1 << 1;
+        interfaceID.append(Integer.toHexString(0xFF & u8byte));
+        interfaceID.append(Integer.toHexString(0xFF & octets[1]));
+        interfaceID.append(":");
+        interfaceID.append(Integer.toHexString(0xFF & octets[2]));
+        interfaceID.append("FF:FE");
+        interfaceID.append(Integer.toHexString(0xFF & octets[3]));
+        interfaceID.append(":");
+        interfaceID.append(Integer.toHexString(0xFF & octets[4]));
+        interfaceID.append(Integer.toHexString(0xFF & octets[5]));
+
+        Ipv6Address ipv6LLA = new Ipv6Address("FE80::"+interfaceID.toString());
+        return ipv6LLA;
     }
 }
