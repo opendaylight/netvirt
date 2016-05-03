@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fa57193c_801a7315",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-05-03T02:57:59Z",
+      "side": 1,
+      "message": "@Kalai, please add a section with the name pending listing the pending items to complete the NS processing. This will be helpful.\n\ni.e.,\n\nPending:\n1. Unit tests.\n2. Read PortInfo from ifMgr, frame NA and perform packet-out.\n3. Processing NS for the router gateway ports (i.e., external iface).\n4. ...",
+      "revId": "e1b0856590117a339d12a434df9497406e55e3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_05603831",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
         "patchSetId": 3
