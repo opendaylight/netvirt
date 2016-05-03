@@ -726,5 +726,14 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             throw e;
         }
     }
+
+    @Override
+    public void onRouterAssociatedToVpn(RouterAssociatedToVpn notification) {
+    }
+
+    @Override
+    public void onRouterDisassociatedFromVpn(RouterDisassociatedFromVpn notification) {
+
+    }
 }
 

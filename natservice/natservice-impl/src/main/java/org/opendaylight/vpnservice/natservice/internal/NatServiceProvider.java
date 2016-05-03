@@ -32,7 +32,6 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NatServiceProvider.class);
     private IMdsalApiManager mdsalManager;
     private RpcProviderRegistry rpcProviderRegistry;
-    private OdlInterfaceRpcService interfaceManager;
     private NotificationService notificationService;
     private ItmRpcService itmManager;
     private FloatingIPListener floatingIpListener;
@@ -138,6 +137,8 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             externalRouterListener.setFibService(fibService);
             externalRouterListener.setVpnService(vpnService);
             externalRouterListener.setNaptSwitchSelector(naptSwitchSelector);
+            externalRouterListener.setNaptEventHandler(naptEventHandler);
+            externalRouterListener.setNaptPacketInHandler(naptPacketInHandler);
 
             //Instantiate ExternalNetworksChangeListener and set the dataBroker in it.
             externalNetworksChangeListener = new ExternalNetworksChangeListener( dataBroker );
@@ -187,6 +188,18 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             dpnInVpnListener.setIdManager(idManager);
 
             routerPortsListener = new RouterPortsListener(dataBroker);
+
+            RouterDpnChangeListener routerDpnChangeListener = new RouterDpnChangeListener(dataBroker);
+            routerDpnChangeListener.setDefaultProgrammer(defaultRouteProgrammer);
+            routerDpnChangeListener.setIdManager(idManager);
+            routerDpnChangeListener.setMdsalManager(mdsalManager);
+            routerDpnChangeListener.setNaptSwitchHA(naptSwitchHA);
+
+            RouterToVpnListener routerToVpnListener = new RouterToVpnListener(dataBroker);
+            routerToVpnListener.setFloatingIpListener(floatingIpListener);
+            routerToVpnListener.setInterfaceManager(interfaceService);
+            routerToVpnListener.setExternalRoutersListener(externalRouterListener);
+            notificationService.registerNotificationListener(routerToVpnListener);
         } catch (Exception e) {
             LOG.error("Error initializing NAT Manager service", e);
         }

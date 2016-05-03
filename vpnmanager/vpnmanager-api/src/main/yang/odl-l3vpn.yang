@@ -258,4 +258,30 @@ module odl-l3vpn {
             }
         }
 
+
+      /* container to maintain mapping between neutron router and DPN(s) on which vpn-interfaces for router are present */
+    container neutron-router-dpns {
+        list router-dpn-list {
+            key router-id;
+            leaf router-id { type string;}
+            list dpn-vpninterfaces-list {
+                key dpn-id;
+                leaf dpn-id { type uint64;}
+                list router-interfaces { 
+                    key interface;
+                    leaf interface { type string; }
+                }
+            }
+        }
+    }
+
+
+    container router-interfaces {
+        list router-interface {
+            key interface-name;
+            leaf interface-name { type string; }
+            leaf router-name { type string; }
+        }
+    }
+
 }

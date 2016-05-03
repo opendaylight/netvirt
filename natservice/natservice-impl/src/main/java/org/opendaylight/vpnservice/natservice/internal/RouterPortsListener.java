@@ -15,12 +15,16 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.floating.ip.info.RouterPortsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.floating.ip.info.RouterPortsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.floating.ip.info.router.ports.PortsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.floating.ip.info.router.ports.PortsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.router.to.vpn.mapping.Routermapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.router.to.vpn.mapping.RoutermappingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.router.to.vpn.mapping.RoutermappingKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,13 +86,28 @@ public class RouterPortsListener extends AbstractDataChangeListener<RouterPorts>
                 new RouterPortsBuilder().setKey(new RouterPortsKey(routerName)).setRouterId(routerName)
                         .setExternalNetworkId(routerPorts.getExternalNetworkId()).build());
         }
+        //Check if the router is associated with any BGP VPN and update the association
+        String routerName = routerPorts.getRouterId();
+        Uuid vpnName = NatUtil.getVpnForRouter(broker, routerName);
+        if(vpnName != null) {
+            InstanceIdentifier<Routermapping> routerMappingId = NatUtil.getRouterVpnMappingId(routerName);
+            Optional<Routermapping> optRouterMapping = NatUtil.read(broker, LogicalDatastoreType.OPERATIONAL, routerMappingId);
+            if(!optRouterMapping.isPresent()){
+                Long vpnId = NatUtil.getVpnId(broker, vpnName.getValue());
+                LOG.debug("Updating router {} to VPN {} association with Id {}", routerName, vpnName, vpnId);
+                Routermapping routerMapping = new RoutermappingBuilder().setKey(new RoutermappingKey(routerName))
+                                                 .setRouterName(routerName).setVpnName(vpnName.getValue()).setVpnId(vpnId).build();
+                MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, routerMappingId, routerMapping);
+            }
+        }
     }
 
     @Override
     protected void remove(InstanceIdentifier<RouterPorts> identifier, RouterPorts routerPorts) {
         LOG.trace("Remove router ports method - key: " + identifier + ", value=" + routerPorts );
         //MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, identifier);
-
+        //Remove the router to vpn association mapping entry if at all present
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, NatUtil.getRouterVpnMappingId(routerPorts.getRouterId()));
     }
 
     @Override

@@ -48,6 +48,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.prefix.to._
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.router.interfaces.RouterInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.router.interfaces.RouterInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.router.interfaces.RouterInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
@@ -277,6 +280,16 @@ public class VpnUtil {
         return new VpnInstanceOpDataEntryBuilder().setVpnInterfaceCount(count).setVrfId(vrfId).build();
     }
 
+	static InstanceIdentifier<RouterInterface> getRouterInterfaceId(String interfaceName) {
+        return InstanceIdentifier.builder(RouterInterfaces.class)
+                .child(RouterInterface.class, new RouterInterfaceKey(interfaceName)).build();
+    }
+
+    static RouterInterface getRouterInterface(String interfaceName, String routerName) {
+        return new RouterInterfaceBuilder().setKey(new RouterInterfaceKey(interfaceName))
+                .setInterfaceName(interfaceName).setRouterName(routerName).build();
+    }
+	
     static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = read(broker, LogicalDatastoreType.OPERATIONAL, id);

@@ -14,34 +14,21 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
-import org.opendaylight.vpnservice.mdsalutil.ActionType;
-import org.opendaylight.vpnservice.mdsalutil.BucketInfo;
-import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
-import org.opendaylight.vpnservice.mdsalutil.GroupEntity;
-import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
-import org.opendaylight.vpnservice.mdsalutil.InstructionType;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
-import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
-import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
-import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
-import org.opendaylight.vpnservice.mdsalutil.NwConstants;
 import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.IntextIpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.floating.ip.info.router.ports.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.map.IpMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.NaptSwitches;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.ext.routers.Routers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.ext.routers.RoutersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
@@ -190,8 +177,6 @@ public class ExternalNetworksChangeListener extends AsyncDataTreeChangeListenerB
         if(originalVpn == null && updatedVpn != null) {
             //external network is dis-associated from L3VPN instance
             associateExternalNetworkWithVPN(update);
-            //Install the VPN related FIB entries
-            installVpnFibEntries(update, updatedVpn.getValue());
         } else if(originalVpn != null && updatedVpn == null) {
             //external network is associated with vpn
             disassociateExternalNetworkFromVPN(update, originalVpn.getValue());
@@ -200,43 +185,16 @@ public class ExternalNetworksChangeListener extends AsyncDataTreeChangeListenerB
         }
     }
 
-    private void installVpnFibEntries(Networks update, String vpnName){
-        List<Uuid> routerUuids = update.getRouterIds();
-        for(Uuid routerUuid :routerUuids){
-            InstanceIdentifier<Routers> routerInstanceIndentifier = InstanceIdentifier.builder(ExtRouters.class).child
-                    (Routers.class, new RoutersKey(routerUuid.getValue())).build();
-            Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerInstanceIndentifier);
-            if(!routerData.isPresent()){
-                continue;
-            }
-            String routerName = routerData.get().getRouterName();
-            List<String> externalIps = routerData.get().getExternalIps();
-            InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitch = NatUtil.buildNaptSwitchRouterIdentifier(routerName);
-            Optional<RouterToNaptSwitch> rtrToNapt = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, routerToNaptSwitch);
-            if(!rtrToNapt.isPresent()) {
-                LOG.debug("Unable to retrieve the Primary switch DPN ID");
-                continue;
-            }
-            BigInteger naptSwitchDpnId = rtrToNapt.get().getPrimarySwitchId();
-            for(String externalIp: externalIps) {
-                externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitchDpnId, NatConstants.INBOUND_NAPT_TABLE, vpnName, NatUtil.getVpnId(dataBroker, routerName), externalIp,
-                        vpnService, fibService, bgpManager, dataBroker, LOG);
-            }
-        }
-    }
-
-    private void removeSnatEntries(Networks original, Uuid networkUuid){
+    private void removeSnatEntries(Networks original, Uuid networkUuid) {
         List<Uuid> routerUuids = original.getRouterIds();
-        for(Uuid routerUuid :routerUuids){
-            InstanceIdentifier<Routers> routerInstanceIndentifier = InstanceIdentifier.builder(ExtRouters.class).child
-                    (Routers.class, new RoutersKey(routerUuid.getValue())).build();
-            Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerInstanceIndentifier);
-            List<String> externalIps = null;
-            if(!routerData.isPresent()){
-                continue;
+        for (Uuid routerUuid : routerUuids) {
+            Long routerId = NatUtil.getVpnId(dataBroker, routerUuid.getValue());
+            if (routerId == NatConstants.INVALID_ID) {
+                LOG.error("NAT Service : Invalid routerId returned for routerName {}", routerUuid.getValue());
+                return;
             }
-            externalIps = routerData.get().getExternalIps();
-            externalRouterListener.handleDisableSnat(routerUuid.getValue(), networkUuid, externalIps);
+            List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
+            externalRouterListener.handleDisableSnatInternetVpn(routerUuid.getValue(), networkUuid, externalIps, false, original.getVpnid().getValue());
         }
     }
 

@@ -25,20 +25,13 @@ import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.AllocateIdOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.CreateIdPoolInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.ReleaseIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.IntextIpMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.IntextIpPortMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.ProtocolTypes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.SnatintIpPortMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.floating.ip.info.router.ports.Ports;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.floating.ip.info.router.ports.PortsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.external.ips.counter.ExternalCounters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.external.ips.counter.ExternalCountersKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounterKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.map.IpMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.map.IpMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
@@ -53,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev16
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.IpPortMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternalBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.router.id.name.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.snatint.ip.port.map.IntipPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.snatint.ip.port.map.IntipPortMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.snatint.ip.port.map.intip.port.map.IpPort;
@@ -66,6 +58,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdenti
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import  org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounterBuilder;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.UncheckedExecutionException;
@@ -106,6 +99,21 @@ public class NaptManager  {
          }
     }
 
+    void removeNaptPortPool(String poolName) {
+        DeleteIdPoolInput deleteIdPoolInput = new DeleteIdPoolInputBuilder().setPoolName(poolName).build();
+        LOG.debug("NAPT Service : Remove Napt port pool requested for : {}", poolName);
+        try {
+            Future<RpcResult<Void>> result = idManager.deleteIdPool(deleteIdPoolInput);
+            if ((result != null) && (result.get().isSuccessful())) {
+                LOG.debug("NAPT Service : Deleted PortPool {}", poolName);
+            } else {
+                LOG.error("NAPT Service : Unable to delete PortPool {}", poolName);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to delete PortPool {} for NAPT Service", poolName, e);
+        }
+    }
+
      // 1. napt service functions
      /**
       * this method is used to inform this service of what external IP address to be used
@@ -141,11 +149,38 @@ public class NaptManager  {
         if(external.getPrefixLength() != 0) {
             externalIp =  new StringBuilder(64).append(external.getIpAddress()).append("/").append(external.getPrefixLength()).toString();
         }
+        updateCounter(segmentId, externalIp, true);
+        //update the actual ip-map
         IpMap ipm = new IpMapBuilder().setKey(new IpMapKey(internalIp)).setInternalIp(internalIp).setExternalIp(externalIp).build();
         MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, getIpMapIdentifier(segmentId, internalIp), ipm);
         LOG.debug("NAPT Service : registerMapping exit after updating DS with internalIP {}, externalIP {}", internalIp, externalIp);
      }
 
+      public void updateCounter(long segmentId, String externalIp, boolean isAdd){
+          short counter = 0;
+          InstanceIdentifier<ExternalIpCounter> id = InstanceIdentifier.builder(ExternalIpsCounter.class).child(ExternalCounters.class, new ExternalCountersKey(segmentId)).child(ExternalIpCounter.class, new ExternalIpCounterKey(externalIp)).build();
+          Optional <ExternalIpCounter> externalIpCounter = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
+          if (externalIpCounter.isPresent()) {
+              counter = externalIpCounter.get().getCounter();
+              if(isAdd){
+                  counter++;
+                  LOG.debug("NAT Service : externalIp and counter after increment are {} and {}", externalIp, counter);
+              }else{
+                  if(counter > 0){
+                    counter--;
+                  }
+                  LOG.debug("NAT Service : externalIp and counter after decrement are {} and {}", externalIp, counter);
+              }
+
+          }else if(isAdd){
+              counter = 1;
+          }
+
+          //update the new counter value for this externalIp
+          ExternalIpCounter externalIpCounterData = new ExternalIpCounterBuilder().setKey(new ExternalIpCounterKey(externalIp)).setExternalIp(externalIp).setCounter(counter).build();
+          MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, getExternalIpsIdentifier(segmentId, externalIp), externalIpCounterData);
+
+      }
 
      /**
       * method to get external ip/port mapping when provided with internal ip/port pair
@@ -169,7 +204,7 @@ public class NaptManager  {
          String internalIpPort = new StringBuilder(64).append(sourceAddress.getIpAddress()).append(":").append(sourceAddress.getPortNumber()).toString();
 
          // First check existing Port Map.
-         SessionAddress existingIpPort = checkIpPortMap(segmentId, internalIpPort ,protocol);
+         SessionAddress existingIpPort = checkIpPortMap(segmentId, internalIpPort, protocol);
          if(existingIpPort != null) {
              // populate externalIpPort from IpPortMap and return
              LOG.debug("NAPT Service : getExternalAddressMapping successfully returning existingIpPort as {} and {}", existingIpPort.getIpAddress(), existingIpPort.getPortNumber());
@@ -266,7 +301,8 @@ public class NaptManager  {
                          IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
                          IntIpProtoType intIpProtocolType = builder.setKey(new IntIpProtoTypeKey(protocolType)).setPorts(portList).build();
                          try {
-                             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, NatUtil.buildSnatIntIpPortIdentifier(segmentId, internalIpAddress, protocolType), intIpProtocolType);
+                             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
+                                     NatUtil.buildSnatIntIpPortIdentifier(segmentId, internalIpAddress, protocolType), intIpProtocolType);
                          } catch (Exception ex) {
                              LOG.error("NAPT Service : Failed to write into snat-internal-ip-port-info with exception {}", ex.getMessage() );
                          }
@@ -374,6 +410,8 @@ public class NaptManager  {
      public boolean removeMapping(long segmentId) {
          try {
              removeIpMappingForRouterID(segmentId);
+             removeIpPortMappingForRouterID(segmentId);
+             removeIntIpPortMappingForRouterID(segmentId);
          } catch (Exception e){
              LOG.error("NAPT Service : Removal of  IPMapping for router {} failed {}" , segmentId, e);
              return false;
@@ -390,8 +428,14 @@ public class NaptManager  {
          return id;
      }
 
+     protected InstanceIdentifier<ExternalIpCounter> getExternalIpsIdentifier(long segmentId, String external) {
+         InstanceIdentifier<ExternalIpCounter> id = InstanceIdentifier.builder(ExternalIpsCounter.class).child(ExternalCounters.class, new ExternalCountersKey(segmentId))
+                 .child(ExternalIpCounter.class, new ExternalIpCounterKey(external)).build();
+         return id;
+     }
+
     public static List<IpMap> getIpMapList(DataBroker broker, Long routerId) {
-        InstanceIdentifier id = getIpMapList(routerId);
+        InstanceIdentifier<IpMapping> id = getIpMapList(routerId);
         Optional<IpMapping> ipMappingListData = NatUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
         if (ipMappingListData.isPresent()) {
             IpMapping ipMapping = ipMappingListData.get();
@@ -509,13 +553,17 @@ public class NaptManager  {
 
     protected void removeFromIpPortMapDS(long segmentId, String internalIpPort, NAPTEntryEvent.Protocol protocol) {
          ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
-         InstanceIdentifierBuilder<IpPortMap> idBuilder = InstanceIdentifier.builder(IntextIpPortMap.class)
-                 .child(IpPortMapping.class, new IpPortMappingKey(segmentId)).child(IntextIpProtocolType.class, new IntextIpProtocolTypeKey(protocolType))
-                 .child(IpPortMap.class, new IpPortMapKey(internalIpPort));
-         InstanceIdentifier<IpPortMap> id = idBuilder.build();
-         // remove from ipportmap DS
-         LOG.debug("NAPT Service : Removing ipportmap from datastore : {}", id);
-         MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
+         removeFromIpPortMapDS(segmentId, internalIpPort, protocolType);
+    }
+
+    protected void removeFromIpPortMapDS(long segmentId, String internalIpPort, ProtocolTypes protocolType) {
+        InstanceIdentifierBuilder<IpPortMap> idBuilder = InstanceIdentifier.builder(IntextIpPortMap.class)
+                .child(IpPortMapping.class, new IpPortMappingKey(segmentId)).child(IntextIpProtocolType.class, new IntextIpProtocolTypeKey(protocolType))
+                .child(IpPortMap.class, new IpPortMapKey(internalIpPort));
+        InstanceIdentifier<IpPortMap> id = idBuilder.build();
+        // remove from ipportmap DS
+        LOG.debug("NAPT Service : Removing ipportmap from datastore : {}", id);
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
     }
 
      protected void removeFromIpMapDS(long segmentId, String internalIp) {
@@ -523,21 +571,65 @@ public class NaptManager  {
                  .child(IpMapping.class, new IpMappingKey(segmentId))
                  .child(IpMap.class, new IpMapKey(internalIp));
          InstanceIdentifier<IpMap> id = idBuilder.build();
-         // remove from ipmap DS
-         LOG.debug("NAPT Service : Removing ipmap from datastore : {}", id);
-         MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
+         // Get externalIp and decrement the counter
+         String externalIp = null;
+         Optional<IpMap> ipMap = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
+         if (ipMap.isPresent()) {
+             externalIp = ipMap.get().getExternalIp();
+             LOG.debug("NAT Service : externalIP is {}", externalIp);
+         }else{
+             LOG.warn("NAT Service : ipMap not present for the internal IP {}", internalIp);
+         }
+
+         if(externalIp!=null) {
+             updateCounter(segmentId, externalIp, false);
+             // remove from ipmap DS
+             LOG.debug("NAPT Service : Removing ipmap from datastore");
+             MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
+         }else{
+             LOG.warn("NAT Service : externalIp not present for the internal IP {}", internalIp);
+         }
      }
 
     private void removeIpMappingForRouterID(long segmentId) {
         InstanceIdentifierBuilder<IpMapping> idBuilder = InstanceIdentifier.builder(IntextIpMap.class)
                 .child(IpMapping.class, new IpMappingKey(segmentId));
         InstanceIdentifier<IpMapping> id = idBuilder.build();
+        // Get all externalIps and decrement their counters before deleting the ipmap
+        String externalIp = null;
+        Optional<IpMapping> ipMapping = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        if (ipMapping.isPresent()) {
+              List<IpMap> ipMaps = ipMapping.get().getIpMap();
+              for (IpMap ipMap : ipMaps) {
+                  externalIp = ipMap.getExternalIp();
+                  LOG.debug("NAT Service : externalIP is {}", externalIp);
+                  if(externalIp!=null) {
+                      updateCounter(segmentId, externalIp, false);
+                  }
+              }
+        }
         // remove from ipmap DS
-        LOG.debug("NAPT Service : Removing ipmap from datastore : {}", id);
+        LOG.debug("NAPT Service : Removing Ipmap for router {} from datastore",segmentId);
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
-     protected void removePortFromPool(String internalIpPort, String externalIp) {
+    void removeIpPortMappingForRouterID(long segmentId) {
+        InstanceIdentifier<IpPortMapping> idBuilder = InstanceIdentifier.builder(IntextIpPortMap.class)
+                .child(IpPortMapping.class, new IpPortMappingKey(segmentId)).build();
+        // remove from IntExtIpPortmap DS
+        LOG.debug("NAPT Service : Removing IntExtIpPort map for router {} from datastore",segmentId);
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, idBuilder);
+    }
+
+    void removeIntIpPortMappingForRouterID(long segmentId) {
+        InstanceIdentifier<IntipPortMap> intIp = InstanceIdentifier.builder(SnatintIpPortMap.class).child
+                (IntipPortMap.class, new IntipPortMapKey(segmentId)).build();
+        // remove from SnatIntIpPortmap DS
+        LOG.debug("NAPT Service : Removing SnatIntIpPort from datastore : {}", intIp);
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, intIp);
+    }
+
+     void removePortFromPool(String internalIpPort, String externalIp) {
          LOG.debug("NAPT Service : removePortFromPool method called");
          ReleaseIdInput idInput = new ReleaseIdInputBuilder().
                                         setPoolName(externalIp)
@@ -553,4 +645,43 @@ public class NaptManager  {
              LOG.error("NAPT Service : idmanager failed with Exception {} when removing entry in pool with key {}, ", e, internalIpPort);
          }
      }
+
+    protected void initialiseExternalCounter(Routers routers, long routerId){
+        LOG.debug("NAPT Service : Initialise External IPs counter");
+        List<String> externalIps = routers.getExternalIps();
+
+        //update the new counter value for this externalIp
+        for(String externalIp : externalIps) {
+            String[] IpSplit = externalIp.split("/");
+            String extIp = IpSplit[0];
+            String extPrefix = Short.toString(NatConstants.DEFAULT_PREFIX);
+            if(IpSplit.length==2) {
+                extPrefix = IpSplit[1];
+            }
+            extIp = extIp + "/" + extPrefix;
+            initialiseNewExternalIpCounter(routerId, extIp);
+        }
+    }
+
+    protected void initialiseNewExternalIpCounter(long routerId, String ExternalIp){
+        ExternalIpCounter externalIpCounterData = new ExternalIpCounterBuilder().setKey(new ExternalIpCounterKey(ExternalIp)).
+                setExternalIp(ExternalIp).setCounter((short) 0).build();
+        MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, getExternalIpsIdentifier(routerId, ExternalIp), externalIpCounterData);
+    }
+
+    protected void removeExternalCounter(long routerId){
+        // Remove from external-counters model
+        InstanceIdentifier<ExternalCounters> id = InstanceIdentifier.builder(ExternalIpsCounter.class).child(ExternalCounters.class, new ExternalCountersKey(routerId)).build();
+        LOG.debug("NAPT Service : Removing ExternalCounterd from datastore");
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
+    }
+
+    protected void removeExternalIpCounter(long routerId, String externalIp){
+        // Remove from external-counters model
+        InstanceIdentifier<ExternalIpCounter> id = InstanceIdentifier.builder(ExternalIpsCounter.class).child(ExternalCounters.class,
+                new ExternalCountersKey(routerId)).child(ExternalIpCounter.class, new ExternalIpCounterKey(externalIp)).build();
+        LOG.debug("NAPT Service : Removing ExternalIpsCounter from datastore");
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
+    }
+
 }

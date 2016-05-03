@@ -128,11 +128,33 @@ module odl-nat {
          }
      }
 
+     container router-to-vpn-mapping {
+         list routermapping {
+             key router-name;
+             leaf router-name { type string; }
+             leaf vpn-id { type uint32; }
+             leaf vpn-name { type string; }
+         }
+     }
+
      container router-id-name {
        list routerIds {
            key router-id;
            leaf router-id {type uint32;}
            leaf router-name { type string; }
        }
+    }
+
+    container external-ips-counter {
+        config false;
+        list external-counters{
+            key segment-id;
+            leaf segment-id { type uint32; }
+            list external-ip-counter {
+                key external-ip;
+                leaf external-ip { type string; }
+                leaf counter { type uint8; }
+            }
+        }
     }
 }

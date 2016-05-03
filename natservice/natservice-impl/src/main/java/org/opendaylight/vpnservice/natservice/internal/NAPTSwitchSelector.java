@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev16
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.NaptSwitchesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.napt.switches.RouterToNaptSwitchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +49,9 @@ public class NAPTSwitchSelector {
         LOG.info("NAT Service : Select a new NAPT switch for router {}", routerName);
         Map<BigInteger, Integer> naptSwitchWeights = constructNAPTSwitches();
         List<BigInteger> routerSwitches = getDpnsForVpn(routerName);
-        if(routerSwitches.isEmpty()) {
-            LOG.debug("NAT Service : No dpns that are part of router {}", routerName);
-            LOG.warn("NAT Service : NAPT switch selection stopped due to no dpns scenario for router {}", routerName);
+        if(routerSwitches == null || routerSwitches.isEmpty()) {
+            LOG.debug("NAT Service : No switches are part of router {}", routerName);
+            LOG.error("NAT Service : NAPT SWITCH SELECTION STOPPED DUE TO NO DPNS SCENARIO FOR ROUTER {}", routerName);
             return BigInteger.ZERO;
         }
 
@@ -70,7 +71,6 @@ public class NAPTSwitchSelector {
             LOG.debug("NAT Service : Current switch weights for router {} - {}", routerName, switchWeights);
 
             Iterator<SwitchWeight> it = switchWeights.iterator();
-            List<RouterToNaptSwitch> routerToNaptSwitchList = new ArrayList<>();
             RouterToNaptSwitchBuilder routerToNaptSwitchBuilder = new RouterToNaptSwitchBuilder().setRouterName(routerName);
             if ( switchWeights.size() == 1 )
             {
@@ -79,10 +79,9 @@ public class NAPTSwitchSelector {
                     singleSwitchWeight = it.next();
                 }
                 primarySwitch = singleSwitchWeight.getSwitch();
-                routerToNaptSwitchBuilder.setPrimarySwitchId(primarySwitch);
-                routerToNaptSwitchList.add(routerToNaptSwitchBuilder.build());
-                NaptSwitches naptSwitches = new NaptSwitchesBuilder().setRouterToNaptSwitch(routerToNaptSwitchList).build();
-                MDSALUtil.syncWrite( dataBroker, LogicalDatastoreType.OPERATIONAL, getNaptSwitchesIdentifier(), naptSwitches);
+                RouterToNaptSwitch id = routerToNaptSwitchBuilder.setPrimarySwitchId(primarySwitch).build();
+                
+                MDSALUtil.syncWrite( dataBroker, LogicalDatastoreType.OPERATIONAL, getNaptSwitchesIdentifier(routerName), id);
 
                 LOG.debug( "NAT Service : successful addition of RouterToNaptSwitch to napt-switches container for single switch" );
                 return primarySwitch;
@@ -94,10 +93,9 @@ public class NAPTSwitchSelector {
                     firstSwitchWeight = it.next();
                 }
                 primarySwitch = firstSwitchWeight.getSwitch();
-                routerToNaptSwitchBuilder.setPrimarySwitchId(primarySwitch);
-                routerToNaptSwitchList.add(routerToNaptSwitchBuilder.build());
-                NaptSwitches naptSwitches = new NaptSwitchesBuilder().setRouterToNaptSwitch(routerToNaptSwitchList).build();
-                MDSALUtil.syncWrite( dataBroker, LogicalDatastoreType.OPERATIONAL, getNaptSwitchesIdentifier(), naptSwitches);
+                RouterToNaptSwitch id = routerToNaptSwitchBuilder.setPrimarySwitchId(primarySwitch).build();
+                
+                MDSALUtil.syncWrite( dataBroker, LogicalDatastoreType.OPERATIONAL, getNaptSwitchesIdentifier(routerName), id);
 
                 LOG.debug( "NAT Service : successful addition of RouterToNaptSwitch to napt-switches container");
                 return primarySwitch;
@@ -139,9 +137,16 @@ public class NAPTSwitchSelector {
         return InstanceIdentifier.create(NaptSwitches.class);
     }
 
-    public List<BigInteger> getDpnsForVpn(String routerName ) {
-        LOG.debug( "getVpnToDpnList called for RouterName {}", routerName );
+    private InstanceIdentifier<RouterToNaptSwitch> getNaptSwitchesIdentifier(String routerName) {
+        return InstanceIdentifier.builder(NaptSwitches.class).child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
+    }
 
+    public List<BigInteger> getDpnsForVpn(String routerName ) {
+        LOG.debug( "NAT Service : getVpnToDpnList called for RouterName {}", routerName );
+        long bgpVpnId = NatUtil.getBgpVpnId(dataBroker, routerName);
+        if(bgpVpnId != NatConstants.INVALID_ID){
+            return NatUtil.getDpnsForRouter(dataBroker, routerName);
+        }
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(routerName))
                 .build();
@@ -150,7 +155,7 @@ public class NAPTSwitchSelector {
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
 
         if(vpnInstanceOpData.isPresent()) {
-            LOG.debug( "NATService : getVpnToDpnList able to fetch vpnInstanceOpData" );
+            LOG.debug( "NAT Service : getVpnToDpnList able to fetch vpnInstanceOpData" );
             VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnInstanceOpData.get();
             List<VpnToDpnList> vpnDpnList = vpnInstanceOpDataEntry.getVpnToDpnList();
             if(vpnDpnList != null) {
@@ -160,8 +165,19 @@ public class NAPTSwitchSelector {
             }
         }
 
-        LOG.debug( "getVpnToDpnList returning vpnDpnList {}", dpnsInVpn);
+        if(dpnsInVpn == null || dpnsInVpn.isEmpty()) {
+            LOG.debug("NAT Service : Unable to get the switches for the router {} from the VPNInstanceOpData", routerName);
+            dpnsInVpn = NatUtil.getDpnsForRouter(dataBroker, routerName);
+            if(dpnsInVpn == null || dpnsInVpn.isEmpty()){
+                LOG.debug("NAT Service : No switches are part of router {}", routerName);
+                return dpnsInVpn;
+            }
+        }
+
+        LOG.debug( "NAT Service : getVpnToDpnList returning vpnDpnList {}", dpnsInVpn);
         return dpnsInVpn;
+
+
     }
 
     private static class SwitchWeight implements Comparable<SwitchWeight>

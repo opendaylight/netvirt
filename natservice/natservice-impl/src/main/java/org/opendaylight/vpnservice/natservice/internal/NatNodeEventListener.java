@@ -58,12 +58,10 @@ public class NatNodeEventListener extends AbstractDataChangeListener<Node> imple
         }
         BigInteger dpnId = new BigInteger(node[1]);
         LOG.debug("NodeId removed is {}",dpnId);
-        naptSwitchHA.handleNaptSwitchDown(dpnId);
     }
 
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
-        LOG.trace("NatNodeEventListener: Node update received");
     }
 
     @Override

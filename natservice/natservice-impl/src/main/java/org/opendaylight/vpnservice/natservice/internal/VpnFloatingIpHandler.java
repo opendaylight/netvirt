@@ -113,11 +113,11 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NatConstants.PDNAT_TABLE) }));
                     instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos).buildInstruction(0));
                     makeTunnelTableEntry(dpnId, label, instructions);
-                    makeLFibTableEntry(dpnId, label, instructions);
 
                     //Install custom FIB routes
                     List<Instruction> customInstructions = new ArrayList<>();
                     customInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.PDNAT_TABLE }).buildInstruction(0));
+                    makeLFibTableEntry(dpnId, label, NatConstants.PDNAT_TABLE);
                     CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(dpnId).setInstruction(customInstructions)
                             .setIpAddress(externalIp + "/32").setServiceId(label).setInstruction(customInstructions).build();
                     //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
@@ -294,7 +294,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         mdsalManager.installFlow(dpnId, terminatingServiceTableFlowEntity);
     }
 
-    private void makeLFibTableEntry(BigInteger dpId, long serviceId, List<Instruction> customInstructions) {
+    private void makeLFibTableEntry(BigInteger dpId, long serviceId, long tableId) {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x8847L }));
@@ -303,9 +303,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         List<Instruction> instructions = new ArrayList<Instruction>();
         List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
         actionsInfos.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
-        Instruction writeInstruction = new InstructionInfo(InstructionType.write_actions, actionsInfos).buildInstruction(0);
+        Instruction writeInstruction = new InstructionInfo(InstructionType.apply_actions, actionsInfos).buildInstruction(0);
         instructions.add(writeInstruction);
-        instructions.addAll(customInstructions);
+        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]{tableId}).buildInstruction(1));
 
         // Install the flow entry in L3_LFIB_TABLE
         String flowRef = getFlowRef(dpId, NwConstants.L3_LFIB_TABLE, serviceId, "");
