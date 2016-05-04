@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "fa57193c_a2f33772",
+        "filename": "routemgr/routemgr-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-04T12:51:04Z",
+      "side": 1,
+      "message": "this should not be needed",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_6290ffec",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-04T12:51:04Z",
+      "side": 1,
+      "message": "these should be null by default",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_62aabf71",
         "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
         "patchSetId": 1
@@ -36,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_e249af8c",
+        "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-04T12:51:04Z",
+      "side": 1,
+      "message": "Yes, a constant is better. Is there a trigger that can be used to know the packet has been processed?",
+      "parentUuid": "fa57193c_a2bb37c3",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_62c11f2e",
         "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
         "patchSetId": 1
@@ -47,6 +99,23 @@
       "writtenOn": "2016-05-04T11:34:39Z",
       "side": 1,
       "message": "The test-cases look good. I have a suggestion/question.\n\nDo you think we can use the NeighborSolicitationPacketBuilder instead of the buffer/pktArray?\n\nThe common fields of the packet can be framed/built in the initTest method and we can override the necessary fields of the packets in the respective test cases. This is mainly to improve the readability and will allow us to easily add new tests going forward (in the current state, the buffer is a bit hard to decipher). I\u0027ll leave it to you to decide.\n\nThanks for the patch.",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_e2408f58",
+        "filename": "routemgr/routemgr-impl/src/test/resources/simplelogger.properties",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-04T12:51:04Z",
+      "side": 1,
+      "message": "Is this needed? Are you just trying to bump the logging to debug level rather than the default info?",
       "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
