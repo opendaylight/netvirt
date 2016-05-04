@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Vratko Polák <vrpolak@cisco.com>
+Code-Review+2: Prem Sankar <prem.sankar.g@ericsson.com>
+Submitted-by: Prem Sankar <prem.sankar.g@ericsson.com>
+Submitted-at: Wed, 23 Sep 2015 15:27:32 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/27344
+Project: netvirt
+Branch: refs/heads/master

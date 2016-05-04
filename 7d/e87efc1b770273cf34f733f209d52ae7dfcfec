@@ -1,0 +1,8 @@
+Code-Review+1: Bhalaji Narayanan <narayanan.bhalaji@ericsson.com>
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Vishal Thapar <vishal.thapar@ericsson.com>
+Submitted-by: Vishal Thapar <vishal.thapar@ericsson.com>
+Submitted-at: Wed, 30 Dec 2015 16:23:48 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/31950
+Project: netvirt
+Branch: refs/heads/master
