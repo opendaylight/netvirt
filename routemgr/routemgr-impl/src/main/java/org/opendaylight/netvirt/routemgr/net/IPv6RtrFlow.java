@@ -130,8 +130,11 @@ public class IPv6RtrFlow {
         controller without really checking if the network has an IPv6 subnet. This needs
         to be optimized in future patchsets.
          */
-        programIcmpv6Flow(dpId, nodeIid, ICMPv6_TO_CONTROLLER_RS_FLOW, ICMPv6_TYPE_RS);
-        programIcmpv6Flow(dpId, nodeIid, ICMPv6_TO_CONTROLLER_NS_FLOW, ICMPv6_TYPE_NS);
+        String flowName = ICMPv6_TO_CONTROLLER_RS_FLOW + "_" + ICMPv6_TYPE_RS;
+        programIcmpv6Flow(dpId, nodeIid, flowName, ICMPv6_TYPE_RS);
+
+        flowName = ICMPv6_TO_CONTROLLER_NS_FLOW + "_" + ICMPv6_TYPE_NS;
+        programIcmpv6Flow(dpId, nodeIid, flowName, ICMPv6_TYPE_NS);
     }
 
 /***
@@ -218,7 +221,7 @@ public class IPv6RtrFlow {
         icmpv6Flow.setMatch(matchBuilder.build());
         icmpv6Flow.setInstructions(new InstructionsBuilder().setInstruction(
                 ImmutableList.of(sendToControllerInstruction)).build());
-        icmpv6Flow.setId(createFlowId(nodeIid, flowName));
+        icmpv6Flow.setId(new FlowId(flowName));
         return icmpv6Flow.build();
     }
 
