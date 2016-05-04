@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_c43118ee",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/utils/RoutemgrUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-05-04T16:09:26Z",
+      "side": 1,
+      "message": "This should be logged instead.",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_62aabf71",
         "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
         "patchSetId": 1
@@ -88,6 +105,23 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_a426a414",
+        "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-05-04T16:09:26Z",
+      "side": 1,
+      "message": "With the sleep before the verify(), this is inherently racy and could result in unstable runs with false positives. Is there any way we could wait reliably for the processing to take place (whatever it ends up being)?",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_62c11f2e",
         "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
         "patchSetId": 1
@@ -99,6 +133,41 @@
       "writtenOn": "2016-05-04T11:34:39Z",
       "side": 1,
       "message": "The test-cases look good. I have a suggestion/question.\n\nDo you think we can use the NeighborSolicitationPacketBuilder instead of the buffer/pktArray?\n\nThe common fields of the packet can be framed/built in the initTest method and we can override the necessary fields of the packets in the respective test cases. This is mainly to improve the readability and will allow us to easily add new tests going forward (in the current state, the buffer is a bit hard to decipher). I\u0027ll leave it to you to decide.\n\nThanks for the patch.",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_c448f85d",
+        "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-05-04T16:09:26Z",
+      "side": 1,
+      "message": "Another approach could be to store the packets in files on disk, so they can be viewed with Wireshark and tweaked that way.",
+      "parentUuid": "fa57193c_62c11f2e",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_24757498",
+        "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-05-04T16:09:26Z",
+      "side": 1,
+      "message": "Nitpick: please remove the space at the end.",
       "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
