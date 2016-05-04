@@ -1,0 +1,88 @@
+module itm {
+
+    namespace "urn:opendaylight:vpnservice:itm";
+
+    prefix itm;
+
+    import ietf-interfaces {
+        prefix if;
+    }
+    import ietf-yang-types {
+        prefix yang;
+    }
+    import ietf-inet-types {
+        prefix inet;
+        revision-date "2010-09-24";
+    }
+    
+    import odl-interface {
+        prefix odlif;
+    }
+    
+    
+    import config { prefix config; revision-date 2013-04-05; }
+
+    description "This YANG module defines tunnel configuration.";
+    revision "2015-07-01";
+
+    /* Configuration data */
+
+    container transport-zones {
+      list transport-zone {
+      ordered-by user;
+        key zone-name;
+        leaf zone-name {
+            type string;
+        }
+        leaf tunnel-type {
+            type identityref {
+                base odlif:tunnel-type-base;
+            }
+        }
+
+        list subnets {
+            key "prefix";
+            leaf prefix {
+                type inet:ip-prefix;
+            }
+            leaf gateway-ip {
+                type inet:ip-address;
+            }
+            leaf vlan-id {
+                type uint16{
+                range "0..4094";
+            }
+            }
+            list vteps {
+                key "dpn-id portname";
+                leaf dpn-id {
+                    type uint64;
+                }
+                leaf portname {
+                    type string;
+                }
+                leaf ip-address {
+                    type inet:ip-address;
+                }
+            }
+             list device-vteps {
+              key "node-id ip-address";
+                     leaf topology-id {
+                        type string;
+                     }
+                     leaf node-id {
+                       type string;
+                     }
+                     leaf ip-address {
+                     type inet:ip-address;
+                   }
+           }
+
+        }
+      }
+    }
+    identity itm {
+        base "config:service-type";
+        config:java-class "org.opendaylight.vpnservice.itm.api.IITMProvider";
+    }
+}

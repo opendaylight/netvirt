@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>org.opendaylight.vpnservice</groupId>
+        <artifactId>config-parent</artifactId>
+        <version>0.3.0-SNAPSHOT</version>
+        <relativePath>../../commons/config-parent</relativePath>
+     </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.opendaylight.vpnservice</groupId>
+    <artifactId>mdsalutil-api</artifactId>
+    <version>0.3.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin.model</groupId>
+            <artifactId>model-flow-base</artifactId>
+            <version>${openflowplugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin.model</groupId>
+            <artifactId>model-flow-service</artifactId>
+            <version>${openflowplugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>liblldp</artifactId>
+            <version>${liblldp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin</groupId>
+            <artifactId>openflowplugin-extension-nicira</artifactId>
+            <version>${openflowplugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin</groupId>
+            <artifactId>openflowjava-extension-nicira</artifactId>
+            <version>${openflowplugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.ovsdb</groupId>
+            <artifactId>hwvtepsouthbound-api</artifactId>
+            <version>${vpns.ovsdb.version}</version>
+        </dependency>
+
+    </dependencies>
+</project>

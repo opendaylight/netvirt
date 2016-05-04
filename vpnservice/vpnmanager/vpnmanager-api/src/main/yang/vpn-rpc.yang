@@ -1,0 +1,39 @@
+module vpn-rpc {
+    namespace "urn:opendaylight:vpnservice:vpn:rpc";
+    prefix "vpn-rpc";
+
+    revision "2016-02-01" {
+        description "VPN Service RPC Module";
+    }
+
+    /* RPCs */
+
+    rpc generate-vpn-label {
+        description "to generate label for the given ip prefix from the associated VPN";
+        input {
+            leaf vpn-name {
+                type string;
+            }
+            leaf ip-prefix {
+                type string;
+            }
+        }
+        output {
+            leaf label {
+                type uint32;
+            }
+        }
+    }
+
+    rpc remove-vpn-label {
+        description "to remove label for the given ip prefix from the associated VPN";
+        input {
+            leaf vpn-name {
+                type string;
+            }
+            leaf ip-prefix {
+                type string;
+            }
+        }
+    }
+}

@@ -1,0 +1,61 @@
+module nexthopmgr-impl {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:nexthopmgr:impl";
+    prefix "nexthopmgr-impl";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+    import odl-mdsalutil { prefix odl-mdsal; revision-date 2015-04-10;}
+    import odl-interface {prefix odlif; revision-date 2015-03-31;}
+
+    description
+        "Service definition for nexthopmgr project";
+
+    revision "2015-03-25" {
+        description
+            "Initial revision";
+    }
+
+    identity nexthopmgr-impl {
+        base config:module-type;
+        config:java-name-prefix NexthopmgrImpl;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case nexthopmgr-impl {
+            when "/config:modules/config:module/config:type = 'nexthopmgr-impl'";
+            container broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-broker-osgi-registry;
+                    }
+                }
+            }
+            container mdsalutil {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity odl-mdsal:odl-mdsalutil;
+                    }
+                }
+            }
+            container odlinterface {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity odlif:odl-interface;
+                    }
+                }
+            }
+            container rpc-registry {
+                 uses config:service-ref {
+                      refine type {
+                         mandatory true;
+                         config:required-identity md-sal-binding:binding-rpc-registry;
+                      }
+                 }
+            }
+        }
+    }
+}

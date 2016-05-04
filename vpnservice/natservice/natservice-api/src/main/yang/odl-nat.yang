@@ -1,0 +1,160 @@
+module odl-nat {
+    namespace "urn:opendaylight:vpnservice:natservice";
+    prefix odl-nat;
+
+    import ietf-yang-types { prefix "yang"; /*revision-date 2013-07-15; */}
+    import ietf-inet-types { prefix "inet"; }
+
+    revision "2016-01-11" {
+        description "NAT Manager module";
+    }
+
+    container external-networks {
+        list networks  {
+            key id;
+            leaf id {
+                type yang:uuid;
+            }
+            leaf vpnid { type yang:uuid; }
+            leaf-list router-ids { type yang:uuid; }
+        }
+   }
+
+   container ext-routers {
+       list routers {
+           key router-name;
+           leaf router-name { type string; }
+           leaf network-id { type yang:uuid; }
+           leaf enable-snat { type boolean; }
+           leaf-list external-ips {
+                type string; //format - ipaddress\prefixlength
+           }
+           leaf-list subnet-ids { type yang:uuid; }
+           leaf ext_gw_mac_address { type string; }
+       }
+   }
+
+
+    grouping external-interface-info {
+        leaf internal-ip { type string; }
+        leaf external-ip { type string; }
+        leaf label { type uint16; config false; }
+    }
+
+    container floating-ip-info {
+        config true;
+        list router-ports {
+            key router-id;
+            leaf router-id { type string; }
+            leaf external-network-id { type yang:uuid; }
+            list ports {
+                key port-name;
+                leaf port-name { type string; }
+                list ip-mapping {
+                    key "internal-ip";
+                    uses external-interface-info;
+                }
+            }
+        }
+    }
+
+    container napt-switches {
+        list router-to-napt-switch {
+            key router-name;
+            leaf router-name { type string; }
+            leaf primary-switch-id { type uint64; }
+        }
+    }
+
+    grouping ip-port-entity {
+        leaf ip-address { type string; }
+        leaf port-num { type uint16; }
+    }
+
+    typedef protocol-types {
+        type enumeration {
+              enum TCP;
+              enum UDP;
+        }
+    }
+
+    container intext-ip-port-map {
+        config true;
+        list ip-port-mapping {
+            key router-id;
+            leaf router-id { type uint32; }
+            list intext-ip-protocol-type {
+                key protocol;
+                leaf protocol { type protocol-types; }
+                list ip-port-map {
+                    key ip-port-internal;
+                    description "internal to external ip-port mapping";
+                    leaf ip-port-internal { type string; }
+                    container ip-port-external {
+                       uses ip-port-entity;
+                    }
+                }
+            }
+         }
+    }
+
+    container snatint-ip-port-map {
+        list intip-port-map {
+            key router-id;
+            leaf router-id { type uint32; }
+            list ip-port {
+                key internal-ip;
+                leaf internal-ip { type string; }
+                list int-ip-proto-type {
+                    key protocol;
+                    leaf protocol { type protocol-types; }
+                    leaf-list ports { type uint16; }
+                }
+            }
+        }
+    }
+
+     container intext-ip-map {
+         config false;
+         list ip-mapping {
+             key segment-id;
+             leaf segment-id { type uint32; }
+             list ip-map {
+                 key internal-ip;
+                 leaf internal-ip { type string; }
+                 leaf external-ip { type string; }
+                 leaf label {type uint32;}
+             }
+         }
+     }
+
+     container router-to-vpn-mapping {
+         list routermapping {
+             key router-name;
+             leaf router-name { type string; }
+             leaf vpn-id { type uint32; }
+             leaf vpn-name { type string; }
+         }
+     }
+
+     container router-id-name {
+       list routerIds {
+           key router-id;
+           leaf router-id {type uint32;}
+           leaf router-name { type string; }
+       }
+    }
+
+    container external-ips-counter {
+        config false;
+        list external-counters{
+            key segment-id;
+            leaf segment-id { type uint32; }
+            list external-ip-counter {
+                key external-ip;
+                leaf external-ip { type string; }
+                leaf counter { type uint8; }
+            }
+        }
+    }
+}

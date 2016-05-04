@@ -1,0 +1,80 @@
+module itm-impl {
+    yang-version 1;
+    namespace "urn:opendaylight:vpnservice:itm:impl";
+    prefix "itm-impl";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+    import opendaylight-sal-binding-broker-impl { prefix md-sal-binding-impl; revision-date 2013-10-28;}
+    import odl-mdsalutil { prefix odl-mdsal; revision-date 2015-04-10;}
+    import odl-interface {prefix odlif; revision-date 2015-03-31;}
+    import itm { prefix itm; revision-date 2015-07-01;}
+
+    description
+        "Service definition for itm project";
+
+    revision "2014-12-10" {
+        description
+            "Initial revision";
+    }
+
+    identity itm {
+        base config:module-type;
+        config:provided-service itm:itm;
+        config:java-name-prefix Itm;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case itm {
+            when "/config:modules/config:module/config:type = 'itm'";
+            container broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-broker-osgi-registry;
+                    }
+                }
+            }
+            container odlinterface {
+                 uses config:service-ref {
+                     refine type {
+                         mandatory true;
+                         config:required-identity odlif:odl-interface;
+                     }
+                 }
+            }
+            container mdsalutil {
+                    uses config:service-ref {
+                        refine type {
+                            mandatory true;
+                            config:required-identity odl-mdsal:odl-mdsalutil;
+                        }
+                    }
+                }
+                container notification-publish-service {
+                    uses config:service-ref {
+                        refine type {
+                            mandatory true;
+                            config:required-identity md-sal-binding-impl:binding-new-notification-publish-service;
+                        }
+                    }
+                }
+                container rpcregistry {
+                    uses config:service-ref {
+                        refine type {
+                            mandatory true;
+                            config:required-identity md-sal-binding:binding-rpc-registry;
+                        }
+                    }
+            }
+                container notification-service {
+                    uses config:service-ref {
+                        refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding-impl:binding-new-notification-service;
+                    }
+                }
+            }
+        }
+    }
+}
