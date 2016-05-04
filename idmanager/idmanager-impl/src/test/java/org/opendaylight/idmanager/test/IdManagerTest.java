@@ -162,11 +162,12 @@ public class IdManagerTest {
     public void testAllocateId() throws Exception
     {
         AllocateIdInput allocateIdInput = buildAllocateId(globalPoolName, idKey);
-        Optional<IdPool> expected = Optional.of(globalIdPool);
         List<IdEntries> idEntries = new ArrayList<IdEntries>();
         idEntries.add(buildIdEntry(idKey2, idValue));
-        Optional<IdPool> expectedLocalPool = Optional.of(buildLocalIdPool(blockSize, localPoolName, globalPoolName).setIdEntries(idEntries).build());
-        doReturn(Futures.immediateCheckedFuture(expected)).when(mockReadTx).read(
+        Optional<IdPool> expectedLocalPool = Optional.of(buildLocalIdPool(blockSize, localPoolName, globalPoolName).build());
+        IdPool globalIdPool = buildGlobalIdPool(globalPoolName, idStart, idEnd, blockSize, buildChildPool(localPoolName)).setIdEntries(idEntries).build();
+        Optional<IdPool> expectedGlobalPool = Optional.of(globalIdPool);
+        doReturn(Futures.immediateCheckedFuture(expectedGlobalPool)).when(mockReadTx).read(
                 LogicalDatastoreType.CONFIGURATION, identifier);
         doReturn(Futures.immediateCheckedFuture(expectedLocalPool)).when(mockReadTx).read(
                 LogicalDatastoreType.CONFIGURATION, childIdentifier);
@@ -185,7 +186,11 @@ public class IdManagerTest {
             assertEquals(idStart, pool.getAvailableIdsHolder().getStart().intValue());
             assertEquals(idStart + blockSize - 1 , pool.getAvailableIdsHolder().getEnd().intValue());
             assertEquals(idStart, pool.getAvailableIdsHolder().getCursor().intValue());
-            assertEquals(2, pool.getIdEntries().size());
+        }
+        dataObject = configDataStore.get(identifier);
+        if (dataObject instanceof IdPool) {
+            IdPool parentPool = (IdPool) dataObject;
+            assertEquals(2, parentPool.getIdEntries().size());
         }
         dataObject = configDataStore.get(availableIdsIdentifier);
         if (dataObject instanceof AvailableIdsHolder) {
@@ -201,7 +206,11 @@ public class IdManagerTest {
         ReleaseIdInput releaseIdInput = createReleaseIdInput(globalPoolName, idKey);
         List<IdEntries> idEntries = new ArrayList<IdEntries>();
         idEntries.add(buildIdEntry(idKey, idValue));
-        Optional<IdPool> expectedLocalPool = Optional.of(buildLocalIdPool(blockSize, localPoolName, globalPoolName).setIdEntries(idEntries).build());
+        Optional<IdPool> expectedLocalPool = Optional.of(buildLocalIdPool(blockSize, localPoolName, globalPoolName).build());
+        IdPool globalIdPool = buildGlobalIdPool(globalPoolName, idStart, idEnd, blockSize, buildChildPool(localPoolName)).setIdEntries(idEntries).build();
+        Optional<IdPool> expectedGlobalPool = Optional.of(globalIdPool);
+        doReturn(Futures.immediateCheckedFuture(expectedGlobalPool)).when(mockReadTx).read(
+                LogicalDatastoreType.CONFIGURATION, identifier);
         doReturn(Futures.immediateCheckedFuture(expectedLocalPool)).when(mockReadTx).read(
                 LogicalDatastoreType.CONFIGURATION, childIdentifier);
         InstanceIdentifier<IdEntries> idEntriesIdentifier = buildIdEntriesIdentifier(idKey);
@@ -214,9 +223,13 @@ public class IdManagerTest {
         DataObject idPoolVal = configDataStore.get(childIdentifier);
         if (idPoolVal instanceof IdPool) {
             IdPool pool = (IdPool) idPoolVal;
-            assertEquals(0, pool.getIdEntries().size());
             assertEquals(0, pool.getReleasedIdsHolder().getAvailableIdCount().intValue());
             assertEquals(idValue, pool.getReleasedIdsHolder().getDelayedIdEntries().get(0).getId().intValue());
+        }
+        idPoolVal = configDataStore.get(identifier);
+        if (idPoolVal instanceof IdPool) {
+            IdPool parentPool = (IdPool) idPoolVal;
+            assertEquals(0, parentPool.getIdEntries().size());
         }
     }
 
@@ -229,9 +242,13 @@ public class IdManagerTest {
         idEntries.add(buildIdEntry(idKey2, idValue));
         ReleasedIdsHolder excessReleasedIds = createReleasedIdsHolder(0, buildDelayedIdEntries(excessIds), (long) 30);
         Optional<IdPool> expectedLocalPool = Optional.of(buildLocalIdPool(blockSize, localPoolName, globalPoolName)
-                .setIdEntries(idEntries).setReleasedIdsHolder(excessReleasedIds)
+                .setReleasedIdsHolder(excessReleasedIds)
                 .build());
         InstanceIdentifier<ReleasedIdsHolder> releaseIdsIdentifier = buildReleaseIdsIdentifier(globalPoolName);
+        IdPool globalIdPool = buildGlobalIdPool(globalPoolName, idStart, idEnd, blockSize, buildChildPool(localPoolName)).setIdEntries(idEntries).build();
+        Optional<IdPool> expectedGlobalPool = Optional.of(globalIdPool);
+        doReturn(Futures.immediateCheckedFuture(expectedGlobalPool)).when(mockReadTx).read(
+                LogicalDatastoreType.CONFIGURATION, identifier);
         doReturn(Futures.immediateCheckedFuture(expected)).when(mockReadTx)
                 .read(LogicalDatastoreType.CONFIGURATION, releaseIdsIdentifier);
         doReturn(Futures.immediateCheckedFuture(expectedLocalPool)).when(
@@ -250,7 +267,11 @@ public class IdManagerTest {
             IdPool pool = (IdPool) dataObject;
             assertEquals(localPoolName, pool.getPoolName());
             assertEquals(excessIds.length - 3, pool.getReleasedIdsHolder().getAvailableIdCount().intValue());
-            assertEquals(2, pool.getIdEntries().size());
+        }
+        dataObject = configDataStore.get(identifier);
+        if (dataObject instanceof IdPool) {
+            IdPool parentPool = (IdPool) dataObject;
+            assertEquals(2, parentPool.getIdEntries().size());
         }
         dataObject = configDataStore.get(releaseIdsIdentifier);
         if (dataObject instanceof ReleasedIdsHolder) {
@@ -285,8 +306,12 @@ public class IdManagerTest {
             IdPool pool = (IdPool) dataObject;
             assertEquals(localPoolName, pool.getPoolName());
             assertEquals(1, pool.getReleasedIdsHolder().getDelayedIdEntries().size());
-            assertEquals(1, pool.getIdEntries().size());
             assertEquals(1, pool.getReleasedIdsHolder().getAvailableIdCount().intValue());
+        }
+        dataObject = configDataStore.get(identifier);
+        if (dataObject instanceof IdPool) {
+            IdPool parentPool = (IdPool) dataObject;
+            assertEquals(1, parentPool.getIdEntries().size());
         }
         dataObject = configDataStore.get(releaseIdsIdentifier);
         if (dataObject instanceof ReleasedIdsHolder) {
@@ -345,7 +370,7 @@ public class IdManagerTest {
     }
 
     private InstanceIdentifier<IdEntries> buildIdEntriesIdentifier(String idKey) {
-        InstanceIdentifier.InstanceIdentifierBuilder<IdEntries> idEntriesBuilder = childIdentifier
+        InstanceIdentifier.InstanceIdentifierBuilder<IdEntries> idEntriesBuilder = identifier
                 .builder().child(IdEntries.class, new IdEntriesKey(idKey));
         InstanceIdentifier<IdEntries> idEntry = idEntriesBuilder.build();
         return idEntry;
