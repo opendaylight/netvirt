@@ -46,6 +46,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <powermock.version>1.6.4</powermock.version>
     <openflow.plugin.version>0.3.0-SNAPSHOT</openflow.plugin.version>
     <sonar.jacoco.itReportPath>../southbound-it/target/jacoco-it.exec</sonar.jacoco.itReportPath>
+    <maven.test.skip>${skipTests}</maven.test.skip>
   </properties>
 
   <dependencies>
@@ -117,6 +118,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${powermock.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -142,16 +148,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <properties>
-            <property>
-              <name>listener</name>
-              <value>org.sonar.java.jacoco.JUnitListener</value>
-            </property>
-          </properties>
-        </configuration>
       </plugin>
-    </plugins>
+   </plugins>
   </build>
 <!--
   <build>

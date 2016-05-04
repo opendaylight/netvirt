@@ -172,8 +172,14 @@ public class RoutemgrUtil {
         buf.putShort((short)ip6Pdu.getIpv6Length().intValue());
         buf.put((byte)ip6Pdu.getNextHeader().shortValue());
         buf.put((byte)ip6Pdu.getHopLimit().shortValue());
-        buf.put(IetfInetUtil.INSTANCE.ipv6AddressBytes(ip6Pdu.getSourceIpv6()));
-        buf.put(IetfInetUtil.INSTANCE.ipv6AddressBytes(ip6Pdu.getDestinationIpv6()));
+        try {
+            byte[] bAddr = InetAddress.getByName(ip6Pdu.getSourceIpv6().getValue()).getAddress();
+            buf.put(bAddr);
+            bAddr = InetAddress.getByName(ip6Pdu.getDestinationIpv6().getValue()).getAddress();
+            buf.put(bAddr);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         return data;
     }
 

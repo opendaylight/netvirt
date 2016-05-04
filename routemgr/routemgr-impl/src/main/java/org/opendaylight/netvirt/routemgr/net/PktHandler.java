@@ -56,7 +56,8 @@ public class PktHandler implements PacketProcessingListener {
     private final ExecutorService packetProcessor = Executors.newCachedThreadPool();
 
     private DataBroker dataService;
-    private PacketProcessingService pktProcessService;
+    private PacketProcessingService pktProcessService = null;
+    private IfMgr ifMgr = null;
 
 
     public void setDataBrokerService(DataBroker dataService) {
@@ -65,6 +66,10 @@ public class PktHandler implements PacketProcessingListener {
 
     public void setPacketProcessingService(PacketProcessingService packetProcessingService) {
         this.pktProcessService = packetProcessingService;
+    }
+
+    public void setIfMgrInstance(IfMgr instance) {
+        this.ifMgr = instance;
     }
 
     @Override
@@ -137,7 +142,6 @@ public class PktHandler implements PacketProcessingListener {
 
                 // obtain the interface
                 LOG.debug("valid checksum obtaining ifMgr and virtual port");
-                IfMgr ifMgr = IfMgr.getIfMgrInstance();
                 VirtualPort port = ifMgr.getInterfaceForAddress(nsPdu.getTargetIpAddress());
                 if (port == null) {
                     LOG.warn("No learnt interface is available for the given target IP {}",
@@ -253,7 +257,13 @@ public class PktHandler implements PacketProcessingListener {
             buf.put((byte)pdu.getIcmp6Code().shortValue());
             buf.putShort((short)pdu.getIcmp6Chksum().intValue());
             buf.putInt((int)pdu.getFlags().longValue());
-            buf.put(IetfInetUtil.INSTANCE.ipv6AddressBytes(pdu.getTargetAddress()));
+            try {
+                byte[] bAddr = null;
+                bAddr = InetAddress.getByName(pdu.getTargetAddress().getValue()).getAddress();
+                buf.put(bAddr);
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
             buf.put((byte)pdu.getOptionType().shortValue());
             buf.put((byte)pdu.getTargetAddrLength().shortValue());
             buf.put(instance.bytesFromHexString(pdu.getTargetLlAddress().getValue().toString()));
