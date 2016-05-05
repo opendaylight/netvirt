@@ -1,7 +1,7 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.impl.rev150710;
 
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.vpnservice.dhcpservice.DhcpProvider;
+import org.opendaylight.netvirt.dhcpservice.DhcpProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
 

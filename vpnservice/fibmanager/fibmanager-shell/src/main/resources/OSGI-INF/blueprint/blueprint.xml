@@ -11,7 +11,7 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
         <command>
-            <action class="org.opendaylight.vpnservice.fibmanager.shell.ShowFibCommand">
+            <action class="org.opendaylight.netvirt.fibmanager.shell.ShowFibCommand">
                 <property name="fibManager" ref="fibManagerRef"/>
             </action>
         </command>

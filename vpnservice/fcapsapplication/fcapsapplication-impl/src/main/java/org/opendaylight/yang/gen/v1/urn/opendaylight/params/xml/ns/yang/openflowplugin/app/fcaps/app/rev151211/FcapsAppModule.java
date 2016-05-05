@@ -1,6 +1,6 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.openflowplugin.app.fcaps.app.rev151211;
 
-import org.opendaylight.vpnservice.fcapsapp.FcapsProvider;
+import org.opendaylight.netvirt.fcapsapp.FcapsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

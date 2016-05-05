@@ -1,23 +1,13 @@
-package org.opendaylight.vpnservice.bgpmanager.test;
+package org.opendaylight.netvirt.bgpmanager.test;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
-import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 
 import org.mockito.runners.MockitoJUnitRunner;
-import org.opendaylight.bgpmanager.FibDSWriter;
+import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 import static org.junit.Assert.assertEquals;
 

@@ -5,7 +5,7 @@ This program and the accompanying materials are made available under the
 terms of the Eclipse Public License v1.0 which accompanies this distribution,
 and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
 --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <groupId>org.opendaylight.vpnservice</groupId>
+  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>vpnservice</artifactId>
   <version>0.3.0-SNAPSHOT</version>
   <name>${project.artifactId}</name>
@@ -18,24 +18,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module>commons/binding-parent</module>
     <module>commons/config-parent</module>
     <module>model-bgp</module>
-    <module>mdsalutil</module>
-    <module>lockmanager</module>
-    <module>idmanager</module>
-    <module>arputil</module>
     <module>vpnmanager</module>
-    <module>interfacemgr</module>
-    <module>alivenessmonitor</module>
     <module>elanmanager</module>
     <module>fibmanager</module>
     <module>bgpmanager</module>
     <module>neutronvpn</module>
     <module>dhcpservice</module>
-    <module>itm</module>
     <module>natservice</module>
     <module>distribution/karaf</module>
     <module>features</module>
     <module>vpnservice-artifacts</module>
-    <module>vpnintent</module>
     <module>fcapsmanager</module>
     <module>fcapsapplication</module>
   </modules>
@@ -60,9 +52,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </plugins>
   </build>
   <scm>
-    <connection>scm:git:ssh://git.opendaylight.org:29418/vpnservice.git</connection>
-    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/vpnservice.git</developerConnection>
-    <url>https://wiki.opendaylight.org/view/VPNService:Main</url>
+    <connection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</connection>
+    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</developerConnection>
+    <url>https://wiki.opendaylight.org/view/NetVirt</url>
     <tag>HEAD</tag>
   </scm>
 </project>

@@ -1,6 +1,6 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgpmanager.impl.rev150326;
 
-import org.opendaylight.bgpmanager.BgpManager;
+import org.opendaylight.netvirt.bgpmanager.BgpManager;
 
 public class BgpManagerImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgpmanager.impl.rev150326.AbstractBgpManagerImplModule {
     public BgpManagerImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {

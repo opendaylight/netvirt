@@ -1,4 +1,4 @@
-package org.opendaylight.vpnservice.bgpmanager.test;
+package org.opendaylight.netvirt.bgpmanager.test;
 
 import java.util.Collection;
 

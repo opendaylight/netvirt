@@ -10,14 +10,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.opendaylight.vpnservice</groupId>
+        <groupId>org.opendaylight.netvirt</groupId>
         <artifactId>config-parent</artifactId>
         <version>0.3.0-SNAPSHOT</version>
         <relativePath>../../commons/config-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.opendaylight.vpnservice</groupId>
+    <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>neutronvpn-impl</artifactId>
     <version>${vpnservices.version}</version>
     <packaging>bundle</packaging>
@@ -28,17 +28,17 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <version>${neutron.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.vpnservice</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>neutronvpn-api</artifactId>
             <version>${vpnservices.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.vpnservice</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>vpnmanager-api</artifactId>
             <version>${vpnservices.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.vpnservice</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>elanmanager-api</artifactId>
             <version>${vpnservices.version}</version>
         </dependency>

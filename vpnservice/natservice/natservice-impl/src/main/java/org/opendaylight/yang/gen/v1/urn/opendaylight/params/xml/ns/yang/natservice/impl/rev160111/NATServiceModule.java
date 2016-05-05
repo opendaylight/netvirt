@@ -7,7 +7,7 @@
  */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.natservice.impl.rev160111;
 
-import org.opendaylight.vpnservice.natservice.internal.NatServiceProvider;
+import org.opendaylight.netvirt.natservice.internal.NatServiceProvider;
 
 public class NATServiceModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.natservice.impl.rev160111.AbstractNATServiceModule {
     public NATServiceModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {

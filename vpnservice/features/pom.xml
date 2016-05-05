@@ -12,7 +12,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <version>1.7.0-SNAPSHOT</version>
     <relativePath/>
   </parent>
-  <groupId>org.opendaylight.vpnservice</groupId>
+  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>vpnservice-features</artifactId>
   <version>0.3.0-SNAPSHOT</version>
   <name>${project.artifactId}</name>
@@ -155,58 +155,58 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <type>xml</type>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>mdsalutil-impl</artifactId>
       <version>${mdsalutil.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>arputil-api</artifactId>
       <version>${arputil.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>arputil-impl</artifactId>
       <version>${arputil.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
     </dependency>
      <dependency>
-      <groupId>${project.groupId}</groupId>
+       <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>arputil-impl</artifactId>
       <version>${arputil.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>mdsalutil-impl</artifactId>
       <version>${mdsalutil.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>mdsalutil-api</artifactId>
       <version>${mdsalutil.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>interfacemgr-impl</artifactId>
       <version>${interfacemgr.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>interfacemgr-impl</artifactId>
       <version>${interfacemgr.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>interfacemgr-api</artifactId>
       <version>${interfacemgr.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>interfacemgr-shell</artifactId>
       <version>${interfacemgr.version}</version>
     </dependency>
@@ -233,19 +233,19 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
         <version>${liblldp.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>alivenessmonitor-impl</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>alivenessmonitor-impl</artifactId>
       <version>${vpnservices.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>alivenessmonitor-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
@@ -299,53 +299,53 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <version>${fibmanager.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>lockmanager-impl</artifactId>
       <version>${lockmanager.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>lockmanager-impl</artifactId>
       <version>${lockmanager.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>lockmanager-api</artifactId>
       <version>${lockmanager.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>idmanager-impl</artifactId>
       <version>${idmanager.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>idmanager-impl</artifactId>
       <version>${idmanager.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>idmanager-api</artifactId>
       <version>${idmanager.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>itm-impl</artifactId>
       <version>${itm.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>itm-impl</artifactId>
       <version>${itm.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.opendaylight.vpnservice</groupId>
       <artifactId>itm-api</artifactId>
       <version>${itm.version}</version>
     </dependency>
@@ -421,23 +421,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>vpnintent-api</artifactId>
-      <version>${vpnservices.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>vpnintent-impl</artifactId>
-      <version>${vpnservices.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>vpnintent-impl</artifactId>
-      <version>${vpnservices.version}</version>
-      <classifier>config</classifier>
-      <type>xml</type>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

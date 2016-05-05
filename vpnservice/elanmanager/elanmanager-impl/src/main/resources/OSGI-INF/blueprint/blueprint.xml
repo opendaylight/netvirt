@@ -1,70 +1,70 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    <reference id="elanProviderRef" interface="org.opendaylight.elanmanager.api.IElanService"  availability="optional" />
+    <reference id="elanProviderRef" interface="org.opendaylight.elanmanager.api.IElanService" availability="optional" />
     <reference id="interfaceManagerRef" interface="org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager"  availability="optional" />
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.vpnservice.elan.cli.ElanAdd">
+            <action class="org.opendaylight.netvirt.elan.cli.ElanAdd">
                 <property name="elanProvider" ref="elanProviderRef" />
             </action>
         </command>
         <command>
-            <action class="org.opendaylight.vpnservice.elan.cli.ElanDelete">
+            <action class="org.opendaylight.netvirt.elan.cli.ElanDelete">
                 <property name="elanProvider" ref="elanProviderRef" />
             </action>
         </command>
         <command>
-            <action class="org.opendaylight.vpnservice.elan.cli.ElanUpdate">
+            <action class="org.opendaylight.netvirt.elan.cli.ElanUpdate">
                 <property name="elanProvider" ref="elanProviderRef" />
             </action>
         </command>
         <command>
-            <action class="org.opendaylight.vpnservice.elan.cli.ElanInterfaceAdd">
+            <action class="org.opendaylight.netvirt.elan.cli.ElanInterfaceAdd">
                 <property name="elanProvider" ref="elanProviderRef" />
             </action>
         </command>
         <command>
-            <action class="org.opendaylight.vpnservice.elan.cli.ElanInterfaceDelete">
+            <action class="org.opendaylight.netvirt.elan.cli.ElanInterfaceDelete">
                 <property name="elanProvider" ref="elanProviderRef" />
             </action>
         </command>
         <command>
-            <action class="org.opendaylight.vpnservice.elan.cli.ElanInterfaceUpdate">
+            <action class="org.opendaylight.netvirt.elan.cli.ElanInterfaceUpdate">
                 <property name="elanProvider" ref="elanProviderRef" />
             </action>
         </command>
         <command>
-            <action class="org.opendaylight.vpnservice.elan.cli.StaticMacAdd">
+            <action class="org.opendaylight.netvirt.elan.cli.StaticMacAdd">
                 <property name="elanProvider" ref="elanProviderRef" />
             </action>
         </command>
         <command>
-            <action class="org.opendaylight.vpnservice.elan.cli.StaticMacDelete">
+            <action class="org.opendaylight.netvirt.elan.cli.StaticMacDelete">
                 <property name="elanProvider" ref="elanProviderRef" />
             </action>
         </command>
         <command>
-            <action class="org.opendaylight.vpnservice.elan.cli.ElanMacTableGet">
+            <action class="org.opendaylight.netvirt.elan.cli.ElanMacTableGet">
                 <property name="elanProvider" ref="elanProviderRef" />
             </action>
         </command>
         <command>
-            <action class="org.opendaylight.vpnservice.elan.cli.ElanMacTableFlush">
+            <action class="org.opendaylight.netvirt.elan.cli.ElanMacTableFlush">
                 <property name="elanProvider" ref="elanProviderRef" />
             </action>
         </command>
         <command>
-            <action class="org.opendaylight.vpnservice.elan.cli.ElanGet">
+            <action class="org.opendaylight.netvirt.elan.cli.ElanGet">
                 <property name="elanProvider" ref="elanProviderRef" />
             </action>
         </command>
         <command>
-            <action class="org.opendaylight.vpnservice.elan.cli.ElanInterfaceGet">
+            <action class="org.opendaylight.netvirt.elan.cli.ElanInterfaceGet">
                 <property name="elanProvider" ref="elanProviderRef" />
                 <property name="interfaceManager" ref="interfaceManagerRef" />
             </action>
         </command>
 	<command>
-            <action class="org.opendaylight.vpnservice.elan.cli.l2gw.L2GwUtilsCacheCli">
+            <action class="org.opendaylight.netvirt.elan.cli.l2gw.L2GwUtilsCacheCli">
             </action>
         </command>
     </command-bundle>

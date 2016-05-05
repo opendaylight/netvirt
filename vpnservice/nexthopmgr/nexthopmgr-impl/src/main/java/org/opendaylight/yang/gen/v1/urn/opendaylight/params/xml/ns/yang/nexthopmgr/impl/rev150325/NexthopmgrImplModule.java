@@ -1,6 +1,6 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nexthopmgr.impl.rev150325;
 
-import org.opendaylight.vpnservice.nexthopmgr.NexthopmgrProvider;
+import org.opendaylight.netvirt.nexthopmgr.NexthopmgrProvider;
 
 public class NexthopmgrImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nexthopmgr.impl.rev150325.AbstractNexthopmgrImplModule {
     public NexthopmgrImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {

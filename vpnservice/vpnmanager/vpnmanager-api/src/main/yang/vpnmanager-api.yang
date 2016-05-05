@@ -15,6 +15,6 @@ module vpnmanager-api {
 
     identity vpnmanager-api {
         base "config:service-type";
-        config:java-class "org.opendaylight.vpnmanager.api.IVpnManager";
+        config:java-class "org.opendaylight.netvirt.vpnmanager.api.IVpnManager";
     }
 }

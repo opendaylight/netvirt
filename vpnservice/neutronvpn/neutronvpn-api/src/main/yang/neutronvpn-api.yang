@@ -15,6 +15,6 @@ module neutronvpn-api {
 
     identity neutronvpn-api {
         base "config:service-type";
-        config:java-class "org.opendaylight.vpnservice.neutronvpn.interfaces.INeutronVpnManager";
+        config:java-class "org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager";
     }
 }
