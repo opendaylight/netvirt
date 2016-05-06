@@ -91,6 +91,23 @@
       "revId": "0e934fab907f0fae2867a4855f2c0b7037434bd0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_d381dc90",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-05-06T01:22:20Z",
+      "side": 1,
+      "message": "When a IPv6 subnet is added to router, don\u0027t we need to invoke IPv6RtrFlow.addIcmpv6Flow2Controller() method to push OF rules for RS and NS?",
+      "revId": "0e934fab907f0fae2867a4855f2c0b7037434bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
