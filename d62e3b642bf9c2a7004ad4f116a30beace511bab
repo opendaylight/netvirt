@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_7e48972d",
+        "filename": "routemgr/routemgr-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T12:37:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_a2f33772",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_6290ffec",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-05-04T12:51:04Z",
       "side": 1,
       "message": "these should be null by default",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_5e279364",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T12:37:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_6290ffec",
       "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_fe3147a3",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/utils/RoutemgrUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T12:37:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_c43118ee",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_62aabf71",
         "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2016-05-04T11:34:39Z",
       "side": 1,
       "message": "Nit: space can be removed.",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_beeeafea",
+        "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T12:37:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_62aabf71",
       "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -105,6 +177,42 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_5e45d36e",
+        "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T12:37:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_e249af8c",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_fe4f8790",
+        "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T12:37:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_a2bb37c3",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_a426a414",
         "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
         "patchSetId": 1
@@ -116,6 +224,24 @@
       "writtenOn": "2016-05-04T16:09:26Z",
       "side": 1,
       "message": "With the sleep before the verify(), this is inherently racy and could result in unstable runs with false positives. Is there any way we could wait reliably for the processing to take place (whatever it ends up being)?",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_9e5e4b44",
+        "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T12:37:29Z",
+      "side": 1,
+      "message": "Instead of just invoking sleep, made the test thread to wait(sleep) till a packet counter is incremented for processing the packet in the packethandler.",
+      "parentUuid": "fa57193c_a426a414",
       "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -157,6 +283,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_993f8525",
+        "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T12:37:29Z",
+      "side": 1,
+      "message": "@Sridhar \nGenerating the packet from NeighborSolicationPacketBuilder involves additional work of converting required values to MacAddress/Ipv6Address objects and then re-converting them back to a byte array as this is the final input required.\nAll these should it be required for a Unit test case.\n\n@Stephen\nThe packets to be able to view in a wireshark tool contain additional information for the wireshark format specification. Just the input byte array mentioned here is not sufficient to be view a packet in the wireshark. Also reading files from disk will require additional time. Please confirm if this required for a unit test case.",
+      "parentUuid": "fa57193c_c448f85d",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_24757498",
         "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
         "patchSetId": 1
@@ -174,6 +318,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_9ece4b82",
+        "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T12:37:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_24757498",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_e2408f58",
         "filename": "routemgr/routemgr-impl/src/test/resources/simplelogger.properties",
         "patchSetId": 1
@@ -185,6 +347,24 @@
       "writtenOn": "2016-05-04T12:51:04Z",
       "side": 1,
       "message": "Is this needed? Are you just trying to bump the logging to debug level rather than the default info?",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_de1a8316",
+        "filename": "routemgr/routemgr-impl/src/test/resources/simplelogger.properties",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T12:37:29Z",
+      "side": 1,
+      "message": "Yes, these will be helpful in debugging the UT failure if seen in the jenkins build.\nWith the default INFO level, not much could be discerned form the output.",
+      "parentUuid": "fa57193c_e2408f58",
       "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
