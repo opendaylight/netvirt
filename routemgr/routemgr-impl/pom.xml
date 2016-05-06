@@ -45,7 +45,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <properties>
     <powermock.version>1.6.4</powermock.version>
     <openflow.plugin.version>0.3.0-SNAPSHOT</openflow.plugin.version>
-    <sonar.jacoco.itReportPath>../southbound-it/target/jacoco-it.exec</sonar.jacoco.itReportPath>
+  <!--  <sonar.jacoco.itReportPath>../southbound-it/target/jacoco-it.exec</sonar.jacoco.itReportPath>-->
   </properties>
 
   <dependencies>
@@ -117,6 +117,17 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${powermock.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar-plugins.java</groupId>
+      <artifactId>sonar-jacoco-listeners</artifactId>
+      <version>${sonar-jacoco-listeners.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -151,7 +162,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           </properties>
         </configuration>
       </plugin>
-    </plugins>
+   </plugins>
   </build>
 <!--
   <build>

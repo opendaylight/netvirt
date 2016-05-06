@@ -32,13 +32,14 @@ public class RoutemgrUtil {
     public static final RoutemgrUtil instance = new RoutemgrUtil();
     public static Ipv6Address UNSPECIFIED_ADDR;
     public static Ipv6Address ALL_NODES_MCAST_ADDR;
+    private static final Logger LOG = LoggerFactory.getLogger(RoutemgrUtil.class);
 
     private RoutemgrUtil() {
         try {
             UNSPECIFIED_ADDR = Ipv6Address.getDefaultInstance(InetAddress.getByName("0:0:0:0:0:0:0:0").getHostAddress());
             ALL_NODES_MCAST_ADDR = Ipv6Address.getDefaultInstance(InetAddress.getByName("FF02::1").getHostAddress());
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            LOG.error("RoutemgrUtil: Failed to instantiate the ipv6 address", e);
         }
     }
 
@@ -127,7 +128,7 @@ public class RoutemgrUtil {
         try {
             bAddr = InetAddress.getByName(addr.getValue()).getAddress();
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            LOG.error("getSummation: Failed to deserialize address {}", addr.getValue(), e);
         }
 
         long sum = 0;
@@ -172,8 +173,14 @@ public class RoutemgrUtil {
         buf.putShort((short)ip6Pdu.getIpv6Length().intValue());
         buf.put((byte)ip6Pdu.getNextHeader().shortValue());
         buf.put((byte)ip6Pdu.getHopLimit().shortValue());
-        buf.put(IetfInetUtil.INSTANCE.ipv6AddressBytes(ip6Pdu.getSourceIpv6()));
-        buf.put(IetfInetUtil.INSTANCE.ipv6AddressBytes(ip6Pdu.getDestinationIpv6()));
+        try {
+            byte[] bAddr = InetAddress.getByName(ip6Pdu.getSourceIpv6().getValue()).getAddress();
+            buf.put(bAddr);
+            bAddr = InetAddress.getByName(ip6Pdu.getDestinationIpv6().getValue()).getAddress();
+            buf.put(bAddr);
+        } catch (UnknownHostException e) {
+            LOG.error("convertIpv6HeaderToByte: Failed to serialize src, dest address", e);
+        }
         return data;
     }
 
