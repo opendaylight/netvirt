@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_3e473f21",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T06:55:14Z",
+      "side": 1,
+      "message": "Currently its handles both v4 and v6. If there is no usecase for supporting v4 subnets in the routermgr plugin, we can certainly restrict learning them.",
+      "parentUuid": "fa57193c_d3fc3c41",
+      "range": {
+        "startLine": 131,
+        "startChar": 16,
+        "endLine": 131,
+        "endChar": 25
+      },
+      "revId": "0e934fab907f0fae2867a4855f2c0b7037434bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_f39a2013",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2016-05-06T00:12:04Z",
       "side": 1,
       "message": "Do we support \"ipv6_ra_mode\" and \"ipv6_address_mode\" attributes while creating subnets?",
+      "range": {
+        "startLine": 134,
+        "startChar": 8,
+        "endLine": 134,
+        "endChar": 21
+      },
+      "revId": "0e934fab907f0fae2867a4855f2c0b7037434bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_5e42f310",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T06:55:14Z",
+      "side": 1,
+      "message": "Currently modes supports is not available for the subnets.",
+      "parentUuid": "fa57193c_f39a2013",
       "range": {
         "startLine": 134,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_7ec1b77f",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T06:55:14Z",
+      "side": 1,
+      "message": "This interface will be invoked multiple times for each of the ip available for the interface. The VirtualPort created to maintain the interface information internally contains the list of the IPs available for this interface.",
+      "parentUuid": "fa57193c_53b78c86",
+      "range": {
+        "startLine": 193,
+        "startChar": 56,
+        "endLine": 193,
+        "endChar": 63
+      },
+      "revId": "0e934fab907f0fae2867a4855f2c0b7037434bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_f3c180e5",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
         "patchSetId": 5
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_3ed0df4f",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T06:55:14Z",
+      "side": 1,
+      "message": "This is a common interface for both ipv4 and ipv6 subnets.\nIf the ipv6 subnet contains a fixed ip, it will be updated here. There is no restriction of having a fixed ip for the ipv6 subnet",
+      "parentUuid": "fa57193c_f3c180e5",
+      "range": {
+        "startLine": 197,
+        "startChar": 12,
+        "endLine": 197,
+        "endChar": 19
+      },
+      "revId": "0e934fab907f0fae2867a4855f2c0b7037434bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_d381dc90",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
         "patchSetId": 5
@@ -105,6 +201,24 @@
       "writtenOn": "2016-05-06T01:22:20Z",
       "side": 1,
       "message": "When a IPv6 subnet is added to router, don\u0027t we need to invoke IPv6RtrFlow.addIcmpv6Flow2Controller() method to push OF rules for RS and NS?",
+      "revId": "0e934fab907f0fae2867a4855f2c0b7037434bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_5ecb13a5",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T06:55:14Z",
+      "side": 1,
+      "message": "Currently the OF rules are added on addition of a new node. This needs to be updated to push the flows only if the nodes has ipv6 subnets. \nThis will be taken up in the subsequent patches.",
+      "parentUuid": "fa57193c_d381dc90",
       "revId": "0e934fab907f0fae2867a4855f2c0b7037434bd0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
