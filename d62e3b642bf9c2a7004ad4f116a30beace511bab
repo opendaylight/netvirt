@@ -248,6 +248,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_398919ec",
+        "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-06T12:41:40Z",
+      "side": 1,
+      "message": "For the 1st two test cases, the error validation is done in the same thread. Hence there is no additional wait between packet reception and verification.\nFor the next 2 test cases, the packet processing in done in a new thread invoked. Hence an additional wait is added between packet reception and verification.",
+      "parentUuid": "fa57193c_9e5e4b44",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_62c11f2e",
         "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
         "patchSetId": 1
