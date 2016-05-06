@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_d3fc3c41",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-05-06T00:12:04Z",
+      "side": 1,
+      "message": "Do we need to process all subnet additions in RouterManager? Can we not handle only IPv6 subnets?",
+      "range": {
+        "startLine": 131,
+        "startChar": 16,
+        "endLine": 131,
+        "endChar": 25
+      },
+      "revId": "0e934fab907f0fae2867a4855f2c0b7037434bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_f39a2013",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-05-06T00:12:04Z",
+      "side": 1,
+      "message": "Do we support \"ipv6_ra_mode\" and \"ipv6_address_mode\" attributes while creating subnets?",
+      "range": {
+        "startLine": 134,
+        "startChar": 8,
+        "endLine": 134,
+        "endChar": 21
+      },
+      "revId": "0e934fab907f0fae2867a4855f2c0b7037434bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_53b78c86",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-05-06T00:12:04Z",
+      "side": 1,
+      "message": "I think neutron allows a list of fixed IPs. Here we are taking only one fixed IP.",
+      "range": {
+        "startLine": 193,
+        "startChar": 56,
+        "endLine": 193,
+        "endChar": 63
+      },
+      "revId": "0e934fab907f0fae2867a4855f2c0b7037434bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_f3c180e5",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-05-06T00:12:04Z",
+      "side": 1,
+      "message": "What is the use case of specifying fixed IPs for IPv6 interfaces? Is it to avoid the SLAAC procedures?",
+      "range": {
+        "startLine": 197,
+        "startChar": 12,
+        "endLine": 197,
+        "endChar": 19
+      },
+      "revId": "0e934fab907f0fae2867a4855f2c0b7037434bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
