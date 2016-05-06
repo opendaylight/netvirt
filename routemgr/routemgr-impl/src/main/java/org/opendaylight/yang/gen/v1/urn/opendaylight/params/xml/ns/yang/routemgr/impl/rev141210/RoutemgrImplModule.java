@@ -5,6 +5,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.routemgr.net.OvsdbDataListener;
 import org.opendaylight.netvirt.routemgr.net.PktHandler;
 import org.opendaylight.netvirt.routemgr.net.NetDataListener;
+import org.opendaylight.netvirt.routemgr.net.IfMgr;
 import org.opendaylight.netvirt.routemgr.net.IPv6RtrFlow;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
@@ -61,6 +62,7 @@ public class RoutemgrImplModule extends org.opendaylight.yang.gen.v1.urn.openday
         ipPktHandler = new PktHandler();
         ipPktHandler.setDataBrokerService(dataService);
         ipPktHandler.setPacketProcessingService(packetProcessingService);
+        ipPktHandler.setIfMgrInstance(IfMgr.getIfMgrInstance());
         packetListener = notificationService.registerNotificationListener(ipPktHandler);
         LOG.debug ("started the packethandler to receive pdus");
 

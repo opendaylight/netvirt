@@ -57,7 +57,8 @@ public class PktHandler implements PacketProcessingListener {
 
     private DataBroker dataService;
     private PacketProcessingService pktProcessService;
-
+    private IfMgr ifMgr;
+    private long pktProccessedCounter;
 
     public void setDataBrokerService(DataBroker dataService) {
         this.dataService = dataService;
@@ -65,6 +66,10 @@ public class PktHandler implements PacketProcessingListener {
 
     public void setPacketProcessingService(PacketProcessingService packetProcessingService) {
         this.pktProcessService = packetProcessingService;
+    }
+
+    public void setIfMgrInstance(IfMgr instance) {
+        this.ifMgr = instance;
     }
 
     @Override
@@ -110,6 +115,10 @@ public class PktHandler implements PacketProcessingListener {
         packetProcessor.shutdown();
     }
 
+    public long getPacketProcessedCounter() {
+        return pktProccessedCounter;
+    }
+
     private class PacketHandler implements Runnable {
         int type;
         PacketReceived packet;
@@ -130,6 +139,7 @@ public class PktHandler implements PacketProcessingListener {
                 Ipv6Header ipv6Header = (Ipv6Header)nsPdu;
                 RoutemgrUtil instance = RoutemgrUtil.getInstance();
                 if (instance.validateChecksum(data, ipv6Header, nsPdu.getIcmp6Chksum()) == false) {
+                    pktProccessedCounter++;
                     LOG.warn("Received NS packet with invalid checksum  on {}. Ignoring the packet",
                         packet.getIngress());
                     return;
@@ -137,9 +147,9 @@ public class PktHandler implements PacketProcessingListener {
 
                 // obtain the interface
                 LOG.debug("valid checksum obtaining ifMgr and virtual port");
-                IfMgr ifMgr = IfMgr.getIfMgrInstance();
                 VirtualPort port = ifMgr.getInterfaceForAddress(nsPdu.getTargetIpAddress());
                 if (port == null) {
+                    pktProccessedCounter++;
                     LOG.warn("No learnt interface is available for the given target IP {}",
                         nsPdu.getTargetIpAddress());
                     return;
@@ -158,6 +168,7 @@ public class PktHandler implements PacketProcessingListener {
                 if(pktProcessService != null) {
                     LOG.debug("transmitting the packet out on {}", packet.getIngress());
                     pktProcessService.transmitPacket(input);
+                    pktProccessedCounter++;
                 }
             } else if (type == RoutemgrUtil.ICMPv6_RS_CODE) {
                 // TODO
@@ -253,7 +264,13 @@ public class PktHandler implements PacketProcessingListener {
             buf.put((byte)pdu.getIcmp6Code().shortValue());
             buf.putShort((short)pdu.getIcmp6Chksum().intValue());
             buf.putInt((int)pdu.getFlags().longValue());
-            buf.put(IetfInetUtil.INSTANCE.ipv6AddressBytes(pdu.getTargetAddress()));
+            try {
+                byte[] bAddr = null;
+                bAddr = InetAddress.getByName(pdu.getTargetAddress().getValue()).getAddress();
+                buf.put(bAddr);
+            } catch (UnknownHostException e) {
+                LOG.error("serializing NA target address failed", e);
+            }
             buf.put((byte)pdu.getOptionType().shortValue());
             buf.put((byte)pdu.getTargetAddrLength().shortValue());
             buf.put(instance.bytesFromHexString(pdu.getTargetLlAddress().getValue().toString()));
