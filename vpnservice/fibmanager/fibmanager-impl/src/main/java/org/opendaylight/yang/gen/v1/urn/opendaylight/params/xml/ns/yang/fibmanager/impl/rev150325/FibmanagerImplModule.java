@@ -35,6 +35,7 @@ public class FibmanagerImplModule extends org.opendaylight.yang.gen.v1.urn.opend
         provider.setIdManager(rpcProviderRegistry.getRpcService(IdManagerService.class));
         provider.setInterfaceManager(rpcProviderRegistry.getRpcService(OdlInterfaceRpcService.class));
         provider.setITMProvider(rpcProviderRegistry.getRpcService(ItmRpcService.class));
+        provider.setRpcProviderRegistry(rpcProviderRegistry);
         getBrokerDependency().registerProvider(provider);
         return provider;
     }
