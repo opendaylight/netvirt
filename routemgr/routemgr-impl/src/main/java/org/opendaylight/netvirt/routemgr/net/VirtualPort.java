@@ -8,14 +8,14 @@
 
 package org.opendaylight.netvirt.routemgr.net;
 
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 //import org.apache.commons.collections4.trie;
 
@@ -27,6 +27,7 @@ public class VirtualPort  {
     private String    macAddress;
     private Boolean   routerIntfFlag;
     private String    dpId;
+    private String    deviceOwner;
     private Long      ofPort;
     private HashMap<Uuid, SubnetInfo> snetInfo;
 
@@ -138,6 +139,15 @@ public class VirtualPort  {
 
     public VirtualRouter getRouter() {
         return router;
+    }
+
+    public VirtualPort setDeviceOwner(String deviceOwner) {
+        this.deviceOwner = deviceOwner;
+        return this;
+    }
+
+    public String getDeviceOwner() {
+        return deviceOwner;
     }
 
     public VirtualPort setDpId(String dpId) {

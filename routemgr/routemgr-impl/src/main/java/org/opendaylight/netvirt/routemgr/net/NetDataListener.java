@@ -8,38 +8,32 @@
 
 package org.opendaylight.netvirt.routemgr.net;
 
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.List;
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.AllocationPools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.yangtools.concepts.Registration;
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
-
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.AllocationPools;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
+import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class NetDataListener implements DataChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(NetDataListener.class);
@@ -53,9 +47,6 @@ public class NetDataListener implements DataChangeListener {
 
     // Interface Manager
     private IfMgr ifMgr;
-
-    private static final String NETWORK_ROUTER_INTERFACE = "network:router_interface";
-
 
     public NetDataListener(DataBroker dataBroker) {
         this.dataService = dataBroker;
@@ -247,7 +238,7 @@ public class NetDataListener implements DataChangeListener {
         List<FixedIps> ipList = port.getFixedIps();
 
         for (FixedIps fixedip : ipList) {
-            if (port.getDeviceOwner().equalsIgnoreCase(NETWORK_ROUTER_INTERFACE)) {
+            if (port.getDeviceOwner().equalsIgnoreCase(ifMgr.NETWORK_ROUTER_INTERFACE)) {
 
                 // Add router interface
                 ifMgr.addRouterIntf(port.getUuid(),
@@ -255,14 +246,16 @@ public class NetDataListener implements DataChangeListener {
                         fixedip.getSubnetId(),
                         port.getNetworkId(),
                         fixedip.getIpAddress(),
-                        port.getMacAddress());
+                        port.getMacAddress(),
+                        port.getDeviceOwner());
             } else {
                 // Add host interface
                 ifMgr.addHostIntf(port.getUuid(),
                         fixedip.getSubnetId(),
                         port.getNetworkId(),
                         fixedip.getIpAddress(),
-                        port.getMacAddress());
+                        port.getMacAddress(),
+                        port.getDeviceOwner());
             }
         }
 

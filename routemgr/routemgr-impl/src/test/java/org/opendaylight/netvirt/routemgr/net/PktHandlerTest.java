@@ -162,6 +162,7 @@ public class PktHandlerTest {
         VirtualPort intf = Mockito.mock(VirtualPort.class);
         when(ifMgrInstance.getInterfaceForAddress(any(Ipv6Address.class))).thenReturn(intf);
         when(intf.getMacAddress()).thenReturn("00:01:02:03:04:05");
+        when(intf.getDeviceOwner()).thenReturn(ifMgrInstance.NETWORK_ROUTER_INTERFACE);
         InstanceIdentifier<NodeConnector> ncId = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("openflow:1")))
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
