@@ -9,11 +9,6 @@
 package org.opendaylight.netvirt.routemgr.net;
 
 import com.google.common.net.InetAddresses;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -21,12 +16,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 public class IfMgr {
 
     /**
      * Logger instance.
      */
     static final Logger logger = LoggerFactory.getLogger(IfMgr.class);
+    public static final String NETWORK_ROUTER_INTERFACE = "network:router_interface";
 
     // router objects - routers, subnets, interfaces
     private HashMap<Uuid, VirtualRouter> vrouters;
@@ -190,7 +190,8 @@ public class IfMgr {
     }
 
     public void addRouterIntf(Uuid portId, Uuid rtrId, Uuid snetId,
-                              Uuid networkId, IpAddress fixedIp, String macAddress) {
+                              Uuid networkId, IpAddress fixedIp, String macAddress,
+                              String deviceOwner) {
         logger.debug("addRouterIntf portId {}, rtrId {}, snetId {}, networkId {}, ip {}, mac {}",
             portId, rtrId, snetId, networkId, fixedIp, macAddress);
         //Save the interface ipv6 address in its fully expanded format
@@ -213,7 +214,8 @@ public class IfMgr {
                     .setSubnetInfo(snetId, fixedIp)
                     .setNetworkID(networkId)
                     .setMacAddress(macAddress)
-                    .setRouterIntfFlag(true);
+                    .setRouterIntfFlag(true)
+                    .setDeviceOwner(deviceOwner);
         } else {
             intf.setSubnetInfo(snetId, fixedIp);
         }
@@ -239,7 +241,7 @@ public class IfMgr {
     }
 
     public void addHostIntf(Uuid portId, Uuid snetId, Uuid networkId,
-                            IpAddress fixedIp, String macAddress) {
+                            IpAddress fixedIp, String macAddress, String deviceOwner) {
         logger.debug("addHostIntf portId {}, snetId {}, networkId {}, ip {}, mac {}",
             portId, snetId, networkId, fixedIp, macAddress);
         //Save the interface ipv6 address in its fully expanded format
@@ -261,7 +263,8 @@ public class IfMgr {
                     .setSubnetInfo(snetId, fixedIp)
                     .setNetworkID(networkId)
                     .setMacAddress(macAddress)
-                    .setRouterIntfFlag(false);
+                    .setRouterIntfFlag(false)
+                    .setDeviceOwner(deviceOwner);
         } else {
             intf.setSubnetInfo(snetId, fixedIp);
         }
