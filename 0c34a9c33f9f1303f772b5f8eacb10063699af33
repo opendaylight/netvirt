@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_21f9dbe9",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1184,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-05-08T06:27:47Z",
+      "side": 1,
+      "message": "I understand why there is now a condition before creating the tunnel rules but why is there now this new like with the src instead of dst and dtsBridgeNode instead of srcBridgeNode. Where were these rules created prior to this change?",
+      "revId": "0c34a9c33f9f1303f772b5f8eacb10063699af33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_81dd4773",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1188,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-05-08T06:27:47Z",
+      "side": 1,
+      "message": "How come isDestinNw is not checked before this?",
+      "revId": "0c34a9c33f9f1303f772b5f8eacb10063699af33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
