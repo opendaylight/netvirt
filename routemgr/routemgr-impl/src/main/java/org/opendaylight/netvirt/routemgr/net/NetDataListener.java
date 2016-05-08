@@ -289,9 +289,12 @@ public class NetDataListener implements DataChangeListener {
 
     private void removePort(Port port) {
         LOG.info("remove neutron port {}", port);
+        boolean isRouterPort = false;
+        if (port.getDeviceOwner().equalsIgnoreCase(NETWORK_ROUTER_INTERFACE))
+            isRouterPort = true;
 
         // remove port
-        ifMgr.removePort(port.getUuid());
+        ifMgr.removePort(port.getUuid(), isRouterPort);
 
         return;
     }

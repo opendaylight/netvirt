@@ -9,17 +9,16 @@
 package org.opendaylight.netvirt.routemgr.net;
 
 import com.google.common.net.InetAddresses;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.AllocationPools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class IfMgr {
 
@@ -32,7 +31,7 @@ public class IfMgr {
     private HashMap<Uuid, VirtualRouter> vrouters;
     private HashMap<Uuid, VirtualSubnet> vsubnets;
     private HashMap<Uuid, VirtualPort> vintfs;
-    private HashMap<Ipv6Address, VirtualPort> v6IntfMap;
+    private HashMap<Ipv6Address, VirtualPort> v6RouterIntfMap;
     private HashMap<Uuid, List<VirtualPort>> unprocessedRouterIntfs;
     private HashMap<Uuid, List<VirtualPort>> unprocessedSubnetIntfs;
     private static final IfMgr IFMGR_INSTANCE = new IfMgr();
@@ -45,7 +44,7 @@ public class IfMgr {
         this.vrouters = new HashMap<>();
         this.vsubnets = new HashMap<>();
         this.vintfs = new HashMap<>();
-        this.v6IntfMap = new HashMap<>();
+        this.v6RouterIntfMap = new HashMap<>();
         this.unprocessedRouterIntfs = new HashMap<>();
         this.unprocessedSubnetIntfs = new HashMap<>();
         logger.info("IfMgr is enabled");
@@ -233,7 +232,7 @@ public class IfMgr {
             addUnprocessed(unprocessedSubnetIntfs, snetId, intf);
         }
         if (fixedIp.getIpv6Address() != null) {
-            v6IntfMap.put(fixedIp.getIpv6Address(), intf);
+            v6RouterIntfMap.put(fixedIp.getIpv6Address(), intf);
         }
         return;
     }
@@ -273,9 +272,6 @@ public class IfMgr {
         } else {
             addUnprocessed(unprocessedSubnetIntfs, snetId, intf);
         }
-        if (fixedIp.getIpv6Address() != null) {
-            v6IntfMap.put(fixedIp.getIpv6Address(), intf);
-        }
         return;
     }
 
@@ -301,13 +297,13 @@ public class IfMgr {
         return;
     }
 
-    public void removePort(Uuid portId) {
+    public void removePort(Uuid portId, boolean isRouterPort) {
         VirtualPort intf = vintfs.get(portId);
         if (intf != null) {
             intf.removeSelf();
             for (IpAddress ipAddr : intf.getIpAddresses()) {
-                if (ipAddr.getIpv6Address() != null) {
-                    v6IntfMap.remove(ipAddr.getIpv6Address());
+                if (ipAddr.getIpv6Address() != null && isRouterPort) {
+                    v6RouterIntfMap.remove(ipAddr.getIpv6Address());
                 }
             }
             vintfs.remove(portId);
@@ -346,6 +342,6 @@ public class IfMgr {
 
     public VirtualPort getInterfaceForAddress(Ipv6Address addr) {
         logger.debug("obtaining the virtual interface for {}", addr);
-        return (v6IntfMap.get(addr));
+        return (v6RouterIntfMap.get(addr));
     }
 }
