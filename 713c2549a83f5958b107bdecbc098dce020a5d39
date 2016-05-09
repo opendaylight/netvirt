@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_a4ee99ea",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-05-09T10:35:09Z",
+      "side": 1,
+      "message": "This annoys the living daylight out of me but the checkstyle will whine about there not being a space here.",
+      "range": {
+        "startLine": 82,
+        "startChar": 13,
+        "endLine": 82,
+        "endChar": 15
+      },
+      "revId": "713c2549a83f5958b107bdecbc098dce020a5d39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_84e71512",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-05-09T10:35:09Z",
+      "side": 1,
+      "message": "I might be missing something but why is the break here? You need to iterate through the nodes in order to find the node where the port is but once you\u0027ve found that you can break regardless of whether the various conditions in the if statements are true. Even if, for e.g., createLocalNetwork fails there is no reason to continue looking through the rest of the nodes. No?",
+      "revId": "713c2549a83f5958b107bdecbc098dce020a5d39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
