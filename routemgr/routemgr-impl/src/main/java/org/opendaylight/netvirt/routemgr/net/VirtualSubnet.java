@@ -8,16 +8,12 @@
 
 package org.opendaylight.netvirt.routemgr.net;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Collection;
-import java.util.Iterator;
-
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 //import org.apache.commons.collections4.trie;
 
@@ -29,6 +25,10 @@ public class VirtualSubnet  {
     private IpAddress gatewayIp;
     private Boolean   allocPoolFlag;
     private List<APool> poolList;
+    private String subnetCidr;
+    private String ipVersion;
+    private String ipv6AddressMode;
+    private String ipv6RAMode;
 
     // associated router
     private VirtualRouter router;
@@ -85,6 +85,38 @@ public class VirtualSubnet  {
 
     public IpAddress getGatewayIp() {
         return gatewayIp;
+    }
+
+    public VirtualSubnet setIPVersion(String ipVersion) {
+        this.ipVersion = ipVersion;
+        return this;
+    }
+
+    public String getIpVersion() { return ipVersion;}
+
+    public VirtualSubnet setSubnetCidr(String subnetCidr) {
+        this.subnetCidr = subnetCidr;
+        return this;
+    }
+
+    public String getSubnetCidr() { return subnetCidr;}
+
+    public VirtualSubnet setIpv6AddressMode(String ipv6AddressMode) {
+        this.ipv6AddressMode = ipv6AddressMode;
+        return this;
+    }
+
+    public String getIpv6AddressMode() {
+        return ipv6AddressMode;
+    }
+
+    public VirtualSubnet setIpv6RAMode(String ipv6RAMode) {
+        this.ipv6RAMode = ipv6RAMode;
+        return this;
+    }
+
+    public String getIpv6RAMode() {
+        return ipv6RAMode;
     }
 
     public VirtualSubnet setAllocPoolFlag(Boolean flag) {
