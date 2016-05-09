@@ -8,12 +8,15 @@
 
 package org.opendaylight.netvirt.routemgr.net;
 
+import com.google.common.collect.ImmutableBiMap;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
@@ -45,6 +48,15 @@ public class NetDataListener implements DataChangeListener {
     private Registration subnetListener;
     private Registration networkListener;
 
+    private static final ImmutableBiMap<Class<? extends Dhcpv6Base>, String> IPV6_SUBNET_ATTRIBUTES_MAP = ImmutableBiMap.of(
+            Dhcpv6Off.class, IfMgr.DHCPV6_OFF,
+            Dhcpv6Slaac.class, IfMgr.IPV6_SLAAC,
+            Dhcpv6Stateful.class, IfMgr.IPV6_DHCPV6_STATEFUL,
+            Dhcpv6Stateless.class, IfMgr.IPV6_DHCPV6_STATELESS);
+
+    private static final ImmutableBiMap<Class<? extends IpVersionBase>,String> IP_VERSION_MAP = ImmutableBiMap.of(
+            IpVersionV4.class, IfMgr.IP_VERSION_V4,
+            IpVersionV6.class, IfMgr.IP_VERSION_V6);
     // Interface Manager
     private IfMgr ifMgr;
 
@@ -201,7 +213,10 @@ public class NetDataListener implements DataChangeListener {
 
         ifMgr.addSubnet(snet.getUuid(), snet.getName(),
                     snet.getNetworkId(), snet.getTenantId(),
-                    snet.getGatewayIp(), poolsList);
+                    snet.getGatewayIp(), poolsList,
+                    IP_VERSION_MAP.get(snet.getIpVersion()), snet.getCidr(),
+                    IPV6_SUBNET_ATTRIBUTES_MAP.get(snet.getIpv6AddressMode()),
+                    IPV6_SUBNET_ATTRIBUTES_MAP.get(snet.getIpv6RaMode()));
 
         return;
     }

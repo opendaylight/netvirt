@@ -28,11 +28,21 @@ public class IfMgr {
     static final Logger logger = LoggerFactory.getLogger(IfMgr.class);
     public static final String NETWORK_ROUTER_INTERFACE = "network:router_interface";
 
+    public static final String DHCPV6_OFF = "DHCPV6_OFF";
+    public static final String IPV6_SLAAC = "IPV6_SLAAC";
+    public static final String IPV6_DHCPV6_STATEFUL = "DHCPV6_STATEFUL";
+    public static final String IPV6_DHCPV6_STATELESS = "DHCPV6_STATELESS";
+    public static final String IPV6_AUTO_ADDRESS_SUBNETS = IPV6_SLAAC + IPV6_DHCPV6_STATELESS;
+
+    public static final String IP_VERSION_V4 = "IPv4";
+    public static final String IP_VERSION_V6 = "IPv6";
+
     // router objects - routers, subnets, interfaces
     private HashMap<Uuid, VirtualRouter> vrouters;
     private HashMap<Uuid, VirtualSubnet> vsubnets;
     private HashMap<Uuid, VirtualPort> vintfs;
     private HashMap<Ipv6Address, VirtualPort> v6IntfMap;
+    private HashMap<String, VirtualPort> v6MacToPortMapping;
     private HashMap<Uuid, List<VirtualPort>> unprocessedRouterIntfs;
     private HashMap<Uuid, List<VirtualPort>> unprocessedSubnetIntfs;
     private static final IfMgr IFMGR_INSTANCE = new IfMgr();
@@ -46,6 +56,7 @@ public class IfMgr {
         this.vsubnets = new HashMap<>();
         this.vintfs = new HashMap<>();
         this.v6IntfMap = new HashMap<>();
+        this.v6MacToPortMapping = new HashMap<>();
         this.unprocessedRouterIntfs = new HashMap<>();
         this.unprocessedSubnetIntfs = new HashMap<>();
         logger.info("IfMgr is enabled");
@@ -129,14 +140,28 @@ public class IfMgr {
      * @param poolsList pools list
      */
     public void addSubnet(Uuid snetId, String name, Uuid networkId, Uuid tenantId,
-                          IpAddress gatewayIp, List<AllocationPools> poolsList) {
+                          IpAddress gatewayIp, List<AllocationPools> poolsList,
+                          String ipVersion, String subnetCidr,
+                          String ipV6AddressMode, String ipV6RaMode) {
+
+        // Save the gateway ipv6 address in its fully expanded format. We always store the v6Addresses
+        // in expanded form and are used during Neighbor Discovery Support.
+        if (gatewayIp.getIpv6Address() != null) {
+            Ipv6Address addr = new Ipv6Address
+                    (InetAddresses.forString(gatewayIp.getIpv6Address().getValue()).getHostAddress());
+            gatewayIp = new IpAddress(addr);
+        }
 
         VirtualSubnet snet = new VirtualSubnet();
         if (snet != null) {
             snet.setTenantID(tenantId)
                     .setSubnetUUID(snetId)
                     .setName(name)
-                    .setGatewayIp(gatewayIp);
+                    .setGatewayIp(gatewayIp)
+                    .setIPVersion(ipVersion)
+                    .setSubnetCidr(subnetCidr)
+                    .setIpv6AddressMode(ipV6AddressMode)
+                    .setIpv6RAMode(ipV6RaMode);
 
             // Add address pool
             for (AllocationPools pool : poolsList) {
@@ -236,6 +261,7 @@ public class IfMgr {
         }
         if (fixedIp.getIpv6Address() != null) {
             v6IntfMap.put(fixedIp.getIpv6Address(), intf);
+            v6MacToPortMapping.put(intf.getMacAddress(), intf);
         }
         return;
     }
@@ -278,6 +304,7 @@ public class IfMgr {
         }
         if (fixedIp.getIpv6Address() != null) {
             v6IntfMap.put(fixedIp.getIpv6Address(), intf);
+            v6MacToPortMapping.put(intf.getMacAddress(), intf);
         }
         return;
     }
@@ -350,5 +377,16 @@ public class IfMgr {
     public VirtualPort getInterfaceForAddress(Ipv6Address addr) {
         logger.debug("obtaining the virtual interface for {}", addr);
         return (v6IntfMap.get(addr));
+    }
+
+    /**
+     * Retrieve the VirtualPort corresponding to the given MAC Address
+     *
+     * @param macAddress
+     * @return VirtualPort corresponding to the macAddress
+     */
+    public VirtualPort getInterfaceForMacAddress(String macAddress) {
+        logger.debug("obtaining the virtual interface for {}", macAddress);
+        return (v6MacToPortMapping.get(macAddress));
     }
 }
