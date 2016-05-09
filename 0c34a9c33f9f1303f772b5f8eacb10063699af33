@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_e4bff1ce",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1184,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-05-09T10:37:53Z",
+      "side": 1,
+      "message": "programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, intf, true);\nthe above call is to add vxlan ports of dst node in the src bridge node.\n \ncookie\u003d0x0, duration\u003d311.410s, table\u003d110, n_packets\u003d17, n_bytes\u003d1516, priority\u003d16383,reg0\u003d0x1,tun_id\u003d0x413,dl_dst\u003d01:00:00:00:00:00/01:00:00:00:00:00 actions\u003doutput:2,output:1\n\ninitially we restricted vxlan ports should not be added to all nodes. so the dst bridge will not contain vxlan ports \nin this case if src node tries to send BC/MC packets to dst all packets will be dropped.\ndst node should have tunnel entry to handle BC/MC if it has network.\nTo add the vxlan port in dstBridgeNode we are using the below method call.\nprogramTunnelRules(networkType, segmentationId, src, dstBridgeNode, intf, true);\n\ncookie\u003d0x0, duration\u003d530.276s, table\u003d110, n_packets\u003d22, n_bytes\u003d1906, priority\u003d16383,reg0\u003d0x1,tun_id\u003d0x413,dl_dst\u003d01:00:00:00:00:00/01:00:00:00:00:00 actions\u003doutput:1,output:4",
+      "parentUuid": "fa57193c_21f9dbe9",
+      "revId": "0c34a9c33f9f1303f772b5f8eacb10063699af33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_81dd4773",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2016-05-08T06:27:47Z",
       "side": 1,
       "message": "How come isDestinNw is not checked before this?",
+      "revId": "0c34a9c33f9f1303f772b5f8eacb10063699af33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_44b5fdec",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1188,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-05-09T10:37:53Z",
+      "side": 1,
+      "message": "By default unicast flow entries should be added for destination node. So no need to check isDestinNw for destination node. below method call is used to add flows.\nprogramTunnelRules(networkType, segmentationId, src, dstBridgeNode, intf, false);\ncookie\u003d0x0, duration\u003d191.922s, table\u003d110, n_packets\u003d0, n_bytes\u003d0, tun_id\u003d0x43b,dl_dst\u003dfa:16:3e:4b:4e:39 actions\u003doutput:1",
+      "parentUuid": "fa57193c_81dd4773",
       "revId": "0c34a9c33f9f1303f772b5f8eacb10063699af33",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
