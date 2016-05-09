@@ -99,7 +99,7 @@ public class PortHandlerTest {
         List<OvsdbTerminationPointAugmentation> ports = new ArrayList<>();
         OvsdbTerminationPointAugmentation port = mock(OvsdbTerminationPointAugmentation.class);
         ports.add(port);
-        when(southbound.getTerminationPointsOfBridge(any(Node.class))).thenReturn(ports);
+        when(southbound.readTerminationPointAugmentations(any(Node.class))).thenReturn(ports);
 
         when(southbound.getInterfaceExternalIdsValue(any(OvsdbTerminationPointAugmentation.class), anyString())).thenReturn("portUUID");
 
