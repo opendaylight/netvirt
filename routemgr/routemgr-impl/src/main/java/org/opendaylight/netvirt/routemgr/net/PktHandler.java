@@ -8,37 +8,33 @@
 
 package org.opendaylight.netvirt.routemgr.net;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.routemgr.utils.BitBufferHelper;
 import org.opendaylight.netvirt.routemgr.utils.BufferException;
 import org.opendaylight.netvirt.routemgr.utils.RoutemgrUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IetfInetUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.EthernetHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.Ipv6Header;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.NeighborAdvertisePacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.NeighborAdvertisePacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.NeighborSolicitationPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.NeighborSolicitationPacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.router.advertisement.packet.PrefixList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.router.advertisement.packet.PrefixListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.*;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 
@@ -53,6 +49,13 @@ public class PktHandler implements PacketProcessingListener {
     public static final int IPv6_HDR_START = 112;
     public static final int IPv6_NEXT_HDR = 48;
     public static final int ICMPV6_HDR_START = 432;
+    public static final int ICMPV6_OFFSET = 54;
+
+    public static final int IPV6_DEFAULT_HOP_LIMIT = 64;
+    public static final int IPV6_ROUTER_LIFETIME = 4500;
+    public static final int IPV6_RA_VALID_LIFETIME = 2592000;
+    public static final int IPV6_RA_PREFERRED_LIFETIME = 604800;
+
     private final ExecutorService packetProcessor = Executors.newCachedThreadPool();
 
     private DataBroker dataService;
@@ -170,10 +173,164 @@ public class PktHandler implements PacketProcessingListener {
                     pktProcessService.transmitPacket(input);
                     pktProccessedCounter++;
                 }
-            } else if (type == RoutemgrUtil.ICMPv6_RS_CODE) {
-                // TODO
-            }
+            } else {
+                if (type == RoutemgrUtil.ICMPv6_RS_CODE) {
+                    byte[] data = packet.getPayload();
+                    IpAddress gatewayIp;
+                    String prefix = "";
+                    String gatewayMac = null;
+                    RouterSolicitationPacket rsPdu = deserializeRSPacket(data);
+                    InstanceIdentifier<Node> outNode = packet.getIngress().getValue().firstIdentifierOf(Node.class);
+                    // Todo: Validate the checksum.
+                    VirtualPort port = ifMgr.getInterfaceForMacAddress(rsPdu.getSourceMac().getValue().toUpperCase());
+                    if (port == null) {
+                        LOG.warn("No learnt interface is available for the given MAC Address {}",
+                                rsPdu.getSourceMac());
+                        return;
+                    }
 
+
+                    for (VirtualSubnet subnet : port.getSubnets()) {
+                        gatewayIp = subnet.getGatewayIp();
+                        if (gatewayIp.getIpv4Address() != null)
+                            continue;
+                        gatewayMac = ifMgr.getInterfaceForAddress(new Ipv6Address(gatewayIp.getIpv6Address().getValue())).getMacAddress();
+                        String autoAddressSubnets = ifMgr.IPV6_SLAAC + ifMgr.IPV6_DHCPV6_STATELESS;
+
+                        if (autoAddressSubnets.contains(subnet.getIpv6AddressMode())
+                            || autoAddressSubnets.contains(subnet.getIpv6RAMode())) {
+                            prefix = subnet.getSubnetCidr();
+                            //Todo: Handle multiple prefix use-case.
+                            break;
+                        } else {
+                            LOG.warn("Subnet is not an auto-address subnet. Returning.");
+                            return;
+                        }
+                    }
+
+                    RouterAdvertisementPacketBuilder raPacket = new RouterAdvertisementPacketBuilder();
+                    updateRAResponse(rsPdu, raPacket, gatewayMac, rsPdu.getSourceMac(), prefix);
+                    LOG.warn("Router Advt message {}.", raPacket.build());
+                    // serialize the response packet
+                    byte[] txPayload = fillRouterAdvertisementPacket(raPacket.build());
+                    TransmitPacketInput input = new TransmitPacketInputBuilder().setPayload(txPayload)
+                            .setNode(new NodeRef(outNode))
+                            .setEgress(packet.getIngress()).build();
+                    // Tx the packet out of the controller.
+                    if (pktProcessService != null) {
+                        LOG.warn("Transmitting the packet out {}", packet.getIngress());
+                        pktProcessService.transmitPacket(input);
+                    }
+                }
+            }
+        }
+
+        private RouterSolicitationPacket deserializeRSPacket(byte[] data) {
+            RouterSolicitationPacketBuilder rsPdu = new RouterSolicitationPacketBuilder();
+            int bitOffset = 0;
+            RoutemgrUtil instance = RoutemgrUtil.getInstance();
+
+            try {
+                // TODO: We may not need to deserialize the whole packet. Just de-serialize the necessary fields.
+                rsPdu.setDestinationMac(new MacAddress(
+                        instance.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
+                bitOffset = bitOffset + 48;
+                rsPdu.setSourceMac(new MacAddress(
+                        instance.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
+                bitOffset = bitOffset + 48;
+                rsPdu.setEthertype(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+
+                bitOffset = IPv6_HDR_START;
+                rsPdu.setVersion(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 4)));
+                bitOffset = bitOffset + 4;
+                rsPdu.setFlowLabel(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, 28)));
+                bitOffset = bitOffset + 28;
+                rsPdu.setIpv6Length(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+                bitOffset = bitOffset + 16;
+                rsPdu.setNextHeader(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+                bitOffset = bitOffset + 8;
+                rsPdu.setHopLimit(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+                bitOffset = bitOffset + 8;
+                rsPdu.setSourceIpv6(Ipv6Address.getDefaultInstance(
+                        InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset, 128)).getHostAddress()));
+                bitOffset = bitOffset + 128;
+                rsPdu.setDestinationIpv6(Ipv6Address.getDefaultInstance(
+                        InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset, 128)).getHostAddress()));
+                bitOffset = bitOffset + 128;
+
+                rsPdu.setIcmp6Type(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+                bitOffset = bitOffset + 8;
+                rsPdu.setIcmp6Code(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+                bitOffset = bitOffset + 8;
+                rsPdu.setIcmp6Chksum(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+                bitOffset = bitOffset + 16;
+                rsPdu.setReserved(Long.valueOf(0));
+                bitOffset = bitOffset + 32;
+
+                //Todo: Validate that Option-type is 1 (Source Link Layer Option)
+                rsPdu.setOptionType(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+                bitOffset = bitOffset + 8;
+                rsPdu.setSourceAddrLength(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+                bitOffset = bitOffset + 8;
+                if (rsPdu.getOptionType() == 1) {
+                    rsPdu.setSourceLlAddress(new MacAddress(
+                            instance.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
+                }
+            } catch (BufferException | UnknownHostException  e) {
+                LOG.warn("Exception obtained when deserializing Router Solicitation packet", e.toString());
+            }
+            return rsPdu.build();
+        }
+
+        private void updateRAResponse(RouterSolicitationPacket pdu, RouterAdvertisementPacketBuilder raPacket,
+                                      String gatewayMac, MacAddress vmMac, String ipV6Prefix) {
+            RoutemgrUtil instance = RoutemgrUtil.getInstance();
+            MacAddress mac = MacAddress.getDefaultInstance(gatewayMac);
+            raPacket.setSourceMac(mac);
+            raPacket.setDestinationMac(vmMac);
+            raPacket.setEthertype(pdu.getEthertype());
+
+            raPacket.setVersion(pdu.getVersion());
+            raPacket.setFlowLabel(pdu.getFlowLabel());
+            raPacket.setIpv6Length(56); // Todo Length. Should this be 44?
+            raPacket.setNextHeader(pdu.getNextHeader());
+            raPacket.setHopLimit(RoutemgrUtil.ICMPv6_MAX_HOP_LIMIT);
+            raPacket.setSourceIpv6(instance.getIpv6LinkLocalAddressFromMac(mac));
+            raPacket.setDestinationIpv6(new Ipv6Address("FF02::1"));
+
+            raPacket.setIcmp6Type(RoutemgrUtil.ICMPv6_RA_CODE);
+            raPacket.setIcmp6Code((short)0);
+            raPacket.setIcmp6Chksum(0);
+
+            raPacket.setCurHopLimit((short) IPV6_DEFAULT_HOP_LIMIT);
+            raPacket.setFlags((short) 0);
+            raPacket.setRouterLifetime(IPV6_ROUTER_LIFETIME);
+            raPacket.setReachableTime((long) 0);
+            raPacket.setRetransTime((long) 0);
+
+            raPacket.setOptionSourceAddr((short)1);
+            raPacket.setSourceAddrLength((short)1);
+            raPacket.setSourceLlAddress(MacAddress.getDefaultInstance(gatewayMac));
+
+            PrefixListBuilder prefix = new PrefixListBuilder();
+            prefix.setOptionType((short)3);
+            prefix.setOptionLength((short)4);
+            prefix.setPrefixLength((short)64);
+            short flag = 0;
+            flag = (short) (flag | (1 << 7));
+            flag = (short) (flag | (1 << 6));
+            prefix.setFlags((short)flag);
+            prefix.setValidLifetime((long) IPV6_RA_VALID_LIFETIME);
+            prefix.setPreferredLifetime((long) IPV6_RA_PREFERRED_LIFETIME);
+            prefix.setReserved((long) 0);
+
+            prefix.setPrefix(new Ipv6Prefix(ipV6Prefix));
+
+            List<PrefixList> pList = new ArrayList<PrefixList>(1);
+            pList.add(prefix.build());
+            raPacket.setPrefixList((List<PrefixList>) pList);
+
+            return;
         }
 
         private NeighborSolicitationPacket deserializeNSPacket(byte[] data) {
@@ -252,6 +409,51 @@ public class PktHandler implements PacketProcessingListener {
             naPacket.setVersion(pdu.getVersion());
             naPacket.setIcmp6Chksum(0);
             return;
+        }
+
+        private byte[] fillRouterAdvertisementPacket(RouterAdvertisementPacket pdu) {
+            ByteBuffer buf = ByteBuffer.allocate(ICMPV6_OFFSET+pdu.getIpv6Length());
+            RoutemgrUtil instance = RoutemgrUtil.getInstance();
+
+            buf.put(instance.convertEthernetHeaderToByte((EthernetHeader)pdu), 0, 14);
+            buf.put(instance.convertIpv6HeaderToByte((Ipv6Header)pdu), 0, 40);
+            buf.put(icmp6RAPayloadtoByte(pdu), 0, pdu.getIpv6Length());
+            int checksum = instance.calcIcmpv6Checksum(buf.array(), (Ipv6Header) pdu);
+            buf.putShort((ICMPV6_OFFSET + 2), (short)checksum);
+            return (buf.array());
+        }
+
+        private byte[] icmp6RAPayloadtoByte(RouterAdvertisementPacket pdu) {
+            RoutemgrUtil instance = RoutemgrUtil.getInstance();
+            LOG.debug("in RouterAdvt icmp6RAPayloadtoByte");
+            byte[] data = new byte[60]; // Todo: Should be actually 56 bytes.
+            Arrays.fill(data, (byte)0);
+
+            ByteBuffer buf = ByteBuffer.wrap(data);
+            buf.put((byte)pdu.getIcmp6Type().shortValue());
+            buf.put((byte)pdu.getIcmp6Code().shortValue());
+            buf.putShort((short)pdu.getIcmp6Chksum().intValue());
+            buf.put((byte)pdu.getCurHopLimit().shortValue());
+            buf.put((byte)pdu.getFlags().shortValue());
+            buf.putShort((short)pdu.getRouterLifetime().intValue());
+            buf.putInt((int)pdu.getReachableTime().longValue());
+            buf.putInt((int)pdu.getRetransTime().longValue());
+            buf.put((byte)pdu.getOptionSourceAddr().shortValue());
+            buf.put((byte)pdu.getSourceAddrLength().shortValue());
+            buf.put(instance.bytesFromHexString(pdu.getSourceLlAddress().getValue().toString()));
+
+            PrefixList prefix = pdu.getPrefixList().get(0);
+
+            buf.put((byte)prefix.getOptionType().shortValue());
+            buf.put((byte)prefix.getOptionLength().shortValue());
+            buf.put((byte)prefix.getPrefixLength().shortValue());
+            buf.put((byte)prefix.getFlags().shortValue());
+            buf.putInt((int)prefix.getValidLifetime().longValue());
+            buf.putInt((int)prefix.getPreferredLifetime().longValue());
+            buf.putInt((int)prefix.getReserved().longValue());
+            buf.put(IetfInetUtil.INSTANCE.ipv6PrefixToBytes(new Ipv6Prefix(prefix.getPrefix())));
+            LOG.debug("icmp6 payload {}", data);
+            return data;
         }
 
         private byte[] icmp6NAPayloadtoByte(NeighborAdvertisePacket pdu) {
