@@ -12,7 +12,11 @@ import java.net.HttpURLConnection;
 import java.util.List;
 
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
+import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
+import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
+import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronPortAware;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
@@ -36,6 +40,9 @@ public class PortHandler extends AbstractHandler implements INeutronPortAware, C
 
     // The implementation for each of these services is resolved by the OSGi Service Manager
     private volatile NodeCacheManager nodeCacheManager;
+    private volatile BridgeConfigurationManager bridgeConfigurationManager;
+    private volatile TenantNetworkManager tenantNetworkManager;
+    private volatile NetworkingProviderManager networkingProviderManager;
     private volatile NeutronL3Adapter neutronL3Adapter;
     private volatile DistributedArpService distributedArpService;
     private volatile Southbound southbound;
@@ -65,6 +72,25 @@ public class PortHandler extends AbstractHandler implements INeutronPortAware, C
         LOG.debug(" Port-ADD successful for tenant-id - {}, network-id - {}, port-id - {}",
                      neutronPort.getTenantID(), neutronPort.getNetworkUUID(),
                      neutronPort.getID());
+
+        //TODO: Need to implement getNodes
+        List<Node> nodes = nodeCacheManager.getNodes();
+        for (Node node : nodes) {
+            OvsdbTerminationPointAugmentation port = findPortOnNode(node, neutronPort);
+            // if the port already exist on the node it means that the southbound event already arrived
+            // and was not handled because we could not find the tenant network
+            if (port != null) {
+                NeutronNetwork network = tenantNetworkManager.getTenantNetwork(port);
+                if (network != null && !network.getRouterExternal()) {
+                    LOG.trace("handleInterfaceUpdate <{}> <{}> network: {}", node, port, network.getNetworkUUID());
+                    if (bridgeConfigurationManager.createLocalNetwork(node, network)) {
+                        networkingProviderManager.getProvider(node).handleInterfaceUpdate(network, node, port);
+                    }
+                }
+                break;
+            }
+        }
+
         distributedArpService.handlePortEvent(neutronPort, Action.ADD);
         neutronL3Adapter.handleNeutronPortEvent(neutronPort, Action.ADD);
     }
@@ -125,27 +151,37 @@ public class PortHandler extends AbstractHandler implements INeutronPortAware, C
         LOG.debug("Handling neutron delete port {}", neutronPort);
         distributedArpService.handlePortEvent(neutronPort, Action.DELETE);
         neutronL3Adapter.handleNeutronPortEvent(neutronPort, Action.DELETE);
+
         //TODO: Need to implement getNodes
         List<Node> nodes = nodeCacheManager.getNodes();
         for (Node node : nodes) {
-            try {
-                List<OvsdbTerminationPointAugmentation> ports = southbound.getTerminationPointsOfBridge(node);
-                for (OvsdbTerminationPointAugmentation port : ports) {
-                    String neutronPortId =
-                            southbound.getInterfaceExternalIdsValue(port, Constants.EXTERNAL_ID_INTERFACE_ID);
-                    if (neutronPortId != null && neutronPortId.equalsIgnoreCase(neutronPort.getPortUUID())) {
-                        LOG.trace("neutronPortDeleted: Delete interface {}", port.getName());
-                        southbound.deleteTerminationPoint(node, port.getName());
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                LOG.error("Exception during handlingNeutron port delete", e);
+            OvsdbTerminationPointAugmentation port = findPortOnNode(node, neutronPort);
+            if (port != null) {
+                LOG.trace("neutronPortDeleted: Delete interface {}", port.getName());
+                southbound.deleteTerminationPoint(node, port.getName());
+                break;
             }
         }
+
         LOG.debug(" PORT delete successful for tenant-id - {}, network-id - {}, port-id - {}",
                      neutronPort.getTenantID(), neutronPort.getNetworkUUID(),
                      neutronPort.getID());
+    }
+
+    private OvsdbTerminationPointAugmentation findPortOnNode(Node node, NeutronPort neutronPort){
+        try {
+            List<OvsdbTerminationPointAugmentation> ports = southbound.readTerminationPointAugmentations(node);
+            for (OvsdbTerminationPointAugmentation port : ports) {
+                String neutronPortId =
+                        southbound.getInterfaceExternalIdsValue(port, Constants.EXTERNAL_ID_INTERFACE_ID);
+                if (neutronPortId != null && neutronPortId.equalsIgnoreCase(neutronPort.getPortUUID())) {
+                    return port;
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Exception while reading ports", e);
+        }
+        return null;
     }
 
     /**
@@ -181,6 +217,12 @@ public class PortHandler extends AbstractHandler implements INeutronPortAware, C
     public void setDependencies(ServiceReference serviceReference) {
         nodeCacheManager =
                 (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
+        networkingProviderManager =
+                (NetworkingProviderManager) ServiceHelper.getGlobalInstance(NetworkingProviderManager.class, this);
+        tenantNetworkManager =
+                (TenantNetworkManager) ServiceHelper.getGlobalInstance(TenantNetworkManager.class, this);
+        bridgeConfigurationManager =
+                (BridgeConfigurationManager) ServiceHelper.getGlobalInstance(BridgeConfigurationManager.class, this);
         neutronL3Adapter =
                 (NeutronL3Adapter) ServiceHelper.getGlobalInstance(NeutronL3Adapter.class, this);
         distributedArpService =
