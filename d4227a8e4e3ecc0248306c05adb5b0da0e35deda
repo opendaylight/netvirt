@@ -22,6 +22,30 @@
       "revId": "d4227a8e4e3ecc0248306c05adb5b0da0e35deda",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_e7b541ce",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1276,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-05-09T10:37:53Z",
+      "side": 1,
+      "message": "Added null check for \"dstBridgeNode\".",
+      "parentUuid": "fa57193c_80771302",
+      "range": {
+        "startLine": 1276,
+        "startChar": 29,
+        "endLine": 1276,
+        "endChar": 38
+      },
+      "revId": "d4227a8e4e3ecc0248306c05adb5b0da0e35deda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
