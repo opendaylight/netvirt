@@ -266,6 +266,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_4145ef6e",
+        "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-05-09T12:47:00Z",
+      "side": 1,
+      "message": "Much better, thanks!",
+      "parentUuid": "fa57193c_9e5e4b44",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_62c11f2e",
         "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
         "patchSetId": 1
@@ -313,6 +331,24 @@
       "side": 1,
       "message": "@Sridhar \nGenerating the packet from NeighborSolicationPacketBuilder involves additional work of converting required values to MacAddress/Ipv6Address objects and then re-converting them back to a byte array as this is the final input required.\nAll these should it be required for a Unit test case.\n\n@Stephen\nThe packets to be able to view in a wireshark tool contain additional information for the wireshark format specification. Just the input byte array mentioned here is not sufficient to be view a packet in the wireshark. Also reading files from disk will require additional time. Please confirm if this required for a unit test case.",
       "parentUuid": "fa57193c_c448f85d",
+      "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_817707d4",
+        "filename": "routemgr/routemgr-impl/src/test/java/org/opendaylight/netvirt/routemgr/net/PktHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-05-09T12:47:00Z",
+      "side": 1,
+      "message": "True, it would be more complex. The thing that bothers me is that the packet arrays are pretty much write-only code now...",
+      "parentUuid": "fa57193c_993f8525",
       "revId": "d62e3b642bf9c2a7004ad4f116a30beace511bab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
