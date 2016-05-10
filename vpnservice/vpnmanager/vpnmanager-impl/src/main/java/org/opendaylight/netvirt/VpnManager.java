@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -45,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev15
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
+import org.opendaylight.fibmanager.api.IFibManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -238,6 +240,25 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
                    VpnUtil.getVpnInstanceToVpnIdIdentifier(value.getVpnInstanceName()),
                    vpnInstanceToVpnId, DEFAULT_CALLBACK);
 
+        IFibManager fibManager = vpnInterfaceManager.getFibManager();
+        try {
+            String cachedTransType = fibManager.getReqTransType();
+            LOG.trace("Value for confTransportType is " + cachedTransType);
+            if (cachedTransType.equals("Invalid")) {
+                try {
+                    fibManager.setConfTransType("L3VPN", "VXLAN");
+                    LOG.trace("setting it to vxlan now");
+                } catch (Exception e) {
+                    LOG.trace("Exception caught setting the cached value for transportType");
+                    LOG.error(e.getMessage());
+                }
+            } else {
+                LOG.trace(":cached val is neither unset/invalid. NO-op.");
+            }
+        } catch (Exception e) {
+            System.out.println("Exception caught accessing the cached value for transportType");
+            LOG.error(e.getMessage());
+        }
 
         if(rd == null) {
             VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder();
@@ -294,6 +315,22 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
                 }
             }
         }
+    }
+
+    public boolean isVPNConfigured() {
+
+        InstanceIdentifier<VpnInstances> vpnsIdentifier =
+                InstanceIdentifier.builder(VpnInstances.class).build();
+        Optional<VpnInstances> optionalVpns = read( LogicalDatastoreType.CONFIGURATION,
+                vpnsIdentifier);
+        if (!optionalVpns.isPresent() ||
+                optionalVpns.get().getVpnInstance() == null ||
+                optionalVpns.get().getVpnInstance().isEmpty()) {
+            LOG.trace("No VPNs configured.");
+            return false;
+        }
+        LOG.trace("VPNs are configured on the system.");
+        return true;
     }
 
     private InstanceIdentifier<?> getWildCardPath() {

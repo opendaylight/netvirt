@@ -58,6 +58,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -686,8 +687,8 @@ public class NaptSwitchHA {
 
         try {
             Future<RpcResult<GetTunnelInterfaceNameOutput>> result = itmManager.getTunnelInterfaceName(
-                    new GetTunnelInterfaceNameInputBuilder().setSourceDpid(srcDpId).setDestinationDpid(dstDpId).
-//                            .setTunnelType(tunType).
+                    new GetTunnelInterfaceNameInputBuilder().setSourceDpid(srcDpId).setDestinationDpid(dstDpId)
+                            .setTunnelType(tunType).
                               build());
             rpcResult = result.get();
             if(!rpcResult.isSuccessful()) {
@@ -695,7 +696,7 @@ public class NaptSwitchHA {
                 result = itmManager.getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder()
                         .setSourceDpid(srcDpId)
                         .setDestinationDpid(dstDpId)
-//                        .setTunnelType(tunType)
+                        .setTunnelType(tunType)
                         .build());
                 rpcResult = result.get();
                 if(!rpcResult.isSuccessful()) {

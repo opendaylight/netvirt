@@ -64,6 +64,15 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdenti
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.opendaylight.vpnservice.itm.globals.ITMConstants;
+import org.opendaylight.vpnservice.mdsalutil.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.ConfTransportTypeL3vpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.ConfTransportTypeL3vpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeMplsOverGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeVxlan;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -84,6 +93,7 @@ public class NexthopManager implements AutoCloseable {
     private static final short DEFAULT_FLOW_PRIORITY = 10;
     private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
     private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
+    private L3VPNTransportTypes configuredTransportTypeL3VPN = L3VPNTransportTypes.Invalid;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
         new FutureCallback<Void>() {
@@ -221,10 +231,12 @@ public class NexthopManager implements AutoCloseable {
     }
 
     protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
+        Class<? extends TunnelTypeBase> tunType = getReqTunType(getReqTransType().toUpperCase());
         try {
             Future<RpcResult<GetTunnelInterfaceNameOutput>> result = itmManager.getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder()
                                                                                  .setSourceDpid(srcDpId)
-                                                                                 .setDestinationDpid(dstDpId).build());
+                                                                                 .setDestinationDpid(dstDpId)
+                                                                                .setTunnelType(tunType).build());
             RpcResult<GetTunnelInterfaceNameOutput> rpcResult = result.get();
             if(!rpcResult.isSuccessful()) {
                 LOG.warn("RPC Call to getTunnelInterfaceId returned with Errors {}", rpcResult.getErrors());
@@ -239,10 +251,12 @@ public class NexthopManager implements AutoCloseable {
     }
 
     protected String getTunnelInterfaceName(BigInteger srcDpId, IpAddress dstIp) {
+        Class<? extends TunnelTypeBase> tunType = getReqTunType(getReqTransType().toUpperCase());
         try {
             Future<RpcResult<GetInternalOrExternalInterfaceNameOutput>> result = itmManager.getInternalOrExternalInterfaceName(new GetInternalOrExternalInterfaceNameInputBuilder()
                                                                                  .setSourceDpid(srcDpId)
-                                                                                 .setDestinationIp(dstIp).build());
+                                                                                 .setDestinationIp(dstIp)
+                                                                                .setTunnelType(tunType).build());
             RpcResult<GetInternalOrExternalInterfaceNameOutput> rpcResult = result.get();
             if(!rpcResult.isSuccessful()) {
                 LOG.warn("RPC Call to getTunnelInterfaceName returned with Errors {}", rpcResult.getErrors());
@@ -469,5 +483,87 @@ public class NexthopManager implements AutoCloseable {
         return InstanceIdentifier.builder(VpnInterfaces.class)
                 .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).augmentation(
                         Adjacencies.class).build();
+    }
+
+
+    public void setConfTransType(String service,String transportType) {
+
+        if (!service.toUpperCase().equals("L3VPN")) {
+            System.out.println("Please provide a valid service name. Available value(s): L3VPN");
+            LOG.error("Incorrect service {} provided for setting the transport type.", service);
+            return;
+        }
+
+        L3VPNTransportTypes transType = L3VPNTransportTypes.validateTransportType(transportType.toUpperCase());
+
+        if (transType != L3VPNTransportTypes.Invalid) {
+            configuredTransportTypeL3VPN = transType;
+        }
+    }
+
+    public void writeConfTransTypeConfigDS() {
+        FibUtil.syncWrite(  broker, LogicalDatastoreType.CONFIGURATION, getConfTransportTypeIdentifier(),
+                createConfTransportType(configuredTransportTypeL3VPN.getTransportType()),
+                FibUtil.DEFAULT_CALLBACK);
+    }
+
+    public L3VPNTransportTypes getConfiguredTransportTypeL3VPN() {
+        return this.configuredTransportTypeL3VPN;
+    }
+
+
+    public String getReqTransType() {
+        if (configuredTransportTypeL3VPN == L3VPNTransportTypes.Invalid) {
+                    /*
+                    * Restart scenario, Read from the ConfigDS.
+                    * if the value is Unset, cache value as VxLAN.
+                    */
+            LOG.trace("configureTransportType is not yet set.");
+            Optional<ConfTransportTypeL3vpn>  configuredTransTypeFromConfig =
+                    FibUtil.read(broker, LogicalDatastoreType.CONFIGURATION, getConfTransportTypeIdentifier());
+
+            if (configuredTransTypeFromConfig.isPresent()) {
+                if (configuredTransTypeFromConfig.get().getTransportType().equals(TunnelTypeGre.class)) {
+                    configuredTransportTypeL3VPN.setL3VPNTransportTypes(ITMConstants.TUNNEL_TYPE_GRE);
+                } else {
+                    configuredTransportTypeL3VPN.setL3VPNTransportTypes(ITMConstants.TUNNEL_TYPE_VXLAN);
+                }
+                LOG.trace("configuredTransportType set from config DS to " + getConfiguredTransportTypeL3VPN().getTransportType());
+            } else {
+                setConfTransType("L3VPN", L3VPNTransportTypes.VxLAN.getTransportType());
+                LOG.trace("configuredTransportType is not set in the Config DS. VxLAN as default will be used.");
+            }
+        } else {
+            LOG.trace("configuredTransportType is set as {}", getConfiguredTransportTypeL3VPN().getTransportType());
+        }
+        return getConfiguredTransportTypeL3VPN().getTransportType();
+    }
+    public InstanceIdentifier<ConfTransportTypeL3vpn> getConfTransportTypeIdentifier() {
+        return InstanceIdentifier.builder(ConfTransportTypeL3vpn.class).build();
+    }
+
+    private ConfTransportTypeL3vpn createConfTransportType (String type) {
+        ConfTransportTypeL3vpn confTransType;
+        if (type.equals(ITMConstants.TUNNEL_TYPE_GRE)) {
+            confTransType = new ConfTransportTypeL3vpnBuilder().setTransportType(TunnelTypeGre.class).build();
+            LOG.trace("Setting the confTransportType to GRE.");
+        } else if (type.equals(ITMConstants.TUNNEL_TYPE_VXLAN)) {
+            confTransType = new ConfTransportTypeL3vpnBuilder().setTransportType(TunnelTypeVxlan.class).build();
+            LOG.trace("Setting the confTransportType to VxLAN.");
+        } else {
+            LOG.trace("Invalid transport type {} passed to Config DS ", type);
+            confTransType = null;
+        }
+        return  confTransType;
+    }
+
+    Class<? extends TunnelTypeBase> getReqTunType(String transportType) {
+        if (transportType.equals("VXLAN")) {
+            return TunnelTypeVxlan.class;
+        } else if (transportType.equals("GRE")) {
+            return TunnelTypeGre.class;
+        } else {
+            return TunnelTypeMplsOverGre.class;
+        }
     }
 }

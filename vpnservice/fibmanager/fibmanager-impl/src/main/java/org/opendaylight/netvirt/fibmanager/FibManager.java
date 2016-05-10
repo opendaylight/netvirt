@@ -9,6 +9,8 @@ package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -23,6 +25,7 @@ import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
@@ -66,6 +69,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev15
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeMplsOverGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetTunnelTypeInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetTunnelTypeOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
@@ -120,6 +125,10 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   public void setNextHopManager(NexthopManager nextHopManager) {
     this.nextHopManager = nextHopManager;
   }
+
+    public NexthopManager getNextHopManager() {
+        return this.nextHopManager;
+    }
 
   public void setMdsalManager(IMdsalApiManager mdsalManager) {
     this.mdsalManager = mdsalManager;
