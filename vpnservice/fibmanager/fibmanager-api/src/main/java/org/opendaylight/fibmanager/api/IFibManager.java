@@ -17,4 +17,9 @@ public interface IFibManager {
     List<String> printFibEntries();
     void addStaticRoute(String prefix, String nextHop, String rd, int label);
     void deleteStaticRoute(String prefix, String rd);
+    void setConfTransType(String service, String transportType);
+    String getConfTransType();
+    boolean isVPNConfigured();
+    void writeConfTransTypeConfigDS();
+    String getReqTransType();
 }

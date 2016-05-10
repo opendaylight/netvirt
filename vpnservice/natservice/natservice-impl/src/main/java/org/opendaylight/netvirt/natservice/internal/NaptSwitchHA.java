@@ -686,8 +686,8 @@ public class NaptSwitchHA {
 
         try {
             Future<RpcResult<GetTunnelInterfaceNameOutput>> result = itmManager.getTunnelInterfaceName(
-                    new GetTunnelInterfaceNameInputBuilder().setSourceDpid(srcDpId).setDestinationDpid(dstDpId).
-//                            .setTunnelType(tunType).
+                    new GetTunnelInterfaceNameInputBuilder().setSourceDpid(srcDpId).setDestinationDpid(dstDpId)
+                            .setTunnelType(tunType).
                               build());
             rpcResult = result.get();
             if(!rpcResult.isSuccessful()) {
@@ -695,7 +695,7 @@ public class NaptSwitchHA {
                 result = itmManager.getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder()
                         .setSourceDpid(srcDpId)
                         .setDestinationDpid(dstDpId)
-//                        .setTunnelType(tunType)
+                        .setTunnelType(tunType)
                         .build());
                 rpcResult = result.get();
                 if(!rpcResult.isSuccessful()) {

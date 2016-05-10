@@ -144,6 +144,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         this.fibManager = fibManager;
     }
 
+    public IFibManager getFibManager() {
+        return this.fibManager;
+    }
+
     public void setIdManager(IdManagerService idManager) {
         this.idManager = idManager;
         vpnSubnetRouteHandler.setIdManager(idManager);

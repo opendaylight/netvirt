@@ -5,6 +5,7 @@ module odl-l3vpn {
     import yang-ext {prefix ext; revision-date "2013-07-09";}
     import l3vpn { prefix l3vpn; revision-date "2014-08-15"; }
     import ietf-yang-types { prefix "yang"; }
+    import odl-interface { prefix odlif; revision-date "2015-03-31"; }
 
     revision "2013-09-11" {
         description "L3 VPN Service module";
@@ -275,7 +276,6 @@ module odl-l3vpn {
         }
     }
 
-
     container router-interfaces {
         list router-interface {
             key interface-name;
@@ -284,4 +284,18 @@ module odl-l3vpn {
         }
     }
 
+    /*
+     * Configured Transport Type for l3vpn service.
+     */
+    container conf-transport-type-l3vpn {
+        leaf transport-type {
+            mandatory "true";
+            type identityref {
+                base odlif:tunnel-type-base;
+            }
+            description
+                "L3VPN service will use this config to setup
+                the transport type for tunnels between DPNs.";
+        }
+    }
 }
