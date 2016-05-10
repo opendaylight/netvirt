@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.JdkFutureAdapters;
 
 import org.opendaylight.controller.md.sal.binding.api.*;
 import org.opendaylight.vpnservice.mdsalutil.*;
-import org.opendaylight.vpnservice.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.neutronvpn.rev150602.NeutronvpnService;
@@ -142,6 +141,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
     public void setFibManager(IFibManager fibManager) {
         this.fibManager = fibManager;
+    }
+
+    public IFibManager getFibManager() {
+        return this.fibManager;
     }
 
     public void setIdManager(IdManagerService idManager) {
