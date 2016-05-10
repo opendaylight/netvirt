@@ -148,4 +148,10 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
         LOG.info("Deleting extra route with destination {}", destination);
         vpnInterfaceManager.delExtraRoute(destination, rd, routerID);
     }
+
+
+    @Override
+    public boolean isVPNConfigured() {
+        return vpnManager.isVPNConfigured();
+    }
 }

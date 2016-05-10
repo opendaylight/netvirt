@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -555,8 +555,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         try {
             Future<RpcResult<GetTunnelInterfaceNameOutput>> result = itmManager.getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder()
                                                                                  .setSourceDpid(srcDpId)
-                                                                                 .setDestinationDpid(dstDpId)
-//                                                                                .setTunnelType(tunType)
+                                                                                 .setDestinationDpid(dstDpId)//
+                                                                                .setTunnelType(tunType)
                                                                                 .build());
             rpcResult = result.get();
             if(!rpcResult.isSuccessful()) {
@@ -564,7 +564,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 result = itmManager.getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder()
                         .setSourceDpid(srcDpId)
                         .setDestinationDpid(dstDpId)
-//                        .setTunnelType(tunType)
+                        .setTunnelType(tunType)
                         .build());
                 rpcResult = result.get();
                 if(!rpcResult.isSuccessful()) {

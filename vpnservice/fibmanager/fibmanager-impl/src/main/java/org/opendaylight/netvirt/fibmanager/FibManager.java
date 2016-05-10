@@ -121,6 +121,10 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     this.nextHopManager = nextHopManager;
   }
 
+    public NexthopManager getNextHopManager() {
+        return this.nextHopManager;
+    }
+
   public void setMdsalManager(IMdsalApiManager mdsalManager) {
     this.mdsalManager = mdsalManager;
   }

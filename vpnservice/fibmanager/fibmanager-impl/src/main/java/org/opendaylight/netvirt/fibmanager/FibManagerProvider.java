@@ -126,4 +126,31 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
     return rpcProviderRegistry;
   }
 
+  @Override
+  public void setConfTransType(String service, String transportType)
+  {
+    this.nexthopManager.setConfTransType(service, transportType);
+  }
+
+  @Override
+  public void writeConfTransTypeConfigDS()
+  {
+    this.nexthopManager.writeConfTransTypeConfigDS();
+  }
+
+  @Override
+  public String getConfTransType() {
+
+    return this.nexthopManager.getConfiguredTransportTypeL3VPN().toString();
+  }
+
+  @Override
+  public String getReqTransType() {
+    return this.nexthopManager.getReqTransType();
+  }
+  @Override
+  public boolean isVPNConfigured() {
+    return this.vpnmanager.isVPNConfigured();
+  }
+
 }
