@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.fibmanager.shell;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.karaf.shell.commands.*;
-import org.opendaylight.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 
 @Command(scope = "vpnservice", name = "showTransportType", description = "Displays transport type in use for services")
 public class ShowTransportTypeCommand extends OsgiCommandSupport {

@@ -1,5 +1,5 @@
 module vpnservice-dhcp {
-    namespace "urn:opendaylight:vpnservice:dhcp";
+    namespace "urn:opendaylight:netvirt:dhcp";
     prefix "dhcp";
 
     import ietf-inet-types {

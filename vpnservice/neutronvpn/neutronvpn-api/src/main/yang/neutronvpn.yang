@@ -1,7 +1,7 @@
 
 module neutronvpn {
 
-    namespace "urn:opendaylight:vpnservice:neutronvpn";
+    namespace "urn:opendaylight:netvirt:neutronvpn";
     prefix neutronvpn;
 
     import ietf-yang-types { prefix "yang"; }

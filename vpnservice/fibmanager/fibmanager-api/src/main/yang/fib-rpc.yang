@@ -1,5 +1,5 @@
 module fib-rpc {
-    namespace "urn:opendaylight:vpnservice:fib:rpc";
+    namespace "urn:opendaylight:netvirt:fib:rpc";
     prefix "fib-rpc";
 
     import ietf-inet-types {

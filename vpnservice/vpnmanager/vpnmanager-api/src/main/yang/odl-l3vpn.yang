@@ -1,5 +1,5 @@
 module odl-l3vpn {
-    namespace "urn:opendaylight:l3vpn";
+    namespace "urn:opendaylight:netvirt:l3vpn";
     prefix odl-l3vpn;
 
     import yang-ext {prefix ext; revision-date "2013-07-09";}

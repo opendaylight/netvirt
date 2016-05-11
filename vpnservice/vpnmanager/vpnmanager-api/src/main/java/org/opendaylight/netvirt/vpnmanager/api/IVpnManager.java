@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.vpnmanager.api;
 
-import org.opendaylight.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 
 public interface IVpnManager {
     void setFibService(IFibManager fibManager);
