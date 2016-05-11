@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_9052afdb",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-11T06:55:01Z",
+      "side": 1,
+      "message": "Why is the ip6 address converted to its compressed format. For the NS resolution, the v6 address is required to be available in uncompressed format.",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_d00a67d1",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-11T06:55:01Z",
+      "side": 1,
+      "message": "Use a common compressed/uncompressed v6 address format for NS resolution and in RA msgs.",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_102cdf46",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-11T06:55:01Z",
+      "side": 1,
+      "message": "it should be continue to verify if the other available subnets support auto addressing?",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_85bb8ce4",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-11T06:55:01Z",
+      "side": 1,
+      "message": "Source link layer is not a mandatory option. if this option is not available, we have to take that into consideration",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_c26f3ac4",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-11T06:55:01Z",
+      "side": 1,
+      "message": "For responding to the RS message, the destination should be the src ip of the RS message. Only for RA sent by itself(without reception of RS) all nodes multicast address should be used as destination ip.",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_251600f2",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-11T06:55:01Z",
+      "side": 1,
+      "message": "if no auto configuration subnet is available? prefix is not a mandatory option.",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_85d42c21",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-11T06:55:01Z",
+      "side": 1,
+      "message": "prefix length should be used from cidr configured value",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_e5e24800",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-11T06:55:01Z",
+      "side": 1,
+      "message": "will this be modified in future to accommodate nil/more than one prefixes",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
