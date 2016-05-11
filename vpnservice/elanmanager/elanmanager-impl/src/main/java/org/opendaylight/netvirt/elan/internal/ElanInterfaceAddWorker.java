@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.instances.ElanInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

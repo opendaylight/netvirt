@@ -12,7 +12,7 @@ import java.lang.management.ManagementFactory;
 import java.util.*;
 import javax.management.*;
 import org.apache.thrift.TException;
-import org.opendaylight.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.commands.Commands;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmErrorCodes;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;

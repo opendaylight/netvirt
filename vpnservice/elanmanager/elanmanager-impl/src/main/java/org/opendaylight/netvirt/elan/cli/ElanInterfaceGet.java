@@ -10,11 +10,11 @@ package org.opendaylight.netvirt.elan.cli;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.elan.utils.ElanCLIUtils;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
 import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

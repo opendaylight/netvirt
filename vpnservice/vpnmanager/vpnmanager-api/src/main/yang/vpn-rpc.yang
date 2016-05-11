@@ -1,5 +1,5 @@
 module vpn-rpc {
-    namespace "urn:opendaylight:vpnservice:vpn:rpc";
+    namespace "urn:opendaylight:netvirt:vpn:rpc";
     prefix "vpn-rpc";
 
     revision "2016-02-01" {

@@ -21,17 +21,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rpcs.rev151003.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.ExternalNetworks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.IntextIpMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.floating.ip.info.RouterPorts;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.floating.ip.info.router.ports.Ports;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.map.IpMappingKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.NaptSwitches;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.external.networks.Networks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.napt.switches.RouterToNaptSwitch;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMappingKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -44,9 +44,9 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.opendaylight.bgpmanager.api.IBgpManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fib.rpc.rev160121.FibRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.vpn.rpc.rev160201.VpnRpcService;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 
 /**
  * Created by ESUMAMS on 1/21/2016.
@@ -250,10 +250,10 @@ public class ExternalNetworksChangeListener extends AsyncDataTreeChangeListenerB
             LOG.debug("NAT Service : got primarySwitch as dpnId{} ", dpnId);
 
             Long routerIdentifier = NatUtil.getVpnId(dataBroker, routerId.getValue());
-            InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.map.IpMapping> idBuilder =
-                            InstanceIdentifier.builder(IntextIpMap.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.map.IpMapping.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.map.IpMappingKey(routerIdentifier));
-            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.map.IpMapping> id = idBuilder.build();
-            Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.intext.ip.map.IpMapping> ipMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+            InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMapping> idBuilder =
+                            InstanceIdentifier.builder(IntextIpMap.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMapping.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMappingKey(routerIdentifier));
+            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMapping> id = idBuilder.build();
+            Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMapping> ipMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             if (ipMapping.isPresent()) {
                   List<IpMap> ipMaps = ipMapping.get().getIpMap();
                   for (IpMap ipMap : ipMaps) {

@@ -1,5 +1,5 @@
 module odl-fib {
-    namespace "urn:opendaylight:vpnservice:fibmanager";
+    namespace "urn:opendaylight:netvirt:fibmanager";
     prefix odl-fib;
 
     revision "2015-03-30" {

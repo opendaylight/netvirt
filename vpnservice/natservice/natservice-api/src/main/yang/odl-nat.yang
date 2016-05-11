@@ -1,5 +1,5 @@
 module odl-nat {
-    namespace "urn:opendaylight:vpnservice:natservice";
+    namespace "urn:opendaylight:netvirt:natservice";
     prefix odl-nat;
 
     import ietf-yang-types { prefix "yang"; /*revision-date 2013-07-15; */}

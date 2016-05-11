@@ -19,7 +19,7 @@ import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpUpdater;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -10,11 +10,9 @@ package org.opendaylight.netvirt.elan.cli;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opendaylight.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 
 @Command(scope = "elanInterface", name = "delete", description = "deleting Elan Interface")
 public class ElanInterfaceDelete  extends OsgiCommandSupport {
