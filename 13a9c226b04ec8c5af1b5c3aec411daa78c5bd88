@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_85a26cac",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-11T07:15:34Z",
+      "side": 1,
+      "message": "The port selected should be the associated neutron router\u0027s interface connected to the VM from which the RS message is received. The subnets advertised in the RA should be the subnets available on the router interface.",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_d00a67d1",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
         "patchSetId": 1
