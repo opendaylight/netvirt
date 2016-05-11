@@ -1,5 +1,5 @@
 module l3nexthop {
-    namespace "urn:opendaylight:vpnservice:l3nexthop";
+    namespace "urn:opendaylight:netvirt:l3nexthop";
     prefix l3nexthop;
 
     revision "2015-04-09" {

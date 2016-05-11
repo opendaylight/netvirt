@@ -1,5 +1,5 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    <reference id="elanProviderRef" interface="org.opendaylight.elanmanager.api.IElanService" availability="optional" />
+    <reference id="elanProviderRef" interface="org.opendaylight.netvirt.elanmanager.api.IElanService" availability="optional" />
     <reference id="interfaceManagerRef" interface="org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager"  availability="optional" />
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>

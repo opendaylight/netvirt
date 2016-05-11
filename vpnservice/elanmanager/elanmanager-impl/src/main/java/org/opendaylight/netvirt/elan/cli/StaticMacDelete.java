@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.elan.cli;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

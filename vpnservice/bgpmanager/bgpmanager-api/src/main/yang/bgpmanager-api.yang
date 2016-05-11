@@ -15,6 +15,6 @@ module bgpmanager-api {
 
     identity bgpmanager-api {
         base "config:service-type";
-        config:java-class "org.opendaylight.bgpmanager.api.IBgpManager";
+        config:java-class "org.opendaylight.netvirt.bgpmanager.api.IBgpManager";
     }
 }

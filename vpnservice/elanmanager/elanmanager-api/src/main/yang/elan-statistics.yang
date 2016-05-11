@@ -1,5 +1,5 @@
 module elan-statistics {
-    namespace "urn:opendaylight:vpnservice:elan:statistics";
+    namespace "urn:opendaylight:netvirt:elan:statistics";
     prefix elan-stats;
 
     import ietf-interfaces {

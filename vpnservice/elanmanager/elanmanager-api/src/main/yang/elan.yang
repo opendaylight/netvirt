@@ -1,6 +1,6 @@
 module elan {
 
-    namespace "urn:opendaylight:vpnservice:elan";
+    namespace "urn:opendaylight:netvirt:elan";
     prefix elan;
 
     import ietf-interfaces {

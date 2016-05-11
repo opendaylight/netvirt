@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.fibmanager.shell;
 
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 
 @Command(scope = "vpnservice", name = "fib-show", description = "Displays fib entries")
 public class ShowFibCommand extends OsgiCommandSupport {
