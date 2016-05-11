@@ -9,19 +9,25 @@
 package org.opendaylight.netvirt.utils.neutron.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
+
 import org.opendaylight.neutron.spi.INeutronNetworkCRUD;
 import org.opendaylight.neutron.spi.INeutronPortCRUD;
+import org.opendaylight.neutron.spi.INeutronSecurityGroupCRUD;
+import org.opendaylight.neutron.spi.INeutronSecurityRuleCRUD;
 import org.opendaylight.neutron.spi.INeutronSubnetCRUD;
 import org.opendaylight.neutron.spi.NeutronNetwork;
 import org.opendaylight.neutron.spi.NeutronPort;
 import org.opendaylight.neutron.spi.NeutronSecurityGroup;
+import org.opendaylight.neutron.spi.NeutronSecurityRule;
 import org.opendaylight.neutron.spi.NeutronSubnet;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 
 public class NeutronUtils {
     public NeutronPort createNeutronPort(String networkId, String subnetId,
-                                         String id, String owner, String ipaddr, String mac) {
+                                         String id, String owner, String ipaddr, String mac, NeutronSecurityGroup... secGroups) {
         INeutronPortCRUD iNeutronPortCRUD =
                 (INeutronPortCRUD) ServiceHelper.getGlobalInstance(INeutronPortCRUD.class, this);
         NeutronPort np = new NeutronPort();
@@ -37,7 +43,7 @@ public class NeutronUtils {
         nip.setSubnetUUID(subnetId);
         srcAddressList.add(nip);
         np.setFixedIPs(srcAddressList);
-        List<NeutronSecurityGroup> nsgs = new ArrayList<>();
+        List<NeutronSecurityGroup> nsgs = Arrays.asList(secGroups);
         np.setSecurityGroups(nsgs);
         iNeutronPortCRUD.add(np);
         return np;
@@ -87,5 +93,73 @@ public class NeutronUtils {
                 (INeutronNetworkCRUD) ServiceHelper.getGlobalInstance(INeutronNetworkCRUD.class, this);
         return iNeutronNetworkCRUD.removeNetwork(uuid);
 
+    }
+
+    /**
+     * Build a NeutronSecurityRule that can be passed in to createNeutronSecurityGroup.
+     * @param direction
+     * @param ethertype
+     * @param protocol
+     * @param ipPrefix
+     * @param portMin
+     * @param portMax
+     * @return
+     */
+    public NeutronSecurityRule buildNeutronSecurityRule(String direction, String ethertype, String protocol,
+                                                         String ipPrefix, Integer portMin, Integer portMax) {
+        NeutronSecurityRule rule = new NeutronSecurityRule();
+        rule.setSecurityRuleUUID(UUID.randomUUID().toString());
+        rule.setSecurityRemoteGroupID(null);
+        rule.setSecurityRuleDirection(direction);
+        rule.setSecurityRuleEthertype(ethertype);
+        rule.setSecurityRuleProtocol(protocol);
+        rule.setSecurityRuleRemoteIpPrefix(null != ipPrefix ? ipPrefix : null);
+        rule.setSecurityRulePortMin(null != portMin ? portMin : null);
+        rule.setSecurityRulePortMax(null != portMax ? portMax : null);
+
+        return rule;
+    }
+
+    /**
+     * Create a new NeutronSecurityGroup and create the NeutronSecurityRules passed in.
+     * @param tenantId
+     * @param rules
+     * @return
+     */
+    public NeutronSecurityGroup createNeutronSecurityGroup(String tenantId, NeutronSecurityRule... rules) {
+        INeutronSecurityGroupCRUD groupCRUD =
+                (INeutronSecurityGroupCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityGroupCRUD.class, this);
+        INeutronSecurityRuleCRUD ruleCRUD =
+                (INeutronSecurityRuleCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityRuleCRUD.class, this);
+        String id = UUID.randomUUID().toString();
+        NeutronSecurityGroup sg = new NeutronSecurityGroup();
+        sg.setSecurityGroupName("SG-" + id);
+        sg.setSecurityGroupUUID(id);
+        sg.setTenantID(tenantId);
+
+        List<NeutronSecurityRule> ruleList = new ArrayList<>(rules.length);
+        for(NeutronSecurityRule rule : rules) {
+            rule.setTenantID(tenantId);
+            rule.setSecurityRuleGroupID(id);
+            ruleList.add(rule);
+            ruleCRUD.addNeutronSecurityRule(rule);
+        }
+
+        sg.setSecurityRules(ruleList);
+        groupCRUD.add(sg);
+
+        return sg;
+    }
+
+    public void removeNeutronSecurityGroupAndRules(NeutronSecurityGroup sg) {
+        INeutronSecurityGroupCRUD groupCRUD =
+                (INeutronSecurityGroupCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityGroupCRUD.class, this);
+        INeutronSecurityRuleCRUD ruleCRUD =
+                (INeutronSecurityRuleCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityRuleCRUD.class, this);
+
+        for(NeutronSecurityRule rule : sg.getSecurityRules()) {
+            ruleCRUD.removeNeutronSecurityRule(rule.getSecurityRuleUUID());
+        }
+        groupCRUD.removeNeutronSecurityGroup(sg.getID());
     }
 }
