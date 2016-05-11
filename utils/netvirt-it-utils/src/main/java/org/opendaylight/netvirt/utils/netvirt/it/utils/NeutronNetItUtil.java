@@ -17,6 +17,7 @@ import org.junit.Assert;
 import org.opendaylight.netvirt.utils.neutron.utils.NeutronUtils;
 import org.opendaylight.neutron.spi.NeutronNetwork;
 import org.opendaylight.neutron.spi.NeutronPort;
+import org.opendaylight.neutron.spi.NeutronSecurityGroup;
 import org.opendaylight.neutron.spi.NeutronSubnet;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -121,13 +122,13 @@ public class NeutronNetItUtil {
      * @param owner deviceOwner, e.g., "network:dhcp"
      * @throws InterruptedException if we're interrupted while waiting for objects to be created
      */
-    public void createPort(Node bridge, String portName, String owner) throws InterruptedException {
+    public void createPort(Node bridge, String portName, String owner, NeutronSecurityGroup... secGroups) throws InterruptedException {
         long idx = neutronPorts.size() + 1;
         Assert.assertTrue(idx < 256);
         String mac = macFor(idx);
         String ip = ipFor(idx);
         String portId = UUID.randomUUID().toString();
-        neutronPorts.add(neutronUtils.createNeutronPort(id, subnetId, portId, owner, ip, mac));
+        neutronPorts.add(neutronUtils.createNeutronPort(id, subnetId, portId, owner, ip, mac, secGroups));
 
         //TBD: Use NotifyingDataChangeListener
         Thread.sleep(1000);
