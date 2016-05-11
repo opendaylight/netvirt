@@ -81,11 +81,11 @@ public class IPv6RtrFlow {
     private static final String ICMPv6_TO_CONTROLLER_RS_FLOW = "GatewayRouterSolicitationToController";
     private static final String ICMPv6_TO_CONTROLLER_NS_FLOW = "GatewayNeighborSolicitationToController";
     public static final String OPENFLOW_NODE_PREFIX = "openflow:";
-    private ConcurrentMap<String, Flow> gatewayToIcmpv6FlowMap;
+    private ConcurrentMap<String, InstanceIdentifier<Flow>> gatewayToIcmpv6FlowMap;
     private static DataBroker dataBroker;
 
     public IPv6RtrFlow() {
-        gatewayToIcmpv6FlowMap = new ConcurrentHashMap<String, Flow>();
+        gatewayToIcmpv6FlowMap = new ConcurrentHashMap<>();
     }
 
     public static void setDataBroker(DataBroker dataBrokerService) {
@@ -113,7 +113,7 @@ public class IPv6RtrFlow {
         try {
             checkFuture.checkedGet();
             LOG.debug("Transaction success for write of Flow {}", flowIid);
-            gatewayToIcmpv6FlowMap.put(dpId+flowName, icmpv6ToControllerFlow);
+            gatewayToIcmpv6FlowMap.put(dpId+flowName, flowIid);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             write.cancel();
@@ -226,8 +226,11 @@ public class IPv6RtrFlow {
     }
 
     private void removeIcmpv6Flow(String dpId, InstanceIdentifier<Node> nodeIid, String flowName) {
-        Flow icmpv6ToControllerFlow = gatewayToIcmpv6FlowMap.get(dpId+flowName);
-        final InstanceIdentifier<Flow> flowIid = createFlowIid(icmpv6ToControllerFlow, nodeIid);
+        final InstanceIdentifier<Flow> flowIid = gatewayToIcmpv6FlowMap.get(dpId+flowName);
+        if (flowIid == null) {
+            LOG.debug("Flow {} is not programmed in the node {}", flowName, nodeIid);
+            return;
+        }
 
         WriteTransaction write = dataBroker.newWriteOnlyTransaction();
         write.delete(LogicalDatastoreType.CONFIGURATION, flowIid);
@@ -249,9 +252,9 @@ public class IPv6RtrFlow {
         final InstanceIdentifier<Node> nodeIid = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId(nodeName))).build();
 
-        removeIcmpv6Flow(dpId, nodeIid, ICMPv6_TO_CONTROLLER_RS_FLOW);
-        removeIcmpv6Flow(dpId, nodeIid, ICMPv6_TO_CONTROLLER_NS_FLOW);
+        String flowName = ICMPv6_TO_CONTROLLER_RS_FLOW + "_" + ICMPv6_TYPE_RS;
+        removeIcmpv6Flow(dpId, nodeIid, flowName);
+        flowName = ICMPv6_TO_CONTROLLER_NS_FLOW + "_" + ICMPv6_TYPE_NS;
+        removeIcmpv6Flow(dpId, nodeIid, flowName);
     }
 }
-
-
