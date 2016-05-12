@@ -16,6 +16,24 @@
       "revId": "f14db707c42aff58cfa265f9e2bcedeca90d55c9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_89a562b7",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-05-12T11:27:59Z",
+      "side": 1,
+      "message": "AFAIU we will be programming flows on the switches to punt only the NS for the router port and not the VM ports. So ideally this message should not be seen right?",
+      "parentUuid": "fa57193c_c9b8fae7",
+      "revId": "f14db707c42aff58cfa265f9e2bcedeca90d55c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
