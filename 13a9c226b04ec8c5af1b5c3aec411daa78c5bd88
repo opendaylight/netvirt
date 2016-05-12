@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_1755ee4f",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-05-12T08:37:35Z",
+      "side": 1,
+      "message": "The issue is that IPv6Addresses are stored in uncompressed format at some places and compressed format at other places.",
+      "parentUuid": "fa57193c_9052afdb",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_85a26cac",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-05-11T07:15:34Z",
       "side": 1,
       "message": "The port selected should be the associated neutron router\u0027s interface connected to the VM from which the RS message is received. The subnets advertised in the RA should be the subnets available on the router interface.",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_d7d256d1",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-05-12T08:37:35Z",
+      "side": 1,
+      "message": "Yes, currently I\u0027m looking at the IPv6 Subnets which are part of VirtualPort. I\u0027ll add the code to check if the subnet is associated to the Neutron Router.",
+      "parentUuid": "fa57193c_85a26cac",
       "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_f7d67ac2",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-05-12T08:37:35Z",
+      "side": 1,
+      "message": "I\u0027ll update the code to always use un-compressed format for v6 addresses as we will need the uncompressed addresses during Neighbor Discovery.",
+      "parentUuid": "fa57193c_d00a67d1",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_102cdf46",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2016-05-11T06:55:01Z",
       "side": 1,
       "message": "it should be continue to verify if the other available subnets support auto addressing?",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_b7ec0291",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-05-12T08:37:35Z",
+      "side": 1,
+      "message": "I\u0027ll update it while adding the support for multiple prefixes.",
+      "parentUuid": "fa57193c_102cdf46",
       "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_178a0ebf",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-05-12T08:37:35Z",
+      "side": 1,
+      "message": "Per RFC, its not a mandatory option. But I\u0027ve seen that we always get this option. Anyways, I\u0027ll add the corresponding check.",
+      "parentUuid": "fa57193c_85bb8ce4",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_c26f3ac4",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
         "patchSetId": 1
@@ -98,6 +188,24 @@
       "writtenOn": "2016-05-11T06:55:01Z",
       "side": 1,
       "message": "For responding to the RS message, the destination should be the src ip of the RS message. Only for RA sent by itself(without reception of RS) all nodes multicast address should be used as destination ip.",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_f784bab2",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-05-12T08:37:35Z",
+      "side": 1,
+      "message": "Agree. On a related note, we also need a thread which periodically advertises the RAs.",
+      "parentUuid": "fa57193c_c26f3ac4",
       "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_378f52ce",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-05-12T08:37:35Z",
+      "side": 1,
+      "message": "Basically the use-case is for DHCPv6-Stateful subnets. Agree that we should not advertise the prefix in such cases, but let me take a close look on this.",
+      "parentUuid": "fa57193c_251600f2",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_85d42c21",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
         "patchSetId": 1
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_77c0aae0",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-05-12T08:37:35Z",
+      "side": 1,
+      "message": "Yes. On a related note, Neutron only supports /64 subnets.",
+      "parentUuid": "fa57193c_85d42c21",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_e5e24800",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
         "patchSetId": 1
@@ -149,6 +293,24 @@
       "writtenOn": "2016-05-11T06:55:01Z",
       "side": 1,
       "message": "will this be modified in future to accommodate nil/more than one prefixes",
+      "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_d7b7f684",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-05-12T08:37:35Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "fa57193c_e5e24800",
       "revId": "13a9c226b04ec8c5af1b5c3aec411daa78c5bd88",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
