@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -106,6 +107,15 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         if (LOG.isTraceEnabled()) {
             LOG.trace("Adding Port : key: " + identifier + ", value=" + input);
         }
+
+        /* check if router interface has been created */
+        if ((input.getDeviceOwner() != null) && (input.getDeviceId() != null)) {
+            if (input.getDeviceOwner().equals(NeutronvpnUtils.DEVICE_OWNER_ROUTER_INF)) {
+                handleRouterInterfaceAdded(input);
+                /* nothing else to do here */
+                return;
+            }
+        }
         handleNeutronPortCreated(input);
 
     }
@@ -114,6 +124,14 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     protected void remove(InstanceIdentifier<Port> identifier, Port input) {
         if (LOG.isTraceEnabled()) {
             LOG.trace("Removing Port : key: " + identifier + ", value=" + input);
+        }
+
+        if ((input.getDeviceOwner() != null) && (input.getDeviceId() != null)) {
+            if (input.getDeviceOwner().equals(NeutronvpnUtils.DEVICE_OWNER_ROUTER_INF)) {
+                handleRouterInterfaceRemoved(input);
+                /* nothing else to do here */
+                return;
+            }
         }
         handleNeutronPortDeleted(input);
 
@@ -125,8 +143,18 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             LOG.trace("Updating Port : key: " + identifier + ", original value=" + original + ", update value=" +
                     update);
         }
+
         List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<FixedIps>();
         List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<FixedIps>();
+
+        /* check if router interface has been updated */
+        if ((update.getDeviceOwner() != null) && (update.getDeviceId() != null)) {
+            if (update.getDeviceOwner().equals(NeutronvpnUtils.DEVICE_OWNER_ROUTER_INF)) {
+                handleRouterInterfaceAdded(update);
+                /* nothing else to do here */
+                return;
+            }
+        }
 
         if (!oldIPs.equals(newIPs)) {
             Iterator<FixedIps> iterator = newIPs.iterator();
@@ -137,6 +165,46 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 }
             }
             handleNeutronPortUpdated(original, update);
+        }
+    }
+
+    private void handleRouterInterfaceAdded(Port routerPort) {
+        if (routerPort.getDeviceId() != null) {
+            Uuid routerId = new Uuid(routerPort.getDeviceId());
+            Uuid infNetworkId = routerPort.getNetworkId();
+            Uuid existingVpnId = NeutronvpnUtils.getVpnForNetwork(broker, infNetworkId);
+            if (existingVpnId == null) {
+                for (FixedIps portIP : routerPort.getFixedIps()) {
+                    if (portIP.getIpAddress().getIpv4Address() != null) {
+                        Uuid vpnId = NeutronvpnUtils.getVpnForRouter(broker, routerId, true);
+                        if (vpnId == null) {
+                            vpnId = routerId;
+                        }
+                        nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
+                        //nvpnNatManager.handleSubnetsForExternalRouter(routerId, broker);
+                    }
+                }
+            } else {
+                LOG.error("Neutron network {} corresponding to router interface port {} for neutron router {} already" +
+                        " associated to VPN {}", infNetworkId.getValue(), routerPort.getUuid().getValue(), routerId
+                        .getValue(), existingVpnId.getValue());
+            }
+        }
+    }
+
+    private void handleRouterInterfaceRemoved(Port routerPort) {
+        if (routerPort.getDeviceId() != null) {
+            Uuid routerId = new Uuid(routerPort.getDeviceId());
+            for (FixedIps portIP : routerPort.getFixedIps()) {
+                if (portIP.getIpAddress().getIpv4Address() != null) {
+                    Uuid vpnId = NeutronvpnUtils.getVpnForRouter(broker, routerId, true);
+                    if(vpnId == null) {
+                        vpnId = routerId;
+                    }
+                    nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId());
+                    //nvpnNatManager.handleSubnetsForExternalRouter(routerId, broker);
+                }
+            }
         }
     }
 

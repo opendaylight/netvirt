@@ -67,6 +67,7 @@ import java.util.concurrent.Future;
 public class NeutronvpnUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(NeutronvpnUtils.class);
+    public static final String DEVICE_OWNER_ROUTER_INF = "network:router_interface";
     public static final String VNIC_TYPE_NORMAL = "normal";
 
     protected static Subnetmap getSubnetmap(DataBroker broker, Uuid subnetId) {
