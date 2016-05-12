@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import org.opendaylight.vpnservice.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 
 public enum ArpReplyOrRequest {
     REQUEST("ARP-REQUEST"), REPLY("ARP-REPLY");

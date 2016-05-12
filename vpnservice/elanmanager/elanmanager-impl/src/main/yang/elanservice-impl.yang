@@ -8,9 +8,9 @@ module elanservice-impl {
     import opendaylight-sal-binding-broker-impl { prefix md-sal-binding-impl; revision-date 2013-10-28;}
     import opendaylight-entity-ownership-service { prefix eos; revision-date 2015-08-10;}
     import elanmanager-api { prefix elanmgr-api; revision-date 2015-07-07;}
-    import odl-mdsalutil { prefix odl-mdsal; revision-date 2015-04-10;}
-    import odl-interface {prefix odlif; revision-date 2015-03-31;}
-    import itm {prefix itm; revision-date 2015-07-01;}
+    import odl-mdsalutil { prefix odl-mdsal; revision-date 2016-04-06;}
+    import odl-interface {prefix odlif; revision-date 2016-04-06;}
+    import itm {prefix itm; revision-date 2016-04-06;}
 
     description
         "Service definition for elanservice project";

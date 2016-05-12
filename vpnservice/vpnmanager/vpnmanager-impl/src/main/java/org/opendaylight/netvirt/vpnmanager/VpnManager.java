@@ -45,7 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -486,7 +486,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         }
     }
 
-    class VpnInstanceOpListener extends org.opendaylight.vpnservice.mdsalutil.AbstractDataChangeListener<VpnInstanceOpDataEntry> {
+    class VpnInstanceOpListener extends AbstractDataChangeListener<VpnInstanceOpDataEntry> {
 
         public VpnInstanceOpListener() {
             super(VpnInstanceOpDataEntry.class);

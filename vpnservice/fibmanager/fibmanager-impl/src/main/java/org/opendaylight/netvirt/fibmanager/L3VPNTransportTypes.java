@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.fibmanager;
 
-import org.opendaylight.vpnservice.itm.globals.ITMConstants;
+import org.opendaylight.genius.itm.globals.ITMConstants;
 import java.util.HashMap;
 import java.util.Map;
 

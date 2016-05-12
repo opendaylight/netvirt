@@ -42,9 +42,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>ietf-yang-types</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.vpnservice</groupId>
+            <groupId>org.opendaylight.genius</groupId>
             <artifactId>mdsalutil-api</artifactId>
-            <version>${vpns.mdsalutil.version}</version>
+            <version>${genius.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>

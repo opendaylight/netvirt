@@ -32,5 +32,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <controller.mdsal.version>1.4.0-SNAPSHOT</controller.mdsal.version>
     <vpns.mdsalutil.version>0.3.0-SNAPSHOT</vpns.mdsalutil.version>
     <model.bgp.version>2013.07.15.9-SNAPSHOT</model.bgp.version>
+    <genius.version>0.1.0-SNAPSHOT</genius.version>
   </properties>
 </project>
