@@ -5,7 +5,7 @@ module odl-l3vpn {
     import yang-ext {prefix ext; revision-date "2013-07-09";}
     import l3vpn { prefix l3vpn; revision-date "2014-08-15"; }
     import ietf-yang-types { prefix "yang"; }
-    import odl-interface { prefix odlif; revision-date "2015-03-31"; }
+    import odl-interface { prefix odlif; revision-date "2016-04-06"; }
 
     revision "2013-09-11" {
         description "L3 VPN Service module";

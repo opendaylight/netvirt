@@ -8,20 +8,22 @@
 package org.opendaylight.netvirt.elan.statisitcs;
 
 import com.google.common.util.concurrent.Futures;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
-//import org.opendaylight.vpnservice.ericsson.mdsalutil.statistics.StatValue;
-//import org.opendaylight.vpnservice.ericsson.mdsalutil.statistics.StatisticsInfo;
-import org.opendaylight.vpnservice.interfacemgr.globals.IfmConstants;
-import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceInfo;
-import org.opendaylight.vpnservice.interfacemgr.globals.InterfaceServiceUtil;
-import org.opendaylight.vpnservice.interfacemgr.globals.VlanInterfaceInfo;
-import org.opendaylight.vpnservice.interfacemgr.interfaces.IInterfaceManager;
-import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
-import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice._interface.service.rev150602._interface.service.info.ServiceInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice._interface.statistics.rev150824.ResultCode;
+//import org.opendaylight.genius.ericsson.mdsalutil.statistics.StatValue;
+//import org.opendaylight.genius.ericsson.mdsalutil.statistics.StatisticsInfo;
+import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
+import org.opendaylight.genius.interfacemanager.globals.VlanInterfaceInfo;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+//import org.opendaylight.yang.gen.v1.urn.opendaylight.genius._interface.service.rev150602._interface.service.info.ServiceInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius._interface.statistics.rev150824.ResultCode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.statistics.rev150824.ElanStatisticsService;
@@ -34,8 +36,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.servicebinding.rev151015.service.bindings.ServicesInfo;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -109,7 +109,7 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
         long groupId = interfaceInfo.getGroupId();
         Set<Object> statRequestKeys = InterfaceServiceUtil.getStatRequestKeys(dpId, tableId, matches, String.format("%s.%s", elanInstanceName, interfaceName), groupId);
        // StatisticsInfo statsInfo = new StatisticsInfo(statRequestKeys);
-//        org.opendaylight.vpnservice.ericsson.mdsalutil.statistics.StatResult statResult = mdsalMgr.queryForStatistics(interfaceName, statsInfo);
+//        org.opendaylight.genius.ericsson.mdsalutil.statistics.StatResult statResult = mdsalMgr.queryForStatistics(interfaceName, statsInfo);
 //        ResultCode resultCode = ResultCode.Success;
 //        if (!statResult.isComplete()) {
 //            resultCode = ResultCode.Incomplete;

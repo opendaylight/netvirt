@@ -22,7 +22,6 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
-//import org.opendaylight.vpnservice.itm.api.IITMProvider;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmBroadcaster;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;

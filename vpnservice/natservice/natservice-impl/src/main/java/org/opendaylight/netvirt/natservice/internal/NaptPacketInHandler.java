@@ -8,11 +8,11 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import org.opendaylight.controller.liblldp.NetUtils;
-import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
-import org.opendaylight.vpnservice.mdsalutil.packet.Ethernet;
-import org.opendaylight.vpnservice.mdsalutil.packet.IPv4;
-import org.opendaylight.vpnservice.mdsalutil.packet.TCP;
-import org.opendaylight.vpnservice.mdsalutil.packet.UDP;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.packet.Ethernet;
+import org.opendaylight.genius.mdsalutil.packet.IPv4;
+import org.opendaylight.genius.mdsalutil.packet.TCP;
+import org.opendaylight.genius.mdsalutil.packet.UDP;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.slf4j.Logger;

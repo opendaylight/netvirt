@@ -10,11 +10,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 <snapshot>
   <required-capabilities>
       <capability>urn:opendaylight:params:xml:ns:yang:natservice:impl?module=natservice-impl&amp;revision=2016-01-11</capability>
-      <capability>urn:opendaylight:params:xml:ns:yang:mdsalutil:api?module=odl-mdsalutil&amp;revision=2015-04-10</capability>
+      <capability>urn:opendaylight:genius:mdsalutil?module=odl-mdsalutil&amp;revision=2016-04-06</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl?module=opendaylight-sal-binding-broker-impl&amp;revision=2013-10-28</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:bgpmanager:api?module=bgpmanager-api&amp;revision=2015-04-20</capability>
-      <capability>urn:opendaylight:params:xml:ns:yang:mdsalutil:api?module=odl-mdsalutil&amp;revision=2015-04-10</capability>
   </required-capabilities>
   <configuration>
 
@@ -40,7 +39,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <name>binding-notification-adapter</name>
           </notification-service>
           <mdsalutil>
-            <type xmlns:mdsalutil="urn:opendaylight:params:xml:ns:yang:mdsalutil:api">mdsalutil:odl-mdsalutil</type>
+            <type xmlns:mdsalutil="urn:opendaylight:genius:mdsalutil">mdsalutil:odl-mdsalutil</type>
             <name>mdsalutil-service</name>
           </mdsalutil>
         </module>

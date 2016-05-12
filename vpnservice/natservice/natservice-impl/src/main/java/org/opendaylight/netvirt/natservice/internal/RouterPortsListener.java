@@ -7,8 +7,8 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import org.opendaylight.vpnservice.mdsalutil.AbstractDataChangeListener;
-import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;

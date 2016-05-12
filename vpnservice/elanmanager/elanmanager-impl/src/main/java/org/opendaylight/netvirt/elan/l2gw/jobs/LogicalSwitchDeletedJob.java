@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.elan.l2gw.jobs;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.vpnservice.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

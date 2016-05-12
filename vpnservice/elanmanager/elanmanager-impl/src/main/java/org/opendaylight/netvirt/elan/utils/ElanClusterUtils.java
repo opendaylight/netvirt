@@ -11,10 +11,10 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
-import org.opendaylight.vpnservice.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.vpnservice.utils.SystemPropertyReader;
-import org.opendaylight.vpnservice.utils.clustering.ClusteringUtils;
-import org.opendaylight.vpnservice.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.utils.SystemPropertyReader;
+import org.opendaylight.genius.utils.clustering.ClusteringUtils;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -33,24 +33,24 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.vpnservice</groupId>
+      <groupId>org.opendaylight.genius</groupId>
       <artifactId>mdsalutil-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${genius.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.vpnservice</groupId>
-      <artifactId>interfacemgr-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>interfacemanager-api</artifactId>
+      <version>${genius.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.vpnservice</groupId>
+      <groupId>org.opendaylight.genius</groupId>
       <artifactId>idmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${genius.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.vpnservice</groupId>
+      <groupId>org.opendaylight.genius</groupId>
       <artifactId>itm-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${genius.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -77,9 +77,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>3.0.3</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.vpnservice</groupId>
-      <artifactId>interfacemgr-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>interfacemanager-impl</artifactId>
+      <version>${genius.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

@@ -25,10 +25,10 @@ import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepPhysicalLocatorListener;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
-import org.opendaylight.vpnservice.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.vpnservice.utils.clustering.EntityOwnerUtils;
-import org.opendaylight.vpnservice.utils.hwvtep.HwvtepSouthboundConstants;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

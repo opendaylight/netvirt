@@ -13,14 +13,14 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
-import org.opendaylight.vpnservice.mdsalutil.InstructionInfo;
-import org.opendaylight.vpnservice.mdsalutil.InstructionType;
-import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
-import org.opendaylight.vpnservice.mdsalutil.MatchFieldType;
-import org.opendaylight.vpnservice.mdsalutil.MatchInfo;
-import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
-import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.InstructionType;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchFieldType;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

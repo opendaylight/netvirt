@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.primitives.Ints;
+
 import org.opendaylight.controller.liblldp.EtherTypes;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -29,29 +30,31 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.idmanager.rev150403.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.meta.rev151007._if.indexes._interface.map.IfIndexInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.vpnservice.mdsalutil.packet.ARP;
-import org.opendaylight.vpnservice.mdsalutil.packet.IPv4;
-import org.opendaylight.vpnservice.mdsalutil.packet.Ethernet;
-import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.packet.ARP;
+import org.opendaylight.genius.mdsalutil.packet.IPv4;
+import org.opendaylight.genius.mdsalutil.packet.Ethernet;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.controller.liblldp.Packet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.vpnservice.mdsalutil.ActionInfo;
-import org.opendaylight.vpnservice.mdsalutil.ActionType;
-import org.opendaylight.vpnservice.mdsalutil.MetaDataUtil;
-import org.opendaylight.vpnservice.mdsalutil.NwConstants;
+
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 
 public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 

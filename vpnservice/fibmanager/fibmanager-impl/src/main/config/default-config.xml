@@ -11,7 +11,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <required-capabilities>
       <capability>urn:opendaylight:params:xml:ns:yang:fibmanager:impl?module=fibmanager-impl&amp;revision=2015-03-25</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:vpnmanager:api?module=vpnmanager-api&amp;revision=2015-05-08</capability>
-      <capability>urn:opendaylight:params:xml:ns:yang:mdsalutil:api?module=odl-mdsalutil&amp;revision=2015-04-10</capability>
+      <capability>urn:opendaylight:genius:mdsalutil?module=odl-mdsalutil&amp;revision=2016-04-06</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
   </required-capabilities>
   <configuration>
@@ -30,7 +30,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <name>binding-rpc-broker</name>
           </rpcregistry>
           <mdsalutil>
-            <type xmlns:mdsalutil="urn:opendaylight:params:xml:ns:yang:mdsalutil:api">mdsalutil:odl-mdsalutil</type>
+            <type xmlns:mdsalutil="urn:opendaylight:genius:mdsalutil">mdsalutil:odl-mdsalutil</type>
             <name>mdsalutil-service</name>
           </mdsalutil>
           <vpnmanager>

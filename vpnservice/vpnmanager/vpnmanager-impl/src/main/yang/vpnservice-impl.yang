@@ -8,7 +8,7 @@ module vpnservice-impl {
     import opendaylight-sal-binding-broker-impl { prefix md-sal-binding-impl; revision-date 2013-10-28;}
     import bgpmanager-api { prefix bgpmgr-api; revision-date 2015-04-20;}
     import vpnmanager-api { prefix vpnmgr-api; revision-date 2015-05-08;}
-    import odl-mdsalutil { prefix odl-mdsal; revision-date 2015-04-10;}
+    import odl-mdsalutil { prefix odl-mdsal; revision-date 2016-04-06;}
 
     description
         "Service definition for vpnservice project";

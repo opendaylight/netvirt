@@ -27,16 +27,17 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipS
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
-import org.opendaylight.vpnservice.mdsalutil.MDSALDataStoreUtils;
-import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
-import org.opendaylight.vpnservice.mdsalutil.NwConstants;
-import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
-import org.opendaylight.vpnservice.utils.clustering.ClusteringUtils;
-import org.opendaylight.vpnservice.utils.hwvtep.HwvtepSouthboundConstants;
-import org.opendaylight.vpnservice.utils.hwvtep.HwvtepSouthboundUtils;
-import org.opendaylight.vpnservice.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.genius.utils.clustering.ClusteringUtils;
+//TODO: FIXME: Missing elements in HwvtepSouthboundConstants;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -57,12 +58,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.Desi
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnelKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.IfTunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.interfacemgr.rev150331.TunnelTypeVxlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetExternalTunnelInterfaceNameInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.GetExternalTunnelInterfaceNameOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.itm.rpcs.rev151217.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
@@ -357,8 +358,8 @@ public class DhcpExternalTunnelManager {
     public void installDhcpEntries(final BigInteger dpnId, final String vmMacAddress, EntityOwnershipService eos) {
         final String nodeId = DhcpServiceUtils.getNodeIdFromDpnId(dpnId);
         ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                eos, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
+                eos, /*HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                HwvtepSouthboundConstants.ELAN_ENTITY_NAME*/"elan", "elan");
         Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean isOwner) {
@@ -383,8 +384,8 @@ public class DhcpExternalTunnelManager {
     public void unInstallDhcpEntries(final BigInteger dpnId, final String vmMacAddress, EntityOwnershipService eos) {
         final String nodeId = DhcpServiceUtils.getNodeIdFromDpnId(dpnId);
         ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                eos, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
+                eos, /*HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                HwvtepSouthboundConstants.ELAN_ENTITY_NAME*/ "elan", "elan");
         Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean isOwner) {
@@ -409,8 +410,8 @@ public class DhcpExternalTunnelManager {
     public void installDhcpDropAction(final BigInteger dpnId, final String vmMacAddress, EntityOwnershipService eos) {
         final String nodeId = DhcpServiceUtils.getNodeIdFromDpnId(dpnId);
         ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                eos, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
+                eos, /*HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                HwvtepSouthboundConstants.ELAN_ENTITY_NAME*/ "elan", "elan");
         Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean isOwner) {
@@ -577,7 +578,8 @@ public class DhcpExternalTunnelManager {
         if (designatedDpnId.equals(DHCPMConstants.INVALID_DPID)) {
             return;
         }
-        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
+        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(entityOwnershipService,
+                        /*HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, HwvtepSouthboundConstants.ELAN_ENTITY_NAME*/ "elan", "elan");
         Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean isOwner) {

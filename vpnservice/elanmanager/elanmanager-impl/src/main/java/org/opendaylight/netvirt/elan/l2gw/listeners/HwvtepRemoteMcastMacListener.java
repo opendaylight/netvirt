@@ -17,12 +17,12 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
-import org.opendaylight.vpnservice.datastoreutils.AsyncDataChangeListenerBase;
-import org.opendaylight.vpnservice.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.vpnservice.utils.SystemPropertyReader;
-import org.opendaylight.vpnservice.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.genius.utils.SystemPropertyReader;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacs;
@@ -131,7 +131,7 @@ public class HwvtepRemoteMcastMacListener
      * (non-Javadoc)
      *
      * @see
-     * org.opendaylight.vpnservice.datastoreutils.AsyncDataChangeListenerBase#
+     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
      * getWildCardPath()
      */
     @Override
@@ -144,7 +144,7 @@ public class HwvtepRemoteMcastMacListener
      * (non-Javadoc)
      *
      * @see
-     * org.opendaylight.vpnservice.datastoreutils.AsyncDataChangeListenerBase#
+     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
      * getDataChangeListener()
      */
     @Override
@@ -156,7 +156,7 @@ public class HwvtepRemoteMcastMacListener
      * (non-Javadoc)
      *
      * @see
-     * org.opendaylight.vpnservice.datastoreutils.AsyncDataChangeListenerBase#
+     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
      * getDataChangeScope()
      */
     @Override
@@ -168,7 +168,7 @@ public class HwvtepRemoteMcastMacListener
      * (non-Javadoc)
      *
      * @see
-     * org.opendaylight.vpnservice.datastoreutils.AsyncDataChangeListenerBase#
+     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
      * remove(org.opendaylight.yangtools.yang.binding.InstanceIdentifier,
      * org.opendaylight.yangtools.yang.binding.DataObject)
      */
@@ -182,7 +182,7 @@ public class HwvtepRemoteMcastMacListener
      * (non-Javadoc)
      *
      * @see
-     * org.opendaylight.vpnservice.datastoreutils.AsyncDataChangeListenerBase#
+     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
      * update(org.opendaylight.yangtools.yang.binding.InstanceIdentifier,
      * org.opendaylight.yangtools.yang.binding.DataObject,
      * org.opendaylight.yangtools.yang.binding.DataObject)
@@ -198,7 +198,7 @@ public class HwvtepRemoteMcastMacListener
      * (non-Javadoc)
      *
      * @see
-     * org.opendaylight.vpnservice.datastoreutils.AsyncDataChangeListenerBase#
+     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
      * add(org.opendaylight.yangtools.yang.binding.InstanceIdentifier,
      * org.opendaylight.yangtools.yang.binding.DataObject)
      */

@@ -8,9 +8,9 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
-import org.opendaylight.vpnservice.mdsalutil.*;
-import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.vpnservice.mdsalutil.packet.IPProtocols;
+import org.opendaylight.genius.mdsalutil.*;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import java.math.BigInteger;

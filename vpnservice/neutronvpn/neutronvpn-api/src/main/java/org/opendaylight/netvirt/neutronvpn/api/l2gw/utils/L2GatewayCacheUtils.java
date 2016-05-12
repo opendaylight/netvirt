@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.neutronvpn.api.l2gw.utils;
 import java.util.concurrent.ConcurrentMap;
 
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.vpnservice.utils.cache.CacheUtil;
+import org.opendaylight.genius.utils.cache.CacheUtil;
 
 public class L2GatewayCacheUtils {
     public static final String L2GATEWAY_CACHE_NAME = "L2GW";
