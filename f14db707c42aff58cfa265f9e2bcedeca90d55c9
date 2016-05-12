@@ -34,6 +34,24 @@
       "revId": "f14db707c42aff58cfa265f9e2bcedeca90d55c9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_c9863a13",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-05-12T11:36:12Z",
+      "side": 1,
+      "message": "When the ipv6 flow is modified to listen for NS only on Rtr interfaces this will not be seen. Till then it will be displayed. So better to change the level. As it is a minor change you can take it up in the next patch for the same file.",
+      "parentUuid": "fa57193c_89a562b7",
+      "revId": "f14db707c42aff58cfa265f9e2bcedeca90d55c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
