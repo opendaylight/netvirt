@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_d641ae3a",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-13T20:41:11Z",
+      "side": 1,
+      "message": "Are there any threading issues? The northbound event came in, was enqueued and now being processed. On the southbound side, the port updates would also get enqueued and processed. But I can\u0027t remember if they go to completion before the next event in the queue is processed.",
+      "revId": "b0fe585e73959d0404836e0743e7f3f68a0e4f37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_9621f6a1",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-13T20:41:11Z",
+      "side": 1,
+      "message": "looks like this could be a good method in TenantNetworkManagerImpl. It is similar to isTenantNetworkPresentInNode().",
+      "revId": "b0fe585e73959d0404836e0743e7f3f68a0e4f37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
