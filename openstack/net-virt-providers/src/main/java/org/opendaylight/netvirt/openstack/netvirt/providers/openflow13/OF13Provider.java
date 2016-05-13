@@ -1000,49 +1000,43 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     }
 
     private void programLocalSecurityGroupRules(String attachedMac, Node node, OvsdbTerminationPointAugmentation intf,
-                                 Long dpid,long localPort, String segmentationId,
-                                 boolean write) {
+                                                Long dpid,long localPort, String segmentationId,
+                                                boolean write) {
 
         LOG.debug("programLocalRules: Program fixed security group rules for interface {}", intf.getName());
+        boolean isPortSecurityEnabled = securityServicesManager.isPortSecurityEnabled(intf);
+        if (!isPortSecurityEnabled) {
+            LOG.info("Port security is not enabled" + intf);
+            return;
+        }
         NeutronPort dhcpPort = securityServicesManager.getDhcpServerPort(intf);
-        boolean isComputePort = false;
-        boolean isLastPortinBridge = false;
-        boolean isLastPortinSubnet = false;
         List<Neutron_IPs> srcAddressList = null;
         if (null != dhcpPort) {
-            isComputePort = securityServicesManager.isComputePort(intf);
-            isLastPortinBridge = securityServicesManager.isLastPortinBridge(node, intf);
-            isLastPortinSubnet = false;
-            if (isComputePort) {
-                isLastPortinSubnet = securityServicesManager.isLastPortinSubnet(node, intf);
-                srcAddressList = securityServicesManager.getIpAddressList(intf);
-                if (null == srcAddressList) {
-                    LOG.warn("programLocalRules: No Ip address assigned {}", intf);
-                    return;
-                }
+            srcAddressList = securityServicesManager.getIpAddressList(intf);
+            if (null == srcAddressList) {
+                LOG.warn("programLocalRules: No Ip address assigned {}", intf);
+                return;
             }
             ingressAclProvider.programFixedSecurityGroup(dpid, segmentationId, dhcpPort.getMacAddress(), localPort,
-                                                       isLastPortinSubnet, isComputePort, attachedMac, write);
+                                                         attachedMac, write);
             egressAclProvider.programFixedSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                      srcAddressList, isLastPortinBridge, isComputePort,write);
+                                                        srcAddressList, write);
             /* If the network type is tunnel based (VXLAN/GRRE/etc) with Neutron Port Security ACLs */
             /* TODO SB_MIGRATION */
 
             LOG.debug("Neutron port has a Port Security Group");
             // Retrieve the security group from the Neutron Port and apply the rules
-            if (securityServicesManager.isPortSecurityReady(intf)) {
-                //Associate the security group flows.
-                List<NeutronSecurityGroup> securityGroupListInPort = securityServicesManager
-                        .getSecurityGroupInPortList(intf);
-                String neutronPortId = southbound.getInterfaceExternalIdsValue(intf,
-                                                                               Constants.EXTERNAL_ID_INTERFACE_ID);
-                for (NeutronSecurityGroup securityGroupInPort:securityGroupListInPort) {
-                    ingressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                              securityGroupInPort, neutronPortId, write);
-                    egressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                             securityGroupInPort, neutronPortId, write);
-                }
+            List<NeutronSecurityGroup> securityGroupListInPort = securityServicesManager
+                    .getSecurityGroupInPortList(intf);
+            String neutronPortId = southbound.getInterfaceExternalIdsValue(intf,
+                                                                           Constants.EXTERNAL_ID_INTERFACE_ID);
+            for (NeutronSecurityGroup securityGroupInPort:securityGroupListInPort) {
+                ingressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
+                                                            securityGroupInPort, neutronPortId, write);
+                egressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
+                                                           securityGroupInPort, neutronPortId, write);
             }
+
         } else {
             LOG.warn("programLocalRules: No DCHP port seen in  network of {}", intf);
         }
