@@ -87,6 +87,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_65ce22b6",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/params/xml/ns/yang/bgpmanager/impl/rev150326/BgpManagerImplModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-16T20:42:50Z",
+      "side": 1,
+      "message": "Also since you\u0027re really creating an interface here to combine IBgpManager and AutoCloseable, I think it would be clearer to call it AutoCloseableIBgpManager. Another option is to change IBgpManager to extend AutoCloseable but that might be too invasive.",
+      "parentUuid": "fa57193c_65f742f6",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_e58b5266",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/resources/org/opendaylight/blueprint/bgpmanager.xml",
         "patchSetId": 1
