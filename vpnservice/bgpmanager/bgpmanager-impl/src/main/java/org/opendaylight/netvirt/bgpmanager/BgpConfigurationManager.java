@@ -67,7 +67,7 @@ public class BgpConfigurationManager {
     private static final String UPDATE_PORT = "bgp.thrift.service.port";
     private static final String CONFIG_HOST = "vpnservice.bgpspeaker.host.name";
     private static final String CONFIG_PORT = "vpnservice.bgpspeaker.thrift.port";
-    private static final String DEF_UPORT = "6644";
+    private static final String DEF_UPORT = "7744";
     private static final String DEF_CHOST = "127.0.0.1";
     private static final String DEF_CPORT = "7644";
     private static final String SDNC_BGP_MIP = "sdnc_bgp_mip";
