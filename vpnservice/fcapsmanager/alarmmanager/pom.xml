@@ -16,15 +16,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>alarmmanager</artifactId>
-    <version>${vpnservices.version}</version>
     <packaging>bundle</packaging>
 
-    <properties>
-        <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
-        <osgi.version>5.0.0</osgi.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -33,13 +27,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
-            <version>${osgi.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.netvirt</groupId>
             <artifactId>fcaps-api</artifactId>
-            <version>${vpnservices.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -47,7 +40,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>${maven-bundle-plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>

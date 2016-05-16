@@ -16,15 +16,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>fibmanager-shell</artifactId>
-  <version>${vpnservices.version}</version>
   <packaging>bundle</packaging>
+
   <dependencies>
     <dependency>
       <groupId>org.opendaylight.netvirt</groupId>
       <artifactId>fibmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.karaf.shell</groupId>
@@ -34,7 +33,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>org.opendaylight.netvirt</groupId>
       <artifactId>fibmanager-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 

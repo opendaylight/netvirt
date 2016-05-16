@@ -6,7 +6,8 @@ This program and the accompanying materials are made available under the
 terms of the Eclipse Public License v1.0 which accompanies this distribution,
 and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
@@ -16,19 +17,17 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>bgpmanager-impl</artifactId>
-  <version>${vpnservices.version}</version>
   <packaging>bundle</packaging>
   <properties>
-   <codahale.metrics.version>3.0.1</codahale.metrics.version>
-   </properties>
+    <codahale.metrics.version>3.0.1</codahale.metrics.version>
+  </properties>
   <dependencies>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>bgpmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -38,7 +37,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fibmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
@@ -50,7 +49,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <!--Dependencies for Unit Test -->
@@ -74,35 +73,30 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>sal-binding-broker-impl</artifactId>
-      <version>${mdsal.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
-	
-	<dependency>
+
+    <dependency>
       <groupId>org.apache.karaf.shell</groupId>
       <artifactId>org.apache.karaf.shell.console</artifactId>
-	  <version>3.0.3</version>
-	  <exclusions>
-	<exclusion>
-	<groupId>org.slf4j</groupId>
-	<artifactId>log4j</artifactId>
-	</exclusion>
-	</exclusions>
-   </dependency>
- <dependency>
-        <groupId>com.codahale.metrics</groupId>
-        <artifactId>metrics-core</artifactId>
-		<version>3.0.1</version>
-        
+      <version>3.0.3</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
-	<dependency>
-        <groupId>com.codahale.metrics</groupId>
-        <artifactId>metrics-graphite</artifactId>
-		<version>3.0.1</version>
-        
+    <dependency>
+      <groupId>com.codahale.metrics</groupId>
+      <artifactId>metrics-core</artifactId>
+      <version>3.0.1</version>
     </dependency>
-
+    <dependency>
+      <groupId>com.codahale.metrics</groupId>
+      <artifactId>metrics-graphite</artifactId>
+      <version>3.0.1</version>
+    </dependency>
   </dependencies>
-
 </project>
