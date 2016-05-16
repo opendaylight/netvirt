@@ -20,6 +20,7 @@ module bgpmanager-impl {
         base config:module-type;
         config:provided-service bgpmgr-api:bgpmanager-api;
         config:java-name-prefix BgpManagerImpl;
+        status deprecated;
     }
 
     augment "/config:modules/config:module/config:configuration" {
@@ -33,14 +34,6 @@ module bgpmanager-impl {
                     }
                 }
             }
-            /*container itm {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity itm:itm;
-                    }
-                }
-            }*/
         }
     }
 }

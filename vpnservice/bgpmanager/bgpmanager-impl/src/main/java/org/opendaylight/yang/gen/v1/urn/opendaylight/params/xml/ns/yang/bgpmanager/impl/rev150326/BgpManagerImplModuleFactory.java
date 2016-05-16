@@ -8,6 +8,30 @@
 * Do not modify this file unless it is present under src/main directory
 */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgpmanager.impl.rev150326;
-public class BgpManagerImplModuleFactory extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgpmanager.impl.rev150326.AbstractBgpManagerImplModuleFactory {
 
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.osgi.framework.BundleContext;
+
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
+public class BgpManagerImplModuleFactory extends AbstractBgpManagerImplModuleFactory {
+
+    @Override
+    public BgpManagerImplModule instantiateModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final BgpManagerImplModule oldModule, final AutoCloseable oldInstance, final BundleContext bundleContext) {
+        final BgpManagerImplModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
+                oldInstance, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public BgpManagerImplModule instantiateModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final BundleContext bundleContext) {
+        final BgpManagerImplModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 }
