@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_e5e2322e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-16T20:45:40Z",
+      "side": 1,
+      "message": "correct, I shouldn\u0027t have added them in a first place",
+      "parentUuid": "fa57193c_857d3671",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_05912699",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-05-16T20:34:28Z",
       "side": 1,
       "message": "commands isn\u0027t used and can be removed",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_45d15e56",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-16T20:45:40Z",
+      "side": 1,
+      "message": "correct",
+      "parentUuid": "fa57193c_05912699",
       "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -64,6 +100,24 @@
       "writtenOn": "2016-05-16T20:34:28Z",
       "side": 1,
       "message": "Remove cast to AutoCloseable - BgpManagerProxyInterface needs to extend AutoCloseable.",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_25d42a46",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/params/xml/ns/yang/bgpmanager/impl/rev150326/BgpManagerImplModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-16T20:45:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_85f416f3",
       "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -105,6 +159,42 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_05bf66fc",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/params/xml/ns/yang/bgpmanager/impl/rev150326/BgpManagerImplModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-16T20:45:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_65ce22b6",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_85cb76a4",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/params/xml/ns/yang/bgpmanager/impl/rev150326/BgpManagerImplModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-16T20:45:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_65f742f6",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_e58b5266",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/resources/org/opendaylight/blueprint/bgpmanager.xml",
         "patchSetId": 1
@@ -122,6 +212,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_e5b99216",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/resources/org/opendaylight/blueprint/bgpmanager.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-16T20:45:40Z",
+      "side": 1,
+      "message": "So I amended this patch with a slightly different approach, as the api and impl bundle are separated. I tried to follow what you\u0027ve done here https://git.opendaylight.org/gerrit/#/c/38646/",
+      "parentUuid": "fa57193c_e58b5266",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_45eafe0f",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/resources/org/opendaylight/blueprint/bgpmanager.xml",
         "patchSetId": 1
@@ -133,6 +241,24 @@
       "writtenOn": "2016-05-16T20:34:28Z",
       "side": 1,
       "message": "The actual name of the module instance in the config XML is bgpmanager-default so we need to use that for the odl:type so it matches the instance name the Module createInstance method will get.",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_45383ea0",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/resources/org/opendaylight/blueprint/bgpmanager.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-16T20:45:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_45eafe0f",
       "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
