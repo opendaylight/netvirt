@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fa57193c_e55072d6",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/src/main/resources/blueprint/bgpmanager.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-16T20:51:36Z",
+      "side": 1,
+      "message": "I think creation of the BgpManager should be in the impl bundle, that\u0027s normally the pattern, i.e. you add the blueprint XML to the bundle where the impl business logic resides unless you need to instantiate from another bundle. As mentioned previously, you don\u0027t need the BgpManagerFactory here.",
+      "revId": "8735425cfc05c2448445534a71b7066a83bc1e03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_a5467a1f",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
         "patchSetId": 2
