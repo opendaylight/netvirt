@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpManager {
+public class BgpManager implements AutoCloseable, IBgpManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BgpManager.class);
     private BgpConfigurationManager bcm;
@@ -36,35 +36,34 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
     //private IITMProvider        itmProvider;
     private DataBroker dataBroker;
     private BgpAlarmBroadcaster qbgpAlarmProducer = null;
-    private MBeanServer qbgpAlarmServer = null;
-    private NotificationFilter  qbgpAlarmFilter = null;
+    private final MBeanServer qbgpAlarmServer = null;
+    private final NotificationFilter  qbgpAlarmFilter = null;
     final static int DEFAULT_STALEPATH_TIME = 210;
     final static boolean DEFAULT_FBIT = true;
 
     public BgpCounters bgpCounters;
     public Timer bgpCountersTimer;
 
-    @Override
-    public void onSessionInitiated(ProviderContext session) {
+    public BgpManager(final DataBroker dataBroker) {
         try {
-            dataBroker = session.getSALService(DataBroker.class);
+            this.dataBroker = dataBroker;
             fibDSWriter = new FibDSWriter(dataBroker);
             BgpUtil.setBroker(dataBroker);
             bcm = new BgpConfigurationManager(this);
-            Commands commands = new Commands(this);
+            final Commands commands = new Commands(this);
             ConfigureBgpCli.setBgpManager(this);
             LOGGER.info("BgpManager started");
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.error("Failed to start BgpManager: "+e);
         }
 
         // Set up the Infra for Posting BGP Alarms as JMX notifications.
         try {
             qbgpAlarmProducer = new BgpAlarmBroadcaster();
-            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-            ObjectName alarmObj = new ObjectName("SDNC.FM:name=BgpAlarmObj");
+            final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+            final ObjectName alarmObj = new ObjectName("SDNC.FM:name=BgpAlarmObj");
             mbs.registerMBean(qbgpAlarmProducer, alarmObj);
-        } catch (JMException e) {
+        } catch (final JMException e) {
             LOGGER.error("Adding a NotificationBroadcaster failed." + e.toString());
             e.printStackTrace();
         }
@@ -72,7 +71,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
    @Override
     public void close() throws Exception {
-        bcm.close(); 
+        bcm.close();
         LOGGER.info("BgpManager Closed");
    }
 
@@ -86,7 +85,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
       return bcm.get();
     }
 
-    public void configureGR(int stalepathTime) throws TException {
+    public void configureGR(final int stalepathTime) throws TException {
       bcm.addGracefulRestart(stalepathTime);
     }
 
@@ -94,60 +93,60 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
       bcm.delGracefulRestart();
     }
 
-    public void addNeighbor(String ipAddress, long asNum) throws TException {
+    public void addNeighbor(final String ipAddress, final long asNum) throws TException {
       bcm.addNeighbor(ipAddress, (int) asNum);
     }
 
-    public void addEbgpMultihop(String ipAddress, int nhops) throws TException {
+    public void addEbgpMultihop(final String ipAddress, final int nhops) throws TException {
       bcm.addEbgpMultihop(ipAddress, nhops);
     }
-    
-    public void addUpdateSource(String ipAddress, String srcIp) throws TException {
+
+    public void addUpdateSource(final String ipAddress, final String srcIp) throws TException {
       bcm.addUpdateSource(ipAddress, srcIp);
     }
 
-    public void addAddressFamily(String ipAddress, af_afi afi, af_safi safi) throws TException {
+    public void addAddressFamily(final String ipAddress, final af_afi afi, final af_safi safi) throws TException {
       bcm.addAddressFamily(ipAddress, afi.getValue(), safi.getValue());
     }
 
-    public void deleteNeighbor(String ipAddress) throws TException {
+    public void deleteNeighbor(final String ipAddress) throws TException {
       bcm.delNeighbor(ipAddress);
     }
 
     @Override
-    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) throws Exception {
-        bcm.addVrf(rd, new ArrayList<String>(importRts), 
-                       new ArrayList<String>(exportRts)); 
+    public void addVrf(final String rd, final Collection<String> importRts, final Collection<String> exportRts) throws Exception {
+        bcm.addVrf(rd, new ArrayList<String>(importRts),
+                       new ArrayList<String>(exportRts));
     }
 
     @Override
-    public void deleteVrf(String rd) throws Exception {
+    public void deleteVrf(final String rd) throws Exception {
       bcm.delVrf(rd);
     }
 
     @Override
-    public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception {
+    public void addPrefix(final String rd, final String prefix, final String nextHop, final int vpnLabel) throws Exception {
       fibDSWriter.addFibEntryToDS(rd, prefix, nextHop, vpnLabel);
       bcm.addPrefix(rd, prefix, nextHop, vpnLabel);
     }
 
     @Override
-    public void deletePrefix(String rd, String prefix) throws Exception {
+    public void deletePrefix(final String rd, final String prefix) throws Exception {
       fibDSWriter.removeFibEntryFromDS(rd, prefix);
       bcm.delPrefix(rd, prefix);
     }
 
     @Override
-    public void advertisePrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception {
+    public void advertisePrefix(final String rd, final String prefix, final String nextHop, final int vpnLabel) throws Exception {
         bcm.addPrefix(rd, prefix, nextHop, vpnLabel);
     }
 
     @Override
-    public void withdrawPrefix(String rd, String prefix) throws Exception {
+    public void withdrawPrefix(final String rd, final String prefix) throws Exception {
         bcm.delPrefix(rd, prefix);
     }
 
-    public void setQbgpLog(String fileName, String debugLevel) throws Exception {
+    public void setQbgpLog(final String fileName, final String debugLevel) throws Exception {
       bcm.addLogging(fileName, debugLevel);
     }
 
@@ -155,7 +154,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
       bcm.delLogging();
     }
 
-    public void startBgp(int asn, String routerId, int spt, boolean fbit) {
+    public void startBgp(final int asn, final String routerId, final int spt, final boolean fbit) {
       bcm.startBgp(asn, routerId, spt, fbit);
     }
 
@@ -163,7 +162,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
       bcm.stopBgp();
     }
 
-    public void startConfig(String host, int port) {
+    public void startConfig(final String host, final int port) {
       bcm.startConfig(host, port);
     }
 
@@ -173,11 +172,11 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
     @Override
     public String getDCGwIP() {
-        Bgp conf = getConfig();
+        final Bgp conf = getConfig();
         if (conf == null) {
           return null;
         }
-        List<Neighbors> nbrs = conf.getNeighbors();
+        final List<Neighbors> nbrs = conf.getNeighbors();
         if (nbrs == null) {
           return null;
         }
@@ -188,7 +187,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
         return qbgpAlarmServer;
     }
 
-    public synchronized void sendNotificationEvent(String pfx, int code, int subcode) {
+    public synchronized void sendNotificationEvent(final String pfx, final int code, final int subcode) {
         BgpAlarmErrorCodes errorSubCode;
         if (code != BgpConstants.BGP_NOTIFY_CEASE_CODE) {
             // CEASE Notifications alone have to be reported to the CBA.
@@ -215,7 +214,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
         return bgpCounters;
     }
 
-    public  void setBgpCountersTimer (Timer t) {
+    public  void setBgpCountersTimer (final Timer t) {
         bgpCountersTimer = t;
     }
 
@@ -229,21 +228,21 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
 
                 LOGGER.info("Bgp Counters task scheduled for every two minutes.");
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 System.out.println("Could not start the timertask for Bgp Counters.");
                 e.printStackTrace();
             }
 
             try {
                 setQbgpLog(BgpConstants.BGP_DEF_LOG_FILE, BgpConstants.BGP_DEF_LOG_LEVEL);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 System.out.println("Could not set the default options for logging");
             }
         }
     }
 
     public void stopBgpCountersTask() {
-        Timer t = getBgpCountersTimer();
+        final Timer t = getBgpCountersTimer();
         if (getBgpCounters() != null) {
             t.cancel();
             setBgpCountersTimer(null);
@@ -253,18 +252,18 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
     public FibDSWriter getFibWriter() {
         return fibDSWriter;
-    } 
+    }
 
     public DataBroker getBroker() {
         return dataBroker;
-    } 
+    }
 
     public String getConfigHost() {
-        return bcm.getConfigHost();
+        return BgpConfigurationManager.getConfigHost();
     }
 
     public int getConfigPort() {
-        return bcm.getConfigPort();
+        return BgpConfigurationManager.getConfigPort();
     }
 
     public void bgpRestarted() {
