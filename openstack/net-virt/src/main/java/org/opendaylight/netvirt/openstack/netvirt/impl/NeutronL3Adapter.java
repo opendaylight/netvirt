@@ -431,6 +431,9 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
             if (neutronPort.getPortSecurityEnabled()) {
                 this.processSecurityGroupUpdate(neutronPort);
             }
+            if (isPortSecuirtyEnableUpdated(neutronPort)) {
+                this.processPortSecurityEnableUpdated(neutronPort);
+            }
         }
 
         if (!this.enabled) {
@@ -906,7 +909,6 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
          * added and removed and call the appropriate providers for updating the flows.
          */
         try {
-            NeutronPort originalPort = neutronPort.getOriginalPort();
             List<NeutronSecurityGroup> addedGroup = getsecurityGroupChanged(neutronPort,
                                                                             neutronPort.getOriginalPort());
             List<NeutronSecurityGroup> deletedGroup = getsecurityGroupChanged(neutronPort.getOriginalPort(),
@@ -923,6 +925,22 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
             LOG.error("Exception in processSecurityGroupUpdate", e);
         }
     }
+
+    private void processPortSecurityEnableUpdated(NeutronPort neutronPort) {
+        LOG.trace("processPortSecurityEnableUpdated:" + neutronPort);
+        securityServicesManager.syncFixedSecurityGroup(neutronPort,
+            neutronPort.getPortSecurityEnabled());
+    }
+
+    private boolean isPortSecuirtyEnableUpdated(NeutronPort neutronPort) {
+        LOG.trace("isPortSecuirtyEnableUpdated:" + neutronPort);
+        if (neutronPort.getOriginalPort().getPortSecurityEnabled()
+                != neutronPort.getPortSecurityEnabled()) {
+            return true;
+        }
+        return false;
+    }
+
 
     private List<NeutronSecurityGroup> getsecurityGroupChanged(NeutronPort port1, NeutronPort port2) {
         LOG.trace("getsecurityGroupChanged:" + "Port1:" + port1 + "Port2" + port2);

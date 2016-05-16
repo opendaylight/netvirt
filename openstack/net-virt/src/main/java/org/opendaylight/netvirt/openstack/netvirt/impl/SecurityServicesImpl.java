@@ -427,6 +427,45 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
     }
 
     @Override
+    public void syncFixedSecurityGroup(NeutronPort port, boolean write) {
+
+        Node node = getNode(port);
+        if (node == null) {
+            return;
+        }
+        NeutronNetwork neutronNetwork = neutronNetworkCache.getNetwork(port.getNetworkUUID());
+        if (null == neutronNetwork) {
+            neutronNetwork = neutronL3Adapter.getNetworkFromCleanupCache(port.getNetworkUUID());
+        }
+        if (neutronNetwork == null) {
+            return;
+        }
+        OvsdbTerminationPointAugmentation intf = getInterface(node, port);
+        if (intf == null) {
+            return;
+        }
+        String attachedMac = southbound.getInterfaceExternalIdsValue(intf, Constants.EXTERNAL_ID_VM_MAC);
+        if (attachedMac == null) {
+            LOG.debug("programVlanRules: No AttachedMac seen in {}", intf);
+            return;
+        }
+        long dpid = getDpidOfIntegrationBridge(node);
+        if (dpid == 0L) {
+            return;
+        }
+        String segmentationId = neutronNetwork.getProviderSegmentationID();
+        long localPort = southbound.getOFPort(intf);
+        NeutronPort dhcpPort = this.getDhcpServerPort(intf);
+        List<Neutron_IPs> srcAddressList = null;
+        srcAddressList = this.getIpAddressList(intf);
+        ingressAclProvider.programFixedSecurityGroup(dpid, segmentationId,
+            dhcpPort.getMacAddress(), localPort, attachedMac, write);
+        egressAclProvider.programFixedSecurityGroup(dpid, segmentationId,
+            attachedMac, localPort, srcAddressList, write);;
+
+    }
+
+    @Override
     public void syncSecurityGroup(NeutronPort port, List<NeutronSecurityGroup> securityGroupList, boolean write) {
         LOG.trace("syncSecurityGroup:" + securityGroupList + " Write:" + write);
         if (null != port && null != port.getSecurityGroups()) {
