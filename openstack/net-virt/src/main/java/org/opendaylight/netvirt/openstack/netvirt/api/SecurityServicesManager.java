@@ -104,6 +104,12 @@ public interface SecurityServicesManager {
      */
     void syncSecurityGroup(NeutronPort port, List<NeutronSecurityGroup> securityGroup, boolean write);
     /**
+     * Add or remove the fixed security groups  from the port.
+     * @param port the neutron port.
+     * @param write whether to add/delete flow.
+     */
+    void syncFixedSecurityGroup(NeutronPort port, boolean write);
+    /**
      * Add or remove individual security  rules from the port.
      * @param port the neutron port.
      * @param securityRule the security group associated with the port.
