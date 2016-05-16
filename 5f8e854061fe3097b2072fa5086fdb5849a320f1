@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_857d3671",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-16T20:34:28Z",
+      "side": 1,
+      "message": "These aren\u0027t instantiated and aren\u0027t used. Looks like they can be removed but that can be done in a separate patch as it\u0027s not related to blueprint wiring.",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_05912699",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-16T20:34:28Z",
+      "side": 1,
+      "message": "commands isn\u0027t used and can be removed",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_a5915a9c",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-16T20:34:28Z",
+      "side": 1,
+      "message": "I think it might be cleaner/safer to move the instantiations above to a separate start method as leaking \u0027this\u0027 out of the constructor (to BgpConfigurationManager) doesn\u0027t look safe.",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_85f416f3",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/params/xml/ns/yang/bgpmanager/impl/rev150326/BgpManagerImplModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-16T20:34:28Z",
+      "side": 1,
+      "message": "Remove cast to AutoCloseable - BgpManagerProxyInterface needs to extend AutoCloseable.",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_65f742f6",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/params/xml/ns/yang/bgpmanager/impl/rev150326/BgpManagerImplModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-16T20:34:28Z",
+      "side": 1,
+      "message": "This needs to also extend AutoCloseable.",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_e58b5266",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/resources/org/opendaylight/blueprint/bgpmanager.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-16T20:34:28Z",
+      "side": 1,
+      "message": "I don\u0027t see where the BgpManagerFactory impl is created and advertised. However in this case I don\u0027t think you need a BgpManagerFactory, i.e. you can just create the BgpManager directly since it\u0027s in the same bundle. I used the factory interface pattern in openflow in cases where the blueprint XML is in another bundle to avoid leaking impl classes from their bundles.",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_45eafe0f",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/resources/org/opendaylight/blueprint/bgpmanager.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-16T20:34:28Z",
+      "side": 1,
+      "message": "The actual name of the module instance in the config XML is bgpmanager-default so we need to use that for the odl:type so it matches the instance name the Module createInstance method will get.",
+      "revId": "5f8e854061fe3097b2072fa5086fdb5849a320f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
