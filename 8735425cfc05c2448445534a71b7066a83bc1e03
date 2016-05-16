@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_a5467a1f",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-16T20:46:51Z",
+      "side": 1,
+      "message": "still need to address previous comments",
+      "range": {
+        "startLine": 47,
+        "startChar": 3,
+        "endLine": 70,
+        "endChar": 5
+      },
+      "revId": "8735425cfc05c2448445534a71b7066a83bc1e03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
