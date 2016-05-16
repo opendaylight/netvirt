@@ -9,49 +9,56 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import java.lang.management.ManagementFactory;
-import java.util.*;
-import javax.management.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Timer;
+import javax.management.JMException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import org.apache.thrift.TException;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.bgpmanager.commands.Commands;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmBroadcaster;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmErrorCodes;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpCounters;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
-import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmBroadcaster;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpManager {
+public class BgpManager implements AutoCloseable, IBgpManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BgpManager.class);
-    private BgpConfigurationManager bcm;
-    private FibDSWriter fibDSWriter;
-    //private IITMProvider        itmProvider;
-    private DataBroker dataBroker;
-    private BgpAlarmBroadcaster qbgpAlarmProducer = null;
+
+    private final DataBroker dataBroker;
+    private final BgpAlarmBroadcaster qbgpAlarmProducer;
+    private final BgpConfigurationManager bcm;
+    private final FibDSWriter fibDSWriter;
+
     private MBeanServer qbgpAlarmServer = null;
-    private NotificationFilter  qbgpAlarmFilter = null;
     final static int DEFAULT_STALEPATH_TIME = 210;
     final static boolean DEFAULT_FBIT = true;
 
     public BgpCounters bgpCounters;
     public Timer bgpCountersTimer;
 
-    @Override
-    public void onSessionInitiated(ProviderContext session) {
+    public BgpManager(final DataBroker dataBroker,
+            final BgpConfigurationManager bcm,
+            final BgpAlarmBroadcaster bgpAlarmProducer,
+            final FibDSWriter fibDSWriter) {
+        this.dataBroker = dataBroker;
+        this.bcm = bcm;
+        this.qbgpAlarmProducer = bgpAlarmProducer;
+        this.fibDSWriter = fibDSWriter;
+    }
+
+    public void start() {
         try {
-            dataBroker = session.getSALService(DataBroker.class);
-            fibDSWriter = new FibDSWriter(dataBroker);
             BgpUtil.setBroker(dataBroker);
-            bcm = new BgpConfigurationManager(this);
-            Commands commands = new Commands(this);
             ConfigureBgpCli.setBgpManager(this);
             LOGGER.info("BgpManager started");
         } catch (Exception e) {
@@ -60,19 +67,17 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
         // Set up the Infra for Posting BGP Alarms as JMX notifications.
         try {
-            qbgpAlarmProducer = new BgpAlarmBroadcaster();
             MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
             ObjectName alarmObj = new ObjectName("SDNC.FM:name=BgpAlarmObj");
             mbs.registerMBean(qbgpAlarmProducer, alarmObj);
         } catch (JMException e) {
-            LOGGER.error("Adding a NotificationBroadcaster failed." + e.toString());
-            e.printStackTrace();
+            LOGGER.error("Adding a NotificationBroadcaster failed." + e);
         }
     }
 
    @Override
     public void close() throws Exception {
-        bcm.close(); 
+        bcm.close();
         LOGGER.info("BgpManager Closed");
    }
 
@@ -101,7 +106,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
     public void addEbgpMultihop(String ipAddress, int nhops) throws TException {
       bcm.addEbgpMultihop(ipAddress, nhops);
     }
-    
+
     public void addUpdateSource(String ipAddress, String srcIp) throws TException {
       bcm.addUpdateSource(ipAddress, srcIp);
     }
@@ -116,8 +121,8 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
     @Override
     public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) throws Exception {
-        bcm.addVrf(rd, new ArrayList<>(importRts),
-                new ArrayList<>(exportRts));
+        bcm.addVrf(rd, new ArrayList<String>(importRts),
+                       new ArrayList<String>(exportRts));
     }
 
     @Override
@@ -202,8 +207,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
             // BgpAlarmErrorCodes enum class.
             return;
         }
-        String alarmString = "";
-        alarmString = "Alarm (" + code + "," + subcode + ") from neighbor " + pfx;
+        String alarmString = "Alarm (" + code + "," + subcode + ") from neighbor " + pfx;
         qbgpAlarmProducer.sendBgpAlarmInfo(pfx, code, subcode);
     }
 
@@ -253,18 +257,18 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
     public FibDSWriter getFibWriter() {
         return fibDSWriter;
-    } 
+    }
 
     public DataBroker getBroker() {
         return dataBroker;
-    } 
+    }
 
     public String getConfigHost() {
-        return bcm.getConfigHost();
+        return BgpConfigurationManager.getConfigHost();
     }
 
     public int getConfigPort() {
-        return bcm.getConfigPort();
+        return BgpConfigurationManager.getConfigPort();
     }
 
     public void bgpRestarted() {
