@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_aa72c9e0",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-16T18:41:58Z",
+      "side": 1,
+      "message": "This goes better inside the previous if",
+      "revId": "79574e5b28827a619f9747b627e290c1510ead32",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_4a4b2d87",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-16T18:41:58Z",
+      "side": 1,
+      "message": "change this method to the one here.",
+      "revId": "79574e5b28827a619f9747b627e290c1510ead32",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_aa59295d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/translator/iaware/impl/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-16T18:41:58Z",
+      "side": 1,
+      "message": "nitpick, checkstyle will complain without the space",
+      "revId": "79574e5b28827a619f9747b627e290c1510ead32",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
