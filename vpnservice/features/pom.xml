@@ -78,7 +78,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>features-mdsal</artifactId>
       <classifier>features</classifier>
-      <version>${mdsal.version}</version>
       <type>xml</type>
       <scope>runtime</scope>
     </dependency>
@@ -126,7 +125,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>org.opendaylight.netconf</groupId>
       <artifactId>features-restconf</artifactId>
       <classifier>features</classifier>
-      <version>${restconf.version}</version>
       <type>xml</type>
       <scope>runtime</scope>
     </dependency>
