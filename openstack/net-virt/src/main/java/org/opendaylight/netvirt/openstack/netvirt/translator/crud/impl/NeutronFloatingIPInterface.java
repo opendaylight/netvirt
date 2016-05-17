@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFloatingIP;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronFloatingIPCRUD;
@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 public class NeutronFloatingIPInterface extends AbstractNeutronInterface<Floatingip, NeutronFloatingIP> implements INeutronFloatingIPCRUD {
     private static final Logger LOGGER = LoggerFactory.getLogger(NeutronFloatingIPInterface.class);
 
-    NeutronFloatingIPInterface(ProviderContext providerContext) {
-        super(providerContext);
+    NeutronFloatingIPInterface(final DataBroker dataBroker) {
+        super(dataBroker);
     }
 
     // IfNBFloatingIPCRUD interface methods
@@ -173,9 +173,9 @@ public class NeutronFloatingIPInterface extends AbstractNeutronInterface<Floatin
     }
 
     public static void registerNewInterface(BundleContext context,
-                                            ProviderContext providerContext,
+                                            final DataBroker dataBroker,
                                             List<ServiceRegistration<?>> registrations) {
-        NeutronFloatingIPInterface neutronFloatingIPInterface = new NeutronFloatingIPInterface(providerContext);
+        NeutronFloatingIPInterface neutronFloatingIPInterface = new NeutronFloatingIPInterface(dataBroker);
         ServiceRegistration<INeutronFloatingIPCRUD> neutronFloatingIPInterfaceRegistration = context.registerService(INeutronFloatingIPCRUD.class, neutronFloatingIPInterface, null);
         if (neutronFloatingIPInterfaceRegistration != null) {
             registrations.add(neutronFloatingIPInterfaceRegistration);

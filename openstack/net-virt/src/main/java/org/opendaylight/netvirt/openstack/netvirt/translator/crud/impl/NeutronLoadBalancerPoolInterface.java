@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
+import com.google.common.collect.ImmutableBiMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -15,12 +16,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancerPool;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancer_SessionPersistence;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_ID;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerPoolCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancer_SessionPersistence;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolHttp;
@@ -36,8 +36,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableBiMap;
 
 /**
  * TODO: Migrate this to consume the MD-SAL data store, so that it can read all the data from data store.
@@ -56,8 +54,8 @@ public class NeutronLoadBalancerPoolInterface extends AbstractNeutronInterface<P
             .put(ProtocolTcp.class,"TCP")
             .build();
 
-    NeutronLoadBalancerPoolInterface(ProviderContext providerContext) {
-        super(providerContext);
+    NeutronLoadBalancerPoolInterface(final DataBroker dataBroker) {
+        super(dataBroker);
     }
 
     @Override
@@ -181,9 +179,9 @@ public class NeutronLoadBalancerPoolInterface extends AbstractNeutronInterface<P
     }
 
     public static void registerNewInterface(BundleContext context,
-                                            ProviderContext providerContext,
+                                            final DataBroker dataBroker,
                                             List<ServiceRegistration<?>> registrations) {
-        NeutronLoadBalancerPoolInterface neutronLoadBalancerPoolInterface = new NeutronLoadBalancerPoolInterface(providerContext);
+        NeutronLoadBalancerPoolInterface neutronLoadBalancerPoolInterface = new NeutronLoadBalancerPoolInterface(dataBroker);
         ServiceRegistration<INeutronLoadBalancerPoolCRUD> neutronLoadBalancerPoolInterfaceRegistration = context.registerService(INeutronLoadBalancerPoolCRUD.class, neutronLoadBalancerPoolInterface, null);
         if(neutronLoadBalancerPoolInterfaceRegistration != null) {
             registrations.add(neutronLoadBalancerPoolInterfaceRegistration);
