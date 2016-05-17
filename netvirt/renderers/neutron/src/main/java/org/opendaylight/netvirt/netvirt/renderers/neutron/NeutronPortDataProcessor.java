@@ -35,15 +35,12 @@ import org.slf4j.LoggerFactory;
 public class NeutronPortDataProcessor implements DataProcessor<Port> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronPortDataProcessor.class);
     private MdsalUtils mdsalUtils;
-    private final NeutronProvider provider;
 
     /**
      *
-     * @param provider - Neutron provider
      * @param db - mdsal
      */
-    public NeutronPortDataProcessor(final NeutronProvider provider, DataBroker db) {
-        this.provider = Preconditions.checkNotNull(provider, "Provider can not be null!");
+    public NeutronPortDataProcessor(DataBroker db) {
         mdsalUtils = new MdsalUtils(db);
     }
 

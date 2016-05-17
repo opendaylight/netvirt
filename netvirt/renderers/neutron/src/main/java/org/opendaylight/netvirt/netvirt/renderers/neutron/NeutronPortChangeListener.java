@@ -21,11 +21,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class NeutronPortChangeListener extends DelegatingDataTreeListener<Port> {
     /**
      * {@link NeutronPortChangeListener} constructor.
-     * @param provider Neutron Provider
      * @param db MdSal {@link DataBroker}
      */
-    public NeutronPortChangeListener(final NeutronProvider provider, final DataBroker db) {
-        super(provider, new NeutronPortDataProcessor(provider, db), db,
+    public NeutronPortChangeListener(final DataBroker db) {
+        super(new NeutronPortDataProcessor(db), db,
                 new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION,
                         InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class)));
     }

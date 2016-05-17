@@ -1,9 +1,12 @@
 package org.opendaylight.netvirt.netvirt.renderers.neutron;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -16,11 +19,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIpsBuilder;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
-import com.google.common.base.Optional;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Unit test for {@link NeutronPortDataProcessor}
@@ -37,7 +39,6 @@ public class NeutronPortDataProcessorTest extends AbstractDataBrokerTest {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.ports.Port> portIid =
                 MdsalHelper.createPortInstanceIdentifier(uuid);
 
-        org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.ports.Port netvirtPort = null;
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.ports.Port> data =
             getDataBroker()
             .newReadOnlyTransaction()
@@ -71,7 +72,7 @@ public class NeutronPortDataProcessorTest extends AbstractDataBrokerTest {
         if (!initialized) {
             session = mock(ProviderContext.class);
             when(session.getSALService(DataBroker.class)).thenReturn(getDataBroker());
-            neutronPortDataProcessor = new NeutronPortDataProcessor(new NeutronProvider(), session.getSALService(DataBroker.class));
+            neutronPortDataProcessor = new NeutronPortDataProcessor(getDataBroker());
             initialized = true;
         }
     }

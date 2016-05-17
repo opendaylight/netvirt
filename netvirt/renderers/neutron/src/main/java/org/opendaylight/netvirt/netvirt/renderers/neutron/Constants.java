@@ -9,15 +9,18 @@
 package org.opendaylight.netvirt.netvirt.renderers.neutron;
 
 import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableBiMap.Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.common.rev151227.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.common.rev151227.NetworkTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.common.rev151227.NetworkTypeFlat;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.common.rev151227.NetworkTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.common.rev151227.NetworkTypeVlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.common.rev151227.NetworkTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.PortTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.PortTypeComputeNova;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.PortTypeDhcp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.PortTypeFloatingIp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.PortTypeRouter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.PortTypeRouterGateway;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.PortTypeRouterInterfaceDistributed;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.PortTypeRouter;
 
 /**
  * A collection of configuration constants
