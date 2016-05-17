@@ -20,6 +20,7 @@ module natservice-impl {
     identity natservice-impl {
         base config:module-type;
         config:java-name-prefix NATService;
+        status deprecated;
     }
 
     augment "/config:modules/config:module/config:configuration" {
