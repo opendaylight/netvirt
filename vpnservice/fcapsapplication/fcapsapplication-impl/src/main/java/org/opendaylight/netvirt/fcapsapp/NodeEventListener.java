@@ -8,46 +8,80 @@
 package org.opendaylight.netvirt.fcapsapp;
 
 import com.google.common.base.Optional;
-import org.opendaylight.controller.md.sal.binding.api.*;
-
+import java.net.InetAddress;
+import java.util.Collection;
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.common.api.clustering.Entity;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipState;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.netvirt.fcapsapp.alarm.AlarmAgent;
 import org.opendaylight.netvirt.fcapsapp.performancecounter.NodeUpdateCounter;
 import org.opendaylight.netvirt.fcapsapp.performancecounter.PacketInCounterHandler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.net.InetAddress;
-import java.util.Collection;
 
-public class NodeEventListener<D extends DataObject> implements ClusteredDataTreeChangeListener<D>,AutoCloseable {
+public class NodeEventListener implements
+        ClusteredDataTreeChangeListener<FlowCapableNode>, AutoCloseable {
+
     private static final Logger LOG = LoggerFactory.getLogger(NodeEventListener.class);
-    public static final AlarmAgent alarmAgent = new AlarmAgent();
-    public static final NodeUpdateCounter nodeUpdateCounter = new NodeUpdateCounter();
-    public static final PacketInCounterHandler packetInCounter = new PacketInCounterHandler();
+
+    public final AlarmAgent alarmAgent = new AlarmAgent();
+    public final NodeUpdateCounter nodeUpdateCounter;
+    public final PacketInCounterHandler packetInCounter;
+
     private final EntityOwnershipService entityOwnershipService;
+    private final DataBroker dataBroker;
+
+    private ListenerRegistration<NodeEventListener> reg;
+
+    private static final InstanceIdentifier<FlowCapableNode> FLOW_CAPABLE_NODE_IID = InstanceIdentifier
+            .create(Nodes.class).child(Node.class)
+            .augmentation(FlowCapableNode.class);
+
 
     /**
      * Construcor set EntityOwnershipService
+     * @param dataBroker
      * @param eos
      */
-    public NodeEventListener(final EntityOwnershipService eos) {
+    public NodeEventListener(final DataBroker dataBroker, final EntityOwnershipService eos,
+            final NotificationProviderService notificationProviderService) {
+        this.dataBroker = dataBroker;
         this.entityOwnershipService = eos;
+
+        this.nodeUpdateCounter = new NodeUpdateCounter();
+        this.packetInCounter = new PacketInCounterHandler(notificationProviderService);
+    }
+
+    /**
+     * Start method
+     */
+    public void start() {
+        final DataTreeIdentifier<FlowCapableNode> treeId =
+                new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, FLOW_CAPABLE_NODE_IID);
+        reg = dataBroker.registerDataTreeChangeListener(treeId, this);
     }
 
     @Override
-    public void onDataTreeChanged(Collection<DataTreeModification<D>> changes) {
-        for (DataTreeModification<D> change : changes) {
-            final InstanceIdentifier<D> key = change.getRootPath().getRootIdentifier();
-            final DataObjectModification<D> mod = change.getRootNode();
+    public void onDataTreeChanged(Collection<DataTreeModification<FlowCapableNode>> changes) {
+        for (DataTreeModification<FlowCapableNode> change : changes) {
+            final InstanceIdentifier<FlowCapableNode> key = change.getRootPath().getRootIdentifier();
+            final DataObjectModification<FlowCapableNode> mod = change.getRootNode();
             final InstanceIdentifier<FlowCapableNode> nodeConnIdent =
                     key.firstIdentifierOf(FlowCapableNode.class);
-            String nodeId = null, hostName = null;
+            String nodeId = null;
+            String hostName = null;
             try {
                 nodeId = getDpnId(String.valueOf(nodeConnIdent.firstKeyOf(Node.class).getId()));
             } catch (Exception ex) {
@@ -128,5 +162,11 @@ public class NodeEventListener<D extends DataObject> implements ClusteredDataTre
 
     @Override
     public void close() throws Exception {
+        if (reg != null) {
+            reg.close();
+        }
+        if (packetInCounter != null) {
+            packetInCounter.close();
+        }
     }
 }

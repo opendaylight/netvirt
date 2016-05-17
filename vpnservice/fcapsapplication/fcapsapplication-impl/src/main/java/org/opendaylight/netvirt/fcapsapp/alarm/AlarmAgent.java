@@ -8,14 +8,15 @@
 
 package org.opendaylight.netvirt.fcapsapp.alarm;
 
-import org.opendaylight.netvirt.fcapsappjmx.ControlPathFailureAlarm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.lang.management.ManagementFactory;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.lang.management.ManagementFactory;
+import org.opendaylight.netvirt.fcapsappjmx.ControlPathFailureAlarm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AlarmAgent {
     static Logger s_logger = LoggerFactory.getLogger(AlarmAgent.class);
@@ -39,7 +40,7 @@ public class AlarmAgent {
     /**
      * Method registers alarm mbean in platform MbeanServer
      */
-    public void registerAlarmMbean() {
+    public void registerMBean() {
         try {
             if (!mbs.isRegistered(alarmName)) {
                 mbs.registerMBean(alarmBean, alarmName);
@@ -47,6 +48,19 @@ public class AlarmAgent {
             }
         } catch (Exception e) {
             s_logger.error("Registeration failed for Mbean {} :{}", alarmName,e);
+        }
+    }
+
+    /**
+     * Unregister the MBean.
+     */
+    public void unregisterMBean() {
+        try {
+            if (!mbs.isRegistered(alarmName)) {
+                mbs.unregisterMBean(alarmName);
+            }
+        } catch (MBeanRegistrationException | InstanceNotFoundException e) {
+            s_logger.error("Failed to unregister Mbean {} :{}", alarmName, e);
         }
     }
 
