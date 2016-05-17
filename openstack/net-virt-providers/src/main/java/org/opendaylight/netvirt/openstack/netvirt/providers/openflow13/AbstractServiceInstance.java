@@ -8,13 +8,18 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.CheckedFuture;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
@@ -36,14 +41,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.CheckedFuture;
-
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

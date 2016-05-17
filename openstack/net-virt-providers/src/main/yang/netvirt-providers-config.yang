@@ -15,6 +15,7 @@ module netvirt-providers-config {
         leaf table-offset {
             description "The table-offset is used to set the starting table for the netvirt pipeline";
             type uint8;
+            default 0;
         }
     }
 }
