@@ -11,10 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepRemoteMcastMacListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
@@ -43,8 +44,19 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
 
     private static final Logger LOG = LoggerFactory.getLogger(LogicalSwitchAddedJob.class);
 
-    public LogicalSwitchAddedJob(String logicalSwitchName, Devices physicalDevice, L2GatewayDevice l2GatewayDevice,
+    private final DataBroker broker;
+    private final ElanL2GatewayUtils elanL2GatewayUtils;
+    private final ElanUtils elanUtils;
+    private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
+
+    public LogicalSwitchAddedJob(DataBroker dataBroker, ElanL2GatewayUtils elanL2GatewayUtils, ElanUtils elanUtils,
+                                 ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, String logicalSwitchName,
+                                 Devices physicalDevice, L2GatewayDevice l2GatewayDevice,
                                  Integer defaultVlanId) {
+        this.broker = dataBroker;
+        this.elanL2GatewayUtils = elanL2GatewayUtils;
+        this.elanUtils = elanUtils;
+        this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.logicalSwitchName = logicalSwitchName;
         this.physicalDevice = physicalDevice;
         this.elanL2GwDevice = l2GatewayDevice;
@@ -69,21 +81,21 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
             String elan = ElanL2GatewayUtils.getElanFromLogicalSwitch(logicalSwitchName);
 
             LOG.info("creating vlan bindings for {} {}", logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
-            futures.add(ElanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(
+            futures.add(elanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(
                 new NodeId(elanL2GwDevice.getHwvtepNodeId()), logicalSwitchName, physicalDevice, defaultVlanId));
             LOG.info("creating mast mac entries for {} {}", logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
-            futures.add(ElanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceAdd(logicalSwitchName, elanL2GwDevice));
+            futures.add(elanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceAdd(logicalSwitchName, elanL2GwDevice));
 
             List<IpAddress> expectedPhyLocatorIps = Lists.newArrayList();
-            HwvtepRemoteMcastMacListener list = new HwvtepRemoteMcastMacListener(ElanUtils.getElanServiceProvider().getBroker(),
-                logicalSwitchName, elanL2GwDevice, expectedPhyLocatorIps,
+            HwvtepRemoteMcastMacListener list = new HwvtepRemoteMcastMacListener(broker,
+                    elanUtils, logicalSwitchName, elanL2GwDevice, expectedPhyLocatorIps,
                 new Callable<List<ListenableFuture<Void>>>() {
                     @Override
                     public List<ListenableFuture<Void>> call() {
                         LOG.info("adding remote ucast macs for {} {}", logicalSwitchName,
                             elanL2GwDevice.getHwvtepNodeId());
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        futures.add(ElanL2GatewayUtils.installElanMacsInL2GatewayDevice(
+                        futures.add(elanL2GatewayUtils.installElanMacsInL2GatewayDevice(
                             logicalSwitchName, elanL2GwDevice));
                         return futures;
                     }
