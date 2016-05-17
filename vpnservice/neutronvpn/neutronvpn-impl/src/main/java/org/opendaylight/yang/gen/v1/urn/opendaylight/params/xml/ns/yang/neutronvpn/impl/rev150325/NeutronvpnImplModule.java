@@ -8,11 +8,21 @@
 
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.neutronvpn.impl.rev150325;
 
-import org.opendaylight.netvirt.neutronvpn.NeutronvpnProvider;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.osgi.framework.BundleContext;
 
-public class NeutronvpnImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.neutronvpn
-        .impl.rev150325.AbstractNeutronvpnImplModule {
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
+public class NeutronvpnImplModule extends AbstractNeutronvpnImplModule {
+
+    private BundleContext bundleContext;
+
     public NeutronvpnImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight
             .controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
@@ -24,23 +34,39 @@ public class NeutronvpnImplModule extends org.opendaylight.yang.gen.v1.urn.opend
             .AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
-
     @Override
-    public void customValidation() {
-        // add custom validation form module attributes here.
+    public AutoCloseable createInstance() {
+        // The service is provided via blueprint so wait for and return it here for backwards compatibility.
+        final String typeFilter = String.format("(type=%s)", getIdentifier().getInstanceName());
+        final WaitingServiceTracker<INeutronVpnManager> tracker = WaitingServiceTracker.create(
+                INeutronVpnManager.class, bundleContext, typeFilter);
+        final INeutronVpnManager elanService = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        // We don't want to call close on the actual service as its life cycle is controlled by blueprint but
+        // we do want to close the tracker so create a proxy to override close appropriately.
+        return Reflection.newProxy(AutoCloseableINeutronVpnManager.class, new AbstractInvocationHandler() {
+            @Override
+            protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    tracker.close();
+                    return null;
+                } else {
+                    return method.invoke(elanService, args);
+                }
+            }
+        });
+    }
+
+    public void setBundleContext(final BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
     @Override
-    public java.lang.AutoCloseable createInstance() {
-        // TODO:implement
-        LockManagerService lockManagerService = getRpcRegistryDependency().getRpcService(LockManagerService.class);
-        NeutronvpnProvider provider = new NeutronvpnProvider(getRpcRegistryDependency(),
-                getNotificationPublishServiceDependency(),getNotificationServiceDependency());
-        provider.setMdsalManager(getMdsalutilDependency());
-        provider.setLockManager(lockManagerService);
-        provider.setEntityOwnershipService(getEntityOwnershipServiceDependency());
-        getBrokerDependency().registerProvider(provider);
-        return provider;
+    public boolean canReuseInstance(final AbstractNeutronvpnImplModule oldModule) {
+        return true;
     }
 
+    private static interface AutoCloseableINeutronVpnManager
+            extends AutoCloseable, INeutronVpnManager {
+    }
 }

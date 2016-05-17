@@ -8,6 +8,30 @@
 * Do not modify this file unless it is present under src/main directory
 */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.neutronvpn.impl.rev150325;
-public class NeutronvpnImplModuleFactory extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.neutronvpn.impl.rev150325.AbstractNeutronvpnImplModuleFactory {
 
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.osgi.framework.BundleContext;
+
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
+public class NeutronvpnImplModuleFactory extends AbstractNeutronvpnImplModuleFactory {
+
+    @Override
+    public NeutronvpnImplModule instantiateModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final NeutronvpnImplModule oldModule, final AutoCloseable oldInstance, final BundleContext bundleContext) {
+        final NeutronvpnImplModule module = super.instantiateModule(instanceName, dependencyResolver, oldModule,
+                oldInstance, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    @Override
+    public NeutronvpnImplModule instantiateModule(final String instanceName, final DependencyResolver dependencyResolver,
+            final BundleContext bundleContext) {
+        final NeutronvpnImplModule module = super.instantiateModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 }
