@@ -12,12 +12,11 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.util.Set;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryListener;
 
 /**
@@ -26,7 +25,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryListener;
 @RunWith(MockitoJUnitRunner.class)
 public class OvsdbInventoryServiceImplTest {
 
-    @InjectMocks private OvsdbInventoryServiceImpl ovsdbInventoryServiceImpl = new OvsdbInventoryServiceImpl(mock(ProviderContext.class));
+    @InjectMocks private OvsdbInventoryServiceImpl ovsdbInventoryServiceImpl = new OvsdbInventoryServiceImpl(mock(DataBroker.class));
 
 
     @Test

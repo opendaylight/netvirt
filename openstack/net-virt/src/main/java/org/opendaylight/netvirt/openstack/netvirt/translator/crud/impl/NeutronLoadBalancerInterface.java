@@ -15,8 +15,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancer;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerCRUD;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -40,8 +39,8 @@ public class NeutronLoadBalancerInterface extends AbstractNeutronInterface<Loadb
     private ConcurrentMap<String, NeutronLoadBalancer> loadBalancerDB  = new ConcurrentHashMap<>();
 
 
-    NeutronLoadBalancerInterface(ProviderContext providerContext) {
-        super(providerContext);
+    NeutronLoadBalancerInterface(final DataBroker dataBroker) {
+        super(dataBroker);
     }
 
     @Override
@@ -151,9 +150,9 @@ public class NeutronLoadBalancerInterface extends AbstractNeutronInterface<Loadb
     }
 
     public static void registerNewInterface(BundleContext context,
-                                            ProviderContext providerContext,
+                                            final DataBroker dataBroker,
                                             List<ServiceRegistration<?>> registrations) {
-        NeutronLoadBalancerInterface neutronLoadBalancerInterface = new NeutronLoadBalancerInterface(providerContext);
+        NeutronLoadBalancerInterface neutronLoadBalancerInterface = new NeutronLoadBalancerInterface(dataBroker);
         ServiceRegistration<INeutronLoadBalancerCRUD> neutronLoadBalancerInterfaceRegistration = context.registerService(INeutronLoadBalancerCRUD.class, neutronLoadBalancerInterface, null);
         if(neutronLoadBalancerInterfaceRegistration != null) {
             registrations.add(neutronLoadBalancerInterfaceRegistration);
