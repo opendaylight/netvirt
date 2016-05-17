@@ -38,7 +38,6 @@ public class ConfigStateManager {
     }
 
     private void initReady() {
-        readyMap.put("elanservice-impl", Pair.of("elanservice-default", false));
     }
 
     private void getServices() {

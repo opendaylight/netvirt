@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
@@ -59,15 +60,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public class HwvtepTerminationPointListener extends
         AsyncClusteredDataChangeListenerBase<TerminationPoint, HwvtepTerminationPointListener> implements AutoCloseable {
 
-    private DataBroker broker;
-    private ListenerRegistration<DataChangeListener> lstnerRegistration;
-
     private static final Logger logger = LoggerFactory.getLogger(HwvtepTerminationPointListener.class);
 
-    public HwvtepTerminationPointListener(DataBroker broker) {
+    private DataBroker broker;
+    private ListenerRegistration<DataChangeListener> lstnerRegistration;
+    private final ElanL2GatewayUtils elanL2GatewayUtils;
+    private final EntityOwnershipService entityOwnershipService;
+
+    public HwvtepTerminationPointListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
+                                          EntityOwnershipService entityOwnershipService) {
         super(TerminationPoint.class, HwvtepTerminationPointListener.class);
 
         this.broker = broker;
+        this.elanL2GatewayUtils = elanL2GatewayUtils;
+        this.entityOwnershipService = entityOwnershipService;
         registerListener();
         logger.debug("created HwvtepTerminationPointListener");
     }
@@ -133,7 +139,7 @@ public class HwvtepTerminationPointListener extends
                 add.getAugmentation(HwvtepPhysicalPortAugmentation.class);
         if (portAugmentation != null) {
             final NodeId nodeId = identifier.firstIdentifierOf(Node.class).firstKeyOf(Node.class).getNodeId();
-            ElanClusterUtils.runOnlyInLeaderNode(HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
+            ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
                     "handling Physical Switch add", new Callable<List<ListenableFuture<Void>>>() {
                         @Override
                         public List<ListenableFuture<Void>> call() throws Exception {
@@ -191,7 +197,7 @@ public class HwvtepTerminationPointListener extends
                         NodeId hwvtepNodeId = new NodeId(l2GwDevice.getHwvtepNodeId());
                         List<VlanBindings> vlanBindings = getVlanBindings(l2GwConns, hwvtepNodeId, psName, newPortId);
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        futures.add(ElanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(hwvtepNodeId, psName,
+                        futures.add(elanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(hwvtepNodeId, psName,
                                 newPortId, vlanBindings));
                         return futures;
                     }

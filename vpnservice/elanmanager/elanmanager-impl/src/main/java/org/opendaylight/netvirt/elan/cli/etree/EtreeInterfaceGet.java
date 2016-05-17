@@ -32,6 +32,7 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
     private IInterfaceManager interfaceManager;
     public static int MAX_LENGTH = 31;
     private IElanService elanProvider;
+    private ElanUtils elanUtils;
     public static boolean isDisplay = true;
 
     public void setElanProvider(IElanService elanServiceProvider) {
@@ -40,6 +41,10 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
 
     public void setInterfaceManager(IInterfaceManager interfaceManager) {
         this.interfaceManager = interfaceManager;
+    }
+
+    public void setElanUtils(ElanUtils elanUtils) {
+        this.elanUtils = elanUtils;
     }
 
     @Override
@@ -94,7 +99,7 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
         if (!interfaceList.isEmpty()) {
             for (String elanInterface : interfaceList) {
                 InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterface);
-                EtreeInterface etreeInterface = ElanUtils.getEtreeInterfaceByElanInterfaceName(elanInterface);
+                EtreeInterface etreeInterface = elanUtils.getEtreeInterfaceByElanInterfaceName(elanInterface);
                 if (interfaceInfo != null) {
                     System.out.println(String.format(ElanCLIUtils.ETREE_INTERFACE_CLI_FORMAT,
                             elanInstance.getElanInstanceName() + "/" + elanInstance.getElanTag(),
