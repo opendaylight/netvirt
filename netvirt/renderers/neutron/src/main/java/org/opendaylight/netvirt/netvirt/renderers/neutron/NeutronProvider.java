@@ -7,53 +7,28 @@
  */
 package org.opendaylight.netvirt.netvirt.renderers.neutron;
 
-import com.google.common.base.Optional;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipState;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.clustering.Entity;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
-import org.osgi.framework.BundleContext;
 
-public class NeutronProvider implements BindingAwareProvider, AutoCloseable {
+public class NeutronProvider implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronProvider.class);
-    private BundleContext bundleContext = null;
-    private static DataBroker dataBroker = null;
-    private static EntityOwnershipService entityOwnershipService;
-    private static final Entity ownerInstanceEntity = new Entity(Constants.NETVIRT_NEUTRON_OWNER_ENTITY_TYPE,
-            Constants.NETVIRT_NEUTRON_OWNER_ENTITY_TYPE);
+
+    private final DataBroker dataBroker;
+
     private NeutronPortChangeListener neutronPortChangeListener;
     private NeutronNetworkChangeListener neutronNetworkChangeListener;
 
-    public NeutronProvider(BundleContext bundleContext, EntityOwnershipService eos) {
-        LOG.info("Netvirt NeutronProvider: bundleContext: {}", bundleContext);
-        this.bundleContext = bundleContext;
-        entityOwnershipService = eos;
-    }
-
-    public NeutronProvider() {
+    public NeutronProvider(final DataBroker dataBroker, final EntityOwnershipService eos) {
         LOG.info("Netvirt NeutronProvider created");
+        this.dataBroker = dataBroker;
     }
 
-    public static boolean isMasterProviderInstance() {
-        if (entityOwnershipService != null) {
-            Optional<EntityOwnershipState> state = entityOwnershipService.getOwnershipState(ownerInstanceEntity);
-            return state.isPresent() && state.get().isOwner();
-        }
-        return false;
-    }
-
-
-    @Override
-    public void onSessionInitiated(ProviderContext providerContext) {
-        dataBroker = providerContext.getSALService(DataBroker.class);
-        LOG.info("Netvirt NeutronProvider: onSessionInitiated dataBroker: {}", dataBroker);
-
-        neutronPortChangeListener = new NeutronPortChangeListener(this, dataBroker);
-        neutronNetworkChangeListener = new NeutronNetworkChangeListener(this, dataBroker);
+    public void start() {
+        LOG.info("Netvirt NeutronProvider: start", dataBroker);
+        neutronPortChangeListener = new NeutronPortChangeListener(dataBroker);
+        neutronNetworkChangeListener = new NeutronNetworkChangeListener(dataBroker);
     }
 
     @Override
@@ -66,5 +41,4 @@ public class NeutronProvider implements BindingAwareProvider, AutoCloseable {
         }
         LOG.info("Netvirt NeutronProvider Closed");
     }
-
 }

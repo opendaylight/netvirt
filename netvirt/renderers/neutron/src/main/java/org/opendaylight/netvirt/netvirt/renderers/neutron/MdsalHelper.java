@@ -19,11 +19,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.Por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.ports.PortKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MdsalHelper {
-    private static final Logger LOG = LoggerFactory.getLogger(MdsalHelper.class);
     public static InstanceIdentifier<Port> createPortInstanceIdentifier(Uuid portUuid) {
         return InstanceIdentifier.create(Ports.class)
                 .child(Port.class, new PortKey(portUuid));

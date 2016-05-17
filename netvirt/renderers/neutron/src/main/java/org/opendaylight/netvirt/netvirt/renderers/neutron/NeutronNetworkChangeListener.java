@@ -21,11 +21,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class NeutronNetworkChangeListener extends DelegatingDataTreeListener<Network> {
     /**
      * {@link NeutronNetworkChangeListener} constructor.
-     * @param provider Neutron Provider
      * @param db MdSal {@link DataBroker}
      */
-    public NeutronNetworkChangeListener(final NeutronProvider provider, final DataBroker db) {
-        super(provider, new NeutronNetworkDataProcessor(provider, db), db,
+    public NeutronNetworkChangeListener(final DataBroker db) {
+        super(new NeutronNetworkDataProcessor(db), db,
                 new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION,
                         InstanceIdentifier.create(Neutron.class).child(Networks.class).child(Network.class)));
     }
