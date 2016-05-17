@@ -7,9 +7,10 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
 import java.math.BigInteger;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
@@ -37,15 +38,16 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.FutureCallback;
-
 public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Interface> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpInterfaceEventListener.class);
-    private DhcpManager dhcpManager;
+
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private DataBroker dataBroker;
+
+    private final DataBroker dataBroker;
+    private final DhcpManager dhcpManager;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+
     private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
         public void onSuccess(Void result) {
@@ -57,7 +59,6 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
             logger.error("Error in Datastore write operation", error);
         }
     };
-    private DhcpExternalTunnelManager dhcpExternalTunnelManager;
 
     public DhcpInterfaceEventListener(DhcpManager dhcpManager, DataBroker dataBroker, DhcpExternalTunnelManager dhcpExternalTunnelManager) {
         super(Interface.class);
@@ -84,12 +85,7 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                logger.error("Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
+            listenerRegistration.close();
         }
         logger.info("Interface Manager Closed");
     }

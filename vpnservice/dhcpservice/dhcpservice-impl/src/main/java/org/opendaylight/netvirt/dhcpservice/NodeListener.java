@@ -9,14 +9,13 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -30,16 +29,21 @@ public class NodeListener extends AbstractDataChangeListener<Node> implements Au
     private static final Logger LOG = LoggerFactory.getLogger(NodeListener.class);
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private final DataBroker broker;
-    private DhcpManager dhcpManager;
-    private DhcpExternalTunnelManager dhcpExternalTunnelManager;
 
-    public NodeListener(final DataBroker db, final DhcpManager dhcpMgr, final DhcpExternalTunnelManager dhcpExternalTunnelManager) {
+    private final DataBroker broker;
+    private final DhcpManager dhcpManager;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+
+    public NodeListener(final DataBroker db, final DhcpManager dhcpMgr,
+            final DhcpExternalTunnelManager dhcpExternalTunnelManager) {
         super(Node.class);
-        broker = db;
-        dhcpManager = dhcpMgr;
+        this.broker = db;
+        this.dhcpManager = dhcpMgr;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
-        registerListener(db);
+    }
+
+    public void init() {
+        registerListener(broker);
     }
 
     private void registerListener(final DataBroker db) {
@@ -87,13 +91,7 @@ public class NodeListener extends AbstractDataChangeListener<Node> implements Au
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up NodeListener.", e);
-            }
-            listenerRegistration = null;
-            //ToDo: Should we delete DHCP flows when we are closed?
+            listenerRegistration.close();
         }
         LOG.debug("Node Listener Closed");
     }

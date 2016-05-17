@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.base.Optional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -17,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.liblldp.EtherTypes;
@@ -59,21 +59,31 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
+public class DhcpPktHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpPktHandler.class);
+
     private final DataBroker dataBroker;
     private final DhcpManager dhcpMgr;
-    private OdlInterfaceRpcService interfaceManagerRpc;
-    private boolean computeUdpChecksum = true;
-    private PacketProcessingService pktService;
-    private DhcpExternalTunnelManager dhcpExternalTunnelManager;
-    private IInterfaceManager interfaceManager;
+    private final OdlInterfaceRpcService interfaceManagerRpc;
+    private final PacketProcessingService pktService;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final IInterfaceManager interfaceManager;
 
-    public DhcpPktHandler(final DataBroker broker, final DhcpManager dhcpManager, final DhcpExternalTunnelManager dhcpExternalTunnelManager) {
+    private boolean computeUdpChecksum = true;
+
+    public DhcpPktHandler(final DataBroker broker,
+                          final DhcpManager dhcpManager,
+                          final DhcpExternalTunnelManager dhcpExternalTunnelManager,
+                          final OdlInterfaceRpcService interfaceManagerRpc,
+                          final PacketProcessingService pktService,
+                          final IInterfaceManager interfaceManager) {
+        this.interfaceManagerRpc = interfaceManagerRpc;
+        this.pktService = pktService;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = broker;
-        dhcpMgr = dhcpManager;
+        this.dhcpMgr = dhcpManager;
+        this.interfaceManager = interfaceManager;
     }
 
     //TODO: Handle this in a separate thread
@@ -526,20 +536,6 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         return (pktInReason == SendToController.class);
     }
 
-    @Override
-    public void close() throws Exception {
-        // TODO Auto-generated method stub
-    }
-
-    public void setPacketProcessingService(PacketProcessingService packetService) {
-        this.pktService = packetService;
-    }
-
-    public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {
-        LOG.trace("Registered interfaceManager successfully");
-        this.interfaceManagerRpc = interfaceManagerRpc;
-    }
-
     private String getInterfaceNameFromTag(long portTag) {
         String interfaceName = null;
         GetInterfaceFromIfIndexInput input = new GetInterfaceFromIfIndexInputBuilder().setIfIndex(new Integer((int)portTag)).build();
@@ -573,9 +569,5 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
             LOG.warn("Exception when egress actions for interface {}", interfaceName, e);
         }
         return actions;
-    }
-
-    public void setInterfaceManager(IInterfaceManager interfaceManager) {
-        this.interfaceManager = interfaceManager;
     }
 }

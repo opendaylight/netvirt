@@ -13,8 +13,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DhcpConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.dhcp.config.Configs;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -26,39 +26,27 @@ public class DhcpConfigListener extends AsyncClusteredDataChangeListenerBase<Dhc
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpConfigListener.class);
 
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private DhcpManager dhcpManager;
+    private final DhcpManager dhcpManager;
+    private final DataBroker dataBroker;
 
     public DhcpConfigListener(final DataBroker db, final DhcpManager dhcpMgr) {
         super(DhcpConfig.class, DhcpConfigListener.class);
         dhcpManager = dhcpMgr;
-        registerListener(db);
+        this.dataBroker = db;
     }
 
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                    getWildCardPath(), DhcpConfigListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("NodeListener: DataChange listener registration fail!", e);
-            throw new IllegalStateException("NodeListener: registration Listener failed.", e);
-        }
+    public void init() {
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
+    @Override
     protected InstanceIdentifier<DhcpConfig> getWildCardPath() {
         return InstanceIdentifier.create(DhcpConfig.class);
     }
 
     @Override
     public void close() throws Exception {
-        if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DhcpConfigListener.", e);
-            }
-            listenerRegistration = null;
-        }
+        super.close();
         LOG.debug("DhcpConfig Listener Closed");
     }
 

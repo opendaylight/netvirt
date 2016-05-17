@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.dhcpservice;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
@@ -40,14 +39,19 @@ import com.google.common.base.Optional;
 public class DhcpLogicalSwitchListener extends AbstractDataChangeListener<LogicalSwitches> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpLogicalSwitchListener.class);
-    private DhcpExternalTunnelManager dhcpExternalTunnelManager;
+
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private DataBroker dataBroker;
+
+    private final DataBroker dataBroker;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
 
     public DhcpLogicalSwitchListener(DhcpExternalTunnelManager dhcpManager, DataBroker dataBroker) {
         super(LogicalSwitches.class);
         this.dhcpExternalTunnelManager = dhcpManager;
         this.dataBroker = dataBroker;
+    }
+
+    public void init() {
         registerListener();
     }
 
@@ -71,12 +75,7 @@ public class DhcpLogicalSwitchListener extends AbstractDataChangeListener<Logica
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                logger.error("Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
+            listenerRegistration.close();
         }
         logger.info("DhcpLogicalSwitchListener Closed");
     }

@@ -7,6 +7,10 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +22,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -71,30 +74,32 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-
 public class DhcpExternalTunnelManager {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpExternalTunnelManager.class);
     public static final String UNKNOWN_DMAC = "00:00:00:00:00:00";
+
     private final DataBroker broker;
-    private IMdsalApiManager mdsalUtil;
+    private final IMdsalApiManager mdsalUtil;
+    private final ItmRpcService itmRpcService;
+    private final EntityOwnershipService entityOwnershipService;
 
     private ConcurrentMap<BigInteger, Set<Pair<IpAddress, String>>> designatedDpnsToTunnelIpElanNameCache = new ConcurrentHashMap<>();
     private ConcurrentMap<Pair<IpAddress, String>, Set<String>> tunnelIpElanNameToVmMacCache = new ConcurrentHashMap<>();
     private ConcurrentMap<Pair<IpAddress, String>, Set<String>> availableVMCache = new ConcurrentHashMap<>();
     private ConcurrentMap<Pair<BigInteger, String>, Port> vniMacAddressToPortCache = new ConcurrentHashMap<>();
-    private ItmRpcService itmRpcService;
-    private EntityOwnershipService entityOwnershipService;
 
-    public DhcpExternalTunnelManager(DataBroker broker, IMdsalApiManager mdsalUtil, ItmRpcService itmRpcService, EntityOwnershipService entityOwnershipService) {
+
+    public DhcpExternalTunnelManager(final DataBroker broker,
+            final IMdsalApiManager mdsalUtil, final ItmRpcService itmRpcService,
+            final EntityOwnershipService entityOwnershipService) {
         this.broker = broker;
         this.mdsalUtil = mdsalUtil;
         this.itmRpcService = itmRpcService;
         this.entityOwnershipService = entityOwnershipService;
+    }
+
+    public void init() {
         initilizeCaches();
     }
 

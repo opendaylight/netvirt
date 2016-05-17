@@ -9,12 +9,12 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.DesignatedSwitchesForExternalTunnels;
@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 public class DhcpDesignatedDpnListener extends AsyncClusteredDataChangeListenerBase<DesignatedSwitchForTunnel, DhcpDesignatedDpnListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpDesignatedDpnListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private DhcpExternalTunnelManager dhcpExternalTunnelManager;
-    private DataBroker broker;
+
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final DataBroker broker;
 
     public DhcpDesignatedDpnListener(final DhcpExternalTunnelManager dhcpExternalTunnelManager, final DataBroker broker) {
         super(DesignatedSwitchForTunnel.class, DhcpDesignatedDpnListener.class);
@@ -37,16 +37,13 @@ public class DhcpDesignatedDpnListener extends AsyncClusteredDataChangeListenerB
         this.broker = broker;
     }
 
+    public void init() {
+        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+    }
+
     @Override
     public void close() throws Exception {
-        if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DhcpDesignatedDpnListener.", e);
-            }
-            listenerRegistration = null;
-        }
+        super.close();
         LOG.debug("DhcpDesignatedDpnListener Listener Closed");
     }
 

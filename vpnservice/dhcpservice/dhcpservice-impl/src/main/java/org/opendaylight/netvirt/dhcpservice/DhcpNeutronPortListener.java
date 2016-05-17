@@ -9,12 +9,12 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -31,14 +31,17 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataChangeListenerBas
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpNeutronPortListener.class);
 
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private DhcpExternalTunnelManager dhcpExternalTunnelManager;
-    private DataBroker broker;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final DataBroker broker;
 
     public DhcpNeutronPortListener(final DataBroker db, final DhcpExternalTunnelManager dhcpExternalTunnelManager) {
         super(Port.class, DhcpNeutronPortListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.broker = db;
+    }
+
+    public void init() {
+        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
 
     @Override
@@ -48,14 +51,7 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataChangeListenerBas
 
     @Override
     public void close() throws Exception {
-        if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DhcpNeutronPortListener.", e);
-            }
-            listenerRegistration = null;
-        }
+        super.close();
         LOG.debug("DhcpNeutronPortListener Listener Closed");
     }
 

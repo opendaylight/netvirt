@@ -7,21 +7,19 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import java.math.BigInteger;
-
 import com.google.common.base.Optional;
+import java.math.BigInteger;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
@@ -32,26 +30,27 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
 public class DhcpUCastMacListener extends AsyncClusteredDataChangeListenerBase<LocalUcastMacs, DhcpUCastMacListener> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpUCastMacListener.class);
-    private DataBroker broker;
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private DhcpExternalTunnelManager dhcpExternalTunnelManager;
+
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private DhcpManager dhcpManager;
+    private final DataBroker broker;
 
     public DhcpUCastMacListener(DhcpManager dhcpManager,DhcpExternalTunnelManager dhcpExtTunnelMgr, DataBroker dataBroker) {
         super(LocalUcastMacs.class, DhcpUCastMacListener.class);
         this.broker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExtTunnelMgr;
         this.dhcpManager = dhcpManager;
+    }
+
+    public void init() {
+        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
     @Override
@@ -62,14 +61,7 @@ public class DhcpUCastMacListener extends AsyncClusteredDataChangeListenerBase<L
 
     @Override
     public void close() throws Exception {
-        if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                logger.error("Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
-        }
+        super.close();
         logger.info("DhcpUCastMacListener Closed");
     }
 

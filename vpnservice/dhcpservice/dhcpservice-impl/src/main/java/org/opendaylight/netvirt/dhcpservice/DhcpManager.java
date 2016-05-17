@@ -9,12 +9,13 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -38,41 +39,54 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpManager implements AutoCloseable {
+public class DhcpManager {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpManager.class);
+    private final IMdsalApiManager mdsalUtil;
+    private final INeutronVpnManager neutronVpnService;
+    private final DhcpserviceConfig config;
     private final DataBroker broker;
-    IMdsalApiManager mdsalUtil;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
 
     private int dhcpOptLeaseTime = 0;
-    private int dhcpOptRenewalTime = 0;
-    private int dhcpOptRebindingTime = 0;
     private String dhcpOptDefDomainName;
-    private INeutronVpnManager neutronVpnService;
+    private DhcpInterfaceEventListener dhcpInterfaceEventListener;
+    private DhcpInterfaceConfigListener dhcpInterfaceConfigListener;
 
-    /**
-    * @param db - dataBroker reference
-    */
-    public DhcpManager(final DataBroker db) {
-        broker = db;
+    // cache used to maintain DpnId and physical address for each interface.
+    private static HashMap<String, ImmutablePair<BigInteger, String>> interfaceToDpnIdMacAddress = new HashMap<>();
+
+    public DhcpManager(final IMdsalApiManager mdsalApiManager,
+            final INeutronVpnManager neutronVpnManager,
+            DhcpserviceConfig config, final DataBroker dataBroker,
+            final DhcpExternalTunnelManager dhcpExternalTunnelManager) {
+        this.mdsalUtil = mdsalApiManager;
+        this.neutronVpnService = neutronVpnManager;
+        this.config = config;
+        this.broker = dataBroker;
+        this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
+
         configureLeaseDuration(DHCPMConstants.DEFAULT_LEASE_TIME);
     }
 
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalUtil = mdsalManager;
+    public void init() {
+        if (config.isControllerDhcpEnabled()) {
+            dhcpInterfaceEventListener = new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager);
+            dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager);
+        }
     }
 
-    public void setNeutronVpnService(INeutronVpnManager neutronVpnService) {
-        logger.debug("Setting NeutronVpn dependency");
-        this.neutronVpnService = neutronVpnService;
-    }
-
-    @Override
     public void close() throws Exception {
-        logger.info("DHCP Manager Closed");
+        if (dhcpInterfaceEventListener != null) {
+            dhcpInterfaceEventListener.close();
+        }
+        if (dhcpInterfaceConfigListener != null) {
+            dhcpInterfaceConfigListener.close();
+        }
     }
 
     public int setLeaseDuration(int leaseDuration) {
@@ -103,13 +117,6 @@ public class DhcpManager implements AutoCloseable {
 
     private void configureLeaseDuration(int leaseTime) {
         this.dhcpOptLeaseTime = leaseTime;
-        if(leaseTime > 0) {
-            this.dhcpOptRenewalTime = this.dhcpOptLeaseTime/2;
-            this.dhcpOptRebindingTime = (this.dhcpOptLeaseTime*7)/8;
-        } else {
-            this.dhcpOptRenewalTime = -1;
-            this.dhcpOptRebindingTime = -1;
-        }
     }
 
     public Subnet getNeutronSubnet(Port nPort) {
