@@ -8,26 +8,23 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.CheckedFuture;
 import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.translator.INeutronObject;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.CheckedFuture;
 
 
 public abstract class AbstractNeutronInterface<T extends DataObject, S extends INeutronObject> implements AutoCloseable {
@@ -39,10 +36,10 @@ public abstract class AbstractNeutronInterface<T extends DataObject, S extends I
     private static final int DEDASHED_UUID_DIV3 = 16;
     private static final int DEDASHED_UUID_DIV4 = 20;
 
-    private DataBroker db;
+    private final DataBroker db;
 
-    AbstractNeutronInterface(ProviderContext providerContext) {
-        this.db = providerContext.getSALService(DataBroker.class);
+    AbstractNeutronInterface(final DataBroker dataBroker) {
+        this.db = dataBroker;
     }
 
     public DataBroker getDataBroker() {

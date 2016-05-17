@@ -9,11 +9,10 @@
 package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
 import java.util.List;
-
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronFirewallPolicyCRUD;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.translator.INeutronObject;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFirewallPolicy;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronFirewallPolicyCRUD;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
@@ -24,8 +23,8 @@ import org.osgi.framework.ServiceRegistration;
 
 public class NeutronFirewallPolicyInterface extends AbstractNeutronInterface implements INeutronFirewallPolicyCRUD {
 
-    NeutronFirewallPolicyInterface(ProviderContext providerContext) {
-        super(providerContext);
+    NeutronFirewallPolicyInterface(final DataBroker dataBroker) {
+        super(dataBroker);
     }
 
     @Override
@@ -90,9 +89,9 @@ public class NeutronFirewallPolicyInterface extends AbstractNeutronInterface imp
     }
 
     public static void registerNewInterface(BundleContext context,
-                                            ProviderContext providerContext,
+                                            final DataBroker dataBroker,
                                             List<ServiceRegistration<?>> registrations) {
-        NeutronFirewallPolicyInterface neutronFirewallPolicyInterface = new NeutronFirewallPolicyInterface(providerContext);
+        NeutronFirewallPolicyInterface neutronFirewallPolicyInterface = new NeutronFirewallPolicyInterface(dataBroker);
         ServiceRegistration<INeutronFirewallPolicyCRUD> neutronFirewallPolicyInterfaceRegistration = context.registerService(INeutronFirewallPolicyCRUD.class, neutronFirewallPolicyInterface, null);
         if(neutronFirewallPolicyInterfaceRegistration != null) {
             registrations.add(neutronFirewallPolicyInterfaceRegistration);

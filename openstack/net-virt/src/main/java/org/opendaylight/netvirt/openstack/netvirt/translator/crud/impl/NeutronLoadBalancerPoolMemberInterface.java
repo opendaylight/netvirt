@@ -9,8 +9,7 @@
 package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
 import java.util.List;
-
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancerPoolMember;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerPoolMemberCRUD;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.lbaasv2.rev150712.lbaas.attributes.pools.pool.Members;
@@ -21,8 +20,8 @@ import org.osgi.framework.ServiceRegistration;
 public class NeutronLoadBalancerPoolMemberInterface extends
         AbstractNeutronInterface<Members, NeutronLoadBalancerPoolMember> implements INeutronLoadBalancerPoolMemberCRUD {
 
-    NeutronLoadBalancerPoolMemberInterface(ProviderContext providerContext) {
-        super(providerContext);
+    NeutronLoadBalancerPoolMemberInterface(final DataBroker dataBroker) {
+        super(dataBroker);
     }
 
     @Override
@@ -89,9 +88,9 @@ public class NeutronLoadBalancerPoolMemberInterface extends
     }
 
     public static void registerNewInterface(BundleContext context,
-                                            ProviderContext providerContext,
+                                            final DataBroker dataBroker,
                                             List<ServiceRegistration<?>> registrations) {
-        NeutronLoadBalancerPoolMemberInterface neutronLoadBalancerPoolMemberInterface = new NeutronLoadBalancerPoolMemberInterface(providerContext);
+        NeutronLoadBalancerPoolMemberInterface neutronLoadBalancerPoolMemberInterface = new NeutronLoadBalancerPoolMemberInterface(dataBroker);
         ServiceRegistration<INeutronLoadBalancerPoolMemberCRUD> neutronLoadBalancerPoolMemberInterfaceRegistration = context.registerService(INeutronLoadBalancerPoolMemberCRUD.class, neutronLoadBalancerPoolMemberInterface, null);
         if(neutronLoadBalancerPoolMemberInterfaceRegistration != null) {
             registrations.add(neutronLoadBalancerPoolMemberInterfaceRegistration);

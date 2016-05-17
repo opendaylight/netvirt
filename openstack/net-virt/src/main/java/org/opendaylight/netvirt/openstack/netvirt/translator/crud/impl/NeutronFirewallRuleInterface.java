@@ -9,10 +9,9 @@
 package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
 import java.util.List;
-
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFirewallRule;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.translator.INeutronObject;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFirewallRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronFirewallRuleCRUD;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -21,8 +20,8 @@ import org.osgi.framework.ServiceRegistration;
 
 public class NeutronFirewallRuleInterface extends AbstractNeutronInterface implements INeutronFirewallRuleCRUD {
 
-    NeutronFirewallRuleInterface(ProviderContext providerContext) {
-        super(providerContext);
+    NeutronFirewallRuleInterface(DataBroker dataBroker) {
+        super(dataBroker);
     }
 
     @Override
@@ -87,9 +86,9 @@ public class NeutronFirewallRuleInterface extends AbstractNeutronInterface imple
     }
 
     public static void registerNewInterface(BundleContext context,
-                                            ProviderContext providerContext,
+                                            final DataBroker dataBroker,
                                             List<ServiceRegistration<?>> registrations) {
-        NeutronFirewallRuleInterface neutronFirewallRuleInterface = new NeutronFirewallRuleInterface(providerContext);
+        NeutronFirewallRuleInterface neutronFirewallRuleInterface = new NeutronFirewallRuleInterface(dataBroker);
         ServiceRegistration<INeutronFirewallRuleCRUD> neutronFirewallRuleInterfaceRegistration = context.registerService(INeutronFirewallRuleCRUD.class, neutronFirewallRuleInterface, null);
         if(neutronFirewallRuleInterfaceRegistration != null) {
             registrations.add(neutronFirewallRuleInterfaceRegistration);

@@ -46,13 +46,13 @@ import org.slf4j.LoggerFactory;
  */
 public class OvsdbInventoryServiceImpl implements ConfigInterface, OvsdbInventoryService {
     private static final Logger LOG = LoggerFactory.getLogger(OvsdbInventoryServiceImpl.class);
-    private static DataBroker dataBroker = null;
+    private final DataBroker dataBroker;
     private static Set<OvsdbInventoryListener> ovsdbInventoryListeners = Sets.newCopyOnWriteArraySet();
     private OvsdbDataChangeListener ovsdbDataChangeListener = null;
     private static ClusterAwareMdsalUtils mdsalUtils = null;
 
-    public OvsdbInventoryServiceImpl(ProviderContext providerContext) {
-        dataBroker = providerContext.getSALService(DataBroker.class);
+    public OvsdbInventoryServiceImpl(final DataBroker dataBroker) {
+        this.dataBroker = dataBroker;
         LOG.info("OvsdbInventoryServiceImpl initialized");
         ovsdbDataChangeListener = new OvsdbDataChangeListener(dataBroker);
         mdsalUtils = new ClusterAwareMdsalUtils(dataBroker);

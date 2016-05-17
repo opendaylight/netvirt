@@ -1,11 +1,12 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.impl.rev150513;
 
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import org.opendaylight.netvirt.openstack.netvirt.NetvirtProvider;
-import org.osgi.framework.BundleContext;
+import org.opendaylight.controller.sal.common.util.NoopAutoCloseable;
 
-public class NetvirtImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.impl.rev150513.AbstractNetvirtImplModule {
-    private BundleContext bundleContext = null;
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
+public class NetvirtImplModule extends AbstractNetvirtImplModule {
 
     public NetvirtImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
@@ -16,20 +17,8 @@ public class NetvirtImplModule extends org.opendaylight.yang.gen.v1.urn.opendayl
     }
 
     @Override
-    public void customValidation() {
-        // add custom validation form module attributes here.
-    }
-
-    @Override
     public java.lang.AutoCloseable createInstance() {
-        NetvirtProvider provider = new NetvirtProvider(bundleContext, getClusteringEntityOwnershipServiceDependency());
-        provider.setConntrackEnabled(getConntrackEnabled());
-        BindingAwareBroker localBroker = getBrokerDependency();
-        localBroker.registerProvider(provider);
-        return provider;
-    }
-
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
+        // Instances are created via blueprint so this in a no-op.
+        return NoopAutoCloseable.INSTANCE;
     }
 }
