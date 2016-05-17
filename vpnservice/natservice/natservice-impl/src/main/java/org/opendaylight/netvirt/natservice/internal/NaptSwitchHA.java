@@ -9,24 +9,33 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
-
-import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.*;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
+import org.opendaylight.genius.mdsalutil.BucketInfo;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.GroupEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.InstructionType;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchFieldType;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
@@ -37,16 +46,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMappingKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.IntextIpProtocolType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.IpPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
@@ -59,63 +69,38 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.HashMap;
-
 public class NaptSwitchHA {
     private static final Logger LOG = LoggerFactory.getLogger(NaptSwitchHA.class);
+
     private final DataBroker dataBroker;
-    private IMdsalApiManager mdsalManager;
-    private ItmRpcService itmManager;
-    private OdlInterfaceRpcService interfaceManager;
-    private IdManagerService idManager;
-    private NAPTSwitchSelector naptSwitchSelector;
-    private ExternalRoutersListener externalRouterListener;
-    private IBgpManager bgpManager;
-    private VpnRpcService vpnService;
-    private FibRpcService fibService;
+    private final IMdsalApiManager mdsalManager;
+    private final ItmRpcService itmManager;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final IdManagerService idManager;
+    private final NAPTSwitchSelector naptSwitchSelector;
+    private final ExternalRoutersListener externalRouterListener;
+    private final IBgpManager bgpManager;
+    private final VpnRpcService vpnService;
+    private final FibRpcService fibService;
 
     private List<String> externalIpsCache;
     private HashMap<String,Long> externalIpsLabel;
-    public NaptSwitchHA(DataBroker broker,NAPTSwitchSelector selector){
-        dataBroker = broker;
-        naptSwitchSelector = selector;
-    }
 
-    public void setItmManager(ItmRpcService itmManager) {
-        this.itmManager = itmManager;
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
+    public NaptSwitchHA(DataBroker dataBroker, IMdsalApiManager mdsalManager,
+            ItmRpcService itmManager, OdlInterfaceRpcService interfaceManager,
+            IdManagerService idManager, NAPTSwitchSelector naptSwitchSelector,
+            ExternalRoutersListener externalRouterListener,
+            IBgpManager bgpManager,
+            VpnRpcService vpnService, FibRpcService fibService) {
+        this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
-    }
-
-    public void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
+        this.itmManager = itmManager;
         this.interfaceManager = interfaceManager;
-    }
-
-    public void setIdManager(IdManagerService idManager) {
         this.idManager = idManager;
-    }
-
-    void setExternalRoutersListener(ExternalRoutersListener externalRoutersListener) {
-        this.externalRouterListener = externalRoutersListener;
-    }
-
-    public void setBgpManager(IBgpManager bgpManager) {
+        this.naptSwitchSelector = naptSwitchSelector;
+        this.externalRouterListener = externalRouterListener;
         this.bgpManager = bgpManager;
-    }
-
-    public void setVpnService(VpnRpcService vpnService) {
         this.vpnService = vpnService;
-    }
-
-    public void setFibService(FibRpcService fibService) {
         this.fibService = fibService;
     }
 

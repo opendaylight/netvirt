@@ -7,13 +7,16 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.util.concurrent.AsyncFunction;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.concurrent.Future;
 import java.util.List;
-
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -23,59 +26,49 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.util.concurrent.AsyncFunction;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
-import com.google.common.util.concurrent.ListenableFuture;
-
 public class VpnFloatingIpHandler implements FloatingIPHandler {
     private static final Logger LOG = LoggerFactory.getLogger(VpnFloatingIpHandler.class);
-    private VpnRpcService vpnService;
-    private FibRpcService fibService;
-    private IBgpManager bgpManager;
-    private DataBroker dataBroker;
-    private IMdsalApiManager mdsalManager;
-    private FloatingIPListener listener;
+
+    private final VpnRpcService vpnService;
+    private final FibRpcService fibService;
+    private final IBgpManager bgpManager;
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalManager;
+    private final FloatingIPListener listener;
 
     static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final String FLOWID_PREFIX = "NAT.";
     static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000002", 16);
 
-    public VpnFloatingIpHandler(VpnRpcService vpnService, IBgpManager bgpManager, FibRpcService fibService) {
+    public VpnFloatingIpHandler(VpnRpcService vpnService,
+            IBgpManager bgpManager, FibRpcService fibService,
+            final DataBroker dataBroker, final IMdsalApiManager mdsalApiManager,
+            final FloatingIPListener floatingIPListener) {
         this.vpnService = vpnService;
         this.fibService = fibService;
         this.bgpManager = bgpManager;
-    }
-
-    void setListener(FloatingIPListener listener) {
-        this.listener = listener;
-    }
-
-    void setBroker(DataBroker broker) {
-        dataBroker = broker;
-    }
-
-    void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
+        this.dataBroker = dataBroker;
+        this.mdsalManager = mdsalApiManager;
+        this.listener = floatingIPListener;
     }
 
     @Override
@@ -224,7 +217,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(label).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
-        ListenableFuture<RpcResult<Void>> labelFuture = Futures.transform(JdkFutureAdapters.listenInPoolThread(future), 
+        ListenableFuture<RpcResult<Void>> labelFuture = Futures.transform(JdkFutureAdapters.listenInPoolThread(future),
             new AsyncFunction<RpcResult<Void>, RpcResult<Void>>() {
 
             @Override
