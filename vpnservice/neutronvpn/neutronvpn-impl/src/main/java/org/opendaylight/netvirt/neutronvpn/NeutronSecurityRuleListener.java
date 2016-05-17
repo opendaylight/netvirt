@@ -30,9 +30,16 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRangeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.api.rev160608.SecurityRuleAttr;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.api.rev160608.SecurityRuleAttrBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttrBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.DirectionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.DirectionEgress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.DirectionIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolIcmp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolIcmpV6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolTcp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolUdp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.SecurityRuleAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.security.rules.attributes.SecurityRules;
@@ -43,7 +50,7 @@ import org.slf4j.LoggerFactory;
 
 public class NeutronSecurityRuleListener extends AsyncDataTreeChangeListenerBase<SecurityRule, NeutronSecurityRuleListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSecurityRuleListener.class);
-    private static final ImmutableBiMap<Class<? extends DirectionBase>, Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.api.rev160608.DirectionBase>> DIRECTION_MAP = ImmutableBiMap.of(
+    private static final ImmutableBiMap<Class<? extends DirectionBase>, Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase>> DIRECTION_MAP = ImmutableBiMap.of(
             DirectionEgress.class, NeutronSecurityRuleConstants.DIRECTION_EGRESS,
             DirectionIngress.class, NeutronSecurityRuleConstants.DIRECTION_INGRESS);
     private static final ImmutableBiMap<Class<? extends ProtocolBase>, Short> PROTOCOL_MAP = ImmutableBiMap.of(
@@ -56,6 +63,8 @@ public class NeutronSecurityRuleListener extends AsyncDataTreeChangeListenerBase
     public NeutronSecurityRuleListener(final DataBroker dataBroker) {
         super(SecurityRule.class, NeutronSecurityRuleListener.class);
         this.dataBroker = dataBroker;
+
+        registerListener();
     }
 
     public void registerListener() {
