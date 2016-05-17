@@ -7,21 +7,37 @@
  */
 package org.opendaylight.netvirt.fcapsapp.performancecounter;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.NotificationListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class PacketInCounterHandler implements PacketProcessingListener {
+public class PacketInCounterHandler implements PacketProcessingListener, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PacketInCounterHandler.class);
     private static ConcurrentHashMap<String,AtomicLong> ingressPacketMap = new ConcurrentHashMap<>();
     private static HashMap<String,String> packetInMap = new HashMap<>();
     private static final Integer FIRST_VALUE = 1;
     private static final PMAgent pmAgent =new PMAgent();
+
+    private ListenerRegistration<NotificationListener> reg;
+
+    public PacketInCounterHandler(final NotificationProviderService notificationProviderService) {
+        reg = notificationProviderService.registerNotificationListener(this);
+    }
+
+
+    @Override
+    public void close() throws Exception {
+        if (reg != null) {
+            reg.close();
+        }
+    }
 
     @Override
     public void onPacketReceived(PacketReceived notification) {
