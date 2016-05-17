@@ -21,6 +21,7 @@ module fibmanager-impl {
         base config:module-type;
         config:provided-service fibmgr-api:fibmanager-api;
         config:java-name-prefix FibmanagerImpl;
+        status deprecated;
     }
 
     augment "/config:modules/config:module/config:configuration" {
