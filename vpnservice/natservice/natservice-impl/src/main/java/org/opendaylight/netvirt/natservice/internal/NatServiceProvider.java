@@ -7,33 +7,32 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.controller.md.sal.binding.api.NotificationService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-
-public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
+public class NatServiceProvider implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NatServiceProvider.class);
     private IMdsalApiManager mdsalManager;
-    private RpcProviderRegistry rpcProviderRegistry;
-    private NotificationService notificationService;
-    private ItmRpcService itmManager;
+    private final RpcProviderRegistry rpcProviderRegistry;
+    private final NotificationService notificationService;
+    private final ItmRpcService itmRpcService;
     private FloatingIPListener floatingIpListener;
     private ExternalNetworkListener extNwListener;
     private NaptManager naptManager;
@@ -43,50 +42,68 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
     private ExternalRoutersListener externalRouterListener;
     private NaptPacketInHandler naptPacketInHandler;
     private EventDispatcher eventDispatcher;
-    private IBgpManager bgpManager;
+    private final IBgpManager bgpManager;
     private NaptFlowRemovedEventHandler naptFlowRemovedEventHandler;
     private InterfaceStateEventListener interfaceStateEventListener;
     private NatNodeEventListener natNodeEventListener;
     private NAPTSwitchSelector naptSwitchSelector;
     private RouterPortsListener routerPortsListener;
+    private final DataBroker dataBroker;
+    private final PacketProcessingService pktProcessingService;
+    private final IdManagerService idManager;
+    private final OdlInterfaceRpcService interfaceService;
+    private final NeutronvpnService neutronvpnService;
+    private final VpnRpcService vpnService;
+    private final FibRpcService fibService;
 
-    public NatServiceProvider(RpcProviderRegistry rpcProviderRegistry) {
-        this.rpcProviderRegistry = rpcProviderRegistry;
-    }
-
-    public void setNotificationService(NotificationService notificationService) {
-        this.notificationService = notificationService;
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
+    public NatServiceProvider(final DataBroker dataBroker,
+                              final RpcProviderRegistry rpcProviderRegistry,
+                              final NotificationService notificationService,
+                              final IMdsalApiManager mdsalManager,
+                              final IBgpManager bgpMananger,
+                              final IdManagerService idManager,
+                              final OdlInterfaceRpcService interfaceService,
+                              final ItmRpcService itmRpcService,
+                              final PacketProcessingService pktProcessingService,
+                              final NeutronvpnService neutronvpnService,
+                              final VpnRpcService vpnService,
+                              final FibRpcService fibService) {
+        this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
-    }
-
-    public void setBgpManager(IBgpManager bgpManager) {
-        LOG.debug("BGP Manager reference initialized");
-        this.bgpManager = bgpManager;
+        this.rpcProviderRegistry = rpcProviderRegistry;
+        this.notificationService = notificationService;
+        this.bgpManager = bgpMananger;
+        this.pktProcessingService = pktProcessingService;
+        this.idManager = idManager;
+        this.interfaceService = interfaceService;
+        this.neutronvpnService = neutronvpnService;
+        this.vpnService = vpnService;
+        this.fibService = fibService;
+        this.itmRpcService = itmRpcService;
     }
 
     @Override
     public void close() throws Exception {
-        floatingIpListener.close();
-        extNwListener.close();
-        externalNetworksChangeListener.close();
-        externalRouterListener.close();
-        routerPortsListener.close();
+        if (floatingIpListener != null) {
+            floatingIpListener.close();
+        }
+        if (extNwListener != null) {
+            extNwListener.close();
+        }
+        if (externalNetworksChangeListener != null) {
+            externalNetworksChangeListener.close();
+        }
+        if (externalRouterListener != null) {
+            externalRouterListener.close();
+        }
+        if (routerPortsListener != null) {
+            routerPortsListener.close();
+        }
     }
 
-    @Override
-    public void onSessionInitiated(ProviderContext session) {
+    public void start() {
         LOG.info("NAT Manager Provider Session Initiated");
         try {
-            //Get the DataBroker, PacketProcessingService, IdManagerService and the OdlInterfaceRpcService instances
-            final  DataBroker dataBroker = session.getSALService(DataBroker.class);
-            PacketProcessingService pktProcessingService = session.getRpcService(PacketProcessingService.class);
-            IdManagerService idManager = rpcProviderRegistry.getRpcService(IdManagerService.class);
-            OdlInterfaceRpcService interfaceService = rpcProviderRegistry.getRpcService(OdlInterfaceRpcService.class);
-            NeutronvpnService neutronvpnService = rpcProviderRegistry.getRpcService(NeutronvpnService.class);
-            itmManager = rpcProviderRegistry.getRpcService(ItmRpcService.class);
 
             //Instantiate FloatingIPListener and set the MdsalManager and OdlInterfaceRpcService in it.
             floatingIpListener = new FloatingIPListener(dataBroker);
@@ -114,8 +131,6 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             notificationService.registerNotificationListener(naptPacketInHandler);
 
             //Floating ip Handler
-            VpnRpcService vpnService = rpcProviderRegistry.getRpcService(VpnRpcService.class);
-            FibRpcService fibService = rpcProviderRegistry.getRpcService(FibRpcService.class);
             VpnFloatingIpHandler handler = new VpnFloatingIpHandler(vpnService, bgpManager, fibService);
             handler.setBroker(dataBroker);
             handler.setMdsalManager(mdsalManager);
@@ -129,7 +144,7 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             externalRouterListener = new ExternalRoutersListener( dataBroker );
             externalRouterListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker );
             externalRouterListener.setMdsalManager(mdsalManager);
-            externalRouterListener.setItmManager(itmManager);
+            externalRouterListener.setItmManager(itmRpcService);
             externalRouterListener.setInterfaceManager(interfaceService);
             externalRouterListener.setIdManager(idManager);
             externalRouterListener.setNaptManager(naptManager);
@@ -175,7 +190,7 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             naptSwitchHA.setIdManager(idManager);
             naptSwitchHA.setInterfaceManager(interfaceService);
             naptSwitchHA.setMdsalManager(mdsalManager);
-            naptSwitchHA.setItmManager(itmManager);
+            naptSwitchHA.setItmManager(itmRpcService);
             naptSwitchHA.setBgpManager(bgpManager);
             naptSwitchHA.setFibService(fibService);
             naptSwitchHA.setVpnService(vpnService);
