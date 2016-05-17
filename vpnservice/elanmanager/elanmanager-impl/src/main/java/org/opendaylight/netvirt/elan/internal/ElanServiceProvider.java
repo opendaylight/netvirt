@@ -8,33 +8,24 @@
 
 package org.opendaylight.netvirt.elan.internal;
 
+import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.netvirt.elan.l2gw.internal.ElanL2GatewayProvider;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
-import org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.genius.itm.api.IITMProvider;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -51,37 +42,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.statistics.rev150824.ElanStatisticsService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
+public class ElanServiceProvider implements IElanService {
 
-public class ElanServiceProvider implements BindingAwareProvider, IElanService, AutoCloseable {
+    private static final Logger logger = LoggerFactory.getLogger(ElanServiceProvider.class);
 
-    private IdManagerService idManager;
-    private IMdsalApiManager mdsalManager;
-    private IInterfaceManager interfaceManager;
-    private OdlInterfaceRpcService interfaceManagerRpcService;
-    private ElanInstanceManager elanInstanceManager;
-    private ElanForwardingEntriesHandler elanForwardingEntriesHandler;
-    private ElanInterfaceManager elanInterfaceManager;
-    private ElanPacketInHandler elanPacketInHandler;
-    private ElanSmacFlowEventListener elanSmacFlowEventListener;
-    private ElanInterfaceStateChangeListener elanInterfaceStateChangeListener;
-    private ElanInterfaceStateClusteredListener infStateChangeClusteredListener;
-    private ElanDpnInterfaceClusteredListener elanDpnInterfaceClusteredListener;
-    private ElanNodeListener elanNodeListener;
-    private NotificationService notificationService;
-    private RpcProviderRegistry rpcProviderRegistry;
-    private IITMProvider itmManager;
-    private ItmRpcService itmRpcService;
-    private DataBroker broker;
-    private ElanL2GatewayProvider elanL2GatewayProvider;
+    private final IdManagerService idManager;
+    private final IMdsalApiManager mdsalManager;
+    private final OdlInterfaceRpcService interfaceManagerRpcService;
+    private final ElanInstanceManager elanInstanceManager;
+    private final ItmRpcService itmRpcService;
+    private final DataBroker broker;
+    private final EntityOwnershipService entityOwnershipService;
 
-    private EntityOwnershipService entityOwnershipService;
 
     private static final ElanStatusMonitor elanStatusMonitor = ElanStatusMonitor.getInstance();
     static DataStoreJobCoordinator dataStoreJobCoordinator;
@@ -98,151 +75,43 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
     }
 
 
-    public ElanServiceProvider(RpcProviderRegistry rpcRegistry) {
-        rpcProviderRegistry = rpcRegistry;
+    public ElanServiceProvider(final DataBroker dataBroker,
+                               final EntityOwnershipService entityOwnershipService,
+                               final IMdsalApiManager mdsalApiManager,
+                               final OdlInterfaceRpcService odlInterfaceRpcService,
+                               final ItmRpcService itmRpcService,
+                               final IdManagerService idManagerService,
+                               final ElanInstanceManager elanInstanceManager) {
+        this.broker = dataBroker;
+        this.entityOwnershipService = entityOwnershipService;
+        this.mdsalManager = mdsalApiManager;
+        this.interfaceManagerRpcService = odlInterfaceRpcService;
+        this.itmRpcService = itmRpcService;
+        this.idManager = idManagerService;
+        this.elanInstanceManager = elanInstanceManager;
         elanStatusMonitor.registerMbean();
     }
 
-    // private ElanInterfaceStateChangeListener elanInterfaceEventListener;
-    private ElanItmEventListener elanItmEventListener;
-
-    private static final Logger logger = LoggerFactory.getLogger(ElanServiceProvider.class);
-
-    @Override
-    public void onSessionInitiated(ProviderContext session) {
+    public void start() {
+        logger.info("Starting ElnaServiceProvider");
         elanStatusMonitor.reportStatus("STARTING");
         try {
             createIdPool();
             getDataStoreJobCoordinator();
-            broker = session.getSALService(DataBroker.class);
 
             ElanUtils.setDataBroker(broker);
             ElanUtils.setIfaceMgrRpcService(interfaceManagerRpcService);
             ElanUtils.setItmRpcService(itmRpcService);
             ElanUtils.setMdsalManager(mdsalManager);
 
-            elanForwardingEntriesHandler = new ElanForwardingEntriesHandler(broker);
-
-            elanInterfaceManager = ElanInterfaceManager.getElanInterfaceManager();
-            elanInterfaceManager.setInterfaceManager(interfaceManager);
-            elanInterfaceManager.setIdManager(idManager);
-            elanInterfaceManager.setMdSalApiManager(mdsalManager);
-            elanInterfaceManager.setDataBroker(broker);
-            elanInterfaceManager.setInterfaceManagerRpcService(interfaceManagerRpcService);
-            elanInterfaceManager.setElanForwardingEntriesHandler(elanForwardingEntriesHandler);
-
-            elanInstanceManager = ElanInstanceManager.getElanInstanceManager();
-            elanInstanceManager.setDataBroker(broker);
-            elanInstanceManager.setIdManager(idManager);
-            elanInstanceManager.setElanInterfaceManager(elanInterfaceManager);
-            elanInstanceManager.setInterfaceManager(interfaceManager);
-
-
-            elanNodeListener = new ElanNodeListener(broker, mdsalManager);
-
-            elanPacketInHandler = new ElanPacketInHandler(broker);
-            elanPacketInHandler.setInterfaceManager(interfaceManager);
-
-
-            elanSmacFlowEventListener = new ElanSmacFlowEventListener(broker);
-            elanSmacFlowEventListener.setMdSalApiManager(mdsalManager);
-            elanSmacFlowEventListener.setInterfaceManager(interfaceManager);
-            elanSmacFlowEventListener.setSalFlowService(session.getRpcService(SalFlowService.class));
-
-
-            // Initialize statistics rpc provider for elan
-            ElanStatisticsService interfaceStatsService = new ElanStatisticsImpl(broker, interfaceManager,
-                    mdsalManager);
-            rpcProviderRegistry.addRpcImplementation(ElanStatisticsService.class, interfaceStatsService);
-
-            elanInterfaceStateChangeListener = new ElanInterfaceStateChangeListener(broker, elanInterfaceManager);
-            elanInterfaceStateChangeListener.setInterfaceManager(interfaceManager);
-
-            infStateChangeClusteredListener = new ElanInterfaceStateClusteredListener(broker, elanInterfaceManager);
-
-            elanDpnInterfaceClusteredListener = new ElanDpnInterfaceClusteredListener(broker, elanInterfaceManager);
             ElanClusterUtils.setEntityOwnershipService(entityOwnershipService);
             ElanClusterUtils.setDataStoreJobCoordinator(dataStoreJobCoordinator);
-            this.elanL2GatewayProvider = new ElanL2GatewayProvider(this);
-
-            elanInterfaceManager.registerListener();
-            elanInstanceManager.registerListener();
-            notificationService.registerNotificationListener(elanSmacFlowEventListener);
-            notificationService.registerNotificationListener(elanPacketInHandler);
 
             elanStatusMonitor.reportStatus("OPERATIONAL");
         } catch (Exception e) {
             logger.error("Error initializing services", e);
             elanStatusMonitor.reportStatus("ERROR");
         }
-    }
-
-    public void setIdManager(IdManagerService idManager) {
-        this.idManager = idManager;
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
-    }
-
-    public void setInterfaceManager(IInterfaceManager interfaceManager) {
-        this.interfaceManager = interfaceManager;
-    }
-
-    public void setEntityOwnershipService(EntityOwnershipService entityOwnershipService) {
-        this.entityOwnershipService = entityOwnershipService;
-    }
-
-    public IInterfaceManager getInterfaceManager() {
-        return this.interfaceManager;
-    }
-
-    public IMdsalApiManager getMdsalManager() {
-        return mdsalManager;
-    }
-
-    public IITMProvider getItmManager() {
-        return itmManager;
-    }
-
-    public DataBroker getBroker() {
-        return broker;
-    }
-
-    public void setNotificationService(NotificationService notificationService) {
-        this.notificationService = notificationService;
-    }
-
-    public void setInterfaceManagerRpcService(OdlInterfaceRpcService interfaceManager) {
-        this.interfaceManagerRpcService = interfaceManager;
-    }
-
-    public OdlInterfaceRpcService getInterfaceManagerRpcService() {
-        return interfaceManagerRpcService;
-    }
-
-    public void setItmManager(IITMProvider itmManager) {
-        this.itmManager = itmManager;
-    }
-
-    public void setItmRpcService(ItmRpcService itmRpcService) {
-        this.itmRpcService = itmRpcService;
-    }
-
-    public ItmRpcService getItmRpcService() {
-        return itmRpcService;
-    }
-
-    public ElanInstanceManager getElanInstanceManager() {
-        return elanInstanceManager;
-    }
-
-    public ElanInterfaceManager getElanInterfaceManager() {
-        return elanInterfaceManager;
-    }
-
-    public EntityOwnershipService getEntityOwnershipService() {
-        return entityOwnershipService;
     }
 
     private void createIdPool() {
@@ -455,12 +324,6 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             }
         }
 
-    }
-
-    @Override
-    public void close() throws Exception {
-        this.elanInstanceManager.close();
-        this.elanL2GatewayProvider.close();
     }
 
     public static List<PhysAddress> getPhysAddress(List<String> macAddress) {

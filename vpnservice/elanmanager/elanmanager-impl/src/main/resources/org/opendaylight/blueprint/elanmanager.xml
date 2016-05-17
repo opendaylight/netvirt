@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+  odl:use-default-for-reference-types="true">
+
+  <reference id="dataBroker"
+    interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+    odl:type="pingpong" />
+  <reference id="notificationService"
+    interface="org.opendaylight.controller.md.sal.binding.api.NotificationService" />
+  <reference id="entityOwnershipService"
+    interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
+  <reference id="mdsalUtils"
+    interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+  <reference id="interfaceManager"
+    interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
+  <reference id="iTMProvider" interface="org.opendaylight.genius.itm.api.IITMProvider" />
+
+  <odl:rpc-service id="odlInterfaceRpcService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
+  <odl:rpc-service id="itmRpcService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService" />
+  <odl:rpc-service id="salFlowService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService" />
+  <odl:rpc-service id="idManagerService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
+
+  <bean id="elanForwardingEntriesHandler"
+    class="org.opendaylight.netvirt.elan.internal.ElanForwardingEntriesHandler"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+  </bean>
+
+  <bean id="elanInterfaceManager"
+    class="org.opendaylight.netvirt.elan.internal.ElanInterfaceManager"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="idManagerService" />
+    <argument ref="mdsalUtils" />
+    <argument ref="odlInterfaceRpcService" />
+    <argument ref="elanForwardingEntriesHandler" />
+  </bean>
+
+  <bean id="elanInstanceManagerFactory"
+    class="org.opendaylight.netvirt.elan.internal.ElanInstanceManager" />
+
+  <bean id="elanInstanceManager" factory-ref="elanInstanceManagerFactory"
+    factory-method="newInstance" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="idManagerService" />
+    <argument ref="elanInterfaceManager" />
+    <argument ref="interfaceManager" />
+  </bean>
+
+  <bean id="elanNodeListener"
+    class="org.opendaylight.netvirt.elan.internal.ElanNodeListener"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+  </bean>
+
+  <bean id="elanPacketInHandler"
+    class="org.opendaylight.netvirt.elan.internal.ElanPacketInHandler">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
+  </bean>
+  <odl:notification-listener ref="elanPacketInHandler" />
+
+  <bean id="elanSmacFlowEventListener"
+    class="org.opendaylight.netvirt.elan.internal.ElanSmacFlowEventListener">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+    <argument ref="salFlowService" />
+    <argument ref="interfaceManager" />
+  </bean>
+  <odl:notification-listener ref="elanSmacFlowEventListener" />
+
+  <bean id="elanStatisticsImpl"
+    class="org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
+    <argument ref="mdsalUtils" />
+  </bean>
+  <odl:rpc-implementation ref="elanStatisticsImpl" />
+
+  <bean id="elanInterfaceStateChangeListener"
+    class="org.opendaylight.netvirt.elan.internal.ElanInterfaceStateChangeListener">
+    <argument ref="dataBroker" />
+    <argument ref="elanInterfaceManager" />
+    <argument ref="interfaceManager" />
+  </bean>
+
+  <bean id="elanInterfaceStateClusterListener"
+    class="org.opendaylight.netvirt.elan.internal.ElanInterfaceStateClusteredListener">
+    <argument ref="dataBroker" />
+    <argument ref="elanInterfaceManager" />
+  </bean>
+
+  <bean id="elanInterfaceClusterListener"
+    class="org.opendaylight.netvirt.elan.internal.ElanDpnInterfaceClusteredListener">
+    <argument ref="dataBroker" />
+    <argument ref="elanInterfaceManager" />
+  </bean>
+
+  <bean id="elanL2gateway"
+    class="org.opendaylight.netvirt.elan.l2gw.internal.ElanL2GatewayProvider">
+    <argument ref="dataBroker" />
+    <argument ref="entityOwnershipService" />
+    <argument ref="itmRpcService" />
+    <argument ref="elanInstanceManager" />
+    <argument ref="elanInterfaceManager" />
+  </bean>
+
+  <bean id="elanService"
+    class="org.opendaylight.netvirt.elan.internal.ElanServiceProvider"
+    init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="entityOwnershipService" />
+    <argument ref="mdsalUtils" />
+    <argument ref="odlInterfaceRpcService" />
+    <argument ref="itmRpcService" />
+    <argument ref="idManagerService" />
+    <argument ref="elanInstanceManager" />
+  </bean>
+  <service ref="elanService" odl:type="default"
+    interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
+</blueprint>

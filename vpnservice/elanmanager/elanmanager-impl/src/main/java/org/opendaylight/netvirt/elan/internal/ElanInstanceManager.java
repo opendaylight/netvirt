@@ -8,16 +8,17 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
-
+import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.elan.utils.ElanConstants;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
@@ -27,17 +28,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance> implements AutoCloseable {
+
+    private static ElanInstanceManager elanInstanceManager;
+
     private DataBroker broker;
-    private static ElanInstanceManager elanInstanceManager = new ElanInstanceManager();
     private ListenerRegistration<DataChangeListener> elanInstanceListenerRegistration;
     private IdManagerService idManager;
     private ElanInterfaceManager elanInterfaceManager;
@@ -45,36 +45,27 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
 
     private static final Logger logger = LoggerFactory.getLogger(ElanInstanceManager.class);
 
-    private ElanInstanceManager() {
+    public ElanInstanceManager newInstance(final DataBroker dataBroker,
+            final IdManagerService managerService, final ElanInterfaceManager elanInterfaceManager
+            , final IInterfaceManager interfaceManager) {
+        return new ElanInstanceManager(dataBroker, managerService, elanInterfaceManager, interfaceManager);
+    }
+
+    private ElanInstanceManager(final DataBroker dataBroker,
+            final IdManagerService managerService, final ElanInterfaceManager elanInterfaceManager
+            , final IInterfaceManager interfaceManager) {
         super(ElanInstance.class);
-
-    }
-
-    public static ElanInstanceManager getElanInstanceManager() {
-        return elanInstanceManager;
-    }
-
-    public void setIdManager(IdManagerService idManager) {
-        this.idManager = idManager;
-    }
-
-    public void setDataBroker(DataBroker broker) {
-        this.broker = broker;
-    }
-
-    public void setElanInterfaceManager(ElanInterfaceManager elanInterfaceManager) {
+        this.broker = dataBroker;
+        this.idManager = managerService;
         this.elanInterfaceManager = elanInterfaceManager;
-    }
-
-    public void setInterfaceManager(IInterfaceManager interfaceManager) {
         this.interfaceManager = interfaceManager;
+        registerListener();
     }
-
 
     /**
      * Starts listening for changes in elan.yang:elan-instance container
      */
-    public void registerListener() {
+    private void registerListener() {
         try {
             elanInstanceListenerRegistration = broker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
                     getElanInstanceWildcardPath(), ElanInstanceManager.this, DataChangeScope.SUBTREE);
@@ -168,5 +159,9 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
 
     private InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
         return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
+    }
+
+    public static ElanInstanceManager getElanInstanceManager() {
+        return elanInstanceManager;
     }
 }

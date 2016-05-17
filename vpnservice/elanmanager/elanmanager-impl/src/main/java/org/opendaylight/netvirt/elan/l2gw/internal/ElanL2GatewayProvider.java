@@ -12,23 +12,23 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLogicalSwitchListener;
-import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepPhysicalSwitchListener;
-import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepRemoteMcastMacListener;
-import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
-import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
-import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
-import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLocalUcastMacListener;
-import org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionListener;
-import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
-import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
-import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
-import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepPhysicalLocatorListener;
-import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
+import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
+import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
+import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLocalUcastMacListener;
+import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLogicalSwitchListener;
+import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepPhysicalLocatorListener;
+import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepPhysicalSwitchListener;
+import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepRemoteMcastMacListener;
+import org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionListener;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
+import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,17 +54,15 @@ public class ElanL2GatewayProvider implements AutoCloseable {
 
     /**
      * Instantiates a new elan l2 gateway provider.
-     *
-     * @param elanServiceProvider
-     *            the elan service provider
      */
-    public ElanL2GatewayProvider(ElanServiceProvider elanServiceProvider) {
-        this.broker = elanServiceProvider.getBroker();
-        this.entityOwnershipService = elanServiceProvider.getEntityOwnershipService();
-        this.itmRpcService = elanServiceProvider.getItmRpcService();
-        this.elanInstanceManager = elanServiceProvider.getElanInstanceManager();
-        this.elanInterfaceManager = elanServiceProvider.getElanInterfaceManager();
-        dataStoreJobCoordinator = elanServiceProvider.getDataStoreJobCoordinator();
+    public ElanL2GatewayProvider(final DataBroker dataBroker, final EntityOwnershipService eos,
+            final ItmRpcService itmRpcService, final ElanInstanceManager eim, final ElanInterfaceManager etm) {
+        this.broker = dataBroker;
+        this.entityOwnershipService = eos;
+        this.itmRpcService = itmRpcService;
+        this.elanInstanceManager = eim;
+        this.elanInterfaceManager = etm;
+        dataStoreJobCoordinator = ElanServiceProvider.getDataStoreJobCoordinator();
         init();
 
         LOG.info("ElanL2GatewayProvider Initialized");
