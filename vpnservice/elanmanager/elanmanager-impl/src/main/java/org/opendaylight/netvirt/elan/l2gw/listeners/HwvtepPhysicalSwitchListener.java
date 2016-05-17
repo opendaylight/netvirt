@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -16,6 +15,7 @@ import java.util.concurrent.Callable;
 
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -28,11 +28,9 @@ import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.TunnelIps;
@@ -45,7 +43,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
@@ -59,10 +56,15 @@ public class HwvtepPhysicalSwitchListener
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepPhysicalSwitchListener.class);
 
     /** The data broker. */
-    private DataBroker dataBroker;
+    private final DataBroker dataBroker;
 
     /** The itm rpc service. */
-    private ItmRpcService itmRpcService;
+    private final ItmRpcService itmRpcService;
+
+    /** The entity ownership service. */
+    private final EntityOwnershipService entityOwnershipService;
+
+    private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
 
     /**
      * Instantiates a new hwvtep physical switch listener.
@@ -70,12 +72,21 @@ public class HwvtepPhysicalSwitchListener
      * @param dataBroker
      *            the data broker
      * @param itmRpcService
-     *            the itm rpc service
+     * @param entityOwnershipService
+     * @param l2GatewayConnectionUtils
      */
-    public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService) {
+    public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
+                                        EntityOwnershipService entityOwnershipService,
+                                        L2GatewayConnectionUtils l2GatewayConnectionUtils) {
         super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
+        this.entityOwnershipService = entityOwnershipService;
+        this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
+    }
+
+    public void init() {
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     /*
@@ -162,7 +173,7 @@ public class HwvtepPhysicalSwitchListener
         if (isTunnelIpNewlyConfigured(phySwitchBefore, phySwitchAfter)) {
             final L2GatewayDevice l2GwDevice = updateL2GatewayCache(psName, phySwitchAfter);
 
-            ElanClusterUtils.runOnlyInLeaderNode(HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
+            ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
                     "handling Physical Switch add", new Callable<List<ListenableFuture<Void>>>() {
                         @Override
                         public List<ListenableFuture<Void>> call() throws Exception {
@@ -193,7 +204,7 @@ public class HwvtepPhysicalSwitchListener
 
         final L2GatewayDevice l2GwDevice = updateL2GatewayCache(psName, phySwitchAdded);
 
-        ElanClusterUtils.runOnlyInLeaderNode(HwvtepSouthboundConstants.ELAN_ENTITY_NAME, "handling Physical Switch add",
+        ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_NAME, "handling Physical Switch add",
                 new Callable<List<ListenableFuture<Void>>>() {
                     @Override
                     public List<ListenableFuture<Void>> call() throws Exception {
@@ -236,7 +247,7 @@ public class HwvtepPhysicalSwitchListener
                             LOG.trace("L2GatewayConnection {} changes executed on physical switch {}",
                                     l2GwConn.getL2gatewayId(), psName);
 
-                            L2GatewayConnectionUtils.addL2GatewayConnection(l2GwConn, psName);
+                            l2GatewayConnectionUtils.addL2GatewayConnection(l2GwConn, psName);
                         }
                     }
                     // TODO handle deleted l2gw connections while the device is

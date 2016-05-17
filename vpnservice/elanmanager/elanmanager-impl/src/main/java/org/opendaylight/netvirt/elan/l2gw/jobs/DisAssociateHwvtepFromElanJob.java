@@ -26,18 +26,24 @@ import java.util.concurrent.Callable;
 * Created by ekvsver on 4/15/2016.
 */
 public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFuture<Void>>> {
-    DataBroker broker;
-    L2GatewayDevice l2GatewayDevice;
-    ElanInstance elanInstance;
-    Devices l2Device;
-    Integer defaultVlan;
-    boolean isLastL2GwConnDeleted;
-
     private static final Logger LOG = LoggerFactory.getLogger(DisAssociateHwvtepFromElanJob.class);
 
-    public DisAssociateHwvtepFromElanJob(DataBroker broker, L2GatewayDevice l2GatewayDevice, ElanInstance elanInstance,
+    private final DataBroker broker;
+    private final ElanL2GatewayUtils elanL2GatewayUtils;
+    private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
+    private final L2GatewayDevice l2GatewayDevice;
+    private final ElanInstance elanInstance;
+    private final Devices l2Device;
+    private final Integer defaultVlan;
+    private final boolean isLastL2GwConnDeleted;
+
+    public DisAssociateHwvtepFromElanJob(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
+                                         ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
+                                         L2GatewayDevice l2GatewayDevice, ElanInstance elanInstance,
                                          Devices l2Device, Integer defaultVlan, boolean isLastL2GwConnDeleted) {
         this.broker = broker;
+        this.elanL2GatewayUtils = elanL2GatewayUtils;
+        this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.l2GatewayDevice = l2GatewayDevice;
         this.elanInstance = elanInstance;
         this.l2Device = l2Device;
@@ -64,21 +70,21 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
         // Once all above configurations are deleted, delete logical
         // switch
         LOG.info("delete vlan bindings for {} {}", elanName, strHwvtepNodeId);
-        futures.add(ElanL2GatewayUtils.deleteVlanBindingsFromL2GatewayDevice(hwvtepNodeId, l2Device, defaultVlan));
+        futures.add(elanL2GatewayUtils.deleteVlanBindingsFromL2GatewayDevice(hwvtepNodeId, l2Device, defaultVlan));
 
         if (isLastL2GwConnDeleted) {
             LOG.info("delete remote ucast macs {} {}", elanName, strHwvtepNodeId);
-            futures.add(ElanL2GatewayUtils.deleteElanMacsFromL2GatewayDevice(l2GatewayDevice, elanName));
+            futures.add(elanL2GatewayUtils.deleteElanMacsFromL2GatewayDevice(l2GatewayDevice, elanName));
 
             LOG.info("delete mcast mac for {} {}", elanName, strHwvtepNodeId);
-            futures.addAll(ElanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceDelete(elanInstance,
+            futures.addAll(elanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceDelete(elanInstance,
                     l2GatewayDevice));
 
             LOG.info("delete local ucast macs {} {}", elanName, strHwvtepNodeId);
-            futures.addAll(ElanL2GatewayUtils.deleteL2GwDeviceUcastLocalMacsFromElan(l2GatewayDevice, elanName));
+            futures.addAll(elanL2GatewayUtils.deleteL2GwDeviceUcastLocalMacsFromElan(l2GatewayDevice, elanName));
 
             LOG.info("scheduled delete logical switch {} {}", elanName, strHwvtepNodeId);
-            ElanL2GatewayUtils.scheduleDeleteLogicalSwitch(hwvtepNodeId,
+            elanL2GatewayUtils.scheduleDeleteLogicalSwitch(hwvtepNodeId,
                     ElanL2GatewayUtils.getLogicalSwitchFromElan(elanName));
         }
 

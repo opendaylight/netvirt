@@ -22,18 +22,18 @@ import org.slf4j.LoggerFactory;
 public class ElanStatusMonitor implements ElanStatusMonitorMBean{
 
     private String serviceStatus;
-    private static ElanStatusMonitor elanStatusMonitor = new ElanStatusMonitor();
     private static final String JMX_ELAN_OBJ_NAME = "com.ericsson.sdncp.services.status:type=SvcElanService";
     private static final Logger log = LoggerFactory.getLogger(ElanStatusMonitor.class);
 
-    private ElanStatusMonitor () {
+    public void init() {
+        registerMbean();
     }
 
     public void registerMbean() {
         MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         try {
             ObjectName objName = new ObjectName(JMX_ELAN_OBJ_NAME);
-            mbs.registerMBean(elanStatusMonitor, objName);
+            mbs.registerMBean(this, objName);
             log.info("MXBean registration SUCCESSFUL!!! {}", JMX_ELAN_OBJ_NAME);
         } catch (InstanceAlreadyExistsException iaeEx) {
             log.error("MXBean registration FAILED with InstanceAlreadyExistsException", iaeEx);
@@ -44,10 +44,6 @@ public class ElanStatusMonitor implements ElanStatusMonitorMBean{
         } catch (MalformedObjectNameException monEx) {
             log.error("MXBean registration failed with MalformedObjectNameException", monEx);
         }
-    }
-
-    public static ElanStatusMonitor getInstance() {
-        return elanStatusMonitor;
     }
 
     @Override

@@ -62,48 +62,26 @@ public class ElanL2GatewayMulticastUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ElanL2GatewayMulticastUtils.class);
 
     /** The broker. */
-    private static DataBroker broker;
+    private final DataBroker broker;
 
     /** The elan instance manager. */
-    private static ElanInstanceManager elanInstanceManager;
+    private final ElanInstanceManager elanInstanceManager;
 
     /** The elan interface manager. */
-    private static ElanInterfaceManager elanInterfaceManager;
+    private final ElanInterfaceManager elanInterfaceManager;
 
-    static DataStoreJobCoordinator dataStoreJobCoordinator;
+    private final ElanL2GatewayUtils elanL2GatewayUtils;
 
-    public static void setDataStoreJobCoordinator(DataStoreJobCoordinator ds) {
-        dataStoreJobCoordinator = ds;
-    }
+    private final ElanUtils elanUtils;
 
-    /**
-     * Sets the broker.
-     *
-     * @param broker
-     *            the new broker
-     */
-    public static void setBroker(DataBroker broker) {
-        ElanL2GatewayMulticastUtils.broker = broker;
-    }
-
-    /**
-     * Sets the elan instance manager.
-     *
-     * @param elanMgr
-     *            the new elan instance manager
-     */
-    public static void setElanInstanceManager(ElanInstanceManager elanMgr) {
-        ElanL2GatewayMulticastUtils.elanInstanceManager = elanMgr;
-    }
-
-    /**
-     * Sets the elan interface manager.
-     *
-     * @param interfaceMgr
-     *            the new elan interface manager
-     */
-    public static void setElanInterfaceManager(ElanInterfaceManager interfaceMgr) {
-        elanInterfaceManager = interfaceMgr;
+    public ElanL2GatewayMulticastUtils(DataBroker broker, ElanInstanceManager elanInstanceManager,
+                                       ElanInterfaceManager elanInterfaceManager, ElanL2GatewayUtils elanL2GatewayUtils,
+                                       ElanUtils elanUtils) {
+        this.broker = broker;
+        this.elanInstanceManager = elanInstanceManager;
+        this.elanInterfaceManager = elanInterfaceManager;
+        this.elanL2GatewayUtils = elanL2GatewayUtils;
+        this.elanUtils = elanUtils;
     }
 
     /**
@@ -115,7 +93,7 @@ public class ElanL2GatewayMulticastUtils {
      *            the device
      * @return the listenable future
      */
-    public static ListenableFuture<Void> handleMcastForElanL2GwDeviceAdd(String elanName, L2GatewayDevice device) {
+    public ListenableFuture<Void> handleMcastForElanL2GwDeviceAdd(String elanName, L2GatewayDevice device) {
         return updateMcastMacsForAllElanDevices(elanName, device, true/* updateThisDevice */);
     }
 
@@ -128,7 +106,7 @@ public class ElanL2GatewayMulticastUtils {
      *            the elan to be updated
      * @return the listenable future
      */
-    public static ListenableFuture<Void> updateRemoteMcastMacOnElanL2GwDevices(String elanName) {
+    public ListenableFuture<Void> updateRemoteMcastMacOnElanL2GwDevices(String elanName) {
         SettableFuture<Void> future = SettableFuture.create();
         future.set(null);
         try {
@@ -143,9 +121,9 @@ public class ElanL2GatewayMulticastUtils {
         return future;
     }
 
-    public static void scheduleMcastMacUpdateJob(String elanName, L2GatewayDevice device) {
-        HwvtepDeviceMcastMacUpdateJob job = new HwvtepDeviceMcastMacUpdateJob(elanName,device);
-        dataStoreJobCoordinator.enqueueJob(job.getJobKey(), job);
+    public void scheduleMcastMacUpdateJob(String elanName, L2GatewayDevice device) {
+        HwvtepDeviceMcastMacUpdateJob job = new HwvtepDeviceMcastMacUpdateJob(this, elanName,device);
+        DataStoreJobCoordinator.getInstance().enqueueJob(job.getJobKey(), job);
     }
 
     /**
@@ -157,17 +135,17 @@ public class ElanL2GatewayMulticastUtils {
      *            the device
      * @return the listenable future
      */
-    public static ListenableFuture<Void> updateRemoteMcastMacOnElanL2GwDevice(String elanName, L2GatewayDevice device) {
+    public ListenableFuture<Void> updateRemoteMcastMacOnElanL2GwDevice(String elanName, L2GatewayDevice device) {
         WriteTransaction transaction = broker.newWriteOnlyTransaction();
         prepareRemoteMcastMacUpdateOnDevice(transaction, elanName, device);
         return transaction.submit();
     }
 
-    public static void prepareRemoteMcastMacUpdateOnDevice(WriteTransaction transaction,String elanName,
+    public void prepareRemoteMcastMacUpdateOnDevice(WriteTransaction transaction,String elanName,
                                                            L2GatewayDevice device) {
         ConcurrentMap<String, L2GatewayDevice> elanL2gwDevices = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(elanName);
-        List<DpnInterfaces> dpns = ElanUtils.getInvolvedDpnsInElan(elanName);
+        List<DpnInterfaces> dpns = elanUtils.getInvolvedDpnsInElan(elanName);
         List<IpAddress> dpnsTepIps = getAllTepIpsOfDpns(device, dpns);
         List<IpAddress> l2GwDevicesTepIps = getAllTepIpsOfL2GwDevices(elanL2gwDevices);
         preapareRemoteMcastMacEntry(transaction, elanName, device, dpnsTepIps, l2GwDevicesTepIps);
@@ -186,7 +164,7 @@ public class ElanL2GatewayMulticastUtils {
      *            the update this device
      * @return the listenable future
      */
-    public static ListenableFuture<Void> updateMcastMacsForAllElanDevices(String elanName, L2GatewayDevice device,
+    public ListenableFuture<Void> updateMcastMacsForAllElanDevices(String elanName, L2GatewayDevice device,
                                                                           boolean updateThisDevice) {
 
         SettableFuture<Void> ft = SettableFuture.create();
@@ -195,7 +173,7 @@ public class ElanL2GatewayMulticastUtils {
         ElanInstance elanInstance = elanInstanceManager.getElanInstanceByName(elanName);
         elanInterfaceManager.updateRemoteBroadcastGroupForAllElanDpns(elanInstance);
 
-        List<DpnInterfaces> dpns = ElanUtils.getInvolvedDpnsInElan(elanName);
+        List<DpnInterfaces> dpns = elanUtils.getInvolvedDpnsInElan(elanName);
 
         ConcurrentMap<String, L2GatewayDevice> devices = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(elanName);
@@ -238,7 +216,7 @@ public class ElanL2GatewayMulticastUtils {
      *            the l2 gw devices tep ips
      * @return the write transaction
      */
-    private static void preapareRemoteMcastMacEntry(WriteTransaction transaction, String elanName,
+    private void preapareRemoteMcastMacEntry(WriteTransaction transaction, String elanName,
                                                     L2GatewayDevice device, List<IpAddress> dpnsTepIps,
                                                     List<IpAddress> l2GwDevicesTepIps) {
         NodeId nodeId = new NodeId(device.getHwvtepNodeId());
@@ -312,10 +290,10 @@ public class ElanL2GatewayMulticastUtils {
      *            the dpns
      * @return the all tep ips of dpns and devices
      */
-    private static List<IpAddress> getAllTepIpsOfDpns(L2GatewayDevice l2GwDevice, List<DpnInterfaces> dpns) {
+    private List<IpAddress> getAllTepIpsOfDpns(L2GatewayDevice l2GwDevice, List<DpnInterfaces> dpns) {
         List<IpAddress> tepIps = new ArrayList<>();
         for (DpnInterfaces dpn : dpns) {
-            IpAddress internalTunnelIp = ElanL2GatewayUtils.getSourceDpnTepIp(dpn.getDpId(),
+            IpAddress internalTunnelIp = elanL2GatewayUtils.getSourceDpnTepIp(dpn.getDpId(),
                     new NodeId(l2GwDevice.getHwvtepNodeId()));
             if (internalTunnelIp != null) {
                 tepIps.add(internalTunnelIp);
@@ -348,7 +326,7 @@ public class ElanL2GatewayMulticastUtils {
      *            the l2 gateway device
      * @return the listenable future
      */
-    public static List<ListenableFuture<Void>> handleMcastForElanL2GwDeviceDelete(ElanInstance elanInstance,
+    public List<ListenableFuture<Void>> handleMcastForElanL2GwDeviceDelete(ElanInstance elanInstance,
             L2GatewayDevice l2GatewayDevice) {
         ListenableFuture<Void> updateMcastMacsFuture = updateMcastMacsForAllElanDevices(elanInstance.getElanInstanceName(),
                 l2GatewayDevice, false/* updateThisDevice */);
@@ -366,7 +344,7 @@ public class ElanL2GatewayMulticastUtils {
      *            the logical switch name
      * @return the listenable future
      */
-    private static ListenableFuture<Void> deleteRemoteMcastMac(NodeId nodeId, String logicalSwitchName) {
+    private ListenableFuture<Void> deleteRemoteMcastMac(NodeId nodeId, String logicalSwitchName) {
         InstanceIdentifier<LogicalSwitches> logicalSwitch = HwvtepSouthboundUtils
                 .createLogicalSwitchesInstanceIdentifier(nodeId, new HwvtepNodeName(logicalSwitchName));
         RemoteMcastMacsKey remoteMcastMacsKey = new RemoteMcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch),
@@ -386,7 +364,7 @@ public class ElanL2GatewayMulticastUtils {
      *            the elan instance name
      * @return the tep ip of designated switch for external tunnel
      */
-    public static IpAddress getTepIpOfDesignatedSwitchForExternalTunnel(L2GatewayDevice l2GwDevice,
+    public IpAddress getTepIpOfDesignatedSwitchForExternalTunnel(L2GatewayDevice l2GwDevice,
             String elanInstanceName) {
         IpAddress tepIp = null;
         if (l2GwDevice.getTunnelIp() == null) {
@@ -396,7 +374,7 @@ public class ElanL2GatewayMulticastUtils {
         DesignatedSwitchForTunnel desgSwitch = getDesignatedSwitchForExternalTunnel(l2GwDevice.getTunnelIp(),
                 elanInstanceName);
         if (desgSwitch != null) {
-            tepIp = ElanL2GatewayUtils.getSourceDpnTepIp(BigInteger.valueOf(desgSwitch.getDpId()),
+            tepIp = elanL2GatewayUtils.getSourceDpnTepIp(BigInteger.valueOf(desgSwitch.getDpId()),
                     new NodeId(l2GwDevice.getHwvtepNodeId()));
         }
         return tepIp;
@@ -411,7 +389,7 @@ public class ElanL2GatewayMulticastUtils {
      *            the elan instance name
      * @return the designated switch for external tunnel
      */
-    public static DesignatedSwitchForTunnel getDesignatedSwitchForExternalTunnel(IpAddress tunnelIp,
+    public DesignatedSwitchForTunnel getDesignatedSwitchForExternalTunnel(IpAddress tunnelIp,
             String elanInstanceName) {
         InstanceIdentifier<DesignatedSwitchForTunnel> instanceIdentifier = InstanceIdentifier
                 .builder(DesignatedSwitchesForExternalTunnels.class)

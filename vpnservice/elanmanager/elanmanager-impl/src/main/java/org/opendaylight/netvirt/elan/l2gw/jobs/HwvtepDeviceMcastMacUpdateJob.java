@@ -21,10 +21,13 @@ import com.google.common.util.concurrent.ListenableFuture;
 public class HwvtepDeviceMcastMacUpdateJob implements Callable<List<ListenableFuture<Void>>> {
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepDeviceMcastMacUpdateJob.class);
 
-    String elanName;
-    L2GatewayDevice l2GatewayDevice;
+    private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
+    private final String elanName;
+    private final L2GatewayDevice l2GatewayDevice;
 
-    public HwvtepDeviceMcastMacUpdateJob(String elanName, L2GatewayDevice l2GatewayDevice) {
+    public HwvtepDeviceMcastMacUpdateJob(ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, String elanName,
+                                         L2GatewayDevice l2GatewayDevice) {
+        this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.l2GatewayDevice = l2GatewayDevice;
         this.elanName = elanName;
     }
@@ -37,7 +40,7 @@ public class HwvtepDeviceMcastMacUpdateJob implements Callable<List<ListenableFu
         LOG.info("running update mcast mac entry job for {} {}",
                 elanName, l2GatewayDevice.getHwvtepNodeId());
         return Lists.newArrayList(
-                ElanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevice(elanName, l2GatewayDevice));
+                elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevice(elanName, l2GatewayDevice));
     }
 
 }

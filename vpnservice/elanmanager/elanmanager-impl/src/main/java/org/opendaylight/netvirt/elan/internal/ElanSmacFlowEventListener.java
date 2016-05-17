@@ -7,18 +7,19 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowAdded;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowRemoved;
@@ -26,44 +27,29 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.Flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.NodeErrorNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.NodeExperimenterErrorNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SwitchFlowRemoved;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-
 @SuppressWarnings("deprecation")
 public class ElanSmacFlowEventListener implements SalFlowListener {
 
-    private  ElanServiceProvider elanServiceProvider = null;
-    private static volatile ElanSmacFlowEventListener elanSmacFlowEventListener = null;
     private static final Logger logger = LoggerFactory.getLogger(ElanSmacFlowEventListener.class);
 
-    public ElanSmacFlowEventListener(ElanServiceProvider elanServiceProvider) {
-        this.elanServiceProvider = elanServiceProvider;
+    private final DataBroker broker;
+    private final IInterfaceManager interfaceManager;
+    private final ElanUtils elanUtils;
+
+    public ElanSmacFlowEventListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils) {
+        this.broker = broker;
+        this.interfaceManager = interfaceManager;
+        this.elanUtils = elanUtils;
     }
 
-    public static ElanSmacFlowEventListener getElanSmacFlowEventListener(ElanServiceProvider elanServiceProvider) {
-        if (elanSmacFlowEventListener == null)
-            synchronized (ElanPacketInHandler.class) {
-                if (elanSmacFlowEventListener == null) {
-                    elanSmacFlowEventListener = new ElanSmacFlowEventListener(elanServiceProvider);
-                }
-            }
-        return elanSmacFlowEventListener;
-    }
-
-
-    public void setMdSalApiManager(IMdsalApiManager mdsalManager) {
-    }
     @Override
     public void onFlowAdded(FlowAdded arg0) {
         // TODO Auto-generated method stub
@@ -76,7 +62,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
         if (tableId == NwConstants.ELAN_SMAC_TABLE) {
             BigInteger metadata = flowRemoved.getMatch().getMetadata().getMetadata();
             long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
-            ElanTagName elanTagInfo = ElanUtils.getElanInfoByElanTag(elanTag);
+            ElanTagName elanTagInfo = elanUtils.getElanInfoByElanTag(elanTag);
             if (elanTagInfo == null) {
                 return;
             }
@@ -87,7 +73,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 logger.debug(String.format("Flow removed event on SMAC flow entry. But having port Tag as 0 "));
                 return;
             }
-            Optional<IfIndexInterface> existingInterfaceInfo = ElanUtils.getInterfaceInfoByInterfaceTag(portTag);
+            Optional<IfIndexInterface> existingInterfaceInfo = elanUtils.getInterfaceInfoByInterfaceTag(portTag);
             if (!existingInterfaceInfo.isPresent()) {
                 logger.debug("Interface is not available for port Tag {}", portTag);
                 return;
@@ -98,17 +84,17 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 logger.error(String.format("LPort record not found for tag %d", portTag));
                 return;
             }
-            MacEntry macEntry = ElanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
-            InterfaceInfo interfaceInfo = elanServiceProvider.getInterfaceManager().getInterfaceInfo(interfaceName);
+            MacEntry macEntry = elanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
+            InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
             if (macEntry != null && interfaceInfo != null) {
-                WriteTransaction deleteFlowTx = elanServiceProvider.getBroker().newWriteOnlyTransaction();
-                ElanUtils.deleteMacFlows(ElanUtils.getElanInstanceByName(elanTagInfo.getName()), interfaceInfo, macEntry, deleteFlowTx);
+                WriteTransaction deleteFlowTx = broker.newWriteOnlyTransaction();
+                elanUtils.deleteMacFlows(elanUtils.getElanInstanceByName(elanTagInfo.getName()), interfaceInfo, macEntry, deleteFlowTx);
                 ListenableFuture<Void> result = deleteFlowTx.submit();
                 addCallBack(result, srcMacAddress);
             }
             InstanceIdentifier<MacEntry> macEntryIdForElanInterface =  ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
             InstanceIdentifier<MacEntry> macEntryIdForElanInstance  =  ElanUtils.getMacEntryOperationalDataPath(elanTagInfo.getName(), physAddress);
-            WriteTransaction tx = elanServiceProvider.getBroker().newWriteOnlyTransaction();
+            WriteTransaction tx = broker.newWriteOnlyTransaction();
             tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
             tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInstance);
             ListenableFuture<Void> writeResult = tx.submit();
