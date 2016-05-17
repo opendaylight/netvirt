@@ -14,19 +14,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
-
 import org.junit.Test;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFloatingIP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -55,9 +49,7 @@ public class NeutronFloatingIPInterfaceTest extends AbstractDataBrokerTest {
     private static final String STATUS = "ACTIVE";
 
     private NeutronFloatingIPInterface getTestInterface(DataBroker broker) {
-        ProviderContext providerContext = mock(ProviderContext.class);
-        when(providerContext.getSALService(DataBroker.class)).thenReturn(broker);
-        return new NeutronFloatingIPInterface(providerContext);
+        return new NeutronFloatingIPInterface(broker);
     }
 
     /**
