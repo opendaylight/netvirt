@@ -17,6 +17,7 @@ module netvirt-sfc-impl {
     identity netvirt-sfc-impl {
         base config:module-type;
         config:java-name-prefix NetvirtSfcImpl;
+        status deprecated;
     }
 
     augment "/config:modules/config:module/config:configuration" {

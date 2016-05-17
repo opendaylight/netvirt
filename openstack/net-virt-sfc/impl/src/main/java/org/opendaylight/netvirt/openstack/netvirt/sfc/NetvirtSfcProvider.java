@@ -21,41 +21,36 @@ import org.opendaylight.netvirt.openstack.netvirt.sfc.standalone.openflow13.serv
 import org.opendaylight.netvirt.openstack.netvirt.sfc.workaround.NetvirtSfcWorkaroundOF13Provider;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.utils.mdsal.utils.MdsalUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.sfc.impl.config.rev160517.NetvirtSfcConfig;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NetvirtSfcProvider implements BindingAwareProvider, AutoCloseable {
+public class NetvirtSfcProvider implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NetvirtSfcProvider.class);
+
     private AutoCloseable aclListener;
     private AutoCloseable classifierListener;
     private AutoCloseable rspListener;
-    private Boolean addSfFlows;
 
-    public void setOf13Provider(String of13Provider) {
-        LOG.info("of13Provider is: {}", of13Provider);
-        this.of13Provider = of13Provider;
+    private final Boolean addSfFlows;
+    private final String of13Provider;
+
+    private final DataBroker dataBroker;
+    private final BundleContext bundleContext;
+
+    public NetvirtSfcProvider(final DataBroker dataBroker, final NetvirtSfcConfig netvirtSfcConfig) {
+        LOG.info("NetvirtSfcProvider started");
+        this.dataBroker = dataBroker;
+        this.addSfFlows = netvirtSfcConfig.isAddsfflows();
+        this.of13Provider = netvirtSfcConfig.getOf13provider();
+        this.bundleContext = FrameworkUtil.getBundle(NetvirtSfcProvider.class).getBundleContext();
     }
 
-    private String of13Provider;
-
-    public void setBundleContext(BundleContext bundleContext) {
-        LOG.info("bundleContext is: {}", bundleContext);
-        this.bundleContext = bundleContext;
-    }
-
-    private BundleContext bundleContext;
-
-    public NetvirtSfcProvider(BundleContext bundleContext) {
-        LOG.info("NetvirtSfcProvider: bundleContext: {}", bundleContext);
-        this.bundleContext = bundleContext;
-    }
-
-    @Override
-    public void onSessionInitiated(ProviderContext session) {
+    public void start() {
         LOG.info("NetvirtSfcProvider Session Initiated");
-        DataBroker dataBroker = session.getSALService(DataBroker.class);
 
         MdsalUtils mdsalUtils = new MdsalUtils(dataBroker);
         SfcUtils sfcUtils = new SfcUtils(mdsalUtils);
@@ -115,10 +110,5 @@ public class NetvirtSfcProvider implements BindingAwareProvider, AutoCloseable {
         return registerService(bundleContext,
                 new String[] {AbstractServiceInstance.class.getName(),interfaceClassName},
                 properties, impl);
-    }
-
-    public void setAddSfFlows(Boolean addSfFlows) {
-        LOG.info("setAddSfFlows: addSfFlows is {}", addSfFlows);
-        this.addSfFlows = addSfFlows;
     }
 }
