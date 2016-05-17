@@ -7,20 +7,19 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
@@ -35,12 +34,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
 public class DhcpL2GatewayConnectionListener extends AsyncClusteredDataChangeListenerBase<L2gatewayConnection,DhcpL2GatewayConnectionListener> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpL2GatewayConnectionListener.class);
+
     private ListenerRegistration<DataChangeListener> listenerRegistration;
+
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DataBroker dataBroker;
 
@@ -48,6 +47,8 @@ public class DhcpL2GatewayConnectionListener extends AsyncClusteredDataChangeLis
         super(L2gatewayConnection.class, DhcpL2GatewayConnectionListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = dataBroker;
+
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
@@ -149,12 +150,7 @@ public class DhcpL2GatewayConnectionListener extends AsyncClusteredDataChangeLis
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                logger.error("Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
+            listenerRegistration.close();
         }
         logger.info("DhcpL2GatewayConnection listener Closed");
     }
