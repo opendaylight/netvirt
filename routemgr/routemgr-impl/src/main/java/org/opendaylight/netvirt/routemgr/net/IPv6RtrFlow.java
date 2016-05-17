@@ -101,7 +101,6 @@ public class IPv6RtrFlow {
     }
 
     private void programIcmpv6Flow(String dpId, InstanceIdentifier<Node> nodeIid, String flowName, int icmpType) {
-        //Build arp reply router flow
         final Flow icmpv6ToControllerFlow = createIcmpv6ToControllerFlow(nodeIid, flowName, icmpType);
 
         final InstanceIdentifier<Flow> flowIid = createFlowIid(icmpv6ToControllerFlow, nodeIid);
@@ -126,47 +125,11 @@ public class IPv6RtrFlow {
         final InstanceIdentifier<Node> nodeIid = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId(nodeName))).build();
 
-        /* TODO: Currently we are programming the flows to send the RS/NS packets to the
-        controller without really checking if the network has an IPv6 subnet. This needs
-        to be optimized in future patchsets.
-         */
         String flowName = ICMPv6_TO_CONTROLLER_RS_FLOW + "_" + ICMPv6_TYPE_RS;
         programIcmpv6Flow(dpId, nodeIid, flowName, ICMPv6_TYPE_RS);
 
         flowName = ICMPv6_TO_CONTROLLER_NS_FLOW + "_" + ICMPv6_TYPE_NS;
         programIcmpv6Flow(dpId, nodeIid, flowName, ICMPv6_TYPE_NS);
-    }
-
-/***
-//wait for flow installation
-        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(addFlowResult),
-                new FutureCallback<RpcResult<AddFlowOutput>>() {
-
-                    @Override
-                    public void onSuccess(RpcResult<AddFlowOutput> result) {
-                        if (!result.isSuccessful()) {
-                            LOG.warn("ICMPv6 Flow to Controller is not installed successfully : {} \nErrors: {}",
-                                    flowIid, result.getErrors());
-                            return;
-                        }
-                        LOG.debug("Flow to route ICMPv6 to Controller installed successfully : {}", nodeIid);
-
-                        //cache flow info
-                        gatewayToIcmpv6FlowMap.put(nodeIid, icmpv6ToControllerFlow);
-                    }
-
-                    @Override
-                    public void onFailure(Throwable fail) {
-                        LOG.warn("ICMPv6 to Controller flow was not created: {}", nodeIid);
-                    }
-                }
-        );
-    }
-***/
-
-    private FlowId createFlowId(final InstanceIdentifier<Node> nodeId, String flowName) {
-        String flowId = flowName + "|" + nodeId;
-        return new FlowId(flowId);
     }
 
     private static InstanceIdentifier<Flow> createFlowIid(Flow flow, InstanceIdentifier<Node> nodeIid) {

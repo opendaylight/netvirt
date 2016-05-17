@@ -351,4 +351,17 @@ public class IfMgr {
         logger.debug("obtaining the virtual interface for {}", addr);
         return (v6IntfMap.get(addr));
     }
+
+    public VirtualPort obtainV6Interface(Uuid id) {
+        VirtualPort intf = vintfs.get(id);
+        if(intf == null) {
+            return null;
+        }
+        for (VirtualSubnet snet : intf.getSubnets()) {
+            if(snet.getGatewayIp().getIpv6Address() != null) {
+                return intf;
+            }
+        }
+        return null;
+    }
 }
