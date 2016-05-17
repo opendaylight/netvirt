@@ -1,11 +1,15 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.openflowplugin.app.fcaps.app.rev151211;
 
+import org.opendaylight.controller.sal.common.util.NoopAutoCloseable;
 import org.opendaylight.netvirt.fcapsapp.FcapsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
 public class FcapsAppModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.openflowplugin.app.fcaps.app.rev151211.AbstractFcapsAppModule {
-    private static final Logger LOG = LoggerFactory.getLogger(FcapsAppModule.class);
     public FcapsAppModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
@@ -21,8 +25,7 @@ public class FcapsAppModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        LOG.info("Fcaps module initialization");
-        return new FcapsProvider(getDataBrokerDependency(),getNotificationAdapterDependency(),getEntityOwnershipServiceDependency());
+        // FcapsProvider instance is created via blueprint so this in a no-op.
+        return NoopAutoCloseable.INSTANCE;
     }
-
 }
