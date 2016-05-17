@@ -10,47 +10,62 @@ package org.opendaylight.netvirt.dhcpservice;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
+public class DhcpProvider implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpProvider.class);
-    private IMdsalApiManager mdsalManager;
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalManager;
     private DhcpPktHandler dhcpPktHandler;
     private Registration packetListener = null;
-    private NotificationProviderService notificationService;
+    private final NotificationProviderService notificationService;
     private DhcpManager dhcpManager;
     private NodeListener dhcpNodeListener;
-    private INeutronVpnManager neutronVpnManager;
+    private final INeutronVpnManager neutronVpnManager;
     private DhcpConfigListener dhcpConfigListener;
-    private OdlInterfaceRpcService interfaceManagerRpc;
+    private final OdlInterfaceRpcService interfaceManagerRpc;
     private DhcpInterfaceEventListener dhcpInterfaceEventListener;
     private DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private DhcpNeutronPortListener dhcpNeutronPortListener;
     private DhcpLogicalSwitchListener dhcpLogicalSwitchListener;
     private DhcpUCastMacListener dhcpUCastMacListener;
-    private ItmRpcService itmRpcService;
+    private final ItmRpcService itmRpcService;
     private DhcpInterfaceConfigListener dhcpInterfaceConfigListener;
-    private EntityOwnershipService entityOwnershipService;
+    private final EntityOwnershipService entityOwnershipService;
     private DhcpDesignatedDpnListener dhcpDesignatedDpnListener;
     private DhcpL2GatewayConnectionListener dhcpL2GatewayConnectionListener;
+    private final PacketProcessingService pktProcessingService;
 
-    @Override
-    public void onSessionInitiated(ProviderContext session) {
+    public DhcpProvider(final DataBroker dataBroker,
+                        final NotificationProviderService notificationProviderService,
+                        final EntityOwnershipService entityOwnershipService,
+                        final IMdsalApiManager mdsalApiManager,
+                        final INeutronVpnManager neutronVpnManager,
+                        final OdlInterfaceRpcService odlInterfaceRpcService,
+                        final ItmRpcService itmRpcService,
+                        final PacketProcessingService packetProcessingService) {
+        this.dataBroker = dataBroker;
+        this.notificationService = notificationProviderService;
+        this.entityOwnershipService = entityOwnershipService;
+        this.mdsalManager = mdsalApiManager;
+        this.neutronVpnManager = neutronVpnManager;
+        this.interfaceManagerRpc = odlInterfaceRpcService;
+        this.itmRpcService = itmRpcService;
+        this.pktProcessingService = packetProcessingService;
+    }
+
+    public void start() {
         LOG.info("DhcpProvider Session Initiated");
         try {
-            final DataBroker dataBroker = session.getSALService(DataBroker.class);
-            final PacketProcessingService pktProcessingService = session.getRpcService(PacketProcessingService.class);
             dhcpManager = new DhcpManager(dataBroker);
             dhcpManager.setMdsalManager(mdsalManager);
             dhcpManager.setNeutronVpnService(neutronVpnManager);
@@ -77,14 +92,6 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
         }
     }
 
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
-    }
-
-    public void setNeutronVpnManager(INeutronVpnManager neutronVpnManager) {
-        this.neutronVpnManager = neutronVpnManager;
-    }
-
     @Override
     public void close() throws Exception {
         if(packetListener != null) {
@@ -96,22 +103,18 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
         if(dhcpNodeListener != null) {
             dhcpNodeListener.close();
         }
+        if (dhcpConfigListener != null) {
+            dhcpConfigListener.close();
+        }
+        if (dhcpInterfaceEventListener != null) {
+            dhcpInterfaceEventListener.close();
+        }
+        if (dhcpInterfaceConfigListener != null) {
+            dhcpInterfaceConfigListener.close();
+        }
+        if (dhcpLogicalSwitchListener != null) {
+            dhcpLogicalSwitchListener.close();
+        }
         LOG.info("DhcpProvider closed");
-    }
-
-    public void setNotificationProviderService(NotificationProviderService notificationServiceDependency) {
-        this.notificationService = notificationServiceDependency;
-    }
-
-    public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {
-        this.interfaceManagerRpc = interfaceManagerRpc;
-    }
-
-    public void setItmRpcService(ItmRpcService itmRpcService) {
-        this.itmRpcService = itmRpcService;
-    }
-
-    public void setEntityOwnershipService(EntityOwnershipService entityOwnershipService) {
-        this.entityOwnershipService = entityOwnershipService;
     }
 }
