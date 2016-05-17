@@ -24,7 +24,6 @@ public class NetvirtProvidersProviderTest {
     @Test
     public void testGetTableOffset() {
         short tableOffset = 10;
-        NetvirtProvidersProvider netvirtProvidersProvider = new NetvirtProvidersProvider(null, null, tableOffset);
         assertEquals("Table offset was not set", tableOffset, NetvirtProvidersProvider.getTableOffset());
     }
 
@@ -35,7 +34,6 @@ public class NetvirtProvidersProviderTest {
     public void testSetTableOffset() {
         // verify a good value can be set
         short tableOffset = 0;
-        NetvirtProvidersProvider netvirtProvidersProvider = new NetvirtProvidersProvider(null, null, tableOffset);
 
         tableOffset = 10;
         NetvirtProvidersProvider.setTableOffset(tableOffset);
@@ -48,8 +46,6 @@ public class NetvirtProvidersProviderTest {
     @Test
     public void testTableOffsetNegative() {
         // verify an out of range value is not set
-        short tableOffset = 0;
-        NetvirtProvidersProvider netvirtProvidersProvider = new NetvirtProvidersProvider(null, null, tableOffset);
 
         short tableOffsetBad = (short)(256 - Service.L2_FORWARDING.getTable());
         NetvirtProvidersProvider.setTableOffset(tableOffsetBad);
