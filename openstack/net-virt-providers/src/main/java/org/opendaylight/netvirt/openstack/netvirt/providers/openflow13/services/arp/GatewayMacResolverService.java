@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.arp;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
@@ -16,16 +18,28 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
-import org.opendaylight.openflowplugin.api.OFConstants;
+import java.math.BigInteger;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
 import org.opendaylight.netvirt.openstack.netvirt.api.GatewayMacResolver;
 import org.opendaylight.netvirt.openstack.netvirt.api.GatewayMacResolverListener;
+import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
-import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
+import org.opendaylight.openflowplugin.api.OFConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
@@ -69,23 +83,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.ThreadFactory;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  *
  * @author Anil Vishnoi (avishnoi@Brocade.com)
@@ -99,7 +96,7 @@ public class GatewayMacResolverService extends AbstractServiceInstance
     private static final int ARP_REPLY_TO_CONTROLLER_FLOW_PRIORITY = 10000;
     private static final Instruction SEND_TO_CONTROLLER_INSTRUCTION;
     private ArpSender arpSender;
-    private SalFlowService flowService;
+    private final SalFlowService flowService;
     private final AtomicLong flowCookie = new AtomicLong();
     private final ConcurrentMap<Ipv4Address, ArpResolverMetadata> gatewayToArpMetadataMap =
             new ConcurrentHashMap<>();
@@ -123,6 +120,8 @@ public class GatewayMacResolverService extends AbstractServiceInstance
     private volatile ConfigurationService configurationService;
     private volatile NodeCacheManager nodeCacheManager;
 
+    private final PacketProcessingService packetProcessingService;
+
     static {
         ApplyActions applyActions = new ApplyActionsBuilder().setAction(
                 ImmutableList.of(ArpFlowFactory.createSendToControllerAction(0))).build();
@@ -131,20 +130,19 @@ public class GatewayMacResolverService extends AbstractServiceInstance
             .build();
     }
 
-    public GatewayMacResolverService(){
-        super(Service.GATEWAY_RESOLVER);
+    public GatewayMacResolverService(final PacketProcessingService packetProcessingService, final SalFlowService salFlowService) {
+        this(Service.GATEWAY_RESOLVER, packetProcessingService, salFlowService);
     }
 
-    public GatewayMacResolverService(Service service){
+    public GatewayMacResolverService(Service service, final PacketProcessingService packetProcessingService, final SalFlowService salFlowService) {
         super(service);
+        this.packetProcessingService = packetProcessingService;
+        this.flowService = salFlowService;
     }
 
     private void init(){
         if(!initializationDone.get()){
             initializationDone.set(true);
-            ProviderContext providerContext = NetvirtProvidersProvider.getProviderContext();
-            checkNotNull(providerContext);
-            PacketProcessingService packetProcessingService = providerContext.getRpcService(PacketProcessingService.class);
             if (packetProcessingService != null) {
                 LOG.debug("{} was found.", PacketProcessingService.class.getSimpleName());
                 this.arpSender = new ArpSender(packetProcessingService);
@@ -152,7 +150,6 @@ public class GatewayMacResolverService extends AbstractServiceInstance
                 LOG.error("Missing service {}", PacketProcessingService.class.getSimpleName());
                 this.arpSender = null;
             }
-            flowService = providerContext.getRpcService(SalFlowService.class);
             refreshRequester.scheduleWithFixedDelay(new Runnable(){
 
                 @Override
