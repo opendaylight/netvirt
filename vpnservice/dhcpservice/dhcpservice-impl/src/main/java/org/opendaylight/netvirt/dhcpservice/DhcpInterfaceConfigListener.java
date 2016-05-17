@@ -26,9 +26,11 @@ import org.slf4j.LoggerFactory;
 public class DhcpInterfaceConfigListener extends AbstractDataChangeListener<Interface> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpInterfaceConfigListener.class);
+
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private DataBroker dataBroker;
-    private DhcpExternalTunnelManager dhcpExternalTunnelManager;
+
+    private final DataBroker dataBroker;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
 
     public DhcpInterfaceConfigListener(DataBroker dataBroker, DhcpExternalTunnelManager dhcpExternalTunnelManager) {
         super(Interface.class);
@@ -54,15 +56,11 @@ public class DhcpInterfaceConfigListener extends AbstractDataChangeListener<Inte
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                logger.error("Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
+            listenerRegistration.close();
         }
         logger.info("DhcpInterfaceConfigListener Closed");
     }
+
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface del) {
         IfTunnel tunnelInterface = del.getAugmentation(IfTunnel.class);
