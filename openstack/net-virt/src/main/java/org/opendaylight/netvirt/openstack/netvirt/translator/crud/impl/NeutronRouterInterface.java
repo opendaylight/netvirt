@@ -15,13 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter_Interface;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronRouterCRUD;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter_Interface;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter_NetworkReference;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronRouterCRUD;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
@@ -44,8 +43,8 @@ public class NeutronRouterInterface extends  AbstractNeutronInterface<Router, Ne
     // methods needed for creating caches
 
 
-    NeutronRouterInterface(ProviderContext providerContext) {
-        super(providerContext);
+    NeutronRouterInterface(final DataBroker dataBroker) {
+        super(dataBroker);
     }
 
 
@@ -252,14 +251,15 @@ public class NeutronRouterInterface extends  AbstractNeutronInterface<Router, Ne
         }
         return result;
     }
-    
+
     public static void registerNewInterface(BundleContext context,
-            ProviderContext providerContext,
+            final DataBroker dataBroker,
             List<ServiceRegistration<?>> registrations) {
-    	NeutronRouterInterface neutronRouterInterface = new NeutronRouterInterface(providerContext);
-    	ServiceRegistration<INeutronRouterCRUD> neutronRouterInterfaceRegistration = context.registerService(INeutronRouterCRUD.class, neutronRouterInterface, null);
-    	if(neutronRouterInterfaceRegistration != null) {
-    		registrations.add(neutronRouterInterfaceRegistration);
-    	}
-	}
+        NeutronRouterInterface neutronRouterInterface = new NeutronRouterInterface(dataBroker);
+        ServiceRegistration<INeutronRouterCRUD> neutronRouterInterfaceRegistration = context
+                .registerService(INeutronRouterCRUD.class,neutronRouterInterface, null);
+        if (neutronRouterInterfaceRegistration != null) {
+            registrations.add(neutronRouterInterfaceRegistration);
+        }
+    }
 }

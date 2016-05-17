@@ -8,17 +8,17 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
+import com.google.common.collect.ImmutableBiMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnetIPAllocationPool;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnetIPAllocationPool;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSubnetCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.NeutronCRUDInterfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -42,8 +42,6 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableBiMap;
-
 public class NeutronSubnetInterface extends AbstractNeutronInterface<Subnet, NeutronSubnet> implements INeutronSubnetCRUD {
     private static final Logger LOGGER = LoggerFactory.getLogger(NeutronSubnetInterface.class);
 
@@ -61,8 +59,8 @@ public class NeutronSubnetInterface extends AbstractNeutronInterface<Subnet, Neu
             .put(Dhcpv6Stateless.class,"dhcpv6-stateless")
             .build();
 
-    NeutronSubnetInterface(ProviderContext providerContext) {
-        super(providerContext);
+    NeutronSubnetInterface(final DataBroker dataBroker) {
+        super(dataBroker);
     }
 
     // IfNBSubnetCRUD methods
@@ -275,9 +273,9 @@ public class NeutronSubnetInterface extends AbstractNeutronInterface<Subnet, Neu
     }
 
     public static void registerNewInterface(BundleContext context,
-                                            ProviderContext providerContext,
+                                            final DataBroker dataBroker,
                                             List<ServiceRegistration<?>> registrations) {
-        NeutronSubnetInterface neutronSubnetInterface = new NeutronSubnetInterface(providerContext);
+        NeutronSubnetInterface neutronSubnetInterface = new NeutronSubnetInterface(dataBroker);
         ServiceRegistration<INeutronSubnetCRUD> neutronSubnetInterfaceRegistration = context.registerService(INeutronSubnetCRUD.class, neutronSubnetInterface, null);
         if(neutronSubnetInterfaceRegistration != null) {
             registrations.add(neutronSubnetInterfaceRegistration);
