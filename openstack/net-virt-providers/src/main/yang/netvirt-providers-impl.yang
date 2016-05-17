@@ -18,6 +18,7 @@ module netvirt-providers-impl {
     identity netvirt-providers-impl {
         base config:module-type;
         config:java-name-prefix NetvirtProvidersImpl;
+        status deprecated;
     }
 
     augment "/config:modules/config:module/config:configuration" {
