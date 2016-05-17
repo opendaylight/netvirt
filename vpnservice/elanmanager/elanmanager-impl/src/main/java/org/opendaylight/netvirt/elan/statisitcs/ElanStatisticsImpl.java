@@ -8,10 +8,11 @@
 package org.opendaylight.netvirt.elan.statisitcs;
 
 import com.google.common.util.concurrent.Futures;
-
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.netvirt.elan.utils.ElanConstants;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 //import org.opendaylight.genius.ericsson.mdsalutil.statistics.StatValue;
 //import org.opendaylight.genius.ericsson.mdsalutil.statistics.StatisticsInfo;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
@@ -21,6 +22,8 @@ import org.opendaylight.genius.interfacemanager.globals.VlanInterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 //import org.opendaylight.yang.gen.v1.urn.opendaylight.genius._interface.service.rev150602._interface.service.info.ServiceInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius._interface.statistics.rev150824.ResultCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
@@ -36,11 +39,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Future;
 
 public class ElanStatisticsImpl implements ElanStatisticsService {
     private DataBroker dataBroker;

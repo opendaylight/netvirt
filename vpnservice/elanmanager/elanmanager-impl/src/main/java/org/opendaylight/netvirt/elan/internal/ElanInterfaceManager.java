@@ -97,7 +97,6 @@ import com.google.common.base.Preconditions;
  */
 public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterface> implements AutoCloseable {
 
-    private static ElanInterfaceManager elanInterfaceManager = new ElanInterfaceManager();
     private ListenerRegistration<DataChangeListener> elanInterfaceListenerRegistration;
     private ListenerRegistration<DataChangeListener> itmInterfaceListenerRegistration;
     private OdlInterfaceRpcService interfaceManagerRpcService;
@@ -112,32 +111,18 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
 
     private static final Logger logger = LoggerFactory.getLogger(ElanInterfaceManager.class);
 
-    public ElanInterfaceManager() {
+    public ElanInterfaceManager(final DataBroker dataBroker,
+            final IdManagerService managerService,
+            final IMdsalApiManager mdsalApiManager,
+            final OdlInterfaceRpcService rpcService,
+            ElanForwardingEntriesHandler elanForwardingEntriesHandler) {
         super(ElanInterface.class);
-    }
-
-    public static ElanInterfaceManager getElanInterfaceManager() {
-        return elanInterfaceManager;
-    }
-
-    public void setMdSalApiManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
-    }
-
-    public void setInterfaceManagerRpcService(OdlInterfaceRpcService ifManager) {
-        this.interfaceManagerRpcService = ifManager;
-    }
-
-    public void setElanForwardingEntriesHandler(ElanForwardingEntriesHandler elanForwardingEntriesHandler) {
+        this.broker = dataBroker;
+        this.idManager = managerService;
+        this.mdsalManager = mdsalApiManager;
+        this.interfaceManagerRpcService = rpcService;
         this.elanForwardingEntriesHandler = elanForwardingEntriesHandler;
-    }
-
-    public void setInterfaceManager(IInterfaceManager interfaceManager) {
-        this.interfaceManager = interfaceManager;
-    }
-
-    public void setDataBroker(DataBroker broker) {
-        this.broker = broker;
+        registerListener();
     }
 
     @Override
@@ -152,7 +137,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
         }
     }
 
-    public void registerListener() {
+    private void registerListener() {
         try {
             elanInterfaceListenerRegistration = broker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
                     getElanInterfaceWildcardPath(), ElanInterfaceManager.this, DataChangeScope.SUBTREE);
@@ -164,10 +149,6 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
 
     private InstanceIdentifier<?> getElanInterfaceWildcardPath() {
         return InstanceIdentifier.create(ElanInterfaces.class).child(ElanInterface.class);
-    }
-
-    public void setIdManager(IdManagerService idManager) {
-        this.idManager = idManager;
     }
 
     @Override
@@ -1198,7 +1179,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
                 for(String ifName : interfaceLists) {
                     InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(ifName);
                     if (isOperational(interfaceInfo)) {
-                        elanInterfaceManager.installDMacAddressTables(elanInfo, interfaceInfo, dstDpId);
+                        this.installDMacAddressTables(elanInfo, interfaceInfo, dstDpId);
                     }
                 }
             }
@@ -1312,8 +1293,8 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
             }
 
             logger.trace("ElanInterface Service is installed for interface:{}", ifName);
-            elanInterfaceManager.installFlowsAndGroups(elanInstance, interfaceInfo);
-            elanInterfaceManager.installMacAddressTables(elanInstance, interfaceInfo);
+            this.installFlowsAndGroups(elanInstance, interfaceInfo);
+            this.installMacAddressTables(elanInstance, interfaceInfo);
 
             if (elanInstance.getVni() != null && elanInstance.getVni() != 0) {
                 List<PhysAddress> macAddresses = ElanUtils
@@ -1334,8 +1315,8 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanDpnInterfaceOperationalDataPath(elanName, interfaceInfo.getDpId()), dpnInterface);
             }
             logger.trace("ElanInterface Service is removed for the interface:{}", ifName);
-            elanInterfaceManager.removeMacAddressTables(elanInstance, interfaceInfo);
-            elanInterfaceManager.removeFlowsAndGroups(elanInstance, interfaceInfo);
+            this.removeMacAddressTables(elanInstance, interfaceInfo);
+            this.removeFlowsAndGroups(elanInstance, interfaceInfo);
 
             // Removing MACs from External Devices belonging to this ELAN
             if (elanInstance.getVni() != null && elanInstance.getVni() != 0) {

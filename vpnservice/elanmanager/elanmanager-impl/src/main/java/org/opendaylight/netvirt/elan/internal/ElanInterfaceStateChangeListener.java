@@ -10,26 +10,25 @@ package org.opendaylight.netvirt.elan.internal;
 
 import java.math.BigInteger;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.elan.utils.ElanConstants;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnel.list.InternalTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnel.list.InternalTunnel;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -42,10 +41,12 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private static final Logger logger = LoggerFactory.getLogger(ElanInterfaceStateChangeListener.class);
 
-    public ElanInterfaceStateChangeListener(final DataBroker db, final ElanInterfaceManager ifManager) {
+    public ElanInterfaceStateChangeListener(final DataBroker db, final ElanInterfaceManager ifManager,
+            final IInterfaceManager interfaceManager) {
         super(Interface.class);
         broker = db;
         elanInterfaceManager = ifManager;
+        this.interfaceManager = interfaceManager;
         registerListener(db);
     }
 
@@ -61,10 +62,6 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
 
     private InstanceIdentifier<Interface> getWildCardPath() {
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    }
-
-    public void setInterfaceManager(IInterfaceManager interfaceManager) {
-        this.interfaceManager = interfaceManager;
     }
 
     @Override
@@ -85,7 +82,7 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
         String elanInstanceName = elanInterface.getElanInstanceName();
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(elanInstanceName);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-        ElanInterfaceRemoveWorker removeWorker = new ElanInterfaceRemoveWorker(elanInstanceName, elanInstance, 
+        ElanInterfaceRemoveWorker removeWorker = new ElanInterfaceRemoveWorker(elanInstanceName, elanInstance,
                 interfaceName, interfaceInfo, elanInterfaceManager);
         coordinator.enqueueJob(elanInstanceName, removeWorker, ElanConstants.JOB_MAX_RETRIES);
     }
