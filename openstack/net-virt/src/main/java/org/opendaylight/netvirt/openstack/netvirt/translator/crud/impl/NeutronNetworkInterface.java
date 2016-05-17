@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
@@ -51,8 +51,8 @@ public class NeutronNetworkInterface extends AbstractNeutronInterface<Network,Ne
             .put(NetworkTypeVxlan.class,"vxlan")
             .build();
 
-    NeutronNetworkInterface(ProviderContext providerContext) {
-        super(providerContext);
+    NeutronNetworkInterface(final DataBroker dataBroker) {
+        super(dataBroker);
     }
 
     // IfNBNetworkCRUD methods
@@ -253,9 +253,9 @@ public class NeutronNetworkInterface extends AbstractNeutronInterface<Network,Ne
     }
 
     public static void registerNewInterface(BundleContext context,
-                                            ProviderContext providerContext,
+                                            final DataBroker dataBroker,
                                             List<ServiceRegistration<?>> registrations) {
-        NeutronNetworkInterface neutronNetworkInterface = new NeutronNetworkInterface(providerContext);
+        NeutronNetworkInterface neutronNetworkInterface = new NeutronNetworkInterface(dataBroker);
         ServiceRegistration<INeutronNetworkCRUD> neutronNetworkInterfaceRegistration = context.registerService(INeutronNetworkCRUD.class, neutronNetworkInterface, null);
         if(neutronNetworkInterfaceRegistration != null) {
             registrations.add(neutronNetworkInterfaceRegistration);
