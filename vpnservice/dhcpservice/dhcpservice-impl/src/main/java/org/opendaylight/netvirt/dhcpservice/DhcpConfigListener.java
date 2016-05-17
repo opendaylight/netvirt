@@ -13,8 +13,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DhcpConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.dhcp.config.Configs;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -27,7 +27,8 @@ public class DhcpConfigListener extends AsyncClusteredDataChangeListenerBase<Dhc
     private static final Logger LOG = LoggerFactory.getLogger(DhcpConfigListener.class);
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private DhcpManager dhcpManager;
+
+    private final DhcpManager dhcpManager;
 
     public DhcpConfigListener(final DataBroker db, final DhcpManager dhcpMgr) {
         super(DhcpConfig.class, DhcpConfigListener.class);
@@ -52,12 +53,7 @@ public class DhcpConfigListener extends AsyncClusteredDataChangeListenerBase<Dhc
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DhcpConfigListener.", e);
-            }
-            listenerRegistration = null;
+            listenerRegistration.close();
         }
         LOG.debug("DhcpConfig Listener Closed");
     }
