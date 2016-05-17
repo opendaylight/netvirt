@@ -22,23 +22,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NaptEventHandler {
-    private NaptManager naptManager;
     private static final Logger LOG = LoggerFactory.getLogger(NaptEventHandler.class);
+
+    private final NaptManager naptManager;
     private static IMdsalApiManager mdsalManager;
-    private DataBroker dataBroker;
+    private final DataBroker dataBroker;
 
-    public NaptEventHandler(final DataBroker dataBroker) {
+    public NaptEventHandler(final DataBroker dataBroker,
+            final IMdsalApiManager mdsalApiManager,
+            final NaptManager naptManager) {
         this.dataBroker = dataBroker;
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
-    }
-
-    public void setNaptManager(NaptManager naptManager) {
+        this.mdsalManager = mdsalApiManager;
         this.naptManager = naptManager;
     }
-
 
     public void handleEvent(NAPTEntryEvent naptEntryEvent){
     /*
@@ -184,7 +180,7 @@ public class NaptEventHandler {
             }
             metaDataMatchInfo = new MatchInfo(MatchFieldType.metadata, new BigInteger[]{BigInteger.valueOf(segmentId), MetaDataUtil.METADATA_MASK_VRFID});
         }else{
-            ipMatchInfo = new MatchInfo(MatchFieldType.ipv4_destination, new String[] {ipAddressAsString, "32" });         
+            ipMatchInfo = new MatchInfo(MatchFieldType.ipv4_destination, new String[] {ipAddressAsString, "32" });
             if(protocol == NAPTEntryEvent.Protocol.TCP) {
                 protocolMatchInfo = new MatchInfo(MatchFieldType.ip_proto, new long[] {IPProtocols.TCP.intValue()});
                 portMatchInfo = new MatchInfo(MatchFieldType.tcp_dst, new long[]{port});

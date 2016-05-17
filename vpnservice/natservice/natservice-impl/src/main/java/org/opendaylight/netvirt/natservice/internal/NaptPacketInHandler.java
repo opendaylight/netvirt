@@ -25,6 +25,7 @@ import com.google.common.primitives.Ints;
 public class NaptPacketInHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(NaptPacketInHandler.class);
+
     private final static HashSet<String> incomingPacketMap = new HashSet<>();
     private final EventDispatcher naptEventdispatcher;
 

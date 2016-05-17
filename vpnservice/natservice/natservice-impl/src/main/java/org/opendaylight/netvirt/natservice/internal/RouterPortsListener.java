@@ -32,9 +32,10 @@ import com.google.common.base.Optional;
 
 public class RouterPortsListener extends AbstractDataChangeListener<RouterPorts> implements AutoCloseable{
     private static final Logger LOG = LoggerFactory.getLogger(RouterPortsListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private final DataBroker broker;
 
+    private ListenerRegistration<DataChangeListener> listenerRegistration;
+
+    private final DataBroker broker;
 
     public RouterPortsListener (final DataBroker db) {
         super(RouterPorts.class);
@@ -77,12 +78,12 @@ public class RouterPortsListener extends AbstractDataChangeListener<RouterPorts>
         if(optRouterPorts.isPresent()) {
             RouterPorts ports = optRouterPorts.get();
             String routerName = ports.getRouterId();
-            MDSALUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, identifier, 
+            MDSALUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, identifier,
                 new RouterPortsBuilder().setKey(new RouterPortsKey(routerName)).setRouterId(routerName)
                     .setExternalNetworkId(routerPorts.getExternalNetworkId()).build());
         } else {
             String routerName = routerPorts.getRouterId();
-            MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, identifier, 
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, identifier,
                 new RouterPortsBuilder().setKey(new RouterPortsKey(routerName)).setRouterId(routerName)
                         .setExternalNetworkId(routerPorts.getExternalNetworkId()).build());
         }
