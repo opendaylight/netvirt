@@ -9,8 +9,15 @@ package org.opendaylight.netvirt.fcapsapp.performancecounter;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.*;
-import org.opendaylight.controller.md.sal.binding.api.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.concurrent.Callable;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.clustering.Entity;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipState;
@@ -25,16 +32,15 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.String;
-import java.util.HashMap;
-import java.util.Collection;
-import java.util.concurrent.Callable;
 
 public class FlowNodeConnectorInventoryTranslatorImpl extends NodeConnectorEventListener<FlowCapableNodeConnector>  {
+
     public static final int STARTUP_LOOP_TICK = 500;
     public static final int STARTUP_LOOP_MAX_RETRIES = 8;
     private static final Logger LOG = LoggerFactory.getLogger(FlowNodeConnectorInventoryTranslatorImpl.class);
+
     private final EntityOwnershipService entityOwnershipService;
+    private final PortNameMapping portNameMapping;
 
     private ListenerRegistration<FlowNodeConnectorInventoryTranslatorImpl> dataTreeChangeListenerRegistration;
 
@@ -48,30 +54,40 @@ public class FlowNodeConnectorInventoryTranslatorImpl extends NodeConnectorEvent
             .augmentation(FlowCapableNodeConnector.class)
             .build();
 
-    private static Multimap<Long,String> dpnToPortMultiMap = Multimaps.synchronizedListMultimap(ArrayListMultimap.<Long,String>create());
+    private Multimap<Long, String> dpnToPortMultiMap = Multimaps
+            .synchronizedListMultimap(
+                    ArrayListMultimap.<Long, String>create());
 
     private static HashMap<String, String> nodeConnectorCountermap = new HashMap<String, String>();
 
-    public FlowNodeConnectorInventoryTranslatorImpl(final DataBroker dataBroker,final EntityOwnershipService eos) {
+    public FlowNodeConnectorInventoryTranslatorImpl(final DataBroker dataBroker,
+            final EntityOwnershipService eos,
+            final PortNameMapping portNameMapping) {
         super( FlowCapableNodeConnector.class);
         Preconditions.checkNotNull(dataBroker, "DataBroker can not be null!");
-
+        this.portNameMapping = portNameMapping;
         entityOwnershipService = eos;
         final DataTreeIdentifier<FlowCapableNodeConnector> treeId =
                 new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, getWildCardPath());
         try {
-            SimpleTaskRetryLooper looper = new SimpleTaskRetryLooper(STARTUP_LOOP_TICK,
-                    STARTUP_LOOP_MAX_RETRIES);
-            dataTreeChangeListenerRegistration = looper.loopUntilNoException(new Callable<ListenerRegistration<FlowNodeConnectorInventoryTranslatorImpl>>() {
-                @Override
-                public ListenerRegistration<FlowNodeConnectorInventoryTranslatorImpl> call() throws Exception {
-                    return dataBroker.registerDataTreeChangeListener(treeId, FlowNodeConnectorInventoryTranslatorImpl.this);
-                }
-            });
+            SimpleTaskRetryLooper looper = new SimpleTaskRetryLooper(
+                    STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
+            dataTreeChangeListenerRegistration = looper.loopUntilNoException(
+                    new Callable<ListenerRegistration<FlowNodeConnectorInventoryTranslatorImpl>>() {
+                        @Override
+                        public ListenerRegistration<FlowNodeConnectorInventoryTranslatorImpl> call()
+                                throws Exception {
+                            return dataBroker.registerDataTreeChangeListener(
+                                    treeId,
+                                    FlowNodeConnectorInventoryTranslatorImpl.this);
+                        }
+                    });
         } catch (final Exception e) {
             LOG.warn(" FlowNodeConnectorInventoryTranslatorImpl listener registration fail!");
             LOG.debug("FlowNodeConnectorInventoryTranslatorImpl DataChange listener registration fail ..", e);
-            throw new IllegalStateException("FlowNodeConnectorInventoryTranslatorImpl startup fail! System needs restart.", e);
+            throw new IllegalStateException(
+                    "FlowNodeConnectorInventoryTranslatorImpl startup fail! System needs restart.",
+                    e);
         }
     }
 
@@ -86,15 +102,10 @@ public class FlowNodeConnectorInventoryTranslatorImpl extends NodeConnectorEvent
     @Override
     public void close() {
         if (dataTreeChangeListenerRegistration != null) {
-            try {
-                dataTreeChangeListenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.warn("Error by stop FRM FlowNodeConnectorInventoryTranslatorImpl: {}", e.getMessage());
-                LOG.debug("Error by stop FRM FlowNodeConnectorInventoryTranslatorImpl..", e);
-            }
-            dataTreeChangeListenerRegistration = null;
+            dataTreeChangeListenerRegistration.close();
         }
     }
+
     @Override
     public void remove(InstanceIdentifier<FlowCapableNodeConnector> identifier, FlowCapableNodeConnector del, InstanceIdentifier<FlowCapableNodeConnector> nodeConnIdent) {
         if(compareInstanceIdentifierTail(identifier,II_TO_FLOW_CAPABLE_NODE_CONNECTOR)) {
@@ -104,7 +115,7 @@ public class FlowNodeConnectorInventoryTranslatorImpl extends NodeConnectorEvent
                 LOG.debug("Node Connector {} removed", sNodeConnectorIdentifier);
                 dpnToPortMultiMap.remove(nDpId, sNodeConnectorIdentifier);
                 sendNodeConnectorUpdation(nDpId);
-                PortNameMapping.updatePortMap("openflow:" + nDpId + ":" + del.getName(), sNodeConnectorIdentifier, "DELETE");
+                portNameMapping.updatePortMap("openflow:" + nDpId + ":" + del.getName(), sNodeConnectorIdentifier, "DELETE");
             }
         }
     }
@@ -142,7 +153,7 @@ public class FlowNodeConnectorInventoryTranslatorImpl extends NodeConnectorEvent
                     LOG.debug("Node Connector {} added", sNodeConnectorIdentifier);
                     dpnToPortMultiMap.put(nDpId, sNodeConnectorIdentifier);
                     sendNodeConnectorUpdation(nDpId);
-                    PortNameMapping.updatePortMap("openflow:" + nDpId + ":" + add.getName(), sNodeConnectorIdentifier, "ADD");
+                    portNameMapping.updatePortMap("openflow:" + nDpId + ":" + add.getName(), sNodeConnectorIdentifier, "ADD");
                 } else {
                     LOG.error("Duplicate Event.Node Connector already added");
                 }
