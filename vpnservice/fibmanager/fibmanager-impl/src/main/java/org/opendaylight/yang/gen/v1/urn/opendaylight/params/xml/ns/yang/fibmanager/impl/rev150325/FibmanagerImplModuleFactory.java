@@ -8,6 +8,11 @@
 * Do not modify this file unless it is present under src/main directory
 */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.fibmanager.impl.rev150325;
+
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
 public class FibmanagerImplModuleFactory extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.fibmanager.impl.rev150325.AbstractFibmanagerImplModuleFactory {
 
 }
