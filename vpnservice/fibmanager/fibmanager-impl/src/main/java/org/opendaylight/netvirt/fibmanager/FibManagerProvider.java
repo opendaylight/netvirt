@@ -25,26 +25,43 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.F
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FibManagerProvider implements BindingAwareProvider, IFibManager, AutoCloseable {
+public class FibManagerProvider implements IFibManager, AutoCloseable {
 
   private static final Logger LOG = LoggerFactory.getLogger(FibManagerProvider.class);
 
   private FibManager fibManager;
-  private IMdsalApiManager mdsalManager;
-  private IVpnManager vpnmanager;
+  private final IMdsalApiManager mdsalManager;
+  private final IVpnManager vpnmanager;
   private NexthopManager nexthopManager;
-  private IdManagerService idManager;
-  private ItmRpcService itmManager;
-  private OdlInterfaceRpcService interfaceManager;
+  private final IdManagerService idManager;
+  private final ItmRpcService itmManager;
+  private final OdlInterfaceRpcService interfaceManager;
   private FibNodeCapableListener fibNcListener;
-  private RpcProviderRegistry rpcProviderRegistry;
+  private final RpcProviderRegistry rpcProviderRegistry;
   private RpcRegistration<FibRpcService> rpcRegistration;
+  private final DataBroker dataBroker;
 
-  @Override
-  public void onSessionInitiated(ProviderContext session) {
+
+  public FibManagerProvider(final DataBroker dataBroker,
+                            final RpcProviderRegistry rpcProviderRegistry,
+                            final IMdsalApiManager mdsalApiManager,
+                            final IVpnManager vpnManager,
+                            final IdManagerService idManager,
+                            final OdlInterfaceRpcService interfaceManager,
+                            final ItmRpcService itmManager) {
+      this.dataBroker = dataBroker;
+      this.rpcProviderRegistry = rpcProviderRegistry;
+      this.mdsalManager = mdsalApiManager;
+      this.vpnmanager = vpnManager;
+      this.idManager = idManager;
+      this.interfaceManager = interfaceManager;
+      this.itmManager = itmManager;
+}
+
+  public void start() {
     LOG.info("FibManagerProvider Session Initiated");
     try {
-      final  DataBroker dataBroker = session.getSALService(DataBroker.class);
+      vpnmanager.setFibService(this);
       nexthopManager = new NexthopManager(dataBroker);
       nexthopManager.setMdsalManager(mdsalManager);
       nexthopManager.setIdManager(idManager);
@@ -68,29 +85,15 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
   @Override
   public void close() throws Exception {
     LOG.info("FibManagerProvider Closed");
-    fibManager.close();
-    fibNcListener.close();
-  }
-
-  public void setMdsalManager(IMdsalApiManager mdsalManager) {
-    this.mdsalManager = mdsalManager;
-  }
-
-  public void setVpnmanager(IVpnManager vpnmanager) {
-    this.vpnmanager = vpnmanager;
-    vpnmanager.setFibService(this);
-  }
-
-  public void setIdManager(IdManagerService idManager) {
-    this.idManager = idManager;
-  }
-
-  public void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
-    this.interfaceManager = interfaceManager;
-  }
-
-  public void setITMProvider(ItmRpcService itmManager) {
-    this.itmManager = itmManager;
+    if (fibManager != null) {
+        fibManager.close();
+    }
+    if (fibNcListener != null) {
+        fibNcListener.close();
+    }
+    if (rpcRegistration != null) {
+        rpcRegistration.close();
+    }
   }
 
   @Override
@@ -117,10 +120,6 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
   @Override
   public void deleteStaticRoute(String prefix, String rd) {
     this.vpnmanager.delExtraRoute(prefix, rd, null);
-  }
-
-  public void setRpcProviderRegistry(RpcProviderRegistry rpcProviderRegistry) {
-    this.rpcProviderRegistry = rpcProviderRegistry;
   }
 
   private RpcProviderRegistry getRpcProviderRegistry() {
