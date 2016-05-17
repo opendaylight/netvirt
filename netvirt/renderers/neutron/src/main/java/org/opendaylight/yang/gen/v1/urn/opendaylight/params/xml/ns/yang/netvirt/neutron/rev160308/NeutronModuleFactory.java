@@ -14,6 +14,11 @@
 * Do not modify this file unless it is present under src/main directory
 */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.neutron.rev160308;
-public class NeutronModuleFactory extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.neutron.rev160308.AbstractNeutronModuleFactory {
+
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
+public class NeutronModuleFactory extends AbstractNeutronModuleFactory {
 
 }
