@@ -172,13 +172,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>openstack.net-virt</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>config</classifier>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>openstack.net-virt-providers</artifactId>
       <version>${project.version}</version>
     </dependency>
