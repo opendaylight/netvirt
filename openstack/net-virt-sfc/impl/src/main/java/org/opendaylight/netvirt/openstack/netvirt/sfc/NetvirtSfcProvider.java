@@ -8,54 +8,49 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.sfc;
 
+import com.google.common.base.Preconditions;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.OF13Provider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.openstack.netvirt.sfc.standalone.openflow13.NetvirtSfcStandaloneOF13Provider;
 import org.opendaylight.netvirt.openstack.netvirt.sfc.standalone.openflow13.services.SfcClassifierService;
 import org.opendaylight.netvirt.openstack.netvirt.sfc.workaround.NetvirtSfcWorkaroundOF13Provider;
-import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.utils.mdsal.utils.MdsalUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.sfc.impl.config.rev160517.NetvirtSfcConfig;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NetvirtSfcProvider implements BindingAwareProvider, AutoCloseable {
+public class NetvirtSfcProvider implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NetvirtSfcProvider.class);
+
     private AutoCloseable aclListener;
     private AutoCloseable classifierListener;
     private AutoCloseable rspListener;
-    private Boolean addSfFlows;
 
-    public void setOf13Provider(String of13Provider) {
-        LOG.info("of13Provider is: {}", of13Provider);
-        this.of13Provider = of13Provider;
-    }
+    private final Boolean addSfFlows;
+    private final String of13Provider;
 
-    private String of13Provider;
+    private final DataBroker dataBroker;
+    private final BundleContext bundleContext;
 
-    public void setBundleContext(BundleContext bundleContext) {
-        LOG.info("bundleContext is: {}", bundleContext);
+    private ServiceRegistration<?> reg;
+
+    public NetvirtSfcProvider(final DataBroker dataBroker, final NetvirtSfcConfig netvirtSfcConfig, final BundleContext bundleContext) {
+        LOG.info("NetvirtSfcProvider started");
+        this.dataBroker = dataBroker;
+        this.addSfFlows = Preconditions.checkNotNull(netvirtSfcConfig.isAddsflows(), "AddsFlow must be configured");
+        this.of13Provider = Preconditions.checkNotNull(netvirtSfcConfig.getOf13provider(), " Provider type must be configured");
         this.bundleContext = bundleContext;
     }
 
-    private BundleContext bundleContext;
-
-    public NetvirtSfcProvider(BundleContext bundleContext) {
-        LOG.info("NetvirtSfcProvider: bundleContext: {}", bundleContext);
-        this.bundleContext = bundleContext;
-    }
-
-    @Override
-    public void onSessionInitiated(ProviderContext session) {
+    public void start() {
         LOG.info("NetvirtSfcProvider Session Initiated");
-        DataBroker dataBroker = session.getSALService(DataBroker.class);
 
         MdsalUtils mdsalUtils = new MdsalUtils(dataBroker);
         SfcUtils sfcUtils = new SfcUtils(mdsalUtils);
@@ -78,22 +73,31 @@ public class NetvirtSfcProvider implements BindingAwareProvider, AutoCloseable {
     @Override
     public void close() throws Exception {
         LOG.info("NetvirtSfcProvider Closed");
-        aclListener.close();
-        classifierListener.close();
-        rspListener.close();
+        if (aclListener != null) {
+            aclListener.close();
+        }
+        if (classifierListener != null) {
+            classifierListener.close();
+        }
+        if (rspListener != null) {
+            rspListener.close();
+        }
+        if (reg != null) {
+            reg.unregister();
+        }
     }
 
     private void addToPipeline(INetvirtSfcOF13Provider provider) {
         if (provider instanceof NetvirtSfcStandaloneOF13Provider) {
             SfcClassifierService sfcClassifierService =
                     new SfcClassifierService();
-            registerService(bundleContext, ISfcClassifierService.class.getName(),
+            reg = registerService(bundleContext, ISfcClassifierService.class.getName(),
                     sfcClassifierService, Service.SFC_CLASSIFIER);
             sfcClassifierService.setDependencies(bundleContext, null);
         } else {
             org.opendaylight.netvirt.openstack.netvirt.sfc.workaround.services.SfcClassifierService sfcClassifierService =
                     new org.opendaylight.netvirt.openstack.netvirt.sfc.workaround.services.SfcClassifierService();
-            registerService(bundleContext, ISfcClassifierService.class.getName(),
+            reg = registerService(bundleContext, ISfcClassifierService.class.getName(),
                     sfcClassifierService, Service.SFC_CLASSIFIER);
             sfcClassifierService.setDependencies(bundleContext, null);
         }
@@ -115,10 +119,5 @@ public class NetvirtSfcProvider implements BindingAwareProvider, AutoCloseable {
         return registerService(bundleContext,
                 new String[] {AbstractServiceInstance.class.getName(),interfaceClassName},
                 properties, impl);
-    }
-
-    public void setAddSfFlows(Boolean addSfFlows) {
-        LOG.info("setAddSfFlows: addSfFlows is {}", addSfFlows);
-        this.addSfFlows = addSfFlows;
     }
 }
