@@ -8,14 +8,20 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers;
 
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.netvirt.openstack.netvirt.api.ArpProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.ClassifierProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
+import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.EgressAclProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.GatewayMacResolver;
 import org.opendaylight.netvirt.openstack.netvirt.api.IcmpEchoProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.InboundNatProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.IngressAclProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.L2RewriteProvider;
@@ -23,12 +29,14 @@ import org.opendaylight.netvirt.openstack.netvirt.api.L3ForwardingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.LoadBalancerProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
+import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheListener;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.OutboundNatProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.RoutingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.OF13Provider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestratorImpl;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.ArpResponderService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.ClassifierService;
@@ -43,11 +51,8 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.OutboundNatService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.RoutingService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.arp.GatewayMacResolverService;
-import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
-import org.opendaylight.netvirt.openstack.netvirt.api.GatewayMacResolver;
-import org.opendaylight.netvirt.openstack.netvirt.api.InboundNatProvider;
-import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheListener;
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestratorImpl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -56,18 +61,23 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.List;
-
 public class ConfigActivator implements BundleActivator {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigActivator.class);
     private List<ServiceRegistration<?>> registrations = new ArrayList<>();
-    private ProviderContext providerContext;
 
-    public ConfigActivator(ProviderContext providerContext) {
-        this.providerContext = providerContext;
+    private final DataBroker dataBroker;
+    private final NotificationProviderService notificationProviderService;
+    private final PacketProcessingService packetProcessingService;
+    private final SalFlowService salFlowService;
+
+    public ConfigActivator(final DataBroker dataBroker,
+                           final NotificationProviderService notificationProviderService,
+                           final PacketProcessingService packetProcessingService,
+                           final SalFlowService salFlowService) {
+        this.dataBroker = dataBroker;
+        this.notificationProviderService = notificationProviderService;
+        this.packetProcessingService = packetProcessingService;
+        this.salFlowService = salFlowService;
     }
 
     @Override
@@ -75,7 +85,7 @@ public class ConfigActivator implements BundleActivator {
         LOG.info("ConfigActivator start:");
 
         NetvirtProvidersConfigImpl netvirtProvidersConfig =
-                new NetvirtProvidersConfigImpl(providerContext.getSALService(DataBroker.class),
+                new NetvirtProvidersConfigImpl(dataBroker,
                         NetvirtProvidersProvider.getTableOffset());
         registerService(context,
                 new String[] {NetvirtProvidersConfigImpl.class.getName()},
@@ -138,10 +148,10 @@ public class ConfigActivator implements BundleActivator {
         registerService(context, OutboundNatProvider.class.getName(),
                 outboundNatService, Service.OUTBOUND_NAT);
 
-        final GatewayMacResolverService gatewayMacResolverService = new GatewayMacResolverService();
+        final GatewayMacResolverService gatewayMacResolverService = new GatewayMacResolverService(packetProcessingService, salFlowService);
         registerService(context, GatewayMacResolver.class.getName(),
                 gatewayMacResolverService, Service.GATEWAY_RESOLVER);
-        getNotificationProviderService().registerNotificationListener(gatewayMacResolverService);
+        notificationProviderService.registerNotificationListener(gatewayMacResolverService);
 
         IcmpEchoResponderService icmpEchoResponderService = new IcmpEchoResponderService();
         registerService(context, IcmpEchoProvider.class.getName(),
@@ -237,9 +247,5 @@ public class ConfigActivator implements BundleActivator {
         return registerService(bundleContext,
                 new String[] {AbstractServiceInstance.class.getName(), interfaceClassName},
                 properties, impl);
-    }
-
-    private NotificationProviderService getNotificationProviderService(){
-        return this.providerContext.getSALService(NotificationProviderService.class);
     }
 }
