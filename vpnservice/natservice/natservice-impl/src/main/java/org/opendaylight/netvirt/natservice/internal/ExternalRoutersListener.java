@@ -119,78 +119,52 @@ import com.google.common.util.concurrent.ListenableFuture;
 public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Routers, ExternalRoutersListener>{
 
     private static final Logger LOG = LoggerFactory.getLogger( ExternalRoutersListener.class);
-    private static long label;
+
     private ListenerRegistration<DataChangeListener> listenerRegistration;
+
     private final DataBroker dataBroker;
-    private IMdsalApiManager mdsalManager;
-    private ItmRpcService itmManager;
-    private OdlInterfaceRpcService interfaceManager;
-    private IdManagerService idManager;
-    private NaptManager naptManager;
-    private NAPTSwitchSelector naptSwitchSelector;
-    private IBgpManager bgpManager;
-    private VpnRpcService vpnService;
-    private FibRpcService fibService;
-    private SNATDefaultRouteProgrammer defaultRouteProgrammer;
+    private final IMdsalApiManager mdsalManager;
+    private final ItmRpcService itmManager;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final IdManagerService idManager;
+    private final NaptManager naptManager;
+    private final NAPTSwitchSelector naptSwitchSelector;
+    private final IBgpManager bgpManager;
+    private final VpnRpcService vpnService;
+    private final FibRpcService fibService;
+    private final SNATDefaultRouteProgrammer defaultRouteProgrammer;
+    private final NaptEventHandler naptEventHandler;
+    private final NaptPacketInHandler naptPacketInHandler;
+
+    private static long label;
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000022", 16);
-    private NaptEventHandler naptEventHandler;
-    private NaptPacketInHandler naptPacketInHandler;
 
-    public void setNaptEventHandler(NaptEventHandler naptEventHandler) {
-        this.naptEventHandler = naptEventHandler;
-    }
-
-    public void setNaptPacketInHandler(NaptPacketInHandler naptPacketInHandler) {
-        this.naptPacketInHandler = naptPacketInHandler;
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
-    }
-
-    public void setItmManager(ItmRpcService itmManager) {
-        this.itmManager = itmManager;
-    }
-
-    public void setIdManager(IdManagerService idManager) {
-        this.idManager = idManager;
-        createGroupIdPool();
-    }
-
-    void setDefaultProgrammer(SNATDefaultRouteProgrammer defaultRouteProgrammer) {
-        this.defaultRouteProgrammer = defaultRouteProgrammer;
-    }
-
-
-    public void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
-        this.interfaceManager = interfaceManager;
-    }
-
-    public void setNaptManager(NaptManager naptManager) {
-        this.naptManager = naptManager;
-    }
-
-    public void setNaptSwitchSelector(NAPTSwitchSelector naptSwitchSelector) {
-        this.naptSwitchSelector = naptSwitchSelector;
-    }
-
-    public void setBgpManager(IBgpManager bgpManager) {
-        this.bgpManager = bgpManager;
-    }
-
-    public void setVpnService(VpnRpcService vpnService) {
-        this.vpnService = vpnService;
-    }
-
-    public void setFibService(FibRpcService fibService) {
-        this.fibService = fibService;
-    }
-
-    public ExternalRoutersListener(DataBroker dataBroker )
-    {
-        super( Routers.class, ExternalRoutersListener.class );
+    public ExternalRoutersListener(DataBroker dataBroker,
+            IMdsalApiManager mdsalManager, ItmRpcService itmManager,
+            OdlInterfaceRpcService interfaceManager, IdManagerService idManager,
+            NaptManager naptManager, NAPTSwitchSelector naptSwitchSelector,
+            IBgpManager bgpManager, VpnRpcService vpnService,
+            FibRpcService fibService,
+            SNATDefaultRouteProgrammer defaultRouteProgrammer,
+            NaptEventHandler naptEventHandler,
+            NaptPacketInHandler naptPacketInHandler) {
+        super(Routers.class, ExternalRoutersListener.class);
         this.dataBroker = dataBroker;
+        this.mdsalManager = mdsalManager;
+        this.itmManager = itmManager;
+        this.interfaceManager = interfaceManager;
+        this.idManager = idManager;
+        this.naptManager = naptManager;
+        this.naptSwitchSelector = naptSwitchSelector;
+        this.bgpManager = bgpManager;
+        this.vpnService = vpnService;
+        this.fibService = fibService;
+        this.defaultRouteProgrammer = defaultRouteProgrammer;
+        this.naptEventHandler = naptEventHandler;
+        this.naptPacketInHandler = naptPacketInHandler;
+
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker );
     }
 
     @Override
@@ -247,7 +221,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         if (bgpVpnUuid != null) {
             bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
         }
-        if (bgpVpnId != NatConstants.INVALID_ID){           
+        if (bgpVpnId != NatConstants.INVALID_ID){
             installFlowsWithUpdatedVpnId(primarySwitchId, routerName, bgpVpnId, segmentId, false);
         } else {
             // write metadata and punt
@@ -1332,7 +1306,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             LOG.debug("NAT Service : End processing of the Subnet IDs removal during the update operation");
         }
     }
-    
+
     private boolean isExternalIpAllocated(String externalIp) {
         InstanceIdentifier<ExternalIpsCounter> id = InstanceIdentifier.builder(ExternalIpsCounter.class).build();
         Optional <ExternalIpsCounter> externalCountersData = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);

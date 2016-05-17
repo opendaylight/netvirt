@@ -8,18 +8,25 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EventDispatcher implements Runnable {
-    private BlockingQueue<NAPTEntryEvent> eventQueue;
-    private NaptEventHandler naptEventHandler;
+
     private static final Logger LOG = LoggerFactory.getLogger(NaptManager.class);
 
-    EventDispatcher(BlockingQueue<NAPTEntryEvent> eventQueue, NaptEventHandler naptEventHandler){
-        this.eventQueue = eventQueue;
+    private final BlockingQueue<NAPTEntryEvent> eventQueue;
+    private final NaptEventHandler naptEventHandler;
+
+    EventDispatcher(NaptEventHandler naptEventHandler){
+        this.eventQueue = new ArrayBlockingQueue<>(NatConstants.EVENT_QUEUE_LENGTH);
         this.naptEventHandler = naptEventHandler;
+    }
+
+    public void start() {
+        new Thread(this).start();
     }
 
     public void addNaptEvent(NAPTEntryEvent naptEntryEvent){

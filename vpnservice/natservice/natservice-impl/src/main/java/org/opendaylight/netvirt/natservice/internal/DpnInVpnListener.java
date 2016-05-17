@@ -8,47 +8,32 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add.dpn.event.AddEventData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveDpnEvent;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveDpnEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DpnInVpnListener implements OdlL3vpnListener {
     private static final Logger LOG = LoggerFactory.getLogger(DpnInVpnListener.class);
-    private DataBroker dataBroker;
-    private SNATDefaultRouteProgrammer defaultRouteProgrammer;
-    private NaptSwitchHA naptSwitchHA;
-    private IMdsalApiManager mdsalManager;
-    private IdManagerService idManager;
 
-    public DpnInVpnListener(DataBroker dataBroker) {
+    private final DataBroker dataBroker;
+    private final SNATDefaultRouteProgrammer defaultRouteProgrammer;
+    private final NaptSwitchHA naptSwitchHA;
+    private final IMdsalApiManager mdsalManager;
+    private final IdManagerService idManager;
+
+    public DpnInVpnListener(DataBroker dataBroker,
+            SNATDefaultRouteProgrammer defaultRouteProgrammer,
+            NaptSwitchHA naptSwitchHA, IMdsalApiManager mdsalManager,
+            IdManagerService idManager) {
         this.dataBroker = dataBroker;
-    }
-
-    void setDefaultProgrammer(SNATDefaultRouteProgrammer defaultRouteProgrammer) {
         this.defaultRouteProgrammer = defaultRouteProgrammer;
-    }
-
-    void setNaptSwitchHA(NaptSwitchHA switchHA) {
-        naptSwitchHA = switchHA;
-    }
-
-    void setMdsalManager(IMdsalApiManager mdsalManager) {
+        this.naptSwitchHA = naptSwitchHA;
         this.mdsalManager = mdsalManager;
-    }
-
-    public void setIdManager(IdManagerService idManager) {
         this.idManager = idManager;
     }
 

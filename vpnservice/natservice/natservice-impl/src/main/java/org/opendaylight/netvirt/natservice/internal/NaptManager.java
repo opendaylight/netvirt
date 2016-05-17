@@ -65,19 +65,19 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 public class NaptManager  {
     private static final Logger LOG = LoggerFactory.getLogger(NaptManager.class);
+
     private final DataBroker broker;
-    private IdManagerService idManager;
+    private final IdManagerService idManager;
+
     private static final long LOW_PORT = 49152L;
     private static final long HIGH_PORT = 65535L;
     private static boolean EXTSUBNET_FLAG = false;
     private static boolean NEXT_EXTIP_FLAG = false;
 
-    public NaptManager(final DataBroker db) {
+    public NaptManager(final DataBroker db,
+            final IdManagerService managerService) {
         this.broker = db;
-    }
-
-    public void setIdManager(IdManagerService idManager) {
-        this.idManager = idManager;
+        this.idManager = managerService;
     }
 
     protected void createNaptPortPool(String PoolName) {
@@ -371,7 +371,7 @@ public class NaptManager  {
          // Finally release port from idmanager
          removePortFromPool(internalIpPort, existingIpPort.getIpAddress());
 
-         LOG.debug("NAPT Service : Exit of releaseAddressMapping successfully for segmentId {} and internalIpPort {}", segmentId, internalIpPort);  
+         LOG.debug("NAPT Service : Exit of releaseAddressMapping successfully for segmentId {} and internalIpPort {}", segmentId, internalIpPort);
          return true;
 
      }

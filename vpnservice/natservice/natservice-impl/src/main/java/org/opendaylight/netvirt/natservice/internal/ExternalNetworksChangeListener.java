@@ -9,44 +9,40 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-
+import java.math.BigInteger;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 
 /**
  * Created by ESUMAMS on 1/21/2016.
@@ -56,62 +52,37 @@ public class ExternalNetworksChangeListener extends AsyncDataTreeChangeListenerB
     private static final Logger LOG = LoggerFactory.getLogger( ExternalNetworksChangeListener.class);
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
+
     private final DataBroker dataBroker;
-    private IMdsalApiManager mdsalManager;
-    //private VpnFloatingIpHandler vpnFloatingIpHandler;
-    private FloatingIPListener floatingIpListener;
-    private ExternalRoutersListener externalRouterListener;
-    private OdlInterfaceRpcService interfaceManager;
-    private NaptManager naptManager;
+    private final IMdsalApiManager mdsalManager;
+    private final FloatingIPListener floatingIpListener;
+    private final ExternalRoutersListener externalRouterListener;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final NaptManager naptManager;
+    private final IBgpManager bgpManager;
+    private final VpnRpcService vpnService;
+    private final FibRpcService fibService;
 
-    private IBgpManager bgpManager;
-    private VpnRpcService vpnService;
-    private FibRpcService fibService;
-
-
-    private ExternalRoutersListener externalRoutersListener;
-
-    void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
-    }
-
-    void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
-        this.interfaceManager = interfaceManager;
-    }
-
-    void setFloatingIpListener(FloatingIPListener floatingIpListener) {
-        this.floatingIpListener = floatingIpListener;
-    }
-
-    void setExternalRoutersListener(ExternalRoutersListener externalRoutersListener) {
-        this.externalRouterListener = externalRoutersListener;
-    }
-
-    public void setBgpManager(IBgpManager bgpManager) {
-        this.bgpManager = bgpManager;
-    }
-
-    public void setNaptManager(NaptManager naptManager) {
-        this.naptManager = naptManager;
-    }
-
-    public void setVpnService(VpnRpcService vpnService) {
-        this.vpnService = vpnService;
-    }
-
-    public void setFibService(FibRpcService fibService) {
-        this.fibService = fibService;
-    }
-
-    public void setListenerRegistration(ListenerRegistration<DataChangeListener> listenerRegistration) {
-        this.listenerRegistration = listenerRegistration;
-    }
-
-    public ExternalNetworksChangeListener(final DataBroker dataBroker ) {
-        super( Networks.class, ExternalNetworksChangeListener.class );
+    public ExternalNetworksChangeListener(DataBroker dataBroker,
+            IMdsalApiManager mdsalManager,
+            FloatingIPListener floatingIpListener,
+            ExternalRoutersListener externalRouterListener,
+            OdlInterfaceRpcService interfaceManager, NaptManager naptManager,
+            IBgpManager bgpManager, VpnRpcService vpnService,
+            FibRpcService fibService) {
+        super(Networks.class, ExternalNetworksChangeListener.class);
         this.dataBroker = dataBroker;
-    }
+        this.mdsalManager = mdsalManager;
+        this.floatingIpListener = floatingIpListener;
+        this.externalRouterListener = externalRouterListener;
+        this.interfaceManager = interfaceManager;
+        this.naptManager = naptManager;
+        this.bgpManager = bgpManager;
+        this.vpnService = vpnService;
+        this.fibService = fibService;
 
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+    }
 
     protected InstanceIdentifier<Networks> getWildCardPath() {
         return InstanceIdentifier.create(ExternalNetworks.class).child(Networks.class);
