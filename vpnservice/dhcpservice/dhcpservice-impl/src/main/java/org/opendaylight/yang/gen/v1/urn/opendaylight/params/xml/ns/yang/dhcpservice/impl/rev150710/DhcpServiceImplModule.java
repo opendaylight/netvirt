@@ -1,11 +1,12 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.impl.rev150710;
 
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.netvirt.dhcpservice.DhcpProvider;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.controller.sal.common.util.NoopAutoCloseable;
 
-public class DhcpServiceImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.impl.rev150710.AbstractDhcpServiceImplModule {
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
+public class DhcpServiceImplModule extends AbstractDhcpServiceImplModule {
     public DhcpServiceImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
@@ -21,16 +22,7 @@ public class DhcpServiceImplModule extends org.opendaylight.yang.gen.v1.urn.open
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        RpcProviderRegistry rpcregistryDependency = getRpcregistryDependency();
-        DhcpProvider dhcpProvider = new DhcpProvider();
-        dhcpProvider.setNotificationProviderService(getNotificationServiceDependency());
-        dhcpProvider.setMdsalManager(getMdsalutilDependency());
-        dhcpProvider.setNeutronVpnManager(getNeutronvpnDependency());
-        dhcpProvider.setInterfaceManagerRpc(rpcregistryDependency.getRpcService(OdlInterfaceRpcService.class));
-        dhcpProvider.setItmRpcService(rpcregistryDependency.getRpcService(ItmRpcService.class));
-        dhcpProvider.setEntityOwnershipService(getEntityOwnershipServiceDependency());
-        getBrokerDependency().registerProvider(dhcpProvider);
-        return dhcpProvider;
+        // DhcpProvider instance is created via blueprint so this in a no-op.
+        return NoopAutoCloseable.INSTANCE;
     }
-
 }
