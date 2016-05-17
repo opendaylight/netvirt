@@ -8,16 +8,16 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
+import com.google.common.collect.ImmutableBiMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityGroupCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.NeutronCRUDInterfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.DirectionBase;
@@ -43,8 +43,6 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableBiMap;
-
 
 public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<SecurityRule, NeutronSecurityRule> implements INeutronSecurityRuleCRUD {
 
@@ -62,8 +60,8 @@ public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<Secur
             EthertypeV4.class, NeutronSecurityRule.ETHERTYPE_IPV4,
             EthertypeV6.class, NeutronSecurityRule.ETHERTYPE_IPV6);
 
-    NeutronSecurityRuleInterface(ProviderContext providerContext) {
-        super(providerContext);
+    NeutronSecurityRuleInterface(final DataBroker dataBroker) {
+        super(dataBroker);
     }
 
     @Override
@@ -234,9 +232,9 @@ public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<Secur
     }
 
     public static void registerNewInterface(BundleContext context,
-                                            ProviderContext providerContext,
+                                            final DataBroker dataBroker,
                                             List<ServiceRegistration<?>> registrations) {
-        NeutronSecurityRuleInterface neutronSecurityRuleInterface = new NeutronSecurityRuleInterface(providerContext);
+        NeutronSecurityRuleInterface neutronSecurityRuleInterface = new NeutronSecurityRuleInterface(dataBroker);
         ServiceRegistration<INeutronSecurityRuleCRUD> neutronSecurityRuleInterfaceRegistration = context.registerService(INeutronSecurityRuleCRUD.class, neutronSecurityRuleInterface, null);
         if(neutronSecurityRuleInterfaceRegistration != null) {
             registrations.add(neutronSecurityRuleInterfaceRegistration);
