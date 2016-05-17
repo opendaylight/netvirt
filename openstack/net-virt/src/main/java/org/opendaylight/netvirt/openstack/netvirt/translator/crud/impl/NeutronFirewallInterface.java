@@ -9,11 +9,10 @@
 package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
 import java.util.List;
-
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.netvirt.openstack.netvirt.translator.INeutronObject;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFirewall;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronFirewallCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.translator.INeutronObject;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
@@ -21,14 +20,14 @@ import org.osgi.framework.ServiceRegistration;
 
 public class NeutronFirewallInterface extends AbstractNeutronInterface implements INeutronFirewallCRUD {
 
-    NeutronFirewallInterface(ProviderContext providerContext) {
-        super(providerContext);
+    NeutronFirewallInterface(final DataBroker dataBroker) {
+        super(dataBroker);
     }
 
     public static void registerNewInterface(BundleContext context,
-                                            ProviderContext providerContext,
+                                            final DataBroker dataBroker,
                                             List<ServiceRegistration<?>> registrations) {
-        NeutronFirewallInterface neutronFirewallInterface = new NeutronFirewallInterface(providerContext);
+        NeutronFirewallInterface neutronFirewallInterface = new NeutronFirewallInterface(dataBroker);
         ServiceRegistration<INeutronFirewallCRUD> neutronFirewallInterfaceRegistration = context.registerService(INeutronFirewallCRUD.class, neutronFirewallInterface, null);
         if(neutronFirewallInterfaceRegistration != null) {
             registrations.add(neutronFirewallInterfaceRegistration);
