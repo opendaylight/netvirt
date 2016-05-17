@@ -10,16 +10,15 @@ package org.opendaylight.netvirt.dhcpservice;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
@@ -35,9 +34,11 @@ import org.slf4j.LoggerFactory;
 public class DhcpLogicalSwitchListener extends AbstractDataChangeListener<LogicalSwitches> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpLogicalSwitchListener.class);
-    private DhcpExternalTunnelManager dhcpExternalTunnelManager;
+
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private DataBroker dataBroker;
+
+    private final DataBroker dataBroker;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
 
     public DhcpLogicalSwitchListener(DhcpExternalTunnelManager dhcpManager, DataBroker dataBroker) {
         super(LogicalSwitches.class);
@@ -66,12 +67,7 @@ public class DhcpLogicalSwitchListener extends AbstractDataChangeListener<Logica
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                logger.error("Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
+            listenerRegistration.close();
         }
         logger.info("DhcpLogicalSwitchListener Closed");
     }
