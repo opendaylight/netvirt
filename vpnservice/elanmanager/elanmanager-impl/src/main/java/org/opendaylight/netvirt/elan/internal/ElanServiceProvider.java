@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,25 +20,13 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationService;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.exceptions.InterfaceAlreadyExistsException;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.genius.itm.api.IITMProvider;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.netvirt.elan.l2gw.internal.ElanL2GatewayProvider;
-import org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
-import org.opendaylight.netvirt.elan.utils.CacheElanInstanceListener;
-import org.opendaylight.netvirt.elan.utils.CacheElanInterfaceListener;
-import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -54,7 +41,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface;
@@ -72,234 +58,49 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.statistics.rev150824.ElanStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElanServiceProvider implements BindingAwareProvider, IElanService, AutoCloseable {
-
-    private IdManagerService idManager;
-    private IMdsalApiManager mdsalManager;
-    private IInterfaceManager interfaceManager;
-    private OdlInterfaceRpcService interfaceManagerRpcService;
-    private ElanInstanceManager elanInstanceManager;
-    private ElanForwardingEntriesHandler elanForwardingEntriesHandler;
-    private ElanBridgeManager bridgeMgr;
-
-    public IdManagerService getIdManager() {
-        return idManager;
-    }
-
-    public ElanForwardingEntriesHandler getElanForwardingEntriesHandler() {
-        return elanForwardingEntriesHandler;
-    }
-
-    public ElanPacketInHandler getElanPacketInHandler() {
-        return elanPacketInHandler;
-    }
-
-    public ElanSmacFlowEventListener getElanSmacFlowEventListener() {
-        return elanSmacFlowEventListener;
-    }
-
-    public ElanInterfaceStateChangeListener getElanInterfaceStateChangeListener() {
-        return elanInterfaceStateChangeListener;
-    }
-
-    public ElanInterfaceStateClusteredListener getInfStateChangeClusteredListener() {
-        return infStateChangeClusteredListener;
-    }
-
-    public ElanDpnInterfaceClusteredListener getElanDpnInterfaceClusteredListener() {
-        return elanDpnInterfaceClusteredListener;
-    }
-
-    public ElanNodeListener getElanNodeListener() {
-        return elanNodeListener;
-    }
-
-    public NotificationService getNotificationService() {
-        return notificationService;
-    }
-
-    public RpcProviderRegistry getRpcProviderRegistry() {
-        return rpcProviderRegistry;
-    }
-
-    public ElanL2GatewayProvider getElanL2GatewayProvider() {
-        return elanL2GatewayProvider;
-    }
-
-    public static ElanStatusMonitor getElanstatusmonitor() {
-        return elanStatusMonitor;
-    }
-
-    public ElanItmEventListener getElanItmEventListener() {
-        return elanItmEventListener;
-    }
-
-    public static Logger getLogger() {
-        return logger;
-    }
-
-    private ElanInterfaceManager elanInterfaceManager;
-    private ElanPacketInHandler elanPacketInHandler;
-    private ElanSmacFlowEventListener elanSmacFlowEventListener;
-    private ElanInterfaceStateChangeListener elanInterfaceStateChangeListener;
-    private ElanInterfaceStateClusteredListener infStateChangeClusteredListener;
-    private ElanDpnInterfaceClusteredListener elanDpnInterfaceClusteredListener;
-    private ElanNodeListener elanNodeListener;
-    private NotificationService notificationService;
-    private RpcProviderRegistry rpcProviderRegistry;
-    private IITMProvider itmManager;
-    private ItmRpcService itmRpcService;
-    private DataBroker broker;
-    private ElanL2GatewayProvider elanL2GatewayProvider;
-    private ElanStatisticsService interfaceStatsService;
-    private EntityOwnershipService entityOwnershipService;
-    private CacheElanInstanceListener cacheElanInstanceListener;
-    private CacheElanInterfaceListener cacheElanInterfaceListener;
-    private static final ElanStatusMonitor elanStatusMonitor = ElanStatusMonitor.getInstance();
-    static DataStoreJobCoordinator dataStoreJobCoordinator;
-    private ElanOvsdbNodeListener elanOvsdbNodeListener;
-
-    private boolean generateIntBridgeMac = true;
-
-    public static void setDataStoreJobCoordinator(DataStoreJobCoordinator ds) {
-        dataStoreJobCoordinator = ds;
-    }
-
-    public void setBroker(DataBroker broker) {
-        this.broker = broker;
-    }
-
-    public static DataStoreJobCoordinator getDataStoreJobCoordinator() {
-        if (dataStoreJobCoordinator == null) {
-            dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
-        }
-        return dataStoreJobCoordinator;
-    }
-
-    public ElanServiceProvider(RpcProviderRegistry rpcRegistry) {
-        rpcProviderRegistry = rpcRegistry;
-        elanStatusMonitor.registerMbean();
-    }
-
-    // private ElanInterfaceStateChangeListener elanInterfaceEventListener;
-    private ElanItmEventListener elanItmEventListener;
+public class ElanServiceProvider implements IElanService {
 
     private static final Logger logger = LoggerFactory.getLogger(ElanServiceProvider.class);
 
-    @Override
-    public void onSessionInitiated(ProviderContext session) {
+    private final IdManagerService idManager;
+    private final IInterfaceManager interfaceManager;
+    private final ElanInstanceManager elanInstanceManager;
+    private final ElanBridgeManager bridgeMgr;
+    private final DataBroker broker;
+    private final ElanStatusMonitor elanStatusMonitor;
+    private final ElanUtils elanUtils;
+
+    private boolean generateIntBridgeMac = true;
+
+    public ElanServiceProvider(IdManagerService idManager, IInterfaceManager interfaceManager,
+                               ElanInstanceManager elanInstanceManager, ElanBridgeManager bridgeMgr, DataBroker broker,
+                               ElanStatusMonitor elanStatusMonitor, ElanUtils elanUtils) {
+        this.idManager = idManager;
+        this.interfaceManager = interfaceManager;
+        this.elanInstanceManager = elanInstanceManager;
+        this.bridgeMgr = bridgeMgr;
+        this.broker = broker;
+        this.elanStatusMonitor = elanStatusMonitor;
+        this.elanUtils = elanUtils;
+    }
+
+    public void init() {
+        logger.info("Starting ElnaServiceProvider");
         elanStatusMonitor.reportStatus("STARTING");
         try {
             createIdPool();
-            getDataStoreJobCoordinator();
-            broker = session.getSALService(DataBroker.class);
 
-            bridgeMgr = new ElanBridgeManager(broker);
-            elanOvsdbNodeListener = new ElanOvsdbNodeListener(broker, generateIntBridgeMac, bridgeMgr, this);
-            ElanUtils.setElanServiceProvider(this);
-            elanForwardingEntriesHandler = ElanForwardingEntriesHandler.getElanForwardingEntriesHandler(this);
-            elanInterfaceManager = ElanInterfaceManager.getElanInterfaceManager(this);
-            elanInstanceManager = ElanInstanceManager.getElanInstanceManager(this);
-            elanNodeListener = ElanNodeListener.getElanNodeListener(this);
-            elanPacketInHandler = ElanPacketInHandler.getElanPacketInHandler(this);
-            elanSmacFlowEventListener = ElanSmacFlowEventListener.getElanSmacFlowEventListener(this);
-            // Initialize statistics rpc provider for elan
-            interfaceStatsService = ElanStatisticsImpl.getElanStatisticsService(this);
-            rpcProviderRegistry.addRpcImplementation(ElanStatisticsService.class, interfaceStatsService);
-            elanInterfaceStateChangeListener = ElanInterfaceStateChangeListener
-                    .getElanInterfaceStateChangeListener(this);
-            infStateChangeClusteredListener = ElanInterfaceStateClusteredListener
-                    .getElanInterfaceStateClusteredListener(this);
-            elanDpnInterfaceClusteredListener = ElanDpnInterfaceClusteredListener
-                    .getElanDpnInterfaceClusteredListener(this);
-            ElanClusterUtils.setElanServiceProvider(this);
-            this.elanL2GatewayProvider = new ElanL2GatewayProvider(this);
-            cacheElanInstanceListener = new CacheElanInstanceListener(this);
-            cacheElanInterfaceListener = new CacheElanInterfaceListener(this);
-            elanInterfaceManager.registerListener(LogicalDatastoreType.CONFIGURATION, broker);
-            elanInstanceManager.registerListener(LogicalDatastoreType.CONFIGURATION, broker);
-            notificationService.registerNotificationListener(elanSmacFlowEventListener);
-            notificationService.registerNotificationListener(elanPacketInHandler);
             elanStatusMonitor.reportStatus("OPERATIONAL");
         } catch (Exception e) {
             logger.error("Error initializing services", e);
             elanStatusMonitor.reportStatus("ERROR");
         }
-    }
-
-    public void setIdManager(IdManagerService idManager) {
-        this.idManager = idManager;
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
-    }
-
-    public void setInterfaceManager(IInterfaceManager interfaceManager) {
-        this.interfaceManager = interfaceManager;
-    }
-
-    public void setEntityOwnershipService(EntityOwnershipService entityOwnershipService) {
-        this.entityOwnershipService = entityOwnershipService;
-    }
-
-    public IInterfaceManager getInterfaceManager() {
-        return this.interfaceManager;
-    }
-
-    public IMdsalApiManager getMdsalManager() {
-        return mdsalManager;
-    }
-
-    public IITMProvider getItmManager() {
-        return itmManager;
-    }
-
-    public DataBroker getBroker() {
-        return broker;
-    }
-
-    public void setNotificationService(NotificationService notificationService) {
-        this.notificationService = notificationService;
-    }
-
-    public void setInterfaceManagerRpcService(OdlInterfaceRpcService interfaceManager) {
-        this.interfaceManagerRpcService = interfaceManager;
-    }
-
-    public OdlInterfaceRpcService getInterfaceManagerRpcService() {
-        return interfaceManagerRpcService;
-    }
-
-    public void setItmManager(IITMProvider itmManager) {
-        this.itmManager = itmManager;
-    }
-
-    public void setItmRpcService(ItmRpcService itmRpcService) {
-        this.itmRpcService = itmRpcService;
-    }
-
-    public ItmRpcService getItmRpcService() {
-        return itmRpcService;
-    }
-
-    public ElanInstanceManager getElanInstanceManager() {
-        return elanInstanceManager;
-    }
-
-    public ElanInterfaceManager getElanInterfaceManager() {
-        return elanInterfaceManager;
-    }
-
-    public EntityOwnershipService getEntityOwnershipService() {
-        return entityOwnershipService;
     }
 
     private void createIdPool() {
@@ -458,7 +259,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
     @Override
     public void updateElanInterface(String elanInstanceName, String interfaceName,
             List<String> updatedStaticMacAddresses, String newDescription) {
-        ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
+        ElanInterface existingElanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
         if (existingElanInterface == null) {
             return;
         }
@@ -483,7 +284,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     @Override
     public void deleteElanInterface(String elanInstanceName, String interfaceName) {
-        ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
+        ElanInterface existingElanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
         if (existingElanInterface != null) {
             ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName));
@@ -493,7 +294,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     @Override
     public void addStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress) {
-        ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
+        ElanInterface existingElanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
         PhysAddress updateStaticMacAddress = new PhysAddress(macAddress);
         if (existingElanInterface != null) {
             List<PhysAddress> existingMacAddress = existingElanInterface.getStaticMacEntries();
@@ -513,7 +314,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
     @Override
     public void deleteStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress)
             throws MacNotFoundException {
-        ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
+        ElanInterface existingElanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
         PhysAddress physAddress = new PhysAddress(macAddress);
         if (existingElanInterface == null) {
             return;
@@ -534,7 +335,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     @Override
     public Collection<MacEntry> getElanMacTable(String elanInstanceName) {
-        Elan elanInfo = ElanUtils.getElanByName(elanInstanceName);
+        Elan elanInfo = elanUtils.getElanByName(elanInstanceName);
         List<MacEntry> macAddress = new ArrayList<>();
         if (elanInfo == null) {
             return macAddress;
@@ -542,7 +343,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         List<String> elanInterfaces = elanInfo.getElanInterfaces();
         if (elanInterfaces != null && elanInterfaces.size() > 0) {
             for (String elanInterface : elanInterfaces) {
-                ElanInterfaceMac elanInterfaceMac = ElanUtils.getElanInterfaceMacByInterfaceName(elanInterface);
+                ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(elanInterface);
                 if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null
                         && elanInterfaceMac.getMacEntry().size() > 0) {
                     macAddress.addAll(elanInterfaceMac.getMacEntry());
@@ -554,7 +355,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     @Override
     public void flushMACTable(String elanInstanceName) {
-        Elan elanInfo = ElanUtils.getElanByName(elanInstanceName);
+        Elan elanInfo = elanUtils.getElanByName(elanInstanceName);
         if (elanInfo == null) {
             return;
         }
@@ -563,7 +364,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             return;
         }
         for (String elanInterface : elanInterfaces) {
-            ElanInterfaceMac elanInterfaceMac = ElanUtils.getElanInterfaceMacByInterfaceName(elanInterface);
+            ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(elanInterface);
             if (elanInterfaceMac.getMacEntry() != null && elanInterfaceMac.getMacEntry().size() > 0) {
                 List<MacEntry> macEntries = elanInterfaceMac.getMacEntry();
                 for (MacEntry macEntry : macEntries) {
@@ -577,14 +378,6 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             }
         }
 
-    }
-
-    @Override
-    public void close() throws Exception {
-        this.elanInstanceManager.close();
-        this.elanL2GatewayProvider.close();
-        this.cacheElanInstanceListener.close();
-        this.cacheElanInterfaceListener.close();
     }
 
     public static List<PhysAddress> getPhysAddress(List<String> macAddress) {
@@ -610,7 +403,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     @Override
     public ElanInstance getElanInstance(String elanName) {
-        return ElanUtils.getElanInstanceByName(elanName);
+        return elanUtils.getElanInstanceByName(elanName);
     }
 
     @Override
@@ -618,7 +411,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         List<ElanInstance> elanList = new ArrayList<>();
         InstanceIdentifier<ElanInstances> elanInstancesIdentifier = InstanceIdentifier.builder(ElanInstances.class)
                 .build();
-        Optional<ElanInstances> elansOptional = ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+        Optional<ElanInstances> elansOptional = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
                 elanInstancesIdentifier);
         if (elansOptional.isPresent()) {
             elanList.addAll(elansOptional.get().getElanInstance());
@@ -631,7 +424,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         List<String> elanInterfaces = new ArrayList<>();
         InstanceIdentifier<ElanInterfaces> elanInterfacesIdentifier = InstanceIdentifier.builder(ElanInterfaces.class)
                 .build();
-        Optional<ElanInterfaces> elanInterfacesOptional = ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+        Optional<ElanInterfaces> elanInterfacesOptional = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
                 elanInterfacesIdentifier);
         if (!elanInterfacesOptional.isPresent()) {
             return elanInterfaces;
@@ -764,14 +557,14 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     @Override
     public String getExternalElanInterface(String elanInstanceName, BigInteger dpnId) {
-        DpnInterfaces dpnInterfaces = ElanUtils.getElanInterfaceInfoByElanDpn(elanInstanceName, dpnId);
+        DpnInterfaces dpnInterfaces = elanUtils.getElanInterfaceInfoByElanDpn(elanInstanceName, dpnId);
         if (dpnInterfaces == null || dpnInterfaces.getInterfaces() == null) {
             logger.trace("Elan {} does not have interfaces in DPN {}", elanInstanceName, dpnId);
             return null;
         }
 
         for (String dpnInterface : dpnInterfaces.getInterfaces()) {
-            if (ElanUtils.isExternal(dpnInterface)) {
+            if (elanUtils.isExternal(dpnInterface)) {
                 return dpnInterface;
             }
         }
@@ -790,7 +583,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
         Set<String> externalElanInterfaces = new HashSet<>();
         for (String elanInterface : elanInterfaces) {
-            if (ElanUtils.isExternal(elanInterface)) {
+            if (elanUtils.isExternal(elanInterface)) {
                 externalElanInterfaces.add(elanInterface);
             }
         }
@@ -800,7 +593,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     @Override
     public boolean isExternalInterface(String interfaceName) {
-        return ElanUtils.isExternal(interfaceName);
+        return elanUtils.isExternal(interfaceName);
     }
 
     /**

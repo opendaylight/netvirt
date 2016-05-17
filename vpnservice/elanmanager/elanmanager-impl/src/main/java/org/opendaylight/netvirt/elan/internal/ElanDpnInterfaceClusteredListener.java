@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
 
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
@@ -23,7 +23,7 @@ import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,37 +34,26 @@ import com.google.common.util.concurrent.ListenableFuture;
 public class ElanDpnInterfaceClusteredListener
     extends AsyncClusteredDataChangeListenerBase<DpnInterfaces, ElanDpnInterfaceClusteredListener>
     implements AutoCloseable {
-    private ElanServiceProvider elanServiceProvider = null;
-    private static volatile ElanDpnInterfaceClusteredListener elanDpnInterfaceClusteredListener = null;
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnInterfaceClusteredListener.class);
 
+    private final DataBroker broker;
+    private final EntityOwnershipService entityOwnershipService;
+    private final ElanL2GatewayUtils elanL2GatewayUtils;
+    private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
 
-    public ElanDpnInterfaceClusteredListener(ElanServiceProvider elanServiceProvider) {
+    public ElanDpnInterfaceClusteredListener(DataBroker broker, EntityOwnershipService entityOwnershipService,
+                                             ElanL2GatewayUtils elanL2GatewayUtils,
+                                             ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
         super(DpnInterfaces.class, ElanDpnInterfaceClusteredListener.class);
-        this.elanServiceProvider = elanServiceProvider;
-        registerListener(elanServiceProvider.getBroker());
+        this.broker = broker;
+        this.entityOwnershipService = entityOwnershipService;
+        this.elanL2GatewayUtils = elanL2GatewayUtils;
+        this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
     }
 
-    public static ElanDpnInterfaceClusteredListener getElanDpnInterfaceClusteredListener(
-        ElanServiceProvider elanServiceProvider) {
-        if (elanDpnInterfaceClusteredListener == null) {
-            synchronized (ElanDpnInterfaceClusteredListener.class) {
-                if (elanDpnInterfaceClusteredListener == null) {
-                    elanDpnInterfaceClusteredListener = new ElanDpnInterfaceClusteredListener(elanServiceProvider);
-                }
-            }
-        }
-        return elanDpnInterfaceClusteredListener;
-    }
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = elanServiceProvider.getBroker().registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), ElanDpnInterfaceClusteredListener.this, AsyncDataBroker.DataChangeScope.BASE);
-        } catch (final Exception e) {
-            LOG.error("DpnInterfaces DataChange listener registration fail!", e);
-        }
+    public void init() {
+        registerListener(LogicalDatastoreType.OPERATIONAL, this.broker);
     }
 
     @Override
@@ -90,12 +79,12 @@ public class ElanDpnInterfaceClusteredListener
                 dpnInterfaces.getDpId());
             return;
         }
-        ElanClusterUtils.runOnlyInLeaderNode(elanName, "updating mcast mac upon tunnel event",
+        ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, elanName, "updating mcast mac upon tunnel event",
             new Callable<List<ListenableFuture<Void>>>() {
                 @Override
                 public List<ListenableFuture<Void>> call() throws Exception {
                     return Lists.newArrayList(
-                        ElanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName));
+                        elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName));
                 }
             });
     }
@@ -112,16 +101,16 @@ public class ElanDpnInterfaceClusteredListener
                 dpnInterfaces.getDpId());
             return;
         }
-        ElanClusterUtils.runOnlyInLeaderNode(elanName, "handling ElanDpnInterface removed",
+        ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, elanName, "handling ElanDpnInterface removed",
             new Callable<List<ListenableFuture<Void>>>() {
                 @Override
                 public List<ListenableFuture<Void>> call() throws Exception {
                     // deleting Elan L2Gw Devices UcastLocalMacs From Dpn
-                    ElanL2GatewayUtils.deleteElanL2GwDevicesUcastLocalMacsFromDpn(elanName,
+                    elanL2GatewayUtils.deleteElanL2GwDevicesUcastLocalMacsFromDpn(elanName,
                         dpnInterfaces.getDpId());
                     // updating remote mcast mac on l2gw devices
                     return Lists.newArrayList(
-                        ElanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName));
+                        elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName));
                 }
             });
     }

@@ -26,16 +26,21 @@ public class EtreeInterfaceDelete extends OsgiCommandSupport {
     private String interfaceName;
     private static final Logger logger = LoggerFactory.getLogger(EtreeInterfaceDelete.class);
     private IElanService elanProvider;
+    private ElanUtils elanUtils;
 
     public void setElanProvider(IElanService elanServiceProvider) {
         this.elanProvider = elanServiceProvider;
+    }
+
+    public void setElanUtils(ElanUtils elanUtils) {
+        this.elanUtils = elanUtils;
     }
 
     @Override
     protected Object doExecute() {
         try {
             logger.debug("Deleting EtreeInterface command" + "\t" + etreeName + "\t" + interfaceName + "\t");
-            ElanInterface existingInterface = ElanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
+            ElanInterface existingInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
             if (existingInterface == null || existingInterface.getAugmentation(EtreeInterface.class) == null) {
                 System.out.println("Etree interface doesn't exist or isn't configured as etree: " + interfaceName);
             }

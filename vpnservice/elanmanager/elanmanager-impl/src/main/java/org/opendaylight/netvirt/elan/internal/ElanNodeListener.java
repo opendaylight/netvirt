@@ -7,14 +7,24 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
-import org.opendaylight.genius.mdsalutil.*;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.InstructionType;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -23,33 +33,23 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-
-public class ElanNodeListener extends AbstractDataChangeListener<Node> {
+public class ElanNodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(ElanNodeListener.class);
-    private static volatile ElanNodeListener elanNodeListener = null;
-    private ElanServiceProvider elanServiceProvider = null;
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
-    public static ElanNodeListener getElanNodeListener(ElanServiceProvider elanServiceProvider) {
-        if (elanNodeListener == null)
-            synchronized (ElanNodeListener.class) {
-                if (elanNodeListener == null)
-                {
-                    ElanNodeListener elanNodeListener = new ElanNodeListener(elanServiceProvider);
-                    return elanNodeListener;
 
-                }
-            }
-        return elanNodeListener;
+    private final DataBroker broker;
+    private final IMdsalApiManager mdsalManager;
+
+    private ListenerRegistration<DataChangeListener> listenerRegistration;
+
+    public ElanNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager) {
+        super(Node.class);
+        this.broker = dataBroker;
+        this.mdsalManager = mdsalManager;
     }
 
-    public ElanNodeListener(ElanServiceProvider elanServiceProvider) {
-        super(Node.class);
-        this.elanServiceProvider= elanServiceProvider;
-        registerListener(this.elanServiceProvider.getBroker());
+    public void init() {
+        registerListener(broker);
     }
 
     private void registerListener(final DataBroker db) {
@@ -105,7 +105,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> {
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE, getTableMissFlowRef(NwConstants.ELAN_SMAC_TABLE),
             0, "ELAN sMac Table Miss Flow", 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_SMAC,
             mkMatches, mkInstructions);
-        this.elanServiceProvider.getMdsalManager().installFlow(flowEntity);
+        mdsalManager.installFlow(flowEntity);
     }
 
     private void setupTableMissDmacFlow(BigInteger dpId) {
@@ -117,12 +117,18 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> {
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, getTableMissFlowRef(NwConstants.ELAN_DMAC_TABLE),
             0, "ELAN dMac Table Miss Flow", 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC,
             mkMatches, mkInstructions);
-        this.elanServiceProvider.getMdsalManager().installFlow(flowEntity);
+        mdsalManager.installFlow(flowEntity);
     }
 
     private String getTableMissFlowRef(long tableId) {
         return new StringBuffer().append(tableId).toString();
     }
 
+    @Override
+    public void close() throws Exception {
+        if (listenerRegistration != null) {
+            listenerRegistration.close();
+        }
 
+    }
 }
