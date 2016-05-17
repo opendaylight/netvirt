@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_5af2dc6f",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/resources/org/opendaylight/blueprint/bgpmanager-impl.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-17T13:07:46Z",
+      "side": 1,
+      "message": "should I add init-method\u003d\"start\" destroy-method\u003d\"close\" instead of calling start from the constructor? Also, I believe close need to be specify?",
+      "range": {
+        "startLine": 8,
+        "startChar": 3,
+        "endLine": 8,
+        "endChar": 7
+      },
+      "revId": "5f6ab0f44285dcc8c7245779d65ee8f9712657d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
