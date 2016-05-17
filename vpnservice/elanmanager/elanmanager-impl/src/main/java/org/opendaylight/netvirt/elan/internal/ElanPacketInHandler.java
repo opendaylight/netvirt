@@ -48,11 +48,8 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ElanPacketInHandler.class);
 
-    public ElanPacketInHandler(DataBroker dataBroker) {
+    public ElanPacketInHandler(DataBroker dataBroker, final IInterfaceManager interfaceManager) {
         broker = dataBroker;
-    }
-
-    public void setInterfaceManager(IInterfaceManager interfaceManager) {
         this.interfaceManager = interfaceManager;
     }
 
