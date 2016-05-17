@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+    odl:use-default-for-reference-types="true">
+
+    <reference id="dataBroker"
+        interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+        odl:type="pingpong" />
+    <reference id="rpcRegistry"
+        interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry" />
+    <reference id="notificationService"
+        interface="org.opendaylight.controller.md.sal.binding.api.NotificationService" />
+    <reference id="entityOwnershipService"
+        interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
+    <reference id="mdsalUtils"
+        interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+    <reference id="interfaceManager"
+        interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
+    <reference id="iTMProvider"
+        interface="org.opendaylight.genius.itm.api.IITMProvider" />
+
+    <odl:rpc-service id="odlInterfaceRpcService"
+        interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
+    <odl:rpc-service id="itmRpcService"
+        interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService" />
+    <odl:rpc-service id="salFlowService"
+        interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService" />
+    <odl:rpc-service id="idManagerService"
+        interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
+
+    <bean id="elanService" class="org.opendaylight.netvirt.elan.internal.ElanServiceProvider"
+        init-method="start" destroy-method="close">
+        <argument ref="dataBroker" />
+        <argument ref="rpcRegistry" />
+        <argument ref="notificationService" />
+        <argument ref="entityOwnershipService" />
+        <argument ref="mdsalUtils" />
+        <argument ref="odlInterfaceRpcService" />
+        <argument ref="itmRpcService" />
+        <argument ref="idManagerService" />
+        <argument ref="salFlowService" />
+        <argument ref="interfaceManager" />
+        <argument ref="iTMProvider" />
+    </bean>
+
+    <service ref="elanService" odl:type="elanservice-default">
+        <interfaces>
+            <value>org.opendaylight.netvirt.elanmanager.api.IElanService</value>
+        </interfaces>
+    </service>
+</blueprint>
