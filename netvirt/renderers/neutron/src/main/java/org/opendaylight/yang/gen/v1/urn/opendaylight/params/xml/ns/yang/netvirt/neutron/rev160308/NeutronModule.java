@@ -7,9 +7,13 @@
  */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.neutron.rev160308;
 
-import org.opendaylight.netvirt.netvirt.renderers.neutron.NeutronProvider;
+import org.opendaylight.controller.sal.common.util.NoopAutoCloseable;
 
-public class NeutronModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.neutron.rev160308.AbstractNeutronModule {
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
+public class NeutronModule extends AbstractNeutronModule {
     public NeutronModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
@@ -19,15 +23,8 @@ public class NeutronModule extends org.opendaylight.yang.gen.v1.urn.opendaylight
     }
 
     @Override
-    public void customValidation() {
-        // add custom validation form module attributes here.
-    }
-
-    @Override
     public java.lang.AutoCloseable createInstance() {
-        NeutronProvider provider = new NeutronProvider();
-        getBrokerDependency().registerProvider(provider);
-        return provider;
+        // NeutronProvider instance is created via blueprint so this in a no-op.
+        return NoopAutoCloseable.INSTANCE;
     }
-
 }

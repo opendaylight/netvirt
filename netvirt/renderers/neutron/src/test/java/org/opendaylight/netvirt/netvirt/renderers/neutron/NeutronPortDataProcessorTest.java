@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -36,7 +37,6 @@ public class NeutronPortDataProcessorTest extends AbstractDataBrokerTest {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.ports.Port> portIid =
                 MdsalHelper.createPortInstanceIdentifier(uuid);
 
-        org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.ports.Port netvirtPort = null;
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ports.rev151227.ports.Port> data =
             getDataBroker()
             .newReadOnlyTransaction()
@@ -70,7 +70,7 @@ public class NeutronPortDataProcessorTest extends AbstractDataBrokerTest {
         if (!initialized) {
             session = mock(ProviderContext.class);
             when(session.getSALService(DataBroker.class)).thenReturn(getDataBroker());
-            neutronPortDataProcessor = new NeutronPortDataProcessor(new NeutronProvider(), session.getSALService(DataBroker.class));
+            neutronPortDataProcessor = new NeutronPortDataProcessor(new NeutronProvider(getDataBroker(),mock(EntityOwnershipService.class)), getDataBroker());
             initialized = true;
         }
     }

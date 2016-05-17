@@ -18,6 +18,7 @@ module netvirt-neutron {
     identity netvirt-neutron {
         base config:module-type;
         config:java-name-prefix Neutron;
+        status deprecated;
     }
 
     augment "/config:modules/config:module/config:configuration" {
