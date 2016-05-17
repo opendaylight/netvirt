@@ -22,6 +22,7 @@ module vpnservice-impl {
         base config:module-type;
         config:provided-service vpnmgr-api:vpnmanager-api;
         config:java-name-prefix VpnserviceImpl;
+        status deprecated;
     }
 
     augment "/config:modules/config:module/config:configuration" {
