@@ -7,12 +7,21 @@
  */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpnservice.impl.rev150216;
 
-import org.opendaylight.netvirt.vpnmanager.VpnserviceProvider;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.common.reflect.Reflection;
+import java.lang.reflect.Method;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.osgi.framework.BundleContext;
 
-public class VpnserviceImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpnservice.impl.rev150216.AbstractVpnserviceImplModule {
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
+public class VpnserviceImplModule extends AbstractVpnserviceImplModule {
+
+    private BundleContext bundleContext;
+
     public VpnserviceImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
@@ -22,23 +31,38 @@ public class VpnserviceImplModule extends org.opendaylight.yang.gen.v1.urn.opend
     }
 
     @Override
-    public void customValidation() {
-        // add custom validation form module attributes here.
+    public AutoCloseable createInstance() {
+        // The service is provided via blueprint so wait for and return it here for backwards compatibility.
+        final String typeFilter = String.format("(type=%s)", getIdentifier().getInstanceName());
+        final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
+                IVpnManager.class, bundleContext, typeFilter);
+        final IVpnManager elanService = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+
+        // We don't want to call close on the actual service as its life cycle is controlled by blueprint but
+        // we do want to close the tracker so create a proxy to override close appropriately.
+        return Reflection.newProxy(AutoCloseableIVpnManager.class, new AbstractInvocationHandler() {
+            @Override
+            protected Object handleInvocation(final Object proxy, final Method method, final Object[] args) throws Throwable {
+                if (method.getName().equals("close")) {
+                    tracker.close();
+                    return null;
+                } else {
+                    return method.invoke(elanService, args);
+                }
+            }
+        });
+    }
+
+    public void setBundleContext(final BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
     @Override
-    public java.lang.AutoCloseable createInstance() {
-        IdManagerService idManager = getRpcregistryDependency().getRpcService(IdManagerService.class);
-        OdlArputilService arpManager =  getRpcregistryDependency().getRpcService(OdlArputilService.class);
-        OdlInterfaceRpcService interfaceManager = getRpcregistryDependency().getRpcService(OdlInterfaceRpcService.class);
-        VpnserviceProvider provider = new VpnserviceProvider();
-        provider.setNotificationService(getNotificationServiceDependency());
-        provider.setBgpManager(getBgpmanagerDependency());
-        provider.setMdsalManager(getMdsalutilDependency());
-        provider.setInterfaceManager(interfaceManager);
-        provider.setIdManager(idManager);
-        provider.setArpManager(arpManager);
-        getBrokerDependency().registerProvider(provider);
-        return provider;
+    public boolean canReuseInstance(final AbstractVpnserviceImplModule oldModule) {
+        return true;
+    }
+
+    private static interface AutoCloseableIVpnManager
+            extends AutoCloseable, IVpnManager {
     }
 }
