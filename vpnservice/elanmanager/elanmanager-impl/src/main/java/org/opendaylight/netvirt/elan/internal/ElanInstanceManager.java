@@ -21,6 +21,9 @@ import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
@@ -37,24 +40,27 @@ import org.slf4j.LoggerFactory;
 public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanInstance, ElanInstanceManager>
         implements AutoCloseable {
 
-    private ElanServiceProvider elanServiceProvider = null;
-    private static volatile ElanInstanceManager elanInstanceManager = null;
     private static final Logger logger = LoggerFactory.getLogger(ElanInstanceManager.class);
 
-    private ElanInstanceManager(ElanServiceProvider elanServiceProvider) {
+    private final DataBroker broker;
+    private final IdManagerService idManager;
+    private final ElanInterfaceManager elanInterfaceManager;
+    private final IInterfaceManager interfaceManager;
+    private final ElanUtils elanUtils;
+
+    public ElanInstanceManager(final DataBroker dataBroker, final IdManagerService managerService,
+                               final ElanInterfaceManager elanInterfaceManager,
+                               final IInterfaceManager interfaceManager, ElanUtils elanUtils) {
         super(ElanInstance.class, ElanInstanceManager.class);
-        this.elanServiceProvider = elanServiceProvider;
+        this.broker = dataBroker;
+        this.idManager = managerService;
+        this.elanInterfaceManager = elanInterfaceManager;
+        this.interfaceManager = interfaceManager;
+        this.elanUtils = elanUtils;
     }
 
-    public static ElanInstanceManager getElanInstanceManager(ElanServiceProvider elanServiceProvider) {
-        if (elanInstanceManager == null) {
-            synchronized (ElanInstanceManager.class) {
-                if (elanInstanceManager == null) {
-                    elanInstanceManager = new ElanInstanceManager(elanServiceProvider);
-                }
-            }
-        }
-        return elanInstanceManager;
+    public void init() {
+        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
 
     @Override
@@ -63,32 +69,31 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         String elanName = deletedElan.getElanInstanceName();
         // check the elan Instance present in the Operational DataStore
-        Elan existingElan = ElanUtils.getElanByName(elanName);
+        Elan existingElan = elanUtils.getElanByName(elanName);
         long elanTag = deletedElan.getElanTag();
         // Cleaning up the existing Elan Instance
         if (existingElan != null) {
             List<String> elanInterfaces = existingElan.getElanInterfaces();
             if (elanInterfaces != null && !elanInterfaces.isEmpty()) {
                 for (String elanInterfaceName : elanInterfaces) {
-                    InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
+                    InstanceIdentifier<ElanInterface> elanInterfaceId = elanUtils
                             .getElanInterfaceConfigurationDataPathId(elanInterfaceName);
-                    InterfaceInfo interfaceInfo = elanServiceProvider.getInterfaceManager()
-                            .getInterfaceInfo(elanInterfaceName);
-                    elanServiceProvider.getElanInterfaceManager().removeElanInterface(futures, deletedElan, elanInterfaceName,
+                    InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterfaceName);
+                    elanInterfaceManager.removeElanInterface(futures, deletedElan, elanInterfaceName,
                             interfaceInfo, false);
-                    ElanUtils.delete(elanServiceProvider.getBroker(), LogicalDatastoreType.CONFIGURATION,
+                    elanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
                             elanInterfaceId);
                 }
             }
-            ElanUtils.delete(elanServiceProvider.getBroker(), LogicalDatastoreType.OPERATIONAL,
-                    ElanUtils.getElanInstanceOperationalDataPath(elanName));
-            ElanUtils.delete(elanServiceProvider.getBroker(), LogicalDatastoreType.OPERATIONAL,
+            elanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
+                    elanUtils.getElanInstanceOperationalDataPath(elanName));
+            elanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     getElanDpnOperationDataPath(elanName));
-            ElanUtils.delete(elanServiceProvider.getBroker(), LogicalDatastoreType.OPERATIONAL,
-                    ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
+            elanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
+                    elanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
         }
         // Release tag
-        ElanUtils.releaseId(elanServiceProvider.getIdManager(), ElanConstants.ELAN_ID_POOL_NAME, elanName);
+        elanUtils.releaseId(idManager, ElanConstants.ELAN_ID_POOL_NAME, elanName);
         if (deletedElan.getAugmentation(EtreeInstance.class) != null) {
             removeEtreeInstance(deletedElan);
         }
@@ -96,11 +101,11 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     private void removeEtreeInstance(ElanInstance deletedElan) {
         // Release leaves tag
-        ElanUtils.releaseId(elanServiceProvider.getIdManager(), ElanConstants.ELAN_ID_POOL_NAME,
+        elanUtils.releaseId(idManager, ElanConstants.ELAN_ID_POOL_NAME,
                 deletedElan.getElanInstanceName() + ElanConstants.LEAVES_POSTFIX);
 
-        ElanUtils.delete(elanServiceProvider.getBroker(), LogicalDatastoreType.OPERATIONAL,
-                ElanUtils.getElanInfoEntriesOperationalDataPath(
+        elanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
+                elanUtils.getElanInfoEntriesOperationalDataPath(
                 deletedElan.getAugmentation(EtreeInstance.class).getEtreeLeafTagVal().getValue()));
     }
 
@@ -111,29 +116,29 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
             return;
         } else if (update.getElanTag() == null) {
             // update the elan-Instance with new properties
-            WriteTransaction tx = elanServiceProvider.getBroker().newWriteOnlyTransaction();
-            ElanUtils.updateOperationalDataStore(elanServiceProvider.getBroker(), elanServiceProvider.getIdManager(),
+            WriteTransaction tx = broker.newWriteOnlyTransaction();
+            elanUtils.updateOperationalDataStore(broker, idManager,
                     update, new ArrayList<String>(), tx);
-            ElanUtils.waitForTransactionToComplete(tx);
+            elanUtils.waitForTransactionToComplete(tx);
             return;
         }
-        elanServiceProvider.getElanInterfaceManager().handleunprocessedElanInterfaces(update);
+        elanInterfaceManager.handleunprocessedElanInterfaces(update);
     }
 
     @Override
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance elanInstanceAdded) {
-        Elan elanInfo = ElanUtils.getElanByName(elanInstanceAdded.getElanInstanceName());
+        Elan elanInfo = elanUtils.getElanByName(elanInstanceAdded.getElanInstanceName());
         if (elanInfo == null) {
-            WriteTransaction tx = elanServiceProvider.getBroker().newWriteOnlyTransaction();
-            ElanUtils.updateOperationalDataStore(elanServiceProvider.getBroker(), elanServiceProvider.getIdManager(),
+            WriteTransaction tx = broker.newWriteOnlyTransaction();
+            elanUtils.updateOperationalDataStore(broker, idManager,
                     elanInstanceAdded, new ArrayList<String>(), tx);
-            ElanUtils.waitForTransactionToComplete(tx);
+            elanUtils.waitForTransactionToComplete(tx);
         }
     }
 
     public ElanInstance getElanInstanceByName(String elanInstanceName) {
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
-        Optional<ElanInstance> elanInstance = ElanUtils.read(elanServiceProvider.getBroker(),
+        Optional<ElanInstance> elanInstance = elanUtils.read(broker,
                 LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
         if (elanInstance.isPresent()) {
             return elanInstance.get();
@@ -143,7 +148,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     public List<DpnInterfaces> getElanDPNByName(String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanIdentifier = getElanDpnOperationDataPath(elanInstanceName);
-        Optional<ElanDpnInterfacesList> elanInstance = ElanUtils.read(elanServiceProvider.getBroker(),
+        Optional<ElanDpnInterfacesList> elanInstance = elanUtils.read(broker,
                 LogicalDatastoreType.OPERATIONAL, elanIdentifier);
         if (elanInstance.isPresent()) {
             ElanDpnInterfacesList elanDPNs = elanInstance.get();
@@ -171,5 +176,4 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     protected ElanInstanceManager getDataTreeChangeListener() {
         return this;
     }
-
 }

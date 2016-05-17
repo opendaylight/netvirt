@@ -10,11 +10,11 @@ package org.opendaylight.netvirt.elan.utils;
 import java.util.Collection;
 
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -24,12 +24,15 @@ import org.slf4j.LoggerFactory;
 
 public class CacheElanInterfaceListener implements ClusteredDataTreeChangeListener<ElanInterface> {
 
-    private  ElanServiceProvider elanServiceProvider;
     private ListenerRegistration<CacheElanInterfaceListener> registration;
     private static final Logger logger = LoggerFactory.getLogger(CacheElanInterfaceListener.class);
+    private final DataBroker broker;
 
-    public CacheElanInterfaceListener(ElanServiceProvider elanServiceProvider) {
-        this.elanServiceProvider = elanServiceProvider;
+    public CacheElanInterfaceListener(DataBroker dataBroker) {
+        this.broker = dataBroker;
+    }
+
+    public void init() {
         registerListener();
     }
 
@@ -38,7 +41,7 @@ public class CacheElanInterfaceListener implements ClusteredDataTreeChangeListen
                 new DataTreeIdentifier<ElanInterface>(LogicalDatastoreType.CONFIGURATION, getWildcardPath());
         try {
             logger.trace("Registering on path: {}", treeId);
-            registration = elanServiceProvider.getBroker().registerDataTreeChangeListener(treeId, CacheElanInterfaceListener.this);
+            registration = broker.registerDataTreeChangeListener(treeId, CacheElanInterfaceListener.this);
         } catch (final Exception e) {
             logger.warn("CacheInterfaceConfigListener registration failed", e);
         }
