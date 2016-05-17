@@ -24,6 +24,7 @@ module elanservice-impl {
         base config:module-type;
         config:provided-service elanmgr-api:elanmanager-api;
         config:java-name-prefix elanServiceImpl;
+        status deprecated;
     }
 
     augment "/config:modules/config:module/config:configuration" {
