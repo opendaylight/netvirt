@@ -16,7 +16,6 @@ import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
@@ -62,25 +61,21 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private NeutronvpnNatManager nvpnNatManager;
     private LockManagerService lockManager;
     private NotificationPublishService notificationPublishService;
-    private NotificationService notificationService;
     private NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
 
-
-    public NeutronPortChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,NeutronvpnNatManager nVpnNatMgr,
-                                     NotificationPublishService notiPublishService, NotificationService notiService,
-                                     NeutronFloatingToFixedIpMappingChangeListener neutronFloatingToFixedIpMappingChangeListener) {
+    public NeutronPortChangeListener(final DataBroker db,
+            NeutronvpnManager nVpnMgr, NeutronvpnNatManager nVpnNatMgr,
+            NotificationPublishService notiPublishService,
+            NeutronFloatingToFixedIpMappingChangeListener neutronFloatingToFixedIpMappingChangeListener,
+            final LockManagerService lockManager) {
         super(Port.class);
         broker = db;
         nvpnManager = nVpnMgr;
         nvpnNatManager = nVpnNatMgr;
         notificationPublishService = notiPublishService;
-        notificationService = notiService;
         floatingIpMapListener = neutronFloatingToFixedIpMappingChangeListener;
-        registerListener(db);
-    }
-
-    public void setLockManager(LockManagerService lockManager) {
         this.lockManager = lockManager;
+        registerListener(db);
     }
 
     @Override

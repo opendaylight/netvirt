@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+  odl:use-default-for-reference-types="true">
+
+  <reference id="dataBroker"
+    interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+    odl:type="default" />
+  <reference id="notificationPublishService"
+    interface="org.opendaylight.controller.md.sal.binding.api.NotificationPublishService" />
+  <reference id="entityOwnershipService"
+    interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
+  <reference id="mdsalUtils"
+    interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+
+  <odl:rpc-service id="lockManagerService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService" />
+  <odl:rpc-service id="itmRpcService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService" />
+
+  <bean id="neutronvpnNatManager"
+    class="org.opendaylight.netvirt.neutronvpn.NeutronvpnNatManager"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+  </bean>
+
+  <bean id="neutronvpnManager" class="org.opendaylight.netvirt.neutronvpn.NeutronvpnManager"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+    <argument ref="notificationPublishService" />
+    <argument ref="neutronvpnNatManager" />
+    <argument ref="lockManagerService" />
+  </bean>
+  <odl:rpc-implementation ref="neutronvpnManager" />
+
+  <bean id="neutronBgpvpnChangeListener"
+    class="org.opendaylight.netvirt.neutronvpn.NeutronBgpvpnChangeListener"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="neutronvpnManager" />
+  </bean>
+
+  <bean id="neutronNetworkChangeListener"
+    class="org.opendaylight.netvirt.neutronvpn.NeutronNetworkChangeListener"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="neutronvpnManager" />
+    <argument ref="neutronvpnNatManager" />
+  </bean>
+
+  <bean id="neutronSubnetChangeListener"
+    class="org.opendaylight.netvirt.neutronvpn.NeutronSubnetChangeListener"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="neutronvpnManager" />
+  </bean>
+
+  <bean id="neutronRouterChangeListener"
+    class="org.opendaylight.netvirt.neutronvpn.NeutronRouterChangeListener"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="neutronvpnManager" />
+    <argument ref="neutronvpnNatManager" />
+  </bean>
+
+  <bean id="neutronPortChangeListener"
+    class="org.opendaylight.netvirt.neutronvpn.NeutronPortChangeListener"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="neutronvpnManager" />
+    <argument ref="neutronvpnNatManager" />
+    <argument ref="notificationPublishService" />
+    <argument ref="neutronFloatingToFixedIpMappingChangeListener" />
+    <argument ref="lockManagerService" />
+  </bean>
+
+  <bean id="neutronFloatingToFixedIpMappingChangeListener"
+    class="org.opendaylight.netvirt.neutronvpn.NeutronFloatingToFixedIpMappingChangeListener"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="lockManagerService" />
+  </bean>
+
+  <bean id="l2GatewayListener"
+    class="org.opendaylight.netvirt.neutronvpn.l2gw.L2GatewayListener"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="entityOwnershipService" />
+    <argument ref="itmRpcService" />
+  </bean>
+
+  <bean id="neutronSecurityRuleListener"
+    class="org.opendaylight.netvirt.neutronvpn.NeutronSecurityRuleListener"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+  </bean>
+
+  <bean id="neutronvpnManagerImpl"
+    class="org.opendaylight.netvirt.neutronvpn.NeutronvpnManagerImpl">
+    <argument ref="neutronvpnManager" />
+  </bean>
+  <service ref="neutronvpnManagerImpl" odl:type="default"
+    interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
+</blueprint>
