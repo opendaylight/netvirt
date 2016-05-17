@@ -63,6 +63,8 @@ public class NeutronSecurityRuleListener extends AsyncDataTreeChangeListenerBase
     public NeutronSecurityRuleListener(final DataBroker dataBroker) {
         super(SecurityRule.class, NeutronSecurityRuleListener.class);
         this.dataBroker = dataBroker;
+
+        registerListener();
     }
 
     public void registerListener() {

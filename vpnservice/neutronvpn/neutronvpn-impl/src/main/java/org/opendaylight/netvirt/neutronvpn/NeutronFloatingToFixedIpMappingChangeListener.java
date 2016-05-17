@@ -49,14 +49,11 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
     private LockManagerService lockManager;
 
 
-    public NeutronFloatingToFixedIpMappingChangeListener(final DataBroker db) {
+    public NeutronFloatingToFixedIpMappingChangeListener(final DataBroker db, LockManagerService lockManager) {
         super(Floatingip.class);
         broker = db;
-        registerListener(db);
-    }
-
-    public void setLockManager(LockManagerService lockManager) {
         this.lockManager = lockManager;
+        registerListener(db);
     }
 
     @Override
