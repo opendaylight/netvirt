@@ -18,6 +18,7 @@ module netvirt-impl {
     identity netvirt-impl {
         base config:module-type;
         config:java-name-prefix netvirtImpl;
+        status deprecated;
     }
 
     augment "/config:modules/config:module/config:configuration" {

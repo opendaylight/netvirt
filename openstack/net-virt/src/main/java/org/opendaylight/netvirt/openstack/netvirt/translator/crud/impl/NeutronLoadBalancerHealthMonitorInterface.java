@@ -9,7 +9,7 @@
 package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
 import java.util.List;
-
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancerHealthMonitor;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerHealthMonitorCRUD;
@@ -20,8 +20,8 @@ import org.osgi.framework.ServiceRegistration;
 
 public class NeutronLoadBalancerHealthMonitorInterface extends AbstractNeutronInterface<Healthmonitors, NeutronLoadBalancerHealthMonitor> implements INeutronLoadBalancerHealthMonitorCRUD {
 
-    NeutronLoadBalancerHealthMonitorInterface(ProviderContext providerContext) {
-        super(providerContext);
+    NeutronLoadBalancerHealthMonitorInterface(DataBroker dataBroker) {
+        super(dataBroker);
     }
 
     @Override
@@ -89,9 +89,9 @@ public class NeutronLoadBalancerHealthMonitorInterface extends AbstractNeutronIn
     }
 
     public static void registerNewInterface(BundleContext context,
-                                            ProviderContext providerContext,
+                                            final DataBroker dataBroker,
                                             List<ServiceRegistration<?>> registrations) {
-        NeutronLoadBalancerHealthMonitorInterface neutronLoadBalancerHealthMonitorInterface = new NeutronLoadBalancerHealthMonitorInterface(providerContext);
+        NeutronLoadBalancerHealthMonitorInterface neutronLoadBalancerHealthMonitorInterface = new NeutronLoadBalancerHealthMonitorInterface(dataBroker);
         ServiceRegistration<INeutronLoadBalancerHealthMonitorCRUD> neutronLoadBalancerHealthMonitorInterfaceRegistration = context.registerService(INeutronLoadBalancerHealthMonitorCRUD.class, neutronLoadBalancerHealthMonitorInterface, null);
         if(neutronLoadBalancerHealthMonitorInterfaceRegistration != null) {
             registrations.add(neutronLoadBalancerHealthMonitorInterfaceRegistration);
