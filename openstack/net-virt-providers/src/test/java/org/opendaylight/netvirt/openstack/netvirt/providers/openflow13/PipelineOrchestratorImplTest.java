@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
+import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -44,6 +45,7 @@ public class PipelineOrchestratorImplTest {
     @Test
     public void testGetTableOffset() {
         short tableOffset = 0;
+        NetvirtProvidersProvider.setTableOffset(tableOffset);
         assertEquals("tableOffset was not set", tableOffset, orchestrator.getTableOffset());
     }
 
@@ -52,6 +54,8 @@ public class PipelineOrchestratorImplTest {
      */
     @Test
     public void testGetTableOffsetWithService() {
+        short tableOffset = 0;
+        NetvirtProvidersProvider.setTableOffset(tableOffset);
         assertEquals("tableOffset was not set", Service.CLASSIFIER.getTable(),
                 orchestrator.getTable(Service.CLASSIFIER));
     }
