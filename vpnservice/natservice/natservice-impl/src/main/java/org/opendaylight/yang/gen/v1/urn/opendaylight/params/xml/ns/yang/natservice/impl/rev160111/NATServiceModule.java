@@ -7,9 +7,13 @@
  */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.natservice.impl.rev160111;
 
-import org.opendaylight.netvirt.natservice.internal.NatServiceProvider;
+import org.opendaylight.controller.sal.common.util.NoopAutoCloseable;
 
-public class NATServiceModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.natservice.impl.rev160111.AbstractNATServiceModule {
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
+public class NATServiceModule extends AbstractNATServiceModule {
     public NATServiceModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
@@ -25,11 +29,7 @@ public class NATServiceModule extends org.opendaylight.yang.gen.v1.urn.opendayli
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        NatServiceProvider provider = new NatServiceProvider(getRpcRegistryDependency());
-        provider.setNotificationService(getNotificationServiceDependency());
-        provider.setMdsalManager(getMdsalutilDependency());
-        provider.setBgpManager(getBgpmanagerDependency());
-        getBrokerDependency().registerProvider(provider);
-        return provider;
+        // NatServiceProvider instance is created via blueprint so this in a no-op.
+        return NoopAutoCloseable.INSTANCE;
     }
 }
