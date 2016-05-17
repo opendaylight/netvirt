@@ -103,18 +103,18 @@ public class ConfigActivator implements BundleActivator {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigActivator.class);
     private List<ServiceRegistration<?>> translatorCRUDRegistrations = new ArrayList<>();
     private List<Pair<Object, ServiceRegistration>> servicesAndRegistrations = new ArrayList<>();
-    private ProviderContext providerContext;
+    private final DataBroker dataBroker;
     private boolean conntrackEnabled = false;
     private boolean intBridgeGenMac = true;
 
-    public ConfigActivator(ProviderContext providerContext) {
-        this.providerContext = providerContext;
+    public ConfigActivator(final DataBroker dataBroker) {
+        this.dataBroker = dataBroker;
     }
 
     @Override
     public void start(BundleContext context) throws Exception {
         LOG.info("ConfigActivator start:");
-        registerCRUDServiceProviders(context, this.providerContext);
+        registerCRUDServiceProviders(context);
 
         ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl();
         registerService(context, new String[] {ConfigurationService.class.getName()},
@@ -198,7 +198,7 @@ public class ConfigActivator implements BundleActivator {
                 new String[]{EventDispatcher.class.getName()}, null, eventDispatcher);
 
         final NeutronL3Adapter neutronL3Adapter = new NeutronL3Adapter(
-                new NeutronModelsDataStoreHelper(this.providerContext.getSALService(DataBroker.class)));
+                new NeutronModelsDataStoreHelper(dataBroker));
         registerAbstractHandlerService(context, new Class[] {NeutronL3Adapter.class, GatewayMacResolverListener.class},
                 AbstractEvent.HandlerType.NEUTRON_L3_ADAPTER, neutronL3Adapter);
 
@@ -215,11 +215,11 @@ public class ConfigActivator implements BundleActivator {
         registerService(context,
                 new String[]{MultiTenantAwareRouter.class.getName()}, null, openstackRouter);
 
-        Southbound southbound = new SouthboundImpl(providerContext.getSALService(DataBroker.class));
+        Southbound southbound = new SouthboundImpl(dataBroker);
         registerService(context,
                 new String[]{Southbound.class.getName()}, null, southbound);
 
-        HostConfigService hostConfigService = new HostConfigService(providerContext.getSALService(DataBroker.class));
+        HostConfigService hostConfigService = new HostConfigService(dataBroker);
         registerService(context,
                 new String[]{HostConfigService.class.getName()}, null, hostConfigService);
 
@@ -227,7 +227,7 @@ public class ConfigActivator implements BundleActivator {
         registerAbstractHandlerService(context, new Class[] {NodeCacheManager.class},
                 AbstractEvent.HandlerType.NODE, nodeCacheManager);
 
-        OvsdbInventoryServiceImpl ovsdbInventoryService = new OvsdbInventoryServiceImpl(providerContext);
+        OvsdbInventoryServiceImpl ovsdbInventoryService = new OvsdbInventoryServiceImpl(dataBroker);
         registerService(context,
                 new String[] {OvsdbInventoryService.class.getName()}, null, ovsdbInventoryService);
 
@@ -274,24 +274,23 @@ public class ConfigActivator implements BundleActivator {
         servicesAndRegistrations.clear();
     }
 
-    private void registerCRUDServiceProviders(BundleContext context,
-            ProviderContext providerContext) {
+    private void registerCRUDServiceProviders(BundleContext context) {
         LOG.debug("Registering CRUD service providers");
-        NeutronRouterInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronPortInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronSubnetInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronNetworkInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronSecurityGroupInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronSecurityRuleInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronFirewallInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronFirewallPolicyInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronFirewallRuleInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronLoadBalancerInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronLoadBalancerPoolInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronLoadBalancerListenerInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronLoadBalancerHealthMonitorInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronLoadBalancerPoolMemberInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
-        NeutronFloatingIPInterface.registerNewInterface(context, providerContext, translatorCRUDRegistrations);
+        NeutronRouterInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronPortInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronSubnetInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronNetworkInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronSecurityGroupInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronSecurityRuleInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronFirewallInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronFirewallPolicyInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronFirewallRuleInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronLoadBalancerInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronLoadBalancerPoolInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronLoadBalancerListenerInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronLoadBalancerHealthMonitorInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronLoadBalancerPoolMemberInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+        NeutronFloatingIPInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
     }
 
     private void trackService(BundleContext context, final Class<?> clazz, final ConfigInterface... dependents) {
