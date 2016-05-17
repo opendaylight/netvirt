@@ -21,6 +21,7 @@ module fcaps-app {
     identity fcaps-app {
             base config:module-type;
             config:java-name-prefix FcapsApp;
+            status deprecated;
     }
 
     augment "/config:modules/config:module/config:configuration" {

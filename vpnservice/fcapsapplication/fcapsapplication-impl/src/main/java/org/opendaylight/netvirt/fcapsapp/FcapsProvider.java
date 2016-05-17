@@ -7,14 +7,13 @@
  */
 package org.opendaylight.netvirt.fcapsapp;
 
-import com.google.common.base.Preconditions;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.fcapsapp.performancecounter.FlowNodeConnectorInventoryTranslatorImpl;
 import org.opendaylight.netvirt.fcapsapp.alarm.AlarmAgent;
+import org.opendaylight.netvirt.fcapsapp.performancecounter.FlowNodeConnectorInventoryTranslatorImpl;
 import org.opendaylight.netvirt.fcapsapp.performancecounter.PMAgent;
 import org.opendaylight.netvirt.fcapsapp.performancecounter.PacketInCounterHandler;
 import org.opendaylight.netvirt.fcapsapp.portinfo.PortNameMapping;
@@ -43,20 +42,19 @@ public class FcapsProvider implements AutoCloseable {
      * @param notificationService instance of notificationservice
      * @param eos instance of EntityOwnershipService
      */
-    public FcapsProvider(DataBroker dataBroker,NotificationService notificationService,
+    public FcapsProvider(final DataBroker dataBroker,
+                         final NotificationService notificationService,
                          final EntityOwnershipService eos) {
-        this.dataService = Preconditions.checkNotNull(dataBroker, "DataBroker can not be null!");
-        s_logger.info("FcapsProvider dataBroket is set");
+        this.dataService = dataBroker;
+        this.notificationProviderService = notificationService;
+        this.entityOwnershipService = eos;
 
-        this.notificationProviderService = Preconditions.checkNotNull(notificationService,
-                "notificationService can not be null!");
-        s_logger.info("FcapsProvider notificationProviderService is set");
+        this.alarmAgent = new AlarmAgent();
+        this.pmAgent = new PMAgent();
+    }
 
-        this.entityOwnershipService = Preconditions.checkNotNull(eos, "EntityOwnership service can not be null");
-        s_logger.info("FcapsProvider entityOwnershipService is set");
-
-        alarmAgent = new AlarmAgent();
-        pmAgent = new PMAgent();
+    public void start() {
+        s_logger.info("FcapsProvider started");
 
         alarmAgent.registerAlarmMbean();
 
@@ -91,6 +89,8 @@ public class FcapsProvider implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-
+        if (flowNodeConnectorInventoryTranslatorImpl != null) {
+            flowNodeConnectorInventoryTranslatorImpl.close();
+        }
     }
 }

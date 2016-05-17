@@ -8,6 +8,11 @@
 * Do not modify this file unless it is present under src/main directory
 */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.openflowplugin.app.fcaps.app.rev151211;
+
+/**
+ * @deprecated Replaced by blueprint wiring
+ */
+@Deprecated
 public class FcapsAppModuleFactory extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.openflowplugin.app.fcaps.app.rev151211.AbstractFcapsAppModuleFactory {
 
 }
