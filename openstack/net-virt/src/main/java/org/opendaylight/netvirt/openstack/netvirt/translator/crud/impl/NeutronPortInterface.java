@@ -14,17 +14,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort_AllowedAddressPairs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort_ExtraDHCPOption;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort_VIFDetail;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
+import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityGroupCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.NeutronCRUDInterfaces;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
-import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -54,8 +53,8 @@ import org.slf4j.LoggerFactory;
 public class NeutronPortInterface extends AbstractNeutronInterface<Port, NeutronPort> implements INeutronPortCRUD {
     private static final Logger LOGGER = LoggerFactory.getLogger(NeutronPortInterface.class);
 
-    NeutronPortInterface(ProviderContext providerContext) {
-        super(providerContext);
+    NeutronPortInterface(final DataBroker dataBroker) {
+        super(dataBroker);
     }
 
     // IfNBPortCRUD methods
@@ -334,9 +333,9 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
     }
 
     public static void registerNewInterface(BundleContext context,
-                                            ProviderContext providerContext,
+                                            final DataBroker dataBroker,
                                             List<ServiceRegistration<?>> registrations) {
-        NeutronPortInterface neutronPortInterface = new NeutronPortInterface(providerContext);
+        NeutronPortInterface neutronPortInterface = new NeutronPortInterface(dataBroker);
         ServiceRegistration<INeutronPortCRUD> neutronPortInterfaceRegistration = context.registerService(INeutronPortCRUD.class, neutronPortInterface, null);
         if(neutronPortInterfaceRegistration != null) {
             registrations.add(neutronPortInterfaceRegistration);
