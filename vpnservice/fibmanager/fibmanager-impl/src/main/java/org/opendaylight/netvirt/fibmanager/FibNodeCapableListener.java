@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import java.math.BigInteger;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
@@ -32,8 +31,8 @@ public class FibNodeCapableListener extends AbstractDataChangeListener<FlowCapab
 
     public FibNodeCapableListener(final DataBroker dataBroker, FibManager fibManager) {
         super(FlowCapableNode.class);
-        registerListener(dataBroker);
         this.fibManager = fibManager;
+        registerListener(dataBroker);
     }
 
     private void registerListener(final DataBroker db) {
@@ -53,12 +52,7 @@ public class FibNodeCapableListener extends AbstractDataChangeListener<FlowCapab
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
+            listenerRegistration.close();
         }
         LOG.info("FibNodeConnectorListener Closed");
     }
@@ -66,7 +60,7 @@ public class FibNodeCapableListener extends AbstractDataChangeListener<FlowCapab
     @Override
     protected void add(InstanceIdentifier<FlowCapableNode> identifier, FlowCapableNode node) {
         LOG.trace("FlowCapableNode Added: key: " + identifier + ", value=" + node );
-        NodeKey nodeKey = identifier.firstKeyOf(Node.class, NodeKey.class);
+        NodeKey nodeKey = identifier.firstKeyOf(Node.class);
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         fibManager.processNodeAdd(dpnId);
     }
