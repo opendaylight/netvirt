@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+    odl:use-default-for-reference-types="true">
+
+    <reference id="dataBroker"
+        interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+        odl:type="pingpong" />
+    <reference id="rpcRegistry"
+        interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry" />
+    <reference id="mdsalUtils"
+        interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+    <reference id="vpnManager"
+        interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
+
+    <odl:rpc-service id="idManagerService"
+        interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
+    <odl:rpc-service id="odlInterfaceRpcService"
+        interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
+    <odl:rpc-service id="itmRpcService"
+        interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService" />
+
+    <bean id="fibManagerProvider"
+        class="org.opendaylight.netvirt.fibmanager.FibManagerProvider"
+        init-method="start" destroy-method="close">
+        <argument ref="dataBroker" />
+        <argument ref="rpcRegistry" />
+        <argument ref="mdsalUtils" />
+        <argument ref="vpnManager" />
+        <argument ref="idManagerService" />
+        <argument ref="odlInterfaceRpcService" />
+        <argument ref="itmRpcService" />
+    </bean>
+
+    <service ref="fibManagerProvider" odl:type="fibmanager-default">
+        <interfaces>
+            <value>org.opendaylight.netvirt.fibmanager.api.IFibManager</value>
+        </interfaces>
+    </service>
+</blueprint>
