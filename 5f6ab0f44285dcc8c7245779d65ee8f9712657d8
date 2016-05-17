@@ -22,6 +22,30 @@
       "revId": "5f6ab0f44285dcc8c7245779d65ee8f9712657d8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_7a96c0f1",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/resources/org/opendaylight/blueprint/bgpmanager-impl.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-17T13:27:09Z",
+      "side": 1,
+      "message": "yes - specify both.",
+      "parentUuid": "fa57193c_5af2dc6f",
+      "range": {
+        "startLine": 8,
+        "startChar": 3,
+        "endLine": 8,
+        "endChar": 7
+      },
+      "revId": "5f6ab0f44285dcc8c7245779d65ee8f9712657d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
