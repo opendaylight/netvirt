@@ -27,7 +27,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ElanNodeListener extends AbstractDataChangeListener<Node> {
+public class ElanNodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(ElanNodeListener.class);
 
@@ -112,5 +112,13 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> {
 
     private String getTableMissFlowRef(long tableId) {
         return new StringBuffer().append(tableId).toString();
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (listenerRegistration != null) {
+            listenerRegistration.close();
+        }
+
     }
 }
