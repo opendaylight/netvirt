@@ -25,15 +25,13 @@ import org.slf4j.LoggerFactory;
  */
 public class DelegatingDataTreeListener<T extends DataObject> implements AutoCloseable, ClusteredDataTreeChangeListener<T> {
     private static final Logger LOG = LoggerFactory.getLogger(DelegatingDataTreeListener.class);
-    protected NeutronProvider provider;
     protected DataBroker db;
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
     private final DataProcessor<T> dataProcessor;
     private ListenerRegistration<DelegatingDataTreeListener<T>> listenerRegistration;
 
-    public DelegatingDataTreeListener(NeutronProvider provider, DataProcessor<T> dataProcessor,
+    public DelegatingDataTreeListener(DataProcessor<T> dataProcessor,
                                       DataBroker db, DataTreeIdentifier<T> treeId) {
-        this.provider = Preconditions.checkNotNull(provider, "provider can not be null!");
         this.dataProcessor = Preconditions.checkNotNull(dataProcessor, "Data processor can not be null!");
         registerListener(Preconditions.checkNotNull(db, "Data broker can not be null!"),
                 Preconditions.checkNotNull(treeId, "Tree identifier can not be null!"));
