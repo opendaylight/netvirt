@@ -7,60 +7,55 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
-import java.util.List;
 import java.util.HashMap;
-
+import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
-import org.opendaylight.genius.mdsalutil.*;
+import org.opendaylight.genius.mdsalutil.BucketInfo;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.GroupEntity;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
 public class RouterDpnChangeListener extends AbstractDataChangeListener<DpnVpninterfacesList> implements AutoCloseable{
     private static final Logger LOG = LoggerFactory.getLogger(RouterDpnChangeListener.class);
+
     private ListenerRegistration<DataChangeListener> listenerRegistration;
+
     private final DataBroker dataBroker;
-    private SNATDefaultRouteProgrammer defaultRouteProgrammer;
-    private NaptSwitchHA naptSwitchHA;
-    private IMdsalApiManager mdsalManager;
-    private IdManagerService idManager;
+    private final SNATDefaultRouteProgrammer defaultRouteProgrammer;
+    private final NaptSwitchHA naptSwitchHA;
+    private final IMdsalApiManager mdsalManager;
+    private final IdManagerService idManager;
 
-    public RouterDpnChangeListener (final DataBroker db) {
+    public RouterDpnChangeListener(DataBroker dataBroker,
+            SNATDefaultRouteProgrammer defaultRouteProgrammer,
+            NaptSwitchHA naptSwitchHA, IMdsalApiManager mdsalManager,
+            IdManagerService idManager) {
         super(DpnVpninterfacesList.class);
-        dataBroker = db;
-        registerListener(db);
-    }
-
-    void setDefaultProgrammer(SNATDefaultRouteProgrammer defaultRouteProgrammer) {
+        this.dataBroker = dataBroker;
         this.defaultRouteProgrammer = defaultRouteProgrammer;
-    }
-
-    void setNaptSwitchHA(NaptSwitchHA switchHA) {
-        naptSwitchHA = switchHA;
-    }
-
-    void setMdsalManager(IMdsalApiManager mdsalManager) {
+        this.naptSwitchHA = naptSwitchHA;
         this.mdsalManager = mdsalManager;
-    }
-
-    public void setIdManager(IdManagerService idManager) {
         this.idManager = idManager;
+
+        registerListener(dataBroker);
     }
 
     @Override

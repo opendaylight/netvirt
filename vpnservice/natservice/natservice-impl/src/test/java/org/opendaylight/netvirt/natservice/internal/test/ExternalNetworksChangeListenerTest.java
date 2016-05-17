@@ -10,24 +10,22 @@ package org.opendaylight.netvirt.natservice.internal.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
-import org.opendaylight.netvirt.natservice.internal.ExternalNetworksChangeListener;
-import org.opendaylight.netvirt.natservice.internal.NatUtil;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -39,6 +37,15 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.natservice.internal.ExternalNetworksChangeListener;
+import org.opendaylight.netvirt.natservice.internal.ExternalRoutersListener;
+import org.opendaylight.netvirt.natservice.internal.FloatingIPListener;
+import org.opendaylight.netvirt.natservice.internal.NaptManager;
+import org.opendaylight.netvirt.natservice.internal.NatUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.powermock.api.mockito.PowerMockito;
@@ -69,7 +76,16 @@ public class ExternalNetworksChangeListenerTest {
                 any(DataChangeListener.class),
                 any(DataChangeScope.class)))
                 .thenReturn(dataChangeListenerRegistration);
-        extNetworks = new ExternalNetworksChangeListener(dataBroker);
+
+        extNetworks = new ExternalNetworksChangeListener(dataBroker,
+                Mockito.mock(IMdsalApiManager.class),
+                Mockito.mock(FloatingIPListener.class),
+                Mockito.mock(ExternalRoutersListener.class),
+                Mockito.mock(OdlInterfaceRpcService.class),
+                Mockito.mock(NaptManager.class),
+                Mockito.mock(IBgpManager.class),
+                Mockito.mock(VpnRpcService.class),
+                Mockito.mock(FibRpcService.class));
 
         PowerMockito.mockStatic(MDSALUtil.class);
     }

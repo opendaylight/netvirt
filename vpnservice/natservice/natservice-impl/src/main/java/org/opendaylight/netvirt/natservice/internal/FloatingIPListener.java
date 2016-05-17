@@ -7,6 +7,15 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
@@ -22,8 +31,16 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.PortsBuilder;
@@ -31,52 +48,34 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMappingKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yangtools.yang.common.RpcResult;
-
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by emhamla on 1/18/2016.
  */
 public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> implements AutoCloseable{
     private static final Logger LOG = LoggerFactory.getLogger(FloatingIPListener.class);
+
     private ListenerRegistration<DataChangeListener> listenerRegistration;
+
     private final DataBroker broker;
-    private OdlInterfaceRpcService interfaceManager;
-    private IMdsalApiManager mdsalManager;
-    private FloatingIPHandler handler;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final IMdsalApiManager mdsalManager;
+    private final FloatingIPHandler handler;
 
-
-    public FloatingIPListener (final DataBroker db) {
+    public FloatingIPListener(final DataBroker db, FloatingIPHandler handler,
+            final OdlInterfaceRpcService odlInterfaceRpcService,
+            final IMdsalApiManager mdsalApiManager) {
         super(IpMapping.class);
         broker = db;
-        registerListener(db);
-    }
-
-    void setFloatingIpHandler(FloatingIPHandler handler) {
         this.handler = handler;
+        this.interfaceManager = odlInterfaceRpcService;
+        this.mdsalManager = mdsalApiManager;
+        registerListener(db);
     }
 
     @Override
@@ -104,14 +103,6 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
     private InstanceIdentifier<IpMapping> getWildCardPath() {
         return InstanceIdentifier.create(FloatingIpInfo.class).child(RouterPorts.class).child(Ports.class).child(IpMapping.class);
-    }
-
-    public void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
-        this.interfaceManager = interfaceManager;
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
     }
 
     @Override
@@ -427,7 +418,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         BigInteger dpnId = getDpnForInterface(interfaceManager, interfaceName);
 
         if(dpnId.equals(BigInteger.ZERO)) {
-             LOG.error("No DPN for interface {}. NAT flow entries for ip mapping {} will not be installed", 
+             LOG.error("No DPN for interface {}. NAT flow entries for ip mapping {} will not be installed",
                      interfaceName, mapping);
              return;
         }
@@ -458,7 +449,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         }
         long vpnId = getVpnId(extNwId);
         if(vpnId < 0) {
-            LOG.error("No VPN associated with Ext nw {}. Unable to create SNAT table entry for fixed ip {}", 
+            LOG.error("No VPN associated with Ext nw {}. Unable to create SNAT table entry for fixed ip {}",
                     extNwId, mapping.getInternalIp());
             return;
         }
@@ -488,7 +479,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
             LOG.debug("Router {} is associated with VPN Instance with Id {}", routerName, associatedVpnId);
             //routerId = associatedVpnId;
         }
-        
+
         long vpnId = getVpnId(externalNetworkId);
         if(vpnId < 0) {
             LOG.error("Unable to create SNAT table entry for fixed ip {}", internalIp);
@@ -582,7 +573,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         }
         long vpnId = getVpnId(extNwId);
         if(vpnId < 0) {
-            LOG.error("No VPN associated with ext nw {}. Unable to delete SNAT table entry for fixed ip {}", 
+            LOG.error("No VPN associated with ext nw {}. Unable to delete SNAT table entry for fixed ip {}",
                     extNwId, mapping.getInternalIp());
             return;
         }

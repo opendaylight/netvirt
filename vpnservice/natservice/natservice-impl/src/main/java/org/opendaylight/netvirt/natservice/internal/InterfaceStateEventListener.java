@@ -7,22 +7,28 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.*;
+import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
@@ -35,43 +41,29 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
-import java.math.BigInteger;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 public class InterfaceStateEventListener extends AbstractDataChangeListener<Interface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateEventListener.class);
+
     private ListenerRegistration<DataChangeListener> listenerRegistration;
+
     private final DataBroker dataBroker;
-    private IMdsalApiManager mdsalManager;
-    private FloatingIPListener floatingIPListener;
-    private NaptManager naptManager;
-    private NeutronvpnService neutronVpnService;
+    private final IMdsalApiManager mdsalManager;
+    private final FloatingIPListener floatingIPListener;
+    private final NaptManager naptManager;
+    private final NeutronvpnService neutronVpnService;
 
-    public InterfaceStateEventListener(final DataBroker db){
+    public InterfaceStateEventListener(DataBroker dataBroker,
+            IMdsalApiManager mdsalManager,
+            FloatingIPListener floatingIPListener, NaptManager naptManager,
+            NeutronvpnService neutronVpnService) {
         super(Interface.class);
-        dataBroker = db;
-        registerListener(db);
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
+        this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
-    }
-
-    public void setFloatingIpListener(FloatingIPListener floatingIPListener) {
         this.floatingIPListener = floatingIPListener;
-    }
-
-    public void setNeutronVpnService(NeutronvpnService neutronVpnService) {
-        this.neutronVpnService = neutronVpnService;
-    }
-
-    public void setNaptManager(NaptManager naptManager) {
         this.naptManager = naptManager;
+        this.neutronVpnService = neutronVpnService;
 
+        registerListener(dataBroker);
     }
 
     private void registerListener(final DataBroker db) {
