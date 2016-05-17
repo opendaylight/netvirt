@@ -8,86 +8,97 @@
 package org.opendaylight.netvirt.fcapsapp.performancecounter;
 
 
+import java.lang.management.ManagementFactory;
+import java.util.Map;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
 import org.opendaylight.netvirt.fcapsappjmx.NumberOfOFPorts;
 import org.opendaylight.netvirt.fcapsappjmx.NumberOfOFSwitchCounter;
 import org.opendaylight.netvirt.fcapsappjmx.PacketInCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.*;
-import java.lang.String;
-import java.lang.management.ManagementFactory;
-import java.util.Map;
-
 public class PMAgent {
     private static Logger s_logger = LoggerFactory.getLogger(PMAgent.class);
     private MBeanServer mbs = null;
-    private ObjectName switch_mbeanName = null;
-    private ObjectName port_mbeanName = null;
-    private ObjectName pktIn_mbeanName = null;
+    private ObjectName switchBeanName = null;
+    private ObjectName portBeanName = null;
+    private ObjectName pktInBeanName = null;
     private static final String SWITCH_BEANNAME = "SDNC.PM:type=NumberOfOFSwitchCounter";
     private static final String PORTS_BEANNAME = "SDNC.PM:type=NumberOfOFPortsCounter";
     private static final String PKTIN_BEANNAME = "SDNC.PM:type=InjectedPacketInCounter";
 
-    private static NumberOfOFSwitchCounter switchCounterBean = new NumberOfOFSwitchCounter();
-    private static NumberOfOFPorts PortcounterBean = new NumberOfOFPorts();
-    private static PacketInCounter packetInCounter = new PacketInCounter();
+    private NumberOfOFSwitchCounter switchCounterBean = new NumberOfOFSwitchCounter();
+    private NumberOfOFPorts PortcounterBean = new NumberOfOFPorts();
+    private PacketInCounter packetInCounter = new PacketInCounter();
 
     public PMAgent() {
         mbs = ManagementFactory.getPlatformMBeanServer();
         try {
-            switch_mbeanName = new ObjectName(SWITCH_BEANNAME);
-            port_mbeanName = new ObjectName(PORTS_BEANNAME);
-            pktIn_mbeanName = new ObjectName(PKTIN_BEANNAME);
+            switchBeanName = new ObjectName(SWITCH_BEANNAME);
+            portBeanName = new ObjectName(PORTS_BEANNAME);
+            pktInBeanName = new ObjectName(PKTIN_BEANNAME);
         } catch (MalformedObjectNameException e) {
             s_logger.error("ObjectName instance creation failed for BEANAME {}", e);
-
         }
     }
 
-    public void registerMbeanForEFS() {
+    /**
+     * Register MBeans.
+     */
+    public void registerMBean() {
         try {
-            if (!mbs.isRegistered(switch_mbeanName)) {
-                mbs.registerMBean(switchCounterBean, switch_mbeanName);
-                s_logger.info("Registered Mbean {} successfully", switch_mbeanName);
+            if (!mbs.isRegistered(switchBeanName)) {
+                mbs.registerMBean(switchCounterBean, switchBeanName);
+                s_logger.info("Registered Mbean {} successfully", switchBeanName);
             }
-
-        } catch (Exception e) {
-            s_logger.error("Registeration failed for Mbean {} :{}", switch_mbeanName, e);
+            if (!mbs.isRegistered(portBeanName)) {
+                mbs.registerMBean(PortcounterBean, portBeanName);
+                s_logger.info("Registered Mbean {} successfully", portBeanName);
+            }
+            if (!mbs.isRegistered(pktInBeanName)) {
+                mbs.registerMBean(packetInCounter,pktInBeanName);
+                s_logger.info("Registered Mbean {} successfully",pktInBeanName );
+            }
+        } catch (InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException e) {
+            s_logger.error("Registeration failed for Mbean :{}", e);
         }
     }
 
-    public void registerMbeanForPorts() {
+
+    /**
+     * Unregister MBeans.
+     */
+    public void unregisterMBean() {
         try {
-            if (!mbs.isRegistered(port_mbeanName)) {
-                mbs.registerMBean(PortcounterBean, port_mbeanName);
-                s_logger.info("Registered Mbean {} successfully", port_mbeanName);
+            if (!mbs.isRegistered(switchBeanName)) {
+                mbs.unregisterMBean(switchBeanName);
             }
-        } catch (Exception e) {
-            s_logger.error("Registeration failed for Mbean {} :{}", port_mbeanName, e);
+            if (!mbs.isRegistered(portBeanName)) {
+                mbs.unregisterMBean(portBeanName);
+            }
+            if (!mbs.isRegistered(pktInBeanName)) {
+                mbs.unregisterMBean(pktInBeanName);
+            }
+        } catch (MBeanRegistrationException | InstanceNotFoundException e) {
+            s_logger.error("Failed to unregister Mbean :{}", e);
         }
     }
 
-    public void registerMbeanForPacketIn() {
-        try {
-            if (!mbs.isRegistered(pktIn_mbeanName)) {
-                mbs.registerMBean(packetInCounter,pktIn_mbeanName);
-                s_logger.info("Registered Mbean {} successfully",pktIn_mbeanName );
-            }
-        } catch (Exception e) {
-            s_logger.error("Registeration failed for Mbean {} :{}",pktIn_mbeanName , e);
-        }
-    }
-
-    public void connectToPMAgent(Map map) {
+    public void connectToPMAgent(Map<String, String> map) {
         switchCounterBean.updateCounter(map);
     }
 
-    public void connectToPMAgentForNOOfPorts(Map map) {
+    public void connectToPMAgentForNOOfPorts(Map<String, String> map) {
         PortcounterBean.updateCounter(map);
     }
 
-    public void sendPacketInCounterUpdate(Map map){
+    public void sendPacketInCounterUpdate(Map<String, String> map){
         packetInCounter.updateCounter(map);
     }
 }
