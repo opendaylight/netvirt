@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.base.Optional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -17,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
@@ -26,10 +26,6 @@ import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.dhcpservice.api.DHCP;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPConstants;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -38,9 +34,19 @@ import org.opendaylight.genius.mdsalutil.packet.IEEE8021Q;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
+import org.opendaylight.netvirt.dhcpservice.api.DHCP;
+import org.opendaylight.netvirt.dhcpservice.api.DHCPConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DHCPUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.HostRoutes;
@@ -51,37 +57,38 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.SendToController;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
-public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
+public class DhcpPktHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpPktHandler.class);
+
     private final DataBroker dataBroker;
     private final DhcpManager dhcpMgr;
-    private OdlInterfaceRpcService interfaceManagerRpc;
-    private boolean computeUdpChecksum = true;
-    private PacketProcessingService pktService;
-    private DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final OdlInterfaceRpcService interfaceManagerRpc;
+    private final PacketProcessingService pktService;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
 
-    public DhcpPktHandler(final DataBroker broker, final DhcpManager dhcpManager, final DhcpExternalTunnelManager dhcpExternalTunnelManager) {
+    private boolean computeUdpChecksum = true;
+
+    public DhcpPktHandler(final DataBroker broker,
+            final DhcpManager dhcpManager,
+            final DhcpExternalTunnelManager dhcpExternalTunnelManager,
+            final OdlInterfaceRpcService interfaceManagerRpc,
+            final PacketProcessingService pktService) {
+        this.interfaceManagerRpc = interfaceManagerRpc;
+        this.pktService = pktService;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = broker;
-        dhcpMgr = dhcpManager;
+        this.dhcpMgr = dhcpManager;
+
     }
 
-    //TODO: Handle this in a separate thread
+    //FIXME: Handle this in a separate thread
     @Override
     public void onPacketReceived(PacketReceived packet) {
         Class<? extends PacketInReason> pktInReason = packet.getPacketInReason();
@@ -525,20 +532,6 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
 
     private boolean isPktInReasonSendtoCtrl(Class<? extends PacketInReason> pktInReason) {
         return (pktInReason == SendToController.class);
-    }
-
-    @Override
-    public void close() throws Exception {
-        // TODO Auto-generated method stub
-    }
-
-    public void setPacketProcessingService(PacketProcessingService packetService) {
-        this.pktService = packetService;
-    }
-
-    public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {
-        LOG.trace("Registered interfaceManager successfully");
-        this.interfaceManagerRpc = interfaceManagerRpc;
     }
 
     private String getInterfaceNameFromTag(long portTag) {
