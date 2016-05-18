@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_2177f73b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-05-18T11:48:26Z",
+      "side": 1,
+      "message": "This patch is a step in optimizing the flows, but IMO the patch can be enhanced to program flows which use some match criteria. \n\nLet me explain the issue. \nThe flow that is currently programmed is an unconditional flow which is as follows.\n[vagrant@localhost ~]$ sudo ovs-ofctl -OOpenFlow13 dump-flows br-int | grep CONTROLLER\n cookie\u003d0x0, duration\u003d766.325s, table\u003d0, n_packets\u003d136, n_bytes\u003d15096, dl_type\u003d0x88cc actions\u003dCONTROLLER:65535\n cookie\u003d0x4, duration\u003d78.164s, table\u003d20, n_packets\u003d2, n_bytes\u003d156, priority\u003d1024,icmp6,icmp_type\u003d135 actions\u003dCONTROLLER:65535\n cookie\u003d0x3, duration\u003d78.182s, table\u003d20, n_packets\u003d8, n_bytes\u003d560, priority\u003d1024,icmp6,icmp_type\u003d133 actions\u003dCONTROLLER:65535\n\nNow imagine two networks one with a v6 subnet and the other without a v6 subnets.\nIdeally I would NOT expect any NS/RS packets from the VMs on network2 to reach the RouterManager, but because of the un-conditional flow, the NS/RS packets from VMs on network2 are also punted to the controller. \nSide note: As you know, pretty much all the VMs now-a-days have built in IPv6 support. So they send out RS upon boot-up to discover the v6 Routers.  \n\nThe other problem is that..\nLike we discussed earlier, we do not want all the NS flows to be punted to the controller, we only want the NS destined to the Router interface to be sent. \n\nAppreciate if you can please take a look at the above use-cases and optimize the flows further. \n\nThanks for the patch @Kalai.",
+      "revId": "6bbf9caf5d4fe22feceac41b70f2dc48edb00715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
