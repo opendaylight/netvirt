@@ -173,9 +173,15 @@ public class SouthboundHandler extends AbstractHandler
                                 continue;
                             }
                             NeutronNetwork neutronNetwork = tenantNetworkManager.getTenantNetwork(tpAugmentation);
-                            if (neutronNetwork != null && neutronNetwork.equals(network)) {
-                                isLastInstanceOnNode = false;
-                                break;
+                            if (neutronNetwork != null) {
+                                String neutronNetworkSegId = neutronNetwork.getProviderSegmentationID();
+                                String networkSegId = network.getProviderSegmentationID();
+                                // vxlan ports should not be removed in table 110 flow entry
+                                // unless last VM instance removed from the openstack node(Bug# 5813)
+                                if (neutronNetworkSegId.equals(networkSegId)) {
+                                    isLastInstanceOnNode = false;
+                                    break;
+                                }
                             }
                         }
                         this.handleInterfaceDelete(node, ovsdbTerminationPointAugmentation,
