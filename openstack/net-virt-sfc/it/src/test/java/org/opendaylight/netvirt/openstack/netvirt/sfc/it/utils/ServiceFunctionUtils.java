@@ -16,8 +16,8 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev1
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SftType;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.ServiceFunctionsBuilder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.entry.SfDataPlaneLocator;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.entry.SfDataPlaneLocatorBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.base.SfDataPlaneLocator;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.base.SfDataPlaneLocatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunctionBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sl.rev140701.VxlanGpe;
@@ -65,8 +65,7 @@ public class ServiceFunctionUtils extends AbstractUtils {
         SfDataPlaneLocatorBuilder sfDataPlaneLocator =
                 sfDataPlaneLocatorBuilder(new SfDataPlaneLocatorBuilder(), sfIp, port, sf1DplName,
                         sf1DplPortName, sffname);
-        List<SfDataPlaneLocator> sfDataPlaneLocatorList =
-                list(new ArrayList<SfDataPlaneLocator>(), sfDataPlaneLocator);
+        List<SfDataPlaneLocator> sfDataPlaneLocatorList = list(new ArrayList<>(), sfDataPlaneLocator);
         return serviceFunctionBuilder(
                 new ServiceFunctionBuilder(), sfIp, sfName, sfDataPlaneLocatorList, new SftType("firewall"));
     }
