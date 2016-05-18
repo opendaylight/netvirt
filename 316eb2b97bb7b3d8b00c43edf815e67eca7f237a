@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_7c5eb877",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/ConfigActivator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-18T14:30:08Z",
+      "side": 1,
+      "message": "It looks like this class is a remnant from prior to switching to CSS. All of this can be wired via blueprint. I know it\u0027s a bit more work but would be nice to clean up. You could do it in a separate patch, i.e. get the initial blueprint wiring done first.",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_bc4fb0bd",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/ConfigActivator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-18T14:30:08Z",
+      "side": 1,
+      "message": "These 2 aren\u0027t used in this class.",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_dc6d4434",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/NetvirtProvidersProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-18T14:30:08Z",
+      "side": 1,
+      "message": "I know this is existing but why is this static?",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_5c613438",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/NetvirtProvidersProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-18T14:30:08Z",
+      "side": 1,
+      "message": "Pass BundleContext via blueprint.",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_3c1600a8",
+        "filename": "openstack/net-virt-providers/src/main/resources/org/opendaylight/blueprint/netvirt-provider.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-18T14:30:08Z",
+      "side": 1,
+      "message": "You could default this to 0 in the yang instead of providing it here.",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_1c4fbcbe",
+        "filename": "openstack/net-virt-providers/src/main/resources/org/opendaylight/blueprint/netvirt-provider.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-18T14:30:08Z",
+      "side": 1,
+      "message": "These don\u0027t look to be used by anything.",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_9c0d8c93",
+        "filename": "openstack/net-virt-providers/src/main/resources/org/opendaylight/blueprint/netvirt-provider.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-18T14:30:08Z",
+      "side": 1,
+      "message": "oops - extra space",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
