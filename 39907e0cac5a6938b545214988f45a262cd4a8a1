@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_fc712845",
+        "filename": "openstack/net-virt-sfc/impl/src/main/java/org/opendaylight/netvirt/openstack/netvirt/sfc/NetvirtSfcProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-18T13:44:06Z",
+      "side": 1,
+      "message": "Actually there\u0027s an easier way to get the BundleContext. Blueprint makes it available as a bean with the special id \"blueprintBundleContext\" as you can pass it via:\n    \u003cargument ref\u003d\"blueprintBundleContext\"/\u003e",
+      "revId": "39907e0cac5a6938b545214988f45a262cd4a8a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_bc9e9052",
+        "filename": "openstack/net-virt-sfc/impl/src/main/java/org/opendaylight/netvirt/openstack/netvirt/sfc/NetvirtSfcProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-18T13:44:06Z",
+      "side": 1,
+      "message": "The ServiceRegistration should be saved off and unregister should be called in the close method.",
+      "revId": "39907e0cac5a6938b545214988f45a262cd4a8a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
