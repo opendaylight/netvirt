@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -204,6 +205,10 @@ public class NeutronPortChangeListener implements ClusteredDataChangeListener, A
         }
         result.setBindingvifType(binding.getVifType());
         result.setBindingvnicType(binding.getVnicType());
+        PortSecurityExtension portSecurity = port.getAugmentation(PortSecurityExtension.class);
+        if (portSecurity != null && portSecurity.isPortSecurityEnabled() != null) {
+            result.setPortSecurityEnabled(portSecurity.isPortSecurityEnabled());
+        }
     }
 
     private  Map<String,NeutronPort> getChangedPorts(Map<InstanceIdentifier<?>, DataObject> changedData) {
