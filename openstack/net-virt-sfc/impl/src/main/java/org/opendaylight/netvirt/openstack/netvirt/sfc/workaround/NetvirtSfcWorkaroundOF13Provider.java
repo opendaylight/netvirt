@@ -204,10 +204,10 @@ public class NetvirtSfcWorkaroundOF13Provider implements INetvirtSfcOF13Provider
                 }
 
                 ServiceFunction serviceFunction =
-                        SfcProviderServiceFunctionAPI.readServiceFunction(firstHop.getServiceFunctionName());
+                        SfcProviderServiceFunctionAPI.readServiceFunction(hop.getServiceFunctionName());
                 if (serviceFunction == null) {
                     LOG.warn("handleRenderedServicePath: Could not identify ServiceFunction {} on {}",
-                            firstHop.getServiceFunctionName().getValue(), bridgeNode);
+                            hop.getServiceFunctionName().getValue(), bridgeNode);
                     continue;
                 }
                 ServiceFunctionForwarder serviceFunctionForwarder =
@@ -215,7 +215,7 @@ public class NetvirtSfcWorkaroundOF13Provider implements INetvirtSfcOF13Provider
                                 .readServiceFunctionForwarder(hop.getServiceFunctionForwarder());
                 if (serviceFunctionForwarder == null) {
                     LOG.warn("handleRenderedServicePath: Could not identify ServiceFunctionForwarder {} on {}",
-                            firstHop.getServiceFunctionName().getValue(), bridgeNode);
+                            hop.getServiceFunctionName().getValue(), bridgeNode);
                     continue;
                 }
 
