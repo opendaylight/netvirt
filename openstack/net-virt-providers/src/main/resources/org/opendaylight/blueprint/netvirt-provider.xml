@@ -28,17 +28,235 @@
 
     <bean id="netvirtProviders"
         class="org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider"
-        init-method="start" 
-        destroy-method="close">
+        init-method="start" destroy-method="close">
         <argument ref="dataBroker" />
         <argument ref="entityOwnershipService" />
-        <argument ref="notificationService" />
-        <argument ref="packetProcessingService" />
-        <argument ref="salFlowService" />
         <argument>
             <bean factory-ref="netvirtProviderConfig"
                 factory-method="getTableOffset" />
         </argument>
     </bean>
+
+    <bean id="southboundImpl"
+        class="org.opendaylight.netvirt.openstack.netvirt.impl.SouthboundImpl">
+    </bean>
+    <service id="southbound" ref="southboundImpl"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.Southbound"
+        odl:type="default" />
+
+    <bean id="providerNetworkManagerImpl"
+        class="org.opendaylight.netvirt.openstack.netvirt.impl.ProviderNetworkManagerImpl">
+    </bean>
+    <service id="networkingProviderManager" ref="providerNetworkManagerImpl"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager"
+        odl:type="default" />
+
+    <bean id="pipelineOrchestratorImpl"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestratorImpl">
+    </bean>
+    <service id="pipelineOrchestrator" ref="pipelineOrchestratorImpl"
+        interface="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator"
+        odl:type="default" />
+    <service id="nodeCacheListener" ref="pipelineOrchestratorImpl"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheListener"
+        odl:type="default" />
+
+    <bean id="of13Provider"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.OF13Provider">
+        <argument ref="dataBroker" />
+    </bean>
+    <service id="networkingProvider" ref="of13Provider"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProvider"
+        odl:type="default">
+        <service-properties>
+            <entry key="southboundProtocol" value="ovsdb" />
+            <entry key="openflowVersion" value="OpenFlow13" />
+        </service-properties>
+    </service>
+
+    <bean id="classifierService"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.ClassifierService">
+    </bean>
+    <service id="classifierProvider" ref="classifierService"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.ClassifierProvider"
+        odl:type="default">
+        <service-properties>
+            <entry key="serviceProperty">
+                <value type="java.lang.Integer">0</value>
+            </entry>
+            <entry key="providerName" value="OF13Provider" />
+        </service-properties>
+    </service>
+
+    <bean id="gatewayMacResolverService"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.arp.GatewayMacResolverService">
+        <argument ref="notificationService" />
+        <argument ref="packetProcessingService" />
+        <argument ref="salFlowService" />
+    </bean>
+    <service id="gatewayMacResolver" ref="gatewayMacResolverService"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.GatewayMacResolver"
+        odl:type="default">
+        <service-properties>
+            <entry key="serviceProperty">
+                <value type="java.lang.Integer">0</value>
+            </entry>
+            <entry key="providerName" value="OF13Provider" />
+        </service-properties>
+    </service>
+
+    <bean id="arpResponderService"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.ArpResponderService">
+    </bean>
+    <service id="arpProvider" ref="arpResponderService"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.ArpProvider"
+        odl:type="default">
+        <service-properties>
+            <entry key="serviceProperty">
+                <value type="java.lang.Integer">20</value>
+            </entry>
+            <entry key="providerName" value="OF13Provider" />
+        </service-properties>
+    </service>
+
+    <bean id="inboundNatService"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.InboundNatService">
+    </bean>
+    <service id="inboundNatProvider" ref="inboundNatService"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.InboundNatProvider"
+        odl:type="default">
+        <service-properties>
+            <entry key="serviceProperty">
+                <value type="java.lang.Integer">30</value>
+            </entry>
+            <entry key="providerName" value="OF13Provider" />
+        </service-properties>
+    </service>
+
+    <bean id="egressAclService"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.EgressAclService">
+    </bean>
+    <service id="egressAclProvider" ref="egressAclService"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.EgressAclProvider"
+        odl:type="default">
+        <service-properties>
+            <entry key="serviceProperty">
+                <value type="java.lang.Integer">40</value>
+            </entry>
+            <entry key="providerName" value="OF13Provider" />
+        </service-properties>
+    </service>
+
+    <bean id="loadBalancerService"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.LoadBalancerService">
+    </bean>
+    <service id="loadBalancerProvider" ref="loadBalancerService"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.LoadBalancerProvider"
+        odl:type="default">
+        <service-properties>
+            <entry key="serviceProperty">
+                <value type="java.lang.Integer">50</value>
+            </entry>
+            <entry key="providerName" value="OF13Provider" />
+        </service-properties>
+    </service>
+
+    <bean id="routingService"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.RoutingService">
+    </bean>
+    <service id="routingProvider" ref="routingService"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.RoutingProvider"
+        odl:type="default">
+        <service-properties>
+            <entry key="serviceProperty">
+                <value type="java.lang.Integer">60</value>
+            </entry>
+            <entry key="providerName" value="OF13Provider" />
+        </service-properties>
+    </service>
+
+    <bean id="l3ForwardingService"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.L3ForwardingService">
+    </bean>
+    <service id="l3ForwardingProvider" ref="l3ForwardingService"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.L3ForwardingProvider"
+        odl:type="default">
+        <service-properties>
+            <entry key="serviceProperty">
+                <value type="java.lang.Integer">70</value>
+            </entry>
+            <entry key="providerName" value="OF13Provider" />
+        </service-properties>
+    </service>
+
+    <bean id="icmpEchoResponderService"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.IcmpEchoResponderService">
+    </bean>
+    <service id="icmpEchoProvider" ref="icmpEchoResponderService"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.IcmpEchoProvider"
+        odl:type="default">
+        <service-properties>
+            <entry key="serviceProperty">
+                <value type="java.lang.Integer">70</value>
+            </entry>
+            <entry key="providerName" value="OF13Provider" />
+        </service-properties>
+    </service>
+
+    <bean id="l2RewriteService"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.L2RewriteService">
+    </bean>
+    <service id="l2RewriteProvider" ref="l2RewriteService"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.L2RewriteProvider"
+        odl:type="default">
+        <service-properties>
+            <entry key="serviceProperty">
+                <value type="java.lang.Integer">80</value>
+            </entry>
+            <entry key="providerName" value="OF13Provider" />
+        </service-properties>
+    </service>
+
+    <bean id="ingressAclService"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.IngressAclService">
+    </bean>
+    <service id="ingressAclProvider" ref="ingressAclService"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.IngressAclProvider"
+        odl:type="default">
+        <service-properties>
+            <entry key="serviceProperty">
+                <value type="java.lang.Integer">90</value>
+            </entry>
+            <entry key="providerName" value="OF13Provider" />
+        </service-properties>
+    </service>
+
+    <bean id="outboundNatService"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.OutboundNatService">
+    </bean>
+    <service id="outboundNatProvider" ref="outboundNatService"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.OutboundNatProvider"
+        odl:type="default">
+        <service-properties>
+            <entry key="serviceProperty">
+                <value type="java.lang.Integer">100</value>
+            </entry>
+            <entry key="providerName" value="OF13Provider" />
+        </service-properties>
+    </service>
+
+    <bean id="l2ForwardingService"
+        class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.L2ForwardingService">
+    </bean>
+    <service id="l2ForwardingProvider" ref="l2ForwardingService"
+        interface="org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingProvider"
+        odl:type="default">
+        <service-properties>
+            <entry key="serviceProperty">
+                <value type="java.lang.Integer">110</value>
+            </entry>
+            <entry key="providerName" value="OF13Provider" />
+        </service-properties>
+    </service>
 
 </blueprint>
