@@ -17,14 +17,9 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipC
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipListener;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipListenerRegistration;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.table.types.rev131026.TableId;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,31 +29,36 @@ import org.slf4j.LoggerFactory;
 public class NetvirtProvidersProvider implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NetvirtProvidersProvider.class);
 
-    private final BundleContext bundleContext;
-    private static DataBroker dataBroker;
-    private ConfigActivator activator;
-    private static EntityOwnershipService entityOwnershipService;
-    private ProviderEntityListener providerEntityListener = null;
+    private final DataBroker dataBroker;
+    private final EntityOwnershipService entityOwnershipService;
+
+    private ProviderEntityListener providerEntityListener;
+    private NetvirtProvidersConfigImpl netvirtProvidersConfig;
+
     private static AtomicBoolean hasProviderEntityOwnership = new AtomicBoolean(false);
     private static short tableOffset;
-    private final NotificationProviderService notificationProviderService;
-    private final PacketProcessingService packetProcessingService;
-    private final SalFlowService salFlowService;
 
     public NetvirtProvidersProvider(final DataBroker dataBroker,
                                     final EntityOwnershipService eos,
-                                    final NotificationProviderService notificationProviderService,
-                                    final PacketProcessingService packetProcessingService,
-                                    final SalFlowService salFlowService,
                                     final short tableOffset) {
         LOG.info("NetvirtProvidersProvider");
-        NetvirtProvidersProvider.dataBroker = dataBroker;
-        this.notificationProviderService = notificationProviderService;
-        NetvirtProvidersProvider.entityOwnershipService = eos;
-        this.bundleContext = FrameworkUtil.getBundle(NetvirtProvidersProvider.class).getBundleContext();
-        this.salFlowService = salFlowService;
-        this.packetProcessingService = packetProcessingService;
+        this.dataBroker = dataBroker;
+        this.entityOwnershipService = eos;
         setTableOffset(tableOffset);
+    }
+
+    public void start() {
+        LOG.info("NetvirtProvidersProvider: onSessionInitiated dataBroker: {}", dataBroker);
+        providerEntityListener = new ProviderEntityListener(this, entityOwnershipService);
+        netvirtProvidersConfig = new NetvirtProvidersConfigImpl(dataBroker, tableOffset);
+    }
+
+    @Override
+    public void close() throws Exception {
+        LOG.info("NetvirtProvidersProvider closed");
+        if (providerEntityListener != null) {
+            providerEntityListener.close();
+        }
     }
 
     public static boolean isMasterProviderInstance() {
@@ -80,24 +80,6 @@ public class NetvirtProvidersProvider implements AutoCloseable {
 
     public static short getTableOffset() {
         return tableOffset;
-    }
-
-    @Override
-    public void close() throws Exception {
-        LOG.info("NetvirtProvidersProvider closed");
-        activator.stop(bundleContext);
-        providerEntityListener.close();
-    }
-
-    public void start() {
-        LOG.info("NetvirtProvidersProvider: onSessionInitiated dataBroker: {}", dataBroker);
-        providerEntityListener = new ProviderEntityListener(this, entityOwnershipService);
-        this.activator = new ConfigActivator(dataBroker, notificationProviderService, packetProcessingService, salFlowService);
-        try {
-            activator.start(bundleContext);
-        } catch (Exception e) {
-            LOG.warn("Failed to start Netvirt: ", e);
-        }
     }
 
     private void handleOwnershipChange(EntityOwnershipChange ownershipChange) {
@@ -133,17 +115,20 @@ public class NetvirtProvidersProvider implements AutoCloseable {
         }
 
         public void close() {
-            this.listenerRegistration.close();
-            this.candidateRegistration.close();
+            if (listenerRegistration != null) {
+                this.listenerRegistration.close();
+            }
+            if (candidateRegistration != null) {
+                this.candidateRegistration.close();
+            }
+            if (netvirtProvidersConfig != null) {
+                netvirtProvidersConfig.close();
+            }
         }
 
         @Override
         public void ownershipChanged(EntityOwnershipChange ownershipChange) {
             provider.handleOwnershipChange(ownershipChange);
         }
-    }
-
-    public static DataBroker getDataBroker() {
-        return dataBroker;
     }
 }
