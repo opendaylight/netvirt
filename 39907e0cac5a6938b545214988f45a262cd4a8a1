@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_7ceb58b0",
+        "filename": "openstack/net-virt-sfc/impl/src/main/java/org/opendaylight/netvirt/openstack/netvirt/sfc/NetvirtSfcProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-18T13:49:23Z",
+      "side": 1,
+      "message": "Ok, I\u0027ll use this handy argument. Thanks for the tip",
+      "parentUuid": "fa57193c_fc712845",
+      "revId": "39907e0cac5a6938b545214988f45a262cd4a8a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_bc9e9052",
         "filename": "openstack/net-virt-sfc/impl/src/main/java/org/opendaylight/netvirt/openstack/netvirt/sfc/NetvirtSfcProvider.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-05-18T13:44:06Z",
       "side": 1,
       "message": "The ServiceRegistration should be saved off and unregister should be called in the close method.",
+      "revId": "39907e0cac5a6938b545214988f45a262cd4a8a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_3ce1e0d0",
+        "filename": "openstack/net-virt-sfc/impl/src/main/java/org/opendaylight/netvirt/openstack/netvirt/sfc/NetvirtSfcProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-18T13:49:23Z",
+      "side": 1,
+      "message": "Yeah I know but I haven\u0027t plan to fix the project right. I\u0027ve noticed a bunch of stuff that could be change/improve all over the project. If I do so it would take much more time. So, I\u0027ll make this change, although it has nothing to do with blueprint wiring.",
+      "parentUuid": "fa57193c_bc9e9052",
       "revId": "39907e0cac5a6938b545214988f45a262cd4a8a1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
