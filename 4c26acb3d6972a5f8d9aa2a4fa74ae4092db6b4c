@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_5c649421",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-18T14:55:40Z",
+      "side": 1,
+      "message": "The entityOwnershipService is actually unused - it is accessed in isMasterProviderInstance but it\u0027s not called. Also the Module createInstance method calls the no-arg constructor. This is aside from the fact that it\u0027s static (ugh). Not sure what the author\u0027s intent was - maybe they internd to use it. I know this is pre-existing but I say we remove it as it should not be static.",
+      "revId": "4c26acb3d6972a5f8d9aa2a4fa74ae4092db6b4c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
