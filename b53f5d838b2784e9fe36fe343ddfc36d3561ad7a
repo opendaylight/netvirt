@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_8de39104",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/ConfigActivator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-19T14:49:14Z",
+      "side": 1,
+      "message": "It would be nice to eliminate this class and do all of this in blueprint but I know it would take time...",
+      "revId": "b53f5d838b2784e9fe36fe343ddfc36d3561ad7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_ade815e3",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/NetvirtProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-19T14:49:14Z",
+      "side": 1,
+      "message": "Another static EOS - now we know where the pattern came from in the other bundle :)  However isMasterProviderInstance and isMasterElected are used here. This could be cleaned up and done properly w/o static but outside the scope of this patch.",
+      "revId": "b53f5d838b2784e9fe36fe343ddfc36d3561ad7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_6ddf1d3c",
+        "filename": "openstack/net-virt/src/main/yang/netvirt-impl-config.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-19T14:49:14Z",
+      "side": 1,
+      "message": "You could default to false here instead of specifying in blueprint. If it\u0027s defaulted then doesn\u0027t need to be mandatory.",
+      "revId": "b53f5d838b2784e9fe36fe343ddfc36d3561ad7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
