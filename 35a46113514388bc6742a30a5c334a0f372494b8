@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_019ab013",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-19T13:00:14Z",
+      "side": 1,
+      "message": "Similar comment as in https://git.opendaylight.org/gerrit/#/c/38997/ - the stuff above could be wired vie blueprint. This class implements an interface but all it needs is the nvManager wired in to implement the interface.",
+      "revId": "35a46113514388bc6742a30a5c334a0f372494b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
