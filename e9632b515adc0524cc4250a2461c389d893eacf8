@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_72141c4e",
+        "filename": "openstack/net-virt-sfc/impl/src/main/resources/org/opendaylight/blueprint/netvirt-sfc.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-19T13:21:20Z",
+      "side": 1,
+      "message": "I think it would be good to make these values the defaults in the yang then you don\u0027t have to specify them here. Also the defaults provided here are only applied if the config doesn\u0027t exist in the datastore so if someone changed just \"addsfflows\" via restconf then \"of13provider\" would be null. But if \"of13provider\" is defaulted in the yang then the default value would be applied. The other option is to make them mandatory in the yang so all would have to be specified by the user but I think yang defaults are better.\n\nYou might wonder why I added the ability to specify defaults here since they can be specified in the yang. I did that for cases where there can be multiple instantiations where each instantiation needs different values. An example is the OF switch connection provider where 2 are created and the \"port\" needs to be different for each (see https://git.opendaylight.org/gerrit/#/c/38646/1/openflowplugin-blueprint-config/src/main/resources/org/opendaylight/blueprint/openflowplugin.xml). In this case it doesn\u0027t make sense to specify a default in the yang.",
+      "revId": "e9632b515adc0524cc4250a2461c389d893eacf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
