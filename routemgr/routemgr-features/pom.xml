@@ -132,6 +132,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
 -->
     <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.neutron</groupId>
       <artifactId>features-neutron</artifactId>
       <version>${neutron.version}</version>
