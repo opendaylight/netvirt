@@ -7,12 +7,12 @@
  */
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
+import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
-
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.LoadBalancerConfiguration;
 import org.opendaylight.netvirt.openstack.netvirt.api.LoadBalancerConfiguration.LoadBalancerPoolMember;
@@ -20,12 +20,12 @@ import org.opendaylight.netvirt.openstack.netvirt.api.LoadBalancerProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
 import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.MatchUtils;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
@@ -40,25 +40,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.OfjNxHashFields;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.OfjNxMpAlgorithm;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxRegCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.OfjNxHashFields;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.OfjNxMpAlgorithm;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
-public class LoadBalancerService extends AbstractServiceInstance implements LoadBalancerProvider, ConfigInterface {
+public class LoadBalancerService extends AbstractServiceInstance implements LoadBalancerProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoadBalancerProvider.class);
     private static final int DEFAULT_FLOW_PRIORITY = 32768;
@@ -67,15 +64,13 @@ public class LoadBalancerService extends AbstractServiceInstance implements Load
 
     private static final Class<? extends NxmNxReg> REG_FIELD_A = NxmNxReg1.class;
     private static final Class<? extends NxmNxReg> REG_FIELD_B = NxmNxReg2.class;
-    
-    private volatile Southbound southbound;
 
-    public LoadBalancerService() {
-        super(Service.LOAD_BALANCER);
-    }
-
-    public LoadBalancerService(Service service) {
-        super(service);
+    public LoadBalancerService(final BundleContext bundleContext,
+            final DataBroker dataBroker,
+            final PipelineOrchestrator orchestrator,
+            final Southbound southbound) {
+        super(Service.LOAD_BALANCER, dataBroker, orchestrator, southbound);
+        orchestrator.registerService(bundleContext.getServiceReference(LoadBalancerProvider.class.getName()), this);
     }
 
     private String getDpid(Node node) {
@@ -85,7 +80,7 @@ public class LoadBalancerService extends AbstractServiceInstance implements Load
         }
         return String.valueOf(dpid);
     }
-    
+
     /**
      * When this method is called, we do the following for minimizing flow updates:
      * 1. Overwrite the solo multipath rule that applies to all members
@@ -427,16 +422,5 @@ public class LoadBalancerService extends AbstractServiceInstance implements Load
         } else {
             removeFlow(flowBuilder, nodeBuilder);
         }
-    }
-
-    @Override
-    public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
-        super.setDependencies(bundleContext.getServiceReference(LoadBalancerProvider.class.getName()), this);
-        southbound =(Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-
     }
 }
