@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_a1030441",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatServiceProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-19T03:56:53Z",
+      "side": 1,
+      "message": "I know this is a huge constructor - it looks like you could actually get rid of this whole class and instantiate and wire everything via blueprint XML. That\u0027s the way you\u0027d do it if you were creating this app/module from scratch with blueprint, ie you wouldn\u0027t create this class  to wire all those other classes In Java. I know it\u0027s more work - it\u0027s OK the way it is but it\u0027s not really the \"blueprint\" way of doing it.",
+      "revId": "274c15bdb5319163fa9dbff9056906028073301c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_61ea8c76",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatServiceProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-19T03:56:53Z",
+      "side": 1,
+      "message": "You actually don\u0027t need to pass in the rpcProviderRegistry since you\u0027re passing in the RpcService instances anyway.",
+      "revId": "274c15bdb5319163fa9dbff9056906028073301c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
