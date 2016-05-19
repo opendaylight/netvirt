@@ -16,6 +16,24 @@
       "revId": "eaf4e024d80714fd12505fa8957b254a449a0b75",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_38060587",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpProvider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-19T20:46:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_4d469924",
+      "revId": "eaf4e024d80714fd12505fa8957b254a449a0b75",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
