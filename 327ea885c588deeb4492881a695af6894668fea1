@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_6d28bd34",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-19T14:29:26Z",
+      "side": 1,
+      "message": "Looks like you can simplify this class and create/wire this stuff in blueprint and just inject vpnmanager, nexthopManager, and fibManager into this class.",
+      "revId": "327ea885c588deeb4492881a695af6894668fea1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_4d2b3930",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/params/xml/ns/yang/fibmanager/impl/rev150325/FibmanagerImplModule.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-19T14:29:26Z",
+      "side": 1,
+      "message": "This module provides the IFibManager service so need to return it here.",
+      "revId": "327ea885c588deeb4492881a695af6894668fea1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_ad21354f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/resources/org/opendaylight/blueprint/fibmanager.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-19T14:29:26Z",
+      "side": 1,
+      "message": "This app doesn\u0027t use the pingpong data broker.",
+      "revId": "327ea885c588deeb4492881a695af6894668fea1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
