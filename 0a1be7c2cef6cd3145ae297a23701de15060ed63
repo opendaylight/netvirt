@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_4db979e8",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/NetvirtProvidersProvider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-19T15:26:51Z",
+      "side": 1,
+      "message": "These could be created in blueprint - move ProviderEntityListener into it\u0027s own class. \n\nThen we could eliminate this class except for the static tableOffset. Maybe that could be unraveled in another patch...",
+      "revId": "0a1be7c2cef6cd3145ae297a23701de15060ed63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_eda04da1",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/PipelineOrchestratorImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-19T15:26:51Z",
+      "side": 1,
+      "message": "This is a bit ugly (I know it\u0027s pre-existing).  The NodeCacheManager only uses the ServiceReference to get the service PID to use it as a key in it\u0027s Map. I don\u0027t know why it was done that way but all the NodeCacheManager needs is the NodeCacheHandler instance and can store the handlers in a CopyOnWriteArrayList. cacheListenerRemoved is never called. \n\nThe only caller of cacheListenerAdded I can see is this class so it looks safe to change the NodeCacheManager interface.",
+      "revId": "0a1be7c2cef6cd3145ae297a23701de15060ed63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_cd9bc970",
+        "filename": "openstack/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-19T15:26:51Z",
+      "side": 1,
+      "message": "I assume you didn\u0027t mean to check this in :)",
+      "revId": "0a1be7c2cef6cd3145ae297a23701de15060ed63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
