@@ -16,6 +16,24 @@
       "revId": "04731005a21ec2683ab1c1db8321e4904e99fc0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_521118ab",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/config/default-config.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-19T12:13:11Z",
+      "side": 1,
+      "message": "nope, it has to be named default config if it is in src/main/config (as config-parent will pick it up for you https://github.com/opendaylight/controller/blob/master/opendaylight/config/config-parent/pom.xml#L29 )\nUsing src/main/resources you can you whatever name, but you\u0027ll have to specify the build plugin to pick it up.",
+      "parentUuid": "fa57193c_e177bc38",
+      "revId": "04731005a21ec2683ab1c1db8321e4904e99fc0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
