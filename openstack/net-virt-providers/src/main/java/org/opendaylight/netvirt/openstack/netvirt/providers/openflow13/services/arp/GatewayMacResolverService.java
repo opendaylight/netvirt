@@ -30,12 +30,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
 import org.opendaylight.netvirt.openstack.netvirt.api.GatewayMacResolver;
 import org.opendaylight.netvirt.openstack.netvirt.api.GatewayMacResolverListener;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.openflowplugin.api.OFConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -77,7 +80,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +89,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class GatewayMacResolverService extends AbstractServiceInstance
-                                        implements ConfigInterface, GatewayMacResolver,PacketProcessingListener {
+                                        implements GatewayMacResolver,PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(GatewayMacResolverService.class);
     private static final String ARP_REPLY_TO_CONTROLLER_FLOW_NAME = "GatewayArpReplyRouter";
@@ -106,10 +108,10 @@ public class GatewayMacResolverService extends AbstractServiceInstance
     private final ScheduledExecutorService gatewayMacRefresherPool = Executors.newScheduledThreadPool(1);
     private final ScheduledExecutorService refreshRequester = Executors.newSingleThreadScheduledExecutor();
     private AtomicBoolean initializationDone = new AtomicBoolean(false);
-    private volatile ConfigurationService configurationService;
-    private volatile NodeCacheManager nodeCacheManager;
-
+    private final ConfigurationService configurationService;
+    private final NodeCacheManager nodeCacheManager;
     private final PacketProcessingService packetProcessingService;
+    private final NotificationProviderService notificationProviderService;
 
     static {
         ApplyActions applyActions = new ApplyActionsBuilder().setAction(
@@ -119,14 +121,25 @@ public class GatewayMacResolverService extends AbstractServiceInstance
             .build();
     }
 
-    public GatewayMacResolverService(final PacketProcessingService packetProcessingService, final SalFlowService salFlowService) {
-        this(Service.GATEWAY_RESOLVER, packetProcessingService, salFlowService);
-    }
 
-    public GatewayMacResolverService(Service service, final PacketProcessingService packetProcessingService, final SalFlowService salFlowService) {
-        super(service);
+    public GatewayMacResolverService(final BundleContext bundleContext,
+                                     final NotificationProviderService notificationProviderService,
+                                     final PacketProcessingService packetProcessingService,
+                                     final SalFlowService salFlowService,
+                                     final ConfigurationService configurationService,
+                                     final NodeCacheManager nodeCacheManager,
+                                     final DataBroker dataBroker,
+                                     final PipelineOrchestrator orchestrator,
+                                     final Southbound southbound) {
+        super(Service.GATEWAY_RESOLVER, dataBroker, orchestrator, southbound);
+        this.notificationProviderService = notificationProviderService;
         this.packetProcessingService = packetProcessingService;
         this.flowService = salFlowService;
+        this.configurationService = configurationService;
+        this.nodeCacheManager = nodeCacheManager;
+
+        notificationProviderService.registerNotificationListener(this);
+        orchestrator.registerService(bundleContext.getServiceReference(GatewayMacResolver.class.getName()), this);
     }
 
     private void init(){
@@ -453,22 +466,6 @@ public class GatewayMacResolverService extends AbstractServiceInstance
                 candidateGatewayIp.setGatewayMacAddress(gatewayMacAddress);
                 resetFlowToRemove(gatewayIpAddress, candidateGatewayIp);
             }
-        }
-    }
-
-    @Override
-    public void setDependencies(BundleContext bundleContext,
-            ServiceReference serviceReference) {
-        super.setDependencies(bundleContext.getServiceReference(GatewayMacResolver.class.getName()), this);
-
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-        if (impl instanceof NodeCacheManager) {
-            nodeCacheManager = (NodeCacheManager) impl;
-        } else if (impl instanceof ConfigurationService) {
-            configurationService = (ConfigurationService) impl;
         }
     }
 

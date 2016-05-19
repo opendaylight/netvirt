@@ -9,13 +9,21 @@
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
 import com.google.common.collect.Lists;
-
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Map;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.netvirt.openstack.netvirt.api.ClassifierProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.EgressAclProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
@@ -24,7 +32,6 @@ import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.MatchUtils;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
@@ -37,18 +44,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.List;
-import java.util.Map;
-
-public class EgressAclService extends AbstractServiceInstance implements EgressAclProvider, ConfigInterface {
+public class EgressAclService extends AbstractServiceInstance implements EgressAclProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(EgressAclService.class);
     private volatile SecurityServicesManager securityServicesManager;
@@ -62,12 +61,16 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
     private static final int PORT_RANGE_MIN = 1;
     private static final int PORT_RANGE_MAX = 65535;
 
-    public EgressAclService() {
-        super(Service.EGRESS_ACL);
-    }
-
-    public EgressAclService(Service service) {
-        super(service);
+    public EgressAclService(final BundleContext bundleContext,
+            final DataBroker dataBroker,
+            final PipelineOrchestrator orchestrator,
+            final Southbound southbound,
+            final SecurityServicesManager securityServicesManager,
+            final SecurityGroupCacheManger securityGroupCacheManger) {
+        super(Service.EGRESS_ACL, dataBroker, orchestrator, southbound);
+        this.securityGroupCacheManger = securityGroupCacheManger;
+        this.securityServicesManager = securityServicesManager;
+        orchestrator.registerService(bundleContext.getServiceReference(ClassifierProvider.class.getName()), this);
     }
 
     @Override
@@ -877,17 +880,4 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             removeFlow(flowBuilder, nodeBuilder);
         }
     }
-
-
-    @Override
-    public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
-        super.setDependencies(bundleContext.getServiceReference(EgressAclProvider.class.getName()), this);
-        securityServicesManager =
-                (SecurityServicesManager) ServiceHelper.getGlobalInstance(SecurityServicesManager.class, this);
-        securityGroupCacheManger =
-                (SecurityGroupCacheManger) ServiceHelper.getGlobalInstance(SecurityGroupCacheManger.class, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {}
 }
