@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_d89b8970",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/NeutronProvider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-19T20:09:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_0d0ae1d1",
+      "revId": "f9641bc56e4b8fb42ce83f7cef595e1e84dc379e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_8d6ef194",
         "filename": "netvirt/renderers/neutron/src/main/resources/org/opendaylight/blueprint/netvirt.xml",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2016-05-19T14:20:03Z",
       "side": 1,
       "message": "This app doesn\u0027t use the pingpong data broker so remove old:type.",
+      "revId": "f9641bc56e4b8fb42ce83f7cef595e1e84dc379e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_5887790f",
+        "filename": "netvirt/renderers/neutron/src/main/resources/org/opendaylight/blueprint/netvirt.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-19T20:09:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_8d6ef194",
       "revId": "f9641bc56e4b8fb42ce83f7cef595e1e84dc379e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
