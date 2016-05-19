@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_b8033541",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/java/org/opendaylight/netvirt/fcapsapp/FcapsProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-19T21:54:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_4d7339b1",
+      "revId": "6721635b57e297246e10fc75340f94cfcf695bed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_ede84d12",
         "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/java/org/opendaylight/netvirt/fcapsapp/FcapsProvider.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-05-19T13:53:56Z",
       "side": 1,
       "message": "ugh - static - why... (rhetorical question). PortNameMapping.updatePortMap is only called by the FlowNodeConnectorInventoryTranslatorImpl so it could be created as a singleton via blueprint and injected into FlowNodeConnectorInventoryTranslatorImpl. \n\n(another orthogonal issue not related this patch: static maps and static PMAgent in FlowNodeConnectorInventoryTranslatorImpl (sigh))",
+      "revId": "6721635b57e297246e10fc75340f94cfcf695bed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_98fe3137",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/java/org/opendaylight/netvirt/fcapsapp/FcapsProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-19T21:54:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_ede84d12",
       "revId": "6721635b57e297246e10fc75340f94cfcf695bed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_f8fdad3b",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/java/org/opendaylight/netvirt/fcapsapp/FcapsProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-19T21:54:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_ad42d53b",
+      "revId": "6721635b57e297246e10fc75340f94cfcf695bed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_8d3d51be",
         "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/java/org/opendaylight/netvirt/fcapsapp/FcapsProvider.java",
         "patchSetId": 2
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_d8f8a94b",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/java/org/opendaylight/netvirt/fcapsapp/FcapsProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-19T21:54:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_8d3d51be",
+      "revId": "6721635b57e297246e10fc75340f94cfcf695bed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_4d5cd925",
         "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/java/org/opendaylight/netvirt/fcapsapp/FcapsProvider.java",
         "patchSetId": 2
@@ -81,6 +153,24 @@
       "writtenOn": "2016-05-19T13:53:56Z",
       "side": 1,
       "message": "This registration should be saved off and closed.",
+      "revId": "6721635b57e297246e10fc75340f94cfcf695bed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_78a19d46",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/java/org/opendaylight/netvirt/fcapsapp/FcapsProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-19T21:54:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_4d5cd925",
       "revId": "6721635b57e297246e10fc75340f94cfcf695bed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
