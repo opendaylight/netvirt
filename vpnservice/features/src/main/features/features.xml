@@ -65,7 +65,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>wrap:mvn:org.apache.thrift/libthrift/0.9.1$overwrite=merge&amp;Bundle-Version=0.9.1&amp;Export-Package=*;-noimport:=true;version="0.9.1"</bundle>
     <!--<bundle>wrap:mvn:javax.servlet/servlet-api/2.5</bundle>-->
     <configfile finalname="vpnmanager-impl-default-config.xml">mvn:org.opendaylight.netvirt/vpnmanager-impl/{{VERSION}}/xml/config</configfile>
-    <configfile finalname="fibmanager-impl-default-config.xml">mvn:org.opendaylight.netvirt/fibmanager-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="neutronvpn-impl-default-config.xml">mvn:org.opendaylight.netvirt/neutronvpn-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="elanmanager-impl-default-config.xml">mvn:org.opendaylight.netvirt/elanmanager-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="natservice-impl-default-config.xml">mvn:org.opendaylight.netvirt/natservice-impl/{{VERSION}}/xml/config</configfile>

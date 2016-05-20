@@ -9,25 +9,20 @@ package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
-import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -39,38 +34,36 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RdToElanOp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rd.to.elan.op.RdToElanOpEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rd.to.elan.op.RdToElanOpEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIds;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.overlay.rev150105.TunnelTypeVxlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.Vpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.VpnKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetTunnelTypeInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetTunnelTypeOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RdToElanOp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rd.to.elan.op.RdToElanOpEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rd.to.elan.op.RdToElanOpEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.Vpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.VpnKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.overlay.rev150105.TunnelTypeVxlan;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -79,17 +72,18 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FibManager extends AbstractDataChangeListener<VrfEntry> implements AutoCloseable{
-  private static final Logger LOG = LoggerFactory.getLogger(FibManager.class);
+public class VfrEntryListener extends AbstractDataChangeListener<VrfEntry> implements AutoCloseable {
+  private static final Logger LOG = LoggerFactory.getLogger(VfrEntryListener.class);
   private static final String FLOWID_PREFIX = "L3.";
+
   private ListenerRegistration<DataChangeListener> listenerRegistration;
+
   private final DataBroker broker;
-  private IMdsalApiManager mdsalManager;
-  private IVpnManager vpnmanager;
-  private NexthopManager nextHopManager;
-  private ItmRpcService itmManager;
-  private OdlInterfaceRpcService interfaceManager;
-  private IdManagerService idManager;
+  private final IMdsalApiManager mdsalManager;
+  private final NexthopManager nextHopManager;
+  private final OdlInterfaceRpcService interfaceManager;
+  private final IdManagerService idManager;
+
   private static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000002", 16);
   private static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
   private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
@@ -97,58 +91,34 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   private static final BigInteger CLEAR_METADATA = BigInteger.valueOf(0);
   public static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
 
+    public VfrEntryListener(final DataBroker dataBroker,
+            final IMdsalApiManager mdsalApiManager,
+            final NexthopManager nextHopManager,
+            final OdlInterfaceRpcService interfaceManager,
+            final IdManagerService idManager) {
+        super(VrfEntry.class);
+        this.broker = dataBroker;
+        this.mdsalManager = mdsalApiManager;
+        this.nextHopManager = nextHopManager;
+        this.interfaceManager = interfaceManager;
+        this.idManager = idManager;
 
-  public FibManager(final DataBroker db) {
-    super(VrfEntry.class);
-    broker = db;
-    registerListener(db);
-  }
+        registerListener(dataBroker);
+    }
+
 
   @Override
   public void close() throws Exception {
     if (listenerRegistration != null) {
-      try {
         listenerRegistration.close();
-      } catch (final Exception e) {
-        LOG.error("Error when cleaning up DataChangeListener.", e);
-      }
-      listenerRegistration = null;
-    }
+     }
     LOG.info("Fib Manager Closed");
-  }
-
-  public void setNextHopManager(NexthopManager nextHopManager) {
-    this.nextHopManager = nextHopManager;
-  }
-
-    public NexthopManager getNextHopManager() {
-        return this.nextHopManager;
-    }
-
-  public void setMdsalManager(IMdsalApiManager mdsalManager) {
-    this.mdsalManager = mdsalManager;
-  }
-
-  public void setVpnmanager(IVpnManager vpnmanager) {
-    this.vpnmanager = vpnmanager;
-  }
-
-  public void setITMRpcService(ItmRpcService itmManager) {
-      this.itmManager = itmManager;
-  }
-  
-  public void setInterfaceManager(OdlInterfaceRpcService ifManager) {
-      this.interfaceManager = ifManager;
-  }
-
-  public void setIdManager(IdManagerService idManager) {
-      this.idManager = idManager;
   }
 
   private void registerListener(final DataBroker db) {
     try {
       listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                                                           getWildCardPath(), FibManager.this, DataChangeScope.SUBTREE);
+                                                           getWildCardPath(), VfrEntryListener.this, DataChangeScope.SUBTREE);
     } catch (final Exception e) {
       LOG.error("FibManager DataChange listener registration fail!", e);
       throw new IllegalStateException("FibManager registration Listener failed.", e);
@@ -182,7 +152,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
   private void createFibEntries(final InstanceIdentifier<VrfEntry> identifier,
                                 final VrfEntry vrfEntry) {
-    final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
+    final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
     Preconditions.checkNotNull(vrfTableKey, "VrfTablesKey cannot be null or empty!");
     Preconditions.checkNotNull(vrfEntry, "VrfEntry cannot be null or empty!");
 
@@ -287,15 +257,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       }
   }
 
-  private Collection<BigInteger> getDpnsForVpn(VpnInstanceOpDataEntry vpnInstance) {
-      Collection<BigInteger> dpns = new HashSet<>();
-      for(VpnToDpnList dpn : vpnInstance.getVpnToDpnList()) {
-          dpns.add(dpn.getDpnId());
-      }
-
-      return dpns;
-  }
-
   public BigInteger createLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry) {
     BigInteger localDpnId = BigInteger.ZERO;
     Prefixes localNextHopInfo = getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
@@ -383,7 +344,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
   public BigInteger deleteLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry) {
     BigInteger localDpnId = BigInteger.ZERO;
-    boolean isExtraRoute = false;
     VpnNexthop localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, vrfEntry.getDestPrefix());
     String localNextHopIP = vrfEntry.getDestPrefix();
 
@@ -393,14 +353,12 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         if (extra_route != null) {
             localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, extra_route.getNexthopIp() + "/32");
             localNextHopIP = extra_route.getNexthopIp() + "/32";
-            isExtraRoute = true;
         }
     }
 
 
     if(localNextHopInfo != null) {
       localDpnId = localNextHopInfo.getDpnId();
-      Prefixes prefix = getPrefixToInterface(vpnId, isExtraRoute ? localNextHopIP : vrfEntry.getDestPrefix());
         makeConnectedRoute(localDpnId, vpnId, vrfEntry, rd, null /* invalid */,
                            NwConstants.DEL_FLOW);
         makeLFibTableEntry(localDpnId, vrfEntry.getLabel(), null /* invalid */,
@@ -445,11 +403,11 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
           } else {
               return rpcResult.getResult().getTunnelType();
           }
-    	  
+
       } catch (InterruptedException | ExecutionException e) {
           LOG.warn("Exception when getting tunnel interface Id for tunnel type {}", e);
       }
-  
+
   return null;
 
   }
@@ -520,31 +478,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       LOG.debug("Successfully added fib entry for " + vrfEntry.getDestPrefix() + " vpnId " + vpnId);
   }
 
-  private void delIntfFromDpnToVpnList(long vpnId, BigInteger dpnId, String intfName, String rd) {
-      InstanceIdentifier<VpnToDpnList> id = FibUtil.getVpnToDpnListIdentifier(rd, dpnId);
-      Optional<VpnToDpnList> dpnInVpn = FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
-      if (dpnInVpn.isPresent()) {
-          List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                  .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> vpnInterfaces = dpnInVpn.get().getVpnInterfaces();
-          org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces
-                  currVpnInterface = new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder().setInterfaceName(intfName).build();
-
-          if (vpnInterfaces.remove(currVpnInterface)) {
-              if (vpnInterfaces.isEmpty()) {
-                  LOG.trace("Last vpn interface {} on dpn {} for vpn {}. Clean up fib in dpn", intfName, dpnId, rd);
-                  FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL, id);
-                  cleanUpDpnForVpn(dpnId, vpnId, rd);
-              } else {
-                  LOG.trace("Delete vpn interface {} from dpn {} to vpn {} list.", intfName, dpnId, rd);
-                  FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL, id.child(
-                          org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                                  .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces.class,
-                          new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey(intfName)));
-              }
-          }
-      }
-  }
-
   private void cleanUpOpDataForFib(Long vpnId, String rd, final VrfEntry vrfEntry) {
     /* Get interface info from prefix to interface mapping;
         Use the interface info to get the corresponding vpn interface op DS entry,
@@ -595,7 +528,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
   private void deleteFibEntries(final InstanceIdentifier<VrfEntry> identifier,
                                 final VrfEntry vrfEntry) {
-    final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
+    final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
     Preconditions.checkNotNull(vrfTableKey, "VrfTablesKey cannot be null or empty!");
     Preconditions.checkNotNull(vrfEntry, "VrfEntry cannot be null or empty!");
 
@@ -666,11 +599,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     } else{
       LOG.debug("Did not delete fib entry rd: {} =, prefix: {} as it is local to dpn {}", rd, vrfEntry.getDestPrefix(), remoteDpnId);
     }
-  }
-
-  private long getIpAddress(byte[] rawIpAddress) {
-    return (((rawIpAddress[0] & 0xFF) << (3 * 8)) + ((rawIpAddress[1] & 0xFF) << (2 * 8))
-            + ((rawIpAddress[2] & 0xFF) << (1 * 8)) + (rawIpAddress[3] & 0xFF)) & 0xffffffffL;
   }
 
   private void makeConnectedRoute(BigInteger dpId, long vpnId, VrfEntry vrfEntry, String rd,
@@ -933,35 +861,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                 .append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(tableMiss)
                 .append(FLOWID_PREFIX).toString();
     }
-
-  /*
-   * Install flow entry in protocol table to forward mpls
-   * coming through gre tunnel to LFIB table.
-   */
-  private void makeProtocolTableFlow(BigInteger dpnId, int addOrRemove) {
-    final BigInteger COOKIE_PROTOCOL_TABLE = new BigInteger("1070000", 16);
-    // Instruction to goto L3 InterfaceTable
-    List<InstructionInfo> instructions = new ArrayList<>();
-    instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {NwConstants.L3_LFIB_TABLE}));
-    List<MatchInfo> matches = new ArrayList<>();
-    matches.add(new MatchInfo(MatchFieldType.eth_type,
-                              new long[] { 0x8847L }));
-    FlowEntity flowEntityToLfib = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_PROTOCOL_TABLE,
-                                                          getFlowRef(dpnId, NwConstants.L3_PROTOCOL_TABLE,
-                                                                  NwConstants.L3_LFIB_TABLE),
-                                                          DEFAULT_FIB_FLOW_PRIORITY,
-                                                          "Protocol Table For LFIB",
-                                                          0, 0,
-                                                          COOKIE_PROTOCOL_TABLE,
-                                                          matches, instructions);
-
-    if (addOrRemove == NwConstants.ADD_FLOW) {
-      LOG.debug("Invoking MDSAL to install Protocol Entries for dpn {}", dpnId);
-      mdsalManager.installFlow(flowEntityToLfib);
-    } else {
-      mdsalManager.removeFlow(flowEntityToLfib);
-    }
-  }
 
   public List<String> printFibEntries() {
     List<String> result = new ArrayList<>();
