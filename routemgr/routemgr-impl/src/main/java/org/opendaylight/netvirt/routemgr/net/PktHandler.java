@@ -435,10 +435,10 @@ public class PktHandler implements PacketProcessingListener {
             long flag = 0;
             if (!pdu.getSourceIpv6().equals(RoutemgrUtil.UNSPECIFIED_ADDR)) {
                 naPacket.setDestinationIpv6(pdu.getSourceIpv6());
-                flag = 0x60;
+                flag = 0xE0; // Set Router, Solicited and Override Flag.
             } else {
                 naPacket.setDestinationIpv6(RoutemgrUtil.ALL_NODES_MCAST_ADDR);
-                flag = 0x20;
+                flag = 0xA0; // Set Router and Override Flag.
             }
             naPacket.setDestinationMac(pdu.getSourceMac());
             naPacket.setEthertype(pdu.getEthertype());

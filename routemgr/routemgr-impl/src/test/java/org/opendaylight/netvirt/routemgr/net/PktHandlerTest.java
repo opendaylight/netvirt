@@ -13,9 +13,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.*;
@@ -202,12 +203,31 @@ public class PktHandlerTest {
     public void testonPacketReceivedNeighborSolicitationWithValidPayload() throws Exception {
         VirtualPort intf = Mockito.mock(VirtualPort.class);
         when(ifMgrInstance.getInterfaceForAddress(any(Ipv6Address.class))).thenReturn(intf);
-        when(intf.getMacAddress()).thenReturn("00:01:02:03:04:05");
+        when(intf.getMacAddress()).thenReturn("33:33:FF:F5:00:00");
         when(intf.getDeviceOwner()).thenReturn(ifMgrInstance.NETWORK_ROUTER_INTERFACE);
-        InstanceIdentifier<NodeConnector> ncId = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(new NodeId("openflow:1")))
-                .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
+        InstanceIdentifier<Node> ncId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
         NodeConnectorRef ncRef = new NodeConnectorRef(ncId);
+
+        byte[] expected_payload = buildPacket(
+                "00 01 02 03 04 05",                               // Destination MAC
+                "33 33 FF F5 00 00",                               // Source MAC
+                "86 DD",                                           // Ethertype - IPv6
+                "6E 00 00 00",                                     // Version 6, traffic class E0, no flowlabel
+                "00 20",                                           // Payload length
+                "3A",                                              // Next header is ICMPv6
+                "FF",                                              // Hop limit
+                "FE 80 00 00 00 00 00 00 C0 00 54 FF FE F5 00 00", // Source IP
+                "FF 02 00 00 00 00 00 00 00 00 00 00 00 00 00 01", // Destination IP
+                "88",                                              // ICMPv6 neighbor advertisement.
+                "00",                                              // Code
+                "7E 88",                                           // Checksum (valid)
+                "A0 00 00 00",                                     // Flags
+                "FE 80 00 00 00 00 00 00 C0 00 54 FF FE F5 00 00", // Target Address
+                "02",                                              // Type: Target Link-Layer Option
+                "01",                                              // Option length
+                "33 33 FF F5 00 00"                                // Target Link layer address
+        );
 
         pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
                 "33 33 FF F5 00 00",                               // Destination MAC
@@ -228,6 +248,9 @@ public class PktHandlerTest {
         //wait on this thread until the async job is completed in the packet handler.
         waitForPacketProcessing();
         verify(pktProcessService, times(1)).transmitPacket(any(TransmitPacketInput.class));
+        verify(pktProcessService).transmitPacket(new TransmitPacketInputBuilder().setPayload(expected_payload).
+                setNode(new NodeRef(ncId)).
+                setEgress(ncRef).build());
     }
 
     @Test
