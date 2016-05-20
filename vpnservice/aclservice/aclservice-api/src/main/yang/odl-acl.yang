@@ -3,5 +3,68 @@ module netvirt-sfc-acl {
     namespace "urn:opendaylight:netvirt:aclservice";
     prefix "odl-acl";
 
+    import ietf-access-control-list { prefix ietf-acl;}
+    import ietf-yang-types { prefix "yang"; }
+    import yang-ext { prefix ext; }
+    import ietf-interfaces { prefix "ietf-if";}
+
+    revision "2016-05-18" {
+        description "Initial revision of netvirt extensions to ietf-acl model";
+    }
+    
+    identity direction-base {
+        description "Base identity for direction";
+    }
+
+    identity direction-ingress {
+        description "Ingress direction.";
+        base direction-base;
+    }
+
+    identity direction-egress {
+        description "Egress direction.";
+        base direction-base;
+
+    }
+    
+    augment "/ietf-acl:access-lists/ietf-acl:acl" {
+        description "Security Group Attributes";
+        ext:augment-identifier "security-group-attr";
+        leaf id {
+            type yang:uuid;
+            description "Security Rule ID.";
+        }
+        leaf security-group-id {
+            type yang:uuid;
+            description "The security group ID to associate with this security group rule.";
+        }
+        leaf remote-group-id {
+            description "The remote group ID to be associated with this security group rule.";
+            type yang:uuid;
+        }
+        leaf direction {
+            type identityref {
+                base "direction-base";
+            }
+            description "The direction in which metering rule is applied.
+                For a compute instance, an ingress security group rule is
+                applied to incoming (ingress) traffic for that instance.
+                An egress rule is applied to traffic leaving the instance.";
+        }
+    }
+    
+    augment "/ietf-if:interfaces/ietf-if:interface" {
+        description "Apply ACL to interfaces";
+        ext:augment-identifier "interface-acl";
+        leaf port-security-enabled {
+            type boolean;
+            description "The port security status. The status is enabled (true) or disabled (false).";
+        }
+        leaf-list security-groups {
+            type yang:uuid;
+            description "The security group ID to associate with this interface.";
+        }     
+  }
+
 }
 
