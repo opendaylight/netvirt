@@ -1,0 +1,7 @@
+module netvirt-sfc-acl {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:aclservice";
+    prefix "odl-acl";
+
+}
+
