@@ -1,0 +1,7 @@
+module netvirt-aclservice {
+    yang-version 1;
+    namespace "netvirt:aclservice";
+    prefix "aclservice";
+
+}
+
