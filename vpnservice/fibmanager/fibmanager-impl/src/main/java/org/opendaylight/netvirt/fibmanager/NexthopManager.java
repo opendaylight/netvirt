@@ -10,11 +10,16 @@ package org.opendaylight.netvirt.fibmanager;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -30,17 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.acti
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -49,48 +43,44 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthopKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.ConfTransportTypeL3vpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.ConfTransportTypeL3vpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.opendaylight.genius.itm.globals.ITMConstants;
-import org.opendaylight.genius.mdsalutil.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.ConfTransportTypeL3vpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.ConfTransportTypeL3vpnBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-public class NexthopManager implements AutoCloseable {
+public class NexthopManager {
     private static final Logger LOG = LoggerFactory.getLogger(NexthopManager.class);
     private final DataBroker broker;
-    private IMdsalApiManager mdsalManager;
-    private OdlInterfaceRpcService interfaceManager;
-    private ItmRpcService itmManager;
-    private IdManagerService idManager;
-    private static final short LPORT_INGRESS_TABLE = 0;
-    private static final short LFIB_TABLE = 20;
-    private static final short FIB_TABLE = 21;
-    private static final short DEFAULT_FLOW_PRIORITY = 10;
+    private final IMdsalApiManager mdsalManager;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final ItmRpcService itmManager;
+    private final IdManagerService idManager;
     private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
     private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
     private L3VPNTransportTypes configuredTransportTypeL3VPN = L3VPNTransportTypes.Invalid;
@@ -109,31 +99,21 @@ public class NexthopManager implements AutoCloseable {
     * Provides nexthop functions
     * Creates group ID pool
     *
-    * @param db - dataBroker reference
+    * @param dataBroker - dataBroker reference
+    * @param mdsalApiManager - mdsalApiManager reference
+    * @param idManager - idManager reference
+    * @param interfaceManager - interfaceManager reference
+    * @param itmManager - itmManager reference
     */
-    public NexthopManager(final DataBroker db) {
-        broker = db;
-    }
-
-    @Override
-    public void close() throws Exception {
-        LOG.info("NextHop Manager Closed");
-    }
-
-    public void setInterfaceManager(OdlInterfaceRpcService ifManager) {
-        this.interfaceManager = ifManager;
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
-    }
-
-    public void setIdManager(IdManagerService idManager) {
+    public NexthopManager(final DataBroker dataBroker,
+            final IMdsalApiManager mdsalApiManager,
+            final IdManagerService idManager,
+            final OdlInterfaceRpcService interfaceManager,
+            final ItmRpcService itmManager) {
+        broker = dataBroker;
+        this.mdsalManager = mdsalApiManager;
         this.idManager = idManager;
-        createNexthopPointerPool();
-    }
-
-    public void setITMRpcService(ItmRpcService itmManager) {
+        this.interfaceManager = interfaceManager;
         this.itmManager = itmManager;
     }
 
@@ -148,20 +128,8 @@ public class NexthopManager implements AutoCloseable {
         LOG.trace("NextHopPointerPool result : {}", result);
     }
 
-    private BigInteger getDpnId(String ofPortId) {
-        String[] fields = ofPortId.split(":");
-        BigInteger dpn = new BigInteger(fields[1]);
-        LOG.debug("DpnId: {}", dpn);
-        return dpn;
-    }
-
     private String getNextHopKey(long vpnId, String ipAddress){
         String nhKey = new String("nexthop." + vpnId + ipAddress);
-        return nhKey;
-    }
-
-    private String getNextHopKey(String ifName, String ipAddress){
-        String nhKey = new String("nexthop." + ifName + ipAddress);
         return nhKey;
     }
 
@@ -246,7 +214,7 @@ public class NexthopManager implements AutoCloseable {
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when getting tunnel interface Id for tunnel between {} and  {}", srcDpId, dstDpId, e);
         }
-        
+
         return null;
     }
 
@@ -266,7 +234,7 @@ public class NexthopManager implements AutoCloseable {
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when getting tunnel interface Id for tunnel between {} and  {}", srcDpId, dstIp, e);
         }
-        
+
         return null;
     }
 
@@ -405,7 +373,7 @@ public class NexthopManager implements AutoCloseable {
         delete(LogicalDatastoreType.OPERATIONAL, id);
     }
 
- 
+
     public void removeLocalNextHop(BigInteger dpnId, Long vpnId, String ipAddress) {
 
         String nextHopLockStr = new String(vpnId + ipAddress);
@@ -451,13 +419,6 @@ public class NexthopManager implements AutoCloseable {
         }
 
         return result;
-    }
-
-    private <T extends DataObject> void asyncWrite(LogicalDatastoreType datastoreType,
-            InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.merge(datastoreType, path, data, true);
-        Futures.addCallback(tx.submit(), callback);
     }
 
     private <T extends DataObject> void syncWrite(LogicalDatastoreType datastoreType,
