@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -24,6 +25,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
+import org.opendaylight.netvirt.vpnmanager.SubnetOpDpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager;
 import org.opendaylight.netvirt.vpnmanager.VpnSubnetRouteHandler;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -201,8 +203,8 @@ public class VpnSubnetRouteHandlerTest {
                 .thenReturn(dataChangeListenerRegistration);
         setupMocks();
 
-        vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, bgpManager, vpnInterfaceManager);
-        vpnSubnetRouteHandler.setIdManager(idManager);
+        SubnetOpDpnManager subnetOpDpnManager = new SubnetOpDpnManager(dataBroker);
+        vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, subnetOpDpnManager, bgpManager, vpnInterfaceManager, idManager);
         Future<RpcResult<AllocateIdOutput>> idOutputOptional = RpcResultBuilder.success(allocateIdOutput).buildFuture();
 
         optionalIfState = Optional.of(stateInterface);
