@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_f99f6cb2",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/resources/org/opendaylight/blueprint/fcaps.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-20T16:08:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_f9780c91",
+      "revId": "77bb9a164ac0ecaa3506b2514c90cefe201fc8b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_597018a5",
         "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/resources/org/opendaylight/blueprint/fcaps.xml",
         "patchSetId": 8
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_59a7780c",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/resources/org/opendaylight/blueprint/fcaps.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-20T16:08:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_597018a5",
+      "revId": "77bb9a164ac0ecaa3506b2514c90cefe201fc8b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_3973a4b2",
         "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/resources/org/opendaylight/blueprint/fcaps.xml",
         "patchSetId": 8
@@ -47,6 +83,24 @@
       "writtenOn": "2016-05-20T16:00:20Z",
       "side": 1,
       "message": "This wasn\u0027t registered as a service from what I can tell - it\u0027s a mbean.",
+      "revId": "77bb9a164ac0ecaa3506b2514c90cefe201fc8b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_39aa84d4",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/resources/org/opendaylight/blueprint/fcaps.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-20T16:08:31Z",
+      "side": 1,
+      "message": "I thought defining the service was needed because the class implements this MBean class.",
+      "parentUuid": "fa57193c_3973a4b2",
       "revId": "77bb9a164ac0ecaa3506b2514c90cefe201fc8b5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
