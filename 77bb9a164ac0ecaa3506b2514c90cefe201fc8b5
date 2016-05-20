@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_f9780c91",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/resources/org/opendaylight/blueprint/fcaps.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-20T16:00:20Z",
+      "side": 1,
+      "message": "Need to use \"pingpong\" type as the config XML was.",
+      "revId": "77bb9a164ac0ecaa3506b2514c90cefe201fc8b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_597018a5",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/resources/org/opendaylight/blueprint/fcaps.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-20T16:00:20Z",
+      "side": 1,
+      "message": "You removed the FcapsProvider class :)",
+      "revId": "77bb9a164ac0ecaa3506b2514c90cefe201fc8b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_3973a4b2",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/resources/org/opendaylight/blueprint/fcaps.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-20T16:00:20Z",
+      "side": 1,
+      "message": "This wasn\u0027t registered as a service from what I can tell - it\u0027s a mbean.",
+      "revId": "77bb9a164ac0ecaa3506b2514c90cefe201fc8b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
