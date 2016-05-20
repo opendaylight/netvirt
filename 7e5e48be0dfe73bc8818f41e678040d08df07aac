@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_be079a1b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerProvider.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-20T15:40:29Z",
+      "side": 1,
+      "message": "The FibManager is already closed via blueprint so this can be removed.",
+      "revId": "7e5e48be0dfe73bc8818f41e678040d08df07aac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_7e0d023e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/resources/org/opendaylight/blueprint/fibmanager.xml",
+        "patchSetId": 9
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-05-20T15:40:29Z",
+      "side": 1,
+      "message": "Looks like this isn\u0027t needed.",
+      "revId": "7e5e48be0dfe73bc8818f41e678040d08df07aac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
