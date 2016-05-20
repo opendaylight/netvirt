@@ -142,7 +142,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>vpnmanager-impl</artifactId>
+      <artifactId>natservice-impl</artifactId>
       <version>${vpnmanager.version}</version>
       <classifier>config</classifier>
       <type>xml</type>
@@ -261,13 +261,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>natservice-impl</artifactId>
       <version>${vpnservices.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>natservice-impl</artifactId>
-      <version>${vpnservices.version}</version>
-      <classifier>config</classifier>
-      <type>xml</type>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
