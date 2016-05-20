@@ -11,11 +11,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -23,45 +19,32 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpManager implements AutoCloseable {
+public class DhcpManager {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpManager.class);
-    private final DataBroker broker;
-    IMdsalApiManager mdsalUtil;
+
+    private final IMdsalApiManager mdsalUtil;
+    private final INeutronVpnManager neutronVpnService;
 
     private int dhcpOptLeaseTime = 0;
     private int dhcpOptRenewalTime = 0;
     private int dhcpOptRebindingTime = 0;
     private String dhcpOptDefDomainName;
-    private INeutronVpnManager neutronVpnService;
+
     // cache used to maintain DpnId and physical address for each interface.
     private static HashMap<String, ImmutablePair<BigInteger, String>> interfaceToDpnIdMacAddress = new HashMap<String, ImmutablePair<BigInteger, String>>();
 
-    /**
-    * @param db - dataBroker reference
-    */
-    public DhcpManager(final DataBroker db) {
-        broker = db;
+    public DhcpManager(final IMdsalApiManager mdsalApiManager, final INeutronVpnManager neutronVpnManager) {
+        this.mdsalUtil = mdsalApiManager;
+        this.neutronVpnService = neutronVpnManager;
         configureLeaseDuration(DHCPMConstants.DEFAULT_LEASE_TIME);
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalUtil = mdsalManager;
-    }
-
-    public void setNeutronVpnService(INeutronVpnManager neutronVpnService) {
-        logger.debug("Setting NeutronVpn dependency");
-        this.neutronVpnService = neutronVpnService;
-    }
-
-    @Override
-    public void close() throws Exception {
-        logger.info("DHCP Manager Closed");
     }
 
     public int setLeaseDuration(int leaseDuration) {
