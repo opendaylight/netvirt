@@ -8,7 +8,7 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
-
+import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
@@ -17,34 +17,35 @@ import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-
 public class InterfaceStateChangeListener extends AbstractDataChangeListener<Interface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateChangeListener.class);
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
+
     private final DataBroker broker;
-    private VpnInterfaceManager vpnInterfaceManager;
-    private OdlInterfaceRpcService interfaceManager;
+    private final VpnInterfaceManager vpnInterfaceManager;
+    private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
-
-    public InterfaceStateChangeListener(final DataBroker db, VpnInterfaceManager vpnInterfaceManager) {
+    public InterfaceStateChangeListener(final DataBroker db,
+            VpnInterfaceManager vpnInterfaceManager,
+            final VpnSubnetRouteHandler vpnSubnetRouteHandler) {
         super(Interface.class);
         broker = db;
         this.vpnInterfaceManager = vpnInterfaceManager;
-        registerListener(db);
+        this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
     }
 
-    public void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
-      this.interfaceManager = interfaceManager;
-  }
+    public void start() {
+        listenerRegistration = broker.registerDataChangeListener(
+                LogicalDatastoreType.OPERATIONAL, getWildCardPath(),
+                InterfaceStateChangeListener.this, DataChangeScope.SUBTREE);
+    }
 
     @Override
     public void close() throws Exception {
@@ -60,15 +61,6 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
     }
 
 
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                                                                 getWildCardPath(), InterfaceStateChangeListener.this, DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("Interface DataChange listener registration failed", e);
-            throw new IllegalStateException("Nexthop Manager registration Listener failed.", e);
-        }
-    }
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
@@ -87,7 +79,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
           }
         } else {
           vpnInterfaceManager.processVpnInterfaceUp(dpnId, interfaceName, intrf.getIfIndex());
-          vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceUp(intrf);
+          vpnSubnetRouteHandler.onInterfaceUp(intrf);
           handleRouterInterfacesUpEvent(interfaceName);
         }
       } catch (Exception e) {
@@ -114,7 +106,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
         } else {
           if (VpnUtil.isVpnInterfaceConfigured(broker, interfaceName)) {
             vpnInterfaceManager.processVpnInterfaceDown(dpId, interfaceName, intrf.getIfIndex(), true);
-            vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceDown(intrf);
+            vpnSubnetRouteHandler.onInterfaceDown(intrf);
             handleRouterInterfacesDownEvent(interfaceName,dpId);
           }
         }
