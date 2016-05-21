@@ -174,7 +174,8 @@ public class NeutronSubnetInterface extends AbstractNeutronInterface<Subnet, Neu
             .fetchINeutronPortCRUD(this);
         INeutronPortCRUD portIf = interfaces.getPortInterface();
         for (NeutronPort port : portIf.getAllPorts()) {
-            if (port.getDeviceOwner().equalsIgnoreCase("network:router_interface")) {
+            if (port.getDeviceOwner().equalsIgnoreCase("network:router_interface") ||
+                port.getDeviceOwner().equalsIgnoreCase("network:router_gateway")) {
                 result.setGatewayIP(String.valueOf(subnet.getGatewayIp().getValue()));
             }
             if (port.getFixedIPs() != null) {
