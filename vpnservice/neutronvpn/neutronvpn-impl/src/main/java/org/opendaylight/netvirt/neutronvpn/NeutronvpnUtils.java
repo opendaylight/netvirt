@@ -267,7 +267,7 @@ public class NeutronvpnUtils {
                     .class).child(Subnet.class, subnetkey);
             Optional<Subnet> subnet = read(broker, LogicalDatastoreType.CONFIGURATION,subnetidentifier);
             if (subnet.isPresent()) {
-                cidr = subnet.get().getCidr();
+                cidr = String.valueOf(subnet.get().getCidr().getValue());
                 // Extract the prefix length from cidr
                 String[] parts = cidr.split("/");
                 if ((parts.length == 2)) {
