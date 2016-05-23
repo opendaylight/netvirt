@@ -91,15 +91,4 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.neutron/dummyprovider/{{VERSION}}</bundle>
     <feature version="${project.version}">odl-netvirt-vpnservice-impl-rest</feature>
   </feature>
-  <feature name='odl-fcaps-framework' version='${project.version}' description='OpenDaylight :: fcapsframework'>
-    <bundle>mvn:org.opendaylight.netvirt/fcaps-api/${fcaps.manager.version}</bundle>
-    <bundle>mvn:org.opendaylight.netvirt/alarmmanager/${fcaps.manager.version}</bundle>
-    <bundle>mvn:org.opendaylight.netvirt/countermanager/${fcaps.manager.version}</bundle>
-  </feature>
-  <feature name='odl-fcaps-application' version='${project.version}' description='OpenDaylight :: fcapsapp'>
-    <feature version="${openflowplugin.version}">odl-openflowplugin-all</feature>
-    <bundle>mvn:org.opendaylight.netvirt/fcapsapplication-jmxapi/${fcaps.app.version}</bundle>
-    <bundle>mvn:org.opendaylight.netvirt/fcapsapplication-impl/${fcaps.app.version}</bundle>
-    <configfile finalname="etc/opendaylight/karaf/73-fcaps-app.xml">mvn:org.opendaylight.netvirt/fcapsapplication-impl/${fcaps.app.version}/xml/config    </configfile>
-  </feature>
   </features>
