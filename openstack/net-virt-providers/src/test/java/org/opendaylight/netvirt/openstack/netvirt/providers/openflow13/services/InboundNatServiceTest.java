@@ -73,7 +73,7 @@ public class InboundNatServiceTest {
     }
 
     /**
-     * Test method {@link InboundNatService#programIpRewriteRule(Long, Long, InetAddress, InetAddress, Action)}
+     * Test method {@link InboundNatService#programIpRewriteRule(Long, Long, String, InetAddress, InetAddress, Action)}
      */
     @Test
     public void testProgramIpRewriteRule() throws Exception {
