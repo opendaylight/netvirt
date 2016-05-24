@@ -16,6 +16,24 @@
       "revId": "6bbf9caf5d4fe22feceac41b70f2dc48edb00715",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_3b3d51bc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-05-24T09:47:34Z",
+      "side": 1,
+      "message": "@Kalai, just wanted to know if you have any updates for this patch. Thanks.",
+      "parentUuid": "fa57193c_2177f73b",
+      "revId": "6bbf9caf5d4fe22feceac41b70f2dc48edb00715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
