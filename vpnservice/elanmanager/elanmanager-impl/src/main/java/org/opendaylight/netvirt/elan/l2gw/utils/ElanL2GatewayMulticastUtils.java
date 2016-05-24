@@ -372,17 +372,9 @@ public class ElanL2GatewayMulticastUtils {
         RemoteMcastMacsKey remoteMcastMacsKey = new RemoteMcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch),
                 new MacAddress(ElanConstants.UNKNOWN_DMAC));
 
-        RemoteMcastMacs remoteMcast = HwvtepUtils.getRemoteMcastMac(broker, LogicalDatastoreType.OPERATIONAL, nodeId,
-                remoteMcastMacsKey);
-        if (remoteMcast != null) {
-            LOG.info("Deleting RemoteMcastMacs entry on node: {} for logical switch: {}", nodeId.getValue(),
-                    logicalSwitchName);
-            return HwvtepUtils.deleteRemoteMcastMac(broker, nodeId, remoteMcastMacsKey);
-        }
-
-        SettableFuture<Void> future = SettableFuture.create();
-        future.set(null);
-        return future;
+        LOG.info("Deleting RemoteMcastMacs entry on node: {} for logical switch: {}", nodeId.getValue(),
+                logicalSwitchName);
+        return HwvtepUtils.deleteRemoteMcastMac(broker, nodeId, remoteMcastMacsKey);
     }
 
     /**
@@ -397,6 +389,10 @@ public class ElanL2GatewayMulticastUtils {
     public static IpAddress getTepIpOfDesignatedSwitchForExternalTunnel(L2GatewayDevice l2GwDevice,
             String elanInstanceName) {
         IpAddress tepIp = null;
+        if (l2GwDevice.getTunnelIp() == null) {
+            LOG.warn("Tunnel IP not found for {}", l2GwDevice.getDeviceName());
+            return tepIp;
+        }
         DesignatedSwitchForTunnel desgSwitch = getDesignatedSwitchForExternalTunnel(l2GwDevice.getTunnelIp(),
                 elanInstanceName);
         if (desgSwitch != null) {

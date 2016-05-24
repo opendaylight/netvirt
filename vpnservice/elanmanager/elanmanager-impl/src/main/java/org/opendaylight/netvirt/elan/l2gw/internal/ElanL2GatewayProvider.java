@@ -13,7 +13,7 @@ import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlready
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLogicalSwitchListener;
-import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepNodeListener;
+import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepPhysicalSwitchListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepRemoteMcastMacListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
@@ -46,7 +46,7 @@ public class ElanL2GatewayProvider implements AutoCloseable {
     private ElanInterfaceManager elanInterfaceManager;
 
     private L2GatewayConnectionListener l2GwConnListener;
-    private HwvtepNodeListener hwvtepNodeListener;
+    private HwvtepPhysicalSwitchListener hwvtepPhySwitchListener;
     private HwvtepLocalUcastMacListener torMacsListener;
     private HwvtepPhysicalLocatorListener physicalLocatorListener;
 
@@ -93,8 +93,8 @@ public class ElanL2GatewayProvider implements AutoCloseable {
 
         this.torMacsListener = new HwvtepLocalUcastMacListener(broker);
         this.l2GwConnListener = new L2GatewayConnectionListener(broker, elanInstanceManager);
-        this.hwvtepNodeListener = new HwvtepNodeListener(broker, elanInstanceManager, itmRpcService);
-        this.hwvtepNodeListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        this.hwvtepPhySwitchListener = new HwvtepPhysicalSwitchListener(broker, itmRpcService);
+        this.hwvtepPhySwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
 
         physicalLocatorListener = new HwvtepPhysicalLocatorListener(broker);
         try {
@@ -115,7 +115,7 @@ public class ElanL2GatewayProvider implements AutoCloseable {
     public void close() throws Exception {
         this.torMacsListener.close();
         this.l2GwConnListener.close();
-        this.hwvtepNodeListener.close();
+        this.hwvtepPhySwitchListener.close();
         LOG.info("ElanL2GatewayProvider Closed");
     }
 }
