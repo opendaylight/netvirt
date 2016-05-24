@@ -24,6 +24,7 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtensionBuilder;
@@ -41,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtensionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -167,8 +169,8 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
             List<NeutronPort_AllowedAddressPairs> pairs = new ArrayList<>();
             for (AllowedAddressPairs mdPair : port.getAllowedAddressPairs()) {
                 NeutronPort_AllowedAddressPairs pair = new NeutronPort_AllowedAddressPairs();
-                pair.setIpAddress(mdPair.getIpAddress());
-                pair.setMacAddress(mdPair.getMacAddress());
+                pair.setIpAddress(String.valueOf(mdPair.getIpAddress().getValue()));
+                pair.setMacAddress(mdPair.getMacAddress().getValue());
                 pairs.add(pair);
             }
             result.setAllowedAddressPairs(pairs);
@@ -195,7 +197,7 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
             }
             result.setFixedIPs(ips);
         }
-        result.setMacAddress(port.getMacAddress());
+        result.setMacAddress(port.getMacAddress().getValue());
         result.setName(port.getName());
         result.setNetworkUUID(String.valueOf(port.getNetworkId().getValue()));
         if (port.getSecurityGroups() != null) {
@@ -262,8 +264,8 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
             List<AllowedAddressPairs> listAllowedAddressPairs = new ArrayList<>();
             for (NeutronPort_AllowedAddressPairs allowedAddressPairs : neutronPort.getAllowedAddressPairs()) {
                     AllowedAddressPairsBuilder allowedAddressPairsBuilder = new AllowedAddressPairsBuilder();
-                    allowedAddressPairsBuilder.setIpAddress(allowedAddressPairs.getIpAddress());
-                    allowedAddressPairsBuilder.setMacAddress(allowedAddressPairs.getMacAddress());
+                    allowedAddressPairsBuilder.setIpAddress(new IpPrefixOrAddress(allowedAddressPairs.getIpAddress().toCharArray()));
+                    allowedAddressPairsBuilder.setMacAddress(new MacAddress(allowedAddressPairs.getMacAddress()));
                     listAllowedAddressPairs.add(allowedAddressPairsBuilder.build());
             }
             portBuilder.setAllowedAddressPairs(listAllowedAddressPairs);
@@ -295,7 +297,7 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
             portBuilder.setFixedIps(listNeutronIPs);
         }
         if (neutronPort.getMacAddress() != null) {
-            portBuilder.setMacAddress(neutronPort.getMacAddress());
+            portBuilder.setMacAddress(new MacAddress(neutronPort.getMacAddress()));
         }
         if (neutronPort.getName() != null) {
         portBuilder.setName(neutronPort.getName());

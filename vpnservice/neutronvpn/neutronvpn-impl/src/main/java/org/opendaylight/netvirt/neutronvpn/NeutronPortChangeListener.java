@@ -334,7 +334,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private void createElanInterface(Port port, String name) {
         String elanInstanceName = port.getNetworkId().getValue();
         List<PhysAddress> physAddresses = new ArrayList<>();
-        physAddresses.add(new PhysAddress(port.getMacAddress()));
+        physAddresses.add(new PhysAddress(port.getMacAddress().getValue()));
 
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
                 .class, new ElanInterfaceKey(name)).build();

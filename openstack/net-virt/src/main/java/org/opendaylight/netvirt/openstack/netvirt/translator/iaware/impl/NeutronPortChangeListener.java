@@ -136,8 +136,8 @@ public class NeutronPortChangeListener implements ClusteredDataChangeListener, A
             List<NeutronPort_AllowedAddressPairs> pairs = new ArrayList<>();
             for (AllowedAddressPairs mdPair : port.getAllowedAddressPairs()) {
                 NeutronPort_AllowedAddressPairs pair = new NeutronPort_AllowedAddressPairs();
-                pair.setIpAddress(mdPair.getIpAddress());
-                pair.setMacAddress(mdPair.getMacAddress());
+                pair.setIpAddress(String.valueOf(mdPair.getIpAddress().getValue()));
+                pair.setMacAddress(mdPair.getMacAddress().getValue());
                 pairs.add(pair);
             }
             result.setAllowedAddressPairs(pairs);
@@ -164,7 +164,7 @@ public class NeutronPortChangeListener implements ClusteredDataChangeListener, A
             }
             result.setFixedIPs(ips);
         }
-        result.setMacAddress(port.getMacAddress());
+        result.setMacAddress(port.getMacAddress().getValue());
         result.setName(port.getName());
         result.setNetworkUUID(String.valueOf(port.getNetworkId().getValue()));
         if (port.getSecurityGroups() != null) {

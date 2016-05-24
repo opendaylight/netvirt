@@ -257,7 +257,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
                                 port.getDeviceOwner().equals(OWNER_ROUTER_INTERFACE)) {
                             LOG.debug("L3 Cache Population : Router interface {} found.",port);
                             networkIdToRouterMacCache.put(port.getNetworkId().getValue()
-                                    , port.getMacAddress());
+                                    , port.getMacAddress().getValue());
 
                             networkIdToRouterIpListCache.put(port.getNetworkId().getValue(),
                                     NeutronIAwareUtil.convertMDSalIpToNeutronIp(port.getFixedIps()));
