@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
-import org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -41,7 +41,7 @@ import com.google.common.util.concurrent.ListenableFuture;
  * @see RemoteMcastMacs
  */
 public class HwvtepRemoteMcastMacListener
-        extends AsyncDataChangeListenerBase<RemoteMcastMacs, HwvtepRemoteMcastMacListener> {
+        extends AsyncClusteredDataChangeListenerBase<RemoteMcastMacs, HwvtepRemoteMcastMacListener> {
 
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepRemoteMcastMacListener.class);
@@ -148,7 +148,7 @@ public class HwvtepRemoteMcastMacListener
      * getDataChangeListener()
      */
     @Override
-    protected DataChangeListener getDataChangeListener() {
+    protected ClusteredDataChangeListener getDataChangeListener() {
         return HwvtepRemoteMcastMacListener.this;
     }
 

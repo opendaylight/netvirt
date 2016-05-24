@@ -7,15 +7,15 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.netvirt.elan.l2gw.jobs.LogicalSwitchAddedJob;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
-import org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.genius.utils.SystemPropertyReader;
-import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
  *
  * @see LogicalSwitches
  */
-public class HwvtepLogicalSwitchListener
-        extends AsyncDataChangeListenerBase<LogicalSwitches, HwvtepLogicalSwitchListener> {
+public class HwvtepLogicalSwitchListener extends
+    AsyncClusteredDataChangeListenerBase<LogicalSwitches, HwvtepLogicalSwitchListener> {
 
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepLogicalSwitchListener.class);
@@ -90,7 +90,7 @@ public class HwvtepLogicalSwitchListener
      * (non-Javadoc)
      *
      * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
+     * org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase#
      * getWildCardPath()
      */
     @Override
@@ -103,11 +103,11 @@ public class HwvtepLogicalSwitchListener
      * (non-Javadoc)
      *
      * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
+     * org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase#
      * getDataChangeListener()
      */
     @Override
-    protected DataChangeListener getDataChangeListener() {
+    protected ClusteredDataChangeListener getDataChangeListener() {
         return HwvtepLogicalSwitchListener.this;
     }
 
@@ -115,7 +115,7 @@ public class HwvtepLogicalSwitchListener
      * (non-Javadoc)
      *
      * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
+     * org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase#
      * getDataChangeScope()
      */
     @Override
@@ -127,7 +127,7 @@ public class HwvtepLogicalSwitchListener
      * (non-Javadoc)
      *
      * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
+     * org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase#
      * remove(org.opendaylight.yangtools.yang.binding.InstanceIdentifier,
      * org.opendaylight.yangtools.yang.binding.DataObject)
      */
@@ -141,7 +141,7 @@ public class HwvtepLogicalSwitchListener
      * (non-Javadoc)
      *
      * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
+     * org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase#
      * update(org.opendaylight.yangtools.yang.binding.InstanceIdentifier,
      * org.opendaylight.yangtools.yang.binding.DataObject,
      * org.opendaylight.yangtools.yang.binding.DataObject)
@@ -157,7 +157,7 @@ public class HwvtepLogicalSwitchListener
      * (non-Javadoc)
      *
      * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
+     * org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase#
      * add(org.opendaylight.yangtools.yang.binding.InstanceIdentifier,
      * org.opendaylight.yangtools.yang.binding.DataObject)
      */
@@ -171,9 +171,9 @@ public class HwvtepLogicalSwitchListener
 
             LogicalSwitchAddedJob logicalSwitchAddedWorker = new LogicalSwitchAddedJob(
                     logicalSwitchName, physicalDevice, elanDevice, defaultVlanId);
-            dataStoreJobCoordinator.enqueueJob(logicalSwitchAddedWorker.getJobKey(), logicalSwitchAddedWorker,
-                    SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
-
+            ElanClusterUtils.runOnlyInLeaderNode(logicalSwitchAddedWorker.getJobKey() ,
+                    "create vlan mappings and mcast configurations",
+                    logicalSwitchAddedWorker);
         } catch (Exception e) {
             LOG.error("Failed to handle HwVTEPLogicalSwitch - add: {}", e);
         } finally {
@@ -188,5 +188,4 @@ public class HwvtepLogicalSwitchListener
             }
         }
     }
-
 }
