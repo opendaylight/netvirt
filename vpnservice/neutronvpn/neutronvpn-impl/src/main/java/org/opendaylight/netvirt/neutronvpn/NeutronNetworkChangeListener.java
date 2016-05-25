@@ -23,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -35,12 +36,14 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private NeutronvpnManager nvpnManager;
+    private NeutronvpnNatManager nvpnNatManager;
 
 
-    public NeutronNetworkChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr) {
+    public NeutronNetworkChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr, NeutronvpnNatManager nVpnNatMgr) {
         super(Network.class);
         broker = db;
         nvpnManager = nVpnMgr;
+        nvpnNatManager = nVpnNatMgr;
         registerListener(db);
     }
 
@@ -78,6 +81,9 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         }
         //Create ELAN instance for this network
         createElanInstance(input);
+        if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
+            nvpnNatManager.addExternalNetwork(input);
+        }
     }
 
     @Override
@@ -87,6 +93,9 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         }
         //Delete ELAN instance for this network
         deleteElanInstance(input.getUuid().getValue());
+        if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
+            nvpnNatManager.removeExternalNetwork(input);
+        }
     }
 
     @Override
