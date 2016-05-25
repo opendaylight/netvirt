@@ -125,7 +125,6 @@ public class DhcpLogicalSwitchListener extends AbstractDataChangeListener<Logica
         }
         IpAddress tunnelIp = targetDevice.getTunnelIp();
         handleLogicalSwitchAdd(elanInstanceName, tunnelIp);
-
     }
 
     private void handleLogicalSwitchRemove(String elanInstanceName, IpAddress tunnelIp) {
