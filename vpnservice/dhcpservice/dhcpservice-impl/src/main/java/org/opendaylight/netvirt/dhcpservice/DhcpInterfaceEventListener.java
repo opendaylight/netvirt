@@ -93,7 +93,6 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
         logger.info("Interface Manager Closed");
     }
 
-
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface del) {
         List<String> ofportIds = del.getLowerLayerIf();
@@ -124,6 +123,14 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
     @Override
     protected void update(InstanceIdentifier<Interface> identifier,
             Interface original, Interface update) {
+        if (update.getType() == null) {
+            logger.trace("Interface type for interface {} is null", update);
+            return;
+        }
+        if ((original.getOperStatus().getIntValue() ^ update.getOperStatus().getIntValue()) == 0) {
+            logger.trace("Interface operstatus {} is same", update.getOperStatus());
+            return;
+        }
         List<String> ofportIds = update.getLowerLayerIf();
         if (ofportIds == null || ofportIds.isEmpty()) {
             return;
@@ -135,14 +142,6 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
                 DhcpServiceUtils.getInterfaceFromConfigDS(interfaceName, dataBroker);
         if (iface == null) {
             logger.trace("Interface {} is not present in the config DS", interfaceName);
-            return;
-        }
-        if (update.getType() == null) {
-            logger.trace("Interface type for interface {} is null", interfaceName);
-            return;
-        }
-        if ((original.getOperStatus().getIntValue() ^ update.getOperStatus().getIntValue()) == 0) {
-            logger.trace("Interface operstatus {} is same", update.getOperStatus());
             return;
         }
         if (Tunnel.class.equals(update.getType())) {

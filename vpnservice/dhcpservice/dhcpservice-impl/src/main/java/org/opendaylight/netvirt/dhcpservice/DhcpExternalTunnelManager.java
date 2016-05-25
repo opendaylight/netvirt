@@ -81,21 +81,10 @@ public class DhcpExternalTunnelManager {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpExternalTunnelManager.class);
     public static final String UNKNOWN_DMAC = "00:00:00:00:00:00";
-    private static final FutureCallback<Void> DEFAULT_CALLBACK =
-            new FutureCallback<Void>() {
-                @Override
-                public void onSuccess(Void result) {
-                    logger.debug("Success in Datastore write operation");
-                }
-                @Override
-                public void onFailure(Throwable error) {
-                    logger.error("Error in Datastore write operation", error);
-                };
-            };
     private final DataBroker broker;
     private IMdsalApiManager mdsalUtil;
 
-    private ConcurrentMap<BigInteger, List<Pair<IpAddress, String>>> designatedDpnsToTunnelIpElanNameCache = new ConcurrentHashMap<BigInteger, List<Pair<IpAddress, String>>>();
+    private ConcurrentMap<BigInteger, Set<Pair<IpAddress, String>>> designatedDpnsToTunnelIpElanNameCache = new ConcurrentHashMap<BigInteger, Set<Pair<IpAddress, String>>>();
     private ConcurrentMap<Pair<IpAddress, String>, Set<String>> tunnelIpElanNameToVmMacCache = new ConcurrentHashMap<Pair<IpAddress, String>, Set<String>>();
     private ConcurrentMap<Pair<BigInteger, String>, Port> vniMacAddressToPortCache = new ConcurrentHashMap<Pair<BigInteger, String>, Port>();
     private ItmRpcService itmRpcService;
@@ -116,9 +105,9 @@ public class DhcpExternalTunnelManager {
         if (designatedSwitchForTunnelOptional.isPresent()) {
             List<DesignatedSwitchForTunnel> list = designatedSwitchForTunnelOptional.get().getDesignatedSwitchForTunnel();
             for (DesignatedSwitchForTunnel designatedSwitchForTunnel : list) {
-                List<Pair<IpAddress, String>> listOfTunnelIpElanNamePair = designatedDpnsToTunnelIpElanNameCache.get(designatedSwitchForTunnel.getDpId());
+                Set<Pair<IpAddress, String>> listOfTunnelIpElanNamePair = designatedDpnsToTunnelIpElanNameCache.get(designatedSwitchForTunnel.getDpId());
                 if (listOfTunnelIpElanNamePair == null) {
-                    listOfTunnelIpElanNamePair = new LinkedList<Pair<IpAddress, String>>();
+                    listOfTunnelIpElanNamePair = new HashSet<Pair<IpAddress, String>>();
                 }
                 Pair<IpAddress, String> tunnelIpElanNamePair = new ImmutablePair<IpAddress, String>(designatedSwitchForTunnel.getTunnelRemoteIpAddress(), designatedSwitchForTunnel.getElanInstanceName());
                 listOfTunnelIpElanNamePair.add(tunnelIpElanNamePair);
@@ -167,8 +156,7 @@ public class DhcpExternalTunnelManager {
         updateLocalCache(tunnelIp, elanInstanceName, vmMacAddress);
     }
 
-    public void installDhcpFlowsForVms(IpAddress tunnelIp,
-            String elanInstanceName, BigInteger designatedDpnId, Set<String> listVmMacAddress) {
+    public void installDhcpFlowsForVms(BigInteger designatedDpnId, Set<String> listVmMacAddress) {
         for (String vmMacAddress : listVmMacAddress) {
             installDhcpEntries(designatedDpnId, vmMacAddress);
         }
@@ -182,6 +170,9 @@ public class DhcpExternalTunnelManager {
     }
 
     public BigInteger readDesignatedSwitchesForExternalTunnel(IpAddress tunnelIp, String elanInstanceName) {
+        if (tunnelIp == null || elanInstanceName == null || elanInstanceName.isEmpty()) {
+            return null;
+        }
         InstanceIdentifier<DesignatedSwitchForTunnel> instanceIdentifier = InstanceIdentifier.builder(DesignatedSwitchesForExternalTunnels.class).child(DesignatedSwitchForTunnel.class, new DesignatedSwitchForTunnelKey(elanInstanceName, tunnelIp)).build();
         Optional<DesignatedSwitchForTunnel> designatedSwitchForTunnelOptional = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
         if (designatedSwitchForTunnelOptional.isPresent()) {
@@ -195,14 +186,16 @@ public class DhcpExternalTunnelManager {
         InstanceIdentifier<DesignatedSwitchForTunnel> instanceIdentifier = InstanceIdentifier.builder(DesignatedSwitchesForExternalTunnels.class).child(DesignatedSwitchForTunnel.class, designatedSwitchForTunnelKey).build();
         DesignatedSwitchForTunnel designatedSwitchForTunnel = new DesignatedSwitchForTunnelBuilder().setDpId(dpnId.longValue()).setElanInstanceName(elanInstanceName).setTunnelRemoteIpAddress(tunnelIp).setKey(designatedSwitchForTunnelKey).build();
         logger.trace("Writing into CONFIG DS tunnelIp {}, elanInstanceName {}, dpnId {}", tunnelIp, elanInstanceName, dpnId);
-        MDSALDataStoreUtils.asyncUpdate(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier, designatedSwitchForTunnel, DEFAULT_CALLBACK);
+        MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier, designatedSwitchForTunnel);
+        updateLocalCache(dpnId, tunnelIp, elanInstanceName);
     }
 
     public void removeDesignatedSwitchForExternalTunnel(BigInteger dpnId, IpAddress tunnelIp, String elanInstanceName) {
         DesignatedSwitchForTunnelKey designatedSwitchForTunnelKey = new DesignatedSwitchForTunnelKey(elanInstanceName, tunnelIp);
         InstanceIdentifier<DesignatedSwitchForTunnel> instanceIdentifier = InstanceIdentifier.builder(DesignatedSwitchesForExternalTunnels.class).child(DesignatedSwitchForTunnel.class, designatedSwitchForTunnelKey).build();
-        logger.trace("Writing into CONFIG DS tunnelIp {}, elanInstanceName {}, dpnId {}", tunnelIp, elanInstanceName, dpnId);
-        MDSALDataStoreUtils.asyncRemove(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier, DEFAULT_CALLBACK);
+        logger.trace("Removing from CONFIG DS tunnelIp {}, elanInstanceName {}, dpnId {}", tunnelIp, elanInstanceName, dpnId);
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
+        removeFromLocalCache(dpnId, tunnelIp, elanInstanceName);
     }
 
     public void installDhcpDropActionOnDpn(BigInteger dpId) {
@@ -224,12 +217,13 @@ public class DhcpExternalTunnelManager {
 
     public void updateLocalCache(BigInteger designatedDpnId, IpAddress tunnelIp, String elanInstanceName) {
         Pair<IpAddress, String> tunnelIpElanName = new ImmutablePair<IpAddress, String>(tunnelIp, elanInstanceName);
-        List<Pair<IpAddress, String>> tunnelIpElanNameList;
+        Set<Pair<IpAddress, String>> tunnelIpElanNameList;
         tunnelIpElanNameList = designatedDpnsToTunnelIpElanNameCache.get(designatedDpnId);
         if (tunnelIpElanNameList == null) {
-            tunnelIpElanNameList = new LinkedList<Pair<IpAddress, String>>();
+            tunnelIpElanNameList = new HashSet<Pair<IpAddress, String>>();
         }
         tunnelIpElanNameList.add(tunnelIpElanName);
+        logger.trace("Updating designatedDpnsToTunnelIpElanNameCache for designatedDpn {} value {}", designatedDpnId, tunnelIpElanNameList);
         designatedDpnsToTunnelIpElanNameCache.put(designatedDpnId, tunnelIpElanNameList);
     }
 
@@ -241,13 +235,14 @@ public class DhcpExternalTunnelManager {
             listExistingVmMacAddress = new HashSet<String>();
         }
         listExistingVmMacAddress.add(vmMacAddress);
+        logger.trace("Updating tunnelIpElanNameToVmMacCache for tunnelIpElanName {} value {}", tunnelIpElanName, listExistingVmMacAddress);
         tunnelIpElanNameToVmMacCache.put(tunnelIpElanName, listExistingVmMacAddress);
     }
 
     public void handleDesignatedDpnDown(BigInteger dpnId, List<BigInteger> listOfDpns) {
         logger.trace("In handleDesignatedDpnDown dpnId {}, listOfDpns {}", dpnId, listOfDpns);
         try {
-            List<Pair<IpAddress, String>> listOfTunnelIpElanNamePairs = designatedDpnsToTunnelIpElanNameCache.get(dpnId);
+            Set<Pair<IpAddress, String>> listOfTunnelIpElanNamePairs = designatedDpnsToTunnelIpElanNameCache.get(dpnId);
             if (!dpnId.equals(DHCPMConstants.INVALID_DPID)) {
                 List<String> listOfVms = getAllVmMacs();
                 for (String vmMacAddress : listOfVms) {
@@ -275,7 +270,8 @@ public class DhcpExternalTunnelManager {
         }
         Set<String> listVmMacs = tunnelIpElanNameToVmMacCache.get(pair);
         if (listVmMacs != null && !listVmMacs.isEmpty()) {
-            installDhcpFlowsForVms(pair.getLeft(), pair.getRight(), newDesignatedDpn, listVmMacs);
+            logger.trace("Updating DHCP flows for VMs {} with new designated DPN {}", listVmMacs, newDesignatedDpn);
+            installDhcpFlowsForVms(newDesignatedDpn, listVmMacs);
         }
     }
 
@@ -330,7 +326,7 @@ public class DhcpExternalTunnelManager {
                     logger.trace("Tunnel is not up between dpn {} and TOR {}", dpn, hwvtepNodeId);
                     continue;
                 }
-                List<Pair<IpAddress, String>> tunnelIpElanNameList = designatedDpnsToTunnelIpElanNameCache.get(dpn);
+                Set<Pair<IpAddress, String>> tunnelIpElanNameList = designatedDpnsToTunnelIpElanNameCache.get(dpn);
                 if (tunnelIpElanNameList == null) {
                     designatedDpnId = dpn;
                     break;
@@ -358,8 +354,8 @@ public class DhcpExternalTunnelManager {
     public void installDhcpEntries(final BigInteger dpnId, final String vmMacAddress, EntityOwnershipService eos) {
         final String nodeId = DhcpServiceUtils.getNodeIdFromDpnId(dpnId);
         ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                eos, /*HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-                HwvtepSouthboundConstants.ELAN_ENTITY_NAME*/"elan", "elan");
+                eos, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
         Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean isOwner) {
@@ -384,8 +380,8 @@ public class DhcpExternalTunnelManager {
     public void unInstallDhcpEntries(final BigInteger dpnId, final String vmMacAddress, EntityOwnershipService eos) {
         final String nodeId = DhcpServiceUtils.getNodeIdFromDpnId(dpnId);
         ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                eos, /*HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-                HwvtepSouthboundConstants.ELAN_ENTITY_NAME*/ "elan", "elan");
+                eos, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
         Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean isOwner) {
@@ -410,8 +406,8 @@ public class DhcpExternalTunnelManager {
     public void installDhcpDropAction(final BigInteger dpnId, final String vmMacAddress, EntityOwnershipService eos) {
         final String nodeId = DhcpServiceUtils.getNodeIdFromDpnId(dpnId);
         ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                eos, /*HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-                HwvtepSouthboundConstants.ELAN_ENTITY_NAME*/ "elan", "elan");
+                eos, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
         Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean isOwner) {
@@ -435,23 +431,29 @@ public class DhcpExternalTunnelManager {
             return;
         }
         try {
-            List<Pair<IpAddress, String>> tunnelElanPairList = designatedDpnsToTunnelIpElanNameCache.get(interfaceDpn);
-            if (tunnelElanPairList == null || tunnelElanPairList.isEmpty()) {
-                return;
-            }
-            for (Pair<IpAddress, String> tunnelElanPair : tunnelElanPairList) {
-                IpAddress tunnelIpInDpn = tunnelElanPair.getLeft();
-                if (tunnelIpInDpn.equals(tunnelIp)) {
-                    List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(broker);
-                    dpns.remove(interfaceDpn);
-                    changeExistingFlowToDrop(tunnelElanPair, interfaceDpn);
-                    updateCacheAndInstallNewFlows(interfaceDpn, dpns, tunnelElanPair);
+            synchronized (getTunnelIpDpnKey(tunnelIp, interfaceDpn)) {
+                Set<Pair<IpAddress, String>> tunnelElanPairList = designatedDpnsToTunnelIpElanNameCache.get(interfaceDpn);
+                if (tunnelElanPairList == null || tunnelElanPairList.isEmpty()) {
+                    return;
+                }
+                for (Pair<IpAddress, String> tunnelElanPair : tunnelElanPairList) {
+                    IpAddress tunnelIpInDpn = tunnelElanPair.getLeft();
+                    if (tunnelIpInDpn.equals(tunnelIp)) {
+                        List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(broker);
+                        dpns.remove(interfaceDpn);
+                        changeExistingFlowToDrop(tunnelElanPair, interfaceDpn);
+                        updateCacheAndInstallNewFlows(interfaceDpn, dpns, tunnelElanPair);
+                    }
                 }
             }
         } catch (Exception e) {
             logger.error("Error in handleTunnelStateDown {}", e.getMessage());
             logger.trace("Exception details {}", e);
         }
+    }
+
+    private String getTunnelIpDpnKey(IpAddress tunnelIp, BigInteger interfaceDpn) {
+        return new StringBuffer().append(tunnelIp.toString()).append(interfaceDpn).toString().intern();
     }
 
     private void removeFromLocalCache(String elanInstanceName, String vmMacAddress) {
@@ -463,6 +465,7 @@ public class DhcpExternalTunnelManager {
                 if (listExistingVmMacAddress == null || listExistingVmMacAddress.isEmpty()) {
                     continue;
                 }
+                logger.trace("Removing vmMacAddress {} from listOfMacs {} for elanInstanceName {}", vmMacAddress, listExistingVmMacAddress, elanInstanceName);
                 listExistingVmMacAddress.remove(vmMacAddress);
                 if (listExistingVmMacAddress.size() > 0) {
                     tunnelIpElanNameToVmMacCache.put(pair, listExistingVmMacAddress);
@@ -475,9 +478,10 @@ public class DhcpExternalTunnelManager {
 
     public void removeFromLocalCache(BigInteger designatedDpnId, IpAddress tunnelIp, String elanInstanceName) {
         Pair<IpAddress, String> tunnelIpElanName = new ImmutablePair<IpAddress, String>(tunnelIp, elanInstanceName);
-        List<Pair<IpAddress, String>> tunnelIpElanNameList;
+        Set<Pair<IpAddress, String>> tunnelIpElanNameList;
         tunnelIpElanNameList = designatedDpnsToTunnelIpElanNameCache.get(designatedDpnId);
         if (tunnelIpElanNameList != null) {
+            logger.trace("Removing tunnelIpElan {} from designatedDpnsToTunnelIpElanNameCache. Existing list {} for designatedDpnId {}", tunnelIpElanName, tunnelIpElanNameList, designatedDpnId);
             tunnelIpElanNameList.remove(tunnelIpElanName);
             if (tunnelIpElanNameList.size() != 0) {
                 designatedDpnsToTunnelIpElanNameCache.put(designatedDpnId, tunnelIpElanNameList);
@@ -578,8 +582,7 @@ public class DhcpExternalTunnelManager {
         if (designatedDpnId.equals(DHCPMConstants.INVALID_DPID)) {
             return;
         }
-        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(entityOwnershipService,
-                        /*HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, HwvtepSouthboundConstants.ELAN_ENTITY_NAME*/ "elan", "elan");
+        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
         Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean isOwner) {
@@ -615,8 +618,9 @@ public class DhcpExternalTunnelManager {
 
     private L2GatewayDevice getDeviceFromTunnelIp(String elanInstanceName, IpAddress tunnelIp) {
         ConcurrentMap<String, L2GatewayDevice> devices = L2GatewayCacheUtils.getCache();
+        logger.trace("In getDeviceFromTunnelIp devices {}", devices);
         for (L2GatewayDevice device : devices.values()) {
-            if (device.getTunnelIp().equals(tunnelIp)) {
+            if (tunnelIp.equals(device.getTunnelIp())) {
                 return device;
             }
         }
@@ -642,14 +646,24 @@ public class DhcpExternalTunnelManager {
     public void handleTunnelStateUp(IpAddress tunnelIp, BigInteger interfaceDpn) {
         logger.trace("In handleTunnelStateUp tunnelIp {}, interfaceDpn {}", tunnelIp, interfaceDpn);
         try {
-            List<Pair<IpAddress, String>> tunnelIpElanPair = designatedDpnsToTunnelIpElanNameCache.get(DHCPMConstants.INVALID_DPID);
-            List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(broker);
-            if (tunnelIpElanPair == null || tunnelIpElanPair.isEmpty()) {
-                return;
-            }
-            for (Pair<IpAddress, String> pair : tunnelIpElanPair) {
-                if (tunnelIp.equals(pair.getLeft())) {
-                    designateDpnId(tunnelIp, pair.getRight(), dpns);
+            synchronized (getTunnelIpDpnKey(tunnelIp, interfaceDpn)) {
+                Set<Pair<IpAddress, String>> tunnelIpElanPair = designatedDpnsToTunnelIpElanNameCache.get(DHCPMConstants.INVALID_DPID);
+                List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(broker);
+                if (tunnelIpElanPair == null || tunnelIpElanPair.isEmpty()) {
+                    logger.trace("There are no undesignated DPNs");
+                    return;
+                }
+                for (Pair<IpAddress, String> pair : tunnelIpElanPair) {
+                    if (tunnelIp.equals(pair.getLeft())) {
+                        BigInteger newDesignatedDpn = designateDpnId(tunnelIp, pair.getRight(), dpns);
+                        if (newDesignatedDpn != null && !newDesignatedDpn.equals(DHCPMConstants.INVALID_DPID)) {
+                            Set<String> vmMacAddress = tunnelIpElanNameToVmMacCache.get(pair);
+                            if (vmMacAddress != null && !vmMacAddress.isEmpty()) {
+                                logger.trace("Updating DHCP flow for macAddress {} with newDpn {}", vmMacAddress, newDesignatedDpn);
+                                installDhcpFlowsForVms(newDesignatedDpn, vmMacAddress);
+                            }
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
