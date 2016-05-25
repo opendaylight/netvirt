@@ -64,37 +64,45 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataChangeListenerBas
         if(NeutronUtils.isPortVnicTypeNormal(del)) {
             return;
         }
-        String macAddress = del.getMacAddress();
-        Uuid networkId = del.getNetworkId();
-        String segmentationId = DhcpServiceUtils.getSegmentationId(networkId, broker);
-        if (segmentationId == null) {
-            return;
-        }
-        List<BigInteger> listOfDpns = DhcpServiceUtils.getListOfDpns(broker);
-        dhcpExternalTunnelManager.unInstallDhcpFlowsForVms(networkId.getValue(), listOfDpns, macAddress);
-        dhcpExternalTunnelManager.removeVniMacToPortCache(new BigInteger(segmentationId), macAddress);
+        removePort(del);
     }
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
         LOG.trace("Port changed to {}", update);
+        if (NeutronUtils.isPortVnicTypeNormal(update)) {
+            LOG.trace("Port updated is normal {}", update.getUuid());
+            if (!NeutronUtils.isPortVnicTypeNormal(original)) {
+                LOG.trace("Original Port was direct {} so removing flows and cache entry if any", update.getUuid());
+                removePort(original);
+            }
+            return;
+        }
+        if (NeutronUtils.isPortVnicTypeNormal(original)) {
+            LOG.trace("Original port was normal and updated is direct. Calling addPort()");
+            addPort(update);
+            return;
+        }
+        LOG.trace("Original port was direct and updated port is also direct");
+        String macOriginal = getMacAddress(original);
+        String macUpdated = getMacAddress(update);
+        String segmentationIdOriginal = DhcpServiceUtils.getSegmentationId(original.getNetworkId(), broker);
+        String segmentationIdUpdated = DhcpServiceUtils.getSegmentationId(update.getNetworkId(), broker);
+        if (macOriginal != null && !macOriginal.equalsIgnoreCase(macUpdated) && segmentationIdOriginal !=null && !segmentationIdOriginal.equalsIgnoreCase(segmentationIdUpdated)) {
+            LOG.trace("Mac/segment id has changed");
+            dhcpExternalTunnelManager.removeVniMacToPortCache(new BigInteger(segmentationIdOriginal), macOriginal);
+            dhcpExternalTunnelManager.updateVniMacToPortCache(new BigInteger(segmentationIdUpdated), macUpdated, update);
+        }
     }
 
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port add) {
         LOG.trace("Port added {}", add);
         if(NeutronUtils.isPortVnicTypeNormal(add)) {
-            LOG.trace("Port is normal {}", add);
+            LOG.trace("Port is normal {}", add.getUuid());
             return;
         }
-        String macAddress = add.getMacAddress();
-        Uuid networkId = add.getNetworkId();
-        String segmentationId = DhcpServiceUtils.getSegmentationId(networkId, broker);
-        if (segmentationId == null) {
-            LOG.trace("segmentation id is null");
-            return;
-        }
-        dhcpExternalTunnelManager.updateVniMacToPortCache(new BigInteger(segmentationId), macAddress, add);
+        addPort(add);
     }
 
     @Override
@@ -105,5 +113,33 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataChangeListenerBas
     @Override
     protected DataChangeScope getDataChangeScope() {
         return AsyncDataBroker.DataChangeScope.SUBTREE;
+    }
+
+    private void removePort(Port port) {
+        String macAddress = getMacAddress(port);
+        Uuid networkId = port.getNetworkId();
+        String segmentationId = DhcpServiceUtils.getSegmentationId(networkId, broker);
+        if (segmentationId == null) {
+            return;
+        }
+        List<BigInteger> listOfDpns = DhcpServiceUtils.getListOfDpns(broker);
+        dhcpExternalTunnelManager.unInstallDhcpFlowsForVms(networkId.getValue(), listOfDpns, macAddress);
+        dhcpExternalTunnelManager.removeVniMacToPortCache(new BigInteger(segmentationId), macAddress);
+    }
+
+    private void addPort(Port port) {
+        String macAddress = getMacAddress(port);
+        Uuid networkId = port.getNetworkId();
+        String segmentationId = DhcpServiceUtils.getSegmentationId(networkId, broker);
+        if (segmentationId == null) {
+            LOG.trace("segmentation id is null");
+            return;
+        }
+        dhcpExternalTunnelManager.updateVniMacToPortCache(new BigInteger(segmentationId), macAddress, port);
+    }
+
+    private String getMacAddress(Port port) {
+        String macAddress = port.getMacAddress();
+        return macAddress;
     }
 }
