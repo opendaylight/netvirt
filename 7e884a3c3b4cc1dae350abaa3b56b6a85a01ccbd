@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_cc4bb685",
+        "filename": "vpnservice/aclservice/aclservice-api/src/main/yang/aclservice.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-05-25T09:58:24Z",
+      "side": 1,
+      "message": "this should be netvirt-aclservice, not sfc.",
+      "range": {
+        "startLine": 1,
+        "startChar": 7,
+        "endLine": 1,
+        "endChar": 29
+      },
+      "revId": "7e884a3c3b4cc1dae350abaa3b56b6a85a01ccbd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
