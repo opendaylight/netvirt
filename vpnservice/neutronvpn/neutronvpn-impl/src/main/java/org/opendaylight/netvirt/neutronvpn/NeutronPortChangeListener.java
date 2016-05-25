@@ -59,15 +59,17 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private NeutronvpnManager nvpnManager;
+    private NeutronvpnNatManager nvpnNatManager;
     private LockManagerService lockManager;
     private NotificationPublishService notificationPublishService;
     private NotificationService notificationService;
 
 
-    public NeutronPortChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,NotificationPublishService notiPublishService, NotificationService notiService) {
+    public NeutronPortChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,NeutronvpnNatManager nVpnNatMgr, NotificationPublishService notiPublishService, NotificationService notiService) {
         super(Port.class);
         broker = db;
         nvpnManager = nVpnMgr;
+        nvpnNatManager = nVpnNatMgr;
         notificationPublishService = notiPublishService;
         notificationService = notiService;
         registerListener(db);
@@ -181,7 +183,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                             vpnId = routerId;
                         }
                         nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
-                        //nvpnNatManager.handleSubnetsForExternalRouter(routerId, broker);
+                        nvpnNatManager.handleSubnetsForExternalRouter(routerId, broker);
                     }
                 }
             } else {
@@ -202,7 +204,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                         vpnId = routerId;
                     }
                     nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId());
-                    //nvpnNatManager.handleSubnetsForExternalRouter(routerId, broker);
+                    nvpnNatManager.handleSubnetsForExternalRouter(routerId, broker);
                 }
             }
         }
