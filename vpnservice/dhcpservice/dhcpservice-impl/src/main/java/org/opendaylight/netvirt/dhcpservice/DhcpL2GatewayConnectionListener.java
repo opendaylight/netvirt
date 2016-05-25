@@ -39,7 +39,7 @@ import com.google.common.base.Optional;
 
 public class DhcpL2GatewayConnectionListener extends AsyncClusteredDataChangeListenerBase<L2gatewayConnection,DhcpL2GatewayConnectionListener> implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory.getLogger(DhcpInterfaceEventListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(DhcpL2GatewayConnectionListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DataBroker dataBroker;
@@ -56,15 +56,10 @@ public class DhcpL2GatewayConnectionListener extends AsyncClusteredDataChangeLis
         Uuid gatewayId = del.getL2gatewayId();
         InstanceIdentifier<L2gateway> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class)
                 .child(L2gateway.class, new L2gatewayKey(gatewayId));
+        //TODO: Eliminate DS read
         Optional<L2gateway> l2Gateway = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, inst);
         if (!l2Gateway.isPresent()) {
             logger.trace("L2Gw not present id {}", gatewayId);
-            return;
-        }
-        Uuid networkUuid = del.getNetworkId();
-        boolean isLastConnection = isLastGatewayConnection(networkUuid);
-        if (!isLastConnection) {
-            logger.trace("Not the last L2GatewayConnection. Not removing flows.");
             return;
         }
         List<Devices> l2Devices = l2Gateway.get().getDevices();
@@ -72,27 +67,55 @@ public class DhcpL2GatewayConnectionListener extends AsyncClusteredDataChangeLis
             String l2DeviceName = l2Device.getDeviceName();
             L2GatewayDevice l2GatewayDevice = L2GatewayCacheUtils.getL2DeviceFromCache(l2DeviceName);
             IpAddress tunnelIp = l2GatewayDevice.getTunnelIp();
+            Uuid networkUuid = del.getNetworkId();
+            boolean isLastConnection = isLastGatewayConnection(networkUuid, l2DeviceName);
+            if (!isLastConnection) {
+                logger.trace("Not the last L2GatewayConnection. Not removing flows.");
+                continue;
+            }
             BigInteger designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, del.getNetworkId().getValue());
-            if (designatedDpnId == null || designatedDpnId.equals(DHCPMConstants.INVALID_DPID)) {
-                logger.error("Could not find desiganted DPN ID");
-                return;
+            if (designatedDpnId == null) {
+                logger.error("Could not find designated DPN ID for tunnelIp {} and elanInstance {}", tunnelIp, del.getNetworkId().getValue());
+                continue;
             }
             dhcpExternalTunnelManager.removeDesignatedSwitchForExternalTunnel(designatedDpnId, tunnelIp, del.getNetworkId().getValue());
         }
     }
 
-    private boolean isLastGatewayConnection(Uuid networkUuid) {
+    private boolean isLastGatewayConnection(Uuid networkUuid, String deviceName) {
         boolean isLastConnection = true;
         InstanceIdentifier<L2gatewayConnections> l2gatewayConnectionIdentifier = InstanceIdentifier.create(Neutron.class).child(L2gatewayConnections.class);
+        //TODO: Avoid DS read.
         Optional<L2gatewayConnections> l2GwConnection = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, l2gatewayConnectionIdentifier);
         List<L2gatewayConnection> l2GatewayConnectionList = l2GwConnection.get().getL2gatewayConnection();
         for (L2gatewayConnection l2gatewayConnection : l2GatewayConnectionList) {
             if (networkUuid.equals(l2gatewayConnection.getNetworkId())) {
-                isLastConnection = false;
-                break;
+                logger.trace("Found a connection with same network uuid {}", l2gatewayConnection);
+                if (!isLastDeviceReferred(deviceName, l2gatewayConnection.getL2gatewayId())) {
+                    isLastConnection = false;
+                    break;
+                }
             }
         }
         return isLastConnection;
+    }
+
+    private boolean isLastDeviceReferred(String deviceName, Uuid gatewayId) {
+        boolean isLastDeviceReferred = true;
+        InstanceIdentifier<L2gateway> l2gatewayIdentifier = InstanceIdentifier.create(Neutron.class).child(L2gateways.class).child(L2gateway.class, new L2gatewayKey(gatewayId));
+        //TODO: Avoid DS read.
+        Optional<L2gateway> l2Gateway = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, l2gatewayIdentifier);
+        if (!l2Gateway.isPresent()) {
+            return isLastDeviceReferred;
+        }
+        List<Devices> devices = l2Gateway.get().getDevices();
+        for (Devices device : devices) {
+            if (device.getDeviceName().equals(deviceName)) {
+                logger.trace("Found a device {} in L2Gateway {}", device, l2Gateway);
+                return false;
+            }
+        }
+        return isLastDeviceReferred;
     }
 
     @Override
