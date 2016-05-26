@@ -1,0 +1,221 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_d0b7c4f3",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-05-26T13:23:49Z",
+      "side": 1,
+      "message": "nitpick: rename variable to setOf* as it causs confusion when reading the code. do the same for all other occurrences too.",
+      "range": {
+        "startLine": 108,
+        "startChar": 45,
+        "endLine": 108,
+        "endChar": 49
+      },
+      "revId": "6859f3d7feb55794d124c3e1aad5ed1227849b84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_50ec54f3",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-05-26T13:23:49Z",
+      "side": 1,
+      "message": "would be good to log a debug here.",
+      "revId": "6859f3d7feb55794d124c3e1aad5ed1227849b84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_10e65c15",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-05-26T13:23:49Z",
+      "side": 1,
+      "message": "why use sync?",
+      "range": {
+        "startLine": 189,
+        "startChar": 18,
+        "endLine": 189,
+        "endChar": 28
+      },
+      "revId": "6859f3d7feb55794d124c3e1aad5ed1227849b84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_70efd8e9",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-05-26T13:23:49Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 197,
+        "startChar": 18,
+        "endLine": 197,
+        "endChar": 28
+      },
+      "revId": "6859f3d7feb55794d124c3e1aad5ed1227849b84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_f0a92891",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-05-26T13:23:49Z",
+      "side": 1,
+      "message": "add a TODO here. Ideally ClusteringUtils should provide a Util that tells if owner or not. Let Genius deide if it wants to use future and get from DS or use some caching. Ideally I\u0027d prefer such a util to be already present in ClusterUtils and use it here. this looks very clunky and will be difficult to optimize.",
+      "revId": "6859f3d7feb55794d124c3e1aad5ed1227849b84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_d0850408",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpInterfaceEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-05-26T13:23:49Z",
+      "side": 1,
+      "message": "why not use a simple .equals on getOperStatus?",
+      "range": {
+        "startLine": 130,
+        "startChar": 13,
+        "endLine": 130,
+        "endChar": 96
+      },
+      "revId": "6859f3d7feb55794d124c3e1aad5ed1227849b84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_307e001a",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpL2GatewayConnectionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-05-26T13:23:49Z",
+      "side": 1,
+      "message": "add a TODO to eliminate datastore READ.",
+      "revId": "6859f3d7feb55794d124c3e1aad5ed1227849b84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_f0976838",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpL2GatewayConnectionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-05-26T13:23:49Z",
+      "side": 1,
+      "message": "Rather strange doing read of L2GWConnections in L2GWConnectionListener. This can easily be cached here itself.",
+      "range": {
+        "startLine": 84,
+        "startChar": 20,
+        "endLine": 84,
+        "endChar": 43
+      },
+      "revId": "6859f3d7feb55794d124c3e1aad5ed1227849b84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_d09ce45f",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpL2GatewayConnectionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-05-26T13:23:49Z",
+      "side": 1,
+      "message": "Ad a TODO here too for removing DS read.",
+      "revId": "6859f3d7feb55794d124c3e1aad5ed1227849b84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_10a2dc98",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-05-26T13:23:49Z",
+      "side": 1,
+      "message": "no need to dump port again when we just dumped in previous line. better make this debug and print port uuid. Too much information in logs makes troubleshooting tougher.",
+      "revId": "6859f3d7feb55794d124c3e1aad5ed1227849b84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_70ab5875",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-05-26T13:23:49Z",
+      "side": 1,
+      "message": "same as above, make it debug and add port uuid.",
+      "revId": "6859f3d7feb55794d124c3e1aad5ed1227849b84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
