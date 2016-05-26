@@ -26,6 +26,7 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRunti
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,8 @@ import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
+import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
+import org.opendaylight.ovsdb.utils.ovsdb.it.utils.ItConstants;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.OvsdbItUtils;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.NodeInfo;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
@@ -138,13 +141,13 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     @Configuration
     @Override
     public Option[] config() {
-        Option[] parentOptions = super.config();
-        Option[] propertiesOptions = getPropertiesOptions();
+        Option[] ovsProps = super.config();
+        Option[] propertiesOptions = DockerOvs.getSysPropOptions();
         Option[] otherOptions = getOtherOptions();
-        Option[] options = new Option[parentOptions.length + propertiesOptions.length + otherOptions.length];
-        System.arraycopy(parentOptions, 0, options, 0, parentOptions.length);
-        System.arraycopy(propertiesOptions, 0, options, parentOptions.length, propertiesOptions.length);
-        System.arraycopy(otherOptions, 0, options, parentOptions.length + propertiesOptions.length,
+        Option[] options = new Option[ovsProps.length + propertiesOptions.length + otherOptions.length];
+        System.arraycopy(ovsProps, 0, options, 0, ovsProps.length);
+        System.arraycopy(propertiesOptions, 0, options, ovsProps.length, propertiesOptions.length);
+        System.arraycopy(otherOptions, 0, options, ovsProps.length + propertiesOptions.length,
                 otherOptions.length);
         return options;
     }
@@ -162,15 +165,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 configureConsole().startLocalConsole(),
                 vmOption("-javaagent:../jars/org.jacoco.agent.jar=destfile=../../jacoco-it.exec"),
                 keepRuntimeFolder()
-        };
-    }
-
-    public Option[] getPropertiesOptions() {
-        return new Option[] {
-                propagateSystemProperties(NetvirtITConstants.SERVER_IPADDRESS,
-                        NetvirtITConstants.SERVER_PORT, NetvirtITConstants.CONNECTION_TYPE,
-                        NetvirtITConstants.CONTROLLER_IPADDRESS,
-                        NetvirtITConstants.USERSPACE_ENABLED)
         };
     }
 
@@ -214,11 +208,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         LOG.info("setUp: Using the following properties: mode= {}, ip:port= {}:{}, controller ip: {}, " +
                 "userspace.enabled: {}",
                 connectionType, addressStr, portStr, controllerStr, userSpaceEnabled);
-        if (connectionType.equalsIgnoreCase(NetvirtITConstants.CONNECTION_TYPE_ACTIVE)) {
-            if (addressStr == null) {
-                fail(usage());
-            }
-        }
     }
 
     @Before
@@ -237,12 +226,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
 
         getProperties();
-
-        if (connectionType.equalsIgnoreCase(NetvirtITConstants.CONNECTION_TYPE_ACTIVE)) {
-            if (addressStr == null) {
-                fail(usage());
-            }
-        }
 
         dataBroker = NetvirtItUtils.getDatabroker(getProviderContext());
         itUtils = new OvsdbItUtils(dataBroker);
@@ -441,30 +424,34 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     @Test
     public void testNetVirt() throws InterruptedException {
         LOG.info("testNetVirt: starting test");
-        ConnectionInfo connectionInfo = SouthboundUtils.getConnectionInfo(addressStr, portStr);
-        NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
-        nodeInfo.connect();
-        LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
+        try(DockerOvs ovs = new DockerOvs()) {
+            ConnectionInfo connectionInfo = SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
+            NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
+            nodeInfo.connect();
+            LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
 
-        List<Service> staticPipeline = pipelineOrchestrator.getStaticPipeline();
-        List<Service> staticPipelineFound = Lists.newArrayList();
-        for (Service service : pipelineOrchestrator.getServiceRegistry().keySet()) {
-            if (staticPipeline.contains(service)) {
-                staticPipelineFound.add(service);
+            List<Service> staticPipeline = pipelineOrchestrator.getStaticPipeline();
+            List<Service> staticPipelineFound = Lists.newArrayList();
+            for (Service service : pipelineOrchestrator.getServiceRegistry().keySet()) {
+                if (staticPipeline.contains(service)) {
+                    staticPipelineFound.add(service);
+                }
+                String flowId = "DEFAULT_PIPELINE_FLOW_" + pipelineOrchestrator.getTable(service);
+                nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(service));
             }
-            String flowId = "DEFAULT_PIPELINE_FLOW_" + pipelineOrchestrator.getTable(service);
-            nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(service));
+            assertEquals("did not find all expected flows in static pipeline",
+                    staticPipeline.size(), staticPipelineFound.size());
+
+            southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, NetvirtITConstants.PORT_NAME, "internal", null, null, 0L);
+            Thread.sleep(1000);
+            OvsdbTerminationPointAugmentation ovsdbTerminationPointAugmentation =
+                    southbound.getTerminationPointOfBridge(nodeInfo.bridgeNode, NetvirtITConstants.PORT_NAME);
+            Assert.assertNotNull("Did not find " + NetvirtITConstants.PORT_NAME, ovsdbTerminationPointAugmentation);
+
+            nodeInfo.disconnect();
+        } catch (Exception e) {
+            LOG.warn("testNetVirt: Exception thrown by OvsDocker.OvsDocker()", e);
         }
-        assertEquals("did not find all expected flows in static pipeline",
-                staticPipeline.size(), staticPipelineFound.size());
-
-        southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, NetvirtITConstants.PORT_NAME, "internal", null, null, 0L);
-        Thread.sleep(1000);
-        OvsdbTerminationPointAugmentation ovsdbTerminationPointAugmentation =
-                southbound.getTerminationPointOfBridge(nodeInfo.bridgeNode, NetvirtITConstants.PORT_NAME);
-        Assert.assertNotNull("Did not find " + NetvirtITConstants.PORT_NAME, ovsdbTerminationPointAugmentation);
-
-        nodeInfo.disconnect();
     }
 
     @Test
@@ -477,61 +464,65 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         final String portId = "521e29d6-67b8-4b3c-8633-027d21195113";
         final String dhcpPortId ="521e29d6-67b8-4b3c-8633-027d21195115";
 
-        ConnectionInfo connectionInfo = SouthboundUtils.getConnectionInfo(addressStr, portStr);
-        NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
-        nodeInfo.connect();
-        LOG.info("testNetVirtFixedSG: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
+        try(DockerOvs ovs = new DockerOvs()) {
+            ConnectionInfo connectionInfo = SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
+            NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
+            nodeInfo.connect();
+            LOG.info("testNetVirtFixedSG: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
 
-        //TBD: This should be a utility function
-        // Verify the minimum version required for this test
-        OvsdbNodeAugmentation ovsdbNodeAugmentation = nodeInfo.ovsdbNode.getAugmentation(OvsdbNodeAugmentation.class);
-        Assert.assertNotNull(ovsdbNodeAugmentation);
-        assertNotNull(ovsdbNodeAugmentation.getOvsVersion());
-        String ovsVersion = ovsdbNodeAugmentation.getOvsVersion();
-        Version version = Version.fromString(ovsVersion);
-        if (version.compareTo(minSGOvsVersion) < 0) {
-            LOG.warn("{} minimum version is required", minSGOvsVersion);
-            Assert.assertTrue(southboundUtils.deleteBridge(connectionInfo,
-                    NetvirtITConstants.INTEGRATION_BRIDGE_NAME));
+            //TBD: This should be a utility function
+            // Verify the minimum version required for this test
+            OvsdbNodeAugmentation ovsdbNodeAugmentation = nodeInfo.ovsdbNode.getAugmentation(OvsdbNodeAugmentation.class);
+            Assert.assertNotNull(ovsdbNodeAugmentation);
+            assertNotNull(ovsdbNodeAugmentation.getOvsVersion());
+            String ovsVersion = ovsdbNodeAugmentation.getOvsVersion();
+            Version version = Version.fromString(ovsVersion);
+            if (version.compareTo(minSGOvsVersion) < 0) {
+                LOG.warn("{} minimum version is required", minSGOvsVersion);
+                Assert.assertTrue(southboundUtils.deleteBridge(connectionInfo,
+                        NetvirtITConstants.INTEGRATION_BRIDGE_NAME));
+                Thread.sleep(1000);
+                Assert.assertTrue(disconnectOvsdbNode(connectionInfo));
+                return;
+            }
+
+            //TBD: Use NeutronNetItUtil
+            NeutronNetwork nn = neutronUtils.createNeutronNetwork(networkId, tenantId,
+                    NetworkHandler.NETWORK_TYPE_VXLAN, "100");
+            NeutronSubnet ns = neutronUtils.createNeutronSubnet(subnetId, tenantId, networkId, "10.0.0.0/24");
+            NeutronPort nport = neutronUtils.createNeutronPort(networkId, subnetId, portId,
+                    "compute", "10.0.0.10", "f6:00:00:0f:00:01");
+            NeutronPort dhcp = neutronUtils.createNeutronPort(networkId, subnetId, dhcpPortId,
+                    "dhcp", "10.0.0.1", "f6:00:00:0f:00:02");
+
             Thread.sleep(1000);
-            Assert.assertTrue(disconnectOvsdbNode(connectionInfo));
-            return;
+            Map<String, String> externalIds = Maps.newHashMap();
+            externalIds.put("attached-mac", "f6:00:00:0f:00:01");
+            externalIds.put("iface-id", portId);
+            southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, portName, "internal", null, externalIds, 3L);
+            southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, "vm1", "internal", null, null, 0L);
+            southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, "vm2", "internal", null, null, 0L);
+            Map<String, String> options = Maps.newHashMap();
+            options.put("key", "flow");
+            options.put("remote_ip", "192.168.120.32");
+            southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, "vx", "vxlan", options, null, 4L);
+            Thread.sleep(1000);
+
+            String flowId = "Egress_DHCP_Client"  + "_Permit_";
+            nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+
+            testDefaultSG(nport, nodeInfo.datapathId, nn, tenantId, portId);
+            Thread.sleep(1000);
+
+            assertTrue(neutronUtils.removeNeutronPort(dhcp.getID()));
+            assertTrue(neutronUtils.removeNeutronPort(nport.getID()));
+            assertTrue(neutronUtils.removeNeutronSubnet(ns.getID()));
+            assertTrue(neutronUtils.removeNeutronNetwork(nn.getID()));
+
+            nodeInfo.disconnect();
+        } catch (Exception e) {
+            LOG.warn("testNetVirtFixedSG: Exception thrown by OvsDocker.OvsDocker()", e);
         }
-
-        //TBD: Use NeutronNetItUtil
-        NeutronNetwork nn = neutronUtils.createNeutronNetwork(networkId, tenantId,
-                NetworkHandler.NETWORK_TYPE_VXLAN, "100");
-        NeutronSubnet ns = neutronUtils.createNeutronSubnet(subnetId, tenantId, networkId, "10.0.0.0/24");
-        NeutronPort nport = neutronUtils.createNeutronPort(networkId, subnetId, portId,
-                "compute", "10.0.0.10", "f6:00:00:0f:00:01");
-        NeutronPort dhcp = neutronUtils.createNeutronPort(networkId, subnetId, dhcpPortId,
-                "dhcp", "10.0.0.1", "f6:00:00:0f:00:02");
-
-        Thread.sleep(1000);
-        Map<String, String> externalIds = Maps.newHashMap();
-        externalIds.put("attached-mac", "f6:00:00:0f:00:01");
-        externalIds.put("iface-id", portId);
-        southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, portName, "internal", null, externalIds, 3L);
-        southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, "vm1", "internal", null, null, 0L);
-        southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, "vm2", "internal", null, null, 0L);
-        Map<String, String> options = Maps.newHashMap();
-        options.put("key", "flow");
-        options.put("remote_ip", "192.168.120.32");
-        southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, "vx", "vxlan", options, null, 4L);
-        Thread.sleep(1000);
-
-        String flowId = "Egress_DHCP_Client"  + "_Permit_";
-        nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.EGRESS_ACL));
-
-        testDefaultSG(nport, nodeInfo.datapathId, nn, tenantId, portId);
-        Thread.sleep(1000);
-
-        assertTrue(neutronUtils.removeNeutronPort(dhcp.getID()));
-        assertTrue(neutronUtils.removeNeutronPort(nport.getID()));
-        assertTrue(neutronUtils.removeNeutronSubnet(ns.getID()));
-        assertTrue(neutronUtils.removeNeutronNetwork(nn.getID()));
-
-        nodeInfo.disconnect();
     }
 
     private void testDefaultSG(NeutronPort nport, long datapathId, NeutronNetwork nn, String tenantId, String portId)
@@ -606,69 +597,94 @@ public class NetvirtIT extends AbstractMdsalTestBase {
      */
     @Test
     public void testNeutronNet() throws InterruptedException {
-        LOG.warn("testNetWithTwoVms: starting test");
-        ConnectionInfo connectionInfo = SouthboundUtils.getConnectionInfo(addressStr, portStr);
-        NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
-        nodeInfo.connect();
-        LOG.warn("testNetWithTwoVms: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
+        LOG.warn("testNeutronNet: starting test");
+        try(DockerOvs ovs = new DockerOvs()) {
+            ConnectionInfo connectionInfo = SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
+            NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
+            nodeInfo.connect();
+            LOG.warn("testNeutronNet: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
 
-        // Create the objects
-        NeutronNetItUtil net = new NeutronNetItUtil(southboundUtils, UUID.randomUUID().toString());
-        net.create();
-        net.createPort(nodeInfo.bridgeNode, "dhcp", "network:dhcp");
-        net.createPort(nodeInfo.bridgeNode, "vm1");
-        net.createPort(nodeInfo.bridgeNode, "vm2");
+            // Create the objects
+            NeutronNetItUtil net = new NeutronNetItUtil(southboundUtils, UUID.randomUUID().toString());
+            net.create();
+            net.createPort(nodeInfo.bridgeNode, "dhcp", "network:dhcp");
+            net.createPort(nodeInfo.bridgeNode, "vm1");
+            net.createPort(nodeInfo.bridgeNode, "vm2");
 
 
-        // Check flows created for all ports
-        for (int i = 1; i <= net.neutronPorts.size(); i++) {
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "DropFilter_"  + i,
-                                                                pipelineOrchestrator.getTable(Service.CLASSIFIER));
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "LocalMac_" + net.segId + "_" + i + "_" + net.macFor(i),
-                                                                pipelineOrchestrator.getTable(Service.CLASSIFIER));
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "ArpResponder_" + net.segId + "_"  + net.ipFor(i),
-                                                                pipelineOrchestrator.getTable(Service.ARP_RESPONDER));
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "UcastOut_" + net.segId + "_" + i + "_"  + net.macFor(i),
-                                                                pipelineOrchestrator.getTable(Service.L2_FORWARDING));
+            // Check flows created for all ports
+            for (int i = 1; i <= net.neutronPorts.size(); i++) {
+                nvItUtils.verifyFlow(nodeInfo.datapathId, "DropFilter_" + i,
+                        pipelineOrchestrator.getTable(Service.CLASSIFIER));
+                nvItUtils.verifyFlow(nodeInfo.datapathId, "LocalMac_" + net.segId + "_" + i + "_" + net.macFor(i),
+                        pipelineOrchestrator.getTable(Service.CLASSIFIER));
+                nvItUtils.verifyFlow(nodeInfo.datapathId, "ArpResponder_" + net.segId + "_" + net.ipFor(i),
+                        pipelineOrchestrator.getTable(Service.ARP_RESPONDER));
+                nvItUtils.verifyFlow(nodeInfo.datapathId, "UcastOut_" + net.segId + "_" + i + "_" + net.macFor(i),
+                        pipelineOrchestrator.getTable(Service.L2_FORWARDING));
+            }
+
+            // Check flows created for vm ports only
+            for (int i = 2; i <= net.neutronPorts.size(); i++) {
+                nvItUtils.verifyFlow(nodeInfo.datapathId, "Ingress_ARP_" + net.segId + "_" + i + "_",
+                        pipelineOrchestrator.getTable(Service.INGRESS_ACL));
+
+                nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_Allow_VM_IP_MAC_" + i + net.macFor(i) + "_Permit_",
+                        pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+                nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_ARP_" + net.segId + "_" + i + "_",
+                        pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+                nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCP_Server_" + i + "_DROP_",
+                        pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+                nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCPv6_Server_" + i + "_DROP_",
+                        pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+            }
+
+            // Check ingress/egress acl flows for DHCP
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCP_Client_Permit_",
+                    pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCPv6_Client_Permit_",
+                    pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "Ingress_DHCPv6_Server" + net.segId + "_"
+                    + net.macFor(1) + "_Permit_", pipelineOrchestrator.getTable(Service.INGRESS_ACL));
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "Ingress_DHCP_Server" + net.segId + "_"
+                    + net.macFor(1) + "_Permit_", pipelineOrchestrator.getTable(Service.INGRESS_ACL));
+
+            // Check l2 broadcast flows
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "TunnelFloodOut_" + net.segId,
+                    pipelineOrchestrator.getTable(Service.L2_FORWARDING));
+            nvItUtils.verifyFlow(nodeInfo.datapathId, "BcastOut_" + net.segId,
+                    pipelineOrchestrator.getTable(Service.L2_FORWARDING));
+
+            //TBD Figure out why this does not work:
+            //nvItUtils.verifyFlow(nodeInfo.datapathId, "TunnelMiss_" + net.segId,
+            //        pipelineOrchestrator.getTable(Service.L2_FORWARDING));
+
+            net.destroy();
+            nodeInfo.disconnect();
+        } catch (Exception e) {
+            LOG.warn("testNeutronNet: Exception thrown by OvsDocker.OvsDocker()", e);
         }
+    }
 
-        // Check flows created for vm ports only
-        for (int i = 2; i <= net.neutronPorts.size(); i++) {
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "Ingress_ARP_" + net.segId + "_" + i + "_",
-                                                                pipelineOrchestrator.getTable(Service.INGRESS_ACL));
+    @Test
+    public void twoNodes() throws InterruptedException {
 
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_Allow_VM_IP_MAC_" + i + net.macFor(i) + "_Permit_",
-                    pipelineOrchestrator.getTable(Service.EGRESS_ACL));
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_ARP_" + net.segId + "_" + i + "_",
-                    pipelineOrchestrator.getTable(Service.EGRESS_ACL));
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCP_Server_" + i + "_DROP_",
-                    pipelineOrchestrator.getTable(Service.EGRESS_ACL));
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCPv6_Server_" + i + "_DROP_",
-                    pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+        System.getProperties().setProperty(ItConstants.DOCKER_COMPOSE_FILE_NAME, "two_dockers-ovs-2.5.1.yml");
+        try(DockerOvs ovs = new DockerOvs()) {
+            ConnectionInfo connectionInfo = SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
+            NodeInfo nodeInfo0 = itUtils.createNodeInfo(connectionInfo, null);
+            nodeInfo0.connect();
+            LOG.warn("testTwoNodes: should be connected: {}", nodeInfo0.ovsdbNode.getNodeId());
+            connectionInfo = SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(1), ovs.getOvsdbPort(1));
+            NodeInfo nodeInfo1 = itUtils.createNodeInfo(connectionInfo, null);
+            nodeInfo1.connect();
+            LOG.warn("testTwoNodes: should be connected: {}", nodeInfo1.ovsdbNode.getNodeId());
+
+            nodeInfo0.disconnect();
+            nodeInfo1.disconnect();
+        } catch (Exception e) {
+            LOG.warn("testTwoNodes: Exception thrown by OvsDocker.OvsDocker()", e);
         }
-
-        // Check ingress/egress acl flows for DHCP
-        nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCP_Client_Permit_",
-                pipelineOrchestrator.getTable(Service.EGRESS_ACL));
-        nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCPv6_Client_Permit_",
-                pipelineOrchestrator.getTable(Service.EGRESS_ACL));
-        nvItUtils.verifyFlow(nodeInfo.datapathId, "Ingress_DHCPv6_Server" + net.segId + "_"
-                                    + net.macFor(1) + "_Permit_", pipelineOrchestrator.getTable(Service.INGRESS_ACL));
-        nvItUtils.verifyFlow(nodeInfo.datapathId, "Ingress_DHCP_Server" + net.segId + "_"
-                + net.macFor(1) + "_Permit_", pipelineOrchestrator.getTable(Service.INGRESS_ACL));
-
-        // Check l2 broadcast flows
-        nvItUtils.verifyFlow(nodeInfo.datapathId, "TunnelFloodOut_" + net.segId,
-                                                pipelineOrchestrator.getTable(Service.L2_FORWARDING));
-        nvItUtils.verifyFlow(nodeInfo.datapathId, "BcastOut_" + net.segId,
-                                                pipelineOrchestrator.getTable(Service.L2_FORWARDING));
-
-        //TBD Figure out why this does not work:
-        //nvItUtils.verifyFlow(nodeInfo.datapathId, "TunnelMiss_" + net.segId,
-        //        pipelineOrchestrator.getTable(Service.L2_FORWARDING));
-
-        net.destroy();
-        nodeInfo.disconnect();
     }
 
 }
