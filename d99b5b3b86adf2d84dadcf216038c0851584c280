@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_ed3951f3",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-26T11:42:53Z",
+      "side": 1,
+      "message": "Same comment, but I think we need a choice between using docker and a private vm/docker/whatever. Sometimes you will need a different setup to test new code or troubleshooting.",
+      "revId": "d99b5b3b86adf2d84dadcf216038c0851584c280",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_ed42f166",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-26T11:42:53Z",
+      "side": 1,
+      "message": "I think we should have the option of what to use for the test system.",
+      "revId": "d99b5b3b86adf2d84dadcf216038c0851584c280",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
