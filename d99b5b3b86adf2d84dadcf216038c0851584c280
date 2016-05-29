@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_d9bad309",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-05-29T06:04:16Z",
+      "side": 1,
+      "message": "So that is what the last commit of DockerOvs is mostly about. If you check out the javadoc there is a detailed description of how to specify which OVS/docker to use and whether or not to run it. Basically, I use the existing system properties in a way that is backwards compatible. So, if on the command line you specify an ovsdb address and port, DockerOvs will not run anything and you will connect to the already running Ovs. If you omit the ovsdb server in the system properties, DockerOvs will run one. htere are a few more env variables I added so that all the permutations are covered. See the class Javadoc to DockerOvs for full details.",
+      "parentUuid": "fa57193c_ed3951f3",
+      "revId": "d99b5b3b86adf2d84dadcf216038c0851584c280",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_ed42f166",
         "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-05-26T11:42:53Z",
       "side": 1,
       "message": "I think we should have the option of what to use for the test system.",
+      "revId": "d99b5b3b86adf2d84dadcf216038c0851584c280",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_f9bd1704",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-05-29T06:04:16Z",
+      "side": 1,
+      "message": "There is and it\u0027s configured wiht env variables. If the env variables specify that DockerOvs is not to run the docker, the next list will return the server addr/port that was supplied in the env. variables.",
+      "parentUuid": "fa57193c_ed42f166",
       "revId": "d99b5b3b86adf2d84dadcf216038c0851584c280",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
