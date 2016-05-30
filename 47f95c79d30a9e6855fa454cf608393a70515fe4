@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_fc54e5cb",
+        "filename": "vpnservice/aclservice/impl/src/main/yang/aclservice-impl.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-05-30T06:46:56Z",
+      "side": 1,
+      "message": "@Sam: What is decision on this? Can we use urn:opendaylight:netvirt:aclservice:impl?",
+      "range": {
+        "startLine": 3,
+        "startChar": 15,
+        "endLine": 3,
+        "endChar": 66
+      },
+      "revId": "47f95c79d30a9e6855fa454cf608393a70515fe4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
