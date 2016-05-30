@@ -10,8 +10,11 @@ package org.opendaylight.netvirt.neutronvpn.api.l2gw;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -29,10 +32,10 @@ public class L2GatewayDevice {
     String hwvtepNodeId;
 
     /** The tunnel ips. */
-    List<IpAddress> tunnelIps = new ArrayList<IpAddress>();
+    Set<IpAddress> tunnelIps = new HashSet<>();
 
     /** The l2 gateway ids. */
-    List<Uuid> l2GatewayIds = new ArrayList<Uuid>();
+    Set<Uuid> l2GatewayIds = new HashSet<>();
 
     /** The ucast local macs. */
     List<LocalUcastMacs> ucastLocalMacs = Collections.synchronizedList(new ArrayList<LocalUcastMacs>());
@@ -83,7 +86,7 @@ public class L2GatewayDevice {
      *
      * @return the tunnel ips
      */
-    public List<IpAddress> getTunnelIps() {
+    public Set<IpAddress> getTunnelIps() {
         return tunnelIps;
     }
 
@@ -93,8 +96,8 @@ public class L2GatewayDevice {
      * @return the tunnel ip
      */
     public IpAddress getTunnelIp() {
-        if (tunnelIps.size() > 0) {
-            return tunnelIps.get(0);
+        if (!tunnelIps.isEmpty()) {
+            return tunnelIps.iterator().next();
         }
         return null;
     }
@@ -114,7 +117,7 @@ public class L2GatewayDevice {
      *
      * @return the l2 gateway ids
      */
-    public List<Uuid> getL2GatewayIds() {
+    public Set<Uuid> getL2GatewayIds() {
         return l2GatewayIds;
     }
 
@@ -152,7 +155,7 @@ public class L2GatewayDevice {
      * @param tunnelIps
      *            the new tunnel ips
      */
-    public void setTunnelIps(List<IpAddress> tunnelIps) {
+    public void setTunnelIps(Set<IpAddress> tunnelIps) {
         this.tunnelIps = tunnelIps;
     }
 
@@ -272,10 +275,15 @@ public class L2GatewayDevice {
      */
     @Override
     public String toString() {
+        List<String> lstTunnelIps = tunnelIps.stream().map(ip -> String.valueOf(ip.getValue()))
+                .collect(Collectors.toList());
+        List<String> lstMacs = ucastLocalMacs.stream().map(mac -> mac.getMacEntryKey().getValue())
+                .collect(Collectors.toList());
+
         StringBuilder builder = new StringBuilder();
         builder.append("L2GatewayDevice [deviceName=").append(deviceName).append(", hwvtepNodeId=").append(hwvtepNodeId)
-                .append(", tunnelIps=").append(tunnelIps).append(", l2GatewayIds=").append(l2GatewayIds)
-                .append(", ucastLocalMacs=").append(ucastLocalMacs).append("]");
+                .append(", tunnelIps=").append(lstTunnelIps).append(", l2GatewayIds=").append(l2GatewayIds)
+                .append(", ucastLocalMacs=").append(lstMacs).append("]");
         return builder.toString();
     }
 

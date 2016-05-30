@@ -143,30 +143,25 @@ public class L2GatewayConnectionUtils {
         for (Devices l2Device : l2Devices) {
             String l2DeviceName = l2Device.getDeviceName();
             L2GatewayDevice l2GatewayDevice = L2GatewayCacheUtils.getL2DeviceFromCache(l2DeviceName);
-            if (isL2GwDeviceConnected(l2GatewayDevice)) {//TODO handle delete while device is offline
+            String hwvtepNodeId = l2GatewayDevice.getHwvtepNodeId();
+            boolean isLastL2GwConnDeleted = false;
+            L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, hwvtepNodeId);
+            if (isLastL2GwConnBeingDeleted(elanL2GwDevice)) {
                 // Delete L2 Gateway device from 'ElanL2GwDevice' cache
-                String hwvtepNodeId = l2GatewayDevice.getHwvtepNodeId();
-                boolean isLastL2GwConnDeleted = false;
-                L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, hwvtepNodeId);
-                if (isLastL2GwConnBeingDeleted(elanL2GwDevice)) {
-                    LOG.debug("Elan L2Gw Conn cache removed for id {}", hwvtepNodeId);
-                    ElanL2GwCacheUtils.removeL2GatewayDeviceFromCache(elanName, hwvtepNodeId);
-                    isLastL2GwConnDeleted = true;
-                } else {
-                    Uuid l2GwConnId = input.getKey().getUuid();
-                    LOG.debug("Elan L2Gw Conn cache with id {} is being referred by other L2Gw Conns; so only " +
-                            "L2 Gw Conn {} reference is removed", hwvtepNodeId, l2GwConnId);
-                    elanL2GwDevice.removeL2GatewayId(l2GwConnId);
-                }
-
-                DisAssociateHwvtepFromElanJob disAssociateHwvtepToElanJob = new DisAssociateHwvtepFromElanJob(broker,
-                        elanL2GwDevice, elanInstance, l2Device, defaultVlan, isLastL2GwConnDeleted);
-                ElanClusterUtils.runOnlyInLeaderNode(disAssociateHwvtepToElanJob.getJobKey(),
-                        "remove l2gw connection job ",
-                        disAssociateHwvtepToElanJob);
+                LOG.debug("Elan L2Gw Conn cache removed for id {}", hwvtepNodeId);
+                ElanL2GwCacheUtils.removeL2GatewayDeviceFromCache(elanName, hwvtepNodeId);
+                isLastL2GwConnDeleted = true;
             } else {
-                LOG.info("L2GwConn delete is not handled for device with id {} as it's not connected", l2DeviceName);
+                Uuid l2GwConnId = input.getKey().getUuid();
+                LOG.debug("Elan L2Gw Conn cache with id {} is being referred by other L2Gw Conns; so only "
+                        + "L2 Gw Conn {} reference is removed", hwvtepNodeId, l2GwConnId);
+                elanL2GwDevice.removeL2GatewayId(l2GwConnId);
             }
+
+            DisAssociateHwvtepFromElanJob disAssociateHwvtepToElanJob = new DisAssociateHwvtepFromElanJob(broker,
+                    elanL2GwDevice, elanInstance, l2Device, defaultVlan, isLastL2GwConnDeleted);
+            ElanClusterUtils.runOnlyInLeaderNode(disAssociateHwvtepToElanJob.getJobKey(), "remove l2gw connection job ",
+                    disAssociateHwvtepToElanJob);
         }
     }
 
