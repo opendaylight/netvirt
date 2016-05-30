@@ -11,6 +11,11 @@ package org.opendaylight.netvirt.natservice.internal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.List;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -97,6 +102,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -136,9 +142,13 @@ public class NatUtil {
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance> vpnInstance
                 = read(broker, LogicalDatastoreType.CONFIGURATION, id);
 
+
         long vpnId = NatConstants.INVALID_ID;
         if(vpnInstance.isPresent()) {
-            vpnId = vpnInstance.get().getVpnId();
+            Long vpnIdAsLong = vpnInstance.get().getVpnId();
+            if(vpnIdAsLong != null){
+                vpnId = vpnIdAsLong;
+            }
         }
         return vpnId;
     }
@@ -171,13 +181,13 @@ public class NatUtil {
 
     static InstanceIdentifier<Ports> getPortsIdentifier(String routerId, String portName) {
         return InstanceIdentifier.builder(FloatingIpInfo.class).child(RouterPorts.class, new RouterPortsKey(routerId))
-                                                               .child(Ports.class, new PortsKey(portName)).build();
+                .child(Ports.class, new PortsKey(portName)).build();
     }
 
     static InstanceIdentifier<IpMapping> getIpMappingIdentifier(String routerId, String portName, String internalIp) {
         return InstanceIdentifier.builder(FloatingIpInfo.class).child(RouterPorts.class, new RouterPortsKey(routerId))
-                                                               .child(Ports.class, new PortsKey(portName))
-                                                               .child(IpMapping.class, new IpMappingKey(internalIp)).build();
+                .child(Ports.class, new PortsKey(portName))
+                .child(IpMapping.class, new IpMappingKey(internalIp)).build();
     }
 
     /*
@@ -203,9 +213,9 @@ public class NatUtil {
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceKey(vpnName)).build();
     }
 
-     /*
-        getFlowRef() returns a string identfier for the SNAT flows using the router ID as the reference.
-     */
+    /*
+       getFlowRef() returns a string identfier for the SNAT flows using the router ID as the reference.
+    */
     public static String getFlowRef(BigInteger dpnId, short tableId, long routerID, String ip) {
         return new StringBuffer().append(NatConstants.NAPT_FLOWID_PREFIX).append(dpnId).append(NatConstants.FLOWID_SEPARATOR).
                 append(tableId).append(NatConstants.FLOWID_SEPARATOR).append(routerID)
@@ -320,7 +330,7 @@ public class NatUtil {
         // convert routerId to Name
         String routerName = getRouterName(broker, routerId);
         InstanceIdentifier id = buildNaptSwitchIdentifier(routerName);
-        Optional<RouterToNaptSwitch> routerToNaptSwitchData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<RouterToNaptSwitch> routerToNaptSwitchData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (routerToNaptSwitchData.isPresent()) {
             RouterToNaptSwitch routerToNaptSwitchInstance = routerToNaptSwitchData.get();
             return routerToNaptSwitchInstance.getPrimarySwitchId();
@@ -351,7 +361,7 @@ public class NatUtil {
     }
 
     public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                   InstanceIdentifier<T> path) {
+                                                          InstanceIdentifier<T> path) {
 
         ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
 
@@ -405,16 +415,16 @@ public class NatUtil {
     public static String getEndpointIpAddressForDPN(DataBroker broker, BigInteger dpnId) {
         String nextHopIp = null;
         InstanceIdentifier<DPNTEPsInfo> tunnelInfoId =
-            InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class, new DPNTEPsInfoKey(dpnId)).build();
+                InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class, new DPNTEPsInfoKey(dpnId)).build();
         Optional<DPNTEPsInfo> tunnelInfo = read(broker, LogicalDatastoreType.CONFIGURATION, tunnelInfoId);
         if (tunnelInfo.isPresent()) {
-          List<TunnelEndPoints> nexthopIpList = tunnelInfo.get().getTunnelEndPoints();
-          if (nexthopIpList != null && !nexthopIpList.isEmpty()) {
-            nextHopIp = nexthopIpList.get(0).getIpAddress().getIpv4Address().getValue();
-          }
+            List<TunnelEndPoints> nexthopIpList = tunnelInfo.get().getTunnelEndPoints();
+            if (nexthopIpList != null && !nexthopIpList.isEmpty()) {
+                nextHopIp = nexthopIpList.get(0).getIpAddress().getIpv4Address().getValue();
+            }
         }
         return nextHopIp;
-      }
+    }
 
     /*
         getVpnRd returns the rd (route distinguisher) which is the VRF ID from the below model using the vpnName
@@ -587,10 +597,10 @@ public class NatUtil {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
             if (routerId != null) {
                 for (VpnMap vpnMap : allMaps) {
-                    if (vpnMap.getRouterId() != null && 
-                        routerId.equals(vpnMap.getRouterId().getValue()) && 
-                        !routerId.equals(vpnMap.getVpnId().getValue())) {
-                            return vpnMap.getVpnId();
+                    if (vpnMap.getRouterId() != null &&
+                            routerId.equals(vpnMap.getRouterId().getValue()) &&
+                            !routerId.equals(vpnMap.getVpnId().getValue())) {
+                        return vpnMap.getVpnId();
                     }
                 }
             }
@@ -640,7 +650,9 @@ public class NatUtil {
 
     public static void addPrefixToBGP(IBgpManager bgpManager, String rd, String prefix, String nextHopIp, long label, Logger log) {
         try {
+            LOG.info("VPN ADD: Adding Fib Entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHopIp, label);
             bgpManager.addPrefix(rd, prefix, nextHopIp, (int)label);
+            LOG.info("VPN ADD: Added Fib Entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHopIp, label);
         } catch(Exception e) {
             log.error("Add prefix failed", e);
         }
@@ -697,7 +709,7 @@ public class NatUtil {
     }
 
     public static NaptSwitches getNaptSwitch(DataBroker broker) {
-        Optional<NaptSwitches> switchesOptional = read(broker, LogicalDatastoreType.OPERATIONAL, getNaptSwitchesIdentifier());
+        Optional<NaptSwitches> switchesOptional = read(broker, LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier());
         if(switchesOptional.isPresent()) {
             return switchesOptional.get();
         }
@@ -714,18 +726,18 @@ public class NatUtil {
 
     public static String toStringIpAddress(byte[] ipAddress, Logger log)
     {
-      String ip = "";
-      if (ipAddress == null) {
+        String ip = "";
+        if (ipAddress == null) {
+            return ip;
+        }
+
+        try {
+            ip = InetAddress.getByAddress(ipAddress).getHostAddress();
+        } catch(UnknownHostException e) {
+            log.error("NAT Service : Caught exception during toStringIpAddress()");
+        }
+
         return ip;
-      }
-
-      try {
-        ip = InetAddress.getByAddress(ipAddress).getHostAddress();
-      } catch(UnknownHostException e) {
-        log.error("NAT Service : Caught exception during toStringIpAddress()");
-      }
-
-      return ip;
     }
 
     public static String getGroupIdKey(String routerName){
@@ -749,7 +761,9 @@ public class NatUtil {
 
     public static void removePrefixFromBGP(IBgpManager bgpManager, String rd, String prefix, Logger log) {
         try {
+            LOG.info("VPN REMOVE: Removing Fib Entry rd {} prefix {}", rd, prefix);
             bgpManager.deletePrefix(rd, prefix);
+            LOG.info("VPN REMOVE: Removed Fib Entry rd {} prefix {}", rd, prefix);
         } catch(Exception e) {
             log.error("Delete prefix failed", e);
         }
@@ -797,11 +811,27 @@ public class NatUtil {
             for (IpMap ipMap : ipMaps) {
                 externalIps.add(ipMap.getExternalIp());
             }
+            //remove duplicates
+            Set<String> uniqueExternalIps = Sets.newHashSet(externalIps);
+            externalIps = Lists.newArrayList(uniqueExternalIps);
             return externalIps;
         }
         return null;
     }
 
+    public static HashMap<String,Long> getExternalIpsLabelForRouter(DataBroker dataBroker,Long routerId) {
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMapping> ipMappingOptional = read(dataBroker,
+                LogicalDatastoreType.OPERATIONAL, getIpMappingBuilder(routerId));
+        HashMap<String,Long> externalIpsLabel = new HashMap<>();
+        if (ipMappingOptional.isPresent()) {
+            List<IpMap> ipMaps = ipMappingOptional.get().getIpMap();
+            for (IpMap ipMap : ipMaps) {
+                externalIpsLabel.put(ipMap.getExternalIp(), ipMap.getLabel());
+            }
+            return externalIpsLabel;
+        }
+        return null;
+    }
     /*
     container external-ips-counter {
         config false;
@@ -880,7 +910,7 @@ public class NatUtil {
 
     public static List<BigInteger> getDpnsForRouter(DataBroker dataBroker, String routerUuid){
         InstanceIdentifier id = InstanceIdentifier.builder(NeutronRouterDpns.class).child(RouterDpnList.class, new RouterDpnListKey(routerUuid)).build();
-        Optional<RouterDpnList> routerDpnListData = read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        Optional<RouterDpnList> routerDpnListData = read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         List<BigInteger> dpns = new ArrayList<>();
         if (routerDpnListData.isPresent()) {
             List<DpnVpninterfacesList> dpnVpninterfacesList = routerDpnListData.get().getDpnVpninterfacesList();
