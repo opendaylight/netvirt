@@ -243,11 +243,15 @@ public class ExternalNetworksChangeListener extends AsyncDataTreeChangeListenerB
 
             BigInteger dpnId = new BigInteger("0");
             InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitch = NatUtil.buildNaptSwitchRouterIdentifier(routerId.getValue());
-            Optional<RouterToNaptSwitch> rtrToNapt = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, routerToNaptSwitch );
+            Optional<RouterToNaptSwitch> rtrToNapt = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch );
             if(rtrToNapt.isPresent()) {
                 dpnId = rtrToNapt.get().getPrimarySwitchId();
             }
             LOG.debug("NAT Service : got primarySwitch as dpnId{} ", dpnId);
+            if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+                LOG.debug("NAT Service : primary napt Switch not found for router {} in associateExternalNetworkWithVPN", routerId);
+                return;
+            }
 
             Long routerIdentifier = NatUtil.getVpnId(dataBroker, routerId.getValue());
             InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMapping> idBuilder =

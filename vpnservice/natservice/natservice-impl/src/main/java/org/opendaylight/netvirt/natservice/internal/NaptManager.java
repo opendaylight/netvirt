@@ -591,6 +591,29 @@ public class NaptManager  {
          }
      }
 
+     protected void removeIntExtIpMapDS(long segmentId, String internalIp) {
+         InstanceIdentifierBuilder<IpMap> idBuilder = InstanceIdentifier.builder(IntextIpMap.class)
+                 .child(IpMapping.class, new IpMappingKey(segmentId))
+                 .child(IpMap.class, new IpMapKey(internalIp));
+         InstanceIdentifier<IpMap> id = idBuilder.build();
+
+         LOG.debug("NAPT Service : Removing ipmap from datastore");
+         MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
+     }
+
+     protected String getExternalIpAllocatedForSubnet(long segmentId, String internalIp) {
+         InstanceIdentifierBuilder<IpMap> idBuilder = InstanceIdentifier.builder(IntextIpMap.class)
+                 .child(IpMapping.class, new IpMappingKey(segmentId))
+                 .child(IpMap.class, new IpMapKey(internalIp));
+         InstanceIdentifier<IpMap> id = idBuilder.build();
+
+         Optional<IpMap> ipMap = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
+         if (ipMap.isPresent()) {
+             return ipMap.get().getExternalIp();
+         }
+         return null;
+     }
+     
     private void removeIpMappingForRouterID(long segmentId) {
         InstanceIdentifierBuilder<IpMapping> idBuilder = InstanceIdentifier.builder(IntextIpMap.class)
                 .child(IpMapping.class, new IpMappingKey(segmentId));

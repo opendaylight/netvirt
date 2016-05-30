@@ -113,18 +113,29 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
             //Get the router ID from the metadata.
             Long routerId;
             BigInteger metadata = switchFlowRemoved.getMatch().getMetadata().getMetadata();
-            if(MetaDataUtil.getNatRouterIdFromMetadata(metadata) != 0) {
+            if (MetaDataUtil.getNatRouterIdFromMetadata(metadata) != 0) {
                 routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
-            }else {
+            } else {
                 LOG.error("NaptFlowRemovedEventHandler : Null exception while retrieving routerId");
                 return;
             }
 
             //Get the external IP address and the port from the model
             IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId, internalIpv4HostAddress, internalPortNumber.toString(), protocol);
-            if(ipPortExternal == null){
-                LOG.error("NaptFlowRemovedEventHandler : IpPortExternal is null while querried from the model");
-                return;
+            if (ipPortExternal == null) {
+                LOG.error("NaptFlowRemovedEventHandler : IpPortExternal not found, BGP vpn might be associated with router");
+                //router must be associated with BGP vpn ID
+                long bgpVpnId = routerId;
+                LOG.debug("NaptFlowRemovedEventHandler : BGP VPN ID {}", bgpVpnId);
+                String vpnName = NatUtil.getRouterName(dataBroker, bgpVpnId);
+                String routerName = NatUtil.getRouterIdfromVpnId(dataBroker, vpnName);
+                routerId = NatUtil.getVpnId(dataBroker, routerName);
+                LOG.debug("NaptFlowRemovedEventHandler : Router ID {}", routerId);
+                ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId, internalIpv4HostAddress, internalPortNumber.toString(), protocol);
+                if(ipPortExternal == null) {
+                    LOG.error("NaptFlowRemovedEventHandler : IpPortExternal is null while queried from the model for routerId {}",routerId);
+                    return;
+                }
             }
             String externalIpAddress = ipPortExternal.getIpAddress();
             int externalPortNumber = ipPortExternal.getPortNum();
@@ -137,10 +148,10 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
             InstanceIdentifier<Node> nodeRef = switchFlowRemoved.getNode().getValue().firstIdentifierOf(Node.class);
             String dpn = nodeRef.firstKeyOf(Node.class).getId().getValue();
             BigInteger dpnId = getDpnId(dpn);
-            String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(metadata), internalIpv4HostAddress, internalPortNumber);
+            String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(routerId), internalIpv4HostAddress, internalPortNumber);
 
             //Inform the MDSAL manager to inform about the flow removal.
-            LOG.debug("NaptFlowRemovedEventHandler : DPN ID {}, Metadata {}, SwitchFlowRef {}, internalIpv4HostAddress{}", dpnId, metadata, switchFlowRef, internalIpv4AddressAsString);
+            LOG.debug("NaptFlowRemovedEventHandler : DPN ID {}, Metadata {}, SwitchFlowRef {}, internalIpv4HostAddress{}", dpnId, routerId, switchFlowRef, internalIpv4AddressAsString);
             FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, tableId, switchFlowRef);
             mdsalManager.removeFlow(snatFlowEntity);
 

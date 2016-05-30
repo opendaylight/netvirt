@@ -349,8 +349,8 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
     }
 
-    private Uuid getExtNetworkId(final InstanceIdentifier<RouterPorts> pIdentifier) {
-        Optional<RouterPorts> rtrPort = NatUtil.read(broker, LogicalDatastoreType.CONFIGURATION, pIdentifier);
+    private Uuid getExtNetworkId(final InstanceIdentifier<RouterPorts> pIdentifier, LogicalDatastoreType dataStoreType) {
+        Optional<RouterPorts> rtrPort = NatUtil.read(broker, dataStoreType, pIdentifier);
         if(!rtrPort.isPresent()) {
             LOG.error("Unable to read router port entry for {}", pIdentifier);
             return null;
@@ -450,7 +450,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
             //routerId = associatedVpnId;
         }
 
-        Uuid extNwId = getExtNetworkId(pIdentifier);
+        Uuid extNwId = getExtNetworkId(pIdentifier, LogicalDatastoreType.CONFIGURATION);
         if(extNwId == null) {
             LOG.error("External network associated with interface {} could not be retrieved", interfaceName);
             LOG.error("NAT flow entries will not be installed {}", mapping);
@@ -575,7 +575,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         //Delete the DNAT and SNAT table entries
         removeDNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), routerId);
 
-        Uuid extNwId = getExtNetworkId(pIdentifier);
+        Uuid extNwId = getExtNetworkId(pIdentifier, LogicalDatastoreType.CONFIGURATION);
         if(extNwId == null) {
             LOG.error("External network associated with interface {} could not be retrieved", interfaceName);
             return;

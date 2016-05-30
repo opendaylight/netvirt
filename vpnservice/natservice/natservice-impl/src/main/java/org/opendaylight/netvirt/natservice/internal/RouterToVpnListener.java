@@ -188,27 +188,22 @@ public class RouterToVpnListener implements NeutronvpnListener {
 
     @Override
     public void onSubnetAddedToVpn(SubnetAddedToVpn notification) {
-        throw new RuntimeException("Unsupported notification");
     }
 
     @Override
     public void onSubnetDeletedFromVpn(SubnetDeletedFromVpn notification) {
-        throw new RuntimeException("Unsupported notification");
     }
 
     @Override
     public void onPortAddedToSubnet(PortAddedToSubnet notification) {
-        throw new RuntimeException("Unsupported notification");
     }
 
     @Override
     public void onPortRemovedFromSubnet(PortRemovedFromSubnet notification) {
-        throw new RuntimeException("Unsupported notification");
     }
 
     @Override
     public void onSubnetUpdatedInVpn(SubnetUpdatedInVpn notification) {
-        throw new RuntimeException("Unsupported notification");
     }
 
 }
