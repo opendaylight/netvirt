@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.neutronvpn.l2gw;
 
 import java.util.List;
+import java.util.Set;
 
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
@@ -128,7 +129,7 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
                 ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
                         entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                         HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
-                final List<IpAddress> tunnelIps = l2GwDevice.getTunnelIps();
+                final Set<IpAddress> tunnelIps = l2GwDevice.getTunnelIps();
                 Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
                     @Override
                     public void onSuccess(Boolean isOwner) {
@@ -177,7 +178,7 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
                     ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
                             entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                             HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
-                    final List<IpAddress> tunnelIps = l2GwDevice.getTunnelIps();
+                    final Set<IpAddress> tunnelIps = l2GwDevice.getTunnelIps();
                     Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
                         @Override
                         public void onSuccess(Boolean isOwner) {

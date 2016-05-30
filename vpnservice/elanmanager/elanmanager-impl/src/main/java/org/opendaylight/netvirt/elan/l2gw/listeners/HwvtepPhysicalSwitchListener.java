@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.elan.l2gw.listeners;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
@@ -205,7 +206,7 @@ public class HwvtepPhysicalSwitchListener
     private void handleAdd(L2GatewayDevice l2GwDevice) {
         String psName = l2GwDevice.getDeviceName();
         String hwvtepNodeId = l2GwDevice.getHwvtepNodeId();
-        List<IpAddress> tunnelIps = l2GwDevice.getTunnelIps();
+        Set<IpAddress> tunnelIps = l2GwDevice.getTunnelIps();
         if (tunnelIps != null) {
             for (IpAddress tunnelIpAddr : tunnelIps) {
                 if (L2GatewayConnectionUtils.isGatewayAssociatedToL2Device(l2GwDevice)) {
@@ -265,12 +266,9 @@ public class HwvtepPhysicalSwitchListener
 
         List<TunnelIps> tunnelIps = phySwitch.getTunnelIps();
         if (tunnelIps != null && !tunnelIps.isEmpty()) {
-            List<IpAddress> existingTunnelIps = l2GwDevice.getTunnelIps();
             for (TunnelIps tunnelIp : tunnelIps) {
                 IpAddress tunnelIpAddr = tunnelIp.getTunnelIpsKey();
-                if (!existingTunnelIps.contains(tunnelIpAddr)) {
-                    l2GwDevice.addTunnelIp(tunnelIpAddr);
-                }
+                l2GwDevice.addTunnelIp(tunnelIpAddr);
             }
         }
         if (LOG.isTraceEnabled()) {
@@ -288,7 +286,7 @@ public class HwvtepPhysicalSwitchListener
      *            the l2 gateway ids
      * @return the associated l2 gw connections
      */
-    private List<L2gatewayConnection> getAssociatedL2GwConnections(DataBroker broker, List<Uuid> l2GatewayIds) {
+    private List<L2gatewayConnection> getAssociatedL2GwConnections(DataBroker broker, Set<Uuid> l2GatewayIds) {
         List<L2gatewayConnection> l2GwConnections = null;
         List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
         if (allL2GwConns != null) {

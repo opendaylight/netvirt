@@ -393,16 +393,21 @@ public class ElanL2GatewayUtils {
         if (elanDpns != null && elanDpns.size() > 0) {
             String jobKey = elan.getElanInstanceName() + ":" + macToBeAdded;
             ElanClusterUtils.runOnlyInLeaderNode(jobKey,
-                    "install l2gw mcas in dmac table",
+                    "install l2gw macs in dmac table",
                     new Callable<List<ListenableFuture<Void>>>() {
                         @Override
                         public List<ListenableFuture<Void>> call() throws Exception {
                             List<ListenableFuture<Void>> fts = Lists.newArrayList();
-                            for (DpnInterfaces elanDpn : elanDpns) {
-                                //TODO batch the below call
-                                fts.addAll(ElanUtils.installDmacFlowsToExternalRemoteMac(elanDpn.getDpId(),
-                                        extDeviceNodeId, elan.getElanTag(), elan.getVni(), macToBeAdded,
-                                        elanInstanceName));
+                            if (doesLocalUcastMacExistsInCache(extL2GwDevice, macToBeAdded)) {
+                                for (DpnInterfaces elanDpn : elanDpns) {
+                                    // TODO batch the below call
+                                    fts.addAll(ElanUtils.installDmacFlowsToExternalRemoteMac(elanDpn.getDpId(),
+                                            extDeviceNodeId, elan.getElanTag(), elan.getVni(), macToBeAdded,
+                                            elanInstanceName));
+                                }
+                            } else {
+                                LOG.trace("Skipping install of dmac flows for mac {} as it is not found in cache",
+                                        macToBeAdded);
                             }
                             return fts;
                         }
@@ -418,10 +423,15 @@ public class ElanL2GatewayUtils {
                 new Callable<List<ListenableFuture<Void>>>() {
                     @Override
                     public List<ListenableFuture<Void>> call() throws Exception {
+                        List<ListenableFuture<Void>>  fts = Lists.newArrayList();
+                        if (!doesLocalUcastMacExistsInCache(extL2GwDevice, macToBeAdded)) {
+                            LOG.trace(
+                                    "Skipping install of remote ucast macs {} in l2gw device as it is not found in cache",
+                                    macToBeAdded);
+                            return fts;
+                        }
                         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices =
                                 ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanInstanceName);
-
-                        List<ListenableFuture<Void>>  fts = Lists.newArrayList();
                         for (L2GatewayDevice otherDevice : elanL2GwDevices.values()) {
                             if (!otherDevice.getHwvtepNodeId().equals(extDeviceNodeId)
                                     && !areMLAGDevices(extL2GwDevice, otherDevice)) {
@@ -451,6 +461,21 @@ public class ElanL2GatewayUtils {
                         }
                         return fts;
                     }});
+    }
+
+    /**
+     * Does local ucast mac exists in cache.
+     *
+     * @param elanL2GwDevice
+     *            the elan L2 Gw device
+     * @param macAddress
+     *            the mac address to be verified
+     * @return true, if successful
+     */
+    private static boolean doesLocalUcastMacExistsInCache(L2GatewayDevice elanL2GwDevice, String macAddress) {
+        java.util.Optional<LocalUcastMacs> macExistsInCache = elanL2GwDevice.getUcastLocalMacs().stream()
+                .filter(mac -> mac.getMacEntryKey().getValue().equalsIgnoreCase(macAddress)).findFirst();
+        return macExistsInCache.isPresent();
     }
 
     /**
