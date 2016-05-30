@@ -161,7 +161,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
             return;
         }
         BigInteger naptSwitch = getNaptSwitchforRouter(dataBroker,routerName);
-        if (naptSwitch == null) {
+        if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
             LOG.error("NAT Service : NaptSwitch is not elected for router {} with Id {}",routerName,routerId);
             return;
         }
@@ -281,7 +281,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
     private BigInteger getNaptSwitchforRouter(DataBroker broker,String routerName) {
         InstanceIdentifier<RouterToNaptSwitch> rtrNaptSw = InstanceIdentifier.builder(NaptSwitches.class).child
                 (RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
-        Optional<RouterToNaptSwitch> routerToNaptSwitchData = NatUtil.read(broker, LogicalDatastoreType.OPERATIONAL, rtrNaptSw);
+        Optional<RouterToNaptSwitch> routerToNaptSwitchData = NatUtil.read(broker, LogicalDatastoreType.CONFIGURATION, rtrNaptSw);
         if (routerToNaptSwitchData.isPresent()) {
             RouterToNaptSwitch routerToNaptSwitchInstance = routerToNaptSwitchData.get();
             return routerToNaptSwitchInstance.getPrimarySwitchId();
