@@ -19,6 +19,57 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_731480f5",
+        "filename": "vpnservice/aclservice/aclservice-api/src/main/java/org/opendaylight/netvirt/aclservice/api/IAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-05-31T14:08:20Z",
+      "side": 1,
+      "message": "AclService please...",
+      "revId": "ce8fbcfe3afc3f08197e6ae1b2b8bafe52fd037b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_d3f8ecc6",
+        "filename": "vpnservice/aclservice/aclservice-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-05-31T14:08:20Z",
+      "side": 1,
+      "message": "You can\u0027t reliably specify a POM version using a variable, you need to hard-code this.",
+      "revId": "ce8fbcfe3afc3f08197e6ae1b2b8bafe52fd037b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_b3f578cd",
+        "filename": "vpnservice/aclservice/aclservice-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-05-31T14:08:20Z",
+      "side": 1,
+      "message": "${project.version}",
+      "revId": "ce8fbcfe3afc3f08197e6ae1b2b8bafe52fd037b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_a8ca236c",
         "filename": "vpnservice/aclservice/pom.xml",
         "patchSetId": 1
