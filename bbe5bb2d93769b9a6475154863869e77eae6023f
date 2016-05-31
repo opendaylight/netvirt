@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_22e74f42",
+        "filename": "openstack/net-virt-sfc/impl/src/main/resources/org/opendaylight/blueprint/netvirt-sfc.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-31T23:56:59Z",
+      "side": 1,
+      "message": "Crap... you\u0027re right about the Southbound service... I missed it, it didn\u0027t pop out while testing because I believe it is registered somewhere else...\n\nI really want to move forward so I\u0027ll add the same hack as the one I\u0027ve done for PipelineOrchestrator, and I can add a comment saying this is temporary.\n\nThose hacks will be removed in this patch: https://git.opendaylight.org/gerrit/#/c/39072/ that will get rid of all the funky wiring stuff done with ServiceReference / Services and so on.",
+      "parentUuid": "da5c1566_ae086b2e",
+      "revId": "bbe5bb2d93769b9a6475154863869e77eae6023f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_ee738313",
         "filename": "openstack/net-virt-sfc/impl/src/main/resources/org/opendaylight/blueprint/netvirt-sfc.xml",
         "patchSetId": 5
