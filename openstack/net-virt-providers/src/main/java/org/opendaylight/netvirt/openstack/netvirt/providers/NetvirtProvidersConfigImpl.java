@@ -15,29 +15,34 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.utils.mdsal.utils.MdsalUtils;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.providers.config.rev160109.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.providers.config.rev160109.NetvirtProvidersConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.providers.config.rev160109.NetvirtProvidersConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.table.types.rev131026.TableId;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NetvirtProvidersConfigImpl implements AutoCloseable, ConfigInterface, DataChangeListener {
+public class NetvirtProvidersConfigImpl implements AutoCloseable, DataChangeListener {
+
     private static final Logger LOG = LoggerFactory.getLogger(NetvirtProvidersConfigImpl.class);
-    private final DataBroker dataBroker;
+
     private final ListenerRegistration<DataChangeListener> registration;
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
     private final MdsalUtils mdsalUtils;
 
-    public NetvirtProvidersConfigImpl(final DataBroker dataBroker, final short tableOffset) {
-        this.dataBroker = dataBroker;
+    private static short tableOffset;
+
+    public NetvirtProvidersConfigImpl(final DataBroker dataBroker, short tableOffset) {
         mdsalUtils = new MdsalUtils(dataBroker);
+        NetvirtProvidersConfigImpl.tableOffset = tableOffset;
 
         InstanceIdentifier<NetvirtProvidersConfig> path =
                 InstanceIdentifier.builder(NetvirtProvidersConfig.class).build();
+
         registration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION, path, this,
                 AsyncDataBroker.DataChangeScope.SUBTREE);
 
@@ -58,9 +63,26 @@ public class NetvirtProvidersConfigImpl implements AutoCloseable, ConfigInterfac
     }
 
     @Override
-    public void close() throws Exception {
-        registration.close();
-        executorService.shutdown();
+    public void close() {
+        if (registration != null) {
+            registration.close();
+        }
+        if (executorService != null) {
+            executorService.shutdown();
+        }
+    }
+
+    public static void setTableOffset(short tableOffset) {
+        try {
+            new TableId((short) (tableOffset + Service.L2_FORWARDING.getTable()));
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Invalid table offset: {}", tableOffset, e);
+            return;
+        }
+
+        LOG.info("setTableOffset: changing from {} to {}",
+                NetvirtProvidersConfigImpl.tableOffset, tableOffset);
+        NetvirtProvidersConfigImpl.tableOffset = tableOffset;
     }
 
     @Override
@@ -98,17 +120,11 @@ public class NetvirtProvidersConfigImpl implements AutoCloseable, ConfigInterfac
     private void applyConfig(NetvirtProvidersConfig netvirtProvidersConfig) {
         LOG.info("processConfigUpdate: {}", netvirtProvidersConfig);
         if (netvirtProvidersConfig.getTableOffset() != null) {
-            NetvirtProvidersProvider.setTableOffset(netvirtProvidersConfig.getTableOffset());
+            NetvirtProvidersConfigImpl.setTableOffset(netvirtProvidersConfig.getTableOffset());
         }
     }
 
-    @Override
-    public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
-
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-
+    public static short getTableOffset() {
+        return tableOffset;
     }
 }

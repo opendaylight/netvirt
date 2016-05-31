@@ -8,34 +8,29 @@
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
 import com.google.common.collect.Sets;
-
 import java.util.Set;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronRouterChangeListener;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronSecurityRuleDataChangeListener;
 import org.opendaylight.netvirt.openstack.netvirt.ClusterAwareMdsalUtils;
-import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.NetvirtProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
-import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryService;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryListener;
+import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryService;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronFloatingIPChangeListener;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronNetworkChangeListener;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronPortChangeListener;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronSubnetChangeListener;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronLoadBalancerPoolChangeListener;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronLoadBalancerPoolMemberChangeListener;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronNetworkChangeListener;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronPortChangeListener;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronRouterChangeListener;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronSecurityRuleDataChangeListener;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronSubnetChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,18 +39,21 @@ import org.slf4j.LoggerFactory;
  *
  * @author Sam Hague (shague@redhat.com)
  */
-public class OvsdbInventoryServiceImpl implements ConfigInterface, OvsdbInventoryService {
-    private static final Logger LOG = LoggerFactory.getLogger(OvsdbInventoryServiceImpl.class);
-    private final DataBroker dataBroker;
-    private static Set<OvsdbInventoryListener> ovsdbInventoryListeners = Sets.newCopyOnWriteArraySet();
-    private OvsdbDataChangeListener ovsdbDataChangeListener = null;
-    private static ClusterAwareMdsalUtils mdsalUtils = null;
+public class OvsdbInventoryServiceImpl implements OvsdbInventoryService {
 
-    public OvsdbInventoryServiceImpl(final DataBroker dataBroker) {
-        this.dataBroker = dataBroker;
+    private static final Logger LOG = LoggerFactory.getLogger(OvsdbInventoryServiceImpl.class);
+
+    private final DataBroker dataBroker;
+    private final ClusterAwareMdsalUtils mdsalUtils;
+
+    private static Set<OvsdbInventoryListener> ovsdbInventoryListeners = Sets.newCopyOnWriteArraySet();
+
+
+
+    public OvsdbInventoryServiceImpl(final DataBroker dataBroker, final ClusterAwareMdsalUtils mdsalUtils) {
         LOG.info("OvsdbInventoryServiceImpl initialized");
-        ovsdbDataChangeListener = new OvsdbDataChangeListener(dataBroker);
-        mdsalUtils = new ClusterAwareMdsalUtils(dataBroker);
+        this.dataBroker = dataBroker;
+        this.mdsalUtils = mdsalUtils;
     }
 
     @Override
@@ -72,7 +70,6 @@ public class OvsdbInventoryServiceImpl implements ConfigInterface, OvsdbInventor
 
     @Override
     public void providersReady() {
-        ovsdbDataChangeListener.start();
         initializeNeutronModelsDataChangeListeners(dataBroker);
         initializeNetvirtTopology();
     }
@@ -80,12 +77,6 @@ public class OvsdbInventoryServiceImpl implements ConfigInterface, OvsdbInventor
     public static Set<OvsdbInventoryListener> getOvsdbInventoryListeners() {
         return ovsdbInventoryListeners;
     }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {}
-
-    @Override
-    public void setDependencies(Object impl) {}
 
     private void initializeNetvirtTopology() {
         while(!NetvirtProvider.isMasterElected()){
@@ -105,6 +96,8 @@ public class OvsdbInventoryServiceImpl implements ConfigInterface, OvsdbInventor
         }
     }
 
+    // FIXME this should be moved to blueprint. The instance should be closed to
+    // release resources.
     private void initializeNeutronModelsDataChangeListeners(
             DataBroker db) {
         new NeutronNetworkChangeListener(db);

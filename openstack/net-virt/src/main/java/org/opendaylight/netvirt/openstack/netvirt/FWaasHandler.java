@@ -9,16 +9,13 @@
 package org.opendaylight.netvirt.openstack.netvirt;
 
 import java.net.HttpURLConnection;
-
+import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFirewall;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronFirewallPolicyAware;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFirewallPolicy;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFirewallRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronFirewallAware;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronFirewallPolicyAware;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronFirewallRuleAware;
-import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +24,15 @@ import org.slf4j.LoggerFactory;
  */
 public class FWaasHandler extends AbstractHandler
         implements INeutronFirewallAware, INeutronFirewallRuleAware,
-        INeutronFirewallPolicyAware, ConfigInterface {
+        INeutronFirewallPolicyAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(FWaasHandler.class);
+
+    public FWaasHandler(final EventDispatcher eventDispatcher) {
+        this.eventDispatcher = eventDispatcher;
+        this.eventDispatcher.eventHandlerAdded(
+                AbstractEvent.HandlerType.NEUTRON_FWAAS, this);
+    }
 
     /**
      * Invoked when a Firewall Rules creation is requested
@@ -187,14 +190,4 @@ public class FWaasHandler extends AbstractHandler
                 break;
         }
     }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        eventDispatcher =
-                (EventDispatcher) ServiceHelper.getGlobalInstance(EventDispatcher.class, this);
-        eventDispatcher.eventHandlerAdded(serviceReference, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {}
 }

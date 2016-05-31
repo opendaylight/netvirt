@@ -10,18 +10,15 @@ package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.netvirt.openstack.netvirt.translator.INeutronObject;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFirewallPolicy;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronFirewallPolicyCRUD;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.fwaas.rev150712.policies.attributes.FirewallPolicies;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 
 /**
  */
 
-public class NeutronFirewallPolicyInterface extends AbstractNeutronInterface implements INeutronFirewallPolicyCRUD {
+public class NeutronFirewallPolicyInterface extends AbstractNeutronInterface<FirewallPolicies, NeutronFirewallPolicy> implements INeutronFirewallPolicyCRUD {
 
     NeutronFirewallPolicyInterface(final DataBroker dataBroker) {
         super(dataBroker);
@@ -71,31 +68,21 @@ public class NeutronFirewallPolicyInterface extends AbstractNeutronInterface imp
     }
 
     @Override
-    protected InstanceIdentifier createInstanceIdentifier(DataObject item) {
+    protected FirewallPolicies toMd(String uuid) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    protected DataObject toMd(INeutronObject neutronObject) {
+    protected InstanceIdentifier<FirewallPolicies> createInstanceIdentifier(
+            FirewallPolicies item) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    protected DataObject toMd(String uuid) {
+    protected FirewallPolicies toMd(NeutronFirewallPolicy neutronObject) {
         // TODO Auto-generated method stub
         return null;
     }
-
-    public static void registerNewInterface(BundleContext context,
-                                            final DataBroker dataBroker,
-                                            List<ServiceRegistration<?>> registrations) {
-        NeutronFirewallPolicyInterface neutronFirewallPolicyInterface = new NeutronFirewallPolicyInterface(dataBroker);
-        ServiceRegistration<INeutronFirewallPolicyCRUD> neutronFirewallPolicyInterfaceRegistration = context.registerService(INeutronFirewallPolicyCRUD.class, neutronFirewallPolicyInterface, null);
-        if(neutronFirewallPolicyInterfaceRegistration != null) {
-            registrations.add(neutronFirewallPolicyInterfaceRegistration);
-        }
-    }
-
 }

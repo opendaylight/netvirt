@@ -7,22 +7,31 @@
  */
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
+import com.google.common.collect.ImmutableBiMap;
 import java.math.BigInteger;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
-import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbTables;
 import org.opendaylight.netvirt.openstack.netvirt.ClusterAwareMdsalUtils;
 import org.opendaylight.netvirt.openstack.netvirt.MdsalHelper;
+import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
+import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbTables;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeNetdev;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeDpdk;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeProtocolBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeExternalIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigsBuilder;
@@ -54,8 +63,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableBiMap;
-
 /**
  * Utility class to wrap mdsal transactions.
  *
@@ -63,22 +70,13 @@ import com.google.common.collect.ImmutableBiMap;
  */
 public class SouthboundImpl implements Southbound {
     private static final Logger LOG = LoggerFactory.getLogger(SouthboundImpl.class);
-    private final DataBroker databroker;
+
     private static final String PATCH_PORT_TYPE = "patch";
+
     private final ClusterAwareMdsalUtils mdsalUtils;
 
-    /**
-     * Class constructor setting the data broker.
-     *
-     * @param dataBroker the {@link org.opendaylight.controller.md.sal.binding.api.DataBroker}
-     */
-    public SouthboundImpl(DataBroker dataBroker) {
-        this.databroker = dataBroker;
-        mdsalUtils = new ClusterAwareMdsalUtils(dataBroker);
-    }
-
-    public DataBroker getDatabroker() {
-        return databroker;
+    public SouthboundImpl(final ClusterAwareMdsalUtils mdsalUtils) {
+        this.mdsalUtils = mdsalUtils;
     }
 
     public ConnectionInfo getConnectionInfo(Node ovsdbNode) {

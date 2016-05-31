@@ -10,35 +10,45 @@ package org.opendaylight.netvirt.openstack.netvirt;
 
 import java.net.HttpURLConnection;
 import java.util.List;
-
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
-import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronPortAware;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
+import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.impl.DistributedArpService;
 import org.opendaylight.netvirt.openstack.netvirt.impl.NeutronL3Adapter;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronPortAware;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Handle requests for Neutron Port.
  */
-public class PortHandler extends AbstractHandler implements INeutronPortAware, ConfigInterface {
+public class PortHandler extends AbstractHandler implements INeutronPortAware {
     private static final Logger LOG = LoggerFactory.getLogger(PortHandler.class);
 
     // The implementation for each of these services is resolved by the OSGi Service Manager
-    private volatile NodeCacheManager nodeCacheManager;
-    private volatile NeutronL3Adapter neutronL3Adapter;
-    private volatile DistributedArpService distributedArpService;
-    private volatile Southbound southbound;
+    private final NodeCacheManager nodeCacheManager;
+    private final NeutronL3Adapter neutronL3Adapter;
+    private final DistributedArpService distributedArpService;
+    private final Southbound southbound;
+
+    public PortHandler(final NodeCacheManager nodeCacheManager,
+            final NeutronL3Adapter neutronL3Adapter,
+            final DistributedArpService distributedArpService,
+            final Southbound southbound,
+            final EventDispatcher eventDispatcher) {
+        this.nodeCacheManager = nodeCacheManager;
+        this.neutronL3Adapter = neutronL3Adapter;
+        this.distributedArpService = distributedArpService;
+        this.southbound = southbound;
+        this.eventDispatcher = eventDispatcher;
+        eventDispatcher.eventHandlerAdded(
+                AbstractEvent.HandlerType.NEUTRON_PORT, this);
+    }
 
     /**
      * Invoked when a port creation is requested
@@ -176,22 +186,4 @@ public class PortHandler extends AbstractHandler implements INeutronPortAware, C
                 break;
         }
     }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        nodeCacheManager =
-                (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
-        neutronL3Adapter =
-                (NeutronL3Adapter) ServiceHelper.getGlobalInstance(NeutronL3Adapter.class, this);
-        distributedArpService =
-                (DistributedArpService) ServiceHelper.getGlobalInstance(DistributedArpService.class, this);
-        southbound =
-                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
-        eventDispatcher =
-                (EventDispatcher) ServiceHelper.getGlobalInstance(EventDispatcher.class, this);
-        eventDispatcher.eventHandlerAdded(serviceReference, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {}
 }

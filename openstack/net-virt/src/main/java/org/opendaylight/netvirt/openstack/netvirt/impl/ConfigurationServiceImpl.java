@@ -12,23 +12,18 @@ import com.google.common.collect.Maps;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbTables;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.utils.config.ConfigProperties;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConfigurationServiceImpl implements ConfigurationService, ConfigInterface {
+public class ConfigurationServiceImpl implements ConfigurationService {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
 
     private String integrationBridgeName;
@@ -39,9 +34,10 @@ public class ConfigurationServiceImpl implements ConfigurationService, ConfigInt
     private Map<Pair<String, String>, String> patchPortNames = Maps.newHashMap();
     private String providerMappingsKey;
     private String providerMapping;
-    private Southbound southbound;
+    private final Southbound southbound;
 
-    public ConfigurationServiceImpl() {
+    public ConfigurationServiceImpl(final Southbound southbound) {
+        this.southbound = southbound;
         tunnelEndpointKey = Constants.TUNNEL_ENDPOINT_KEY;
         integrationBridgeName = Constants.INTEGRATION_BRIDGE;
         networkBridgeName = Constants.NETWORK_BRIDGE;
@@ -182,15 +178,5 @@ public class ConfigurationServiceImpl implements ConfigurationService, ConfigInt
     public boolean isUserSpaceEnabled() {
         final String enabledPropertyStr = ConfigProperties.getProperty(this.getClass(), "ovsdb.userspace.enabled");
         return enabledPropertyStr != null && enabledPropertyStr.equalsIgnoreCase("yes");
-    }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        southbound =
-                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
     }
 }

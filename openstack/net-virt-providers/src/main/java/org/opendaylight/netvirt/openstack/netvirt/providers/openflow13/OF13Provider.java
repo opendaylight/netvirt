@@ -8,23 +8,23 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.CheckedFuture;
 import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
-import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.MdsalHelper;
 import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
 import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
@@ -42,11 +42,14 @@ import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
 import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
 import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
-import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
+import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersConfigImpl;
+import org.opendaylight.netvirt.openstack.netvirt.providers.ProviderEntityListener;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
+import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.GroupActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.GroupActionCaseBuilder;
@@ -91,15 +94,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.util.concurrent.CheckedFuture;
 
 
 /**
@@ -112,34 +108,56 @@ import com.google.common.util.concurrent.CheckedFuture;
  */
 // Methods' parameters in this class follow the same pattern to avoid confusion between same-typed parameters
 // The patterns need to be preserved even though not all parameters are used in all methods
-@SuppressWarnings("UnusedParameters")
-public class OF13Provider implements ConfigInterface, NetworkingProvider {
+public class OF13Provider implements NetworkingProvider {
     private static final Logger LOG = LoggerFactory.getLogger(OF13Provider.class);
     private static final short TABLE_0_DEFAULT_INGRESS = 0;
     private static final short TABLE_1_ISOLATE_TENANT = 10;
     private static final short TABLE_2_LOCAL_FORWARD = 20;
     private static Long groupId = 1L;
-    private DataBroker dataBroker = null;
 
-    private volatile ConfigurationService configurationService;
-    private volatile BridgeConfigurationManager bridgeConfigurationManager;
-    private volatile TenantNetworkManager tenantNetworkManager;
-    private volatile SecurityServicesManager securityServicesManager;
-    private volatile ClassifierProvider classifierProvider;
-    private volatile IngressAclProvider ingressAclProvider;
-    private volatile EgressAclProvider egressAclProvider;
-    private volatile NodeCacheManager nodeCacheManager;
-    private volatile L2ForwardingProvider l2ForwardingProvider;
+    private final DataBroker dataBroker;
+    private final ConfigurationService configurationService;
+    private final BridgeConfigurationManager bridgeConfigurationManager;
+    private final TenantNetworkManager tenantNetworkManager;
+    private final SecurityServicesManager securityServicesManager;
+    private final ClassifierProvider classifierProvider;
+    private final IngressAclProvider ingressAclProvider;
+    private final EgressAclProvider egressAclProvider;
+    private final NodeCacheManager nodeCacheManager;
+    private final L2ForwardingProvider l2ForwardingProvider;
+    private final Southbound southbound;
 
     public static final String NAME = "OF13Provider";
-    private volatile BundleContext bundleContext;
-    private volatile Southbound southbound;
 
     private Set<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId>
                     intBridgesWithoutVmPorts = new HashSet<>();
 
-    public OF13Provider() {
-        this.dataBroker = NetvirtProvidersProvider.getDataBroker();
+    public OF13Provider(final DataBroker dataBroker,
+            final ConfigurationService configurationService,
+            final BridgeConfigurationManager bridgeConfigurationManager,
+            final TenantNetworkManager tenantNetworkManager,
+            final SecurityServicesManager securityServicesManager,
+            final ClassifierProvider classifierProvider,
+            final IngressAclProvider ingressAclProvider,
+            final EgressAclProvider egressAclProvider,
+            final NodeCacheManager nodeCacheManager,
+            final L2ForwardingProvider l2ForwardingProvider,
+            final Southbound southbound,
+            final NetworkingProviderManager networkingProviderManager,
+            final BundleContext bundleContext) {
+        this.dataBroker = dataBroker;
+        this.configurationService = configurationService;
+        this.bridgeConfigurationManager = bridgeConfigurationManager;
+        this.tenantNetworkManager = tenantNetworkManager;
+        this.securityServicesManager = securityServicesManager;
+        this.classifierProvider = classifierProvider;
+        this.ingressAclProvider = ingressAclProvider;
+        this.egressAclProvider = egressAclProvider;
+        this.nodeCacheManager = nodeCacheManager;
+        this.l2ForwardingProvider = l2ForwardingProvider;
+        this.southbound = southbound;
+
+        networkingProviderManager.providerAdded(this, "ovsdb", Constants.OPENFLOW13);
     }
 
     @Override
@@ -1302,7 +1320,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         writeLLDPRule(dpid);
 
         if (bridgeName.equals(configurationService.getIntegrationBridgeName()) &&
-                NetvirtProvidersProvider.getTableOffset() != 0) {
+                NetvirtProvidersConfigImpl.getTableOffset() != 0) {
             classifierProvider.programGotoTable(dpid,true);
         }
 
@@ -1606,7 +1624,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     }
 
     private void writeGroup(GroupBuilder groupBuilder, NodeBuilder nodeBuilder) {
-        if (NetvirtProvidersProvider.isMasterProviderInstance()) {
+        if (ProviderEntityListener.isMasterProviderInstance()) {
             ReadWriteTransaction modification = dataBroker.newReadWriteTransaction();
             InstanceIdentifier<Group> path1 = InstanceIdentifier.builder(Nodes.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory
                     .rev130819.nodes.Node.class, nodeBuilder.getKey()).augmentation(FlowCapableNode.class).child(Group.class,
@@ -1624,7 +1642,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     }
 
     private void removeGroup(GroupBuilder groupBuilder, NodeBuilder nodeBuilder) {
-        if (NetvirtProvidersProvider.isMasterProviderInstance()) {
+        if (ProviderEntityListener.isMasterProviderInstance()) {
             WriteTransaction modification = dataBroker.newWriteOnlyTransaction();
             InstanceIdentifier<Group> path1 = InstanceIdentifier.builder(Nodes.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory
                     .rev130819.nodes.Node.class, nodeBuilder.getKey()).augmentation(FlowCapableNode.class).child(Group.class,
@@ -1642,7 +1660,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     }
 
     private void writeFlow(FlowBuilder flowBuilder, NodeBuilder nodeBuilder) {
-        if (NetvirtProvidersProvider.isMasterProviderInstance()){
+        if (ProviderEntityListener.isMasterProviderInstance()){
             ReadWriteTransaction modification = dataBroker.newReadWriteTransaction();
             InstanceIdentifier<Flow> path1 =
                     InstanceIdentifier.builder(Nodes.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory
@@ -1674,7 +1692,6 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
      * @return ib InstructionBuilder Map with instructions
      */
     // TODO This method is referenced from commented code in L2ForwardingService (which needs to be checked)
-    @SuppressWarnings("unused")
     protected InstructionBuilder createOutputGroupInstructions(NodeBuilder nodeBuilder,
             InstructionBuilder ib,
             Long dpidLong, Long port ,
@@ -1965,39 +1982,5 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         builder.setId(new NodeId(nodeId));
         builder.setKey(new NodeKey(builder.getId()));
         return builder;
-    }
-
-    @Override
-    public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
-        this.bundleContext = bundleContext;
-        configurationService =
-                (ConfigurationService) ServiceHelper.getGlobalInstance(ConfigurationService.class, this);
-        tenantNetworkManager =
-                (TenantNetworkManager) ServiceHelper.getGlobalInstance(TenantNetworkManager.class, this);
-        bridgeConfigurationManager =
-                (BridgeConfigurationManager) ServiceHelper.getGlobalInstance(BridgeConfigurationManager.class, this);
-        nodeCacheManager =
-                (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
-        classifierProvider =
-                (ClassifierProvider) ServiceHelper.getGlobalInstance(ClassifierProvider.class, this);
-        ingressAclProvider =
-                (IngressAclProvider) ServiceHelper.getGlobalInstance(IngressAclProvider.class, this);
-        egressAclProvider =
-                (EgressAclProvider) ServiceHelper.getGlobalInstance(EgressAclProvider.class, this);
-        l2ForwardingProvider =
-                (L2ForwardingProvider) ServiceHelper.getGlobalInstance(L2ForwardingProvider.class, this);
-        securityServicesManager =
-                (SecurityServicesManager) ServiceHelper.getGlobalInstance(SecurityServicesManager.class, this);
-        southbound =
-                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-        if (impl instanceof NetworkingProviderManager) {
-            NetworkingProviderManager networkingProviderManager = (NetworkingProviderManager) impl;
-            networkingProviderManager.providerAdded(
-                    bundleContext.getServiceReference(NetworkingProvider.class.getName()), this);
-        }
     }
 }

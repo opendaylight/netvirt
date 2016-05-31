@@ -33,8 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.router
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -250,16 +248,5 @@ public class NeutronRouterInterface extends  AbstractNeutronInterface<Router, Ne
             result.setInterfaces(interfaces);
         }
         return result;
-    }
-
-    public static void registerNewInterface(BundleContext context,
-            final DataBroker dataBroker,
-            List<ServiceRegistration<?>> registrations) {
-        NeutronRouterInterface neutronRouterInterface = new NeutronRouterInterface(dataBroker);
-        ServiceRegistration<INeutronRouterCRUD> neutronRouterInterfaceRegistration = context
-                .registerService(INeutronRouterCRUD.class,neutronRouterInterface, null);
-        if (neutronRouterInterfaceRegistration != null) {
-            registrations.add(neutronRouterInterfaceRegistration);
-        }
     }
 }

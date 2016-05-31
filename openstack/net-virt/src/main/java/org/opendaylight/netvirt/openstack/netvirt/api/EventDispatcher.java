@@ -8,9 +8,8 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.api;
 
-import org.opendaylight.netvirt.openstack.netvirt.AbstractHandler;
 import org.opendaylight.netvirt.openstack.netvirt.AbstractEvent;
-import org.osgi.framework.ServiceReference;
+import org.opendaylight.netvirt.openstack.netvirt.AbstractHandler;
 
 /**
  * Openstack related events will be enqueued into a common event queue.
@@ -23,7 +22,6 @@ public interface EventDispatcher {
      * @param event the {@link AbstractEvent} event to be handled.
      */
     void enqueueEvent(AbstractEvent event);
-    void eventHandlerAdded(final ServiceReference ref, AbstractHandler handler);
-    void eventHandlerRemoved(final ServiceReference ref);
+    void eventHandlerAdded(AbstractEvent.HandlerType handlerType, AbstractHandler handler);
+    void eventHandlerRemoved(AbstractEvent.HandlerType handlerType);
 }
-

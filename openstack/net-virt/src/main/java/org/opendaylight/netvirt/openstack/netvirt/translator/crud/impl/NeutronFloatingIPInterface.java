@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFloatingIP;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronFloatingIPCRUD;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -22,8 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floati
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.floatingips.FloatingipBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,15 +167,5 @@ public class NeutronFloatingIPInterface extends AbstractNeutronInterface<Floatin
     protected InstanceIdentifier<Floatingips> createInstanceIdentifier() {
         return InstanceIdentifier.create(Neutron.class)
                 .child(Floatingips.class);
-    }
-
-    public static void registerNewInterface(BundleContext context,
-                                            final DataBroker dataBroker,
-                                            List<ServiceRegistration<?>> registrations) {
-        NeutronFloatingIPInterface neutronFloatingIPInterface = new NeutronFloatingIPInterface(dataBroker);
-        ServiceRegistration<INeutronFloatingIPCRUD> neutronFloatingIPInterfaceRegistration = context.registerService(INeutronFloatingIPCRUD.class, neutronFloatingIPInterface, null);
-        if (neutronFloatingIPInterfaceRegistration != null) {
-            registrations.add(neutronFloatingIPInterfaceRegistration);
-        }
     }
 }

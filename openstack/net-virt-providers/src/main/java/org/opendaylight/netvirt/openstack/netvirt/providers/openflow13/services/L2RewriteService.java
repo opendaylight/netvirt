@@ -8,29 +8,19 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.api.L2RewriteProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
-public class L2RewriteService extends AbstractServiceInstance implements ConfigInterface, L2RewriteProvider {
-    public L2RewriteService() {
-        super(Service.L2_REWRITE);
-    }
+public class L2RewriteService extends AbstractServiceInstance implements L2RewriteProvider {
 
-    public L2RewriteService(Service service) {
-        super(service);
-    }
-
-    @Override
-    public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
-        super.setDependencies(bundleContext.getServiceReference(L2RewriteProvider.class.getName()), this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-
+    public L2RewriteService(final DataBroker dataBroker,
+            final PipelineOrchestrator orchestrator,
+            final Southbound southbound) {
+        super(Service.L2_REWRITE, dataBroker, orchestrator, southbound);
+        orchestrator.registerService(Service.L2_REWRITE, this);
     }
 }

@@ -8,15 +8,15 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
+import com.google.common.collect.ImmutableBiMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork_Segment;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3ExtensionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
@@ -33,12 +33,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableBiMap;
 
 public class NeutronNetworkInterface extends AbstractNeutronInterface<Network,NeutronNetwork> implements INeutronNetworkCRUD {
     private static final Logger LOGGER = LoggerFactory.getLogger(NeutronNetworkInterface.class);
@@ -250,15 +246,5 @@ public class NeutronNetworkInterface extends AbstractNeutronInterface<Network,Ne
     protected InstanceIdentifier<Networks> createInstanceIdentifier() {
         return InstanceIdentifier.create(Neutron.class)
                 .child(Networks.class);
-    }
-
-    public static void registerNewInterface(BundleContext context,
-                                            final DataBroker dataBroker,
-                                            List<ServiceRegistration<?>> registrations) {
-        NeutronNetworkInterface neutronNetworkInterface = new NeutronNetworkInterface(dataBroker);
-        ServiceRegistration<INeutronNetworkCRUD> neutronNetworkInterfaceRegistration = context.registerService(INeutronNetworkCRUD.class, neutronNetworkInterface, null);
-        if(neutronNetworkInterfaceRegistration != null) {
-            registrations.add(neutronNetworkInterfaceRegistration);
-        }
     }
 }

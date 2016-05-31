@@ -8,19 +8,6 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
-import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
-import org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
-import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,19 +15,39 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger;
+import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
+import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * @author Aswin Suryanarayanan.
  */
 
-public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityGroupCacheManger {
+public class SecurityGroupCacheManagerImpl implements SecurityGroupCacheManger {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SecurityGroupCacheManagerImpl.class);
+
+    private final SecurityServicesManager securityServicesManager;
+    private final INeutronPortCRUD neutronPortCache;
+    private final NeutronL3Adapter neutronL3Adapter;
 
     private final Map<String, Set<String>> securityGroupCache = new ConcurrentHashMap<>();
-    private static final Logger LOG = LoggerFactory.getLogger(SecurityGroupCacheManagerImpl.class);
-    private volatile SecurityServicesManager securityServicesManager;
-    private volatile INeutronPortCRUD neutronPortCache;
-    private volatile NeutronL3Adapter neutronL3Adapter;
+
+    public SecurityGroupCacheManagerImpl(
+            final NeutronL3Adapter neutronL3Adapter,
+            final SecurityServicesManager securityServicesManager,
+            final INeutronPortCRUD portCRUD) {
+        this.neutronL3Adapter = neutronL3Adapter;
+        this.securityServicesManager = securityServicesManager;
+        this.neutronPortCache = portCRUD;
+    }
 
     @Override
     public void portAdded(String securityGroupUuid, String portUuid) {
@@ -198,7 +205,10 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
         return remoteSecurityRules;
     }
 
-    private void init() {
+    /**
+     * Called by blueprint while instantiating the class.
+     */
+    public void init() {
         /*
          * Rebuild the cache in case of a restart.
          */
@@ -218,19 +228,5 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
                 }
             }
         }
-    }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        neutronL3Adapter =
-                (NeutronL3Adapter) ServiceHelper.getGlobalInstance(NeutronL3Adapter.class, this);
-        securityServicesManager =
-                (SecurityServicesManager) ServiceHelper.getGlobalInstance(SecurityServicesManager.class, this);
-        neutronPortCache = (INeutronPortCRUD) ServiceHelper.getGlobalInstance(INeutronPortCRUD.class, this);
-        init();
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
     }
 }

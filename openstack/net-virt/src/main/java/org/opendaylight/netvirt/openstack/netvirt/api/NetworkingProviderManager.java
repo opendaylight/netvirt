@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.openstack.netvirt.api;
 
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.osgi.framework.ServiceReference;
 
 /**
  * The NetworkingProviderManager handles the mapping between {@link Node}
@@ -23,6 +22,6 @@ public interface NetworkingProviderManager {
      * @see NetworkingProvider
      */
     NetworkingProvider getProvider(Node ovsdbNode);
-    void providerAdded(final ServiceReference ref, final NetworkingProvider provider);
-    void providerRemoved(final ServiceReference ref);
+    void providerAdded(final NetworkingProvider provider, String southboundProtocolProperty, String openFlowVersionProperty);
+    void providerRemoved(final String name);
 }

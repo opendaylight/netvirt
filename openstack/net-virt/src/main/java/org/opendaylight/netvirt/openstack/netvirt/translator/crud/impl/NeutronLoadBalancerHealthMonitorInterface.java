@@ -10,13 +10,10 @@ package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancerHealthMonitor;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerHealthMonitorCRUD;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.lbaasv2.rev150712.lbaas.attributes.Healthmonitors;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 
 public class NeutronLoadBalancerHealthMonitorInterface extends AbstractNeutronInterface<Healthmonitors, NeutronLoadBalancerHealthMonitor> implements INeutronLoadBalancerHealthMonitorCRUD {
 
@@ -86,15 +83,5 @@ public class NeutronLoadBalancerHealthMonitorInterface extends AbstractNeutronIn
     protected Healthmonitors toMd(String uuid) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    public static void registerNewInterface(BundleContext context,
-                                            final DataBroker dataBroker,
-                                            List<ServiceRegistration<?>> registrations) {
-        NeutronLoadBalancerHealthMonitorInterface neutronLoadBalancerHealthMonitorInterface = new NeutronLoadBalancerHealthMonitorInterface(dataBroker);
-        ServiceRegistration<INeutronLoadBalancerHealthMonitorCRUD> neutronLoadBalancerHealthMonitorInterfaceRegistration = context.registerService(INeutronLoadBalancerHealthMonitorCRUD.class, neutronLoadBalancerHealthMonitorInterface, null);
-        if(neutronLoadBalancerHealthMonitorInterfaceRegistration != null) {
-            registrations.add(neutronLoadBalancerHealthMonitorInterfaceRegistration);
-        }
     }
 }

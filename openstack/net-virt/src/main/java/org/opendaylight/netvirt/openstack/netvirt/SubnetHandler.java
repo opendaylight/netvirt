@@ -8,26 +8,30 @@
 
 package org.opendaylight.netvirt.openstack.netvirt;
 
+import com.google.common.base.Preconditions;
 import java.net.HttpURLConnection;
-
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronSubnetAware;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
 import org.opendaylight.netvirt.openstack.netvirt.impl.NeutronL3Adapter;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
-import org.osgi.framework.ServiceReference;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronSubnetAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
-public class SubnetHandler extends AbstractHandler implements INeutronSubnetAware, ConfigInterface {
+public class SubnetHandler extends AbstractHandler implements INeutronSubnetAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubnetHandler.class);
 
     // The implementation for each of these services is resolved by the OSGi Service Manager
-    private volatile NeutronL3Adapter neutronL3Adapter;
+    private final NeutronL3Adapter neutronL3Adapter;
+
+    public SubnetHandler(final NeutronL3Adapter neutronL3Adapter,
+            final EventDispatcher eventDispatcher) {
+        this.neutronL3Adapter = neutronL3Adapter;
+        this.eventDispatcher = eventDispatcher;
+        eventDispatcher.eventHandlerAdded(
+                AbstractEvent.HandlerType.NEUTRON_SUBNET, this);
+    }
 
     @Override
     public int canCreateSubnet(NeutronSubnet subnet) {
@@ -85,19 +89,5 @@ public class SubnetHandler extends AbstractHandler implements INeutronSubnetAwar
                 LOG.warn("Unable to process event action {}", ev.getAction());
                 break;
         }
-    }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        neutronL3Adapter =
-                (NeutronL3Adapter) ServiceHelper.getGlobalInstance(NeutronL3Adapter.class, this);
-        eventDispatcher =
-                (EventDispatcher) ServiceHelper.getGlobalInstance(EventDispatcher.class, this);
-        eventDispatcher.eventHandlerAdded(serviceReference, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-
     }
 }

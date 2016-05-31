@@ -10,13 +10,10 @@ package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancerListener;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerListenerCRUD;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.lbaasv2.rev150712.lbaas.attributes.Listeners;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 
 public class NeutronLoadBalancerListenerInterface extends AbstractNeutronInterface<Listeners, NeutronLoadBalancerListener> implements INeutronLoadBalancerListenerCRUD {
 
@@ -87,15 +84,4 @@ public class NeutronLoadBalancerListenerInterface extends AbstractNeutronInterfa
         // TODO Auto-generated method stub
         return null;
     }
-
-    public static void registerNewInterface(BundleContext context,
-                                            final DataBroker dataBroker,
-                                            List<ServiceRegistration<?>> registrations) {
-        NeutronLoadBalancerListenerInterface neutronLoadBalancerListenerInterface = new NeutronLoadBalancerListenerInterface(dataBroker);
-        ServiceRegistration<INeutronLoadBalancerListenerCRUD> neutronLoadBalancerListenerInterfaceRegistration = context.registerService(INeutronLoadBalancerListenerCRUD.class, neutronLoadBalancerListenerInterface, null);
-        if(neutronLoadBalancerListenerInterfaceRegistration != null) {
-            registrations.add(neutronLoadBalancerListenerInterfaceRegistration);
-        }
-    }
-
 }

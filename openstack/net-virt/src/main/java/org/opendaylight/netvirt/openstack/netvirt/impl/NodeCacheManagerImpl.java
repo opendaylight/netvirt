@@ -7,39 +7,42 @@
  */
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.opendaylight.netvirt.openstack.netvirt.NodeCacheManagerEvent;
-import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.AbstractEvent;
 import org.opendaylight.netvirt.openstack.netvirt.AbstractHandler;
-import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
+import org.opendaylight.netvirt.openstack.netvirt.NodeCacheManagerEvent;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheListener;
+import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * @author Flavio Fernandes (ffernand@redhat.com)
  * @author Sam Hague (shague@redhat.com)
  */
-public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheManager, ConfigInterface {
+public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheManager {
     private static final Logger LOG = LoggerFactory.getLogger(NodeCacheManagerImpl.class);
+
     private Map<NodeId, Node> nodeCache = new ConcurrentHashMap<>();
     private Map<Long, NodeCacheListener> handlers = Maps.newHashMap();
-    private volatile Southbound southbound;
+
+    private final Southbound southbound;
+
+    public NodeCacheManagerImpl(final Southbound southbound, final EventDispatcher eventDispatcher) {
+        this.southbound = southbound;
+        this.eventDispatcher = eventDispatcher;
+
+        this.eventDispatcher.eventHandlerAdded(AbstractEvent.HandlerType.NODE, this);
+    }
 
     @Override
     public void nodeAdded(Node node) {
@@ -121,18 +124,6 @@ public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheMa
         }
     }
 
-    public void cacheListenerAdded(final ServiceReference ref, NodeCacheListener handler){
-        Long pid = (Long) ref.getProperty(org.osgi.framework.Constants.SERVICE_ID);
-        handlers.put(pid, handler);
-        LOG.info("Node cache listener registered, pid {} {}", pid, handler.getClass().getName());
-    }
-
-    public void cacheListenerRemoved(final ServiceReference ref){
-        Long pid = (Long) ref.getProperty(org.osgi.framework.Constants.SERVICE_ID);
-        handlers.remove(pid);
-        LOG.debug("Node cache listener unregistered, pid {}", pid);
-    }
-
     @Override
     public Map<NodeId,Node> getOvsdbNodes() {
         Map<NodeId,Node> ovsdbNodesMap = new ConcurrentHashMap<>();
@@ -178,7 +169,10 @@ public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheMa
         return nodes;
     }
 
-    private void populateNodeCache() {
+    /**
+     * Method called by blueprint
+     */
+    public void init() {
         LOG.debug("populateNodeCache : Populating the node cache");
         List<Node> nodes = southbound.readOvsdbTopologyNodes();
         for(Node ovsdbNode : nodes) {
@@ -190,17 +184,4 @@ public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheMa
         }
         LOG.debug("populateNodeCache : Node cache population is done. Total nodes : {}",this.nodeCache.size());
     }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        southbound =
-                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
-        eventDispatcher =
-                (EventDispatcher) ServiceHelper.getGlobalInstance(EventDispatcher.class, this);
-        eventDispatcher.eventHandlerAdded(serviceReference, this);
-        populateNodeCache();
-    }
-
-    @Override
-    public void setDependencies(Object impl) {}
 }

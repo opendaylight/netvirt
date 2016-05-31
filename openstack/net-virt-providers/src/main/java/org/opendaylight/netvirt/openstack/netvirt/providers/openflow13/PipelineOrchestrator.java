@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13;
 import java.util.List;
 import java.util.Map;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.osgi.framework.ServiceReference;
 
 /**
  * A PipelineOrchestrator provides the necessary orchestration logic to allow multiple network services
@@ -28,6 +27,6 @@ public interface PipelineOrchestrator {
     short getTable(Service service);
     List<Service> getStaticPipeline();
     void enqueue(Node node);
-    void registerService(final ServiceReference ref, AbstractServiceInstance serviceInstance);
-    void unregisterService(final ServiceReference ref);
+    void registerService(final Service service, AbstractServiceInstance serviceInstance);
+    void unregisterService(final Service service);
 }

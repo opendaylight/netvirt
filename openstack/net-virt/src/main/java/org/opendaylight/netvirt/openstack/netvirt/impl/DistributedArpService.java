@@ -8,57 +8,77 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
+import com.google.common.base.Preconditions;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
-
-import com.google.common.base.Preconditions;
-
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.ArpProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
 import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
 import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
-import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * ARP flows programmed for Neutron port.
  */
-public class DistributedArpService implements ConfigInterface {
+// TODO Should DistributedArpService be registered as an event handler? If so it
+// should extend AbstractHandlerService and be register as a eventHandler.
+public class DistributedArpService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributedArpService.class);
     private static final String DHCP_DEVICE_OWNER = "network:dhcp";
     private static final String ROUTER_INTERFACE_DEVICE_OWNER = "network:router_interface";
     // The implementation for each of these services is resolved by the OSGi Service Manager
-    private volatile ConfigurationService configurationService;
-    private volatile TenantNetworkManager tenantNetworkManager;
-    private volatile NodeCacheManager nodeCacheManager;
-    private volatile INeutronNetworkCRUD neutronNetworkCache;
-    private volatile INeutronPortCRUD neutronPortCache;
-    private volatile ArpProvider arpProvider;
-    private volatile NeutronL3Adapter neutronL3Adapter;
 
-    private Southbound southbound;
+    private final ConfigurationService configurationService;
+    private final TenantNetworkManager tenantNetworkManager;
+    private final NodeCacheManager nodeCacheManager;
+    private final INeutronNetworkCRUD neutronNetworkCache;
+    private final INeutronPortCRUD neutronPortCache;
+    private final ArpProvider arpProvider;
+    private final NeutronL3Adapter neutronL3Adapter;
+    private final Southbound southbound;
+
     private Boolean flgDistributedARPEnabled = true;
 
-    private HashMap<String, List<Neutron_IPs>> dhcpPortIpCache = new HashMap();
+    private HashMap<String, List<Neutron_IPs>> dhcpPortIpCache = new HashMap<String, List<Neutron_IPs>>();
 
-    private void initMembers() {
+    public DistributedArpService(
+            final TenantNetworkManager tenantNetworkManager,
+            final ConfigurationService configurationService,
+            final ArpProvider arpProvider,
+            final NodeCacheManager nodeCacheManager,
+            final Southbound southbound,
+            final NeutronL3Adapter neutronL3Adapter,
+            final INeutronNetworkCRUD networkCRUD,
+            final INeutronPortCRUD portCRUD) {
+        this.tenantNetworkManager = tenantNetworkManager;
+        this.configurationService = configurationService;
+        this.arpProvider = arpProvider;
+        this.nodeCacheManager = nodeCacheManager;
+        this.southbound = southbound;
+        this.neutronL3Adapter = neutronL3Adapter;
+        this.neutronNetworkCache = networkCRUD;
+        this.neutronPortCache = portCRUD;
+    }
+
+    /**
+     * Method called by blueprint
+     */
+    public void init() {
         Preconditions.checkNotNull(configurationService);
         if (configurationService.isDistributedArpDisabled()) {
             this.flgDistributedARPEnabled = false;
@@ -266,33 +286,4 @@ public class DistributedArpService implements ConfigInterface {
             this.handlePortEvent(neutronPort, action);
         }
     }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        tenantNetworkManager =
-                (TenantNetworkManager) ServiceHelper.getGlobalInstance(TenantNetworkManager.class, this);
-        configurationService =
-                (ConfigurationService) ServiceHelper.getGlobalInstance(ConfigurationService.class, this);
-        arpProvider =
-                (ArpProvider) ServiceHelper.getGlobalInstance(ArpProvider.class, this);
-        nodeCacheManager =
-                (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
-        southbound =
-                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
-        neutronL3Adapter =
-                (NeutronL3Adapter) ServiceHelper.getGlobalInstance(NeutronL3Adapter.class, this);
-        initMembers();
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-        if (impl instanceof INeutronNetworkCRUD) {
-            neutronNetworkCache = (INeutronNetworkCRUD)impl;
-        } else if (impl instanceof INeutronPortCRUD) {
-            neutronPortCache = (INeutronPortCRUD)impl;
-        } else if (impl instanceof ArpProvider) {
-            arpProvider = (ArpProvider)impl;
-        }
-    }
-
 }

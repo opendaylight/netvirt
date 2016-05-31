@@ -9,27 +9,29 @@
 package org.opendaylight.netvirt.openstack.netvirt;
 
 import java.net.HttpURLConnection;
-
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFloatingIP;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronFloatingIPAware;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
 import org.opendaylight.netvirt.openstack.netvirt.impl.NeutronL3Adapter;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
-import org.osgi.framework.ServiceReference;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFloatingIP;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronFloatingIPAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Handle requests for Neutron Floating IP.
  */
-public class FloatingIPHandler extends AbstractHandler
-        implements INeutronFloatingIPAware, ConfigInterface {
+public class FloatingIPHandler extends AbstractHandler implements INeutronFloatingIPAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(FloatingIPHandler.class);
 
     // The implementation for each of these services is resolved by the OSGi Service Manager
     private volatile NeutronL3Adapter neutronL3Adapter;
+
+    public FloatingIPHandler(final EventDispatcher eventDispatcher, final NeutronL3Adapter neutronL3Adapter) {
+        this.neutronL3Adapter = neutronL3Adapter;
+        this.eventDispatcher = eventDispatcher;
+        eventDispatcher.eventHandlerAdded(AbstractEvent.HandlerType.NEUTRON_FLOATING_IP, this);
+    }
 
     /**
      * Services provide this interface method to indicate if the specified floatingIP can be created
@@ -139,16 +141,4 @@ public class FloatingIPHandler extends AbstractHandler
                 break;
         }
     }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        eventDispatcher =
-                (EventDispatcher) ServiceHelper.getGlobalInstance(EventDispatcher.class, this);
-        neutronL3Adapter =
-                (NeutronL3Adapter) ServiceHelper.getGlobalInstance(NeutronL3Adapter.class, this);
-        eventDispatcher.eventHandlerAdded(serviceReference, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {}
 }

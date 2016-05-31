@@ -8,7 +8,8 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
-import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
+import java.util.ArrayList;
+import java.util.List;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.EgressAclProvider;
@@ -24,36 +25,43 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSubnetCRUD;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class SecurityServicesImpl implements ConfigInterface, SecurityServicesManager {
+public class SecurityServicesImpl implements SecurityServicesManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(TenantNetworkManagerImpl.class);
-    private volatile INeutronPortCRUD neutronPortCache;
-    private volatile INeutronSubnetCRUD neutronSubnetCache;
-    private volatile Southbound southbound;
-    private volatile INeutronNetworkCRUD neutronNetworkCache;
-    private volatile ConfigurationService configurationService;
-    private volatile IngressAclProvider ingressAclProvider;
-    private volatile EgressAclProvider egressAclProvider;
-    private volatile NeutronL3Adapter neutronL3Adapter;
-    private boolean isConntrackEnabled = false;
 
-    public SecurityServicesImpl() {
-        super();
-    }
+    private final INeutronPortCRUD neutronPortCache;
+    private final INeutronSubnetCRUD neutronSubnetCache;
+    private final Southbound southbound;
+    private final INeutronNetworkCRUD neutronNetworkCache;
+    private final ConfigurationService configurationService;
+    private final IngressAclProvider ingressAclProvider;
+    private final EgressAclProvider egressAclProvider;
+    private final NeutronL3Adapter neutronL3Adapter;
+    private final boolean isConntrackEnabled;
 
-    public SecurityServicesImpl(boolean isConntrack) {
-        super();
+    public SecurityServicesImpl(final NeutronL3Adapter neutronL3Adapter,
+            final Southbound southbound,
+            final ConfigurationService configurationService,
+            final INeutronNetworkCRUD networkCRUD,
+            final INeutronSubnetCRUD subnetCRUD,
+            final INeutronPortCRUD portCRUD,
+            final IngressAclProvider ingressAclProvider,
+            final EgressAclProvider egressAclProvider,
+            final boolean isConntrack) {
+        this.neutronL3Adapter = neutronL3Adapter;
+        this.southbound = southbound;
+        this.configurationService = configurationService;
+        this.neutronNetworkCache = networkCRUD;
+        this.neutronPortCache = portCRUD;
+        this.neutronSubnetCache = subnetCRUD;
+        this.ingressAclProvider = ingressAclProvider;
+        this.egressAclProvider = egressAclProvider;
         this.isConntrackEnabled = isConntrack;
     }
 
@@ -627,31 +635,6 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
         }
         LOG.info("Port Security is  not enabled for Port: " + neutronPort);
         return false;
-    }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        neutronL3Adapter =
-                (NeutronL3Adapter) ServiceHelper.getGlobalInstance(NeutronL3Adapter.class, this);
-        southbound =
-                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
-        neutronNetworkCache =
-                (INeutronNetworkCRUD) ServiceHelper.getGlobalInstance(INeutronNetworkCRUD.class, this);
-        configurationService =
-                (ConfigurationService) ServiceHelper.getGlobalInstance(ConfigurationService.class, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-        if (impl instanceof INeutronPortCRUD) {
-            neutronPortCache = (INeutronPortCRUD)impl;
-        } else if (impl instanceof INeutronSubnetCRUD) {
-            neutronSubnetCache = (INeutronSubnetCRUD) impl;
-        } else if (impl instanceof IngressAclProvider) {
-            ingressAclProvider = (IngressAclProvider) impl;
-        } else if (impl instanceof EgressAclProvider) {
-            egressAclProvider = (EgressAclProvider) impl;
-        }
     }
 
     @Override

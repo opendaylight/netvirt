@@ -8,36 +8,30 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
-import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
-import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbTables;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
-import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
-import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
-import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
-import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
-import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
-import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
-import org.opendaylight.netvirt.utils.config.ConfigProperties;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeNetdev;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ConnectionInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ManagerEntry;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.osgi.framework.ServiceReference;
+import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
+import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
+import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
+import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
+import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
+import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbTables;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
+import org.opendaylight.netvirt.utils.config.ConfigProperties;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeNetdev;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ConnectionInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ManagerEntry;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,20 +40,21 @@ import org.slf4j.LoggerFactory;
  * @author Brent Salisbury
  * @author Sam Hague (shague@redhat.com)
  */
-public class BridgeConfigurationManagerImpl implements BridgeConfigurationManager, ConfigInterface {
+public class BridgeConfigurationManagerImpl implements BridgeConfigurationManager {
     private static final Logger LOG = LoggerFactory.getLogger(BridgeConfigurationManagerImpl.class);
 
     // The implementation for each of these services is resolved by the OSGi Service Manager
-    private volatile ConfigurationService configurationService;
-    private volatile NetworkingProviderManager networkingProviderManager;
-    private volatile Southbound southbound;
+    private final ConfigurationService configurationService;
+    private final NetworkingProviderManager networkingProviderManager;
+    private final Southbound southbound;
 
-    public void setConfigurationService(ConfigurationService configurationService) {
+    public BridgeConfigurationManagerImpl(
+            final ConfigurationService configurationService,
+            final NetworkingProviderManager networkingProviderManager,
+            final Southbound southbound) {
         this.configurationService = configurationService;
-    }
-
-    public void setSouthbound(Southbound southbound) {
         this.southbound = southbound;
+        this.networkingProviderManager = networkingProviderManager;
     }
 
     @Override
@@ -618,19 +613,5 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
             LOG.warn("Exception while fetching local host ip address ", e);
         }
         return ipaddress;
-    }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        configurationService =
-                (ConfigurationService) ServiceHelper.getGlobalInstance(ConfigurationService.class, this);
-        networkingProviderManager =
-                (NetworkingProviderManager) ServiceHelper.getGlobalInstance(NetworkingProviderManager.class, this);
-        southbound =
-                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
     }
 }

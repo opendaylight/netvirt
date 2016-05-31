@@ -9,26 +9,31 @@
 package org.opendaylight.netvirt.openstack.netvirt;
 
 import java.net.HttpURLConnection;
-
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter_Interface;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronRouterAware;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
 import org.opendaylight.netvirt.openstack.netvirt.impl.NeutronL3Adapter;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
-import org.osgi.framework.ServiceReference;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter_Interface;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronRouterAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Handle requests for Neutron Router.
  */
-public class RouterHandler extends AbstractHandler implements INeutronRouterAware, ConfigInterface {
+public class RouterHandler extends AbstractHandler implements INeutronRouterAware {
     private static final Logger LOG = LoggerFactory.getLogger(RouterHandler.class);
 
     // The implementation for each of these services is resolved by the OSGi Service Manager
-    private volatile NeutronL3Adapter neutronL3Adapter;
+    private final NeutronL3Adapter neutronL3Adapter;
+
+    public RouterHandler(final NeutronL3Adapter neutronL3Adapter,
+            final EventDispatcher eventDispatcher) {
+        this.neutronL3Adapter = neutronL3Adapter;
+        this.eventDispatcher = eventDispatcher;
+        eventDispatcher.eventHandlerAdded(
+                AbstractEvent.HandlerType.NEUTRON_ROUTER, this);
+    }
 
     /**
      * Services provide this interface method to indicate if the specified router can be created
@@ -214,16 +219,4 @@ public class RouterHandler extends AbstractHandler implements INeutronRouterAwar
                 break;
         }
     }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        neutronL3Adapter =
-                (NeutronL3Adapter) ServiceHelper.getGlobalInstance(NeutronL3Adapter.class, this);
-        eventDispatcher =
-                (EventDispatcher) ServiceHelper.getGlobalInstance(EventDispatcher.class, this);
-        eventDispatcher.eventHandlerAdded(serviceReference, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {}
 }

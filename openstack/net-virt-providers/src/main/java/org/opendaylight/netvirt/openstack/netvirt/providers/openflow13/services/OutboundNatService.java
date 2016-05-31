@@ -8,19 +8,21 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
+import com.google.common.collect.Lists;
 import java.math.BigInteger;
-import java.net.InetAddress;
 import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.OutboundNatProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
+import org.opendaylight.netvirt.openstack.netvirt.api.Status;
 import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
-import org.opendaylight.netvirt.openstack.netvirt.api.Action;
-import org.opendaylight.netvirt.openstack.netvirt.api.Status;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
@@ -39,22 +41,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
-
-import com.google.common.collect.Lists;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OutboundNatService extends AbstractServiceInstance implements OutboundNatProvider, ConfigInterface {
+public class OutboundNatService extends AbstractServiceInstance implements OutboundNatProvider {
     private static final Logger LOG = LoggerFactory.getLogger(OutboundNatService.class);
 
-    public OutboundNatService() {
-        super(Service.OUTBOUND_NAT);
-    }
-
-    public OutboundNatService(Service service) {
-        super(service);
+    public OutboundNatService(final DataBroker dataBroker,
+            final PipelineOrchestrator orchestrator,
+            final Southbound southbound) {
+        super(Service.OUTBOUND_NAT, dataBroker, orchestrator, southbound);
+        orchestrator.registerService(Service.OUTBOUND_NAT, this);
     }
 
     @Override
@@ -192,15 +189,5 @@ public class OutboundNatService extends AbstractServiceInstance implements Outbo
 
         // ToDo: WriteFlow/RemoveFlow should return something we can use to check success
         return new Status(StatusCode.SUCCESS);
-    }
-
-    @Override
-    public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
-        super.setDependencies(bundleContext.getServiceReference(OutboundNatProvider.class.getName()), this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-
     }
 }

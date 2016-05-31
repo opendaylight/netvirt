@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -15,24 +17,17 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
-import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
-import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheListener;
+import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
+import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersConfigImpl;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListener, PipelineOrchestrator {
+public class PipelineOrchestratorImpl implements NodeCacheListener, PipelineOrchestrator {
     private static final Logger LOG = LoggerFactory.getLogger(PipelineOrchestratorImpl.class);
 
     /**
@@ -41,7 +36,7 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
      */
     @Override
     public short getTableOffset() {
-        return NetvirtProvidersProvider.getTableOffset();
+        return NetvirtProvidersConfigImpl.getTableOffset();
     }
 
     /**
@@ -79,17 +74,20 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
     Map<Service, AbstractServiceInstance> serviceRegistry = Maps.newConcurrentMap();
     private volatile BlockingQueue<Node> queue;
     private ExecutorService eventHandler;
-    private Southbound southbound;
+    private final Southbound southbound;
 
-    public PipelineOrchestratorImpl() {
+    public PipelineOrchestratorImpl(final BundleContext bundleContext,
+            final Southbound southbound,
+            final NodeCacheManager nodeCacheManager) {
+        this.southbound = southbound;
         eventHandler = Executors.newSingleThreadExecutor();
         this.queue = new LinkedBlockingQueue<>();
         LOG.info("PipelineOrchestratorImpl constructor");
         start();
     }
 
-    public void registerService(final ServiceReference ref, AbstractServiceInstance serviceInstance){
-        Service service = (Service)ref.getProperty(AbstractServiceInstance.SERVICE_PROPERTY);
+    @Override
+    public void registerService(final Service service, AbstractServiceInstance serviceInstance){
         LOG.info("registerService {} - {}", serviceInstance, service);
         serviceRegistry.put(service, serviceInstance);
         // insert the service if not already there. The list is ordered based of table ID.
@@ -111,9 +109,11 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
         return found;
     }
 
-    public void unregisterService(final ServiceReference ref) {
-        serviceRegistry.remove(ref.getProperty(AbstractServiceInstance.SERVICE_PROPERTY));
+    @Override
+    public void unregisterService(final Service service) {
+        serviceRegistry.remove(service);
     }
+
     @Override
     public Service getNextServiceInPipeline(Service service) {
         int index = staticPipeline.indexOf(service);
@@ -184,17 +184,4 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
             LOG.info("update ignored: {}", node);
         }
     }
-
-    @Override
-    public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
-        NodeCacheManager nodeCacheManager =
-                (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
-        nodeCacheManager.cacheListenerAdded(
-                bundleContext.getServiceReference(PipelineOrchestrator.class.getName()), this);
-        southbound =
-                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {}
 }

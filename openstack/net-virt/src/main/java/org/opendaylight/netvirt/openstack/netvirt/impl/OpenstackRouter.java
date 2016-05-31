@@ -8,19 +8,15 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
-import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
-import org.opendaylight.netvirt.openstack.netvirt.api.MultiTenantAwareRouter;
-
 import java.net.InetAddress;
 import java.util.UUID;
-
-import org.osgi.framework.ServiceReference;
+import org.opendaylight.netvirt.openstack.netvirt.api.MultiTenantAwareRouter;
 
 /**
  * OpenStack router implements the MultiTenantAwareRouter interfaces It provides routing functionality for multiple
  * tenants in an OpenStack cloud
  */
-public class OpenstackRouter implements MultiTenantAwareRouter, ConfigInterface {
+public class OpenstackRouter implements MultiTenantAwareRouter {
 
     @Override
     public void addInterface(UUID tenantId, String interfaceName, InetAddress address, int mask) {
@@ -79,16 +75,6 @@ public class OpenstackRouter implements MultiTenantAwareRouter, ConfigInterface 
 
     @Override
     public void addNatRule(UUID tenantId, InetAddress matchAddress, InetAddress rewriteAddress) {
-
-    }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
 
     }
 }

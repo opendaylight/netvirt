@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.openstack.netvirt;
 
 import java.util.List;
-
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
@@ -22,18 +21,16 @@ import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryListener;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryService;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.impl.DistributedArpService;
 import org.opendaylight.netvirt.openstack.netvirt.impl.NeutronL3Adapter;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,19 +41,42 @@ import org.slf4j.LoggerFactory;
  * @author Sam Hague (shague@redhat.com)
  */
 public class SouthboundHandler extends AbstractHandler
-        implements ConfigInterface, NodeCacheListener, OvsdbInventoryListener {
+        implements NodeCacheListener, OvsdbInventoryListener {
     private static final Logger LOG = LoggerFactory.getLogger(SouthboundHandler.class);
 
     // The implementation for each of these services is resolved by the OSGi Service Manager
-    private volatile ConfigurationService configurationService;
-    private volatile BridgeConfigurationManager bridgeConfigurationManager;
-    private volatile TenantNetworkManager tenantNetworkManager;
-    private volatile NetworkingProviderManager networkingProviderManager;
-    private volatile NeutronL3Adapter neutronL3Adapter;
-    private volatile DistributedArpService distributedArpService;
-    private volatile NodeCacheManager nodeCacheManager;
-    private volatile OvsdbInventoryService ovsdbInventoryService;
-    private volatile Southbound southbound;
+    private final ConfigurationService configurationService;
+    private final BridgeConfigurationManager bridgeConfigurationManager;
+    private final TenantNetworkManager tenantNetworkManager;
+    private final NetworkingProviderManager networkingProviderManager;
+    private final NeutronL3Adapter neutronL3Adapter;
+    private final DistributedArpService distributedArpService;
+    private final NodeCacheManager nodeCacheManager;
+    private final Southbound southbound;
+
+    public SouthboundHandler(final ConfigurationService configurationService,
+            final NetworkingProviderManager networkingProviderManager,
+            final TenantNetworkManager tenantNetworkManager,
+            final BridgeConfigurationManager bridgeConfigurationManager,
+            final NodeCacheManager nodeCacheManager,
+            final NeutronL3Adapter neutronL3Adapter,
+            final DistributedArpService distributedArpService,
+            final Southbound southbound, final EventDispatcher eventDispatcher,
+            final OvsdbInventoryService ovsdbInventoryService) {
+        this.configurationService = configurationService;
+        this.networkingProviderManager = networkingProviderManager;
+        this.tenantNetworkManager = tenantNetworkManager;
+        this.bridgeConfigurationManager = bridgeConfigurationManager;
+        this.nodeCacheManager = nodeCacheManager;
+        this.neutronL3Adapter = neutronL3Adapter;
+        this.distributedArpService = distributedArpService;
+        this.southbound = southbound;
+        this.eventDispatcher = eventDispatcher;
+
+        eventDispatcher.eventHandlerAdded(AbstractEvent.HandlerType.SOUTHBOUND,
+                this);
+        ovsdbInventoryService.listenerAdded(this);
+    }
 
     private SouthboundEvent.Type ovsdbTypeToSouthboundEventType(OvsdbType ovsdbType) {
         SouthboundEvent.Type type = SouthboundEvent.Type.NODE;
@@ -402,36 +422,5 @@ public class SouthboundHandler extends AbstractHandler
         // TODO SB_MIGRATION
         // Not sure if we want to do this yet
         southbound.deleteBridge(node);
-    }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        configurationService =
-                (ConfigurationService) ServiceHelper.getGlobalInstance(ConfigurationService.class, this);
-        networkingProviderManager =
-                (NetworkingProviderManager) ServiceHelper.getGlobalInstance(NetworkingProviderManager.class, this);
-        tenantNetworkManager =
-                (TenantNetworkManager) ServiceHelper.getGlobalInstance(TenantNetworkManager.class, this);
-        bridgeConfigurationManager =
-                (BridgeConfigurationManager) ServiceHelper.getGlobalInstance(BridgeConfigurationManager.class, this);
-        nodeCacheManager =
-                (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
-        nodeCacheManager.cacheListenerAdded(serviceReference, this);
-        neutronL3Adapter =
-                (NeutronL3Adapter) ServiceHelper.getGlobalInstance(NeutronL3Adapter.class, this);
-        distributedArpService =
-                (DistributedArpService) ServiceHelper.getGlobalInstance(DistributedArpService.class, this);
-        southbound =
-                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
-        eventDispatcher =
-                (EventDispatcher) ServiceHelper.getGlobalInstance(EventDispatcher.class, this);
-        eventDispatcher.eventHandlerAdded(serviceReference, this);
-        ovsdbInventoryService =
-                (OvsdbInventoryService) ServiceHelper.getGlobalInstance(OvsdbInventoryService.class, this);
-        ovsdbInventoryService.listenerAdded(this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
     }
 }

@@ -11,6 +11,24 @@
     interface="org.opendaylight.controller.sal.binding.api.NotificationProviderService" />
   <reference id="rpcRegistry"
     interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry" />
+  <reference id="ovsdbInventoryService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryService" />
+  <reference id="southbound"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.Southbound" />
+  <reference id="configurationService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService" />
+  <reference id="bridgeConfigurationManager"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager" />
+  <reference id="tenantNetworkManager"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager" />
+  <reference id="nodeCacheManager"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager" />
+  <reference id="securityServicesManager"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager" />
+  <reference id="securityGroupCacheManger"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger" />
+  <reference id="networkingProviderManager"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager" />
 
   <odl:clustered-app-config id="netvirtProviderConfig"
     binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.providers.config.rev160109.NetvirtProvidersConfig">
@@ -21,17 +39,207 @@
   <odl:rpc-service id="packetProcessingService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
 
-  <bean id="netvirtProviders"
-    class="org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider"
-    init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
+  <bean id="providerEntityListener"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.ProviderEntityListener"
+    destroy-method="close">
     <argument ref="entityOwnershipService" />
-    <argument ref="notificationService" />
-    <argument ref="packetProcessingService" />
-    <argument ref="salFlowService" />
+  </bean>
+
+  <bean id="netvirtProvidersConfigImpl"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersConfigImpl"
+    destroy-method="close">
+    <argument ref="dataBroker" />
     <argument>
       <bean factory-ref="netvirtProviderConfig" factory-method="getTableOffset" />
     </argument>
   </bean>
+
+  <bean id="pipelineOrchestrator"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestratorImpl">
+    <argument ref="blueprintBundleContext" />
+    <argument ref="southbound" />
+    <argument ref="nodeCacheManager" />
+  </bean>
+
+  <bean id="of13Provider"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.OF13Provider">
+    <argument ref="dataBroker" />
+    <argument ref="configurationService" />
+    <argument ref="bridgeConfigurationManager" />
+    <argument ref="tenantNetworkManager" />
+    <argument ref="securityServicesManager" />
+    <argument ref="classifierService" />
+    <argument ref="ingressAclService" />
+    <argument ref="egressAclService" />
+    <argument ref="nodeCacheManager" />
+    <argument ref="l2ForwardingService" />
+    <argument ref="southbound" />
+    <argument ref="networkingProviderManager" />
+    <argument ref="blueprintBundleContext" />
+  </bean>
+  <service ref="of13Provider"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProvider"
+    odl:type="default">
+    <service-properties>
+      <entry key="southboundProtocol" value="ovsdb" />
+      <entry key="openflowVersion" value="OpenFlow13" />
+    </service-properties>
+  </service>
+
+  <bean id="classifierService"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.ClassifierService">
+    <argument ref="dataBroker" />
+    <argument ref="pipelineOrchestrator" />
+    <argument ref="southbound" />
+  </bean>
+  <service ref="classifierService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.ClassifierProvider"
+    odl:type="default">
+  </service>
+
+  <bean id="gatewayMacResolverService"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.arp.GatewayMacResolverService">
+    <argument ref="notificationService" />
+    <argument ref="packetProcessingService" />
+    <argument ref="salFlowService" />
+    <argument ref="configurationService" />
+    <argument ref="nodeCacheManager" />
+    <argument ref="dataBroker" />
+    <argument ref="pipelineOrchestrator" />
+    <argument ref="southbound" />
+  </bean>
+  <service ref="gatewayMacResolverService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.GatewayMacResolver"
+    odl:type="default">
+  </service>
+  <service ref="gatewayMacResolverService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener"
+    odl:type="default">
+  </service>
+
+  <bean id="arpResponderService"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.ArpResponderService">
+    <argument ref="dataBroker" />
+    <argument ref="pipelineOrchestrator" />
+    <argument ref="southbound" />
+  </bean>
+  <service ref="arpResponderService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.ArpProvider"
+    odl:type="default">
+  </service>
+
+  <bean id="inboundNatService"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.InboundNatService">
+    <argument ref="dataBroker" />
+    <argument ref="pipelineOrchestrator" />
+    <argument ref="southbound" />
+  </bean>
+  <service ref="inboundNatService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.InboundNatProvider"
+    odl:type="default">
+  </service>
+
+  <bean id="egressAclService"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.EgressAclService">
+    <argument ref="dataBroker" />
+    <argument ref="pipelineOrchestrator" />
+    <argument ref="southbound" />
+    <argument ref="securityServicesManager" />
+    <argument ref="securityGroupCacheManger" />
+  </bean>
+  <service ref="egressAclService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.EgressAclProvider"
+    odl:type="default">
+  </service>
+
+  <bean id="loadBalancerService"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.LoadBalancerService">
+    <argument ref="dataBroker" />
+    <argument ref="pipelineOrchestrator" />
+    <argument ref="southbound" />
+  </bean>
+  <service ref="loadBalancerService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.LoadBalancerProvider"
+    odl:type="default">
+  </service>
+
+  <bean id="routingService"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.RoutingService">
+    <argument ref="dataBroker" />
+    <argument ref="pipelineOrchestrator" />
+    <argument ref="southbound" />
+  </bean>
+  <service ref="routingService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.RoutingProvider"
+    odl:type="default">
+  </service>
+
+  <bean id="l3ForwardingService"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.L3ForwardingService">
+    <argument ref="dataBroker" />
+    <argument ref="pipelineOrchestrator" />
+    <argument ref="southbound" />
+  </bean>
+  <service ref="l3ForwardingService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.L3ForwardingProvider"
+    odl:type="default">
+  </service>
+
+  <bean id="icmpEchoResponderService"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.IcmpEchoResponderService">
+    <argument ref="dataBroker" />
+    <argument ref="pipelineOrchestrator" />
+    <argument ref="southbound" />
+  </bean>
+  <service ref="icmpEchoResponderService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.IcmpEchoProvider"
+    odl:type="default">
+  </service>
+
+  <bean id="l2RewriteService"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.L2RewriteService">
+    <argument ref="dataBroker" />
+    <argument ref="pipelineOrchestrator" />
+    <argument ref="southbound" />
+  </bean>
+  <service ref="l2RewriteService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.L2RewriteProvider"
+    odl:type="default">
+  </service>
+
+  <bean id="ingressAclService"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.IngressAclService">
+    <argument ref="dataBroker" />
+    <argument ref="pipelineOrchestrator" />
+    <argument ref="southbound" />
+    <argument ref="securityServicesManager" />
+    <argument ref="securityGroupCacheManger" />
+  </bean>
+  <service ref="ingressAclService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.IngressAclProvider"
+    odl:type="default">
+  </service>
+
+  <bean id="outboundNatService"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.OutboundNatService">
+    <argument ref="dataBroker" />
+    <argument ref="pipelineOrchestrator" />
+    <argument ref="southbound" />
+  </bean>
+  <service ref="outboundNatService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.OutboundNatProvider"
+    odl:type="default">
+  </service>
+
+  <bean id="l2ForwardingService"
+    class="org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.L2ForwardingService">
+    <argument ref="dataBroker" />
+    <argument ref="pipelineOrchestrator" />
+    <argument ref="southbound" />
+  </bean>
+  <service ref="l2ForwardingService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingProvider"
+    odl:type="default">
+  </service>
 
 </blueprint>

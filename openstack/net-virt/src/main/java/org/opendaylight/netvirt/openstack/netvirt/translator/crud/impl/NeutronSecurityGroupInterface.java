@@ -24,8 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.security.groups.attributes.security.groups.SecurityGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.security.groups.attributes.security.groups.SecurityGroupBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,15 +180,5 @@ public class NeutronSecurityGroupInterface extends AbstractNeutronInterface<Secu
         SecurityGroupBuilder securityGroupBuilder = new SecurityGroupBuilder();
         securityGroupBuilder.setUuid(toUuid(uuid));
         return securityGroupBuilder.build();
-    }
-
-    public static void registerNewInterface(BundleContext context,
-                                            final DataBroker dataBroker,
-                                            List<ServiceRegistration<?>> registrations) {
-        NeutronSecurityGroupInterface neutronSecurityGroupInterface = new NeutronSecurityGroupInterface(dataBroker);
-        ServiceRegistration<INeutronSecurityGroupCRUD> neutronSecurityGroupInterfaceRegistration = context.registerService(INeutronSecurityGroupCRUD.class, neutronSecurityGroupInterface, null);
-        if(neutronSecurityGroupInterfaceRegistration != null) {
-            registrations.add(neutronSecurityGroupInterfaceRegistration);
-        }
     }
 }

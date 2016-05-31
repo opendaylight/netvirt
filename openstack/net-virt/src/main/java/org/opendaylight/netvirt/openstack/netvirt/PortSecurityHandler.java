@@ -11,19 +11,16 @@ package org.opendaylight.netvirt.openstack.netvirt;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronSecurityRuleAware;
+import org.opendaylight.netvirt.openstack.netvirt.api.Action;
+import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
+import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronSecurityGroupAware;
-import org.opendaylight.netvirt.openstack.netvirt.api.Action;
-import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
-import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
-import org.osgi.framework.ServiceReference;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronSecurityRuleAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +28,21 @@ import org.slf4j.LoggerFactory;
  * Handle requests for OpenStack Neutron v2.0 Port Security API calls.
  */
 public class PortSecurityHandler extends AbstractHandler
-        implements INeutronSecurityGroupAware, INeutronSecurityRuleAware, ConfigInterface {
+        implements INeutronSecurityGroupAware, INeutronSecurityRuleAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(PortSecurityHandler.class);
-    private volatile INeutronPortCRUD neutronPortCache;
-    private volatile SecurityServicesManager securityServicesManager;
+
+    private final INeutronPortCRUD neutronPortCache;
+    private final SecurityServicesManager securityServicesManager;
+
+    public PortSecurityHandler(final SecurityServicesManager securityServicesManager, final EventDispatcher eventDispatcher,
+            final INeutronPortCRUD portCRUD) {
+        this.securityServicesManager = securityServicesManager;
+        this.eventDispatcher = eventDispatcher;
+        this.neutronPortCache = portCRUD;
+
+        eventDispatcher.eventHandlerAdded(AbstractEvent.HandlerType.NEUTRON_PORT_SECURITY, this);
+    }
 
     @Override
     public int canCreateNeutronSecurityGroup(NeutronSecurityGroup neutronSecurityGroup) {
@@ -184,18 +191,4 @@ public class PortSecurityHandler extends AbstractHandler
         }
         return neutronPortInSg;
     }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        eventDispatcher =
-                (EventDispatcher) ServiceHelper.getGlobalInstance(EventDispatcher.class, this);
-        eventDispatcher.eventHandlerAdded(serviceReference, this);
-        neutronPortCache =
-                (INeutronPortCRUD) ServiceHelper.getGlobalInstance(INeutronPortCRUD.class, this);
-        securityServicesManager =
-                (SecurityServicesManager) ServiceHelper.getGlobalInstance(SecurityServicesManager.class, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {}
 }

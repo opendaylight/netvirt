@@ -8,32 +8,27 @@
 
 package org.opendaylight.netvirt.openstack.netvirt;
 
+import com.google.common.base.Preconditions;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
-
-import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancerPoolMember;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerPoolCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancer;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancerPool;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSubnetCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronLoadBalancerPoolMemberAware;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
 import org.opendaylight.netvirt.openstack.netvirt.api.LoadBalancerConfiguration;
 import org.opendaylight.netvirt.openstack.netvirt.api.LoadBalancerProvider;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
+import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancer;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancerPool;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancerPoolMember;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerPoolCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSubnetCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronLoadBalancerPoolMemberAware;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Handle requests for OpenStack Neutron v2.0 LBaaS API calls for
@@ -41,17 +36,40 @@ import com.google.common.base.Preconditions;
  */
 
 public class LBaaSPoolMemberHandler extends AbstractHandler
-        implements INeutronLoadBalancerPoolMemberAware, ConfigInterface {
+        implements INeutronLoadBalancerPoolMemberAware {
     private static final Logger LOG = LoggerFactory.getLogger(LBaaSPoolMemberHandler.class);
 
     // The implementation for each of these services is resolved by the OSGi Service Manager
-    private volatile INeutronLoadBalancerPoolCRUD neutronLBPoolCache;
-    private volatile INeutronLoadBalancerCRUD neutronLBCache;
-    private volatile INeutronPortCRUD neutronPortCache;
-    private volatile INeutronNetworkCRUD neutronNetworkCache;
-    private volatile INeutronSubnetCRUD neutronSubnetCache;
-    private volatile LoadBalancerProvider loadBalancerProvider;
-    private volatile NodeCacheManager nodeCacheManager;
+    private final INeutronLoadBalancerPoolCRUD neutronLBPoolCache;
+    private final INeutronLoadBalancerCRUD neutronLBCache;
+    private final INeutronPortCRUD neutronPortCache;
+    private final INeutronNetworkCRUD neutronNetworkCache;
+    private final INeutronSubnetCRUD neutronSubnetCache;
+    private final LoadBalancerProvider loadBalancerProvider;
+    private final NodeCacheManager nodeCacheManager;
+
+    public LBaaSPoolMemberHandler(
+            final LoadBalancerProvider loadBalancerProvider,
+            final NodeCacheManager nodeCacheManager,
+            final EventDispatcher eventDispatcher,
+            final INeutronNetworkCRUD networkCRUD,
+            final INeutronPortCRUD portCRUD,
+            final INeutronSubnetCRUD subnetCRUD,
+            INeutronLoadBalancerCRUD loadBalancerCRUD,
+            final INeutronLoadBalancerPoolCRUD loadBalancerPoolCRUD) {
+        this.loadBalancerProvider = loadBalancerProvider;
+        this.nodeCacheManager = nodeCacheManager;
+        this.eventDispatcher = eventDispatcher;
+        this.neutronNetworkCache = networkCRUD;
+        this.neutronPortCache = portCRUD;
+        this.neutronSubnetCache = subnetCRUD;
+        this.neutronLBCache = loadBalancerCRUD;
+        this.neutronLBPoolCache = loadBalancerPoolCRUD;
+
+        eventDispatcher.eventHandlerAdded(
+                AbstractEvent.HandlerType.NEUTRON_LOAD_BALANCER_POOL_MEMBER,
+                this);
+    }
 
     @Override
     public int canCreateNeutronLoadBalancerPoolMember(NeutronLoadBalancerPoolMember neutronLBPoolMember) {
@@ -275,33 +293,5 @@ public class LBaaSPoolMemberHandler extends AbstractHandler
 
         lbConfig.addMember(memberID, memberIP, memberMAC, memberProtocol, memberPort);
         return lbConfig;
-    }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        loadBalancerProvider =
-                (LoadBalancerProvider) ServiceHelper.getGlobalInstance(LoadBalancerProvider.class, this);
-        nodeCacheManager =
-                (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
-        eventDispatcher =
-                (EventDispatcher) ServiceHelper.getGlobalInstance(EventDispatcher.class, this);
-        eventDispatcher.eventHandlerAdded(serviceReference, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-        if (impl instanceof INeutronNetworkCRUD) {
-            neutronNetworkCache = (INeutronNetworkCRUD)impl;
-        } else if (impl instanceof INeutronPortCRUD) {
-            neutronPortCache = (INeutronPortCRUD)impl;
-        } else if (impl instanceof INeutronSubnetCRUD) {
-            neutronSubnetCache = (INeutronSubnetCRUD)impl;
-        } else if (impl instanceof INeutronLoadBalancerCRUD) {
-            neutronLBCache = (INeutronLoadBalancerCRUD)impl;
-        } else if (impl instanceof INeutronLoadBalancerPoolCRUD) {
-            neutronLBPoolCache = (INeutronLoadBalancerPoolCRUD)impl;
-        } else if (impl instanceof LoadBalancerProvider) {
-            loadBalancerProvider = (LoadBalancerProvider)impl;
-        }
     }
 }

@@ -13,14 +13,21 @@ import static org.opendaylight.netvirt.openstack.netvirt.api.Action.DELETE;
 import static org.opendaylight.netvirt.openstack.netvirt.api.Action.UPDATE;
 
 import com.google.common.base.Preconditions;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.netvirt.openstack.netvirt.AbstractEvent;
 import org.opendaylight.netvirt.openstack.netvirt.AbstractHandler;
-import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.NeutronL3AdapterEvent;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
-import org.opendaylight.netvirt.openstack.netvirt.api.ArpProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
@@ -39,19 +46,18 @@ import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
 import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFloatingIP;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter_Interface;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronFloatingIPCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSubnetCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronIAwareUtil;
 import org.opendaylight.netvirt.utils.neutron.utils.NeutronModelsDataStoreHelper;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
@@ -62,44 +68,74 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Neutron L3 Adapter implements a hub-like adapter for the various Neutron events. Based on
  * these events, the abstract router callbacks can be generated to the multi-tenant aware router,
  * as well as the multi-tenant router forwarding provider.
  */
-public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResolverListener, ConfigInterface {
+public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResolverListener {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronL3Adapter.class);
 
     // The implementation for each of these services is resolved by the OSGi Service Manager
-    private volatile ConfigurationService configurationService;
-    private volatile TenantNetworkManager tenantNetworkManager;
-    private volatile NodeCacheManager nodeCacheManager;
-    private volatile INeutronNetworkCRUD neutronNetworkCache;
-    private volatile INeutronSubnetCRUD neutronSubnetCache;
-    private volatile INeutronPortCRUD neutronPortCache;
-    private volatile INeutronFloatingIPCRUD neutronFloatingIpCache;
-    private volatile L3ForwardingProvider l3ForwardingProvider;
-    private volatile InboundNatProvider inboundNatProvider;
-    private volatile OutboundNatProvider outboundNatProvider;
-    private volatile ArpProvider arpProvider;
-    private volatile RoutingProvider routingProvider;
-    private volatile GatewayMacResolver gatewayMacResolver;
-    private volatile SecurityServicesManager securityServicesManager;
-    private volatile IcmpEchoProvider icmpEchoProvider;
+    private final ConfigurationService configurationService;
+    private final TenantNetworkManager tenantNetworkManager;
+    private final NodeCacheManager nodeCacheManager;
+    private final INeutronNetworkCRUD neutronNetworkCache;
+    private final INeutronSubnetCRUD neutronSubnetCache;
+    private final INeutronPortCRUD neutronPortCache;
+    private final INeutronFloatingIPCRUD neutronFloatingIpCache;
+    private final L3ForwardingProvider l3ForwardingProvider;
+    private final InboundNatProvider inboundNatProvider;
+    private final OutboundNatProvider outboundNatProvider;
+    private final RoutingProvider routingProvider;
+    private final GatewayMacResolver gatewayMacResolver;
+    private final SecurityServicesManager securityServicesManager;
+    private final IcmpEchoProvider icmpEchoProvider;
+
+    public NeutronL3Adapter(final EventDispatcher eventDispatcher,
+            final TenantNetworkManager tenantNetworkManager,
+            final ConfigurationService configurationService,
+            final InboundNatProvider inboundNatProvider,
+            final OutboundNatProvider outboundNatProvider,
+            final RoutingProvider routingProvider,
+            final L3ForwardingProvider l3ForwardingProvider,
+            final DistributedArpService distributedArpService,
+            final NodeCacheManager nodeCacheManager,
+            final Southbound southbound,
+            final GatewayMacResolver gatewayMacResolver,
+            final SecurityServicesManager securityServicesManager,
+            final INeutronNetworkCRUD networkCRUD,
+            final INeutronPortCRUD portCRUD,
+            final INeutronSubnetCRUD subnetCRUD,
+            final INeutronFloatingIPCRUD floatingIPCRUD,
+            final IcmpEchoProvider icmpEchoProvider,
+            final NeutronModelsDataStoreHelper neutronHelper) {
+        LOG.info(">>>>>> NeutronL3Adapter constructor {}", this.getClass());
+
+        this.eventDispatcher = eventDispatcher;
+        this.eventDispatcher.eventHandlerAdded(
+                AbstractEvent.HandlerType.NEUTRON_L3_ADAPTER, this);
+        this.tenantNetworkManager = tenantNetworkManager;
+        this.configurationService = configurationService;
+        this.inboundNatProvider = inboundNatProvider;
+        this.outboundNatProvider = outboundNatProvider;
+        this.routingProvider = routingProvider;
+        this.l3ForwardingProvider = l3ForwardingProvider;
+        this.distributedArpService = distributedArpService;
+        this.nodeCacheManager = nodeCacheManager;
+        this.southbound = southbound;
+        this.gatewayMacResolver = gatewayMacResolver;
+        this.securityServicesManager = securityServicesManager;
+        this.neutronNetworkCache = networkCRUD;
+        this.neutronPortCache = portCRUD;
+        this.neutronSubnetCache = subnetCRUD;
+        this.neutronFloatingIpCache = floatingIPCRUD;
+        this.icmpEchoProvider = icmpEchoProvider;
+        this.neutronModelsDataStoreHelper = neutronHelper;
+    }
 
     private class FloatIpData {
         // br-int of node where floating ip is associated with tenant port
@@ -149,11 +185,6 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
     private static final String OWNER_ROUTER_GATEWAY = "network:router_gateway";
     private static final String OWNER_FLOATING_IP = "network:floatingip";
     private static final String DEFAULT_EXT_RTR_MAC = "00:00:5E:00:01:01";
-
-    public NeutronL3Adapter(NeutronModelsDataStoreHelper neutronHelper) {
-        LOG.info(">>>>>> NeutronL3Adapter constructor {}", this.getClass());
-        this.neutronModelsDataStoreHelper = neutronHelper;
-    }
 
     private void initL3AdapterMembers() {
         Preconditions.checkNotNull(configurationService);
@@ -1651,67 +1682,14 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
             }
         }
     }
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        eventDispatcher =
-                (EventDispatcher) ServiceHelper.getGlobalInstance(EventDispatcher.class, this);
-        eventDispatcher.eventHandlerAdded(serviceReference, this);
-        tenantNetworkManager =
-                (TenantNetworkManager) ServiceHelper.getGlobalInstance(TenantNetworkManager.class, this);
-        configurationService =
-                (ConfigurationService) ServiceHelper.getGlobalInstance(ConfigurationService.class, this);
-        arpProvider =
-                (ArpProvider) ServiceHelper.getGlobalInstance(ArpProvider.class, this);
-        inboundNatProvider =
-                (InboundNatProvider) ServiceHelper.getGlobalInstance(InboundNatProvider.class, this);
-        outboundNatProvider =
-                (OutboundNatProvider) ServiceHelper.getGlobalInstance(OutboundNatProvider.class, this);
-        routingProvider =
-                (RoutingProvider) ServiceHelper.getGlobalInstance(RoutingProvider.class, this);
-        l3ForwardingProvider =
-                (L3ForwardingProvider) ServiceHelper.getGlobalInstance(L3ForwardingProvider.class, this);
-        distributedArpService =
-                 (DistributedArpService) ServiceHelper.getGlobalInstance(DistributedArpService.class, this);
-        nodeCacheManager =
-                (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
-        southbound =
-                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
-        gatewayMacResolver =
-                (GatewayMacResolver) ServiceHelper.getGlobalInstance(GatewayMacResolver.class, this);
-        securityServicesManager =
-                (SecurityServicesManager) ServiceHelper.getGlobalInstance(SecurityServicesManager.class, this);
 
+    /**
+     * Method called by blueprint
+     */
+    public void init() {
         initL3AdapterMembers();
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-        if (impl instanceof INeutronNetworkCRUD) {
-            neutronNetworkCache = (INeutronNetworkCRUD)impl;
-            initNetworkCleanUpCache();
-        } else if (impl instanceof INeutronPortCRUD) {
-            neutronPortCache = (INeutronPortCRUD)impl;
-            initPortCleanUpCache();
-        } else if (impl instanceof INeutronSubnetCRUD) {
-            neutronSubnetCache = (INeutronSubnetCRUD)impl;
-        } else if (impl instanceof INeutronFloatingIPCRUD) {
-            neutronFloatingIpCache = (INeutronFloatingIPCRUD)impl;
-        } else if (impl instanceof ArpProvider) {
-            arpProvider = (ArpProvider)impl;
-        } else if (impl instanceof InboundNatProvider) {
-            inboundNatProvider = (InboundNatProvider)impl;
-        } else if (impl instanceof OutboundNatProvider) {
-            outboundNatProvider = (OutboundNatProvider)impl;
-        } else if (impl instanceof RoutingProvider) {
-            routingProvider = (RoutingProvider)impl;
-        } else if (impl instanceof L3ForwardingProvider) {
-            l3ForwardingProvider = (L3ForwardingProvider)impl;
-        }else if (impl instanceof GatewayMacResolver) {
-            gatewayMacResolver = (GatewayMacResolver)impl;
-        }else if (impl instanceof IcmpEchoProvider) {
-            icmpEchoProvider = (IcmpEchoProvider)impl;
-        }
-
+        initNetworkCleanUpCache();
+        initPortCleanUpCache();
         populateL3ForwardingCaches();
     }
 }

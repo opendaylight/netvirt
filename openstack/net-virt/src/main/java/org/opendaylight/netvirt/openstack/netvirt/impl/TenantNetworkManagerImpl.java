@@ -28,13 +28,25 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TenantNetworkManagerImpl implements ConfigInterface, TenantNetworkManager {
+public class TenantNetworkManagerImpl implements TenantNetworkManager {
     private static final Logger LOG = LoggerFactory.getLogger(TenantNetworkManagerImpl.class);
     private INeutronNetworkCRUD neutronNetworkCache;
     private INeutronPortCRUD neutronPortCache;
     private VlanConfigurationCache vlanConfigurationCache;
     private Southbound southbound;
     private volatile NeutronL3Adapter neutronL3Adapter;
+
+    public TenantNetworkManagerImpl(
+            final VlanConfigurationCache vlanConfigurationCache,
+            final NeutronL3Adapter neutronL3Adapter,
+            final Southbound southbound, final INeutronNetworkCRUD networkCRUD,
+            final INeutronPortCRUD portCRUD) {
+        this.vlanConfigurationCache = vlanConfigurationCache;
+        this.neutronL3Adapter = neutronL3Adapter;
+        this.southbound = southbound;
+        this.neutronNetworkCache = networkCRUD;
+        this.neutronPortCache = portCRUD;
+    }
 
     @Override
     public int getInternalVlan(Node node, String networkId) {
@@ -195,24 +207,5 @@ public class TenantNetworkManagerImpl implements ConfigInterface, TenantNetworkM
             neutronPort = neutronL3Adapter.getPortFromCleanupCache(portId);
         }
         return neutronPort != null && neutronPort.getNetworkUUID().equalsIgnoreCase(networkId);
-    }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        vlanConfigurationCache =
-                (VlanConfigurationCache) ServiceHelper.getGlobalInstance(VlanConfigurationCache.class, this);
-        southbound =
-                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
-        neutronL3Adapter =
-                (NeutronL3Adapter) ServiceHelper.getGlobalInstance(NeutronL3Adapter.class, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-        if (impl instanceof INeutronNetworkCRUD) {
-            neutronNetworkCache = (INeutronNetworkCRUD)impl;
-        } else if (impl instanceof INeutronPortCRUD) {
-            neutronPortCache = (INeutronPortCRUD)impl;
-        }
     }
 }

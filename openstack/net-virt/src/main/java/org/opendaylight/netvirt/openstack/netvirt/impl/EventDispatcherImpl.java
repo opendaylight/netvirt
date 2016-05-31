@@ -8,24 +8,21 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
-import org.opendaylight.netvirt.openstack.netvirt.AbstractEvent;
-import org.opendaylight.netvirt.openstack.netvirt.AbstractHandler;
-import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
-import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
-import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
-
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import org.opendaylight.netvirt.openstack.netvirt.AbstractEvent;
+import org.opendaylight.netvirt.openstack.netvirt.AbstractHandler;
+import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class EventDispatcherImpl implements EventDispatcher, ConfigInterface {
+public class EventDispatcherImpl implements EventDispatcher {
+
     private static final Logger LOG = LoggerFactory.getLogger(EventDispatcher.class);
+
     private ExecutorService eventHandler;
     private volatile BlockingQueue<AbstractEvent> events;
     private AbstractHandler[] handlers;
@@ -96,32 +93,17 @@ public class EventDispatcherImpl implements EventDispatcher, ConfigInterface {
         LOG.trace("dispatchEvent: Done processing (id={}): {}", ev.getTransactionId(), ev);
     }
 
-    public void eventHandlerAdded(final ServiceReference ref, AbstractHandler handler){
-        Long pid = (Long) ref.getProperty(org.osgi.framework.Constants.SERVICE_ID);
-        Object handlerTypeObject = ref.getProperty(Constants.EVENT_HANDLER_TYPE_PROPERTY);
-        if (!(handlerTypeObject instanceof AbstractEvent.HandlerType)){
-            // The exception should give us a stacktrace
-            LOG.error("Abstract handler reg failed to provide a valid handler type: {} ref: {} handler: {}",
-                    handlerTypeObject, ref.getClass().getName(), handler.getClass().getName(),
-                    new IllegalArgumentException("Missing handler type"));
-            return;
-        }
-        AbstractEvent.HandlerType handlerType = (AbstractEvent.HandlerType) handlerTypeObject;
+    @Override
+    public void eventHandlerAdded(final AbstractEvent.HandlerType handlerType, AbstractHandler handler){
         handlers[handlerType.ordinal()] = handler;
-        LOG.info("eventHandlerAdded: handler: {}, pid: {}, type: {}",
-                handler.getClass().getName(), pid, handlerType);
+        LOG.info("eventHandlerAdded: handler: {}, type: {}",
+                handler.getClass().getName(), handlerType);
     }
 
-    public void eventHandlerRemoved(final ServiceReference ref){
-        Long pid = (Long) ref.getProperty(org.osgi.framework.Constants.SERVICE_ID);
-        Object handlerTypeObject = ref.getProperty(Constants.EVENT_HANDLER_TYPE_PROPERTY);
-        if (!(handlerTypeObject instanceof AbstractEvent.HandlerType)){
-            LOG.error("Abstract handler unreg failed to provide a valid handler type {}", handlerTypeObject);
-            return;
-        }
-        AbstractEvent.HandlerType handlerType = (AbstractEvent.HandlerType) handlerTypeObject;
+    @Override
+    public void eventHandlerRemoved(final AbstractEvent.HandlerType handlerType){
         handlers[handlerType.ordinal()] = null;
-        LOG.debug("Event handler for type {} unregistered pid {}", handlerType, pid);
+        LOG.debug("Event handler for type {} unregistered pid {}", handlerType);
     }
 
     /**
@@ -142,10 +124,4 @@ public class EventDispatcherImpl implements EventDispatcher, ConfigInterface {
             LOG.error("Thread was interrupted while trying to enqueue event ", e);
         }
     }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {}
-
-    @Override
-    public void setDependencies(Object impl) {}
 }

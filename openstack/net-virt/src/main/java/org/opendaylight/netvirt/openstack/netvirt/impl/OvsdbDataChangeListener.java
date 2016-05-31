@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -49,6 +48,9 @@ public class OvsdbDataChangeListener implements ClusteredDataChangeListener, Aut
         this.dataBroker = dataBroker;
     }
 
+    /**
+     * Method called by blueprint
+     */
     public void start() {
         InstanceIdentifier<Node> path = InstanceIdentifier
                 .create(NetworkTopology.class)
@@ -61,8 +63,11 @@ public class OvsdbDataChangeListener implements ClusteredDataChangeListener, Aut
         triggerUpdates();
     }
 
+    /**
+     * Method called by blueprint
+     */
     @Override
-    public void close () throws Exception {
+    public void close() throws Exception {
         registration.close();
         executorService.shutdown();
     }

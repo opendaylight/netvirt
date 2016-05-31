@@ -10,41 +10,54 @@ package org.opendaylight.netvirt.openstack.netvirt;
 
 import java.net.HttpURLConnection;
 import java.util.List;
-
-import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronNetworkAware;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
+import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
 import org.opendaylight.netvirt.openstack.netvirt.impl.NeutronL3Adapter;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronNetworkAware;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Handle requests for Neutron Network.
  */
-public class NetworkHandler extends AbstractHandler implements INeutronNetworkAware, ConfigInterface {
+public class NetworkHandler extends AbstractHandler implements INeutronNetworkAware {
     private static final Logger LOG = LoggerFactory.getLogger(NetworkHandler.class);
     public static final String NETWORK_TYPE_VXLAN = "vxlan";
     public static final String NETWORK_TYPE_GRE = "gre";
     public static final String NETWORK_TYPE_VLAN = "vlan";
 
     // The implementation for each of these services is resolved by the OSGi Service Manager
-    private volatile TenantNetworkManager tenantNetworkManager;
-    private volatile BridgeConfigurationManager bridgeConfigurationManager;
-    private volatile NodeCacheManager nodeCacheManager;
-    private volatile INeutronNetworkCRUD neutronNetworkCache;
-    private volatile NeutronL3Adapter neutronL3Adapter;
-    private volatile Southbound southbound;
+    private final TenantNetworkManager tenantNetworkManager;
+    private final BridgeConfigurationManager bridgeConfigurationManager;
+    private final NodeCacheManager nodeCacheManager;
+    private final INeutronNetworkCRUD neutronNetworkCache;
+    private final NeutronL3Adapter neutronL3Adapter;
+    private final Southbound southbound;
+
+    public NetworkHandler(final TenantNetworkManager tenantNetworkManager,
+            final BridgeConfigurationManager bridgeConfigurationManager,
+            final NodeCacheManager nodeCacheManager,
+            final NeutronL3Adapter neutronL3Adapter,
+            final Southbound southbound, final EventDispatcher eventDispatcher,
+            final INeutronNetworkCRUD networkCRUD) {
+        this.tenantNetworkManager = tenantNetworkManager;
+        this.bridgeConfigurationManager = bridgeConfigurationManager;
+        this.nodeCacheManager = nodeCacheManager;
+        this.neutronL3Adapter = neutronL3Adapter;
+        this.southbound = southbound;
+        this.neutronNetworkCache = networkCRUD;
+        this.eventDispatcher = eventDispatcher;
+        eventDispatcher.eventHandlerAdded(
+                AbstractEvent.HandlerType.NEUTRON_NETWORK, this);
+    }
 
     /**
      * Invoked when a network creation is requested
@@ -180,30 +193,6 @@ public class NetworkHandler extends AbstractHandler implements INeutronNetworkAw
             default:
                 LOG.warn("Unable to process event action {}", ev.getAction());
                 break;
-        }
-    }
-
-    @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        tenantNetworkManager =
-                (TenantNetworkManager) ServiceHelper.getGlobalInstance(TenantNetworkManager.class, this);
-        bridgeConfigurationManager =
-                (BridgeConfigurationManager) ServiceHelper.getGlobalInstance(BridgeConfigurationManager.class, this);
-        nodeCacheManager =
-                (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
-        neutronL3Adapter =
-                (NeutronL3Adapter) ServiceHelper.getGlobalInstance(NeutronL3Adapter.class, this);
-        southbound =
-                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
-        eventDispatcher =
-                (EventDispatcher) ServiceHelper.getGlobalInstance(EventDispatcher.class, this);
-        eventDispatcher.eventHandlerAdded(serviceReference, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-        if (impl instanceof INeutronNetworkCRUD) {
-            neutronNetworkCache = (INeutronNetworkCRUD)impl;
         }
     }
 }

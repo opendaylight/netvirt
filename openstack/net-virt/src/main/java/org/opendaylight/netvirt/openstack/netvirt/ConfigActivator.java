@@ -116,120 +116,120 @@ public class ConfigActivator implements BundleActivator {
         LOG.info("ConfigActivator start:");
         registerCRUDServiceProviders(context);
 
-        ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl();
-        registerService(context, new String[] {ConfigurationService.class.getName()},
-                null, configurationService);
+//        ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl();
+//        registerService(context, new String[] {ConfigurationService.class.getName()},
+//                null, configurationService);
 
-        BridgeConfigurationManagerImpl bridgeConfigurationManager = new BridgeConfigurationManagerImpl();
-        registerService(context, new String[] {BridgeConfigurationManager.class.getName()},
-                null, bridgeConfigurationManager);
+//        BridgeConfigurationManagerImpl bridgeConfigurationManager = new BridgeConfigurationManagerImpl();
+//        registerService(context, new String[] {BridgeConfigurationManager.class.getName()},
+//                null, bridgeConfigurationManager);
 
-        final TenantNetworkManagerImpl tenantNetworkManager = new TenantNetworkManagerImpl();
-        registerService(context, new String[] {TenantNetworkManager.class.getName()},
-                null, tenantNetworkManager);
+//        final TenantNetworkManagerImpl tenantNetworkManager = new TenantNetworkManagerImpl();
+//        registerService(context, new String[] {TenantNetworkManager.class.getName()},
+//                null, tenantNetworkManager);
 
-        VlanConfigurationCacheImpl vlanConfigurationCache = new VlanConfigurationCacheImpl();
-        registerService(context, new String[] {VlanConfigurationCache.class.getName()},
-                null, vlanConfigurationCache);
+//        VlanConfigurationCacheImpl vlanConfigurationCache = new VlanConfigurationCacheImpl();
+//        registerService(context, new String[] {VlanConfigurationCache.class.getName()},
+//                null, vlanConfigurationCache);
 
-        FloatingIPHandler floatingIPHandler = new FloatingIPHandler();
-        registerAbstractHandlerService(context, new Class[] {INeutronFloatingIPAware.class},
-                AbstractEvent.HandlerType.NEUTRON_FLOATING_IP, floatingIPHandler);
+//        FloatingIPHandler floatingIPHandler = new FloatingIPHandler();
+//        registerAbstractHandlerService(context, new Class[] {INeutronFloatingIPAware.class},
+//                AbstractEvent.HandlerType.NEUTRON_FLOATING_IP, floatingIPHandler);
 
-        final NetworkHandler networkHandler = new NetworkHandler();
-        registerAbstractHandlerService(context, new Class[] {INeutronNetworkAware.class},
-                AbstractEvent.HandlerType.NEUTRON_NETWORK, networkHandler);
+//        final NetworkHandler networkHandler = new NetworkHandler();
+//        registerAbstractHandlerService(context, new Class[] {INeutronNetworkAware.class},
+//                AbstractEvent.HandlerType.NEUTRON_NETWORK, networkHandler);
 
-        SubnetHandler subnetHandler = new SubnetHandler();
-        registerAbstractHandlerService(context, new Class[] {INeutronSubnetAware.class},
-                AbstractEvent.HandlerType.NEUTRON_SUBNET, subnetHandler);
+//        SubnetHandler subnetHandler = new SubnetHandler();
+//        registerAbstractHandlerService(context, new Class[] {INeutronSubnetAware.class},
+//                AbstractEvent.HandlerType.NEUTRON_SUBNET, subnetHandler);
 
-        PortHandler portHandler = new PortHandler();
-        registerAbstractHandlerService(context, new Class[] {INeutronPortAware.class},
-                AbstractEvent.HandlerType.NEUTRON_PORT, portHandler);
+//        PortHandler portHandler = new PortHandler();
+//        registerAbstractHandlerService(context, new Class[] {INeutronPortAware.class},
+//                AbstractEvent.HandlerType.NEUTRON_PORT, portHandler);
 
-        RouterHandler routerHandler = new RouterHandler();
-        registerAbstractHandlerService(context, new Class[] {INeutronRouterAware.class},
-                AbstractEvent.HandlerType.NEUTRON_ROUTER, routerHandler);
+//        RouterHandler routerHandler = new RouterHandler();
+//        registerAbstractHandlerService(context, new Class[] {INeutronRouterAware.class},
+//                AbstractEvent.HandlerType.NEUTRON_ROUTER, routerHandler);
 
-        SouthboundHandler southboundHandler = new SouthboundHandler();
-        registerAbstractHandlerService(context, new Class[] {OvsdbInventoryListener.class, NodeCacheListener.class},
-                AbstractEvent.HandlerType.SOUTHBOUND, southboundHandler);
+//        SouthboundHandler southboundHandler = new SouthboundHandler();
+//        registerAbstractHandlerService(context, new Class[] {OvsdbInventoryListener.class, NodeCacheListener.class},
+//                AbstractEvent.HandlerType.SOUTHBOUND, southboundHandler);
 
-        final LBaaSHandler lBaaSHandler = new LBaaSHandler();
-        registerAbstractHandlerService(context, new Class[] {INeutronLoadBalancerAware.class, NodeCacheListener.class},
-                AbstractEvent.HandlerType.NEUTRON_LOAD_BALANCER, lBaaSHandler);
+//        final LBaaSHandler lBaaSHandler = new LBaaSHandler();
+//        registerAbstractHandlerService(context, new Class[] {INeutronLoadBalancerAware.class, NodeCacheListener.class},
+//                AbstractEvent.HandlerType.NEUTRON_LOAD_BALANCER, lBaaSHandler);
 
-        final LBaaSPoolHandler lBaaSPoolHandler = new LBaaSPoolHandler();
-        registerAbstractHandlerService(context, new Class[] {INeutronLoadBalancerPoolAware.class},
-                AbstractEvent.HandlerType.NEUTRON_LOAD_BALANCER_POOL, lBaaSPoolHandler);
+//        final LBaaSPoolHandler lBaaSPoolHandler = new LBaaSPoolHandler();
+//        registerAbstractHandlerService(context, new Class[] {INeutronLoadBalancerPoolAware.class},
+//                AbstractEvent.HandlerType.NEUTRON_LOAD_BALANCER_POOL, lBaaSPoolHandler);
 
-        final LBaaSPoolMemberHandler lBaaSPoolMemberHandler = new LBaaSPoolMemberHandler();
-        registerAbstractHandlerService(context, new Class[] {INeutronLoadBalancerPoolMemberAware.class},
-                AbstractEvent.HandlerType.NEUTRON_LOAD_BALANCER_POOL_MEMBER, lBaaSPoolMemberHandler);
+//        final LBaaSPoolMemberHandler lBaaSPoolMemberHandler = new LBaaSPoolMemberHandler();
+//        registerAbstractHandlerService(context, new Class[] {INeutronLoadBalancerPoolMemberAware.class},
+//                AbstractEvent.HandlerType.NEUTRON_LOAD_BALANCER_POOL_MEMBER, lBaaSPoolMemberHandler);
 
-        PortSecurityHandler portSecurityHandler = new PortSecurityHandler();
-        registerAbstractHandlerService(context,
-                new Class[] {INeutronSecurityRuleAware.class, INeutronSecurityGroupAware.class},
-                AbstractEvent.HandlerType.NEUTRON_PORT_SECURITY, portSecurityHandler);
+//        PortSecurityHandler portSecurityHandler = new PortSecurityHandler();
+//        registerAbstractHandlerService(context,
+//                new Class[] {INeutronSecurityRuleAware.class, INeutronSecurityGroupAware.class},
+//                AbstractEvent.HandlerType.NEUTRON_PORT_SECURITY, portSecurityHandler);
 
-        final SecurityServicesImpl securityServices = new SecurityServicesImpl(conntrackEnabled);
-        registerService(context,
-                new String[]{SecurityServicesManager.class.getName()}, null, securityServices);
+//        final SecurityServicesImpl securityServices = new SecurityServicesImpl(conntrackEnabled);
+//        registerService(context,
+//                new String[]{SecurityServicesManager.class.getName()}, null, securityServices);
 
-        final SecurityGroupCacheManger securityGroupCacheManger = new SecurityGroupCacheManagerImpl();
-        registerService(context,
-                        new String[]{SecurityGroupCacheManger.class.getName()}, null, securityGroupCacheManger);
+//        final SecurityGroupCacheManger securityGroupCacheManger = new SecurityGroupCacheManagerImpl();
+//        registerService(context,
+//                        new String[]{SecurityGroupCacheManger.class.getName()}, null, securityGroupCacheManger);
 
-        registerService(context,
-                new String[]{SecurityServicesManager.class.getName()}, null, securityServices);
+//        registerService(context,
+//                new String[]{SecurityServicesManager.class.getName()}, null, securityServices);
 
-        FWaasHandler fWaasHandler = new FWaasHandler();
-        registerAbstractHandlerService(context,
-                new Class[] {INeutronFirewallAware.class, INeutronFirewallRuleAware.class, INeutronFirewallPolicyAware.class},
-                AbstractEvent.HandlerType.NEUTRON_FWAAS, fWaasHandler);
+//        FWaasHandler fWaasHandler = new FWaasHandler();
+//        registerAbstractHandlerService(context,
+//                new Class[] {INeutronFirewallAware.class, INeutronFirewallRuleAware.class, INeutronFirewallPolicyAware.class},
+//                AbstractEvent.HandlerType.NEUTRON_FWAAS, fWaasHandler);
 
-        ProviderNetworkManagerImpl providerNetworkManager = new ProviderNetworkManagerImpl();
-        registerService(context,
-                new String[]{NetworkingProviderManager.class.getName()}, null, providerNetworkManager);
+//        ProviderNetworkManagerImpl providerNetworkManager = new ProviderNetworkManagerImpl();
+//        registerService(context,
+//                new String[]{NetworkingProviderManager.class.getName()}, null, providerNetworkManager);
 
-        EventDispatcherImpl eventDispatcher = new EventDispatcherImpl();
-        registerService(context,
-                new String[]{EventDispatcher.class.getName()}, null, eventDispatcher);
+//        EventDispatcherImpl eventDispatcher = new EventDispatcherImpl();
+//        registerService(context,
+//                new String[]{EventDispatcher.class.getName()}, null, eventDispatcher);
 
-        final NeutronL3Adapter neutronL3Adapter = new NeutronL3Adapter(
-                new NeutronModelsDataStoreHelper(dataBroker));
-        registerAbstractHandlerService(context, new Class[] {NeutronL3Adapter.class, GatewayMacResolverListener.class},
-                AbstractEvent.HandlerType.NEUTRON_L3_ADAPTER, neutronL3Adapter);
+//        final NeutronL3Adapter neutronL3Adapter = new NeutronL3Adapter(
+//                new NeutronModelsDataStoreHelper(dataBroker));
+//        registerAbstractHandlerService(context, new Class[] {NeutronL3Adapter.class, GatewayMacResolverListener.class},
+//                AbstractEvent.HandlerType.NEUTRON_L3_ADAPTER, neutronL3Adapter);
 
-        // TODO Why is DistributedArpService registered as an event handler without being an AbstractHandlerService?
-        Dictionary<String, Object> distributedArpServiceProperties = new Hashtable<>();
-        distributedArpServiceProperties.put(Constants.EVENT_HANDLER_TYPE_PROPERTY,
-                AbstractEvent.HandlerType.DISTRIBUTED_ARP_SERVICE);
-        final DistributedArpService distributedArpService = new DistributedArpService();
-        registerService(context,
-                new String[] {DistributedArpService.class.getName()},
-                distributedArpServiceProperties, distributedArpService);
+//        // TODO Why is DistributedArpService registered as an event handler without being an AbstractHandlerService?
+//        Dictionary<String, Object> distributedArpServiceProperties = new Hashtable<>();
+//        distributedArpServiceProperties.put(Constants.EVENT_HANDLER_TYPE_PROPERTY,
+//                AbstractEvent.HandlerType.DISTRIBUTED_ARP_SERVICE);
+//        final DistributedArpService distributedArpService = new DistributedArpService();
+//        registerService(context,
+//                new String[] {DistributedArpService.class.getName()},
+//                distributedArpServiceProperties, distributedArpService);
 
-        OpenstackRouter openstackRouter = new OpenstackRouter();
-        registerService(context,
-                new String[]{MultiTenantAwareRouter.class.getName()}, null, openstackRouter);
+//        OpenstackRouter openstackRouter = new OpenstackRouter();
+//        registerService(context,
+//                new String[]{MultiTenantAwareRouter.class.getName()}, null, openstackRouter);
 
-        Southbound southbound = new SouthboundImpl(dataBroker);
-        registerService(context,
-                new String[]{Southbound.class.getName()}, null, southbound);
+//        Southbound southbound = new SouthboundImpl(dataBroker);
+//        registerService(context,
+//                new String[]{Southbound.class.getName()}, null, southbound);
 
-        HostConfigService hostConfigService = new HostConfigService(dataBroker);
-        registerService(context,
-                new String[]{HostConfigService.class.getName()}, null, hostConfigService);
+//        HostConfigService hostConfigService = new HostConfigService(dataBroker);
+//        registerService(context,
+//                new String[]{HostConfigService.class.getName()}, null, hostConfigService);
 
-        NodeCacheManagerImpl nodeCacheManager = new NodeCacheManagerImpl();
-        registerAbstractHandlerService(context, new Class[] {NodeCacheManager.class},
-                AbstractEvent.HandlerType.NODE, nodeCacheManager);
+//        NodeCacheManagerImpl nodeCacheManager = new NodeCacheManagerImpl();
+//        registerAbstractHandlerService(context, new Class[] {NodeCacheManager.class},
+//                AbstractEvent.HandlerType.NODE, nodeCacheManager);
 
-        OvsdbInventoryServiceImpl ovsdbInventoryService = new OvsdbInventoryServiceImpl(dataBroker);
-        registerService(context,
-                new String[] {OvsdbInventoryService.class.getName()}, null, ovsdbInventoryService);
+//        OvsdbInventoryServiceImpl ovsdbInventoryService = new OvsdbInventoryServiceImpl(dataBroker);
+//        registerService(context,
+//                new String[] {OvsdbInventoryService.class.getName()}, null, ovsdbInventoryService);
 
         // Call .setDependencies() starting with the last service registered
         for (int i = servicesAndRegistrations.size() - 1; i >= 0; i--) {
@@ -250,25 +250,25 @@ public class ConfigActivator implements BundleActivator {
         // TODO check if services are already available and setDependencies
         // addingService may not be called if the service is already available when the ServiceTracker
         // is started
-        trackService(context, INeutronNetworkCRUD.class, tenantNetworkManager, networkHandler, lBaaSHandler,
-                lBaaSPoolHandler, lBaaSPoolMemberHandler, neutronL3Adapter, distributedArpService);
-        trackService(context, INeutronSubnetCRUD.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler,
-                securityServices, neutronL3Adapter);
-        trackService(context, INeutronPortCRUD.class, tenantNetworkManager, lBaaSHandler, lBaaSPoolHandler,
-                lBaaSPoolMemberHandler, securityServices, neutronL3Adapter, distributedArpService);
-        trackService(context, INeutronFloatingIPCRUD.class, neutronL3Adapter);
-        trackService(context, INeutronLoadBalancerCRUD.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler);
-        trackService(context, INeutronLoadBalancerPoolCRUD.class, lBaaSHandler, lBaaSPoolMemberHandler);
-        trackService(context, LoadBalancerProvider.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler);
-        trackService(context, ArpProvider.class, neutronL3Adapter, distributedArpService);
-        trackService(context, InboundNatProvider.class, neutronL3Adapter);
-        trackService(context, OutboundNatProvider.class, neutronL3Adapter);
-        trackService(context, RoutingProvider.class, neutronL3Adapter);
-        trackService(context, L3ForwardingProvider.class, neutronL3Adapter);
-        trackService(context, GatewayMacResolver.class, neutronL3Adapter);
-        trackService(context, IngressAclProvider.class, securityServices);
-        trackService(context, EgressAclProvider.class, securityServices);
-        trackService(context, IcmpEchoProvider.class, neutronL3Adapter);
+//        trackService(context, INeutronNetworkCRUD.class, tenantNetworkManager, networkHandler, lBaaSHandler,
+//                lBaaSPoolHandler, lBaaSPoolMemberHandler, neutronL3Adapter, distributedArpService);
+//        trackService(context, INeutronSubnetCRUD.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler,
+//                securityServices, neutronL3Adapter);
+//        trackService(context, INeutronPortCRUD.class, tenantNetworkManager, lBaaSHandler, lBaaSPoolHandler,
+//                lBaaSPoolMemberHandler, securityServices, neutronL3Adapter, distributedArpService);
+//        trackService(context, INeutronFloatingIPCRUD.class, neutronL3Adapter);
+//        trackService(context, INeutronLoadBalancerCRUD.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler);
+//        trackService(context, INeutronLoadBalancerPoolCRUD.class, lBaaSHandler, lBaaSPoolMemberHandler);
+//        trackService(context, LoadBalancerProvider.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler);
+//        trackService(context, ArpProvider.class, neutronL3Adapter, distributedArpService);
+//        trackService(context, InboundNatProvider.class, neutronL3Adapter);
+//        trackService(context, OutboundNatProvider.class, neutronL3Adapter);
+//        trackService(context, RoutingProvider.class, neutronL3Adapter);
+//        trackService(context, L3ForwardingProvider.class, neutronL3Adapter);
+//        trackService(context, GatewayMacResolver.class, neutronL3Adapter);
+//        trackService(context, IngressAclProvider.class, securityServices);
+//        trackService(context, EgressAclProvider.class, securityServices);
+//        trackService(context, IcmpEchoProvider.class, neutronL3Adapter);
 
         // We no longer need to track the services, avoid keeping references around
         servicesAndRegistrations.clear();
@@ -276,21 +276,21 @@ public class ConfigActivator implements BundleActivator {
 
     private void registerCRUDServiceProviders(BundleContext context) {
         LOG.debug("Registering CRUD service providers");
-        NeutronRouterInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronPortInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronSubnetInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronNetworkInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronSecurityGroupInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronSecurityRuleInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronFirewallInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronFirewallPolicyInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronFirewallRuleInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronLoadBalancerInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronLoadBalancerPoolInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronLoadBalancerListenerInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronLoadBalancerHealthMonitorInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronLoadBalancerPoolMemberInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
-        NeutronFloatingIPInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronRouterInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronPortInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronSubnetInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronNetworkInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronSecurityGroupInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronSecurityRuleInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronFirewallInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronFirewallPolicyInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronFirewallRuleInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronLoadBalancerInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronLoadBalancerPoolInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronLoadBalancerListenerInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronLoadBalancerHealthMonitorInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronLoadBalancerPoolMemberInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
+//        NeutronFloatingIPInterface.registerNewInterface(context, dataBroker, translatorCRUDRegistrations);
     }
 
     private void trackService(BundleContext context, final Class<?> clazz, final ConfigInterface... dependents) {

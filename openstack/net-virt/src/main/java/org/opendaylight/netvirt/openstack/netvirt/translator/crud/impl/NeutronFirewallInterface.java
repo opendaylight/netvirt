@@ -10,28 +10,15 @@ package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.netvirt.openstack.netvirt.translator.INeutronObject;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFirewall;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronFirewallCRUD;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.fwaas.rev150712.firewalls.attributes.firewalls.Firewall;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 
-public class NeutronFirewallInterface extends AbstractNeutronInterface implements INeutronFirewallCRUD {
+public class NeutronFirewallInterface extends AbstractNeutronInterface<Firewall, NeutronFirewall> implements INeutronFirewallCRUD {
 
     NeutronFirewallInterface(final DataBroker dataBroker) {
         super(dataBroker);
-    }
-
-    public static void registerNewInterface(BundleContext context,
-                                            final DataBroker dataBroker,
-                                            List<ServiceRegistration<?>> registrations) {
-        NeutronFirewallInterface neutronFirewallInterface = new NeutronFirewallInterface(dataBroker);
-        ServiceRegistration<INeutronFirewallCRUD> neutronFirewallInterfaceRegistration = context.registerService(INeutronFirewallCRUD.class, neutronFirewallInterface, null);
-        if(neutronFirewallInterfaceRegistration != null) {
-            registrations.add(neutronFirewallInterfaceRegistration);
-        }
     }
 
     @Override
@@ -77,19 +64,20 @@ public class NeutronFirewallInterface extends AbstractNeutronInterface implement
     }
 
     @Override
-    protected InstanceIdentifier createInstanceIdentifier(DataObject item) {
+    protected Firewall toMd(String uuid) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    protected DataObject toMd(INeutronObject neutronObject) {
+    protected InstanceIdentifier<Firewall> createInstanceIdentifier(
+            Firewall item) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    protected DataObject toMd(String uuid) {
+    protected Firewall toMd(NeutronFirewall neutronObject) {
         // TODO Auto-generated method stub
         return null;
     }

@@ -8,29 +8,30 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
-import java.util.Map;
-
-import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProvider;
-import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
-import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
-import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
-import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryService;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import java.util.Map;
+import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
+import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
+import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryService;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ProviderNetworkManagerImpl implements ConfigInterface, NetworkingProviderManager {
+public class ProviderNetworkManagerImpl implements NetworkingProviderManager {
+
     private static final Logger LOG = LoggerFactory.getLogger(ProviderNetworkManagerImpl.class);
-    private Map<Long, ProviderEntry> providers = Maps.newHashMap();
+
+    private final OvsdbInventoryService ovsdbInventoryService;
+
+    private Map<String, ProviderEntry> providers = Maps.newHashMap();
     private Map<Node, NetworkingProvider> nodeToProviderMapping = Maps.newHashMap();
-    private volatile OvsdbInventoryService ovsdbInventoryService;
+
+    public ProviderNetworkManagerImpl(final OvsdbInventoryService ovsdbInventoryService) {
+        this.ovsdbInventoryService = ovsdbInventoryService;
+    }
 
     @Override
     public NetworkingProvider getProvider(Node node) {
@@ -59,36 +60,23 @@ public class ProviderNetworkManagerImpl implements ConfigInterface, NetworkingPr
         return provider;
     }
 
-    public void providerAdded(final ServiceReference ref, final NetworkingProvider provider){
+    @Override
+    public void providerAdded(final NetworkingProvider provider, final String southboundProtocolProperty,
+            final String openFlowVersionProperty) {
         Map <String, String> properties = Maps.newHashMap();
-        Long pid = (Long) ref.getProperty(org.osgi.framework.Constants.SERVICE_ID);
-        properties.put(Constants.SOUTHBOUND_PROTOCOL_PROPERTY,
-                (String) ref.getProperty(Constants.SOUTHBOUND_PROTOCOL_PROPERTY));
-        properties.put(Constants.OPENFLOW_VERSION_PROPERTY,
-                (String) ref.getProperty(Constants.OPENFLOW_VERSION_PROPERTY));
-        properties.put(Constants.PROVIDER_TYPE_PROPERTY, (String) ref.getProperty(Constants.PROVIDER_TYPE_PROPERTY));
-        providers.put(pid, new ProviderEntry(provider, properties));
+        properties.put(Constants.SOUTHBOUND_PROTOCOL_PROPERTY, southboundProtocolProperty);
+        properties.put(Constants.OPENFLOW_VERSION_PROPERTY, openFlowVersionProperty);
+        providers.put(provider.getName(), new ProviderEntry(provider, properties));
         LOG.info("Neutron Networking Provider Registered: {}, with {} and pid={}",
-                provider.getClass().getName(), properties.toString(), pid);
+                provider.getClass().getName(), properties.toString(), provider.getName());
 
         ovsdbInventoryService.providersReady();
     }
 
-    public void providerRemoved(final ServiceReference ref){
-        Long pid = (Long)ref.getProperty(org.osgi.framework.Constants.SERVICE_ID);
-        providers.remove(pid);
-        LOG.info("Neutron Networking Provider Removed: {}", pid);
-    }
-
     @Override
-    public void setDependencies(ServiceReference serviceReference) {
-        ovsdbInventoryService =
-                (OvsdbInventoryService) ServiceHelper.getGlobalInstance(OvsdbInventoryService.class, this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-
+    public void providerRemoved(final String name){
+        providers.remove(name);
+        LOG.info("Neutron Networking Provider Removed: {}", name);
     }
 
     private class ProviderEntry {

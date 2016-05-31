@@ -14,8 +14,6 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancer
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerPoolMemberCRUD;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.lbaasv2.rev150712.lbaas.attributes.pools.pool.Members;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 
 public class NeutronLoadBalancerPoolMemberInterface extends
         AbstractNeutronInterface<Members, NeutronLoadBalancerPoolMember> implements INeutronLoadBalancerPoolMemberCRUD {
@@ -85,15 +83,5 @@ public class NeutronLoadBalancerPoolMemberInterface extends
     protected Members toMd(String uuid) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    public static void registerNewInterface(BundleContext context,
-                                            final DataBroker dataBroker,
-                                            List<ServiceRegistration<?>> registrations) {
-        NeutronLoadBalancerPoolMemberInterface neutronLoadBalancerPoolMemberInterface = new NeutronLoadBalancerPoolMemberInterface(dataBroker);
-        ServiceRegistration<INeutronLoadBalancerPoolMemberCRUD> neutronLoadBalancerPoolMemberInterfaceRegistration = context.registerService(INeutronLoadBalancerPoolMemberCRUD.class, neutronLoadBalancerPoolMemberInterface, null);
-        if(neutronLoadBalancerPoolMemberInterfaceRegistration != null) {
-            registrations.add(neutronLoadBalancerPoolMemberInterfaceRegistration);
-        }
     }
 }

@@ -8,13 +8,15 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
+import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.util.List;
-
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.api.ClassifierProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
@@ -39,21 +41,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg0;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxRegCaseBuilder;
 
-import com.google.common.collect.Lists;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-
-public class ClassifierService extends AbstractServiceInstance implements ClassifierProvider, ConfigInterface {
+public class ClassifierService extends AbstractServiceInstance implements ClassifierProvider {
     public final static long REG_VALUE_FROM_LOCAL = 0x1L;
     public final static long REG_VALUE_FROM_REMOTE = 0x2L;
     public static final Class<? extends NxmNxReg> REG_FIELD = NxmNxReg0.class;
 
-    public ClassifierService() {
-        super(Service.CLASSIFIER);
-    }
-
-    public ClassifierService(Service service) {
-        super(service);
+    public ClassifierService(final DataBroker dataBroker,
+            final PipelineOrchestrator orchestrator,
+            final Southbound southbound) {
+        super(Service.CLASSIFIER, dataBroker, orchestrator, southbound);
+        orchestrator.registerService(Service.CLASSIFIER, this);
     }
 
     /*
@@ -389,12 +386,4 @@ public class ClassifierService extends AbstractServiceInstance implements Classi
             removeFlow(flowBuilder, nodeBuilder);
         }
     }
-
-    @Override
-    public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
-        super.setDependencies(bundleContext.getServiceReference(ClassifierProvider.class.getName()), this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {}
 }

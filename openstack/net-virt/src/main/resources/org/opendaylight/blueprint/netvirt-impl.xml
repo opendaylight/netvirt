@@ -8,18 +8,481 @@
   <reference id="entityOwnershipService"
     interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
 
+  <reference id="configurationService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService" />
+  <reference id="networkingProviderManager"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager" />
+  <reference id="bridgeConfigurationManager"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager" />
+  <reference id="tenantNetworkManager"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager" />
+  <reference id="vlanConfigurationCache"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.VlanConfigurationCache" />
+  <reference id="nodeCacheManager"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager" />
+  <reference id="eventDispatcher"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher" />
+  <reference id="ovsdbInventoryService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryService" />
+  <reference id="nodeCacheListener"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheListener" />
+  <reference id="loadBalancerProvider"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.LoadBalancerProvider" />
+  <reference id="securityServicesManager"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager" />
+  <reference id="ingressAclProvider"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.IngressAclProvider" />
+  <reference id="egressAclProvider"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.EgressAclProvider" />
+  <reference id="securityGroupCacheManger"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger" />
+  <reference id="networkingProviderManager"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager" />
+  <reference id="icmpEchoProvider"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.IcmpEchoProvider" />
+  <reference id="gatewayMacResolver"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.GatewayMacResolver" />
+  <reference id="l3ForwardingProvider"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.L3ForwardingProvider" />
+  <reference id="routingProvider"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.RoutingProvider" />
+  <reference id="outboundNatProvider"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.OutboundNatProvider" />
+  <reference id="inboundNatProvider"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.InboundNatProvider" />
+  <reference id="arpProvider"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.ArpProvider" />
+  <reference id="gatewayMacResolverListener"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.GatewayMacResolverListener" />
+  <reference id="multiTenantAwareRouter"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.MultiTenantAwareRouter" />
+  <reference id="ovsdbInventoryListener"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryListener" />
+
+  <reference id="neutronFloatingIPAware"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronFloatingIPAware" />
+  <reference id="neutronNetworkAware"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronNetworkAware" />
+  <reference id="neutronSubnetAware"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronSubnetAware" />
+  <reference id="neutronPortAware"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronPortAware" />
+  <reference id="neutronRouterAware"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronRouterAware" />
+  <reference id="neutronLoadBalancerAware"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronLoadBalancerAware" />
+  <reference id="neutronLoadBalancerPoolAware"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronLoadBalancerPoolAware" />
+  <reference id="neutronLoadBalancerPoolMemberAware"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronLoadBalancerPoolMemberAware" />
+  <reference id="neutronSecurityGroupAware"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronSecurityGroupAware" />
+  <reference id="neutronSecurityRuleAware"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronSecurityRuleAware" />
+  <reference id="neutronFirewallAware"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronFirewallAware" />
+  <reference id="neutronFirewallRuleAware"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronFirewallRuleAware" />
+  <reference id="neutronFirewallPolicyAware"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronFirewallPolicyAware" />
+
+
   <odl:clustered-app-config id="netvirtImplConfig"
     binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.impl.config.rev160517.NetvirtImplConfig">
   </odl:clustered-app-config>
 
-  <bean id="netvirtProvider"
-    class="org.opendaylight.netvirt.openstack.netvirt.NetvirtProvider"
-    init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="entityOwnershipService" />
+  <!-- <bean id="netvirtProvider" -->
+  <!-- class="org.opendaylight.netvirt.openstack.netvirt.NetvirtProvider" -->
+  <!-- init-method="start" destroy-method="close"> -->
+  <!-- <argument ref="dataBroker" /> -->
+  <!-- <argument ref="entityOwnershipService" /> -->
+  <!-- <argument> -->
+  <!-- <bean factory-ref="netvirtImplConfig" factory-method="isConntrackEnabled" 
+    /> -->
+  <!-- </argument> -->
+  <!-- </bean> -->
+
+  <bean id="securityServices"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.SecurityServicesImpl">
+    <argument ref="neutronL3Adapter" />
+    <argument ref="southbound" />
+    <argument ref="configurationService" />
+    <argument ref="neutronNetworkInterface" />
+    <argument ref="neutronSubnetInterface" />
+    <argument ref="neutronPortInterface" />
+    <argument ref="ingressAclProvider" />
+    <argument ref="egressAclProvider" />
     <argument>
       <bean factory-ref="netvirtImplConfig" factory-method="isConntrackEnabled" />
     </argument>
   </bean>
+
+  <bean id="securityGroupCacheManger"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.SecurityGroupCacheManagerImpl"
+    init-method="init">
+    <argument ref="neutronL3Adapter" />
+    <argument ref="securityServicesManager" />
+    <argument ref="neutronPortInterface" />
+  </bean>
+
+  <bean id="configurationService"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.ConfigurationServiceImpl">
+    <argument ref="southbound" />
+  </bean>
+
+  <bean id="bridgeConfigurationManager"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.BridgeConfigurationManagerImpl">
+    <argument ref="configurationService" />
+    <argument ref="networkingProviderManager" />
+    <argument ref="southbound" />
+  </bean>
+
+  <bean id="tenantNetworkManager"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.TenantNetworkManagerImpl">
+    <argument ref="vlanConfigurationCache" />
+    <argument ref="neutronL3Adapter" />
+    <argument ref="southbound" />
+    <argument ref="neutronNetworkInterface" />
+    <argument ref="neutronPortInterface" />
+  </bean>
+
+  <bean id="vlanConfigurationCache"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.VlanConfigurationCacheImpl">
+    <argument ref="tenantNetworkManager" />
+    <argument ref="southbound" />
+  </bean>
+
+  <bean id="providerNetworkManager"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.ProviderNetworkManagerImpl">
+    <argument ref="ovsdbInventoryService" />
+  </bean>
+
+  <bean id="eventDispatcherImpl"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.EventDispatcherImpl">
+    <argument ref="ovsdbInventoryService" />
+  </bean>
+
+  <bean id="mdsalUtils" class="org.opendaylight.netvirt.utils.mdsal.utils.MdsalUtils">
+    <argument ref="dataBroker" />
+  </bean>
+
+  <bean id="neutronModelsDataStoreHelper"
+    class="org.opendaylight.netvirt.utils.neutron.utils.NeutronModelsDataStoreHelper">
+    <argument ref="dataBroker" />
+  </bean>
+
+  <bean id="openstackRouter"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.OpenstackRouter">
+  </bean>
+
+  <bean id="southboundImpl"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.SouthboundImpl">
+    <argument ref="clusterAwareMdsalUtils" />
+  </bean>
+
+  <bean id="clusterAwareMdsalUtils"
+    class="org.opendaylight.netvirt.openstack.netvirt.ClusterAwareMdsalUtils">
+    <argument ref="dataBroker" />
+  </bean>
+
+  <bean id="hostConfigService"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.HostConfigService">
+    <argument ref="clusterAwareMdsalUtils" />
+    <argument ref="ovsdbInventoryService" />
+    <argument ref="southbound" />
+  </bean>
+
+  <bean id="ovsdbInventoryServiceImpl"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.OvsdbInventoryServiceImpl">
+    <argument ref="dataBroker" />
+    <argument ref="clusterAwareMdsalUtils" />
+  </bean>
+
+  <bean id="ovsdbDataChangeListener"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.OvsdbDataChangeListener"
+    init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+  </bean>
+
+  <!-- HANDLERS -->
+
+  <bean id="floatingIPHandler"
+    class="org.opendaylight.netvirt.openstack.netvirt.FloatingIPHandler">
+    <argument ref="eventDispatcher" />
+    <argument ref="neutronL3Adapter" />
+  </bean>
+
+  <bean id="networkHandler"
+    class="org.opendaylight.netvirt.openstack.netvirt.NetworkHandler">
+    <argument ref="tenantNetworkManager" />
+    <argument ref="bridgeConfigurationManager" />
+    <argument ref="nodeCacheManager" />
+    <argument ref="neutronL3Adapter" />
+    <argument ref="southbound" />
+    <argument ref="eventDispatcher" />
+    <argument ref="neutronNetworkInterface" />
+  </bean>
+
+  <bean id="subnetHandler"
+    class="org.opendaylight.netvirt.openstack.netvirt.SubnetHandler">
+    <argument ref="neutronL3Adapter" />
+    <argument ref="eventDispatcher" />
+  </bean>
+
+  <bean id="portHandler" class="org.opendaylight.netvirt.openstack.netvirt.PortHandler">
+    <argument ref="nodeCacheManager" />
+    <argument ref="neutronL3Adapter" />
+    <argument ref="distributedArpService" />
+    <argument ref="southbound" />
+    <argument ref="eventDispatcher" />
+  </bean>
+
+  <bean id="routerHandler"
+    class="org.opendaylight.netvirt.openstack.netvirt.RouterHandler">
+    <argument ref="neutronL3Adapter" />
+    <argument ref="eventDispatcher" />
+  </bean>
+
+  <bean id="southboundHandler"
+    class="org.opendaylight.netvirt.openstack.netvirt.SouthboundHandler">
+    <argument ref="configurationService" />
+    <argument ref="networkingProviderManager" />
+    <argument ref="tenantNetworkManager" />
+    <argument ref="bridgeConfigurationManager" />
+    <argument ref="nodeCacheManager" />
+    <argument ref="neutronL3Adapter" />
+    <argument ref="distributedArpService" />
+    <argument ref="southbound" />
+    <argument ref="eventDispatcher" />
+    <argument ref="ovsdbInventoryService" />
+  </bean>
+
+  <bean id="lBaaSHandler"
+    class="org.opendaylight.netvirt.openstack.netvirt.LBaaSHandler">
+    <argument ref="loadBalancerProvider" />
+    <argument ref="nodeCacheManager" />
+    <argument ref="eventDispatcher" />
+    <argument ref="neutronNetworkInterface" />
+    <argument ref="neutronPortInterface" />
+    <argument ref="neutronSubnetInterface" />
+    <argument ref="neutronLoadBalancerInterface" />
+    <argument ref="neutronLoadBalancerPoolInterface" />
+  </bean>
+
+  <bean id="lBaaSPoolHandler"
+    class="org.opendaylight.netvirt.openstack.netvirt.LBaaSPoolHandler">
+    <argument ref="loadBalancerProvider" />
+    <argument ref="nodeCacheManager" />
+    <argument ref="eventDispatcher" />
+    <argument ref="neutronNetworkInterface" />
+    <argument ref="neutronPortInterface" />
+    <argument ref="neutronSubnetInterface" />
+    <argument ref="neutronLoadBalancerInterface" />
+  </bean>
+
+  <bean id="lBaaSPoolMemberHandler"
+    class="org.opendaylight.netvirt.openstack.netvirt.LBaaSPoolMemberHandler">
+    <argument ref="loadBalancerProvider" />
+    <argument ref="nodeCacheManager" />
+    <argument ref="eventDispatcher" />
+    <argument ref="neutronNetworkInterface" />
+    <argument ref="neutronPortInterface" />
+    <argument ref="neutronSubnetInterface" />
+    <argument ref="neutronLoadBalancerInterface" />
+    <argument ref="neutronLoadBalancerPoolInterface" />
+  </bean>
+
+  <bean id="portSecurityHandler"
+    class="org.opendaylight.netvirt.openstack.netvirt.PortSecurityHandler">
+    <argument ref="securityServicesManager" />
+    <argument ref="eventDispatcher" />
+    <argument ref="neutronPortInterface" />
+  </bean>
+
+  <bean id="fWaasHandler"
+    class="org.opendaylight.netvirt.openstack.netvirt.FWaasHandler">
+    <argument ref="eventDispatcher" />
+  </bean>
+
+  <bean id="neutronL3Adapter"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.NeutronL3Adapter"
+    init-method="init">
+    <argument ref="" />
+    <argument ref="tenantNetworkManager" />
+    <argument ref="configurationService" />
+    <argument ref="inboundNatProvider" />
+    <argument ref="outboundNatProvider" />
+    <argument ref="routingProvider" />
+    <argument ref="l3ForwardingProvider" />
+    <argument ref="distributedArpService" />
+    <argument ref="nodeCacheManager" />
+    <argument ref="southbound" />
+    <argument ref="gatewayMacResolver" />
+    <argument ref="securityServicesManager" />
+    <argument ref="neutronNetworkInterface" />
+    <argument ref="neutronPortInterface" />
+    <argument ref="neutronSubnetInterface" />
+    <argument ref="neutronFloatingIPInterface" />
+    <argument ref="icmpEchoProvider" />
+    <argument ref="neutronModelsDataStoreHelper" />
+  </bean>
+
+  <!-- should this be an handler ? -->
+  <bean id="distributedArpService"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.DistributedArpService"
+    init-method="init">
+    <argument ref="tenantNetworkManager" />
+    <argument ref="configurationService" />
+    <argument ref="arpProvider" />
+    <argument ref="nodeCacheManager" />
+    <argument ref="southbound" />
+    <argument ref="neutronL3Adapter" />
+    <argument ref="neutronNetworkInterface" />
+    <argument ref="neutronPortInterface" />
+  </bean>
+
+  <bean id="nodeCacheManagerImpl"
+    class="org.opendaylight.netvirt.openstack.netvirt.impl.NodeCacheManagerImpl"
+    init-method="init">
+    <argument ref="southbound" />
+    <argument ref="eventDispatcher" />
+  </bean>
+
+  <!-- CRUD Interfaces -->
+
+  <bean id="neutronRouterInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronRouterInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronRouterInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronRouterCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronPortInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronPortInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronPortInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronSubnetInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronSubnetInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronSubnetInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSubnetCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronNetworkInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronNetworkInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronNetworkInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronSecurityGroupInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronSecurityGroupInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronSecurityGroupInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityGroupCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronSecurityRuleInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronSecurityRuleInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronSecurityRuleInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronFirewallInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronFirewallInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronFirewallInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronFirewallCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronFirewallPolicyInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronFirewallPolicyInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronFirewallPolicyInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronFirewallPolicyCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronFirewallRuleInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronFirewallRuleInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronFirewallRuleInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronFirewallRuleCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronLoadBalancerInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronLoadBalancerInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronLoadBalancerInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronLoadBalancerPoolInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronLoadBalancerPoolInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronLoadBalancerPoolInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerPoolCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronLoadBalancerListenerInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronLoadBalancerListenerInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronLoadBalancerListenerInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerListenerCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronLoadBalancerHealthMonitorInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronLoadBalancerHealthMonitorInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronLoadBalancerHealthMonitorInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerHealthMonitorCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronLoadBalancerPoolMemberInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronLoadBalancerPoolMemberInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronLoadBalancerPoolMemberInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerPoolMemberCRUD"
+    odl:type="default">
+  </service>
+
+  <bean id="neutronFloatingIPInterface"
+    class="org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl.NeutronFloatingIPInterface">
+    <argument ref="dataBroker" />
+  </bean>
+  <service ref="neutronFloatingIPInterface"
+    interface="org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronFloatingIPCRUD"
+    odl:type="default">
+  </service>
 
 </blueprint>
