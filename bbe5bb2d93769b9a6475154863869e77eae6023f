@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_aeaceb36",
+        "filename": "openstack/net-virt-sfc/impl/src/main/resources/org/opendaylight/blueprint/netvirt-sfc.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-31T22:40:01Z",
+      "side": 1,
+      "message": "It\u0027s needed because of funky dependency:\n\nSfcClassifierService extends AbstractInstanceService\nhttps://github.com/opendaylight/netvirt/blob/master/openstack/net-virt-sfc/impl/src/main/java/org/opendaylight/netvirt/openstack/netvirt/sfc/workaround/services/SfcClassifierService.java#l57\n\nLooking at line 93 https://github.com/opendaylight/netvirt/blob/master/openstack/net-virt-sfc/impl/src/main/java/org/opendaylight/netvirt/openstack/netvirt/sfc/workaround/services/SfcClassifierService.java#l93 , it calls super.setDependencies that requires the PipelineOrchestrator service\n\nSee https://github.com/opendaylight/netvirt/blob/3997f73ee6cd22c17de329a1ac4113e265b06203/openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/AbstractServiceInstance.java#l78\n\nSo if I don\u0027t register the service, blueprint will fail to load properly.",
+      "parentUuid": "da5c1566_4e60af35",
+      "revId": "bbe5bb2d93769b9a6475154863869e77eae6023f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_ee738313",
         "filename": "openstack/net-virt-sfc/impl/src/main/resources/org/opendaylight/blueprint/netvirt-sfc.xml",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2016-05-31T22:07:24Z",
       "side": 1,
       "message": "The ordering of the args doesn\u0027t match the constructor - they should be  \"dataBroker\",  \"netvirtSfcConfig\", \"blueprintBundleContext\".",
+      "revId": "bbe5bb2d93769b9a6475154863869e77eae6023f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_4e638f1a",
+        "filename": "openstack/net-virt-sfc/impl/src/main/resources/org/opendaylight/blueprint/netvirt-sfc.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-31T22:40:01Z",
+      "side": 1,
+      "message": "Huh! Can\u0027t recall If I modified the code after testing, but I\u0027m sure it was working fine at some point. Will address this. Thanks",
+      "parentUuid": "da5c1566_ee738313",
       "revId": "bbe5bb2d93769b9a6475154863869e77eae6023f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
