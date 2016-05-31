@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_eeba6309",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/ConfigActivator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-31T18:46:38Z",
+      "side": 1,
+      "message": "Yea, I will",
+      "parentUuid": "fa57193c_7c5eb877",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_bc4fb0bd",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/ConfigActivator.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-05-18T14:30:08Z",
       "side": 1,
       "message": "These 2 aren\u0027t used in this class.",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_aec06b7d",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/ConfigActivator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-31T18:46:38Z",
+      "side": 1,
+      "message": "Actually they are used line 151",
+      "parentUuid": "fa57193c_bc4fb0bd",
       "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_2e3c5b93",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/NetvirtProvidersProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-31T18:46:38Z",
+      "side": 1,
+      "message": "Because of some funky access trough other classes",
+      "parentUuid": "fa57193c_dc6d4434",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_5c613438",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/NetvirtProvidersProvider.java",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2016-05-18T14:30:08Z",
       "side": 1,
       "message": "Pass BundleContext via blueprint.",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_4e370fb1",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/NetvirtProvidersProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-31T18:46:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_5c613438",
       "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_8e41270e",
+        "filename": "openstack/net-virt-providers/src/main/resources/org/opendaylight/blueprint/netvirt-provider.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-31T18:46:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_3c1600a8",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_1c4fbcbe",
         "filename": "openstack/net-virt-providers/src/main/resources/org/opendaylight/blueprint/netvirt-provider.xml",
         "patchSetId": 3
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_6e465325",
+        "filename": "openstack/net-virt-providers/src/main/resources/org/opendaylight/blueprint/netvirt-provider.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-31T18:46:38Z",
+      "side": 1,
+      "message": "They are actually used in the ConfigActivator, line 151. Of course this could be enhanced, but in other patches. Right now I only focus on moving to blueprint",
+      "parentUuid": "fa57193c_1c4fbcbe",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_9c0d8c93",
         "filename": "openstack/net-virt-providers/src/main/resources/org/opendaylight/blueprint/netvirt-provider.xml",
         "patchSetId": 3
@@ -115,6 +223,24 @@
       "writtenOn": "2016-05-18T14:30:08Z",
       "side": 1,
       "message": "oops - extra space",
+      "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_ce4aff26",
+        "filename": "openstack/net-virt-providers/src/main/resources/org/opendaylight/blueprint/netvirt-provider.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-05-31T18:46:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_9c0d8c93",
       "revId": "316eb2b97bb7b3d8b00c43edf815e67eca7f237a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
