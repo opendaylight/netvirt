@@ -22,6 +22,30 @@
       "revId": "47f95c79d30a9e6855fa454cf608393a70515fe4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_88991f71",
+        "filename": "vpnservice/aclservice/impl/src/main/yang/aclservice-impl.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-31T11:25:21Z",
+      "side": 1,
+      "message": "I never got an answer, but I say we shorten it. I have seen both examples so we know it is fine.",
+      "parentUuid": "da5c1566_fc54e5cb",
+      "range": {
+        "startLine": 3,
+        "startChar": 15,
+        "endLine": 3,
+        "endChar": 66
+      },
+      "revId": "47f95c79d30a9e6855fa454cf608393a70515fe4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
