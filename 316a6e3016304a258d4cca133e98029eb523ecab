@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_48b6e7dd",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-31T11:40:54Z",
+      "side": 1,
+      "message": "Please add comment indicating why the code is commented out",
+      "revId": "316a6e3016304a258d4cca133e98029eb523ecab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_08c4ef3e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NAPTSwitchSelector.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-31T11:40:54Z",
+      "side": 1,
+      "message": "same comment, please add a comment on why this code is kept and commented out",
+      "revId": "316a6e3016304a258d4cca133e98029eb523ecab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_e8c09b2c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptFlowRemovedEventHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-31T11:40:54Z",
+      "side": 1,
+      "message": "is this really an error? Looks more like debug.",
+      "revId": "316a6e3016304a258d4cca133e98029eb523ecab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_48dd4714",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptFlowRemovedEventHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-31T11:40:54Z",
+      "side": 1,
+      "message": "could likely collapse all the debug in this block into a single debug.",
+      "revId": "316a6e3016304a258d4cca133e98029eb523ecab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_a8cd0360",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-31T11:40:54Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "316a6e3016304a258d4cca133e98029eb523ecab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
