@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_28d8d352",
+        "filename": "vpnservice/aclservice/aclservice-api/src/main/yang/odl-acl.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-31T11:01:04Z",
+      "side": 1,
+      "message": "the acl won\u0027t be sfc specific so we can likely just use netvirt-acl",
+      "revId": "dff8f53f042a441b492ceed618ff9428d172e88f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_88dd9f45",
+        "filename": "vpnservice/aclservice/aclservice-api/src/main/yang/odl-acl.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-31T11:01:04Z",
+      "side": 1,
+      "message": "should the namespace then just be netvirt:acl?",
+      "revId": "dff8f53f042a441b492ceed618ff9428d172e88f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_68e2cb04",
+        "filename": "vpnservice/aclservice/aclservice-api/src/main/yang/odl-acl.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-31T11:01:04Z",
+      "side": 1,
+      "message": "should we add revision since there would be different versions with sfc and mdsal both having the yang",
+      "revId": "dff8f53f042a441b492ceed618ff9428d172e88f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_48d38738",
+        "filename": "vpnservice/aclservice/aclservice-api/src/main/yang/odl-acl.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-05-31T11:01:04Z",
+      "side": 1,
+      "message": "nitpick whitespace",
+      "revId": "dff8f53f042a441b492ceed618ff9428d172e88f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
