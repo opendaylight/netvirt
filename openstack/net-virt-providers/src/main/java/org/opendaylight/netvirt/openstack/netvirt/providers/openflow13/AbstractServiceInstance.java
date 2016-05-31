@@ -20,9 +20,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
-import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
+import org.opendaylight.netvirt.openstack.netvirt.providers.ProviderEntityListener;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
-import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
@@ -41,7 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,25 +55,19 @@ public abstract class AbstractServiceInstance {
     public static final String SERVICE_PROPERTY ="serviceProperty";
     private static final Logger LOG = LoggerFactory.getLogger(AbstractServiceInstance.class);
     public static final String OPENFLOW = "openflow:";
-    private DataBroker dataBroker = null;
-    // OSGi Services that we are dependent on.
-    private volatile PipelineOrchestrator orchestrator;
-    private volatile Southbound southbound;
-
+    private final DataBroker dataBroker;
+    private final PipelineOrchestrator orchestrator;
+    protected final Southbound southbound;
     // Concrete Service that this AbstractServiceInstance represents
-    private Service service;
+    private final Service service;
 
-    public AbstractServiceInstance (Service service) {
+    public AbstractServiceInstance(Service service, final DataBroker dataBroker,
+            final PipelineOrchestrator orchestrator,
+            final Southbound southbound) {
+        this.orchestrator = orchestrator;
+        this.southbound = southbound;
         this.service = service;
-        this.dataBroker = NetvirtProvidersProvider.getDataBroker();
-    }
-
-    protected void setDependencies(final ServiceReference ref, AbstractServiceInstance serviceInstance) {
-        this.orchestrator =
-                (PipelineOrchestrator) ServiceHelper.getGlobalInstance(PipelineOrchestrator.class, serviceInstance);
-        orchestrator.registerService(ref, serviceInstance);
-        this.southbound =
-                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, serviceInstance);
+        this.dataBroker = dataBroker;
     }
 
     public boolean isBridgeInPipeline (Node node){
@@ -102,10 +94,6 @@ public abstract class AbstractServiceInstance {
 
     public Service getService() {
         return service;
-    }
-
-    public void setService(Service service) {
-        this.service = service;
     }
 
     public NodeBuilder createNodeBuilder(String nodeId) {
@@ -150,7 +138,7 @@ public abstract class AbstractServiceInstance {
     }
 
     protected void writeFlow(FlowBuilder flowBuilder, NodeBuilder nodeBuilder) {
-        if (NetvirtProvidersProvider.isMasterProviderInstance()) {
+        if (ProviderEntityListener.isMasterProviderInstance()) {
             LOG.debug("writeFlow: flowBuilder: {}, nodeBuilder: {}",
                     flowBuilder.build(), nodeBuilder.build());
             WriteTransaction modification = dataBroker.newWriteOnlyTransaction();
@@ -170,7 +158,7 @@ public abstract class AbstractServiceInstance {
     }
 
     protected void removeFlow(FlowBuilder flowBuilder, NodeBuilder nodeBuilder) {
-        if (NetvirtProvidersProvider.isMasterProviderInstance()) {
+        if (ProviderEntityListener.isMasterProviderInstance()) {
             WriteTransaction modification = dataBroker.newWriteOnlyTransaction();
             modification.delete(LogicalDatastoreType.CONFIGURATION, createFlowPath(flowBuilder, nodeBuilder));
 
