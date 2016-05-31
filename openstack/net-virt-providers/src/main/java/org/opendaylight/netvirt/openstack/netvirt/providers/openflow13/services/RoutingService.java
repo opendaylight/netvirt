@@ -8,20 +8,22 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
+import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.List;
-
 import org.apache.commons.net.util.SubnetUtils;
-import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.RoutingProvider;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
+import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.MatchUtils;
@@ -38,24 +40,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
-
-import com.google.common.collect.Lists;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxRegCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.src.choice.grouping.src.choice.SrcOfEthSrcCaseBuilder;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RoutingService extends AbstractServiceInstance implements RoutingProvider, ConfigInterface {
+public class RoutingService extends AbstractServiceInstance implements RoutingProvider {
     private static final Logger LOG = LoggerFactory.getLogger(RoutingService.class);
-    public RoutingService() {
-        super(Service.ROUTING);
+
+    public RoutingService(final BundleContext bundleContext,
+            final DataBroker dataBroker,
+            final PipelineOrchestrator orchestrator,
+            final Southbound southbound) {
+        super(Service.ROUTING, dataBroker, orchestrator, southbound);
+//        orchestrator.registerService(bundleContext.getServiceReference(RoutingProvider.class.getName()), this);
     }
 
-    public RoutingService(Service service) {
-        super(service);
-    }
 
     @Override
     public Status programRouterInterface(Long dpid, String sourceSegId, String destSegId, String macAddress,
@@ -216,15 +217,5 @@ public class RoutingService extends AbstractServiceInstance implements RoutingPr
 
         // ToDo: WriteFlow/RemoveFlow should return something we can use to check success
         return new Status(StatusCode.SUCCESS);
-    }
-
-    @Override
-    public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
-        super.setDependencies(bundleContext.getServiceReference(RoutingProvider.class.getName()), this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-
     }
 }

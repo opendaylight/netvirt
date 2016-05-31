@@ -8,17 +8,19 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
+import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.List;
-
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.L3ForwardingProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
 import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
@@ -34,19 +36,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-
-public class L3ForwardingService extends AbstractServiceInstance implements L3ForwardingProvider, ConfigInterface {
+public class L3ForwardingService extends AbstractServiceInstance implements L3ForwardingProvider {
     private static final Logger LOG = LoggerFactory.getLogger(L3ForwardingService.class);
 
-    public L3ForwardingService() {
-        super(Service.L3_FORWARDING);
-    }
-
-    public L3ForwardingService(Service service) {
-        super(service);
+    public L3ForwardingService(final DataBroker dataBroker,
+            final PipelineOrchestrator orchestrator,
+            final Southbound southbound) {
+        super(Service.L3_FORWARDING, dataBroker, orchestrator, southbound);
+        orchestrator.registerService(Service.L3_FORWARDING, this);
     }
 
     @Override
@@ -98,15 +95,5 @@ public class L3ForwardingService extends AbstractServiceInstance implements L3Fo
 
         // ToDo: WriteFlow/RemoveFlow should return something we can use to check success
         return new Status(StatusCode.SUCCESS);
-    }
-
-    @Override
-    public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
-        super.setDependencies(bundleContext.getServiceReference(L3ForwardingProvider.class.getName()), this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-
     }
 }

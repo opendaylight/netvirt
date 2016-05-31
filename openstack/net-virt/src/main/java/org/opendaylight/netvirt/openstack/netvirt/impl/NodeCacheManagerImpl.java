@@ -121,18 +121,6 @@ public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheMa
         }
     }
 
-    public void cacheListenerAdded(final ServiceReference ref, NodeCacheListener handler){
-        Long pid = (Long) ref.getProperty(org.osgi.framework.Constants.SERVICE_ID);
-        handlers.put(pid, handler);
-        LOG.info("Node cache listener registered, pid {} {}", pid, handler.getClass().getName());
-    }
-
-    public void cacheListenerRemoved(final ServiceReference ref){
-        Long pid = (Long) ref.getProperty(org.osgi.framework.Constants.SERVICE_ID);
-        handlers.remove(pid);
-        LOG.debug("Node cache listener unregistered, pid {}", pid);
-    }
-
     @Override
     public Map<NodeId,Node> getOvsdbNodes() {
         Map<NodeId,Node> ovsdbNodesMap = new ConcurrentHashMap<>();

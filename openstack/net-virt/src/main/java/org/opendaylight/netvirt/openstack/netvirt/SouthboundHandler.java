@@ -416,7 +416,6 @@ public class SouthboundHandler extends AbstractHandler
                 (BridgeConfigurationManager) ServiceHelper.getGlobalInstance(BridgeConfigurationManager.class, this);
         nodeCacheManager =
                 (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
-        nodeCacheManager.cacheListenerAdded(serviceReference, this);
         neutronL3Adapter =
                 (NeutronL3Adapter) ServiceHelper.getGlobalInstance(NeutronL3Adapter.class, this);
         distributedArpService =

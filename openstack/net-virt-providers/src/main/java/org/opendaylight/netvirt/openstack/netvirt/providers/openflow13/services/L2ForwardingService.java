@@ -12,11 +12,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
@@ -45,19 +46,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class L2ForwardingService extends AbstractServiceInstance implements ConfigInterface, L2ForwardingProvider {
+public class L2ForwardingService extends AbstractServiceInstance implements L2ForwardingProvider {
     private static final Logger LOG = LoggerFactory.getLogger(L2ForwardingService.class);
-    public L2ForwardingService() {
-        super(Service.L2_FORWARDING);
-    }
 
-    public L2ForwardingService(Service service) {
-        super(service);
+    public L2ForwardingService(final DataBroker dataBroker,
+            final PipelineOrchestrator orchestrator,
+            final Southbound southbound) {
+        super(Service.L2_FORWARDING, dataBroker, orchestrator, southbound);
+        orchestrator.registerService(Service.L2_FORWARDING, this);
     }
 
     /*
@@ -845,15 +844,5 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
         ib.setInstruction(new ApplyActionsCaseBuilder().setApplyActions(aab.build()).build());
         LOG.debug("createOutputPortInstructions() : applyAction {}", aab.build());
         return ib;
-    }
-
-    @Override
-    public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
-        super.setDependencies(bundleContext.getServiceReference(L2ForwardingProvider.class.getName()), this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {
-
     }
 }

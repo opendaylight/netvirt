@@ -64,19 +64,6 @@ public class NodeCacheManagerImplTest {
     }
 
     @Test
-    public void testCacheListenerAddedAndRemoved() {
-        ServiceReference ref = mock(ServiceReference.class);
-        when(ref.getProperty(org.osgi.framework.Constants.SERVICE_ID)).thenReturn(1L);
-
-        // add
-        nodeCacheManagerImpl.cacheListenerAdded(ref, mock(NodeCacheListener.class));
-        assertEquals("Error, cacheListenerAdded() did not add any listener", 1, handlers.size());
-        // remove
-        nodeCacheManagerImpl.cacheListenerRemoved(ref);
-        assertEquals("Error, cacheListenerAdded() did not remove any listener", 0, handlers.size());
-    }
-
-    @Test
     public void testGetOvsdbNodes() {
         addItem();
 

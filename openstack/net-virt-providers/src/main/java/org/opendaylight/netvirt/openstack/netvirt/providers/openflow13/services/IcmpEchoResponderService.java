@@ -8,13 +8,19 @@
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
 import com.google.common.collect.Lists;
+import java.math.BigInteger;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.util.List;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.IcmpEchoProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
 import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.MatchUtils;
@@ -37,30 +43,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg5;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstOfEthDstCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.src.choice.grouping.src.choice.SrcNxRegCaseBuilder;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.util.List;
 
 /**
  * @author Josh Hershberg (jhershbe@redhat.com)
  */
-public class IcmpEchoResponderService extends AbstractServiceInstance implements IcmpEchoProvider, ConfigInterface {
+public class IcmpEchoResponderService extends AbstractServiceInstance implements IcmpEchoProvider {
     private static final Logger LOG = LoggerFactory.getLogger(IcmpEchoResponderService.class);
     public static final Class<? extends NxmNxReg> SRC_MAC_4_HIGH_BYTES_FIELD = NxmNxReg4.class;
     public static final Class<? extends NxmNxReg> SRC_MAC_2_LOW_BYTES_FIELD = NxmNxReg5.class;
 
-    public IcmpEchoResponderService() {
-        super(Service.ICMP_ECHO);
-    }
 
-    public IcmpEchoResponderService(Service service) {
-        super(service);
+    public IcmpEchoResponderService(final DataBroker dataBroker,
+            final PipelineOrchestrator orchestrator,
+            final Southbound southbound) {
+        super(Service.ICMP_ECHO, dataBroker, orchestrator, southbound);
+        orchestrator.registerService(Service.ICMP_ECHO, this);
     }
 
     @Override
@@ -196,12 +195,4 @@ public class IcmpEchoResponderService extends AbstractServiceInstance implements
         // ToDo: WriteFlow/RemoveFlow should return something we can use to check success
         return new Status(StatusCode.SUCCESS);
     }
-
-    @Override
-    public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
-        super.setDependencies(bundleContext.getServiceReference(IcmpEchoProvider.class.getName()), this);
-    }
-
-    @Override
-    public void setDependencies(Object impl) {}
 }
