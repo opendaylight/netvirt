@@ -8,18 +8,17 @@
 
 package org.opendaylight.netvirt.routemgr.utils;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.EthernetHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.Ipv6Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class RoutemgrUtil {
     public static final int ICMPv6_TYPE = 58;
@@ -201,13 +200,13 @@ public class RoutemgrUtil {
         interfaceID.append(Integer.toHexString(0xFF & octets[1]));
         interfaceID.append(":");
         interfaceID.append(Integer.toHexString(0xFF & octets[2]));
-        interfaceID.append("FF:FE");
+        interfaceID.append("ff:fe");
         interfaceID.append(Integer.toHexString(0xFF & octets[3]));
         interfaceID.append(":");
         interfaceID.append(Integer.toHexString(0xFF & octets[4]));
         interfaceID.append(Integer.toHexString(0xFF & octets[5]));
 
-        Ipv6Address ipv6LLA = new Ipv6Address("FE80::"+interfaceID.toString());
+        Ipv6Address ipv6LLA = new Ipv6Address("fe80:0:0:0:"+interfaceID.toString());
         return ipv6LLA;
     }
 }
