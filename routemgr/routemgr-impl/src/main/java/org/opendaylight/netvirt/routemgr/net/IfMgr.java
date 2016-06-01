@@ -9,8 +9,10 @@
 package org.opendaylight.netvirt.routemgr.net;
 
 import com.google.common.net.InetAddresses;
+import org.opendaylight.netvirt.routemgr.utils.RoutemgrUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.AllocationPools;
 import org.slf4j.Logger;
@@ -264,7 +266,10 @@ public class IfMgr {
             addUnprocessed(unprocessedSubnetIntfs, snetId, intf);
         }
         if (fixedIp.getIpv6Address() != null) {
+            RoutemgrUtil instance = RoutemgrUtil.getInstance();
+            MacAddress ifaceMac = MacAddress.getDefaultInstance(macAddress);
             v6IntfMap.put(fixedIp.getIpv6Address(), intf);
+            v6IntfMap.put(instance.getIpv6LinkLocalAddressFromMac(ifaceMac), intf);
             v6MacToPortMapping.put(intf.getMacAddress(), intf);
         }
         return;
@@ -342,6 +347,11 @@ public class IfMgr {
             for (IpAddress ipAddr : intf.getIpAddresses()) {
                 if (ipAddr.getIpv6Address() != null) {
                     v6IntfMap.remove(ipAddr.getIpv6Address());
+                    if (intf.getDeviceOwner().equalsIgnoreCase(NETWORK_ROUTER_INTERFACE)) {
+                        RoutemgrUtil instance = RoutemgrUtil.getInstance();
+                        MacAddress ifaceMac = MacAddress.getDefaultInstance(intf.getMacAddress());
+                        v6IntfMap.remove(instance.getIpv6LinkLocalAddressFromMac(ifaceMac), intf);
+                    }
                 }
             }
             vintfs.remove(portId);
