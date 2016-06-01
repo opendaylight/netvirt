@@ -1477,11 +1477,12 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
     }
 
     private void cleanupFloatingIPRules(final NeutronPort neutronPort) {
-
         List<NeutronFloatingIP> neutronFloatingIps = neutronFloatingIpCache.getAllFloatingIPs();
         if (neutronFloatingIps != null && !neutronFloatingIps.isEmpty()) {
             for (NeutronFloatingIP neutronFloatingIP : neutronFloatingIps) {
-                if (neutronFloatingIP.getPortUUID().equals(neutronPort.getPortUUID())) {
+                // Neutron floating Ip's port uuid cannot be null (Bug#5894)
+                if (neutronFloatingIP.getPortUUID() != null &&
+                        (neutronFloatingIP.getPortUUID().equals(neutronPort.getPortUUID()))) {
                     handleNeutronFloatingIPEvent(neutronFloatingIP, DELETE);
                 }
             }
