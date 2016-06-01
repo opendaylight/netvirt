@@ -274,6 +274,8 @@ public class NetDataListener implements DataChangeListener {
             }
         }
 
+        ifMgr.updateInterfaceMapping(port.getUuid());
+
         // Example 2:
         // added neutron port Port{getAllowedAddressPairs=[],
         // getDeviceId=dhcp1627e2a8-b561-5745-8bbe-a6a7e806d5df-3b3cc735-008a-4f7c-8532-7293fc0b5697,
