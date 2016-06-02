@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * The Class LogicalSwitchDeletedJob.
+ * The Class DeleteLogicalSwitchJob.
  */
-public class LogicalSwitchDeletedJob implements Callable<List<ListenableFuture<Void>>> {
+public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Void>>> {
     private DataBroker broker;
 
     /** The logical switch name. */
@@ -31,9 +31,9 @@ public class LogicalSwitchDeletedJob implements Callable<List<ListenableFuture<V
     /** The physical device. */
     private NodeId hwvtepNodeId;
 
-    private static final Logger LOG = LoggerFactory.getLogger(LogicalSwitchDeletedJob.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeleteLogicalSwitchJob.class);
 
-    public LogicalSwitchDeletedJob(DataBroker broker, NodeId hwvtepNodeId, String logicalSwitchName) {
+    public DeleteLogicalSwitchJob(DataBroker broker, NodeId hwvtepNodeId, String logicalSwitchName) {
         this.broker = broker;
         this.hwvtepNodeId = hwvtepNodeId;
         this.logicalSwitchName = logicalSwitchName;

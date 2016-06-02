@@ -71,8 +71,17 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
         this.macAddresses = macAddresses;
     }
 
+    /**
+     * Gets the job key.
+     *
+     * @return the job key
+     */
     public String getJobKey() {
-        return JOB_KEY_PREFIX + this.elanName;
+        String jobKey = JOB_KEY_PREFIX + this.elanName;
+        if (macAddresses != null && macAddresses.size() == 1) {
+            jobKey += ":" + macAddresses.get(0).getValue();
+        }
+        return jobKey;
     }
 
     /*
