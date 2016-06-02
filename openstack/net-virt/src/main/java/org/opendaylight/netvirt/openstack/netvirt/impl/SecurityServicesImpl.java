@@ -580,6 +580,9 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
         for (Node topologyNode : toplogyNodes) {
             try {
                 Node node = southbound.getBridgeNode(topologyNode,Constants.INTEGRATION_BRIDGE);
+                if (node == null) {
+                    LOG.error("getNode: br-int interface is not found for node:{}", topologyNode.getNodeId().getValue());
+                }
                 List<OvsdbTerminationPointAugmentation> ovsdbPorts = southbound.getTerminationPointsOfBridge(node);
                 for (OvsdbTerminationPointAugmentation ovsdbPort : ovsdbPorts) {
                     String uuid = southbound.getInterfaceExternalIdsValue(ovsdbPort,
