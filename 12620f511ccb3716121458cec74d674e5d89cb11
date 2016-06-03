@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_162c04ab",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-03T06:56:55Z",
+      "side": 1,
+      "message": "You are right, I\u0027ll update the patch. Thanks.",
+      "parentUuid": "da5c1566_a746c821",
+      "revId": "12620f511ccb3716121458cec74d674e5d89cb11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_074b342c",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-06-02T10:50:53Z",
       "side": 1,
       "message": "Similarly the LLA removal should be outside of the ip address loop as there is going to only one lla for the interface.",
+      "revId": "12620f511ccb3716121458cec74d674e5d89cb11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_7618e084",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-03T06:56:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da5c1566_074b342c",
       "revId": "12620f511ccb3716121458cec74d674e5d89cb11",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
