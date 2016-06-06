@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_f547bd1b",
+        "filename": "vpnservice/aclservice/aclservice-api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-06-06T12:12:12Z",
+      "side": 1,
+      "message": "I know it is easier to upgrade with a version property, but auto-release handles this well, and tools like the Maven release plugin do too. If you use a property for a version, Maven complains about it:\n\n    [WARNING] \n    [WARNING] Some problems were encountered while building the effective model for org.opendaylight.netvirt:bgpmanager-api:bundle:0.3.0-SNAPSHOT\n    [WARNING] \u0027version\u0027 contains an expression but should be a constant. @ org.opendaylight.netvirt:bgpmanager-api:${vpnservices.version}, /home/skitt/ODL/netvirt/vpnservice/bgpmanager/bgpmanager-api/pom.xml, line 21, column 12\n    [WARNING] \n    [WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.\n    [WARNING] \n    [WARNING] For this reason, future Maven versions might no longer support building such malformed projects.\n    [WARNING]",
+      "parentUuid": "da5c1566_84f3b572",
+      "range": {
+        "startLine": 19,
+        "startChar": 13,
+        "endLine": 19,
+        "endChar": 27
+      },
+      "revId": "1cdfcc0abeaded106578bb28ee3a78c816cfe4a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_e4e8b17e",
         "filename": "vpnservice/aclservice/pom.xml",
         "patchSetId": 2
