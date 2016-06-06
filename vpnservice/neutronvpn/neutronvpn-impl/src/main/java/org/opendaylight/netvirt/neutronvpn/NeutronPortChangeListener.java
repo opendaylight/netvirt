@@ -302,7 +302,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     }
 
     private Interface createInterface(Port port) {
-        String parentRefName = NeutronvpnUtils.uuidToTapPortName(port.getUuid());;
+        String parentRefName = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
         String interfaceName = port.getUuid().getValue();
         IfL2vlan.L2vlanMode l2VlanMode = IfL2vlan.L2vlanMode.Trunk;
         InterfaceBuilder interfaceBuilder = new InterfaceBuilder();

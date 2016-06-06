@@ -344,7 +344,7 @@ public class VpnUtil {
 
                 public void onFailure(Throwable error) {
                     LOG.error("Error in Datastore operation", error);
-                };
+                }
             };
 
     public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,

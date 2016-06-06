@@ -38,7 +38,7 @@ public interface GatewayMacResolver {
      * @param periodicRefresh Do you want to periodically refresh the gateway mac?
      * @return ListenableFuture that contains the mac address of gateway ip.
      */
-    public ListenableFuture<MacAddress> resolveMacAddress(
+    ListenableFuture<MacAddress> resolveMacAddress(
             final GatewayMacResolverListener gatewayMacResolverListener,
             final Long externalNetworkBridgeDpid, final Boolean refreshExternalNetworkBridgeDpidIfNeeded,
             final Ipv4Address gatewayIp, final Ipv4Address sourceIpAddress,
@@ -48,5 +48,5 @@ public interface GatewayMacResolver {
      * Method will stop the periodic refresh of the given gateway ip address.
      * @param gatewayIp Gateway IP Address
      */
-    public void stopPeriodicRefresh(final Ipv4Address gatewayIp);
+    void stopPeriodicRefresh(final Ipv4Address gatewayIp);
 }

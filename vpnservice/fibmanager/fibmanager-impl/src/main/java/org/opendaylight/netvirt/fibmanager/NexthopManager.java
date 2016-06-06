@@ -102,7 +102,7 @@ public class NexthopManager implements AutoCloseable {
             }
             public void onFailure(Throwable error) {
                 LOG.error("Error in Datastore write operation", error);
-            };
+            }
         };
 
     /**

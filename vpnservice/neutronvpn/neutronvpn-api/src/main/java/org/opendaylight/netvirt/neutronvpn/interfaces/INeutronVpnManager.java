@@ -17,24 +17,24 @@ import java.util.List;
 
 public interface INeutronVpnManager {
 
-    public void addSubnetToVpn(Uuid vpnId, Uuid subnet);
+    void addSubnetToVpn(Uuid vpnId, Uuid subnet);
 
-    public void removeSubnetFromVpn(Uuid vpnId, Uuid subnet);
+    void removeSubnetFromVpn(Uuid vpnId, Uuid subnet);
 
-    public List<Uuid> getSubnetsforVpn(Uuid vpnid);
+    List<Uuid> getSubnetsforVpn(Uuid vpnid);
 
     List<String> showVpnConfigCLI(Uuid vuuid);
 
     List<String> showNeutronPortsCLI();
 
-    public Port getNeutronPort(String name);
+    Port getNeutronPort(String name);
 
-    public Subnet getNeutronSubnet(Uuid subnetId);
+    Subnet getNeutronSubnet(Uuid subnetId);
 
-    public String uuidToTapPortName(Uuid id);
+    String uuidToTapPortName(Uuid id);
 
-    public Port getNeutronPort(Uuid portId);
+    Port getNeutronPort(Uuid portId);
 
-    public IpAddress getNeutronSubnetGateway(Uuid subnetId);
+    IpAddress getNeutronSubnetGateway(Uuid subnetId);
 
 }

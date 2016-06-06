@@ -309,7 +309,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         } else {
             if (notification.isExternalVpn()) {
                 SubnetAddedToVpnBuilder bldr = new SubnetAddedToVpnBuilder().setVpnName(vpnName).setElanTag(elanTag);
-                bldr.setSubnetIp(subnetIp).setSubnetId(subnetId).setExternalVpn(true);;
+                bldr.setSubnetIp(subnetIp).setSubnetId(subnetId).setExternalVpn(true);
                 onSubnetAddedToVpn(bldr.build());
             }
             // TODO(vivek): Something got updated, but we donot know what ?

@@ -974,7 +974,7 @@ public class BgpConfigurationManager {
                         InetAddress i = (InetAddress) ee.nextElement();
                         if (odlip.equals(i.getHostAddress())) {
                             return true;
-                        };
+                        }
                     }
                 }
             }

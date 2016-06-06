@@ -75,7 +75,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
 
                 public void onFailure(Throwable error) {
                     LOG.error("Error in Datastore operation", error);
-                };
+                }
             };
 
     /**
