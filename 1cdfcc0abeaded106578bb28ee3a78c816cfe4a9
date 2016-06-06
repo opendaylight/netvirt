@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_75e28dd6",
+        "filename": "vpnservice/aclservice/aclservice-api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-06-06T13:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da5c1566_a4eeb989",
+      "revId": "1cdfcc0abeaded106578bb28ee3a78c816cfe4a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_84f3b572",
         "filename": "vpnservice/aclservice/aclservice-api/pom.xml",
         "patchSetId": 2
@@ -66,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_55f2e99a",
+        "filename": "vpnservice/aclservice/aclservice-api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-06-06T13:08:46Z",
+      "side": 1,
+      "message": "Retained hardcoded version in vpnservice/aclservice/aclservice-api/pom.xml",
+      "parentUuid": "da5c1566_f547bd1b",
+      "range": {
+        "startLine": 19,
+        "startChar": 13,
+        "endLine": 19,
+        "endChar": 27
+      },
+      "revId": "1cdfcc0abeaded106578bb28ee3a78c816cfe4a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_e4e8b17e",
         "filename": "vpnservice/aclservice/pom.xml",
         "patchSetId": 2
@@ -77,6 +119,30 @@
       "writtenOn": "2016-06-06T04:35:29Z",
       "side": 1,
       "message": "netvirt",
+      "range": {
+        "startLine": 18,
+        "startChar": 30,
+        "endLine": 18,
+        "endChar": 40
+      },
+      "revId": "1cdfcc0abeaded106578bb28ee3a78c816cfe4a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_952be1ea",
+        "filename": "vpnservice/aclservice/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-06-06T13:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da5c1566_e4e8b17e",
       "range": {
         "startLine": 18,
         "startChar": 30,
