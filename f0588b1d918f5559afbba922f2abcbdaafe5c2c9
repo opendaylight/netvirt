@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_da6d8606",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/NetDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-06-06T11:37:11Z",
+      "side": 1,
+      "message": "The addPort will be called both for port creation and port properties updation. So instead of adding of the port mac, lla to the corresponding hashmap here, won\u0027t it be better to add them in addRouterIntf and addHostIntf when the new VirtualPort() object is created. This will ensure there is no duplicate invocations of the addition to hashmaps.",
+      "revId": "f0588b1d918f5559afbba922f2abcbdaafe5c2c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
