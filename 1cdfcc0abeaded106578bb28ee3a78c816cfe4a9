@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_a4eeb989",
+        "filename": "vpnservice/aclservice/aclservice-api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-06T04:35:29Z",
+      "side": 1,
+      "message": "groupId is missing.",
+      "revId": "1cdfcc0abeaded106578bb28ee3a78c816cfe4a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_84f3b572",
+        "filename": "vpnservice/aclservice/aclservice-api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-06T04:35:29Z",
+      "side": 1,
+      "message": "don\u0027t use hardcoded.\n@Stephen: we use vpnservices.verison which is defined as property in config-parent. Won\u0027t that work? This makes it easy to change version in one place instead of doing in multiple files.",
+      "range": {
+        "startLine": 19,
+        "startChar": 13,
+        "endLine": 19,
+        "endChar": 27
+      },
+      "revId": "1cdfcc0abeaded106578bb28ee3a78c816cfe4a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_e4e8b17e",
+        "filename": "vpnservice/aclservice/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-06T04:35:29Z",
+      "side": 1,
+      "message": "netvirt",
+      "range": {
+        "startLine": 18,
+        "startChar": 30,
+        "endLine": 18,
+        "endChar": 40
+      },
+      "revId": "1cdfcc0abeaded106578bb28ee3a78c816cfe4a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
