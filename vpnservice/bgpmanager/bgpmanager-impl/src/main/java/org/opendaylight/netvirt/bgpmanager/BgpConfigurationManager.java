@@ -22,6 +22,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -1496,7 +1497,9 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+    private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+        .setNameFormat("NV-BgpCfgMgr-%d").build();
+    static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1, threadFactory);
     /*
     * Remove Stale Marked Routes after timer expiry.
     */

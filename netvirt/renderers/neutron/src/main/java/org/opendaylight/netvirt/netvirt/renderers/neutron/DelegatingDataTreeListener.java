@@ -12,7 +12,10 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import javax.annotation.Nonnull;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.opendaylight.controller.md.sal.binding.api.*;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -27,7 +30,9 @@ public class DelegatingDataTreeListener<T extends DataObject> implements AutoClo
     private static final Logger LOG = LoggerFactory.getLogger(DelegatingDataTreeListener.class);
     protected NeutronProvider provider;
     protected DataBroker db;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+        .setNameFormat("NV-NeutronDTL-%d").build();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1, threadFactory);
     private final DataProcessor<T> dataProcessor;
     private ListenerRegistration<DelegatingDataTreeListener<T>> listenerRegistration;
 

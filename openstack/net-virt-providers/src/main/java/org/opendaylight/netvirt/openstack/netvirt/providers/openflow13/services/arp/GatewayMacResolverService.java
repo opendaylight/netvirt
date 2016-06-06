@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
@@ -81,6 +82,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ThreadFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -105,9 +107,18 @@ public class GatewayMacResolverService extends AbstractServiceInstance
     private static final int WAIT_CYCLES = 3;
     private static final int PER_CYCLE_WAIT_DURATION = 1000;
     private static final int REFRESH_INTERVAL = 10;
-    private final ListeningExecutorService arpWatcherWall = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(ARP_WATCH_BROTHERS));
-    private final ScheduledExecutorService gatewayMacRefresherPool = Executors.newScheduledThreadPool(1);
-    private final ScheduledExecutorService refreshRequester = Executors.newSingleThreadScheduledExecutor();
+    private static final ThreadFactory threadFactoryArpWatcher = new ThreadFactoryBuilder()
+        .setNameFormat("NV-ArpWatcher-%d").build();
+    private static final ThreadFactory threadFactoryMacRefresher = new ThreadFactoryBuilder()
+        .setNameFormat("NV-GWMacRfrshr-%d").build();
+    private static final ThreadFactory threadFactoryRefreshReq = new ThreadFactoryBuilder()
+        .setNameFormat("NV-RfrshRqstr-%d").build();
+    private final ListeningExecutorService arpWatcherWall = MoreExecutors.listeningDecorator(
+        Executors.newFixedThreadPool(ARP_WATCH_BROTHERS, threadFactoryArpWatcher));
+    private final ScheduledExecutorService gatewayMacRefresherPool =
+        Executors.newScheduledThreadPool(1, threadFactoryMacRefresher);
+    private final ScheduledExecutorService refreshRequester =
+        Executors.newSingleThreadScheduledExecutor(threadFactoryRefreshReq);
     private AtomicBoolean initializationDone = new AtomicBoolean(false);
     private volatile ConfigurationService configurationService;
     private volatile NodeCacheManager nodeCacheManager;
