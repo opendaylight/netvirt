@@ -878,7 +878,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
         adjacency =
           nextHopManager.getRemoteNextHopPointer(localDpnId, remoteDpnId, vpnId,
-                  (staticRoute == true) ? extra_route.getNexthopIp() + "/32" : vrfEntry.getDestPrefix(),
+                  (staticRoute) ? extra_route.getNexthopIp() + "/32" : vrfEntry.getDestPrefix(),
                                                 vrfEntry.getNextHopAddress());
     } catch (NullPointerException e) {
       LOG.trace("", e);

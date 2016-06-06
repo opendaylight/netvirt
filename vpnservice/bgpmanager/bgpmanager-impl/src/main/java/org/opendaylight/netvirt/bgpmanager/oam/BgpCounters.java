@@ -320,7 +320,7 @@ public class BgpCounters extends TimerTask {
             str = inputStrs.get(i);
             if (str.contains("State/PfxRcd")) {
                 startEntries = true;
-            } else if (startEntries == true) {
+            } else if (startEntries) {
                 result = str.split("\\s+");
                try {
                     StrIP = result[0].trim();

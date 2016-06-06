@@ -431,7 +431,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             return;
         }
         for (BigInteger dpnId : switches) {
-            if (create == true) {
+            if (create) {
                 defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, routerId);
             } else {
                 defaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, routerId);
@@ -447,7 +447,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         for (BigInteger dpnId : dpnIds) {
-            if (create == true) {
+            if (create) {
                 if(bgpVpnId != NatConstants.INVALID_ID) {
                     defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, bgpVpnId, routerId);
                 }else{

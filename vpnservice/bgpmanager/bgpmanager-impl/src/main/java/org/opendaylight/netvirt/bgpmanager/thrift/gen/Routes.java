@@ -331,8 +331,8 @@ public class Routes implements org.apache.thrift.TBase<Routes, Routes._Fields>, 
         return false;
     }
 
-    boolean this_present_updates = true && this.isSetUpdates();
-    boolean that_present_updates = true && that.isSetUpdates();
+    boolean this_present_updates = this.isSetUpdates();
+    boolean that_present_updates = that.isSetUpdates();
     if (this_present_updates || that_present_updates) {
       if (!(this_present_updates && that_present_updates))
         return false;
@@ -340,8 +340,8 @@ public class Routes implements org.apache.thrift.TBase<Routes, Routes._Fields>, 
         return false;
     }
 
-    boolean this_present_more = true && this.isSetMore();
-    boolean that_present_more = true && that.isSetMore();
+    boolean this_present_more = this.isSetMore();
+    boolean that_present_more = that.isSetMore();
     if (this_present_more || that_present_more) {
       if (!(this_present_more && that_present_more))
         return false;
