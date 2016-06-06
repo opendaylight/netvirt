@@ -1155,6 +1155,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
             boolean sourceTunnelStatus = false;
             boolean destTunnelStatus = false;
+            boolean isSrcinNw = tenantNetworkManager.isTenantNetworkPresentInNode(srcBridgeNode, segmentationId);
             for (Node dstNode : nodes.values()) {
                 InetAddress src = configurationService.getTunnelEndPoint(srcNode);
                 InetAddress dst = configurationService.getTunnelEndPoint(dstNode);
@@ -1164,12 +1165,18 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                     Node dstBridgeNode = southbound.getBridgeNode(dstNode,
                             configurationService.getIntegrationBridgeName());
 
-                    if (dstBridgeNode != null){
+                    if (dstBridgeNode != null) {
                         destTunnelStatus = addTunnelPort(dstBridgeNode, networkType, dst, src);
                     }
 
                     if (sourceTunnelStatus) {
-                        programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, intf, true);
+                        boolean isDestinNw = tenantNetworkManager.isTenantNetworkPresentInNode(dstBridgeNode, segmentationId);
+                        //Check whether the network is present in src & dst node
+                        //If only present , add vxlan ports in TunnelRules for both nodes (bug# 5614)
+                        if (isSrcinNw && isDestinNw) {
+                            programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, intf, true);
+                            programTunnelRules(networkType, segmentationId, src, dstBridgeNode, intf, true);
+                        }
                     }
                     if (destTunnelStatus) {
                         programTunnelRules(networkType, segmentationId, src, dstBridgeNode, intf, false);
@@ -1221,6 +1228,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         nodes.remove(southbound.extractBridgeOvsdbNodeId(srcNode));
 
         LOG.info("Delete intf " + intf.getName() + " isLastInstanceOnNode " + isLastInstanceOnNode);
+        String segmentationId = network.getProviderSegmentationID();
         List<String> phyIfName = bridgeConfigurationManager.getAllPhysicalInterfaceNames(srcNode);
         if (southbound.isTunnel(intf)) {
             // Delete tunnel port
@@ -1239,27 +1247,35 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             deletePhysicalPort(srcNode, intf.getName());
         } else {
             // delete all other interfaces
-            removeLocalRules(network.getProviderNetworkType(), network.getProviderSegmentationID(),
+            removeLocalRules(network.getProviderNetworkType(), segmentationId,
                     srcNode, intf);
 
             if (isVlan(network.getProviderNetworkType())) {
                 removeVlanRules(network, srcNode, intf, isLastInstanceOnNode);
             } else if (isTunnel(network.getProviderNetworkType())) {
 
+                Node srcBridgeNode = southbound.getBridgeNode(srcNode, configurationService.getIntegrationBridgeName());
                 for (Node dstNode : nodes.values()) {
                     InetAddress src = configurationService.getTunnelEndPoint(srcNode);
                     InetAddress dst = configurationService.getTunnelEndPoint(dstNode);
                     if ((src != null) && (dst != null)) {
                         LOG.info("Remove tunnel rules for interface "
                                 + intf.getName() + " on srcNode " + srcNode.getNodeId().getValue());
-                        removeTunnelRules(tunnelType, network.getProviderSegmentationID(),
+                        removeTunnelRules(tunnelType, segmentationId,
                                 dst, srcNode, intf, true, isLastInstanceOnNode);
                         Node dstBridgeNode = southbound.getBridgeNode(dstNode, Constants.INTEGRATION_BRIDGE);
-                        if (dstBridgeNode != null){
+                        //While removing last instance , check whether the network present in src node
+                        //If network is not present in src node , remove the vxlan port of src from dst node in TunnelRules(Bug# 5614)
+                        boolean isSrcinNw = tenantNetworkManager.isTenantNetworkPresentInNode(srcBridgeNode, segmentationId);
+                        if (dstBridgeNode != null) {
+                            if (!isSrcinNw) {
+                                removeTunnelRules(tunnelType, segmentationId,
+                                    src, dstBridgeNode, intf, true, isLastInstanceOnNode);
+                            }
                             LOG.info("Remove tunnel rules for interface "
                                     + intf.getName() + " on dstNode " + dstNode.getNodeId().getValue());
-                            removeTunnelRules(tunnelType, network.getProviderSegmentationID(),
-                                    src, dstBridgeNode, intf, false, isLastInstanceOnNode);
+                            removeTunnelRules(tunnelType, segmentationId, src,
+                                    dstBridgeNode, intf, false, isLastInstanceOnNode);
                         }
                     } else {
                         LOG.warn("Tunnel end-point configuration missing. Please configure it in "
