@@ -913,8 +913,8 @@ public class BgpUpdater {
       if (that == null)
         return false;
 
-      boolean this_present_rd = true && this.isSetRd();
-      boolean that_present_rd = true && that.isSetRd();
+      boolean this_present_rd = this.isSetRd();
+      boolean that_present_rd = that.isSetRd();
       if (this_present_rd || that_present_rd) {
         if (!(this_present_rd && that_present_rd))
           return false;
@@ -922,8 +922,8 @@ public class BgpUpdater {
           return false;
       }
 
-      boolean this_present_prefix = true && this.isSetPrefix();
-      boolean that_present_prefix = true && that.isSetPrefix();
+      boolean this_present_prefix = this.isSetPrefix();
+      boolean that_present_prefix = that.isSetPrefix();
       if (this_present_prefix || that_present_prefix) {
         if (!(this_present_prefix && that_present_prefix))
           return false;
@@ -940,8 +940,8 @@ public class BgpUpdater {
           return false;
       }
 
-      boolean this_present_nexthop = true && this.isSetNexthop();
-      boolean that_present_nexthop = true && that.isSetNexthop();
+      boolean this_present_nexthop = this.isSetNexthop();
+      boolean that_present_nexthop = that.isSetNexthop();
       if (this_present_nexthop || that_present_nexthop) {
         if (!(this_present_nexthop && that_present_nexthop))
           return false;
@@ -1559,8 +1559,8 @@ public class BgpUpdater {
       if (that == null)
         return false;
 
-      boolean this_present_rd = true && this.isSetRd();
-      boolean that_present_rd = true && that.isSetRd();
+      boolean this_present_rd = this.isSetRd();
+      boolean that_present_rd = that.isSetRd();
       if (this_present_rd || that_present_rd) {
         if (!(this_present_rd && that_present_rd))
           return false;
@@ -1568,8 +1568,8 @@ public class BgpUpdater {
           return false;
       }
 
-      boolean this_present_prefix = true && this.isSetPrefix();
-      boolean that_present_prefix = true && that.isSetPrefix();
+      boolean this_present_prefix = this.isSetPrefix();
+      boolean that_present_prefix = that.isSetPrefix();
       if (this_present_prefix || that_present_prefix) {
         if (!(this_present_prefix && that_present_prefix))
           return false;
@@ -2357,8 +2357,8 @@ public class BgpUpdater {
       if (that == null)
         return false;
 
-      boolean this_present_prefix = true && this.isSetPrefix();
-      boolean that_present_prefix = true && that.isSetPrefix();
+      boolean this_present_prefix = this.isSetPrefix();
+      boolean that_present_prefix = that.isSetPrefix();
       if (this_present_prefix || that_present_prefix) {
         if (!(this_present_prefix && that_present_prefix))
           return false;

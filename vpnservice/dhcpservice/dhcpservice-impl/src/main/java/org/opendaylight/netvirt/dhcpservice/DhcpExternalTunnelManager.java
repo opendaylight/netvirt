@@ -635,7 +635,7 @@ public class DhcpExternalTunnelManager {
             logger.debug("Interface {} is not present in interface state", tunnelInterfaceName);
             return isTunnelUp;
         }
-        isTunnelUp = (tunnelInterface.getOperStatus() == OperStatus.Up) ? true :false;
+        isTunnelUp = (tunnelInterface.getOperStatus() == OperStatus.Up);
         return isTunnelUp;
     }
 
