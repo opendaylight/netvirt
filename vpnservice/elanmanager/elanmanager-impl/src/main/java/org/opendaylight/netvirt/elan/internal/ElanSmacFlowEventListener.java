@@ -71,40 +71,16 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
     }
 
     @Override
-    public void onFlowRemoved(FlowRemoved arg0) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void onFlowUpdated(FlowUpdated arg0) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void onNodeErrorNotification(NodeErrorNotification arg0) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void onNodeExperimenterErrorNotification(NodeExperimenterErrorNotification arg0) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void onSwitchFlowRemoved(SwitchFlowRemoved switchFlowRemoved) {
-        short tableId = switchFlowRemoved.getTableId();
+    public void onFlowRemoved(FlowRemoved flowRemoved) {
+        short tableId = flowRemoved.getTableId();
         if (tableId == ElanConstants.ELAN_SMAC_TABLE) {
-            BigInteger metadata = switchFlowRemoved.getMatch().getMetadata().getMetadata();
+            BigInteger metadata = flowRemoved.getMatch().getMetadata().getMetadata();
             long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
             ElanTagName elanTagInfo = ElanUtils.getElanInfoByElanTag(elanTag);
             if (elanTagInfo == null) {
                 return;
             }
-            final String srcMacAddress = switchFlowRemoved.getMatch().getEthernetMatch()
+            final String srcMacAddress = flowRemoved.getMatch().getEthernetMatch()
                     .getEthernetSource().getAddress().getValue().toUpperCase();
             int portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
             if (portTag == 0) {
@@ -147,5 +123,29 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 }
             });
         }
+        
+    }
+
+    @Override
+    public void onFlowUpdated(FlowUpdated arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onNodeErrorNotification(NodeErrorNotification arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onNodeExperimenterErrorNotification(NodeExperimenterErrorNotification arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onSwitchFlowRemoved(SwitchFlowRemoved switchFlowRemoved) {
+        // TODO Auto-generated method stub
     }
 }
