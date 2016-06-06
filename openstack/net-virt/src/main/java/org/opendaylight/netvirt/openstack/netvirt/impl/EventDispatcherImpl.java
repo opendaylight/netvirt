@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.opendaylight.netvirt.openstack.netvirt.AbstractEvent;
 import org.opendaylight.netvirt.openstack.netvirt.AbstractHandler;
 import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
@@ -23,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadFactory;
 
 public class EventDispatcherImpl implements EventDispatcher, ConfigInterface {
     private static final Logger LOG = LoggerFactory.getLogger(EventDispatcher.class);
@@ -33,7 +35,9 @@ public class EventDispatcherImpl implements EventDispatcher, ConfigInterface {
     public EventDispatcherImpl() {
         events = new LinkedBlockingQueue<>();
         handlers = new AbstractHandler[AbstractEvent.HandlerType.size];
-        eventHandler = Executors.newSingleThreadExecutor();
+        ThreadFactory threadFactory = new ThreadFactoryBuilder()
+            .setNameFormat("Netvirt-EventDispatcher-%d").build();
+        eventHandler = Executors.newSingleThreadExecutor(threadFactory);
         start();
     }
 

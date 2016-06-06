@@ -13,6 +13,7 @@ import java.util.concurrent.*;
 
 import com.google.common.util.concurrent.CheckedFuture;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -58,7 +59,9 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
     private static final Logger LOG = LoggerFactory.getLogger(VpnManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration, fibListenerRegistration, opListenerRegistration;
     private ConcurrentMap<String, Runnable> vpnOpMap = new ConcurrentHashMap<String, Runnable>();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+        .setNameFormat("Netvirt-VpnManager-%d").build();
+    private ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
     private final DataBroker broker;
     private final IBgpManager bgpManager;
     private IdManagerService idManager;
