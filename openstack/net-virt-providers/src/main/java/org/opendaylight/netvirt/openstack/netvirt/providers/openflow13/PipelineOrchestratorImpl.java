@@ -11,11 +11,9 @@ package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
@@ -82,7 +80,9 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
     private Southbound southbound;
 
     public PipelineOrchestratorImpl() {
-        eventHandler = Executors.newSingleThreadExecutor();
+        ThreadFactory threadFactory = new ThreadFactoryBuilder()
+            .setNameFormat("Netvirt-PipelineOrchestrator-%d").build();
+        eventHandler = Executors.newSingleThreadExecutor(threadFactory);
         this.queue = new LinkedBlockingQueue<>();
         LOG.info("PipelineOrchestratorImpl constructor");
         start();

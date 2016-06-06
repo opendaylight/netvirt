@@ -9,12 +9,7 @@ package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.*;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
@@ -72,13 +67,7 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -105,9 +94,18 @@ public class GatewayMacResolverService extends AbstractServiceInstance
     private static final int WAIT_CYCLES = 3;
     private static final int PER_CYCLE_WAIT_DURATION = 1000;
     private static final int REFRESH_INTERVAL = 10;
-    private final ListeningExecutorService arpWatcherWall = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(ARP_WATCH_BROTHERS));
-    private final ScheduledExecutorService gatewayMacRefresherPool = Executors.newScheduledThreadPool(1);
-    private final ScheduledExecutorService refreshRequester = Executors.newSingleThreadScheduledExecutor();
+    private static final ThreadFactory threadFactoryArpWatcher = new ThreadFactoryBuilder()
+        .setNameFormat("Netvirt-ArpWatcher-%d").build();
+    private static final ThreadFactory threadFactoryMacRefresher = new ThreadFactoryBuilder()
+        .setNameFormat("Netvirt-Gateway-MacRefresher-%d").build();
+    private static final ThreadFactory threadFactoryRefreshReq = new ThreadFactoryBuilder()
+        .setNameFormat("Netvirt-RefreshRequester-%d").build();
+    private final ListeningExecutorService arpWatcherWall = MoreExecutors.listeningDecorator(
+        Executors.newFixedThreadPool(ARP_WATCH_BROTHERS, threadFactoryArpWatcher));
+    private final ScheduledExecutorService gatewayMacRefresherPool =
+        Executors.newScheduledThreadPool(1, threadFactoryMacRefresher);
+    private final ScheduledExecutorService refreshRequester =
+        Executors.newSingleThreadScheduledExecutor(threadFactoryRefreshReq);
     private AtomicBoolean initializationDone = new AtomicBoolean(false);
     private volatile ConfigurationService configurationService;
     private volatile NodeCacheManager nodeCacheManager;

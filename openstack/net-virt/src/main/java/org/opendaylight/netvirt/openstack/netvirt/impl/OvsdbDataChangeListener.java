@@ -11,7 +11,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -43,7 +45,9 @@ public class OvsdbDataChangeListener implements ClusteredDataChangeListener, Aut
     private static final Logger LOG = LoggerFactory.getLogger(OvsdbDataChangeListener.class);
     private DataBroker dataBroker = null;
     private ListenerRegistration<DataChangeListener> registration;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+        .setNameFormat("Netvirt-OvsdbDataChangeListener-%d").build();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1, threadFactory);
 
     public OvsdbDataChangeListener (DataBroker dataBroker) {
         this.dataBroker = dataBroker;

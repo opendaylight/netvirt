@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -91,7 +92,9 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration, opListenerRegistration;
     private ConcurrentMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<String, Runnable>();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+        .setNameFormat("Netvirt-VpnInterfaceManager-%d").build();
+    private ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
     private final DataBroker broker;
     private final IBgpManager bgpManager;
     private IFibManager fibManager;
