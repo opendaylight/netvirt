@@ -941,7 +941,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
                         destination, infName);
                 Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination).setNextHopIp(nextHop).setKey
                         (new AdjacencyKey(destination)).build();
-                if (rtrUp == false) {
+                if (!rtrUp) {
                     if (infName.equals(vpnifname)) {
                         adjList.add(erAdj);
                     }
