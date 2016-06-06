@@ -58,6 +58,7 @@ public class L3FowardingServiceTest {
 
     private static final String SEGMENTATION_ID = "2";
     private static final String HOST_ADDRESS = "127.0.0.1";
+    private static final String IPV6_HOST_ADDRESS = "2001:db8::1";
     private static final String MAC_ADDRESS = "87:1D:5E:02:40:B7";
 
     @Before
@@ -99,4 +100,28 @@ public class L3FowardingServiceTest {
         verify(commitFuture, times(2)).get(); // 1 + 1 above
     }
 
+    /**
+     * Test method {@link L3ForwardingService#programForwardingTableEntry(Long, String, InetAddress, String, Action)}
+     */
+    @Test
+    public void testProgramForwardingTableEntryForIpv6() throws Exception {
+        InetAddress address = InetAddress.getByName(IPV6_HOST_ADDRESS);
+
+        assertEquals("Error, did not return the expected StatusCode",
+                new Status(StatusCode.SUCCESS),
+                l3ForwardingService.programForwardingTableEntry(Long.valueOf(123),
+                        SEGMENTATION_ID, address, MAC_ADDRESS, Action.ADD));
+        verify(writeTransaction, times(1)).put(any(LogicalDatastoreType.class),
+                any(InstanceIdentifier.class), any(Node.class), anyBoolean());
+        verify(writeTransaction, times(1)).submit();
+        verify(commitFuture, times(1)).checkedGet();
+
+        assertEquals("Error, did not return the expected StatusCode",
+                new Status(StatusCode.SUCCESS),
+                l3ForwardingService.programForwardingTableEntry(Long.valueOf(123),
+                        SEGMENTATION_ID, address, MAC_ADDRESS, Action.DELETE));
+        verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
+        verify(writeTransaction, times(2)).submit();
+        verify(commitFuture, times(1)).get();
+    }
 }
