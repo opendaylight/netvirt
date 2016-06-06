@@ -10,6 +10,9 @@ package org.opendaylight.netvirt.openstack.netvirt.providers;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
@@ -29,7 +32,9 @@ public class NetvirtProvidersConfigImpl implements AutoCloseable, ConfigInterfac
     private static final Logger LOG = LoggerFactory.getLogger(NetvirtProvidersConfigImpl.class);
     private final DataBroker dataBroker;
     private final ListenerRegistration<DataChangeListener> registration;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+        .setNameFormat("NV-ProviderCfg-%d").build();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1, threadFactory);
     private final MdsalUtils mdsalUtils;
 
     public NetvirtProvidersConfigImpl(final DataBroker dataBroker, final short tableOffset) {
