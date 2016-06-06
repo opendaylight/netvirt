@@ -117,7 +117,7 @@ public class NeutronvpnUtils {
             if (routerId != null) {
                 for (VpnMap vpnMap : allMaps) {
                     if (routerId.equals(vpnMap.getRouterId())) {
-                        if (externalVpn == true) {
+                        if (externalVpn) {
                             if (!routerId.equals(vpnMap.getVpnId())) {
                                 return vpnMap.getVpnId();
                             }

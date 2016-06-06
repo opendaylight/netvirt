@@ -470,7 +470,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             return;
         }
         for (BigInteger dpnId : switches) {
-            if (create == true) {
+            if (create) {
                 LOG.debug("NAT Service : installing default NAT route for router {} in dpn {} for the internal vpn",routerId,dpnId);
                 defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, routerId);
             } else {
@@ -488,7 +488,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         for (BigInteger dpnId : dpnIds) {
-            if (create == true) {
+            if (create) {
                 if (bgpVpnId != NatConstants.INVALID_ID) {
                     LOG.debug("NAT Service : installing default NAT route for router {} in dpn {} for the BGP vpnID {}",routerId,dpnId,bgpVpnId);
                     defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, bgpVpnId, routerId);
