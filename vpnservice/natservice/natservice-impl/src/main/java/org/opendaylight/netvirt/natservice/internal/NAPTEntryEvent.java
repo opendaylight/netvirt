@@ -45,10 +45,10 @@ public class NAPTEntryEvent {
     }
 
     public enum Operation{
-        ADD, DELETE;
+        ADD, DELETE
     }
 
     public enum Protocol{
-        TCP, UDP;
+        TCP, UDP
     }
 }

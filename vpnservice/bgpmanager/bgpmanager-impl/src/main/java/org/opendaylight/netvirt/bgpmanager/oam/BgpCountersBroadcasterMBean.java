@@ -15,6 +15,6 @@ package org.opendaylight.netvirt.bgpmanager.oam;
  * Created by echiapt on 9/28/2015.
  */
 public interface BgpCountersBroadcasterMBean {
-    public Map retrieveCounterMap();
+    Map retrieveCounterMap();
 }
 

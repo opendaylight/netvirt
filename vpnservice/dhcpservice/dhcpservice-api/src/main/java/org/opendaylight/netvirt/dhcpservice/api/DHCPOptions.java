@@ -29,7 +29,7 @@ public class DHCPOptions {
     protected static final Logger logger = LoggerFactory
             .getLogger(DHCPOptions.class);
 
-    class DhcpOption extends Object {
+    class DhcpOption {
         private byte code;
         private byte length;
         private byte[] value;

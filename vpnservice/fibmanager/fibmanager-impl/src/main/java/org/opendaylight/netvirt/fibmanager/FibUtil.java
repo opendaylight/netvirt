@@ -133,7 +133,7 @@ public class FibUtil {
 
                 public void onFailure(Throwable error) {
                     LOG.error("Error in Datastore operation", error);
-                };
+                }
             };
 
 }

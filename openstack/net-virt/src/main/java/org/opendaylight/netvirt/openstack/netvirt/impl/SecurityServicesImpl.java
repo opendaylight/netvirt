@@ -461,7 +461,7 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
         ingressAclProvider.programFixedSecurityGroup(dpid, segmentationId,
             dhcpPort.getMacAddress(), localPort, attachedMac, write);
         egressAclProvider.programFixedSecurityGroup(dpid, segmentationId,
-            attachedMac, localPort, srcAddressList, write);;
+            attachedMac, localPort, srcAddressList, write);
 
     }
 
