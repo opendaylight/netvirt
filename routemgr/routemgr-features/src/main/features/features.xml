@@ -28,6 +28,7 @@
     <bundle>mvn:org.opendaylight.netvirt/routemgr-impl/${project.version}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/routemgr-api/${project.version}</bundle>
     <bundle>mvn:commons-net/commons-net/{{VERSION}}</bundle>
+    <bundle>wrap:mvn:com.googlecode.java-ipv6/java-ipv6/{{VERSION}}</bundle>
     <configfile finalname="etc/opendaylight/karaf/97-routemgrmain.xml">mvn:org.opendaylight.netvirt/routemgr-config/${project.version}/xml/config</configfile>
   </feature>
 <!--

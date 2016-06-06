@@ -146,6 +146,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>gson</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.googlecode.java-ipv6</groupId>
+      <artifactId>java-ipv6</artifactId>
+      <version>0.16</version>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.neutron</groupId>
       <artifactId>features-neutron</artifactId>
       <version>${neutron.version}</version>

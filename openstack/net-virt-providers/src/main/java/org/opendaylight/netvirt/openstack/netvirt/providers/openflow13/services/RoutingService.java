@@ -8,24 +8,19 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
-import java.math.BigInteger;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.util.List;
-
+import com.google.common.collect.Lists;
+import com.googlecode.ipv6.IPv6Address;
+import com.googlecode.ipv6.IPv6NetworkMask;
 import org.apache.commons.net.util.SubnetUtils;
-import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
+import org.opendaylight.netvirt.openstack.netvirt.api.*;
+import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
-import org.opendaylight.netvirt.openstack.netvirt.api.Action;
-import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
-import org.opendaylight.netvirt.openstack.netvirt.api.RoutingProvider;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
-import org.opendaylight.netvirt.openstack.netvirt.api.Status;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.MatchUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
@@ -38,14 +33,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
-
-import com.google.common.collect.Lists;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxRegCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.src.choice.grouping.src.choice.SrcOfEthSrcCaseBuilder;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.util.List;
 
 public class RoutingService extends AbstractServiceInstance implements RoutingProvider, ConfigInterface {
     private static final Logger LOG = LoggerFactory.getLogger(RoutingService.class);
@@ -60,21 +58,6 @@ public class RoutingService extends AbstractServiceInstance implements RoutingPr
     @Override
     public Status programRouterInterface(Long dpid, String sourceSegId, String destSegId, String macAddress,
                                          InetAddress address, int mask, Action action) {
-        if (address instanceof Inet6Address) {
-            // WORKAROUND: For now ipv6 is not supported
-            // TODO: implement ipv6 case
-            LOG.debug("ipv6 address is not implemented yet. address {}", address);
-            return new Status(StatusCode.NOTIMPLEMENTED);
-        }
-
-        SubnetUtils addressSubnetInfo = new SubnetUtils(address.getHostAddress() + "/" + mask);
-        final String prefixString = addressSubnetInfo.getInfo().getNetworkAddress() + "/" + mask;
-
-        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpid);
-        FlowBuilder flowBuilder = new FlowBuilder();
-        String flowName = "Routing_" + sourceSegId + "_" + destSegId + "_" + prefixString;
-        FlowUtils.initFlowBuilder(flowBuilder, flowName, getTable()).setPriority(2048);
-
         boolean isExternalNet = sourceSegId.equals(Constants.EXTERNAL_NETWORK);
         MatchBuilder matchBuilder = new MatchBuilder();
         if (isExternalNet) {
@@ -86,7 +69,22 @@ public class RoutingService extends AbstractServiceInstance implements RoutingPr
             MatchUtils.createTunnelIDMatch(matchBuilder, new BigInteger(sourceSegId));
         }
 
-        MatchUtils.createDstL3IPv4Match(matchBuilder, new Ipv4Prefix(prefixString));
+        final String prefixString;
+        if (address instanceof Inet6Address) {
+            IPv6Address iPv6Address = IPv6Address.fromString(address.getHostAddress());
+            IPv6Address maskedV6Address = iPv6Address.maskWithNetworkMask(IPv6NetworkMask.fromPrefixLength(mask));
+            prefixString = maskedV6Address.toString() + "/" + mask;
+            MatchUtils.createDstL3IPv6Match(matchBuilder, new Ipv6Prefix(prefixString));
+        } else {
+            SubnetUtils addressSubnetInfo = new SubnetUtils(address.getHostAddress() + "/" + mask);
+            prefixString = addressSubnetInfo.getInfo().getNetworkAddress() + "/" + mask;
+            MatchUtils.createDstL3IPv4Match(matchBuilder, new Ipv4Prefix(prefixString));
+        }
+
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpid);
+        FlowBuilder flowBuilder = new FlowBuilder();
+        String flowName = "Routing_" + sourceSegId + "_" + destSegId + "_" + prefixString;
+        FlowUtils.initFlowBuilder(flowBuilder, flowName, getTable()).setPriority(2048);
         flowBuilder.setMatch(matchBuilder.build());
 
         if (action.equals(Action.ADD)) {
