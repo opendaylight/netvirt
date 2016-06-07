@@ -94,7 +94,7 @@ public class AbstractServiceInstanceTest {
     }
 
     /**
-     * Test method {@link AbstractServiceInstance@getTable(Service}
+     * Test method {@link AbstractServiceInstance#getTable(Service)}
      */
     @Test
     public void testGetTableWithService() {
