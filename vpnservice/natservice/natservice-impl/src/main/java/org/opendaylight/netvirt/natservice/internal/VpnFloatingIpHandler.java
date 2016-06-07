@@ -205,7 +205,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
     private void removePrefixFromBGP(String rd, String prefix) {
         try {
+            LOG.info("VPN REMOVE: Removing Fib Entry rd {} prefix {}", rd, prefix);
             bgpManager.deletePrefix(rd, prefix);
+            LOG.info("VPN REMOVE: Removed Fib Entry rd {} prefix {}", rd, prefix);
         } catch(Exception e) {
             LOG.error("Delete prefix failed", e);
         }
@@ -219,7 +221,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         //Remove custom FIB routes
 
         //Future<RpcResult<java.lang.Void>> removeFibEntry(RemoveFibEntryInput input);
-        RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalIp).setServiceId(label).build();
+        RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(label).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
         ListenableFuture<RpcResult<Void>> labelFuture = Futures.transform(JdkFutureAdapters.listenInPoolThread(future), 
@@ -338,4 +340,3 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     }
 
 }
-
