@@ -34,6 +34,24 @@
       "revId": "04731005a21ec2683ab1c1db8321e4904e99fc0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_eaa18faa",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/config/default-config.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-07T11:59:17Z",
+      "side": 1,
+      "message": "What do you do if you have multiple config files and want to use the src/main/config path - do you create different bundles? \n\nIf you do want them named differently at run time, do you just use the wanted name in the features.xml to name it? Not sure if this really matters, since at one time I recall users adding numbers to the names as this one was originally 73-xxx but there is no coordination among projects so I don\u0027t think that is working as intended.",
+      "parentUuid": "fa57193c_521118ab",
+      "revId": "04731005a21ec2683ab1c1db8321e4904e99fc0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
