@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_01b149e1",
+        "filename": "features/src/main/features/features.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-06-07T21:12:52Z",
+      "side": 1,
+      "message": "What does \u0027wrap\u0027 protocol do here in this bundle definition?",
+      "range": {
+        "startLine": 34,
+        "startChar": 12,
+        "endLine": 34,
+        "endChar": 16
+      },
+      "revId": "b2bb9a79f2c17ec7fa54746b6a4608f69d477499",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
