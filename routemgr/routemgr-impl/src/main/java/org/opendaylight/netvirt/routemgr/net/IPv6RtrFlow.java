@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowModFlags;
@@ -100,9 +101,15 @@ public class IPv6RtrFlow {
         return dpid;
     }
 
-    private void programIcmpv6Flow(String dpId, InstanceIdentifier<Node> nodeIid, String flowName, int icmpType) {
-        //Build arp reply router flow
-        final Flow icmpv6ToControllerFlow = createIcmpv6ToControllerFlow(nodeIid, flowName, icmpType);
+    private void programIcmpv6Flow(String dpId, String flowName, int icmpType, long ofPort) {
+        String nodeName = OPENFLOW_NODE_PREFIX + getDataPathId(dpId);
+
+        final InstanceIdentifier<Node> nodeIid = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId(nodeName))).build();
+
+        String portName = nodeName + ":" + ofPort;
+
+        final Flow icmpv6ToControllerFlow = createIcmpv6ToControllerFlow(nodeIid, flowName, icmpType, portName);
 
         final InstanceIdentifier<Flow> flowIid = createFlowIid(icmpv6ToControllerFlow, nodeIid);
         final NodeRef nodeRef = new NodeRef(nodeIid);
@@ -120,54 +127,16 @@ public class IPv6RtrFlow {
         }
     }
 
-    public void addIcmpv6Flow2Controller(String dpId) {
-        String nodeName = OPENFLOW_NODE_PREFIX + getDataPathId(dpId);
-
-        final InstanceIdentifier<Node> nodeIid = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(new NodeId(nodeName))).build();
-
-        /* TODO: Currently we are programming the flows to send the RS/NS packets to the
-        controller without really checking if the network has an IPv6 subnet. This needs
-        to be optimized in future patchsets.
-         */
+    public void addIcmpv6RSFlow2Controller(String dpId) {
         String flowName = ICMPv6_TO_CONTROLLER_RS_FLOW + "_" + ICMPv6_TYPE_RS;
-        programIcmpv6Flow(dpId, nodeIid, flowName, ICMPv6_TYPE_RS);
-
-        flowName = ICMPv6_TO_CONTROLLER_NS_FLOW + "_" + ICMPv6_TYPE_NS;
-        programIcmpv6Flow(dpId, nodeIid, flowName, ICMPv6_TYPE_NS);
+        programIcmpv6Flow(dpId, flowName, ICMPv6_TYPE_RS, 0);
     }
 
-/***
-//wait for flow installation
-        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(addFlowResult),
-                new FutureCallback<RpcResult<AddFlowOutput>>() {
-
-                    @Override
-                    public void onSuccess(RpcResult<AddFlowOutput> result) {
-                        if (!result.isSuccessful()) {
-                            LOG.warn("ICMPv6 Flow to Controller is not installed successfully : {} \nErrors: {}",
-                                    flowIid, result.getErrors());
-                            return;
-                        }
-                        LOG.debug("Flow to route ICMPv6 to Controller installed successfully : {}", nodeIid);
-
-                        //cache flow info
-                        gatewayToIcmpv6FlowMap.put(nodeIid, icmpv6ToControllerFlow);
-                    }
-
-                    @Override
-                    public void onFailure(Throwable fail) {
-                        LOG.warn("ICMPv6 to Controller flow was not created: {}", nodeIid);
-                    }
-                }
-        );
+    public void addIcmpv6NSFlow2Controller(String dpId, long ofPort) {
+        String flowName = ICMPv6_TO_CONTROLLER_NS_FLOW + "_" + ICMPv6_TYPE_NS;
+        programIcmpv6Flow(dpId, flowName, ICMPv6_TYPE_NS, ofPort);
     }
-***/
 
-    private FlowId createFlowId(final InstanceIdentifier<Node> nodeId, String flowName) {
-        String flowId = flowName + "|" + nodeId;
-        return new FlowId(flowId);
-    }
 
     private static InstanceIdentifier<Flow> createFlowIid(Flow flow, InstanceIdentifier<Node> nodeIid) {
         return nodeIid.builder()
@@ -177,7 +146,8 @@ public class IPv6RtrFlow {
                 .build();
     }
 
-    private Flow createIcmpv6ToControllerFlow(InstanceIdentifier<Node> nodeIid, String flowName, int icmpType) {
+    private Flow createIcmpv6ToControllerFlow(InstanceIdentifier<Node> nodeIid, String flowName,
+            int icmpType, String portName) {
         Preconditions.checkNotNull(nodeIid);
         FlowBuilder icmpv6Flow = new FlowBuilder().setTableId(TABEL_FOR_ICMPv6_FLOW)
                 .setFlowName(flowName)
@@ -203,6 +173,11 @@ public class IPv6RtrFlow {
         icmpv6match.setIcmpv6Type((short) icmpType);
         matchBuilder.setIcmpv6Match(icmpv6match.build());
 
+        if(icmpType == ICMPv6_TYPE_NS) {
+            NodeConnectorId ncId = NodeConnectorId.getDefaultInstance(portName);
+            matchBuilder.setInPort(ncId);
+        }
+
         Action sendToControllerAction = new ActionBuilder().setOrder(0)
                 .setKey(new ActionKey(0))
                 .setAction(
@@ -225,7 +200,11 @@ public class IPv6RtrFlow {
         return icmpv6Flow.build();
     }
 
-    private void removeIcmpv6Flow(String dpId, InstanceIdentifier<Node> nodeIid, String flowName) {
+    private void removeIcmpv6Flow(String dpId, String flowName) {
+        String nodeName = OPENFLOW_NODE_PREFIX + getDataPathId(dpId);
+        final InstanceIdentifier<Node> nodeIid = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId(nodeName))).build();
+
         final InstanceIdentifier<Flow> flowIid = gatewayToIcmpv6FlowMap.get(dpId+flowName);
         if (flowIid == null) {
             LOG.debug("Flow {} is not programmed in the node {}", flowName, nodeIid);
@@ -246,15 +225,14 @@ public class IPv6RtrFlow {
         }
     }
 
-    public void removeIcmpv6Flow2Controller(String dpId) {
-        String nodeName = OPENFLOW_NODE_PREFIX + getDataPathId(dpId);
-
-        final InstanceIdentifier<Node> nodeIid = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(new NodeId(nodeName))).build();
-
+    public void removeIcmpv6RSFlow2Controller(String dpId) {
         String flowName = ICMPv6_TO_CONTROLLER_RS_FLOW + "_" + ICMPv6_TYPE_RS;
-        removeIcmpv6Flow(dpId, nodeIid, flowName);
-        flowName = ICMPv6_TO_CONTROLLER_NS_FLOW + "_" + ICMPv6_TYPE_NS;
-        removeIcmpv6Flow(dpId, nodeIid, flowName);
+        removeIcmpv6Flow(dpId, flowName);
     }
+
+    public void removeIcmpv6NSFlow2Controller(String dpId) {
+        String flowName = ICMPv6_TO_CONTROLLER_NS_FLOW + "_" + ICMPv6_TYPE_NS;
+        removeIcmpv6Flow(dpId, flowName);
+    }
+
 }

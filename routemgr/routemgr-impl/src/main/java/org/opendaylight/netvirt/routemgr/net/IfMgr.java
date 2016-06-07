@@ -406,4 +406,18 @@ public class IfMgr {
         logger.debug("obtaining the virtual interface for {}", macAddress);
         return (v6MacToPortMapping.get(macAddress));
     }
+
+    public VirtualPort obtainV6Interface(Uuid id) {
+        VirtualPort intf = vintfs.get(id);
+        if(intf == null) {
+            return null;
+        }
+        for (VirtualSubnet snet : intf.getSubnets()) {
+            if(snet.getGatewayIp().getIpv6Address() != null) {
+                return intf;
+            }
+        }
+        return null;
+    }
+
 }
