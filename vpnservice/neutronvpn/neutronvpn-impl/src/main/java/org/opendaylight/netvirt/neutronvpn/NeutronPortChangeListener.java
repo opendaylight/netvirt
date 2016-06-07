@@ -24,7 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -59,15 +58,17 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private NeutronvpnManager nvpnManager;
+    private NeutronvpnNatManager nvpnNatManager;
     private LockManagerService lockManager;
     private NotificationPublishService notificationPublishService;
     private NotificationService notificationService;
 
 
-    public NeutronPortChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,NotificationPublishService notiPublishService, NotificationService notiService) {
+    public NeutronPortChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,NeutronvpnNatManager nVpnNatMgr, NotificationPublishService notiPublishService, NotificationService notiService) {
         super(Port.class);
         broker = db;
         nvpnManager = nVpnMgr;
+        nvpnNatManager = nVpnNatMgr;
         notificationPublishService = notiPublishService;
         notificationService = notiService;
         registerListener(db);
@@ -181,7 +182,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                             vpnId = routerId;
                         }
                         nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
-                        //nvpnNatManager.handleSubnetsForExternalRouter(routerId, broker);
+                        nvpnNatManager.handleSubnetsForExternalRouter(routerId, broker);
                     }
                 }
             } else {
@@ -202,7 +203,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                         vpnId = routerId;
                     }
                     nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId());
-                    //nvpnNatManager.handleSubnetsForExternalRouter(routerId, broker);
+                    nvpnNatManager.handleSubnetsForExternalRouter(routerId, broker);
                 }
             }
         }

@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.router
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
@@ -188,7 +189,20 @@ public class NeutronvpnUtils {
         logger.info("getNeutronRouterSubnetIds for {}", routerId.getValue());
 
         List<Uuid> subnetIdList = new ArrayList<Uuid>();
-        Router router = getNeutronRouter(broker, routerId);
+        Ports ports = getNeutrounPorts(broker);
+        if(ports != null && ports.getPort() != null) {
+            for (Port port: ports.getPort()) {
+                if ((port.getDeviceOwner() != null) && (port.getDeviceId() != null)) {
+                    if (port.getDeviceOwner().equals(DEVICE_OWNER_ROUTER_INF) &&
+                            port.getDeviceId().equals(routerId.getValue())) {
+                        for (FixedIps portIp: port.getFixedIps()) {
+                            subnetIdList.add(portIp.getSubnetId());
+                        }
+                    }
+                }
+            }
+        }
+        /*Router router = getNeutronRouter(broker, routerId);
         if (router != null) {
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router
                     .Interfaces> interfacesList = router.getInterfaces();
@@ -198,9 +212,18 @@ public class NeutronvpnUtils {
                     subnetIdList.add(interfaces.getSubnetId());
                 }
             }
-        }
+        }*/
         logger.info("returning from getNeutronRouterSubnetIds for {}", routerId.getValue());
         return subnetIdList;
+    }
+
+    protected static Ports getNeutrounPorts(DataBroker broker) {
+        InstanceIdentifier<Ports> inst = InstanceIdentifier.create(Neutron.class).child(Ports.class);
+        Optional<Ports> ports = read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        if(ports.isPresent()) {
+            return ports.get();
+        }
+        return null;
     }
 
     protected static Port getNeutronPort(DataBroker broker, Uuid portId) {

@@ -145,6 +145,11 @@ public class NeutronBgpvpnChangeListener extends AbstractDataChangeListener<Bgpv
                 LOG.trace("Adding New networks {} ", newNetworks);
                 nvpnManager.associateNetworksToVpn(update.getUuid(), newNetworks);
             }
+        } else {
+            if (oldNetworks != null && !oldNetworks.isEmpty()) {
+                LOG.trace("Removing old networks {} ", oldNetworks);
+                nvpnManager.dissociateNetworksFromVpn(update.getUuid(), oldNetworks);
+            }
         }
         // ### TBD : Handle routers
     }

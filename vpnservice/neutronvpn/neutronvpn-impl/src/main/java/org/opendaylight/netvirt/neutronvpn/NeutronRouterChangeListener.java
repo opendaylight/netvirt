@@ -16,7 +16,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -33,12 +32,14 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private NeutronvpnManager nvpnManager;
+    private NeutronvpnNatManager nvpnNatManager;
 
 
-    public NeutronRouterChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr) {
+    public NeutronRouterChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr, NeutronvpnNatManager nVpnNatMgr) {
         super(Router.class);
         broker = db;
         nvpnManager = nVpnMgr;
+        nvpnNatManager = nVpnNatMgr;
         registerListener(db);
     }
 
@@ -82,15 +83,15 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
             LOG.trace("Removing router : key: " + identifier + ", value=" + input);
         }
         Uuid routerId = input.getUuid();
-        // fetch subnets associated to router
-        List<Interfaces> routerInterfaces = input.getInterfaces();
+        //NOTE: Pass an empty routerSubnetIds list, as router interfaces
+        //will be removed from VPN by invocations from NeutronPortChangeListener
         List<Uuid> routerSubnetIds = new ArrayList<Uuid>();
-        if (routerInterfaces != null) {
-            for (Interfaces rtrIf : routerInterfaces) {
-                routerSubnetIds.add(rtrIf.getSubnetId());
-            }
-        }
         nvpnManager.handleNeutronRouterDeleted(routerId, routerSubnetIds);
+        // Handle router deletion for the NAT service
+        if (input.getExternalGatewayInfo() != null) {
+            Uuid extNetId = input.getExternalGatewayInfo().getExternalNetworkId();
+            nvpnNatManager.removeExternalNetworkFromRouter(extNetId, input);
+        }
     }
 
     @Override
@@ -105,24 +106,9 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
         if (vpnId == null) {
             vpnId = routerId;
         }
-        List<Interfaces> oldInterfaces = (original.getInterfaces() != null) ? original.getInterfaces() : new
-                ArrayList<Interfaces>();
-        List<Interfaces> newInterfaces = (update.getInterfaces() != null) ? update.getInterfaces() : new
-                ArrayList<Interfaces>();
         List<Routes> oldRoutes = (original.getRoutes() != null) ? original.getRoutes() : new ArrayList<Routes>();
         List<Routes> newRoutes = (update.getRoutes() != null) ? update.getRoutes() : new ArrayList<Routes>();
-        if (!oldInterfaces.equals(newInterfaces)) {
-            for (Interfaces intrf : newInterfaces) {
-                if (!oldInterfaces.remove(intrf)) {
-                    // add new subnet
-                    nvpnManager.addSubnetToVpn(vpnId, intrf.getSubnetId());
-                }
-            }
-            //clear remaining old subnets
-            for (Interfaces intrf : oldInterfaces) {
-                nvpnManager.removeSubnetFromVpn(vpnId, intrf.getSubnetId());
-            }
-        }
+
         if (!oldRoutes.equals(newRoutes)) {
             Iterator<Routes> iterator = newRoutes.iterator();
             while (iterator.hasNext()) {
@@ -136,5 +122,6 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
                 nvpnManager.removeAdjacencyforExtraRoute(oldRoutes);
             }
         }
+        nvpnNatManager.handleExternalNetworkForRouter(original, update);
     }
 }

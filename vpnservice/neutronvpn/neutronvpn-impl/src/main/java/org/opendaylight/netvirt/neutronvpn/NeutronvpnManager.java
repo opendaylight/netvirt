@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.InterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.InterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -93,6 +94,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
     private static final Logger logger = LoggerFactory.getLogger(NeutronvpnManager.class);
     private final DataBroker broker;
     private LockManagerService lockManager;
+    private NeutronvpnNatManager nvpnNatManager;
     IMdsalApiManager mdsalUtil;
     private NotificationPublishService notificationPublishService;
     private NotificationService notificationService;
@@ -103,9 +105,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
      * @param mdsalManager - MDSAL Util API access
      */
     public NeutronvpnManager(final DataBroker db, IMdsalApiManager mdsalManager,NotificationPublishService notiPublishService,
-                             NotificationService notiService) {
+                             NotificationService notiService, NeutronvpnNatManager vpnNatMgr) {
         broker = db;
         mdsalUtil = mdsalManager;
+        nvpnNatManager = vpnNatMgr;
         notificationPublishService = notiPublishService;
         notificationService = notiService;
     }
@@ -1108,7 +1111,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
             updateVpnMaps(vpn, null, null, null, networks);
             // process corresponding subnets for VPN
             for (Uuid nw : networks) {
-                if (NeutronvpnUtils.getNeutronNetwork(broker, nw) == null) {
+                Network net = NeutronvpnUtils.getNeutronNetwork(broker, nw);
+                if (net == null) {
                     failed.add(nw.getValue());
                 } else {
                     List<Uuid> networkSubnets = NeutronvpnUtils.getSubnetIdsFromNetworkId(broker, nw);
@@ -1117,6 +1121,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
                         for (Uuid subnet : networkSubnets) {
                             addSubnetToVpn(vpn, subnet);
                         }
+                    }
+                    if (net.getAugmentation(NetworkL3Extension.class).isExternal()) {
+                        nvpnNatManager.addExternalNetworkToVpn(net, vpn);
                     }
                 }
             }
@@ -1131,7 +1138,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
             clearFromVpnMaps(vpn, null, networks);
             // process corresponding subnets for VPN
             for (Uuid nw : networks) {
-                if (NeutronvpnUtils.getNeutronNetwork(broker, nw) == null) {
+                Network net = NeutronvpnUtils.getNeutronNetwork(broker, nw);
+                if (net == null) {
                     failed.add(nw.getValue());
                 } else {
                     List<Uuid> networkSubnets = NeutronvpnUtils.getSubnetIdsFromNetworkId(broker, nw);
@@ -1140,6 +1148,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
                         for (Uuid subnet : networkSubnets) {
                             removeSubnetFromVpn(vpn, subnet);
                         }
+                    }
+                    if (net.getAugmentation(NetworkL3Extension.class).isExternal()) {
+                        nvpnNatManager.removeExternalNetworkFromVpn(net);
                     }
                 }
             }

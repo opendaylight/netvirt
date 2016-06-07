@@ -33,6 +33,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
 
     private static final Logger LOG = LoggerFactory.getLogger(NeutronvpnProvider.class);
     private NeutronvpnManager nvManager;
+    private NeutronvpnNatManager nvNatManager;
     private IMdsalApiManager mdsalManager;
     private LockManagerService lockManager;
     private NeutronBgpvpnChangeListener bgpvpnListener;
@@ -77,14 +78,17 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     public void onSessionInitiated(ProviderContext session) {
         try {
             final DataBroker dbx = session.getSALService(DataBroker.class);
-            nvManager = new NeutronvpnManager(dbx, mdsalManager,notificationPublishService,notificationService);
+            nvNatManager = new NeutronvpnNatManager(dbx, mdsalManager);
+            nvManager = new NeutronvpnManager(dbx, mdsalManager,notificationPublishService,notificationService, nvNatManager);
             final BindingAwareBroker.RpcRegistration<NeutronvpnService> rpcRegistration =
                     getRpcProviderRegistry().addRpcImplementation(NeutronvpnService.class, nvManager);
             bgpvpnListener = new NeutronBgpvpnChangeListener(dbx, nvManager);
-            networkListener = new NeutronNetworkChangeListener(dbx, nvManager);
+            networkListener = new NeutronNetworkChangeListener(dbx, nvManager, nvNatManager);
             subnetListener = new NeutronSubnetChangeListener(dbx, nvManager);
-            routerListener = new NeutronRouterChangeListener(dbx, nvManager);
-            portListener = new NeutronPortChangeListener(dbx, nvManager,notificationPublishService,notificationService);
+            routerListener = new NeutronRouterChangeListener(dbx, nvManager, nvNatManager);
+            portListener = new NeutronPortChangeListener(dbx, nvManager, nvNatManager,
+                    notificationPublishService,notificationService);
+            portListener.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
             nvManager.setLockManager(lockManager);
             l2GatewayProvider = new L2GatewayProvider(dbx, rpcProviderRegistry, entityOwnershipService);
