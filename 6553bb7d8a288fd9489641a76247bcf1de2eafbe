@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_7ebee400",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-07T13:49:26Z",
+      "side": 1,
+      "message": "if node is null, doesn\u0027t this lead to a NPE exception? getTerminationPointsOfBridge() calls extractTerminationPointAugmentations() and does a node.getTerminationPoint().\n\nSeems like we need a continue in addition to the LOG.error() above.",
+      "range": {
+        "startLine": 586,
+        "startChar": 109,
+        "endLine": 586,
+        "endChar": 113
+      },
+      "revId": "6553bb7d8a288fd9489641a76247bcf1de2eafbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
