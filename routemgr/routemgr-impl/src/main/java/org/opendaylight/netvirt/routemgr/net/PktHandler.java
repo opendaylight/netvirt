@@ -318,8 +318,10 @@ public class PktHandler implements PacketProcessingListener {
                 if (gatewayIp.getIpv4Address() != null)
                     continue;
 
-                if (ifMgr.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6AddressMode())
-                        || ifMgr.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6RAMode())) {
+                if(((!subnet.getIpv6AddressMode().isEmpty())
+                        && (ifMgr.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6AddressMode())))
+                    || ((!subnet.getIpv6RAMode().isEmpty())
+                        && (ifMgr.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6RAMode())))) {
                     prefixList.add(subnet.getSubnetCidr());
                 }
 
