@@ -52,6 +52,24 @@
       "revId": "04731005a21ec2683ab1c1db8321e4904e99fc0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_2a9a6763",
+        "filename": "vpnservice/fcapsapplication/fcapsapplication-impl/src/main/config/default-config.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-06-07T12:05:37Z",
+      "side": 1,
+      "message": "\u003e What do you do if you have multiple config files and want to use the src/main/config path - do you create different bundles? \n\nI personally doubt you\u0027ll have multiple config file (config system wise) for one bundle. You would use only one default-config.xml that will do all the wiring, and you could have other config file for whatever purpose.\n\n\u003e If you do want them named differently at run time, do you just use the wanted name in the features.xml to name it? \n\nCorrect, and this is a requirement AFAIK.\n\n\u003e Not sure if this really matters, since at one time I recall users adding numbers to the names as this one was originally 73-xxx but there is no coordination among projects so I don\u0027t think that is working as intended.\n\nI think originally the intention was to have a deterministic bootup sequence based on those number, but I don\u0027t know if this ever worked. CSS has its own mechanism to track dependencies and thus to create a dependencies tree to have deterministic bootup.\n\nFinally, all of this questions aren\u0027t relevant when moving to blueprint. So hopefully, next release, netvirt/ovsdb will be freed of CSS, with respect to it.",
+      "parentUuid": "da5c1566_eaa18faa",
+      "revId": "04731005a21ec2683ab1c1db8321e4904e99fc0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
