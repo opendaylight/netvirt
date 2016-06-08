@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_922009f9",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/NetDataListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-08T11:52:27Z",
+      "side": 1,
+      "message": "minor nitpicks, but checkstyle/sonar will complain about no spaces between if and ( so we should follow that rule in future patches.",
+      "revId": "e231b321409b153eca9bbbf6c99ce6fbca381061",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
