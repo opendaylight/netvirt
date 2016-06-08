@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_549021ec",
+        "filename": "features/src/main/features/features.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-08T07:01:23Z",
+      "side": 1,
+      "message": "Wrap [1] fixes the following issue. Thanks to Stephen Kitt who helped me in addressing this issue.\n\nopendaylight-user@root\u003efeature:install odl-ovsdb-openstack\nError executing command: Can\u0027t install feature odl-ovsdb-openstack/0.0.0: \nJar is not a bundle, no Bundle-SymbolicName mvn:com.googlecode.java-ipv6/java-ipv6/0.16\n\n[1] http://www.aniketos.eu/content/using-wrap-protocol-install-bundles-apache-karaf",
+      "parentUuid": "da5c1566_01b149e1",
+      "range": {
+        "startLine": 34,
+        "startChar": 12,
+        "endLine": 34,
+        "endChar": 16
+      },
+      "revId": "b2bb9a79f2c17ec7fa54746b6a4608f69d477499",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_d45f1171",
         "filename": "routemgr/routemgr-features/src/main/features/features.xml",
         "patchSetId": 4
@@ -36,6 +60,24 @@
       "writtenOn": "2016-06-08T06:41:54Z",
       "side": 1,
       "message": "why is this ipv6 library included in the routermgr plugin. This is imported only in the netvirt-providers. so including in the openstack feature is alone sufficient right.",
+      "revId": "b2bb9a79f2c17ec7fa54746b6a4608f69d477499",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_b4eedd89",
+        "filename": "routemgr/routemgr-features/src/main/features/features.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-08T07:01:23Z",
+      "side": 1,
+      "message": "I added this to address the SingleFeatureTest Failure - https://jenkins.opendaylight.org/releng/job/netvirt-verify-routermanager/jdk\u003dopenjdk8,nodes\u003ddynamic_verify/50/console\n\nEven I had the same doubt, but noticed that after adding this, the build was fine :) Can you pls give a try in your build to see if this can be removed?",
+      "parentUuid": "da5c1566_d45f1171",
       "revId": "b2bb9a79f2c17ec7fa54746b6a4608f69d477499",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
