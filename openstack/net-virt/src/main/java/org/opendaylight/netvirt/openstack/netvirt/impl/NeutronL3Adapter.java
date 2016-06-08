@@ -934,9 +934,13 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
 
     private boolean isPortSecurityEnableUpdated(NeutronPort neutronPort) {
         LOG.trace("isPortSecuirtyEnableUpdated:" + neutronPort);
-        if (neutronPort.getOriginalPort().getPortSecurityEnabled()
-                != neutronPort.getPortSecurityEnabled()) {
-            return true;
+        try {
+            if (neutronPort.getOriginalPort().getPortSecurityEnabled() != neutronPort
+                    .getPortSecurityEnabled()) {
+                return true;
+            }
+        } catch (NullPointerException e) {
+            LOG.error("Exception in isPortSecurityEnableUpdated", e);
         }
         return false;
     }
@@ -1477,12 +1481,11 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
     }
 
     private void cleanupFloatingIPRules(final NeutronPort neutronPort) {
+
         List<NeutronFloatingIP> neutronFloatingIps = neutronFloatingIpCache.getAllFloatingIPs();
         if (neutronFloatingIps != null && !neutronFloatingIps.isEmpty()) {
             for (NeutronFloatingIP neutronFloatingIP : neutronFloatingIps) {
-                // Neutron floating Ip's port uuid cannot be null (Bug#5894)
-                if (neutronFloatingIP.getPortUUID() != null &&
-                        (neutronFloatingIP.getPortUUID().equals(neutronPort.getPortUUID()))) {
+                if (neutronFloatingIP.getPortUUID().equals(neutronPort.getPortUUID())) {
                     handleNeutronFloatingIPEvent(neutronFloatingIP, DELETE);
                 }
             }
