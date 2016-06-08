@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_34680dba",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/DelegatingDataTreeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 4233
+      },
+      "writtenOn": "2016-06-08T01:16:06Z",
+      "side": 1,
+      "message": "Agree. The threadpool names can be shortened further. Also the logging pattern can be adjusted in karaf using $KARAF_HOME/etc/org.apache.karaf.log.cfg file. Does it make sense to change the default pattern to accommodate more than 16 characters(increase a little bit say 24 chars)? Since we don\u0027t have the control over the naming of thread pools initiated from libraries and also to avoid ambiguities in naming.",
+      "parentUuid": "da5c1566_410ce142",
+      "revId": "f77a673b5c55e400509cc1c658b8f65b77f95971",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_2109ed31",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/NetvirtProvidersConfigImpl.java",
         "patchSetId": 2
