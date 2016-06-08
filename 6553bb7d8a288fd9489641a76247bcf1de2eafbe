@@ -22,6 +22,30 @@
       "revId": "6553bb7d8a288fd9489641a76247bcf1de2eafbe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_b4dd3d17",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-08T05:35:27Z",
+      "side": 1,
+      "message": "Sam, Handling NullPointerException for this scenario i have created separate bug#5988, and i have pushed the patch.\nhttps://git.opendaylight.org/gerrit/#/c/39931/.\nAnd this patch contains only logging the error message for the missed br-int interface node. and it won\u0027t stop any execution.",
+      "parentUuid": "da5c1566_7ebee400",
+      "range": {
+        "startLine": 586,
+        "startChar": 109,
+        "endLine": 586,
+        "endChar": 113
+      },
+      "revId": "6553bb7d8a288fd9489641a76247bcf1de2eafbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
