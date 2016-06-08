@@ -4,11 +4,16 @@ module aclservice-api {
     prefix "aclservice-api";
 
     import config { prefix config; revision-date 2013-04-05; }
+    import ietf-access-control-list { prefix ietf-acl;}
+    import ietf-yang-types { prefix "yang"; revision-date 2013-07-15; }
+    import yang-ext { prefix ext; revision-date 2013-07-09;}
+    import ietf-interfaces { prefix "ietf-if"; revision-date 2014-05-08;}
+
 
     description
         "ACL Service module";
 
-    revision "2016-05-23" {
+    revision "2016-06-08" {
         description
             "Initial revision";
     }
@@ -17,4 +22,58 @@ module aclservice-api {
         base "config:service-type";
         config:java-class "org.opendaylight.netvirt.aclservice.api.AclService";
     }
+
+    identity direction-base {
+        description "Base identity for direction";
+    }
+
+    identity direction-ingress {
+        description "Ingress direction.";
+        base direction-base;
+    }
+
+    identity direction-egress {
+        description "Egress direction.";
+        base direction-base;
+
+    }
+
+    augment "/ietf-acl:access-lists/ietf-acl:acl" {
+        description "Security Group Attributes";
+        ext:augment-identifier "security-group-attr";
+        leaf id {
+            type yang:uuid;
+            description "Security Rule ID.";
+        }
+        leaf security-group-id {
+            type yang:uuid;
+            description "The security group ID to associate with this security group rule.";
+        }
+        leaf remote-group-id {
+            description "The remote group ID to be associated with this security group rule.";
+            type yang:uuid;
+        }
+        leaf direction {
+            type identityref {
+                base "direction-base";
+            }
+            description "The direction in which metering rule is applied.
+                For a compute instance, an ingress security group rule is
+                applied to incoming (ingress) traffic for that instance.
+                An egress rule is applied to traffic leaving the instance.";
+        }
+    }
+
+    augment "/ietf-if:interfaces/ietf-if:interface" {
+        description "Apply ACL to interfaces";
+        ext:augment-identifier "interface-acl";
+        leaf port-security-enabled {
+            type boolean;
+            description "The port security status. The status is enabled (true) or disabled (false).";
+        }
+        leaf-list security-groups {
+            type yang:uuid;
+            description "The security group ID to associate with this interface.";
+        }
+   }
 }

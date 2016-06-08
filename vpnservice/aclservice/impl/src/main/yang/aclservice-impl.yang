@@ -5,7 +5,7 @@ module aclservice-impl {
 
     import config {prefix config; revision-date 2013-04-05;}
     import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28;}
-    import aclservice-api { prefix sg-api; revision-date 2016-05-23;}
+    import aclservice-api { prefix sg-api; revision-date 2016-06-08;}
 
     description
         "Service definition for ACL service project";
