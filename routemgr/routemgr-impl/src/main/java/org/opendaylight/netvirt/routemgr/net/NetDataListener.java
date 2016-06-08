@@ -210,13 +210,20 @@ public class NetDataListener implements DataChangeListener {
         // isEnableDhcp=true, augmentations={}}
 
         List<AllocationPools> poolsList = snet.getAllocationPools();
+        String ipv6AddrMode = "";
+        if(snet.getIpv6AddressMode() != null) {
+            ipv6AddrMode = IPV6_SUBNET_ATTRIBUTES_MAP.get(snet.getIpv6AddressMode());
+        }
+        String ipv6RaMode = "";
+        if(snet.getIpv6RaMode() != null) {
+            ipv6RaMode = IPV6_SUBNET_ATTRIBUTES_MAP.get(snet.getIpv6RaMode());
+        }
 
         ifMgr.addSubnet(snet.getUuid(), snet.getName(),
                     snet.getNetworkId(), snet.getTenantId(),
                     snet.getGatewayIp(), poolsList,
                     IP_VERSION_MAP.get(snet.getIpVersion()), snet.getCidr(),
-                    IPV6_SUBNET_ATTRIBUTES_MAP.get(snet.getIpv6AddressMode()),
-                    IPV6_SUBNET_ATTRIBUTES_MAP.get(snet.getIpv6RaMode()));
+                    ipv6AddrMode, ipv6RaMode);
 
         return;
     }
