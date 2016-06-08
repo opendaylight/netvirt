@@ -90,7 +90,7 @@ import org.slf4j.LoggerFactory;
 public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration, opListenerRegistration;
-    private ConcurrentMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<String, Runnable>();
+    private ConcurrentMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final DataBroker broker;
     private final IBgpManager bgpManager;
@@ -263,7 +263,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         long vpnId = VpnUtil.getVpnId(broker, vpnInstanceName);
 
         int instructionKey = 0;
-        List<Instruction> instructions = new ArrayList<Instruction>();
+        List<Instruction> instructions = new ArrayList<>();
 
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));
@@ -351,7 +351,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
     private void makeArpFlow(BigInteger dpId,short sIndex, int lPortTag, String vpnInterfaceName,
                              long vpnId, ArpReplyOrRequest replyOrRequest, int addOrRemoveFlow){
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher(lPortTag, ++sIndex, BigInteger.valueOf(vpnId));
         BigInteger metadataMask = MetaDataUtil.getMetaDataMaskForLPortDispatcher(MetaDataUtil.METADATA_MASK_SERVICE_INDEX,
                 MetaDataUtil.METADATA_MASK_LPORT_TAG, MetaDataUtil.METADATA_MASK_VRFID);
@@ -364,8 +364,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         matches.add(new MatchInfo(MatchFieldType.arp_op, new long[] { replyOrRequest.getArpOperation() }));
 
         // Instruction to punt to controller
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
@@ -664,7 +664,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     setNextHopAddress(nexthop).setLabel((long)label).build();
         LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nexthop, label);
 
-        List<VrfEntry> vrfEntryList = new ArrayList<VrfEntry>();
+        List<VrfEntry> vrfEntryList = new ArrayList<>();
         vrfEntryList.add(vrfEntry);
 
         InstanceIdentifierBuilder<VrfTables> idBuilder =

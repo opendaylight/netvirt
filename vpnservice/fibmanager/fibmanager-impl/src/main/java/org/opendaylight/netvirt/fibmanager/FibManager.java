@@ -217,7 +217,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
   private void installSubnetRouteInFib(BigInteger dpnId, RdToElanOpEntry rdToElanOpEntry,
                                        long vpnId, VrfEntry vrfEntry){
-      List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+      List<InstructionInfo> instructions = new ArrayList<>();
       Long elanTag = rdToElanOpEntry.getElanTag();
 
       instructions.add(new InstructionInfo(InstructionType.write_metadata,  new BigInteger[] { (BigInteger.valueOf(elanTag)).shiftLeft(24), MetaDataUtil.METADATA_MASK_SERVICE }));
@@ -225,9 +225,9 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       makeConnectedRoute(dpnId,vpnId,vrfEntry,rdToElanOpEntry.getRd(),
               instructions,NwConstants.ADD_FLOW);
 
-      List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+      List<ActionInfo> actionsInfos = new ArrayList<>();
       // reinitialize instructions list for LFIB Table
-      instructions = new ArrayList<InstructionInfo>();
+      instructions = new ArrayList<>();
 
       actionsInfos.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
       instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
@@ -269,11 +269,11 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
   private void makeSubnetRouteTableMissFlow(BigInteger dpnId, int addOrRemove) {
       final BigInteger COOKIE_TABLE_MISS = new BigInteger("8000004", 16);
-      List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
-      List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+      List<ActionInfo> actionsInfos = new ArrayList<>();
+      List<InstructionInfo> instructions = new ArrayList<>();
       actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[]{}));
       instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-      List<MatchInfo> matches = new ArrayList<MatchInfo>();
+      List<MatchInfo> matches = new ArrayList<>();
       String flowRef = getFlowRef(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, NwConstants.TABLE_MISS_FLOW);
       FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, flowRef,
               NwConstants.TABLE_MISS_PRIORITY, "Subnet Route Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
@@ -314,15 +314,15 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         localDpnId = localNextHopInfo.getDpnId();
         long groupId = nextHopManager.createLocalNextHop(vpnId, localDpnId, localNextHopInfo.getVpnInterfaceName(), localNextHopIP);
 
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        List<InstructionInfo> instructions = new ArrayList<>();
 
         actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId)}));
         instructions.add(new InstructionInfo(InstructionType.write_actions,actionsInfos));
         makeConnectedRoute(localDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW);
 
-        actionsInfos=new ArrayList<ActionInfo>();
-        instructions=new ArrayList<InstructionInfo>();
+        actionsInfos= new ArrayList<>();
+        instructions= new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
         actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));
         instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
@@ -337,7 +337,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   }
 
   private void makeTunnelTableEntry(BigInteger dpId, long label, long groupId/*String egressInterfaceName*/) {
-      List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+      List<ActionInfo> actionsInfos = new ArrayList<>();
       actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));
 
 
@@ -348,7 +348,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   }
 
   public void createTerminatingServiceActions( BigInteger destDpId, int label, List<ActionInfo> actionsInfos) {
-      List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+      List<MatchInfo> mkMatches = new ArrayList<>();
 
       LOG.info("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", destDpId , label,actionsInfos);
 
@@ -356,7 +356,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       // FIXME vxlan vni bit set is not working properly with OVS.need to revisit
       mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(label)}));
 
-      List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+      List<InstructionInfo> mkInstructions = new ArrayList<>();
       mkInstructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
 
       FlowEntity terminatingServiceTableFlowEntity = MDSALUtil.buildFlowEntity(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE,
@@ -369,7 +369,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   private void removeTunnelTableEntry(BigInteger dpId, long label) {
     FlowEntity flowEntity;
     LOG.info("remove terminatingServiceActions called with DpnId = {} and label = {}", dpId , label);
-    List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+    List<MatchInfo> mkMatches = new ArrayList<>();
     // Matching metadata
     mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(label)}));
     flowEntity = MDSALUtil.buildFlowEntity(dpId,
@@ -487,7 +487,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                 tunnelId}));
     }
     actionInfos.addAll(nextHopManager.getEgressActionsForInterface(tunnelInterface));
-    List<InstructionInfo> instructions= new ArrayList<InstructionInfo>();
+    List<InstructionInfo> instructions= new ArrayList<>();
     instructions.add(new InstructionInfo(InstructionType.write_actions, actionInfos));
 /*
     List<ActionInfo> actionInfos = resolveAdjacency(localDpnId, remoteDpnId, vpnId, vrfEntry);
@@ -687,7 +687,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       return;
     }
 
-    List<MatchInfo> matches = new ArrayList<MatchInfo>();
+    List<MatchInfo> matches = new ArrayList<>();
 
     matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
         BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
@@ -723,7 +723,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
   private void makeLFibTableEntry(BigInteger dpId, long label, List<InstructionInfo> instructions,
                                   String nextHop, int addOrRemove) {
-    List<MatchInfo> matches = new ArrayList<MatchInfo>();
+    List<MatchInfo> matches = new ArrayList<>();
     matches.add(new MatchInfo(MatchFieldType.eth_type,
                               new long[] { 0x8847L }));
     matches.add(new MatchInfo(MatchFieldType.mpls_label, new String[]{Long.toString(label)}));
@@ -906,9 +906,9 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     private void makeTableMissFlow(BigInteger dpnId, int addOrRemove) {
         final BigInteger COOKIE_TABLE_MISS = new BigInteger("1030000", 16);
         // Instruction to goto L3 InterfaceTable
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_INTERFACE_TABLE }));
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         FlowEntity flowEntityLfib = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_LFIB_TABLE,
                 getFlowRef(dpnId, NwConstants.L3_LFIB_TABLE, NwConstants.TABLE_MISS_FLOW),
                 NwConstants.TABLE_MISS_PRIORITY, "Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
@@ -943,7 +943,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     // Instruction to goto L3 InterfaceTable
     List<InstructionInfo> instructions = new ArrayList<>();
     instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {NwConstants.L3_LFIB_TABLE}));
-    List<MatchInfo> matches = new ArrayList<MatchInfo>();
+    List<MatchInfo> matches = new ArrayList<>();
     matches.add(new MatchInfo(MatchFieldType.eth_type,
                               new long[] { 0x8847L }));
     FlowEntity flowEntityToLfib = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_PROTOCOL_TABLE,
@@ -964,7 +964,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   }
 
   public List<String> printFibEntries() {
-    List<String> result = new ArrayList<String>();
+    List<String> result = new ArrayList<>();
     result.add(String.format("   %-7s  %-20s  %-20s  %-7s", "RD", "Prefix", "Nexthop", "Label"));
     result.add("-------------------------------------------------------------------");
     InstanceIdentifier<FibEntries> id = InstanceIdentifier.create(FibEntries.class);
@@ -982,8 +982,8 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   }
 
   private void makeL3IntfTblMissFlow(BigInteger dpnId, int addOrRemove) {
-    List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-    List<MatchInfo> matches = new ArrayList<MatchInfo>();
+    List<InstructionInfo> instructions = new ArrayList<>();
+    List<MatchInfo> matches = new ArrayList<>();
     final BigInteger COOKIE_TABLE_MISS = new BigInteger("1030000", 16);
     // Instruction to clear metadata except SI and LportTag bits
     instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] {
@@ -992,7 +992,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     instructions.add(new InstructionInfo(InstructionType.clear_actions));
     // Instruction to goto L3 InterfaceTable
 
-    List <ActionInfo> actionsInfos = new ArrayList <ActionInfo> ();
+    List <ActionInfo> actionsInfos = new ArrayList<>();
     actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{
         Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
     instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));

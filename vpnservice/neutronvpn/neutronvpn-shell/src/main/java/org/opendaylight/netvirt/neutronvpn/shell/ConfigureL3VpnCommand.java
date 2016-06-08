@@ -138,16 +138,16 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
         Uuid vuuid = new Uuid(vid);
 
         try {
-            ArrayList<String> rdList = new ArrayList<String>(Arrays.asList(rd.split(",")));
-            ArrayList<String> irtList = new ArrayList<String>(Arrays.asList(irt.split(",")));
-            ArrayList<String> ertList = new ArrayList<String>(Arrays.asList(ert.split(",")));
+            ArrayList<String> rdList = new ArrayList<>(Arrays.asList(rd.split(",")));
+            ArrayList<String> irtList = new ArrayList<>(Arrays.asList(irt.split(",")));
+            ArrayList<String> ertList = new ArrayList<>(Arrays.asList(ert.split(",")));
             Uuid tuuid = null;
 
             if (tid != null) {
                 tuuid = new Uuid(tid);
             }
 
-            List<L3vpn> l3vpns = new ArrayList<L3vpn>();
+            List<L3vpn> l3vpns = new ArrayList<>();
             L3vpn l3vpn = new L3vpnBuilder().setId(vuuid).setName(name).setRouteDistinguisher(rdList).setImportRT
                     (irtList)
                     .setExportRT(ertList).setTenantId(tuuid).build();
@@ -169,7 +169,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
         }
 
         try {
-            List<Uuid> sidList = new ArrayList<Uuid>();
+            List<Uuid> sidList = new ArrayList<>();
 
             if (sid != null) {
                 for (String sidStr : sid.split(",")) {
@@ -208,7 +208,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
         }
 
         try {
-            List<Uuid> vpnIdList = new ArrayList<Uuid>();
+            List<Uuid> vpnIdList = new ArrayList<>();
             vpnIdList.add(vpnid);
 
             Future<RpcResult<DeleteL3VPNOutput>> result =

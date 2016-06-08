@@ -45,7 +45,7 @@ public class SNATDefaultRouteProgrammer {
             return null;
         }
 
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
 
@@ -57,7 +57,7 @@ public class SNATDefaultRouteProgrammer {
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.PSNAT_TABLE }));
 
         String flowRef = getFlowRefFib(dpId, NatConstants.L3_FIB_TABLE, vpnId);
@@ -83,7 +83,7 @@ public class SNATDefaultRouteProgrammer {
             return null;
         }
 
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
 
@@ -95,7 +95,7 @@ public class SNATDefaultRouteProgrammer {
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 BigInteger.valueOf(bgpVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.PSNAT_TABLE }));
 
         String flowRef = getFlowRefFib(dpId, NatConstants.L3_FIB_TABLE, routerId);

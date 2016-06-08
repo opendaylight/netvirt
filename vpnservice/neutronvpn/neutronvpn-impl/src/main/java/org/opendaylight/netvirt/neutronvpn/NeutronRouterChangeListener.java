@@ -85,7 +85,7 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
         Uuid routerId = input.getUuid();
         //NOTE: Pass an empty routerSubnetIds list, as router interfaces
         //will be removed from VPN by invocations from NeutronPortChangeListener
-        List<Uuid> routerSubnetIds = new ArrayList<Uuid>();
+        List<Uuid> routerSubnetIds = new ArrayList<>();
         nvpnManager.handleNeutronRouterDeleted(routerId, routerSubnetIds);
         // Handle router deletion for the NAT service
         if (input.getExternalGatewayInfo() != null) {
@@ -106,8 +106,8 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
         if (vpnId == null) {
             vpnId = routerId;
         }
-        List<Routes> oldRoutes = (original.getRoutes() != null) ? original.getRoutes() : new ArrayList<Routes>();
-        List<Routes> newRoutes = (update.getRoutes() != null) ? update.getRoutes() : new ArrayList<Routes>();
+        List<Routes> oldRoutes = (original.getRoutes() != null) ? original.getRoutes() : new ArrayList<>();
+        List<Routes> newRoutes = (update.getRoutes() != null) ? update.getRoutes() : new ArrayList<>();
 
         if (!oldRoutes.equals(newRoutes)) {
             Iterator<Routes> iterator = newRoutes.iterator();

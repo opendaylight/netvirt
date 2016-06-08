@@ -491,7 +491,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     @Override
     public List<ElanInstance> getElanInstances() {
-        List<ElanInstance> elanList = new ArrayList<ElanInstance>();
+        List<ElanInstance> elanList = new ArrayList<>();
         InstanceIdentifier<ElanInstances> elanInstancesIdentifier = InstanceIdentifier.builder(ElanInstances.class)
                 .build();
         Optional<ElanInstances> elansOptional = ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,

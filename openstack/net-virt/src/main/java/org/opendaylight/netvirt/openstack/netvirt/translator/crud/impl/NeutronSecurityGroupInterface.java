@@ -124,7 +124,7 @@ public class NeutronSecurityGroupInterface extends AbstractNeutronInterface<Secu
             .fetchINeutronSecurityRuleCRUD(this);
         INeutronSecurityRuleCRUD srCrud = interfaces.getSecurityRuleInterface();
 
-        List<NeutronSecurityRule> rules = new ArrayList<NeutronSecurityRule>();
+        List<NeutronSecurityRule> rules = new ArrayList<>();
         String sgId = group.getUuid().getValue();
         for (NeutronSecurityRule rule: srCrud.getAllNeutronSecurityRules()) {
             if (rule.getSecurityRuleGroupID().equals(sgId)) {
@@ -155,7 +155,7 @@ public class NeutronSecurityGroupInterface extends AbstractNeutronInterface<Secu
         // don't update security group rule, always empty list
         // Bug 4550
         // https://bugs.opendaylight.org/show_bug.cgi?id=4550
-        securityGroupBuilder.setSecurityRules(new ArrayList<Uuid>());
+        securityGroupBuilder.setSecurityRules(new ArrayList<>());
 
         if (securityGroup.getID() != null) {
             securityGroupBuilder.setUuid(toUuid(securityGroup.getID()));

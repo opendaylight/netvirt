@@ -104,7 +104,7 @@ public class ElanL2GatewayUtils {
     private static Timer LogicalSwitchDeleteJobTimer = new Timer();
     private static final int LOGICAL_SWITCH_DELETE_DELAY = 120000;
     private static ConcurrentMap<Pair<NodeId, String>, TimerTask> LogicalSwitchDeletedTasks =
-            new ConcurrentHashMap<Pair<NodeId, String>, TimerTask>();
+            new ConcurrentHashMap<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanL2GatewayUtils.class);
 
@@ -415,7 +415,7 @@ public class ElanL2GatewayUtils {
                     });
         }
         final IpAddress extL2GwDeviceTepIp = extL2GwDevice.getTunnelIp();
-        final List<PhysAddress> macList = new ArrayList<PhysAddress>();
+        final List<PhysAddress> macList = new ArrayList<>();
         macList.add(new PhysAddress(macToBeAdded));
 
         String jobKey = "hwvtep:"+elan.getElanInstanceName() + ":" + macToBeAdded;
@@ -715,7 +715,7 @@ public class ElanL2GatewayUtils {
     public static List<RemoteUcastMacs> getOtherDevicesMacs(String elanName,
                                                             L2GatewayDevice l2GatewayDeviceToBeConfigured,
                                                             NodeId hwVtepNodeId, String logicalSwitchName) {
-        List<RemoteUcastMacs> lstRemoteUcastMacs = new ArrayList<RemoteUcastMacs>();
+        List<RemoteUcastMacs> lstRemoteUcastMacs = new ArrayList<>();
         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevicesFromCache = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(elanName);
 
@@ -776,7 +776,7 @@ public class ElanL2GatewayUtils {
     public static List<RemoteUcastMacs> getElanMacTableEntriesMacs(String elanName,
                                                                    L2GatewayDevice l2GatewayDeviceToBeConfigured,
                                                                    NodeId hwVtepNodeId, String logicalSwitchName) {
-        List<RemoteUcastMacs> lstRemoteUcastMacs = new ArrayList<RemoteUcastMacs>();
+        List<RemoteUcastMacs> lstRemoteUcastMacs = new ArrayList<>();
 
         MacTable macTable = ElanUtils.getElanMacTable(elanName);
         if (macTable == null || macTable.getMacEntry() == null || macTable.getMacEntry().isEmpty()) {
@@ -1106,13 +1106,13 @@ public class ElanL2GatewayUtils {
                         SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
             }
         };
-        Pair<NodeId, String> nodeIdLogicalSwitchNamePair = new ImmutablePair<NodeId, String>(hwvtepNodeId, lsName);
+        Pair<NodeId, String> nodeIdLogicalSwitchNamePair = new ImmutablePair<>(hwvtepNodeId, lsName);
         LogicalSwitchDeletedTasks.put(nodeIdLogicalSwitchNamePair, logicalSwitchDeleteTask);
         LogicalSwitchDeleteJobTimer.schedule(logicalSwitchDeleteTask, LOGICAL_SWITCH_DELETE_DELAY);
     }
 
     public static void cancelDeleteLogicalSwitch(final NodeId hwvtepNodeId, final String lsName) {
-        Pair<NodeId, String> nodeIdLogicalSwitchNamePair = new ImmutablePair<NodeId, String>(hwvtepNodeId, lsName);
+        Pair<NodeId, String> nodeIdLogicalSwitchNamePair = new ImmutablePair<>(hwvtepNodeId, lsName);
         TimerTask logicalSwitchDeleteTask = LogicalSwitchDeletedTasks.get(nodeIdLogicalSwitchNamePair);
         if (logicalSwitchDeleteTask != null) {
             LOG.debug("Delete logical switch {} action on node {} cancelled", lsName, hwvtepNodeId);

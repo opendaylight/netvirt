@@ -52,7 +52,7 @@ public class NeutronIAwareUtil {
     public static List<Neutron_IPs> convertMDSalIpToNeutronIp(List<FixedIps> fixedIps) {
         List<Neutron_IPs> ips = null;
         if (fixedIps != null) {
-            ips = new ArrayList<Neutron_IPs>();
+            ips = new ArrayList<>();
             for (FixedIps mdIP : fixedIps) {
                 Neutron_IPs ip = new Neutron_IPs();
                 ip.setIpAddress(String.valueOf(mdIP.getIpAddress().getValue()));

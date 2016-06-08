@@ -59,7 +59,7 @@ public class VpnServiceTest {
     @Test
     public void test() {
 
-        List<VpnTarget> vpnTargetList = new ArrayList<VpnTarget>();
+        List<VpnTarget> vpnTargetList = new ArrayList<>();
 
         VpnTarget vpneRTarget = new VpnTargetBuilder().setKey(new VpnTargetKey("100:1")).setVrfRTValue("100:1")
                 .setVrfRTType(VpnTarget.VrfRTType.ExportExtcommunity).build();
