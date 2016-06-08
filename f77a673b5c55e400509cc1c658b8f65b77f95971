@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_410ce142",
+        "filename": "netvirt/renderers/neutron/src/main/java/org/opendaylight/netvirt/netvirt/renderers/neutron/DelegatingDataTreeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-08T00:29:06Z",
+      "side": 1,
+      "message": "Is this name too long to show up in the logging? The karaf logs currently only display 16 characters so this would be truncated. Maybe something like: nv-\u003cstring\u003e-id would work. The string would need to be shortened to fit and could be just the consanants and no vowels.",
+      "revId": "f77a673b5c55e400509cc1c658b8f65b77f95971",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_2109ed31",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/NetvirtProvidersConfigImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-08T00:29:06Z",
+      "side": 1,
+      "message": "could get rid of the first Netvirt to shorten it",
+      "revId": "f77a673b5c55e400509cc1c658b8f65b77f95971",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
