@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_f25ce527",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 938,
+      "author": {
+        "id": 5448
+      },
+      "writtenOn": "2016-06-08T10:08:27Z",
+      "side": 1,
+      "message": "Instead of try - catch, validating the variable will be less costly\nif(neutronPort !\u003d null \u0026\u0026 neutronPort.getOriginalPort() !\u003d null \u0026\u0026 neutronPort.getOriginalPort().getPortSecurityEnabled ! \u003d null \u0026\u0026 neutronPort.getOriginalPort().getPortSecurityEnabled !\u003d neutronPort) {\nreturn true;\n}",
+      "range": {
+        "startLine": 938,
+        "startChar": 28,
+        "endLine": 938,
+        "endChar": 43
+      },
+      "revId": "7d01f754b1ea12fcfbb23e97e731594cf37dff84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
