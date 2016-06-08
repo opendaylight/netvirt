@@ -458,6 +458,9 @@ public class SouthboundImpl implements Southbound {
 
     public List<OvsdbTerminationPointAugmentation> extractTerminationPointAugmentations( Node node ) {
         List<OvsdbTerminationPointAugmentation> tpAugmentations = new ArrayList<>();
+        if(node == null) {
+            return tpAugmentations;
+        }
         List<TerminationPoint> terminationPoints = node.getTerminationPoint();
         if(terminationPoints != null && !terminationPoints.isEmpty()){
             for(TerminationPoint tp : terminationPoints){

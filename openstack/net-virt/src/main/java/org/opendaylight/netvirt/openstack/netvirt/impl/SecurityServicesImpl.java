@@ -575,6 +575,9 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
 
     private Node getNode(NeutronPort port) {
         LOG.trace("getNode:Port" + port);
+        if (port == null) {
+            return null;
+        }
         List<Node> toplogyNodes = southbound.readOvsdbTopologyNodes();
 
         for (Node topologyNode : toplogyNodes) {
