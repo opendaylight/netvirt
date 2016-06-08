@@ -47,12 +47,7 @@ public class NeutronSecurityGroup implements Serializable, INeutronObject {
     @XmlElement(name = "tenant_id")
     String securityGroupTenantID;
 
-    @XmlElement(name = "security_group_rules")
-    List<NeutronSecurityRule> neutronSecurityRule;
-
     public NeutronSecurityGroup() {
-        neutronSecurityRule = new ArrayList<>();
-
     }
 
     public String getID() {
@@ -97,15 +92,6 @@ public class NeutronSecurityGroup implements Serializable, INeutronObject {
         this.securityGroupTenantID = securityGroupTenantID;
     }
 
-    // Rules In Group
-    public List<NeutronSecurityRule> getSecurityRules() {
-        return neutronSecurityRule;
-    }
-
-    public void setSecurityRules(List<NeutronSecurityRule> neutronSecurityRule) {
-        this.neutronSecurityRule = neutronSecurityRule;
-    }
-
     public NeutronSecurityGroup extractFields(List<String> fields) {
         NeutronSecurityGroup ans = new NeutronSecurityGroup ();
         for (String s : fields) {
@@ -122,9 +108,6 @@ public class NeutronSecurityGroup implements Serializable, INeutronObject {
                 case "tenant_id":
                     ans.setSecurityGroupTenantID(this.getSecurityGroupTenantID());
                     break;
-                case "security_group_rules":
-                    ans.setSecurityRules(this.getSecurityRules());
-                    break;
             }
         }
         return ans;
@@ -137,7 +120,7 @@ public class NeutronSecurityGroup implements Serializable, INeutronObject {
                 ", securityGroupName='" + securityGroupName + '\'' +
                 ", securityGroupDescription='" + securityGroupDescription + '\'' +
                 ", securityGroupTenantID='" + securityGroupTenantID + '\'' +
-                ", securityRules=" + neutronSecurityRule + "]";
+                "]";
     }
 
     public void initDefaults() {

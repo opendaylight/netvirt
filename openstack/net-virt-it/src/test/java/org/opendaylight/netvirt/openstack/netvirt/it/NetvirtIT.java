@@ -535,9 +535,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         assertNotNull("Could not find ineutronSecurityRuleCRUD Service", ineutronSecurityRuleCRUD);
 
         NeutronSecurityGroup neutronSG = new NeutronSecurityGroup();
-        neutronSG.setSecurityGroupDescription("testig defaultSG-IT");
         neutronSG.setSecurityGroupName("DefaultSG");
-        neutronSG.setSecurityGroupUUID("d3329053-bae5-4bf4-a2d1-7330f11ba5db");
+        neutronSG.setID("d3329053-bae5-4bf4-a2d1-7330f11ba5db");
         neutronSG.setTenantID(tenantId);
 
         List<NeutronSecurityRule> nsrs = new ArrayList<>();
@@ -548,7 +547,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         nsrIN.setSecurityRuleGroupID("d3329053-bae5-4bf4-a2d1-7330f11ba5db");
         nsrIN.setSecurityRuleProtocol("TCP");
         nsrIN.setSecurityRuleRemoteIpPrefix("10.0.0.0/24");
-        nsrIN.setSecurityRuleUUID("823faaf7-175d-4f01-a271-0bf56fb1e7e6");
+        nsrIN.setID("823faaf7-175d-4f01-a271-0bf56fb1e7e6");
         nsrIN.setTenantID(tenantId);
 
         NeutronSecurityRule nsrEG = new NeutronSecurityRule();
@@ -558,13 +557,12 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         nsrEG.setSecurityRuleGroupID("d3329053-bae5-4bf4-a2d1-7330f11ba5db");
         nsrEG.setSecurityRuleProtocol("TCP");
         nsrEG.setSecurityRuleRemoteIpPrefix("10.0.0.0/24");
-        nsrEG.setSecurityRuleUUID("823faaf7-175d-4f01-a271-0bf56fb1e7e1");
+        nsrEG.setID("823faaf7-175d-4f01-a271-0bf56fb1e7e1");
         nsrEG.setTenantID(tenantId);
 
         nsrs.add(nsrIN);
         nsrs.add(nsrEG);
 
-        neutronSG.setSecurityRules(nsrs);
         ineutronSecurityRuleCRUD.addNeutronSecurityRule(nsrIN);
         ineutronSecurityRuleCRUD.addNeutronSecurityRule(nsrEG);
         ineutronSecurityGroupCRUD.add(neutronSG);
