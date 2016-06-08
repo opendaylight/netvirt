@@ -57,7 +57,7 @@ import com.google.common.util.concurrent.Futures;
 public class VpnManager extends AbstractDataChangeListener<VpnInstance> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration, fibListenerRegistration, opListenerRegistration;
-    private ConcurrentMap<String, Runnable> vpnOpMap = new ConcurrentHashMap<String, Runnable>();
+    private ConcurrentMap<String, Runnable> vpnOpMap = new ConcurrentHashMap<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final DataBroker broker;
     private final IBgpManager bgpManager;
@@ -278,8 +278,8 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
 
             List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
 
-            List<String> ertList = new ArrayList<String>();
-            List<String> irtList = new ArrayList<String>();
+            List<String> ertList = new ArrayList<>();
+            List<String> irtList = new ArrayList<>();
 
             for (VpnTarget vpnTarget : vpnTargetList) {
                 if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {

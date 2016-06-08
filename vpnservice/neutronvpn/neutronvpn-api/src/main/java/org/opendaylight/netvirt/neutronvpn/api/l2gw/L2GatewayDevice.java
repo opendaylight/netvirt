@@ -38,7 +38,7 @@ public class L2GatewayDevice {
     Set<Uuid> l2GatewayIds = new HashSet<>();
 
     /** The ucast local macs. */
-    List<LocalUcastMacs> ucastLocalMacs = Collections.synchronizedList(new ArrayList<LocalUcastMacs>());
+    List<LocalUcastMacs> ucastLocalMacs = Collections.synchronizedList(new ArrayList<>());
 
     /** the status of this device connectin */
     AtomicBoolean connected = new AtomicBoolean(true);

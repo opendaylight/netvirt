@@ -145,8 +145,8 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                     update);
         }
 
-        List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<FixedIps>();
-        List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<FixedIps>();
+        List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<>();
+        List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<>();
 
         /* check if router interface has been updated */
         if ((update.getDeviceOwner() != null) && (update.getDeviceId() != null)) {

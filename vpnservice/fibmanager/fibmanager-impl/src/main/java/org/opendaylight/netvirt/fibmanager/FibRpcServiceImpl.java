@@ -123,7 +123,7 @@ public class FibRpcServiceImpl implements FibRpcService {
           LOG.error("UnknowHostException in removeRoute. Failed  to remove Route for ipPrefix {}", ipAddress);
           return;
         }
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
 
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
             BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
@@ -150,7 +150,7 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
     private void removeLFibTableEntry(BigInteger dpnId, long serviceId) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                                   new long[] { 0x8847L }));
         matches.add(new MatchInfo(MatchFieldType.mpls_label, new String[]{Long.toString(serviceId)}));
@@ -170,7 +170,7 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     private void removeTunnelTableEntry(BigInteger dpnId, long serviceId) {
         LOG.info("remove terminatingServiceActions called with DpnId = {} and label = {}", dpnId , serviceId);
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(serviceId)}));
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
@@ -182,7 +182,7 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
     private void makeTunnelTableEntry(BigInteger dpnId, long serviceId, List<Instruction> customInstructions) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
 
         LOG.info("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", dpnId , serviceId);
 
@@ -212,7 +212,7 @@ public class FibRpcServiceImpl implements FibRpcService {
           LOG.error("UnknowHostException in addRoute. Failed  to add Route for ipPrefix {}", ipAddress);
           return;
         }
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
 
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
             BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
@@ -239,13 +239,13 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
     private void makeLFibTableEntry(BigInteger dpId, long serviceId, List<Instruction> customInstructions) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x8847L }));
         matches.add(new MatchInfo(MatchFieldType.mpls_label, new String[]{Long.toString(serviceId)}));
 
-        List<Instruction> instructions = new ArrayList<Instruction>();
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        List<Instruction> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
         Instruction writeInstruction = new InstructionInfo(InstructionType.write_actions, actionsInfos).buildInstruction(0);
         instructions.add(writeInstruction);

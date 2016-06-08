@@ -163,7 +163,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         long segmentId = (associatedVpn == NatConstants.INVALID_ID) ? routerId : associatedVpn;
         LOG.debug("Segment id {} in build preDNAT Flow", segmentId);
 
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
 
@@ -173,10 +173,10 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 //        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
 //                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.set_destination_ip, new String[]{ internalIp, "32" }));
 
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf
                 (segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
@@ -204,7 +204,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         long segmentId = (associatedVpn == NatConstants.INVALID_ID) ? routerId : associatedVpn;
         LOG.debug("Segment id {} in build DNAT", segmentId);
 
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 BigInteger.valueOf(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
 
@@ -215,10 +215,10 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         //        externalIp, "32" }));
                   internalIp, "32" }));
 
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
 //        actionsInfos.add(new ActionInfo(ActionType.set_destination_ip, new String[]{ internalIp, "32" }));
 
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
 //        instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf
 //                (routerId), MetaDataUtil.METADATA_MASK_VRFID }));
         actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NatConstants.L3_FIB_TABLE) }));
@@ -247,7 +247,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
         LOG.debug("Segment id {} in build preSNAT flow", segmentId);
 
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
 
@@ -257,10 +257,10 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 BigInteger.valueOf(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
 
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.set_source_ip, new String[]{ externalIp, "32" }));
 
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.SNAT_TABLE }));
@@ -278,7 +278,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
         LOG.info("Building SNAT Flow entity for ip {} ", internalIp);
 
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
@@ -289,7 +289,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         //        internalIp, "32" }));
                   externalIp, "32" }));
 
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
 //        actionsInfos.add(new ActionInfo(ActionType.set_source_ip, new String[]{ externalIp, "32" }));
 
         //TODO: Set external gateway mac address
@@ -298,7 +298,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
             actionsInfos.add(new ActionInfo(ActionType.set_field_eth_dest, new String[]{ macAddress }));
         }
 
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
         //instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
         actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NatConstants.L3_FIB_TABLE) }));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));

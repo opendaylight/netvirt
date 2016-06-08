@@ -78,8 +78,8 @@ public class DhcpServiceUtils {
         }
         List<MatchInfo> matches = getDhcpMatch(vmMacAddress);
 
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
 
         // Punt to controller
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
@@ -115,8 +115,8 @@ public class DhcpServiceUtils {
         }
         List<MatchInfo> matches = getDhcpMatch(vmMacAddress);
 
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
         // Drop Action
         actionsInfos.add(new ActionInfo(ActionType.drop_action,
@@ -138,7 +138,7 @@ public class DhcpServiceUtils {
     }
 
     private static List<MatchInfo> getDhcpMatch(String vmMacAddress) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { NwConstants.ETHTYPE_IPV4 }));
         matches.add(new MatchInfo(MatchFieldType.ip_proto,
@@ -153,7 +153,7 @@ public class DhcpServiceUtils {
     }
 
     public static List<BigInteger> getListOfDpns(DataBroker broker) {
-        List<BigInteger> dpnsList = new LinkedList<BigInteger>();
+        List<BigInteger> dpnsList = new LinkedList<>();
         InstanceIdentifier<Nodes> nodesInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).build();
         Optional<Nodes> nodesOptional = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, nodesInstanceIdentifier);
         if (!nodesOptional.isPresent()) {
@@ -173,7 +173,7 @@ public class DhcpServiceUtils {
     }
 
     public static List<BigInteger> getDpnsForElan(String elanInstanceName, DataBroker broker) {
-        List<BigInteger> elanDpns = new LinkedList<BigInteger>();
+        List<BigInteger> elanDpns = new LinkedList<>();
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInstanceIdentifier = InstanceIdentifier.builder(ElanDpnInterfaces.class).child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
         Optional<ElanDpnInterfacesList> elanDpnOptional = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInstanceIdentifier);
         if (elanDpnOptional.isPresent()) {

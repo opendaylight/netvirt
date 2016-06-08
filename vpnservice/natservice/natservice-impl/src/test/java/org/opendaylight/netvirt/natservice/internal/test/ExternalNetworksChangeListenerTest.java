@@ -88,24 +88,24 @@ public class ExternalNetworksChangeListenerTest {
         String routerName = new String("200");
         long routerId = 200;
         long groupId = 300;
-        List<BucketInfo> bucketInfo = new ArrayList<BucketInfo>();
-        List<ActionInfo> listActionInfoPrimary = new ArrayList<ActionInfo>();
+        List<BucketInfo> bucketInfo = new ArrayList<>();
+        List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
         listActionInfoPrimary.add(new ActionInfo(ActionType.output,
                 new String[] {"3"}));
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
-        List<ActionInfo> listActionInfoSecondary = new ArrayList<ActionInfo>();
+        List<ActionInfo> listActionInfoSecondary = new ArrayList<>();
         listActionInfoSecondary.add(new ActionInfo(ActionType.output,
                 new String[] {"4"}));
         BucketInfo bucketSecondary = new BucketInfo(listActionInfoPrimary);
         bucketInfo.add(0, bucketPrimary);
         bucketInfo.add(1, bucketSecondary);
 
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
 
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
         instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
 

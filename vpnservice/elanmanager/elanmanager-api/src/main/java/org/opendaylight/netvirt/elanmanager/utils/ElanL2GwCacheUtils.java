@@ -17,7 +17,7 @@ import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.genius.utils.cache.CacheUtil;
 
 public class ElanL2GwCacheUtils {
-    private static final ConcurrentHashMap<String, L2GatewayDevice> EMPTY_MAP = new ConcurrentHashMap<String, L2GatewayDevice>();
+    private static final ConcurrentHashMap<String, L2GatewayDevice> EMPTY_MAP = new ConcurrentHashMap<>();
     public static final String L2GATEWAY_CONN_CACHE_NAME = "L2GWCONN";
 
     public static void createElanL2GwDeviceCache() {
@@ -35,7 +35,7 @@ public class ElanL2GwCacheUtils {
             synchronized(ElanL2GwCacheUtils.class) {
                 deviceMap = cachedMap.get(elanName);
                 if (deviceMap == null) {
-                    deviceMap = new ConcurrentHashMap<String, L2GatewayDevice>();
+                    deviceMap = new ConcurrentHashMap<>();
                     cachedMap.put(elanName, deviceMap);
                 }
             }
@@ -100,7 +100,7 @@ public class ElanL2GwCacheUtils {
             return null;
         }
 
-        List<L2GatewayDevice> l2GwDevices = new ArrayList<L2GatewayDevice>();
+        List<L2GatewayDevice> l2GwDevices = new ArrayList<>();
         for (ConcurrentMap<String, L2GatewayDevice> l2gwDevices : cachedMap.values())
         {
             for (L2GatewayDevice l2gwDevice : l2gwDevices.values() ) {
