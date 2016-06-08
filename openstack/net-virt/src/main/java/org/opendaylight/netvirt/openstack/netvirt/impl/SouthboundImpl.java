@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.openstack.netvirt.impl;
 import java.math.BigInteger;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -458,6 +459,10 @@ public class SouthboundImpl implements Southbound {
 
     public List<OvsdbTerminationPointAugmentation> extractTerminationPointAugmentations( Node node ) {
         List<OvsdbTerminationPointAugmentation> tpAugmentations = new ArrayList<>();
+        if (node == null) {
+            LOG.error("extractTerminationPointAugmentations: Node value is null");
+            return Collections.<OvsdbTerminationPointAugmentation>emptyList();
+        }
         List<TerminationPoint> terminationPoints = node.getTerminationPoint();
         if(terminationPoints != null && !terminationPoints.isEmpty()){
             for(TerminationPoint tp : terminationPoints){
@@ -472,6 +477,10 @@ public class SouthboundImpl implements Southbound {
     }
 
     public List<OvsdbTerminationPointAugmentation> readTerminationPointAugmentations(Node node) {
+        if (node == null) {
+            LOG.error("readTerminationPointAugmentations: Node value is null");
+            return Collections.<OvsdbTerminationPointAugmentation>emptyList();
+        }
         InstanceIdentifier<Node> bridgeNodeIid = MdsalHelper.createInstanceIdentifier(node.getNodeId());
         Node operNode = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, bridgeNodeIid);
         if(operNode != null){
