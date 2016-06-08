@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_17518b62",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IPv6RtrFlow.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-08T09:24:49Z",
+      "side": 1,
+      "message": "I see that we are still programming a generic flow and not adding match conditions like networkID (or port number etc).\n\nThe issue with this approach is explained in my previous comments at https://git.opendaylight.org/gerrit/#/c/38961/1//COMMIT_MSG@11\n\nSide note:\nIf we intend to add a new flow for each of VM ports, then we can include in_port in the match criteria.\nIf we intend to add a single flow for all the VMs spawned on the compute node for a network, we can add a match criteria with tun_id.",
+      "revId": "c4a75be9b213c3c054c9558661d71b38dafa9619",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_f75a1782",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-08T09:24:49Z",
+      "side": 1,
+      "message": "patchIntf would only contain patch ports right (like patch-int, patch-ext etc). May i know when intf would be part of patchIntf?",
+      "revId": "c4a75be9b213c3c054c9558661d71b38dafa9619",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_97659b47",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-08T09:24:49Z",
+      "side": 1,
+      "message": "I applied the patch to verify the behavior. \nWhat I see is that flow to punt the NS for the Router interface are never programmed. Looking at the code I\u0027m not able to figure out where we are programming such flows. \n\nCan you pls point me to the place where NS from the VMs (addressed to Router iface/LLA-address) is programmed?",
+      "revId": "c4a75be9b213c3c054c9558661d71b38dafa9619",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
