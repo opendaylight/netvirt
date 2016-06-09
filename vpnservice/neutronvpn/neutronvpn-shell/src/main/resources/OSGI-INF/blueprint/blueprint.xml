@@ -14,6 +14,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                availability="optional"/>
     <reference id="rpcRegistryRef" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"
                availability="optional"/>
+    <reference id="dataBrokerRef" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+               availability="optional"/>
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
         <command>
@@ -32,6 +34,18 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <command>
             <action class="org.opendaylight.netvirt.neutronvpn.shell.ShowNeutronPortsCommand">
                 <property name="neutronVpnManager" ref="neutronVpnManagerRef"/>
+            </action>
+        </command>
+
+        <command>
+            <action class="org.opendaylight.vpnservice.neutronvpn.shell.DhcpConfigureCommand">
+                <property name="dataBroker" ref="dataBrokerRef"/>
+            </action>
+        </command>
+
+        <command>
+            <action class="org.opendaylight.vpnservice.neutronvpn.shell.DhcpShowCommand">
+                <property name="dataBroker" ref="dataBrokerRef"/>
             </action>
         </command>
 

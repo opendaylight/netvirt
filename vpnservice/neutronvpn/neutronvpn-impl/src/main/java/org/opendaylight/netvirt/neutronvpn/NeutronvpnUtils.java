@@ -23,6 +23,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
@@ -30,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -62,6 +66,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -70,6 +75,10 @@ public class NeutronvpnUtils {
     private static final Logger logger = LoggerFactory.getLogger(NeutronvpnUtils.class);
     public static final String DEVICE_OWNER_ROUTER_INF = "network:router_interface";
     public static final String VNIC_TYPE_NORMAL = "normal";
+    public static ConcurrentHashMap<Uuid, Network> networkMap = new ConcurrentHashMap<Uuid, Network>();
+    public static ConcurrentHashMap<Uuid, Router> routerMap = new ConcurrentHashMap<Uuid, Router>();
+    public static ConcurrentHashMap<Uuid, Port> portMap = new ConcurrentHashMap<Uuid, Port>();
+    public static ConcurrentHashMap<Uuid, Subnet> subnetMap = new ConcurrentHashMap<Uuid, Subnet>();
 
     protected static Subnetmap getSubnetmap(DataBroker broker, Uuid subnetId) {
         InstanceIdentifier id = buildSubnetMapIdentifier(subnetId);
@@ -164,25 +173,34 @@ public class NeutronvpnUtils {
     }
 
     protected static Router getNeutronRouter(DataBroker broker, Uuid routerId) {
-
+        Router router = null;
+        router = routerMap.get(routerId);
+        if(router != null){
+            return router;
+        }
         InstanceIdentifier<Router> inst = InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router
                 .class, new RouterKey(routerId));
         Optional<Router> rtr = read(broker, LogicalDatastoreType.CONFIGURATION, inst);
         if (rtr.isPresent()) {
-            return rtr.get();
+            router = rtr.get();
         }
-        return null;
+        return router;
     }
 
     protected static Network getNeutronNetwork(DataBroker broker, Uuid networkId) {
+        Network network = null;
+        network = networkMap.get(networkId);
+        if(network != null){
+            return network;
+        }
         logger.debug("getNeutronNetwork for {}", networkId.getValue());
         InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class).child(Networks.class).child
                 (Network.class, new NetworkKey(networkId));
         Optional<Network> net = read(broker, LogicalDatastoreType.CONFIGURATION, inst);
         if (net.isPresent()) {
-            return net.get();
+            network = net.get();
         }
-        return null;
+        return network;
     }
 
     protected static List<Uuid> getNeutronRouterSubnetIds(DataBroker broker, Uuid routerId) {
@@ -227,14 +245,35 @@ public class NeutronvpnUtils {
     }
 
     protected static Port getNeutronPort(DataBroker broker, Uuid portId) {
+        Port prt = null;
+        prt = portMap.get(portId);
+        if(prt != null){
+            return prt;
+        }
         logger.debug("getNeutronPort for {}", portId.getValue());
         InstanceIdentifier<Port> inst = InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class,
                 new PortKey(portId));
         Optional<Port> port = read(broker, LogicalDatastoreType.CONFIGURATION, inst);
         if (port.isPresent()) {
-            return port.get();
+            prt = port.get();
         }
-        return null;
+        return prt;
+    }
+
+    protected static Subnet getNeutronSubnet(DataBroker broker, Uuid subnetId) {
+        Subnet subnet = null;
+        subnet = subnetMap.get(subnetId);
+        if(subnet != null){
+            return subnet;
+        }
+        InstanceIdentifier<Subnet> inst = InstanceIdentifier.create(Neutron.class).
+                child(Subnets.class).child(Subnet.class, new SubnetKey(subnetId));
+        Optional<Subnet> sn = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+
+        if (sn.isPresent()) {
+            subnet = sn.get();
+        }
+        return subnet;
     }
 
     protected static String uuidToTapPortName(Uuid id) {
@@ -310,6 +349,38 @@ public class NeutronvpnUtils {
         return null;
     }
 
+    public static void addToNetworkCache(Network network){
+        networkMap.put(network.getUuid(),network);
+    }
+
+    public static void removeFromNetworkCache(Network network){
+        networkMap.remove(network.getUuid());
+    }
+
+    public static void addToRouterCache(Router router){
+        routerMap.put(router.getUuid(),router);
+    }
+
+    public static void removeFromRouterCache(Router router){
+        routerMap.remove(router.getUuid());
+    }
+
+    public static void addToPortCache(Port port){
+        portMap.put(port.getUuid(),port);
+    }
+
+    public static void removeFromPortCache(Port port){
+        portMap.remove(port.getUuid());
+    }
+
+    public static void addToSubnetCache(Subnet subnet){
+        subnetMap.put(subnet.getUuid(),subnet);
+    }
+
+    public static void removeFromSubnetCache(Subnet subnet){
+        subnetMap.remove(subnet.getUuid());
+    }
+
     static InstanceIdentifier<PortFixedipToPortName> buildFixedIpToPortNameIdentifier(String fixedIp) {
         InstanceIdentifier<PortFixedipToPortName> id = InstanceIdentifier.builder(NeutronPortData.class).child
                 (PortFixedipToPortName.class, new PortFixedipToPortNameKey(fixedIp)).build();
@@ -353,5 +424,17 @@ public class NeutronvpnUtils {
         }
 
         return result;
+    }
+
+    static boolean isNetworkTypeVlanOrGre(Network network) {
+        NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
+        if (npe != null) {
+            Class<? extends NetworkTypeBase> networkTypeBase = npe.getNetworkType();
+            if (networkTypeBase.isAssignableFrom(NetworkTypeVlan.class) || networkTypeBase.isAssignableFrom(NetworkTypeGre.class)) {
+                logger.trace("Network is of type {}", networkTypeBase);
+                return true;
+            }
+        }
+        return false;
     }
 }

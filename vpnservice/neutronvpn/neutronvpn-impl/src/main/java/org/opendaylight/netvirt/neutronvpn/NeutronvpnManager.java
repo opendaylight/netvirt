@@ -86,6 +86,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -98,6 +99,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
     IMdsalApiManager mdsalUtil;
     private NotificationPublishService notificationPublishService;
     private NotificationService notificationService;
+    private NeutronvpnUtils neutronvpnUtils;
     Boolean isExternalVpn;
 
     /**
@@ -105,12 +107,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
      * @param mdsalManager - MDSAL Util API access
      */
     public NeutronvpnManager(final DataBroker db, IMdsalApiManager mdsalManager,NotificationPublishService notiPublishService,
-                             NotificationService notiService, NeutronvpnNatManager vpnNatMgr) {
+                             NotificationService notiService, NeutronvpnNatManager vpnNatMgr, NeutronvpnUtils
+                                     nVpnUtils) {
         broker = db;
         mdsalUtil = mdsalManager;
         nvpnNatManager = vpnNatMgr;
         notificationPublishService = notiPublishService;
         notificationService = notiService;
+        neutronvpnUtils = nVpnUtils;
     }
 
     public void setLockManager(LockManagerService lockManager) {
@@ -1394,19 +1398,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         deleteVpnInstance(routerId);
     }
 
-    protected Subnet getNeutronSubnet(Uuid subnetId) {
-        InstanceIdentifier<Subnet> inst = InstanceIdentifier.create(Neutron.class).
-                child(Subnets.class).child(Subnet.class, new SubnetKey(subnetId));
-        Optional<Subnet> sn = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
-
-        if (sn.isPresent()) {
-            return sn.get();
-        }
-        return null;
+    protected Subnet getNeutronSubnet(Uuid subnetId){
+        return NeutronvpnUtils.getNeutronSubnet(broker, subnetId);
     }
 
     protected IpAddress getNeutronSubnetGateway(Uuid subnetId) {
-        Subnet sn = getNeutronSubnet(subnetId);
+        Subnet sn = NeutronvpnUtils.getNeutronSubnet(broker, subnetId);
         if (null != sn) {
             return sn.getGatewayIp();
         }
