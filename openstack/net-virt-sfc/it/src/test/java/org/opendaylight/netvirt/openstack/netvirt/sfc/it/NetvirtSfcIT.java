@@ -212,16 +212,6 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
     private static DataBroker dataBroker = null;
 
     @Override
-    public String getModuleName() {
-        return "netvirt-sfc-impl";
-    }
-
-    @Override
-    public String getInstanceName() {
-        return "netvirt-sfc-impl";
-    }
-
-    @Override
     public MavenUrlReference getFeatureRepo() {
         return maven()
                 .groupId("org.opendaylight.netvirt")

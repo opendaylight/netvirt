@@ -44,6 +44,10 @@ import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
+import org.opendaylight.netvirt.utils.netvirt.it.utils.NetvirtItUtils;
+import org.opendaylight.netvirt.utils.netvirt.it.utils.NeutronNetItUtil;
+import org.opendaylight.netvirt.utils.neutron.utils.NeutronUtils;
+import org.opendaylight.ovsdb.lib.notation.Version;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
@@ -52,10 +56,6 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityGroupCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
-import org.opendaylight.netvirt.utils.netvirt.it.utils.NetvirtItUtils;
-import org.opendaylight.netvirt.utils.netvirt.it.utils.NeutronNetItUtil;
-import org.opendaylight.netvirt.utils.neutron.utils.NeutronUtils;
-import org.opendaylight.ovsdb.lib.notation.Version;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.ItConstants;
@@ -109,16 +109,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static final String NETVIRT_TOPOLOGY_ID = "netvirt:1";
     @Inject @Filter(timeout=60000)
     private static DataBroker dataBroker = null;
-
-    @Override
-    public String getModuleName() {
-        return "netvirt-providers-impl";
-    }
-
-    @Override
-    public String getInstanceName() {
-        return "netvirt-providers-default";
-    }
 
     @Override
     public MavenUrlReference getFeatureRepo() {
