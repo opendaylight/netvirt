@@ -30,11 +30,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <groupId>org.apache.karaf.shell</groupId>
       <artifactId>org.apache.karaf.shell.console</artifactId>
       <version>${karaf.shell.console.version}</version>
-   </dependency>
+    </dependency>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
-      <artifactId>fibmanager-impl</artifactId>
-      <version>${vpnservices.version}</version>
+        <groupId>org.opendaylight.netvirt</groupId>
+        <artifactId>fibmanager-impl</artifactId>
+        <version>${vpnservices.version}</version>
     </dependency>
   </dependencies>
 

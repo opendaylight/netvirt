@@ -37,13 +37,16 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
     private final DataBroker broker;
     private NeutronvpnManager nvpnManager;
     private NeutronvpnNatManager nvpnNatManager;
+    private NeutronvpnUtils neutronvpnUtils;
 
 
-    public NeutronNetworkChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr, NeutronvpnNatManager nVpnNatMgr) {
+    public NeutronNetworkChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr, NeutronvpnNatManager
+            nVpnNatMgr, NeutronvpnUtils nVpnUtils) {
         super(Network.class);
         broker = db;
         nvpnManager = nVpnMgr;
         nvpnNatManager = nVpnNatMgr;
+        neutronvpnUtils = nVpnUtils;
         registerListener(db);
     }
 
@@ -79,10 +82,16 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         if (LOG.isTraceEnabled()) {
             LOG.trace("Adding Network : key: " + identifier + ", value=" + input);
         }
+        if (NeutronvpnUtils.isNetworkTypeVlanOrGre(input)) {
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for this network {}."
+                    + " Skipping the processing of Network add DCN", input);
+            return;
+        }
         //Create ELAN instance for this network
         createElanInstance(input);
         if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
             nvpnNatManager.addExternalNetwork(input);
+            neutronvpnUtils.addToNetworkCache(input);
         }
     }
 
@@ -91,10 +100,16 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         if (LOG.isTraceEnabled()) {
             LOG.trace("Removing Network : key: " + identifier + ", value=" + input);
         }
+        if (NeutronvpnUtils.isNetworkTypeVlanOrGre(input)) {
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for this network {}."
+                    + " Skipping the processing of Network remove DCN", input);
+            return;
+        }
         //Delete ELAN instance for this network
         deleteElanInstance(input.getUuid().getValue());
         if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
             nvpnNatManager.removeExternalNetwork(input);
+            neutronvpnUtils.removeFromNetworkCache(input);
         }
     }
 
