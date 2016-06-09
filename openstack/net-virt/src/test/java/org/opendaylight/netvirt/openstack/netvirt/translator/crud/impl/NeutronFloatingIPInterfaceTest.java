@@ -14,14 +14,21 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.Nonnull;
+import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFloatingIP;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronFloatingIPDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.floatingips.Floatingip;
@@ -194,6 +201,44 @@ public class NeutronFloatingIPInterfaceTest extends AbstractDataBrokerTest {
         assertTrue("Floating IP absent", testInterface.updateFloatingIP(UUID_VALUE, testFloatingIp));
 
         // TODO Change some attributes and make sure they're updated
+    }
+
+    @Test
+    public void testListener() throws TransactionCommitFailedException {
+        // Given a databroker, test interface and floating IP listener ...
+        DataBroker broker = getDataBroker();
+        NeutronFloatingIPInterface testInterface = getTestInterface(broker);
+
+        // The listener registers when created
+        AtomicBoolean listenerCalled = new AtomicBoolean(false);
+        // We override the listener to be able to spy on it
+        NeutronFloatingIPDataTreeChangeListener listener = new NeutronFloatingIPDataTreeChangeListener(broker) {
+            @Override
+            public void onDataTreeChanged(@Nonnull Collection<DataTreeModification<Floatingip>> changes) {
+                listenerCalled.set(true);
+                synchronized (listenerCalled) {
+                    listenerCalled.notify();
+                }
+                // Currently this blows up, but it doesn't matter (the listener needs an OSGi context)
+                super.onDataTreeChanged(changes);
+            }
+        };
+
+        // When we add a floating IP ...
+        addTestFloatingIP(broker, testInterface);
+
+        // ... the listener is called
+        try {
+            synchronized (listenerCalled) {
+                listenerCalled.wait(5000);
+            }
+        } catch (InterruptedException e) {
+            // We don't care
+        }
+        Assert.assertTrue(listenerCalled.get());
+
+        // Remove the listener so we don't pollute other tests
+        listener.close();
     }
 
     /**
