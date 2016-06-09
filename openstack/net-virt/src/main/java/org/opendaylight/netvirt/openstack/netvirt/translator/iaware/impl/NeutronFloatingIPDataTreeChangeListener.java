@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Brocade Communications Systems, Inc. and others.  All rights reserved.
+ * Copyright © 2015, 2016 Brocade Communications Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,11 +7,17 @@
  */
 package org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl;
 
+import java.util.Collection;
 import java.util.Map.Entry;
+
+import javax.annotation.Nonnull;
 
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -26,28 +32,25 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NeutronFloatingIPChangeListener implements ClusteredDataChangeListener, AutoCloseable{
-    private static final Logger LOG = LoggerFactory.getLogger(NeutronFloatingIPChangeListener.class);
+public class NeutronFloatingIPDataTreeChangeListener implements DataTreeChangeListener<Floatingip>, AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronFloatingIPDataTreeChangeListener.class);
 
-    private ListenerRegistration<DataChangeListener> registration;
-    private DataBroker db;
+    private ListenerRegistration<DataTreeChangeListener<Floatingip>> registration;
 
-    public NeutronFloatingIPChangeListener(DataBroker db){
-        this.db = db;
+    public NeutronFloatingIPDataTreeChangeListener(DataBroker db) {
         InstanceIdentifier<Floatingip> path = InstanceIdentifier
                 .create(Neutron.class)
                 .child(Floatingips.class)
                 .child(Floatingip.class);
         LOG.debug("Register listener for Neutron FloatingIp model data changes");
-        registration =
-                this.db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION, path, this, DataChangeScope.ONE);
+        registration = db.registerDataTreeChangeListener(
+                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, path), this);
 
     }
 
     @Override
-    public void onDataChanged(
-            AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> changes) {
-        LOG.trace("Data changes : {}",changes);
+    public void onDataTreeChanged(@Nonnull Collection<DataTreeModification<Floatingip>> changes) {
+        LOG.trace("Data changes : {}", changes);
 
         Object[] subscribers = NeutronIAwareUtil.getInstances(INeutronFloatingIPAware.class, this);
         createFloatingIP(changes, subscribers);
@@ -56,44 +59,44 @@ public class NeutronFloatingIPChangeListener implements ClusteredDataChangeListe
     }
 
     private void createFloatingIP(
-            AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> changes,
+            @Nonnull Collection<DataTreeModification<Floatingip>> changes,
             Object[] subscribers) {
-        for (Entry<InstanceIdentifier<?>, DataObject> newFloatingIP : changes.getCreatedData().entrySet()) {
-        	if(newFloatingIP.getValue() instanceof Floatingip){
-                NeutronFloatingIP floatingip= fromMd((Floatingip)newFloatingIP.getValue());
-                for(Object entry: subscribers){
-                    INeutronFloatingIPAware subscriber = (INeutronFloatingIPAware)entry;
-                    subscriber.neutronFloatingIPCreated(floatingip);
+        for (DataTreeModification<Floatingip> change : changes) {
+            if (change.getRootNode().getDataAfter() != null && change.getRootNode().getDataBefore() == null) {
+                NeutronFloatingIP floatingIp = fromMd(change.getRootNode().getDataAfter());
+                for (Object entry : subscribers) {
+                    INeutronFloatingIPAware subscriber = (INeutronFloatingIPAware) entry;
+                    subscriber.neutronFloatingIPCreated(floatingIp);
                 }
-        	}
+            }
         }
     }
 
     private void updateFloatingIP(
-            AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> changes,
+            @Nonnull Collection<DataTreeModification<Floatingip>> changes,
             Object[] subscribers) {
-        for (Entry<InstanceIdentifier<?>, DataObject> updateFloatingIP : changes.getUpdatedData().entrySet()) {
-        	if(updateFloatingIP.getValue() instanceof Floatingip){
-                NeutronFloatingIP floatingip = fromMd((Floatingip)updateFloatingIP.getValue());
-                for(Object entry: subscribers){
-                    INeutronFloatingIPAware subscriber = (INeutronFloatingIPAware)entry;
-                    subscriber.neutronFloatingIPUpdated(floatingip);
+        for (DataTreeModification<Floatingip> change : changes) {
+            if (change.getRootNode().getDataAfter() != null && change.getRootNode().getDataBefore() != null) {
+                NeutronFloatingIP floatingIp = fromMd(change.getRootNode().getDataAfter());
+                for (Object entry : subscribers) {
+                    INeutronFloatingIPAware subscriber = (INeutronFloatingIPAware) entry;
+                    subscriber.neutronFloatingIPUpdated(floatingIp);
                 }
-        	}
+            }
         }
     }
 
     private void deleteFloatingIP(
-            AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> changes,
+            @Nonnull Collection<DataTreeModification<Floatingip>> changes,
             Object[] subscribers) {
-        for (InstanceIdentifier<?> deletedFloatingIPPath : changes.getRemovedPaths()) {
-        	if(deletedFloatingIPPath.getTargetType().equals(Floatingip.class)){
-                NeutronFloatingIP floatingip = fromMd((Floatingip)changes.getOriginalData().get(deletedFloatingIPPath));
-                for(Object entry: subscribers){
-                    INeutronFloatingIPAware subscriber = (INeutronFloatingIPAware)entry;
-                    subscriber.neutronFloatingIPDeleted(floatingip);
+        for (DataTreeModification<Floatingip> change : changes) {
+            if (change.getRootNode().getDataAfter() == null && change.getRootNode().getDataBefore() != null) {
+                NeutronFloatingIP floatingIp = fromMd(change.getRootNode().getDataBefore());
+                for (Object entry : subscribers) {
+                    INeutronFloatingIPAware subscriber = (INeutronFloatingIPAware) entry;
+                    subscriber.neutronFloatingIPDeleted(floatingIp);
                 }
-        	}
+            }
         }
     }
 
@@ -103,24 +106,24 @@ public class NeutronFloatingIPChangeListener implements ClusteredDataChangeListe
      */
     private NeutronFloatingIP fromMd(Floatingip fip) {
         NeutronFloatingIP result = new NeutronFloatingIP();
-        result.setID(String.valueOf(fip.getUuid().getValue()));
+        result.setID(fip.getUuid().getValue());
         if (fip.getFloatingNetworkId() != null) {
-            result.setFloatingNetworkUUID(String.valueOf(fip.getFloatingNetworkId().getValue()));
+            result.setFloatingNetworkUUID(fip.getFloatingNetworkId().getValue());
         }
         if (fip.getPortId() != null) {
-            result.setPortUUID(String.valueOf(fip.getPortId().getValue()));
+            result.setPortUUID(fip.getPortId().getValue());
         }
-        if (fip.getFixedIpAddress() != null ) {
+        if (fip.getFixedIpAddress() != null) {
             result.setFixedIPAddress(String.valueOf(fip.getFixedIpAddress().getValue()));
         }
         if (fip.getFloatingIpAddress() != null) {
             result.setFloatingIPAddress(String.valueOf(fip.getFloatingIpAddress().getValue()));
         }
         if (fip.getTenantId() != null) {
-            result.setTenantUUID(String.valueOf(fip.getTenantId().getValue()));
+            result.setTenantUUID(fip.getTenantId().getValue());
         }
         if (fip.getRouterId() != null) {
-            result.setRouterUUID(String.valueOf(fip.getRouterId().getValue()));
+            result.setRouterUUID(fip.getRouterId().getValue());
         }
         result.setStatus(fip.getStatus());
         return result;
