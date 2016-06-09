@@ -167,12 +167,12 @@ public class NeutronvpnNatManager implements AutoCloseable {
             List<ExternalFixedIps> orig_ext_fixed_ips = orig_ext_gw.getExternalFixedIps();
             HashSet<String> orig_fixed_ip_set = new HashSet<String>();
             for (ExternalFixedIps fixed_ip: orig_ext_fixed_ips) {
-                orig_fixed_ip_set.add(fixed_ip.getIpAddress().toString());
+                orig_fixed_ip_set.add(fixed_ip.getIpAddress().getIpv4Address().getValue());
             }
             HashSet<String> upd_fixed_ip_set = new HashSet<String>();
             List<ExternalFixedIps> new_ext_fixed_ips = new_ext_gw.getExternalFixedIps();
             for (ExternalFixedIps fixed_ip: new_ext_fixed_ips) {
-                upd_fixed_ip_set.add(fixed_ip.getIpAddress().toString());
+                upd_fixed_ip_set.add(fixed_ip.getIpAddress().getIpv4Address().getValue());
             }
 
             if (!orig_fixed_ip_set.equals(upd_fixed_ip_set)) {
@@ -442,7 +442,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             if (builder != null) {
                 ArrayList<String> ext_fixed_ips = new ArrayList<String>();
                 for (ExternalFixedIps fixed_ips : update.getExternalGatewayInfo().getExternalFixedIps()) {
-                    ext_fixed_ips.add(fixed_ips.getIpAddress().toString());
+                    ext_fixed_ips.add(fixed_ips.getIpAddress().getIpv4Address().getValue());
                 }
                 builder.setExternalIps(ext_fixed_ips);
             }
@@ -507,7 +507,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 if (builder != null) {
                     ArrayList<String> ext_fixed_ips = new ArrayList<String>();
                     for (ExternalFixedIps fixed_ips : update.getExternalGatewayInfo().getExternalFixedIps()) {
-                        ext_fixed_ips.add(fixed_ips.getIpAddress().toString());
+                        ext_fixed_ips.add(fixed_ips.getIpAddress().getIpv4Address().getValue());
                     }
                     builder.setExternalIps(ext_fixed_ips);
                 }

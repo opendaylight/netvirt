@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -62,15 +63,19 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private LockManagerService lockManager;
     private NotificationPublishService notificationPublishService;
     private NotificationService notificationService;
+    private NeutronvpnUtils neutronvpnUtils;
 
 
-    public NeutronPortChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,NeutronvpnNatManager nVpnNatMgr, NotificationPublishService notiPublishService, NotificationService notiService) {
+    public NeutronPortChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,NeutronvpnNatManager nVpnNatMgr,
+                                     NotificationPublishService notiPublishService, NotificationService notiService,
+                                     NeutronvpnUtils nVpnUtils) {
         super(Port.class);
         broker = db;
         nvpnManager = nVpnMgr;
         nvpnNatManager = nVpnNatMgr;
         notificationPublishService = notiPublishService;
         notificationService = notiService;
+        neutronvpnUtils = nVpnUtils;
         registerListener(db);
     }
 
@@ -108,7 +113,13 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         if (LOG.isTraceEnabled()) {
             LOG.trace("Adding Port : key: " + identifier + ", value=" + input);
         }
-
+        Network network = NeutronvpnUtils.getNeutronNetwork(broker, input.getNetworkId());
+        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+            //FIXME: This should be removed when support for VLAN and GRE network types is added
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}.",
+                    input.getName(), network);
+            return;
+        }
         /* check if router interface has been created */
         if ((input.getDeviceOwner() != null) && (input.getDeviceId() != null)) {
             if (input.getDeviceOwner().equals(NeutronvpnUtils.DEVICE_OWNER_ROUTER_INF)) {
@@ -118,6 +129,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             }
         }
         handleNeutronPortCreated(input);
+        neutronvpnUtils.addToPortCache(input);
 
     }
 
@@ -126,7 +138,13 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         if (LOG.isTraceEnabled()) {
             LOG.trace("Removing Port : key: " + identifier + ", value=" + input);
         }
-
+        Network network = NeutronvpnUtils.getNeutronNetwork(broker, input.getNetworkId());
+        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+            //FIXME: This should be removed when support for VLAN and GRE network types is added
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}.",
+                    input.getName(), network);
+            return;
+        }
         if ((input.getDeviceOwner() != null) && (input.getDeviceId() != null)) {
             if (input.getDeviceOwner().equals(NeutronvpnUtils.DEVICE_OWNER_ROUTER_INF)) {
                 handleRouterInterfaceRemoved(input);
@@ -135,6 +153,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             }
         }
         handleNeutronPortDeleted(input);
+        neutronvpnUtils.removeFromPortCache(input);
 
     }
 
@@ -144,7 +163,12 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             LOG.trace("Updating Port : key: " + identifier + ", original value=" + original + ", update value=" +
                     update);
         }
-
+        Network network = NeutronvpnUtils.getNeutronNetwork(broker, update.getNetworkId());
+        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}."
+                    + " Skipping the processing of Port update DCN", update.getName(), network);
+            return;
+        }
         List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<FixedIps>();
         List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<FixedIps>();
 
@@ -166,6 +190,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 }
             }
             handleNeutronPortUpdated(original, update);
+            neutronvpnUtils.addToPortCache(update);
         }
     }
 
