@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Red Hat, Inc. and others.  All rights reserved.
+ * Copyright © 2015, 2016 Red Hat, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -14,6 +14,7 @@ import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronFloatingIPDataTreeChangeListener;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronRouterChangeListener;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronSecurityRuleDataChangeListener;
 import org.opendaylight.netvirt.openstack.netvirt.ClusterAwareMdsalUtils;
@@ -22,7 +23,6 @@ import org.opendaylight.netvirt.openstack.netvirt.NetvirtProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryService;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryListener;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronFloatingIPChangeListener;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronNetworkChangeListener;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronPortChangeListener;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronSubnetChangeListener;
@@ -111,7 +111,7 @@ public class OvsdbInventoryServiceImpl implements ConfigInterface, OvsdbInventor
         new NeutronSubnetChangeListener(db);
         new NeutronPortChangeListener(db);
         new NeutronRouterChangeListener(db);
-        new NeutronFloatingIPChangeListener(db);
+        new NeutronFloatingIPDataTreeChangeListener(db);
         new NeutronLoadBalancerPoolChangeListener(db);
         new NeutronLoadBalancerPoolMemberChangeListener(db);
         new NeutronSecurityRuleDataChangeListener(db);
