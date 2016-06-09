@@ -15,7 +15,6 @@ import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.propagateSystemProperties;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 import static org.ops4j.pax.exam.MavenUtils.asInProject;
@@ -25,15 +24,12 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRunti
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -42,16 +38,15 @@ import org.junit.runner.RunWith;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.mdsal.it.base.AbstractMdsalTestBase;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import org.opendaylight.netvirt.utils.netvirt.it.utils.NetvirtItUtils;
-import org.opendaylight.netvirt.utils.netvirt.it.utils.NeutronNetItUtil;
-import org.opendaylight.netvirt.utils.neutron.utils.NeutronUtils;
-import org.opendaylight.ovsdb.lib.notation.Version;
 import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
+import org.opendaylight.netvirt.utils.netvirt.it.utils.NetvirtItUtils;
+import org.opendaylight.netvirt.utils.netvirt.it.utils.NeutronNetItUtil;
+import org.opendaylight.netvirt.utils.neutron.utils.NeutronUtils;
+import org.opendaylight.ovsdb.lib.notation.Version;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
@@ -60,17 +55,16 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityGroupCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
+import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.ItConstants;
-import org.opendaylight.ovsdb.utils.ovsdb.it.utils.OvsdbItUtils;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.NodeInfo;
-import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
+import org.opendaylight.ovsdb.utils.ovsdb.it.utils.OvsdbItUtils;
 import org.opendaylight.ovsdb.utils.servicehelper.ServiceHelper;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ConnectionInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.OpenvswitchOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -112,16 +106,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static SouthboundUtils southboundUtils;
     private static NeutronUtils neutronUtils = new NeutronUtils();
     private static final String NETVIRT_TOPOLOGY_ID = "netvirt:1";
-
-    @Override
-    public String getModuleName() {
-        return "netvirt-providers-impl";
-    }
-
-    @Override
-    public String getInstanceName() {
-        return "netvirt-providers-default";
-    }
 
     @Override
     public MavenUrlReference getFeatureRepo() {
@@ -227,7 +211,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
         getProperties();
 
-        dataBroker = NetvirtItUtils.getDatabroker(getProviderContext());
+        dataBroker = getSession().getSALService(DataBroker.class);
         itUtils = new OvsdbItUtils(dataBroker);
         nvItUtils = new NetvirtItUtils(dataBroker);
         mdsalUtils = new MdsalUtils(dataBroker);
@@ -240,30 +224,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 (PipelineOrchestrator) ServiceHelper.getGlobalInstance(PipelineOrchestrator.class, this);
         assertNotNull("pipelineOrchestrator should not be null", pipelineOrchestrator);
         setup.set(true);
-    }
-
-    private BindingAwareBroker.ProviderContext getProviderContext() {
-        BindingAwareBroker.ProviderContext providerContext = null;
-        for (int i=0; i < 60; i++) {
-            providerContext = getSession();
-            if (providerContext != null) {
-                break;
-            } else {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    LOG.warn("Interrupted while waiting for provider context", e);
-                }
-            }
-        }
-        assertNotNull("providercontext should not be null", providerContext);
-        /* One more second to let the provider finish initialization */
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            LOG.warn("Interrupted while waiting for other provider", e);
-        }
-        return providerContext;
     }
 
     private Boolean getNetvirtTopology() {
