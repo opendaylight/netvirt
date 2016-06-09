@@ -41,6 +41,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private NeutronSubnetChangeListener subnetListener;
     private NeutronRouterChangeListener routerListener;
     private NeutronPortChangeListener portListener;
+    private NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
     private RpcProviderRegistry rpcProviderRegistry;
     private L2GatewayProvider l2GatewayProvider;
     private NotificationPublishService notificationPublishService;
@@ -90,7 +91,10 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
                     notificationPublishService,notificationService);
             portListener.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
+            floatingIpMapListener = new NeutronFloatingToFixedIpMappingChangeListener(dbx);
             nvManager.setLockManager(lockManager);
+            portListener.setLockManager(lockManager);
+            floatingIpMapListener.setLockManager(lockManager);
             l2GatewayProvider = new L2GatewayProvider(dbx, rpcProviderRegistry, entityOwnershipService);
 
             LOG.info("NeutronvpnProvider Session Initiated");
@@ -105,6 +109,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
         subnetListener.close();
         routerListener.close();
         networkListener.close();
+        floatingIpMapListener.close();
         bgpvpnListener.close();
         nvManager.close();
         l2GatewayProvider.close();

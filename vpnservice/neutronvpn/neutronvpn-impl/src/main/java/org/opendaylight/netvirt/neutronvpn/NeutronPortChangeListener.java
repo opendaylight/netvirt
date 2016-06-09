@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -55,6 +56,7 @@ import java.util.List;
 public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronPortChangeListener.class);
 
+    private static final String DEVICE_OWNER_ROUTER_INF = "network:router_interface";
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private NeutronvpnManager nvpnManager;
@@ -108,7 +110,12 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         if (LOG.isTraceEnabled()) {
             LOG.trace("Adding Port : key: " + identifier + ", value=" + input);
         }
-
+        Network network = NeutronvpnUtils.getNeutronNetwork(broker, input.getNetworkId());
+        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}."
+                    + " Skipping the processing of Port add DCN", input.getName(), network);
+            return;
+        }
         /* check if router interface has been created */
         if ((input.getDeviceOwner() != null) && (input.getDeviceId() != null)) {
             if (input.getDeviceOwner().equals(NeutronvpnUtils.DEVICE_OWNER_ROUTER_INF)) {
@@ -126,7 +133,12 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         if (LOG.isTraceEnabled()) {
             LOG.trace("Removing Port : key: " + identifier + ", value=" + input);
         }
-
+        Network network = NeutronvpnUtils.getNeutronNetwork(broker, input.getNetworkId());
+        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}."
+                    + " Skipping the processing of Port remove DCN", input.getName(), network);
+            return;
+        }
         if ((input.getDeviceOwner() != null) && (input.getDeviceId() != null)) {
             if (input.getDeviceOwner().equals(NeutronvpnUtils.DEVICE_OWNER_ROUTER_INF)) {
                 handleRouterInterfaceRemoved(input);
@@ -144,7 +156,12 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             LOG.trace("Updating Port : key: " + identifier + ", original value=" + original + ", update value=" +
                     update);
         }
-
+        Network network = NeutronvpnUtils.getNeutronNetwork(broker, update.getNetworkId());
+        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}."
+                    + " Skipping the processing of Port update DCN", update.getName(), network);
+            return;
+        }
         List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<FixedIps>();
         List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<FixedIps>();
 
