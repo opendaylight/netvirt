@@ -114,16 +114,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static final String NETVIRT_TOPOLOGY_ID = "netvirt:1";
 
     @Override
-    public String getModuleName() {
-        return "netvirt-providers-impl";
-    }
-
-    @Override
-    public String getInstanceName() {
-        return "netvirt-providers-default";
-    }
-
-    @Override
     public MavenUrlReference getFeatureRepo() {
         return maven()
                 .groupId("org.opendaylight.netvirt")
