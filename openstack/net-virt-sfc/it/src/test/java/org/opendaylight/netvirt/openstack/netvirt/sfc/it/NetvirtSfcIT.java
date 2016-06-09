@@ -42,7 +42,6 @@ import org.junit.runner.RunWith;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.mdsal.it.base.AbstractMdsalTestBase;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.sfc.it.utils.AclUtils;
 import org.opendaylight.netvirt.openstack.netvirt.sfc.it.utils.ClassifierUtils;
 import org.opendaylight.netvirt.openstack.netvirt.sfc.it.utils.RenderedServicePathUtils;
@@ -215,16 +214,6 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
     private static final int GPEUDPPORT = 6633;
 
     @Override
-    public String getModuleName() {
-        return "netvirt-sfc-impl";
-    }
-
-    @Override
-    public String getInstanceName() {
-        return "netvirt-sfc-impl";
-    }
-
-    @Override
     public MavenUrlReference getFeatureRepo() {
         return maven()
                 .groupId("org.opendaylight.netvirt")
@@ -347,7 +336,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
 
         getProperties();
 
-        dataBroker = getDatabroker(getProviderContext());
+        dataBroker = getSession().getSALService(DataBroker.class);
         itUtils = new OvsdbItUtils(dataBroker);
         nvItUtils = new NetvirtItUtils(dataBroker);
         mdsalUtils = new MdsalUtils(dataBroker);
@@ -369,36 +358,6 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
     @After
     public void teardown() {
         closeWaitFors();
-    }
-
-    private ProviderContext getProviderContext() {
-        ProviderContext providerContext = null;
-        for (int i=0; i < 60; i++) {
-            providerContext = getSession();
-            if (providerContext != null) {
-                break;
-            } else {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    LOG.warn("Interrupted while waiting for provider context", e);
-                }
-            }
-        }
-        assertNotNull("providercontext should not be null", providerContext);
-        /* One more second to let the provider finish initialization */
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            LOG.warn("Interrupted while waiting for other provider", e);
-        }
-        return providerContext;
-    }
-
-    private DataBroker getDatabroker(ProviderContext providerContext) {
-        DataBroker dataBroker = providerContext.getSALService(DataBroker.class);
-        assertNotNull("dataBroker should not be null", dataBroker);
-        return dataBroker;
     }
 
     private Boolean getNetvirtTopology() {
