@@ -13,6 +13,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import java.util.List;
 import org.junit.Test;
@@ -22,6 +26,7 @@ import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronFloatingIP;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronFloatingIPDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.floatingips.Floatingip;
@@ -194,6 +199,27 @@ public class NeutronFloatingIPInterfaceTest extends AbstractDataBrokerTest {
         assertTrue("Floating IP absent", testInterface.updateFloatingIP(UUID_VALUE, testFloatingIp));
 
         // TODO Change some attributes and make sure they're updated
+    }
+
+    @Test
+    public void testListener() throws TransactionCommitFailedException {
+        // Given a databroker, test interface and floating IP listener ...
+        DataBroker broker = getDataBroker();
+        NeutronFloatingIPInterface testInterface = getTestInterface(broker);
+        NeutronFloatingIPDataTreeChangeListener listener = spy(new NeutronFloatingIPDataTreeChangeListener(broker));
+        listener.init();
+
+        // When we add a floating IP ...
+        addTestFloatingIP(broker, testInterface);
+
+        // ... the listener is called
+        verify(listener, after(5000).atLeastOnce()).onDataTreeChanged(anyCollection());
+
+        // This test currently logs NullPointerExceptions, but we don't care about them —
+        // the listener needs an OSGi context to find NeutronIAware implementations
+
+        // Remove the listener to avoid polluting other tests
+        listener.close();
     }
 
     /**
