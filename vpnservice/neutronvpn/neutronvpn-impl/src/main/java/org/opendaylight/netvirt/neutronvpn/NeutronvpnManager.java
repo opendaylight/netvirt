@@ -86,6 +86,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -98,6 +99,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
     IMdsalApiManager mdsalUtil;
     private NotificationPublishService notificationPublishService;
     private NotificationService notificationService;
+    public static ConcurrentHashMap<Uuid, Subnet> subnetMap = new ConcurrentHashMap<Uuid, Subnet>();
     Boolean isExternalVpn;
 
     /**
@@ -1395,14 +1397,19 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
     }
 
     protected Subnet getNeutronSubnet(Uuid subnetId) {
+        Subnet subnet = null;
+        subnet = subnetMap.get(subnetId);
+        if(subnet != null){
+            return subnet;
+        }
         InstanceIdentifier<Subnet> inst = InstanceIdentifier.create(Neutron.class).
                 child(Subnets.class).child(Subnet.class, new SubnetKey(subnetId));
         Optional<Subnet> sn = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
 
         if (sn.isPresent()) {
-            return sn.get();
+            subnet = sn.get();
         }
-        return null;
+        return subnet;
     }
 
     protected IpAddress getNeutronSubnetGateway(Uuid subnetId) {
@@ -1532,6 +1539,15 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         StringBuilder help = new StringBuilder("Usage:");
         help.append("display vpn-config [-vid/--vpnid <id>]");
         return help.toString();
+    }
+
+
+    public static void addToSubnetCache(Subnet subnet){
+        subnetMap.put(subnet.getUuid(),subnet);
+    }
+
+    public static void removeFromSubnetCache(Subnet subnet){
+        subnetMap.remove(subnet.getUuid());
     }
 
     private void checkAndPublishSubnetAddNotification(Uuid subnetId, String subnetIp, String vpnName, Boolean isExternalvpn, Long elanTag)throws InterruptedException{
