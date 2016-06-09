@@ -34,6 +34,24 @@
       "revId": "0b9f952044b19ffa08fae1f18818d166c7f733ab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_ecaa4118",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/NetvirtProvidersProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-06-09T15:37:28Z",
+      "side": 1,
+      "message": "I don\u0027t miss anything - just kidding :)  A follow-up is fine - not a big deal.",
+      "parentUuid": "da5c1566_8c8625b8",
+      "revId": "0b9f952044b19ffa08fae1f18818d166c7f733ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
