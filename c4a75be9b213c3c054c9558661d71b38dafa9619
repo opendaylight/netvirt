@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_d2e558a9",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IPv6RtrFlow.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-06-10T05:38:35Z",
+      "side": 1,
+      "message": "For RS flow, why is a criteria required.\nAll the RS messages from the VMs in all nodes have to be responded by the controller. \nFor now we are not going to respond to RS from external network. So the RS flow is added only in the br-int ovs switch.",
+      "parentUuid": "da5c1566_17518b62",
+      "revId": "c4a75be9b213c3c054c9558661d71b38dafa9619",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_f75a1782",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_12efd088",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-06-10T05:38:35Z",
+      "side": 1,
+      "message": "Here patchIntf refers only to patch-int and patch-ext.\nFor the NS messages from the VMs to other VMs they will be directly handed over to their corresponding tap interfaces.\nFor the NS messages from the external network, they will be received in the bridges via the patch interfaces. Hence the input criteria is updated so.",
+      "parentUuid": "da5c1566_f75a1782",
+      "revId": "c4a75be9b213c3c054c9558661d71b38dafa9619",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_97659b47",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2016-06-08T09:24:49Z",
       "side": 1,
       "message": "I applied the patch to verify the behavior. \nWhat I see is that flow to punt the NS for the Router interface are never programmed. Looking at the code I\u0027m not able to figure out where we are programming such flows. \n\nCan you pls point me to the place where NS from the VMs (addressed to Router iface/LLA-address) is programmed?",
+      "revId": "c4a75be9b213c3c054c9558661d71b38dafa9619",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_b2e2649d",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-06-10T05:38:35Z",
+      "side": 1,
+      "message": "This gerrit updation adds the NS flow whenever there is a port creation message for any of the patch interface. Can you please check if you are receiving the port creation message for the patch interfaces.\nFor the NS messages from VM to router interface, this condition is yet to be added.",
+      "parentUuid": "da5c1566_97659b47",
       "revId": "c4a75be9b213c3c054c9558661d71b38dafa9619",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
