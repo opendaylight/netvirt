@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_72ff2c35",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IPv6RtrFlow.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-10T05:52:33Z",
+      "side": 1,
+      "message": "Please read my comments in the referenced patch. \nAnyways, copying it here...\n\nLet me explain the issue. \nThe flow that is currently programmed is an unconditional flow which is as follows.\n[vagrant@localhost ~]$ sudo ovs-ofctl -OOpenFlow13 dump-flows br-int | grep CONTROLLER\n cookie\u003d0x0, duration\u003d766.325s, table\u003d0, n_packets\u003d136, n_bytes\u003d15096, dl_type\u003d0x88cc actions\u003dCONTROLLER:65535\n cookie\u003d0x4, duration\u003d78.164s, table\u003d20, n_packets\u003d2, n_bytes\u003d156, priority\u003d1024,icmp6,icmp_type\u003d135 actions\u003dCONTROLLER:65535\n cookie\u003d0x3, duration\u003d78.182s, table\u003d20, n_packets\u003d8, n_bytes\u003d560, priority\u003d1024,icmp6,icmp_type\u003d133 actions\u003dCONTROLLER:65535\n\n\nNow imagine two networks one with a v6 subnet and the other without a v6 subnets.\n\nIdeally I would NOT expect any NS/RS packets from the VMs on network2 to reach the RouterManager, but because of the un-conditional flow, the NS/RS packets from VMs on network2 are also punted to the controller. \n\nSide note: As you know, pretty much all the VMs now-a-days have built in IPv6 support. So they send out RS upon boot-up to discover the v6 Routers.",
+      "parentUuid": "da5c1566_d2e558a9",
+      "revId": "c4a75be9b213c3c054c9558661d71b38dafa9619",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_f75a1782",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
         "patchSetId": 1
@@ -72,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "da5c1566_72860cbb",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-10T05:52:33Z",
+      "side": 1,
+      "message": "Kalai, may i know some info about your setup. \nAre you using devstack + ODL or some other mechanism (like mininet)?",
+      "parentUuid": "da5c1566_12efd088",
+      "revId": "c4a75be9b213c3c054c9558661d71b38dafa9619",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5c1566_97659b47",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
         "patchSetId": 1
@@ -101,6 +137,24 @@
       "side": 1,
       "message": "This gerrit updation adds the NS flow whenever there is a port creation message for any of the patch interface. Can you please check if you are receiving the port creation message for the patch interfaces.\nFor the NS messages from VM to router interface, this condition is yet to be added.",
       "parentUuid": "da5c1566_97659b47",
+      "revId": "c4a75be9b213c3c054c9558661d71b38dafa9619",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_928920cd",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-10T05:52:33Z",
+      "side": 1,
+      "message": "When I checked last time after applying this patch, I did not see any flows for NS (so probably the event may not have received). \n\nFor any known pending stuff, can you please mark it as \"Pending\" in the commit message (it helps while reviewing the patch)\".",
+      "parentUuid": "da5c1566_b2e2649d",
       "revId": "c4a75be9b213c3c054c9558661d71b38dafa9619",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
