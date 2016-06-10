@@ -281,6 +281,23 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>aclservice-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>aclservice-impl</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>aclservice-impl</artifactId>
+      <version>${vpnservices.version}</version>
+      <classifier>config</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>neutronvpn-api</artifactId>
       <version>${neutronvpn.version}</version>
     </dependency>

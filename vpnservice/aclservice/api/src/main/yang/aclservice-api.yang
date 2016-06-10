@@ -1,0 +1,20 @@
+module aclservice-api {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:aclservice:api";
+    prefix "aclservice-api";
+
+    import config { prefix config; revision-date 2013-04-05; }
+
+    description
+        "ACL Service module";
+
+    revision "2016-05-23" {
+        description
+            "Initial revision";
+    }
+
+    identity aclservice-api {
+        base "config:service-type";
+        config:java-class "org.opendaylight.netvirt.aclservice.api.AclService";
+    }
+}
