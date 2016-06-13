@@ -16,6 +16,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -76,6 +77,13 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
         if (LOG.isTraceEnabled()) {
             LOG.trace("Adding Subnet : key: " + identifier + ", value=" + input);
         }
+        Uuid networkId = input.getNetworkId();
+        Network network = NeutronvpnUtils.getNeutronNetwork(broker, networkId);
+        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}."
+                    + " Skipping the processing of Subnet add DCN", input.getName(), network);
+            return;
+        }
         handleNeutronSubnetCreated(input.getUuid(), input.getCidr(), input.getNetworkId(), input.getTenantId());
     }
 
@@ -83,6 +91,13 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
     protected void remove(InstanceIdentifier<Subnet> identifier, Subnet input) {
         if (LOG.isTraceEnabled()) {
             LOG.trace("Removing subnet : key: " + identifier + ", value=" + input);
+        }
+        Uuid networkId = input.getNetworkId();
+        Network network = NeutronvpnUtils.getNeutronNetwork(broker, networkId);
+        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}."
+                    + " Skipping the processing of Subnet remove DCN", input.getName(), network);
+            return;
         }
         handleNeutronSubnetDeleted(input.getUuid(), input.getNetworkId(), null);
     }
@@ -93,12 +108,19 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
             LOG.trace("Updating Subnet : key: " + identifier + ", original value=" + original + ", update value=" +
                     update);
         }
-        handleNeutronSubnetUpdated(update.getUuid(), update.getNetworkId(), update.getTenantId());
+        Uuid networkId = update.getNetworkId();
+        Network network = NeutronvpnUtils.getNeutronNetwork(broker, networkId);
+        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}."
+                    + " Skipping the processing of Subnet update DCN", update.getName(), network);
+            return;
+        }
+        handleNeutronSubnetUpdated(update.getUuid(), networkId, update.getTenantId());
     }
 
     private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId) {
         nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null, null, null);
-        if (networkId != null && NeutronvpnUtils.getNeutronNetwork(broker, networkId) != null) {
+        if (networkId != null) {
             createSubnetToNetworkMapping(subnetId, networkId);
         }
     }
