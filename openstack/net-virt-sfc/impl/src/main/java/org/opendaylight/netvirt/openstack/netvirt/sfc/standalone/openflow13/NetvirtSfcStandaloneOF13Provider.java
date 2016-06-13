@@ -185,7 +185,7 @@ public class NetvirtSfcStandaloneOF13Provider implements INetvirtSfcOF13Provider
                 long localOfPort = southbound.getOFPort(bridgeNode, CLIENT_PORT_NAME);
                 if (localOfPort == 0L) {
                     LOG.error("programAclEntry: Could not identify local port {} -> OF ({}) on {}",
-                            CLIENT_GPE_PORT_NAME, localOfPort, bridgeNode);
+                        CLIENT_PORT_NAME, localOfPort, bridgeNode);
                     return;
                 }
 
@@ -225,14 +225,14 @@ public class NetvirtSfcStandaloneOF13Provider implements INetvirtSfcOF13Provider
                 long tunnelOfPort = southbound.getOFPort(bridgeNode, SERVER_GPE_PORT_NAME);
                 if (tunnelOfPort == 0L) {
                     LOG.error("programAclEntry: Could not identify tunnel port {} -> OF ({}) on {}",
-                            CLIENT_GPE_PORT_NAME, tunnelOfPort, bridgeNode);
+                        SERVER_GPE_PORT_NAME, tunnelOfPort, bridgeNode);
                     return;
                 }
 
                 long localOfPort = southbound.getOFPort(bridgeNode, SERVER_PORT_NAME);
                 if (localOfPort == 0L) {
                     LOG.error("programAclEntry: Could not identify local port {} -> OF ({}) on {}",
-                            CLIENT_GPE_PORT_NAME, localOfPort, bridgeNode);
+                        SERVER_PORT_NAME, localOfPort, bridgeNode);
                     return;
                 }
 
