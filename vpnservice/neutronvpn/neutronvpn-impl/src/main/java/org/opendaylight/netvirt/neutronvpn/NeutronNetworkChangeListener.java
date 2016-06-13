@@ -79,6 +79,11 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         if (LOG.isTraceEnabled()) {
             LOG.trace("Adding Network : key: " + identifier + ", value=" + input);
         }
+        if (NeutronvpnUtils.isNetworkTypeVlanOrGre(input)) {
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for this network {}."
+                    + " Skipping the processing of Network add DCN", input);
+            return;
+        }
         //Create ELAN instance for this network
         createElanInstance(input);
         if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
@@ -90,6 +95,11 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
     protected void remove(InstanceIdentifier<Network> identifier, Network input) {
         if (LOG.isTraceEnabled()) {
             LOG.trace("Removing Network : key: " + identifier + ", value=" + input);
+        }
+        if (NeutronvpnUtils.isNetworkTypeVlanOrGre(input)) {
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for this network {}."
+                    + " Skipping the processing of Network remove DCN", input);
+            return;
         }
         //Delete ELAN instance for this network
         deleteElanInstance(input.getUuid().getValue());
