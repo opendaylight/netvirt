@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.routemgr.utils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.routemgr.nd.packet.rev160302.EthernetHeader;
@@ -196,15 +197,15 @@ public class RoutemgrUtil {
         StringBuffer interfaceID = new StringBuffer();
         short u8byte = (short) (octets[0] & 0xff);
         u8byte ^= 1 << 1;
-        interfaceID.append(Integer.toHexString(0xFF & u8byte));
-        interfaceID.append(Integer.toHexString(0xFF & octets[1]));
+        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & u8byte), 2, "0"));
+        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[1]), 2, "0"));
         interfaceID.append(":");
-        interfaceID.append(Integer.toHexString(0xFF & octets[2]));
+        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[2]), 2, "0"));
         interfaceID.append("ff:fe");
-        interfaceID.append(Integer.toHexString(0xFF & octets[3]));
+        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[3]), 2, "0"));
         interfaceID.append(":");
-        interfaceID.append(Integer.toHexString(0xFF & octets[4]));
-        interfaceID.append(Integer.toHexString(0xFF & octets[5]));
+        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[4]), 2, "0"));
+        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[5]), 2, "0"));
 
         Ipv6Address ipv6LLA = new Ipv6Address("fe80:0:0:0:"+interfaceID.toString());
         return ipv6LLA;

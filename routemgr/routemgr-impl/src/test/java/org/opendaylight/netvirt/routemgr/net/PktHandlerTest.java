@@ -256,7 +256,7 @@ public class PktHandlerTest {
     @Test
     public void testonPacketReceivedRouterSolicitationWithSingleSubnet() throws Exception {
         VirtualPort intf = Mockito.mock(VirtualPort.class);
-        when(intf.getMacAddress()).thenReturn("00:01:02:03:06:06");
+        when(intf.getMacAddress()).thenReturn("fa:16:3e:4e:18:0c");
         when(ifMgrInstance.getInterfaceForMacAddress(any())).thenReturn(intf);
         when(ifMgrInstance.getInterfaceForAddress(any(Ipv6Address.class))).thenReturn(intf);
 
@@ -280,18 +280,18 @@ public class PktHandlerTest {
                 .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
         NodeConnectorRef ncRef = new NodeConnectorRef(ncId);
         byte[] expected_payload = buildPacket(
-                "00 01 02 03 04 05",                               // Source MAC
-                "00 01 02 03 06 06",                               // Destination MAC
+                "FA 16 3E 69 2C F3",                               // Destination MAC
+                "FA 16 3E 4E 18 0C",                               // Source MAC
                 "86 DD",                                           // IPv6
-                "6E 00 00 00",                                     // Version 6, traffic class E0, no flowlabel
+                "60 00 00 00",                                     // Version 6, traffic class E0, no flowlabel
                 "00 38",                                           // Payload length
                 "3A",                                              // Next header is ICMPv6
                 "FF",                                              // Hop limit
-                "FE 80 00 00 00 00 00 00 00 21 02 FF 0F E3 00 66", // Source IP
-                "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00", // Destination IP
+                "FE 80 00 00 00 00 00 00 F8 16 3E FF FE 4E 18 0C", // Source IP
+                "FE 80 00 00 00 00 00 00 F8 16 3E FF FE 69 2C F3", // Destination IP
                 "86",                                              // ICMPv6 router advertisement.
                 "00",                                              // Code
-                "D3 D5",                                           // Checksum (valid)
+                "F0 71",                                           // Checksum (valid)
                 "40",                                              // Current Hop Limit
                 "00",                                              // ICMPv6 RA Flags
                 "11 94",                                           // Router Lifetime
@@ -299,7 +299,7 @@ public class PktHandlerTest {
                 "00 00 00 00",                                     // Retransmission time.
                 "01",                                              // Type: Source Link-Layer Option
                 "01",                                              // Option length
-                "00 01 02 03 06 06",                               // Source Link layer address
+                "FA 16 3E 4E 18 0C",                               // Source Link layer address
                 "03",                                              // Type: Prefix Information
                 "04",                                              // Option length
                 "40",                                              // Prefix length
@@ -311,20 +311,22 @@ public class PktHandlerTest {
         );
 
         pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
-                "33 33 FF F5 00 00",                               // Destination MAC
-                "00 01 02 03 04 05",                               // Source MAC
+                "33 33 00 00 00 02",                               // Destination MAC
+                "FA 16 3E 69 2C F3",                               // Source MAC
                 "86 DD",                                           // IPv6
-                "6E 00 00 00",                                     // Version 6, traffic class E0, no flowlabel
-                "00 18",                                           // Payload length
+                "60 00 00 00",                                     // Version 6, traffic class E0, no flowlabel
+                "00 10",                                           // Payload length
                 "3A",                                              // Next header is ICMPv6
                 "FF",                                              // Hop limit
-                "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00", // Source IP
-                "FF 02 00 00 00 00 00 00 00 00 00 01 FF F5 00 00", // Destination IP
+                "FE 80 00 00 00 00 00 00 F8 16 3E FF FE 69 2C F3", // Source IP
+                "FF 02 00 00 00 00 00 00 00 00 00 00 00 00 00 02", // Destination IP
                 "85",                                              // ICMPv6 router solicitation
                 "00",                                              // Code
-                "69 3C",                                           // Checksum (valid)
+                "B4 47",                                           // Checksum (valid)
                 "00 00 00 00",                                     // ICMPv6 message body
-                "FE 80 00 00 00 00 00 00 C0 00 54 FF FE F5 00 00"  // Target
+                "01",                                              // ICMPv6 Option: Source Link Layer Address
+                "01",                                              // Length
+                "FA 16 3E 69 2C F3"                                // Link Layer Address
         )).setIngress(ncRef).build());
 
         //wait on this thread until the async job is completed in the packet handler.
@@ -338,7 +340,7 @@ public class PktHandlerTest {
     @Test
     public void testonPacketReceivedRouterSolicitationWithMultipleSubnets() throws Exception {
         VirtualPort intf = Mockito.mock(VirtualPort.class);
-        when(intf.getMacAddress()).thenReturn("00:01:02:03:06:06");
+        when(intf.getMacAddress()).thenReturn("50:7B:9D:78:54:F3");
         when(ifMgrInstance.getInterfaceForMacAddress(any())).thenReturn(intf);
         when(ifMgrInstance.getInterfaceForAddress(any(Ipv6Address.class))).thenReturn(intf);
 
@@ -370,18 +372,18 @@ public class PktHandlerTest {
                 .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
         NodeConnectorRef ncRef = new NodeConnectorRef(ncId);
         byte[] expected_payload = buildPacket(
-                "00 01 02 03 04 05",                               // Source MAC
-                "00 01 02 03 06 06",                               // Destination MAC
+                "FA 16 3E 69 2C F3",                               // Destination MAC
+                "50 7B 9D 78 54 F3",                               // Source MAC
                 "86 DD",                                           // IPv6
-                "6E 00 00 00",                                     // Version 6, traffic class E0, no flowlabel
+                "60 00 00 00",                                     // Version 6, traffic class E0, no flowlabel
                 "00 58",                                           // Payload length
                 "3A",                                              // Next header is ICMPv6
                 "FF",                                              // Hop limit
-                "FE 80 00 00 00 00 00 00 00 21 02 FF 0F E3 00 66", // Source IP
-                "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00", // Destination IP
+                "FE 80 00 00 00 00 00 00 52 7B 9D FF FE 78 54 F3", // Source IP
+                "FE 80 00 00 00 00 00 00 F8 16 3E FF FE 69 2C F3", // Destination IP
                 "86",                                              // ICMPv6 router advertisement.
                 "00",                                              // Code
-                "67 14",                                           // Checksum (valid)
+                "9A C4",                                           // Checksum (valid)
                 "40",                                              // Current Hop Limit
                 "40",                                              // ICMPv6 RA Flags
                 "11 94",                                           // Router Lifetime
@@ -389,7 +391,7 @@ public class PktHandlerTest {
                 "00 00 00 00",                                     // Retransmission time.
                 "01",                                              // Type: Source Link-Layer Option
                 "01",                                              // Option length
-                "00 01 02 03 06 06",                               // Source Link layer address
+                "50 7B 9D 78 54 F3",                               // Source Link layer address
                 "03",                                              // Type: Prefix Information
                 "04",                                              // Option length
                 "40",                                              // Prefix length
@@ -409,20 +411,22 @@ public class PktHandlerTest {
         );
 
         pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
-                "33 33 FF F5 00 00",                               // Destination MAC
-                "00 01 02 03 04 05",                               // Source MAC
+                "33 33 00 00 00 02",                               // Destination MAC
+                "FA 16 3E 69 2C F3",                               // Source MAC
                 "86 DD",                                           // IPv6
-                "6E 00 00 00",                                     // Version 6, traffic class E0, no flowlabel
-                "00 18",                                           // Payload length
+                "60 00 00 00",                                     // Version 6, traffic class E0, no flowlabel
+                "00 10",                                           // Payload length
                 "3A",                                              // Next header is ICMPv6
                 "FF",                                              // Hop limit
-                "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00", // Source IP
-                "FF 02 00 00 00 00 00 00 00 00 00 01 FF F5 00 00", // Destination IP
+                "FE 80 00 00 00 00 00 00 F8 16 3E FF FE 69 2C F3", // Source IP
+                "FF 02 00 00 00 00 00 00 00 00 00 00 00 00 00 02", // Destination IP
                 "85",                                              // ICMPv6 router solicitation
                 "00",                                              // Code
-                "69 3C",                                           // Checksum (valid)
+                "B4 47",                                           // Checksum (valid)
                 "00 00 00 00",                                     // ICMPv6 message body
-                "FE 80 00 00 00 00 00 00 C0 00 54 FF FE F5 00 00"  // Target
+                "01",                                              // ICMPv6 Option: Source Link Layer Address
+                "01",                                              // Length
+                "FA 16 3E 69 2C F3"                                // Link Layer Address
         )).setIngress(ncRef).build());
 
         //wait on this thread until the async job is completed in the packet handler.
