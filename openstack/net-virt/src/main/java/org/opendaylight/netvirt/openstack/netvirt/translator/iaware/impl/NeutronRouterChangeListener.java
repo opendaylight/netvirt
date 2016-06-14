@@ -20,14 +20,12 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataCh
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter_Interface;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter_NetworkReference;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronRouterAware;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -150,21 +148,6 @@ public class NeutronRouterChangeListener implements ClusteredDataChangeListener,
             result.setExternalGatewayInfo(extGwInfo);
         }
 
-        if (router.getInterfaces() != null) {
-            Map<String, NeutronRouter_Interface> interfaces = new HashMap<>();
-            for (Interfaces mdInterface : router.getInterfaces()) {
-                NeutronRouter_Interface pojoInterface = new NeutronRouter_Interface();
-                String id = String.valueOf(mdInterface.getUuid().getValue());
-                pojoInterface.setID(id);
-                if (mdInterface.getTenantId() != null) {
-                     pojoInterface.setTenantID(String.valueOf(mdInterface.getTenantId().getValue()));
-                }
-                pojoInterface.setSubnetUUID(String.valueOf(mdInterface.getSubnetId().getValue()));
-                pojoInterface.setPortUUID(String.valueOf(mdInterface.getPortId().getValue()));
-                interfaces.put(id, pojoInterface);
-            }
-            result.setInterfaces(interfaces);
-        }
         return result;
     }
 

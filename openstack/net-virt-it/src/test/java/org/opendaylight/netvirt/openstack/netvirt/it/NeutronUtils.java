@@ -2,13 +2,13 @@ package org.opendaylight.netvirt.openstack.netvirt.it;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.neutron.spi.INeutronNetworkCRUD;
-import org.opendaylight.neutron.spi.INeutronPortCRUD;
-import org.opendaylight.neutron.spi.INeutronSubnetCRUD;
-import org.opendaylight.neutron.spi.NeutronNetwork;
-import org.opendaylight.neutron.spi.NeutronPort;
-import org.opendaylight.neutron.spi.NeutronSecurityGroup;
-import org.opendaylight.neutron.spi.NeutronSubnet;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSubnetCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
 import org.opendaylight.ovsdb.utils.servicehelper.ServiceHelper;
 
 public class NeutronUtils {
@@ -22,16 +22,16 @@ public class NeutronUtils {
         np.setDeviceOwner(owner);
         np.setMacAddress(mac);
         np.setNetworkUUID(networkId);
-        List<org.opendaylight.neutron.spi.Neutron_IPs> srcAddressList =
+        List<org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs> srcAddressList =
                 new ArrayList<>();
-        org.opendaylight.neutron.spi.Neutron_IPs nip = new org.opendaylight.neutron.spi.Neutron_IPs();
+        org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs nip = new org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs();
         nip.setIpAddress(ipaddr);
         nip.setSubnetUUID(subnetId);
         srcAddressList.add(nip);
         np.setFixedIPs(srcAddressList);
         List<NeutronSecurityGroup> nsgs = new ArrayList<>();
         np.setSecurityGroups(nsgs);
-        iNeutronPortCRUD.add(np);
+        iNeutronPortCRUD.addPort(np);
         return np;
     }
 
@@ -45,7 +45,7 @@ public class NeutronUtils {
         ns.initDefaults();
         ns.setNetworkUUID(networkId);
         ns.setTenantID(tenantId);
-        iNeutronSubnetCRUD.add(ns);
+        iNeutronSubnetCRUD.addSubnet(ns);
         return ns;
     }
 

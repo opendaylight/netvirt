@@ -172,20 +172,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <type>xml</type>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.openflowplugin</groupId>
-      <artifactId>features-openflowplugin-li</artifactId>
-      <version>${openflowplugin.version}</version>
-      <classifier>features</classifier>
-      <type>xml</type>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.openflowplugin</groupId>
-      <artifactId>features-openflowplugin-extension-li</artifactId>
-      <version>${openflowplugin.version}</version>
-      <classifier>features</classifier>
-      <type>xml</type>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>openstack.net-virt</artifactId>
       <version>${project.version}</version>
@@ -239,6 +225,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>utils.it-utils</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>utils.neutron-utils</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

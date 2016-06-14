@@ -45,6 +45,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>openstack.net-virt</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>utils.neutron-utils</artifactId>
+          <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.opendaylight.ovsdb</groupId>
           <artifactId>utils.mdsal-utils</artifactId>
         <version>${ovsdb.version}</version>

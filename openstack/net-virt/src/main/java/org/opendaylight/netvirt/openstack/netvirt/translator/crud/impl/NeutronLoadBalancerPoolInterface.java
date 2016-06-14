@@ -139,9 +139,6 @@ public class NeutronLoadBalancerPoolInterface extends AbstractNeutronInterface<P
     protected Pool toMd(NeutronLoadBalancerPool pool) {
         PoolBuilder poolBuilder = new PoolBuilder();
         poolBuilder.setAdminStateUp(pool.getLoadBalancerPoolAdminIsStateIsUp());
-        if (pool.getLoadBalancerPoolDescription() != null) {
-            poolBuilder.setDescr(pool.getLoadBalancerPoolDescription());
-        }
         if (pool.getNeutronLoadBalancerPoolHealthMonitorID() != null) {
             poolBuilder.setHealthmonitorId(toUuid(pool.getNeutronLoadBalancerPoolHealthMonitorID()));
         }
