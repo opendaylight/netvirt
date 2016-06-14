@@ -144,7 +144,7 @@ public class NeutronSubnetChangeListener implements ClusteredDataChangeListener,
         }
         result.setNetworkUUID(subnet.getNetworkId().getValue());
         result.setIpVersion(IPV_MAP.get(subnet.getIpVersion()));
-        result.setCidr(subnet.getCidr());
+        result.setCidr(String.valueOf(subnet.getCidr().getValue()));
         if (subnet.getGatewayIp() != null) {
             result.setGatewayIP(String.valueOf(subnet.getGatewayIp().getValue()));
         }
@@ -159,8 +159,8 @@ public class NeutronSubnetChangeListener implements ClusteredDataChangeListener,
             List<NeutronSubnetIPAllocationPool> allocationPools = new ArrayList<>();
             for (AllocationPools allocationPool : subnet.getAllocationPools()) {
                 NeutronSubnetIPAllocationPool pool = new NeutronSubnetIPAllocationPool();
-                pool.setPoolStart(allocationPool.getStart());
-                pool.setPoolEnd(allocationPool.getEnd());
+                pool.setPoolStart(String.valueOf(allocationPool.getStart().getValue()));
+                pool.setPoolEnd(String.valueOf(allocationPool.getEnd().getValue()));
                 allocationPools.add(pool);
             }
             result.setAllocationPools(allocationPools);

@@ -124,9 +124,6 @@ public class NeutronLoadBalancerInterface extends AbstractNeutronInterface<Loadb
     protected Loadbalancer toMd(NeutronLoadBalancer loadBalancer) {
         LoadbalancerBuilder loadBalancersBuilder = new LoadbalancerBuilder();
         loadBalancersBuilder.setAdminStateUp(loadBalancer.getLoadBalancerAdminStateUp());
-        if (loadBalancer.getLoadBalancerDescription() != null) {
-            loadBalancersBuilder.setDescr(loadBalancer.getLoadBalancerDescription());
-        }
         if (loadBalancer.getLoadBalancerName() != null) {
             loadBalancersBuilder.setName(loadBalancer.getLoadBalancerName());
         }

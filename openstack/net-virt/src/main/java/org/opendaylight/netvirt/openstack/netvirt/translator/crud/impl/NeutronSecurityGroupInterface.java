@@ -109,30 +109,9 @@ public class NeutronSecurityGroupInterface extends AbstractNeutronInterface<Secu
         if (group.getName() != null) {
             answer.setSecurityGroupName(group.getName());
         }
-        if (group.getDescription() != null) {
-            answer.setSecurityGroupDescription(group.getDescription());
-        }
         if (group.getTenantId() != null) {
             answer.setSecurityGroupTenantID(group.getTenantId().getValue().replace("-",""));
         }
-
-        // Bug 4550
-        // https://bugs.opendaylight.org/show_bug.cgi?id=4550
-        // Now SecurityGroup::securityGroupRule isn't updated.
-        // always rebuid it from security group rules
-        NeutronCRUDInterfaces interfaces = new NeutronCRUDInterfaces()
-            .fetchINeutronSecurityRuleCRUD(this);
-        INeutronSecurityRuleCRUD srCrud = interfaces.getSecurityRuleInterface();
-
-        List<NeutronSecurityRule> rules = new ArrayList<>();
-        String sgId = group.getUuid().getValue();
-        for (NeutronSecurityRule rule: srCrud.getAllNeutronSecurityRules()) {
-            if (rule.getSecurityRuleGroupID().equals(sgId)) {
-                rules.add(rule);
-            }
-        }
-        answer.setSecurityRules(rules);
-
         if (group.getUuid() != null) {
             answer.setID(group.getUuid().getValue());
         }
@@ -145,18 +124,9 @@ public class NeutronSecurityGroupInterface extends AbstractNeutronInterface<Secu
         if (securityGroup.getSecurityGroupName() != null) {
             securityGroupBuilder.setName(securityGroup.getSecurityGroupName());
         }
-        if (securityGroup.getSecurityGroupDescription() != null) {
-            securityGroupBuilder.setDescription(securityGroup.getSecurityGroupDescription());
-        }
         if (securityGroup.getSecurityGroupTenantID() != null) {
             securityGroupBuilder.setTenantId(toUuid(securityGroup.getSecurityGroupTenantID()));
         }
-
-        // don't update security group rule, always empty list
-        // Bug 4550
-        // https://bugs.opendaylight.org/show_bug.cgi?id=4550
-        securityGroupBuilder.setSecurityRules(new ArrayList<>());
-
         if (securityGroup.getID() != null) {
             securityGroupBuilder.setUuid(toUuid(securityGroup.getID()));
         } else {

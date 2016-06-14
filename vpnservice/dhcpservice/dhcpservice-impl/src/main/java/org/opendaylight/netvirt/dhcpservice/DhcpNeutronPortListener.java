@@ -64,7 +64,7 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataChangeListenerBas
         if(NeutronUtils.isPortVnicTypeNormal(del)) {
             return;
         }
-        String macAddress = del.getMacAddress();
+        String macAddress = del.getMacAddress().getValue();
         Uuid networkId = del.getNetworkId();
         String segmentationId = DhcpServiceUtils.getSegmentationId(networkId, broker);
         if (segmentationId == null) {
@@ -87,7 +87,7 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataChangeListenerBas
             LOG.trace("Port is normal {}", add);
             return;
         }
-        String macAddress = add.getMacAddress();
+        String macAddress = add.getMacAddress().getValue();
         Uuid networkId = add.getNetworkId();
         String segmentationId = DhcpServiceUtils.getSegmentationId(networkId, broker);
         if (segmentationId == null) {

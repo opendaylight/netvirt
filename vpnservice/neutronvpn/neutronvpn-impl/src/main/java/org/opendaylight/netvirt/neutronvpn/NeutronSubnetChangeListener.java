@@ -76,7 +76,7 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
         if (LOG.isTraceEnabled()) {
             LOG.trace("Adding Subnet : key: " + identifier + ", value=" + input);
         }
-        handleNeutronSubnetCreated(input.getUuid(), input.getCidr(), input.getNetworkId(), input.getTenantId());
+        handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), input.getNetworkId(), input.getTenantId());
     }
 
     @Override

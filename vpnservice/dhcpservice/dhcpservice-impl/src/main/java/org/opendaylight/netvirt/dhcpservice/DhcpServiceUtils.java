@@ -220,6 +220,6 @@ public class DhcpServiceUtils {
             logger.warn("Trunk port {} not available for sub-port", parentRefName);
             return null;
         }
-        return trunkPort.get().getMacAddress();
+        return trunkPort.get().getMacAddress().getValue();
     }
 }
