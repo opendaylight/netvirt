@@ -43,7 +43,7 @@ public interface INetvirtSfcOF13Provider {
     void addClassifierRules(Acl acl);
     void removeClassifierRules(Acl acl);
     void setSfcClassifierService(ISfcClassifierService sfcClassifierService);
-    public void setDependencies(ServiceReference serviceReference);
+    void setDependencies(ServiceReference serviceReference);
     void updateRsp(RenderedServicePath change);
     void removeRsp(RenderedServicePath change);
     void addRsp(RenderedServicePath change);
