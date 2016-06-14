@@ -172,7 +172,7 @@ public class PortSecurityHandler extends AbstractHandler
     private List<NeutronPort> getPortWithSecurityGroup(String securityGroupUuid) {
 
         List<NeutronPort> neutronPortList = neutronPortCache.getAllPorts();
-        List<NeutronPort> neutronPortInSg = new ArrayList<NeutronPort>();
+        List<NeutronPort> neutronPortInSg = new ArrayList<>();
         for (NeutronPort neutronPort:neutronPortList) {
             List<NeutronSecurityGroup> securityGroupList = neutronPort.getSecurityGroups();
             for (NeutronSecurityGroup neutronSecurityGroup:securityGroupList) {
