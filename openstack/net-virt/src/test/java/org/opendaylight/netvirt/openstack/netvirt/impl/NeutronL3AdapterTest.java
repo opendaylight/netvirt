@@ -609,7 +609,7 @@ public class NeutronL3AdapterTest {
         // init instance variables
         INeutronPortCRUD neutronPortCache = mock(INeutronPortCRUD.class);
         PowerMockito.when(neutronPortCache.getPort(anyString())).thenReturn(neutronPort);
-        PowerMockito.when(neutronPortCache.getAllPorts()).thenReturn(new ArrayList<NeutronPort>());
+        PowerMockito.when(neutronPortCache.getAllPorts()).thenReturn(new ArrayList<>());
         INeutronSubnetCRUD neutronSubnetCache = mock(INeutronSubnetCRUD.class);
         PowerMockito.when(neutronSubnetCache.getSubnet(anyString())).thenReturn(neutronSubnet);
         INeutronNetworkCRUD neutronNetworkCache = mock(INeutronNetworkCRUD.class);
@@ -871,14 +871,14 @@ public class NeutronL3AdapterTest {
         Map<String,NeutronNetwork> networkCleanupCache = new HashMap<>();
         INeutronNetworkCRUD neutronNetworkCache = mock(INeutronNetworkCRUD.class);
         NeutronNetwork neutronNetwork = mock(NeutronNetwork.class);
-        List <NeutronNetwork> neutronNetworkList = new ArrayList<NeutronNetwork>();
+        List <NeutronNetwork> neutronNetworkList = new ArrayList<>();
         neutronNetworkList.add(neutronNetwork);
         when(neutronNetworkCache.getAllNetworks()).thenReturn(neutronNetworkList);
 
         Map<String,NeutronPort> portCleanupCache = new HashMap<>();
         INeutronPortCRUD neutronPortCache = mock(INeutronPortCRUD.class);
         NeutronPort neutronPort = mock(NeutronPort.class);
-        List <NeutronPort> neutronPortList = new ArrayList<NeutronPort>();
+        List <NeutronPort> neutronPortList = new ArrayList<>();
         neutronPortList.add(neutronPort);
         when(neutronPortCache.getAllPorts()).thenReturn(neutronPortList);
         // Mock variables

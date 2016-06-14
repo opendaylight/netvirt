@@ -127,7 +127,7 @@ public class ServiceFunctionForwarderUtils extends AbstractUtils {
         SffDataPlaneLocatorBuilder sffDataPlaneLocatorBuilder =
                 sffDataPlaneLocatorBuilder( new SffDataPlaneLocatorBuilder(), dataPlaneLocatorBuilder, sffDplName);
         List<SffDataPlaneLocator> sffDataPlaneLocatorList =
-                list(new ArrayList<SffDataPlaneLocator>(), sffDataPlaneLocatorBuilder);
+                list(new ArrayList<>(), sffDataPlaneLocatorBuilder);
 
         SffSfDataPlaneLocatorBuilder sffSfDataPlaneLocatorBuilder =
                 sffSfDataPlaneLocatorBuilder(new SffSfDataPlaneLocatorBuilder(), sffDplName, sfDplName);
@@ -135,7 +135,7 @@ public class ServiceFunctionForwarderUtils extends AbstractUtils {
                 serviceFunctionDictionaryBuilder(new ServiceFunctionDictionaryBuilder(),
                         sffSfDataPlaneLocatorBuilder, sfName);
         List<ServiceFunctionDictionary> serviceFunctionDictionaryList =
-                list(new ArrayList<ServiceFunctionDictionary>(), serviceFunctionDictionaryBuilder);
+                list(new ArrayList<>(), serviceFunctionDictionaryBuilder);
 
         ServiceFunctionForwarderBuilder serviceFunctionForwarderBuilder =
                 serviceFunctionForwarderBuilder(
