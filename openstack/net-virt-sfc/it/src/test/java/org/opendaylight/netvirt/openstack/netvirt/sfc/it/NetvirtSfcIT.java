@@ -519,7 +519,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
                 serviceFunctionUtils.serviceFunctionBuilder(sf1Ip, port, sf1DplName, sf1DplportName,
                         sff1Name, sf1Name);
         List<ServiceFunction> serviceFunctionList = serviceFunctionUtils.list(
-                new ArrayList<ServiceFunction>(), serviceFunctionBuilder);
+                new ArrayList<>(), serviceFunctionBuilder);
 
         ServiceFunctionsBuilder serviceFunctionsBuilder =
                 serviceFunctionUtils.serviceFunctionsBuilder(new ServiceFunctionsBuilder(),
@@ -548,7 +548,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
                         sff1Name, sff1Ip, port, sffDpl1Name, sf1Ip, sn1Name, bridge1Name, sf1Name, sf1DplName,
                         ovsdbNodeRef);
         List<ServiceFunctionForwarder>  serviceFunctionForwarderList = serviceFunctionForwarderUtils.list(
-                new ArrayList<ServiceFunctionForwarder>(), serviceFunctionForwarderBuilder);
+                new ArrayList<>(), serviceFunctionForwarderBuilder);
 
         ServiceFunctionForwardersBuilder serviceFunctionForwardersBuilder =
                 serviceFunctionForwarderUtils.serviceFunctionForwardersBuilder(
@@ -565,7 +565,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
         SfcServiceFunctionBuilder sfcServiceFunctionBuilder = serviceFunctionChainUtils.sfcServiceFunctionBuilder(
                 new SfcServiceFunctionBuilder(), sf1Name, sfType);
         List<SfcServiceFunction> sfcServiceFunctionList =
-                serviceFunctionChainUtils.list(new ArrayList<SfcServiceFunction>(), sfcServiceFunctionBuilder);
+                serviceFunctionChainUtils.list(new ArrayList<>(), sfcServiceFunctionBuilder);
 
         ServiceFunctionChainBuilder serviceFunctionChainBuilder =
                 serviceFunctionChainUtils.serviceFunctionChainBuilder(
@@ -573,7 +573,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
         ServiceFunctionChainsBuilder serviceFunctionChainsBuilder =
                 serviceFunctionChainUtils.serviceFunctionChainsBuilder(
                         new ServiceFunctionChainsBuilder(),
-                        serviceFunctionChainUtils.list(new ArrayList<ServiceFunctionChain>(),
+                        serviceFunctionChainUtils.list(new ArrayList<>(),
                                 serviceFunctionChainBuilder));
         LOG.info("ServiceFunctionChains: {}", serviceFunctionChainBuilder.build());
         return serviceFunctionChainsBuilder;
@@ -589,7 +589,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
                         new ServiceFunctionPathBuilder(), sfpName, sfcName, startingIndex, false);
         ServiceFunctionPathsBuilder serviceFunctionPathsBuilder =
                 serviceFunctionPathUtils.serviceFunctionPathsBuilder(
-                        serviceFunctionPathUtils.list(new ArrayList<ServiceFunctionPath>(),
+                        serviceFunctionPathUtils.list(new ArrayList<>(),
                                 serviceFunctionPathBuilder));
         LOG.info("ServiceFunctionPaths: {}", serviceFunctionPathsBuilder.build());
         return serviceFunctionPathsBuilder;
