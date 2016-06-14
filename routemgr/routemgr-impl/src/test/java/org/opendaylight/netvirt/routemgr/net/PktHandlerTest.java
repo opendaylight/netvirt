@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -270,7 +271,7 @@ public class PktHandlerTest {
         v6Subnet.setGatewayIp(gwIpAddress);
         v6Subnet.setIpv6AddressMode(ifMgrInstance.IPV6_SLAAC);
         v6Subnet.setIpv6RAMode(ifMgrInstance.IPV6_SLAAC);
-        v6Subnet.setSubnetCidr("2001:db8::/64");
+        v6Subnet.setSubnetCidr(new IpPrefix("2001:db8::/64".toCharArray()));
 
         List<VirtualSubnet> subnetList = new ArrayList<>();
         subnetList.add(v6Subnet);
@@ -354,14 +355,14 @@ public class PktHandlerTest {
         v6Subnet1.setGatewayIp(gwIpAddress);
         v6Subnet1.setIpv6AddressMode(ifMgrInstance.IPV6_SLAAC);
         v6Subnet1.setIpv6RAMode(ifMgrInstance.IPV6_SLAAC);
-        v6Subnet1.setSubnetCidr("2001:db8:1111::/64");
+        v6Subnet1.setSubnetCidr(new IpPrefix("2001:db8:1111::/64".toCharArray()));
 
         VirtualSubnet v6Subnet2 = new VirtualSubnet();
         v6Subnet2.setRouter(vRouter);
         v6Subnet2.setGatewayIp(gwIpAddress);
         v6Subnet2.setIpv6AddressMode(ifMgrInstance.IPV6_DHCPV6_STATELESS);
         v6Subnet2.setIpv6RAMode(ifMgrInstance.IPV6_DHCPV6_STATELESS);
-        v6Subnet2.setSubnetCidr("2001:db8:2222::/64");
+        v6Subnet2.setSubnetCidr(new IpPrefix("2001:db8:2222::/64".toCharArray()));
 
         List<VirtualSubnet> subnetList = new ArrayList<>();
         subnetList.add(v6Subnet1);

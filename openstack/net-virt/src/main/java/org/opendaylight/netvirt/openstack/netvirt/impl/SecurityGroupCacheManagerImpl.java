@@ -16,6 +16,7 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -41,6 +42,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
     private volatile SecurityServicesManager securityServicesManager;
     private volatile INeutronPortCRUD neutronPortCache;
     private volatile NeutronL3Adapter neutronL3Adapter;
+    private volatile INeutronSecurityRuleCRUD neutronSecurityRule;
 
     @Override
     public void portAdded(String securityGroupUuid, String portUuid) {
@@ -188,7 +190,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
         List<NeutronSecurityRule> remoteSecurityRules = new ArrayList<>();
         List<NeutronSecurityGroup> securityGroups = port.getSecurityGroups();
         for (NeutronSecurityGroup securityGroup : securityGroups) {
-            List<NeutronSecurityRule> securityRules = securityGroup.getSecurityRules();
+            List<NeutronSecurityRule> securityRules = getSecurityRulesforGroup(securityGroup);
             for (NeutronSecurityRule securityRule : securityRules) {
                 if (securityGroupUuid.equals(securityRule.getSecurityRemoteGroupID())) {
                     remoteSecurityRules.add(securityRule);
@@ -207,7 +209,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
             List<NeutronSecurityGroup> securityGroupList = port.getSecurityGroups();
             if ( null != securityGroupList) {
                 for (NeutronSecurityGroup securityGroup : securityGroupList) {
-                    List<NeutronSecurityRule> securityRuleList = securityGroup.getSecurityRules();
+                    List<NeutronSecurityRule> securityRuleList = getSecurityRulesforGroup(securityGroup);
                     if ( null != securityRuleList) {
                         for (NeutronSecurityRule securityRule : securityRuleList) {
                             if (null != securityRule.getSecurityRemoteGroupID()) {
@@ -220,6 +222,17 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
         }
     }
 
+    private List<NeutronSecurityRule> getSecurityRulesforGroup(NeutronSecurityGroup securityGroup) {
+        List<NeutronSecurityRule> securityRules = new ArrayList<>();
+        List<NeutronSecurityRule> rules = neutronSecurityRule.getAllNeutronSecurityRules();
+        for (NeutronSecurityRule securityRule : rules) {
+            if (securityGroup.getID().equals(securityRule.getSecurityRuleGroupID())) {
+                securityRules.add(securityRule);
+            }
+        }
+        return securityRules;
+    }
+
     @Override
     public void setDependencies(ServiceReference serviceReference) {
         neutronL3Adapter =
@@ -227,6 +240,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
         securityServicesManager =
                 (SecurityServicesManager) ServiceHelper.getGlobalInstance(SecurityServicesManager.class, this);
         neutronPortCache = (INeutronPortCRUD) ServiceHelper.getGlobalInstance(INeutronPortCRUD.class, this);
+        neutronSecurityRule = (INeutronSecurityRuleCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityRuleCRUD.class, this);
         init();
     }
 

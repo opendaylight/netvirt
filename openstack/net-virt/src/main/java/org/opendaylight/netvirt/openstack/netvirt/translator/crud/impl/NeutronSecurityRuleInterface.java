@@ -31,7 +31,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolIcmpV6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolTcp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolUdp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.SecurityRuleAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.security.rules.attributes.SecurityRules;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.security.rules.attributes.security.rules.SecurityRule;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.security.rules.attributes.security.rules.SecurityRuleBuilder;
@@ -62,40 +64,6 @@ public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<Secur
 
     NeutronSecurityRuleInterface(ProviderContext providerContext) {
         super(providerContext);
-    }
-
-    private void updateSecGroupRuleInSecurityGroup(NeutronSecurityRule input) {
-        NeutronCRUDInterfaces interfaces = new NeutronCRUDInterfaces()
-            .fetchINeutronSecurityGroupCRUD(this);
-        INeutronSecurityGroupCRUD sgCrud = interfaces.getSecurityGroupInterface();
-        NeutronSecurityGroup sg = sgCrud.getNeutronSecurityGroup(input.getSecurityRuleGroupID());
-        if(sg != null && sg.getSecurityRules() != null) {
-            for(NeutronSecurityRule sgr :sg.getSecurityRules()) {
-                if(sgr != null && sgr.getID() != null && sgr.getID().equals(input.getID())) {
-                    int index = sg.getSecurityRules().indexOf(sgr);
-                    sg.getSecurityRules().set(index, input);
-                }
-            }
-        }
-        if (sg != null) {
-            sg.getSecurityRules().add(input);
-        }
-    }
-
-    private void removeSecGroupRuleFromSecurityGroup(NeutronSecurityRule input) {
-        NeutronCRUDInterfaces interfaces = new NeutronCRUDInterfaces()
-            .fetchINeutronSecurityGroupCRUD(this);
-        INeutronSecurityGroupCRUD sgCrud = interfaces.getSecurityGroupInterface();
-        NeutronSecurityGroup sg = sgCrud.getNeutronSecurityGroup(input.getSecurityRuleGroupID());
-        if(sg != null && sg.getSecurityRules() != null) {
-            List<NeutronSecurityRule> toRemove = new ArrayList<>();
-            for(NeutronSecurityRule sgr :sg.getSecurityRules()) {
-                if(sgr.getID() != null && sgr.getID().equals(input.getID())) {
-                    toRemove.add(sgr);
-                }
-            }
-            sg.getSecurityRules().removeAll(toRemove);
-        }
     }
 
     @Override
@@ -131,7 +99,6 @@ public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<Secur
         if (neutronSecurityRuleExists(input.getID())) {
             return false;
         }
-        updateSecGroupRuleInSecurityGroup(input);
         addMd(input);
         return true;
     }
@@ -141,7 +108,6 @@ public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<Secur
         if (!neutronSecurityRuleExists(uuid)) {
             return false;
         }
-        removeSecGroupRuleFromSecurityGroup(getNeutronSecurityRule(uuid));
         removeMd(toMd(uuid));
         return true;
     }
@@ -151,7 +117,6 @@ public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<Secur
         if (!neutronSecurityRuleExists(uuid)) {
             return false;
         }
-        updateSecGroupRuleInSecurityGroup(delta);
         updateMd(delta);
         return true;
     }
@@ -180,7 +145,14 @@ public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<Secur
                     rule.getRemoteIpPrefix().getIpv4Prefix().getValue():rule.getRemoteIpPrefix().getIpv6Prefix().getValue());
         }
         if (rule.getProtocol() != null) {
-            answer.setSecurityRuleProtocol(PROTOCOL_MAP.get(rule.getProtocol()));
+            SecurityRuleAttributes.Protocol protocol = rule.getProtocol();
+            if (protocol.getUint8() != null) {
+                // uint8
+                answer.setSecurityRuleProtocol(protocol.getUint8().toString());
+            } else {
+               // symbolic protocol name
+               answer.setSecurityRuleProtocol(NeutronUtils.ProtocolMapper.getName(protocol.getIdentityref()));
+            }
         }
         if (rule.getEthertype() != null) {
             answer.setSecurityRuleEthertype(ETHERTYPE_MAP.get(rule.getEthertype()));
@@ -191,8 +163,8 @@ public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<Secur
         if (rule.getPortRangeMax() != null) {
             answer.setSecurityRulePortMax(rule.getPortRangeMax());
         }
-        if (rule.getId() != null) {
-            answer.setID(rule.getId().getValue());
+        if (rule.getUuid() != null) {
+            answer.setID(rule.getUuid().getValue());
         }
         return answer;
     }
@@ -219,9 +191,9 @@ public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<Secur
             securityRuleBuilder.setRemoteIpPrefix(new IpPrefix(securityRule.getSecurityRuleRemoteIpPrefix().toCharArray()));
         }
         if (securityRule.getSecurityRuleProtocol() != null) {
-            ImmutableBiMap<String, Class<? extends ProtocolBase>> mapper =
-                    PROTOCOL_MAP.inverse();
-            securityRuleBuilder.setProtocol(mapper.get(securityRule.getSecurityRuleProtocol()));
+            String protocolString = securityRule.getSecurityRuleProtocol();
+            SecurityRuleAttributes.Protocol protocol = new SecurityRuleAttributes.Protocol(protocolString.toCharArray());
+            securityRuleBuilder.setProtocol(protocol);
         }
         if (securityRule.getSecurityRuleEthertype() != null) {
             ImmutableBiMap<String, Class<? extends EthertypeBase>> mapper =
@@ -235,7 +207,7 @@ public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<Secur
             securityRuleBuilder.setPortRangeMax(securityRule.getSecurityRulePortMax());
         }
         if (securityRule.getID() != null) {
-            securityRuleBuilder.setId(toUuid(securityRule.getID()));
+            securityRuleBuilder.setUuid(toUuid(securityRule.getID()));
         } else {
             LOGGER.warn("Attempting to write neutron securityRule without UUID");
         }
@@ -257,7 +229,7 @@ public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<Secur
     @Override
     protected SecurityRule toMd(String uuid) {
         SecurityRuleBuilder securityRuleBuilder = new SecurityRuleBuilder();
-        securityRuleBuilder.setId(toUuid(uuid));
+        securityRuleBuilder.setUuid(toUuid(uuid));
         return securityRuleBuilder.build();
     }
 

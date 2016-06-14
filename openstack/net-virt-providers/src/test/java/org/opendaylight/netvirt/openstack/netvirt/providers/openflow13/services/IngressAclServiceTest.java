@@ -39,6 +39,7 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGrou
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
@@ -77,6 +78,7 @@ public class IngressAclServiceTest {
     @Mock private NeutronSecurityRule portSecurityIpv6Rule;
     @Mock private SecurityServicesManager securityServices;
     @Mock private SecurityGroupCacheManger securityGroupCacheManger;
+    @Mock private INeutronSecurityRuleCRUD neutronSecurityRuleCache;
 
     private List<Neutron_IPs> neutronSrcIpList = new ArrayList<>();
     private List<Neutron_IPs> neutronDestIpList = new ArrayList<>();
@@ -152,7 +154,7 @@ public class IngressAclServiceTest {
 
         List<NeutronSecurityRule> portSecurityIpv6List = new ArrayList<>();
         portSecurityIpv6List.add(portSecurityIpv6Rule);
-        when(securityGroupIpv6.getSecurityRules()).thenReturn(portSecurityIpv6List);
+        when(neutronSecurityRuleCache.getAllNeutronSecurityRules()).thenReturn(portSecurityIpv6List);
 
         neutron_ipv6_dest_1 = new Neutron_IPs();
         neutron_ipv6_dest_1.setIpAddress(IPV6_DEST_IP_1);
@@ -162,7 +164,7 @@ public class IngressAclServiceTest {
         neutron_ipv6_dest_2.setIpAddress(IPV6_DEST_IP_2);
         neutronDestIpList.add(neutron_ipv6_dest_2);
 
-        when(securityGroup.getSecurityRules()).thenReturn(portSecurityList);
+        when(neutronSecurityRuleCache.getAllNeutronSecurityRules()).thenReturn(portSecurityList);
         when(securityServices.getVmListForSecurityGroup
              (PORT_UUID, SECURITY_GROUP_UUID)).thenReturn(neutronDestIpList);
         NetvirtProvidersProvider netvirtProvider = mock(NetvirtProvidersProvider.class);
@@ -200,7 +202,7 @@ public class IngressAclServiceTest {
         portSecurityList.add(portSecurityRule4);
 
         NeutronSecurityGroup localSecurityGroup = mock(NeutronSecurityGroup.class);
-        when(localSecurityGroup.getSecurityRules()).thenReturn(portSecurityList);
+        when(neutronSecurityRuleCache.getAllNeutronSecurityRules()).thenReturn(portSecurityList);
 
         ingressAclServiceSpy.programPortSecurityGroup(
                 Long.valueOf(1554), "2", MAC_ADDRESS, 124, localSecurityGroup, PORT_UUID, false);
