@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_4d2b99eb",
+        "filename": "vpnservice/fibmanager/fibmanager-shell/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-14T02:20:13Z",
+      "side": 1,
+      "message": "nitpick, indents are two spaces",
+      "revId": "069c3c237d82d858977a87579166445ecf7fd56e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_ad3b5537",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-14T02:20:13Z",
+      "side": 1,
+      "message": "these lines are below 120 chars so leave the whole path together",
+      "revId": "069c3c237d82d858977a87579166445ecf7fd56e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_4d1279b5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-14T02:20:13Z",
+      "side": 1,
+      "message": "It would be nice if all these constants were in a single file.",
+      "revId": "069c3c237d82d858977a87579166445ecf7fd56e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
