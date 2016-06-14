@@ -19,6 +19,7 @@ import org.opendaylight.netvirt.openstack.netvirt.AbstractEvent;
 import org.opendaylight.netvirt.openstack.netvirt.AbstractHandler;
 import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.NeutronL3AdapterEvent;
+import org.opendaylight.netvirt.openstack.netvirt.NeutronModelsDataStoreHelper;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.ArpProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
@@ -50,7 +51,6 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSubnetCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.impl.NeutronIAwareUtil;
-import org.opendaylight.netvirt.utils.neutron.utils.NeutronModelsDataStoreHelper;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -257,7 +257,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
                                 port.getDeviceOwner().equals(OWNER_ROUTER_INTERFACE)) {
                             LOG.debug("L3 Cache Population : Router interface {} found.",port);
                             networkIdToRouterMacCache.put(port.getNetworkId().getValue()
-                                    , port.getMacAddress());
+                                    , port.getMacAddress().getValue());
 
                             networkIdToRouterIpListCache.put(port.getNetworkId().getValue(),
                                     NeutronIAwareUtil.convertMDSalIpToNeutronIp(port.getFixedIps()));
