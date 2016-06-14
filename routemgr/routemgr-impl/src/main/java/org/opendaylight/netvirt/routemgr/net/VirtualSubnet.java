@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.routemgr.net;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class VirtualSubnet  {
     private IpAddress gatewayIp;
     private Boolean   allocPoolFlag;
     private List<APool> poolList;
-    private String subnetCidr;
+    private IpPrefix subnetCidr;
     private String ipVersion;
     private String ipv6AddressMode;
     private String ipv6RAMode;
@@ -94,12 +95,12 @@ public class VirtualSubnet  {
 
     public String getIpVersion() { return ipVersion;}
 
-    public VirtualSubnet setSubnetCidr(String subnetCidr) {
+    public VirtualSubnet setSubnetCidr(IpPrefix subnetCidr) {
         this.subnetCidr = subnetCidr;
         return this;
     }
 
-    public String getSubnetCidr() { return subnetCidr;}
+    public IpPrefix getSubnetCidr() { return subnetCidr;}
 
     public VirtualSubnet setIpv6AddressMode(String ipv6AddressMode) {
         this.ipv6AddressMode = ipv6AddressMode;
@@ -128,7 +129,7 @@ public class VirtualSubnet  {
         return allocPoolFlag;
     }
 
-    public void addPool(String start, String end) {
+    public void addPool(IpAddress start, IpAddress end) {
         APool pool = new APool();
         pool.setPoolStart(start);
         pool.setPoolEnd(end);
@@ -169,22 +170,22 @@ public class VirtualSubnet  {
     }
 
     private class APool {
-        private String poolStart;
-        private String poolEnd;
+        private IpAddress poolStart;
+        private IpAddress poolEnd;
 
-        public void setPoolStart(String start) {
+        public void setPoolStart(IpAddress start) {
             this.poolStart = start;
         }
 
-        public String getPoolStart() {
+        public IpAddress getPoolStart() {
             return poolStart;
         }
 
-        public void setPoolEnd(String end) {
+        public void setPoolEnd(IpAddress end) {
             this.poolEnd = end;
         }
 
-        public String getPoolEnd() {
+        public IpAddress getPoolEnd() {
             return poolEnd;
         }
     }

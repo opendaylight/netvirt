@@ -176,6 +176,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.netvirt</groupId>
+      <artifactId>utils.neutron-utils</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>routemgr-config</artifactId>
       <version>${project.version}</version>
@@ -186,6 +191,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>routemgr-api</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.openflowplugin</groupId>
+      <artifactId>openflowplugin-extension-nicira</artifactId>
+      <version>${openflowplugin.version}</version>
     </dependency>
 <!--
     <dependency>

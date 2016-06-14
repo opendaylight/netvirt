@@ -22,6 +22,7 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSubnetCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.NeutronCRUDInterfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Base;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Off;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Slaac;
@@ -144,7 +145,7 @@ public class NeutronSubnetInterface extends AbstractNeutronInterface<Subnet, Neu
         result.setTenantID(String.valueOf(subnet.getTenantId().getValue()).replace("-",""));
         result.setNetworkUUID(subnet.getNetworkId().getValue());
         result.setIpVersion(IPV_MAP.get(subnet.getIpVersion()));
-        result.setCidr(subnet.getCidr());
+        result.setCidr(String.valueOf(subnet.getCidr().getValue()));
         result.setIpV6RaMode(DHCPV6_MAP.get(subnet.getIpv6RaMode()));
         result.setIpV6AddressMode(DHCPV6_MAP.get(subnet.getIpv6AddressMode()));
         result.setEnableDHCP(subnet.isEnableDhcp());
@@ -152,8 +153,8 @@ public class NeutronSubnetInterface extends AbstractNeutronInterface<Subnet, Neu
             List<NeutronSubnetIPAllocationPool> allocationPools = new ArrayList<>();
             for (AllocationPools allocationPool : subnet.getAllocationPools()) {
                 NeutronSubnetIPAllocationPool pool = new NeutronSubnetIPAllocationPool();
-                pool.setPoolStart(allocationPool.getStart());
-                pool.setPoolEnd(allocationPool.getEnd());
+                pool.setPoolStart(String.valueOf(allocationPool.getStart().getValue()));
+                pool.setPoolEnd(String.valueOf(allocationPool.getEnd().getValue()));
                 allocationPools.add(pool);
             }
             result.setAllocationPools(allocationPools);
@@ -209,7 +210,8 @@ public class NeutronSubnetInterface extends AbstractNeutronInterface<Subnet, Neu
                     .getIpVersion()));
         }
         if (subnet.getCidr() != null) {
-            subnetBuilder.setCidr(subnet.getCidr());
+            IpPrefix ipPrefix = new IpPrefix(subnet.getCidr().toCharArray());
+            subnetBuilder.setCidr(ipPrefix);
         }
         if (subnet.getGatewayIP() != null) {
             IpAddress ipAddress = new IpAddress(subnet.getGatewayIP()
@@ -232,8 +234,8 @@ public class NeutronSubnetInterface extends AbstractNeutronInterface<Subnet, Neu
             for (NeutronSubnetIPAllocationPool allocationPool : subnet
                     .getAllocationPools()) {
                 AllocationPoolsBuilder builder = new AllocationPoolsBuilder();
-                builder.setStart(allocationPool.getPoolStart());
-                builder.setEnd(allocationPool.getPoolEnd());
+                builder.setStart(new IpAddress(allocationPool.getPoolStart().toCharArray()));
+                builder.setEnd(new IpAddress(allocationPool.getPoolEnd().toCharArray()));
                 AllocationPools temp = builder.build();
                 allocationPools.add(temp);
             }

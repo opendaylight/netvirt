@@ -136,9 +136,6 @@ public class NeutronLoadBalancerPoolChangeListener implements ClusteredDataChang
         if (pool.getName() != null) {
             result.setLoadBalancerPoolName(pool.getName());
         }
-        if (pool.getDescr() != null) {
-            result.setLoadBalancerPoolDescription(pool.getDescr());
-        }
         if (pool.getProtocol() != null) {
             result.setLoadBalancerPoolProtocol(PROTOCOL_MAP.get(pool.getProtocol()));
         }
