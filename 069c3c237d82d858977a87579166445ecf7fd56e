@@ -50,6 +50,23 @@
       "revId": "069c3c237d82d858977a87579166445ecf7fd56e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_4d18b984",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-14T05:51:25Z",
+      "side": 1,
+      "message": "Add for Subnets too. DHCP uses it and would greatly benefit from it.",
+      "revId": "069c3c237d82d858977a87579166445ecf7fd56e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
