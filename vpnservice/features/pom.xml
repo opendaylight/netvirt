@@ -136,11 +136,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.neutron</groupId>
-      <artifactId>dummyprovider</artifactId>
-      <version>${neutron.version}</version>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-impl</artifactId>
       <version>${vpnmanager.version}</version>

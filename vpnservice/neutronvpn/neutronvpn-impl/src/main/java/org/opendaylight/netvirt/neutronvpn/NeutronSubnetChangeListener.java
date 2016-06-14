@@ -38,14 +38,12 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private NeutronvpnManager nvpnManager;
-    private NeutronvpnUtils neutronvpnUtils;
 
 
-    public NeutronSubnetChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr, NeutronvpnUtils nVpnUtils) {
+    public NeutronSubnetChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr) {
         super(Subnet.class);
         broker = db;
         nvpnManager = nVpnMgr;
-        neutronvpnUtils = nVpnUtils;
         registerListener(db);
     }
 
@@ -87,8 +85,8 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
                     input.getName(), network);
             return;
         }
-        handleNeutronSubnetCreated(input.getUuid(), input.getCidr(), networkId, input.getTenantId());
-        neutronvpnUtils.addToSubnetCache(input);
+        handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), input.getNetworkId(), input.getTenantId());
+        NeutronvpnUtils.addToSubnetCache(input);
     }
 
     @Override
@@ -105,7 +103,7 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
             return;
         }
         handleNeutronSubnetDeleted(input.getUuid(), networkId, null);
-        neutronvpnUtils.removeFromSubnetCache(input);
+        NeutronvpnUtils.removeFromSubnetCache(input);
     }
 
     @Override
@@ -122,7 +120,7 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
             return;
         }
         handleNeutronSubnetUpdated(update.getUuid(), networkId, update.getTenantId());
-        neutronvpnUtils.addToSubnetCache(update);
+        NeutronvpnUtils.addToSubnetCache(update);
     }
 
     private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId) {

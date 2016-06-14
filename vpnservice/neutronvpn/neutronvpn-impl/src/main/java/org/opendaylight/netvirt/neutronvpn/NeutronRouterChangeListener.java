@@ -33,16 +33,14 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
     private final DataBroker broker;
     private NeutronvpnManager nvpnManager;
     private NeutronvpnNatManager nvpnNatManager;
-    private NeutronvpnUtils neutronvpnUtils;
 
 
     public NeutronRouterChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr, NeutronvpnNatManager
-            nVpnNatMgr, NeutronvpnUtils nVpnUtils) {
+            nVpnNatMgr) {
         super(Router.class);
         broker = db;
         nvpnManager = nVpnMgr;
         nvpnNatManager = nVpnNatMgr;
-        neutronvpnUtils = nVpnUtils;
         registerListener(db);
     }
 
@@ -78,7 +76,7 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
         }
         // Create internal VPN
         nvpnManager.createL3Vpn(input.getUuid(), null, null, null, null, null, input.getUuid(), null);
-        neutronvpnUtils.addToRouterCache(input);
+        NeutronvpnUtils.addToRouterCache(input);
     }
 
     @Override
@@ -91,7 +89,7 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
         //will be removed from VPN by invocations from NeutronPortChangeListener
         List<Uuid> routerSubnetIds = new ArrayList<>();
         nvpnManager.handleNeutronRouterDeleted(routerId, routerSubnetIds);
-        neutronvpnUtils.removeFromRouterCache(input);
+        NeutronvpnUtils.removeFromRouterCache(input);
         // Handle router deletion for the NAT service
         if (input.getExternalGatewayInfo() != null) {
             Uuid extNetId = input.getExternalGatewayInfo().getExternalNetworkId();

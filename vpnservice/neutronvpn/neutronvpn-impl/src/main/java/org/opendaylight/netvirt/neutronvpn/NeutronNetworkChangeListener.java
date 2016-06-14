@@ -37,16 +37,14 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
     private final DataBroker broker;
     private NeutronvpnManager nvpnManager;
     private NeutronvpnNatManager nvpnNatManager;
-    private NeutronvpnUtils neutronvpnUtils;
 
 
     public NeutronNetworkChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr, NeutronvpnNatManager
-            nVpnNatMgr, NeutronvpnUtils nVpnUtils) {
+            nVpnNatMgr) {
         super(Network.class);
         broker = db;
         nvpnManager = nVpnMgr;
         nvpnNatManager = nVpnNatMgr;
-        neutronvpnUtils = nVpnUtils;
         registerListener(db);
     }
 
@@ -91,7 +89,7 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         createElanInstance(input);
         if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
             nvpnNatManager.addExternalNetwork(input);
-            neutronvpnUtils.addToNetworkCache(input);
+            NeutronvpnUtils.addToNetworkCache(input);
         }
     }
 
@@ -109,7 +107,7 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         deleteElanInstance(input.getUuid().getValue());
         if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
             nvpnNatManager.removeExternalNetwork(input);
-            neutronvpnUtils.removeFromNetworkCache(input);
+            NeutronvpnUtils.removeFromNetworkCache(input);
         }
     }
 

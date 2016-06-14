@@ -99,7 +99,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
     IMdsalApiManager mdsalUtil;
     private NotificationPublishService notificationPublishService;
     private NotificationService notificationService;
-    private NeutronvpnUtils neutronvpnUtils;
     Boolean isExternalVpn;
 
     /**
@@ -107,14 +106,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
      * @param mdsalManager - MDSAL Util API access
      */
     public NeutronvpnManager(final DataBroker db, IMdsalApiManager mdsalManager,NotificationPublishService notiPublishService,
-                             NotificationService notiService, NeutronvpnNatManager vpnNatMgr, NeutronvpnUtils
-                                     nVpnUtils) {
+                             NotificationService notiService, NeutronvpnNatManager vpnNatMgr) {
         broker = db;
         mdsalUtil = mdsalManager;
         nvpnNatManager = vpnNatMgr;
         notificationPublishService = notiPublishService;
         notificationService = notiService;
-        neutronvpnUtils = nVpnUtils;
     }
 
     public void setLockManager(LockManagerService lockManager) {
@@ -467,7 +464,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
             StringBuilder IpPrefixBuild = new StringBuilder(ip.getIpAddress().getIpv4Address().getValue());
             String IpPrefix = IpPrefixBuild.append("/32").toString();
             Adjacency vmAdj = new AdjacencyBuilder().setKey(new AdjacencyKey(IpPrefix)).setIpAddress(IpPrefix)
-                    .setMacAddress(port.getMacAddress()).build();
+                    .setMacAddress(port.getMacAddress().getValue()).build();
             adjList.add(vmAdj);
             // create extra route adjacency
             if (rtr != null && rtr.getRoutes() != null) {

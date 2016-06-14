@@ -85,12 +85,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </feature>
   <feature name='odl-netvirt-vpnservice-core' version='${project.version}' description='OpenDaylight :: vpnservice :: core'>
     <feature version="${neutron.version}">odl-neutron-service</feature>
-    <bundle>mvn:org.opendaylight.neutron/dummyprovider/{{VERSION}}</bundle>
     <feature version="${project.version}">odl-netvirt-vpnservice-impl-ui</feature>
   </feature>
   <feature name='odl-netvirt-vpnservice-openstack' version='${project.version}' description='OpenDaylight :: vpnservice :: openstack'>
     <feature version="${neutron.version}">odl-neutron-service</feature>
-    <bundle>mvn:org.opendaylight.neutron/dummyprovider/{{VERSION}}</bundle>
     <feature version="${project.version}">odl-netvirt-vpnservice-impl-rest</feature>
   </feature>
   </features>

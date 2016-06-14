@@ -118,24 +118,9 @@ public class NeutronSecurityGroupDataChangeListener implements ClusteredDataChan
         if (group.getName() != null) {
             answer.setSecurityGroupName(group.getName());
         }
-        if (group.getDescription() != null) {
-            answer.setSecurityGroupDescription(group.getDescription());
-        }
         if (group.getTenantId() != null) {
             answer.setSecurityGroupTenantID(group.getTenantId().getValue()
                     .replace("-", ""));
-        }
-        if (group.getSecurityRules() != null) {
-            NeutronCRUDInterfaces interfaces = new NeutronCRUDInterfaces()
-                    .fetchINeutronSecurityRuleCRUD(this);
-            INeutronSecurityRuleCRUD srCrud = interfaces
-                    .getSecurityRuleInterface();
-
-            List<NeutronSecurityRule> rules = new ArrayList<>();
-            for (Uuid uuid : group.getSecurityRules()) {
-                rules.add(srCrud.getNeutronSecurityRule(uuid.getValue()));
-            }
-            answer.setSecurityRules(rules);
         }
         if (group.getUuid() != null) {
             answer.setID(group.getUuid().getValue());

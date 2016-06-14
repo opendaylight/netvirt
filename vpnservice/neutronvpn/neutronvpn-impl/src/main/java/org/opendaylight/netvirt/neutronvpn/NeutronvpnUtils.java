@@ -80,6 +80,10 @@ public class NeutronvpnUtils {
     public static ConcurrentHashMap<Uuid, Port> portMap = new ConcurrentHashMap<Uuid, Port>();
     public static ConcurrentHashMap<Uuid, Subnet> subnetMap = new ConcurrentHashMap<Uuid, Subnet>();
 
+    private NeutronvpnUtils() {
+        throw new UnsupportedOperationException("Utility class should not be instantiated");
+    }
+
     protected static Subnetmap getSubnetmap(DataBroker broker, Uuid subnetId) {
         InstanceIdentifier id = buildSubnetMapIdentifier(subnetId);
         Optional<Subnetmap> sn = read(broker, LogicalDatastoreType.CONFIGURATION, id);
@@ -329,7 +333,7 @@ public class NeutronvpnUtils {
                     .class).child(Subnet.class, subnetkey);
             Optional<Subnet> subnet = read(broker, LogicalDatastoreType.CONFIGURATION,subnetidentifier);
             if (subnet.isPresent()) {
-                cidr = subnet.get().getCidr();
+                cidr = String.valueOf(subnet.get().getCidr().getValue());
                 // Extract the prefix length from cidr
                 String[] parts = cidr.split("/");
                 if ((parts.length == 2)) {

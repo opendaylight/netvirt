@@ -170,6 +170,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <Embed-Transitive>true</Embed-Transitive>
             <Export-Package>
               org.opendaylight.netvirt.openstack.netvirt.translator,
+              org.opendaylight.netvirt.openstack.netvirt.translator.crud,
               org.opendaylight.netvirt.openstack.netvirt.api,
               org.opendaylight.netvirt.openstack.netvirt
             </Export-Package>

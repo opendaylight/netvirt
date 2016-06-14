@@ -34,7 +34,6 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private static final Logger LOG = LoggerFactory.getLogger(NeutronvpnProvider.class);
     private NeutronvpnManager nvManager;
     private NeutronvpnNatManager nvNatManager;
-    private NeutronvpnUtils nVpnUtils;
     private IMdsalApiManager mdsalManager;
     private LockManagerService lockManager;
     private NeutronBgpvpnChangeListener bgpvpnListener;
@@ -83,15 +82,15 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
             final DataBroker dbx = session.getSALService(DataBroker.class);
             nvNatManager = new NeutronvpnNatManager(dbx, mdsalManager);
             nvManager = new NeutronvpnManager(dbx, mdsalManager,notificationPublishService,notificationService,
-                    nvNatManager, nVpnUtils);
+                    nvNatManager);
             final BindingAwareBroker.RpcRegistration<NeutronvpnService> rpcRegistration =
                     getRpcProviderRegistry().addRpcImplementation(NeutronvpnService.class, nvManager);
             bgpvpnListener = new NeutronBgpvpnChangeListener(dbx, nvManager);
-            networkListener = new NeutronNetworkChangeListener(dbx, nvManager, nvNatManager, nVpnUtils);
-            subnetListener = new NeutronSubnetChangeListener(dbx, nvManager, nVpnUtils);
-            routerListener = new NeutronRouterChangeListener(dbx, nvManager, nvNatManager, nVpnUtils);
+            networkListener = new NeutronNetworkChangeListener(dbx, nvManager, nvNatManager);
+            subnetListener = new NeutronSubnetChangeListener(dbx, nvManager);
+            routerListener = new NeutronRouterChangeListener(dbx, nvManager, nvNatManager);
             portListener = new NeutronPortChangeListener(dbx, nvManager, nvNatManager,
-                    notificationPublishService,notificationService, nVpnUtils);
+                    notificationPublishService,notificationService);
             portListener.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
             floatingIpMapListener = new NeutronFloatingToFixedIpMappingChangeListener(dbx);
@@ -156,7 +155,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
 
     @Override
     public Subnet getNeutronSubnet(Uuid subnetId) {
-        return nVpnUtils.getNeutronSubnet(broker, subnetId);
+        return NeutronvpnUtils.getNeutronSubnet(broker, subnetId);
     }
 
     @Override

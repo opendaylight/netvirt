@@ -63,19 +63,16 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private LockManagerService lockManager;
     private NotificationPublishService notificationPublishService;
     private NotificationService notificationService;
-    private NeutronvpnUtils neutronvpnUtils;
 
 
     public NeutronPortChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,NeutronvpnNatManager nVpnNatMgr,
-                                     NotificationPublishService notiPublishService, NotificationService notiService,
-                                     NeutronvpnUtils nVpnUtils) {
+                                     NotificationPublishService notiPublishService, NotificationService notiService) {
         super(Port.class);
         broker = db;
         nvpnManager = nVpnMgr;
         nvpnNatManager = nVpnNatMgr;
         notificationPublishService = notiPublishService;
         notificationService = notiService;
-        neutronvpnUtils = nVpnUtils;
         registerListener(db);
     }
 
@@ -129,7 +126,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             }
         }
         handleNeutronPortCreated(input);
-        neutronvpnUtils.addToPortCache(input);
+        NeutronvpnUtils.addToPortCache(input);
 
     }
 
@@ -153,8 +150,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             }
         }
         handleNeutronPortDeleted(input);
-        neutronvpnUtils.removeFromPortCache(input);
-
+        NeutronvpnUtils.removeFromPortCache(input);
     }
 
     @Override
@@ -191,7 +187,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 }
             }
             handleNeutronPortUpdated(original, update);
-            neutronvpnUtils.addToPortCache(update);
+            NeutronvpnUtils.addToPortCache(update);
         }
     }
 
@@ -361,7 +357,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private void createElanInterface(Port port, String name) {
         String elanInstanceName = port.getNetworkId().getValue();
         List<PhysAddress> physAddresses = new ArrayList<>();
-        physAddresses.add(new PhysAddress(port.getMacAddress()));
+        physAddresses.add(new PhysAddress(port.getMacAddress().getValue()));
 
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
                 .class, new ElanInterfaceKey(name)).build();
