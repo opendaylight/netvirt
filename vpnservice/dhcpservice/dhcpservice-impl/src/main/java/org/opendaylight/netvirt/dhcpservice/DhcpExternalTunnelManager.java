@@ -90,7 +90,7 @@ public class DhcpExternalTunnelManager {
                 @Override
                 public void onFailure(Throwable error) {
                     logger.error("Error in Datastore write operation", error);
-                };
+                }
             };
     private final DataBroker broker;
     private IMdsalApiManager mdsalUtil;

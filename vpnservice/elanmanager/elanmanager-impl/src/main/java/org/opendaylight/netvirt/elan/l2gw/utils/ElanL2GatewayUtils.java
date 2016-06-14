@@ -455,7 +455,7 @@ public class ElanL2GatewayUtils {
                                     public void onFailure(Throwable error) {
                                         LOG.error(String.format("Failed adding ucast_remote_macs related to " +
                                                 "%s in %s", logicalSwitchName, hwvtepId), error);
-                                    };
+                                    }
                                 });
                                 fts.add(ft);
                             }

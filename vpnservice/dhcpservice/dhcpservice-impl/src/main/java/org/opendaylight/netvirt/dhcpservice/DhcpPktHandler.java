@@ -537,7 +537,7 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
     }
 
     public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {
-        LOG.trace("Registered interfaceManager successfully");;
+        LOG.trace("Registered interfaceManager successfully");
         this.interfaceManagerRpc = interfaceManagerRpc;
     }
 

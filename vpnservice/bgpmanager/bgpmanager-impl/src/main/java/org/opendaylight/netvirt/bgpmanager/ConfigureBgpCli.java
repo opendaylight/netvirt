@@ -73,7 +73,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     String logLevel = null;
 
     enum LogLevels {
-        emergencies,alerts,critical,errors,warnings,notifications,informational,debugging;
+        emergencies,alerts,critical,errors,warnings,notifications,informational,debugging
     }
 
     @Override

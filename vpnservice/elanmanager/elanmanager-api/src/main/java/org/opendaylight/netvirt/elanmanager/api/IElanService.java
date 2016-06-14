@@ -16,20 +16,22 @@ import java.util.Collection;
 import java.util.List;
 
 public interface IElanService {
-    public boolean createElanInstance(String elanInstanceName, long MacTimeout, String description);
-    public void updateElanInstance(String elanInstanceName, long newMacTimout, String newDescription);
-    public boolean deleteElanInstance(String elanInstanceName);
+    boolean createElanInstance(String elanInstanceName, long MacTimeout, String description);
+    void updateElanInstance(String elanInstanceName, long newMacTimout, String newDescription);
+    boolean deleteElanInstance(String elanInstanceName);
 
-    public void addElanInterface(String elanInstanceName, String interfaceName, List<String> staticMacAddresses, String description);
-    public void updateElanInterface(String elanInstanceName, String interfaceName, List<String> updatedStaticMacAddresses, String newDescription);
-    public void deleteElanInterface(String elanInstanceName, String interfaceName);
+    void addElanInterface(String elanInstanceName, String interfaceName, List<String> staticMacAddresses,
+                          String description);
+    void updateElanInterface(String elanInstanceName, String interfaceName, List<String> updatedStaticMacAddresses,
+                             String newDescription);
+    void deleteElanInterface(String elanInstanceName, String interfaceName);
 
-    public void addStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress);
-    public void deleteStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress) throws MacNotFoundException;
-    public Collection<MacEntry> getElanMacTable(String elanInstanceName);
-    public void flushMACTable(String elanInstanceName);
-    public ElanInstance getElanInstance(String elanInstanceName);
-    public List<ElanInstance> getElanInstances();
-    public List<String> getElanInterfaces(String elanInstanceName);
+    void addStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress);
+    void deleteStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress) throws MacNotFoundException;
+    Collection<MacEntry> getElanMacTable(String elanInstanceName);
+    void flushMACTable(String elanInstanceName);
+    ElanInstance getElanInstance(String elanInstanceName);
+    List<ElanInstance> getElanInstances();
+    List<String> getElanInterfaces(String elanInstanceName);
 
 }

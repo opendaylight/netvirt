@@ -18,13 +18,13 @@ public interface IBgpManager {
      * @param importRts
      * @param exportRts
      */
-    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) throws Exception;
+    void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) throws Exception;
 
     /**
      *
      * @param rd
      */
-    public void deleteVrf(String rd) throws Exception;
+    void deleteVrf(String rd) throws Exception;
 
     /**
      *
@@ -33,21 +33,21 @@ public interface IBgpManager {
      * @param nextHop
      * @param vpnLabel
      */
-    public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception;
+    void addPrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception;
 
     /**
      *
      * @param rd
      * @param prefix
      */
-    public void deletePrefix(String rd, String prefix) throws Exception;
+    void deletePrefix(String rd, String prefix) throws Exception;
 
     /**
      *
      * @param fileName
      * @param logLevel
      */
-    public void setQbgpLog(String fileName, String logLevel) throws Exception;
+    void setQbgpLog(String fileName, String logLevel) throws Exception;
 
     /**
      * @param rd
@@ -55,16 +55,16 @@ public interface IBgpManager {
      * @param nextHop
      * @param vpnLabel
      */
-    public void advertisePrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception;
+    void advertisePrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception;
 
     /**
      *
      * @param rd
      * @param prefix
      */
-    public void withdrawPrefix(String rd, String prefix) throws Exception;
+    void withdrawPrefix(String rd, String prefix) throws Exception;
 
 
-    public String getDCGwIP();
+    String getDCGwIP();
 
 }

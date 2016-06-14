@@ -37,25 +37,28 @@ public class BgpUpdater {
 
   public interface Iface {
 
-    public void onUpdatePushRoute(String rd, String prefix, int prefixlen, String nexthop, int label) throws org.apache.thrift.TException;
+    void onUpdatePushRoute(String rd, String prefix, int prefixlen, String nexthop, int label) throws org.apache.thrift.TException;
 
-    public void onUpdateWithdrawRoute(String rd, String prefix, int prefixlen) throws org.apache.thrift.TException;
+    void onUpdateWithdrawRoute(String rd, String prefix, int prefixlen) throws org.apache.thrift.TException;
 
-    public void onStartConfigResyncNotification() throws org.apache.thrift.TException;
+    void onStartConfigResyncNotification() throws org.apache.thrift.TException;
 
-    public void onNotificationSendEvent(String prefix, byte errCode, byte errSubcode) throws org.apache.thrift.TException;
+    void onNotificationSendEvent(String prefix, byte errCode, byte errSubcode) throws org.apache.thrift.TException;
 
   }
 
   public interface AsyncIface {
 
-    public void onUpdatePushRoute(String rd, String prefix, int prefixlen, String nexthop, int label, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void onUpdatePushRoute(String rd, String prefix, int prefixlen, String nexthop, int label,
+                           org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void onUpdateWithdrawRoute(String rd, String prefix, int prefixlen, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void onUpdateWithdrawRoute(String rd, String prefix, int prefixlen,
+                               org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void onStartConfigResyncNotification(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void onStartConfigResyncNotification(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void onNotificationSendEvent(String prefix, byte errCode, byte errSubcode, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void onNotificationSendEvent(String prefix, byte errCode, byte errSubcode,
+                                 org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
   }
 
