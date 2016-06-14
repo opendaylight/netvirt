@@ -195,7 +195,7 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
         Port port = dhcpManager.getNeutronPort(interfaceName);
         if (port!=null) {
             logger.trace("Port found in neutron. Interface Name {}, port {}", interfaceName, port);
-            return port.getMacAddress();
+            return port.getMacAddress().getValue();
         }
         return null;
     }

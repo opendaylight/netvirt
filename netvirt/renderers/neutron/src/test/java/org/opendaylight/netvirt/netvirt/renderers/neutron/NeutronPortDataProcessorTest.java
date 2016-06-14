@@ -12,6 +12,7 @@ import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIpsBuilder;
@@ -61,7 +62,7 @@ public class NeutronPortDataProcessorTest extends AbstractDataBrokerTest {
                 .setDeviceOwner("compute:nova")
                 .setDeviceId("12345678-1234-1234-1234-123456789012")
                 .setUuid(uuid)
-                .setMacAddress("00:00:01:02:03:04")
+                .setMacAddress(new MacAddress("00:00:01:02:03:04"))
                 .setFixedIps(ips)
                 .build());
     }

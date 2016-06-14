@@ -165,7 +165,7 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
             List<IpAddress> dnsServers = nSubnet.getDnsNameservers();
             dhcpInfo = new DhcpInfo();
             dhcpInfo.setClientIp(clientIp).setServerIp(serverIp)
-                .setCidr(nSubnet.getCidr()).setHostRoutes(nSubnet.getHostRoutes())
+                .setCidr(String.valueOf(nSubnet.getCidr().getValue())).setHostRoutes(nSubnet.getHostRoutes())
                 .setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
         }
         return dhcpInfo;
