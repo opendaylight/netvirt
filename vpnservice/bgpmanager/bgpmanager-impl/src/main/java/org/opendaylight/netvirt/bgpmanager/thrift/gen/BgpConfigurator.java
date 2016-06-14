@@ -3098,8 +3098,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_routerId = true && this.isSetRouterId();
-      boolean that_present_routerId = true && that.isSetRouterId();
+      boolean this_present_routerId = this.isSetRouterId();
+      boolean that_present_routerId = that.isSetRouterId();
       if (this_present_routerId || that_present_routerId) {
         if (!(this_present_routerId && that_present_routerId))
           return false;
@@ -4821,8 +4821,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_ipAddress = true && this.isSetIpAddress();
-      boolean that_present_ipAddress = true && that.isSetIpAddress();
+      boolean this_present_ipAddress = this.isSetIpAddress();
+      boolean that_present_ipAddress = that.isSetIpAddress();
       if (this_present_ipAddress || that_present_ipAddress) {
         if (!(this_present_ipAddress && that_present_ipAddress))
           return false;
@@ -5575,8 +5575,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_ipAddress = true && this.isSetIpAddress();
-      boolean that_present_ipAddress = true && that.isSetIpAddress();
+      boolean this_present_ipAddress = this.isSetIpAddress();
+      boolean that_present_ipAddress = that.isSetIpAddress();
       if (this_present_ipAddress || that_present_ipAddress) {
         if (!(this_present_ipAddress && that_present_ipAddress))
           return false;
@@ -6417,8 +6417,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_rd = true && this.isSetRd();
-      boolean that_present_rd = true && that.isSetRd();
+      boolean this_present_rd = this.isSetRd();
+      boolean that_present_rd = that.isSetRd();
       if (this_present_rd || that_present_rd) {
         if (!(this_present_rd && that_present_rd))
           return false;
@@ -6426,8 +6426,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_irts = true && this.isSetIrts();
-      boolean that_present_irts = true && that.isSetIrts();
+      boolean this_present_irts = this.isSetIrts();
+      boolean that_present_irts = that.isSetIrts();
       if (this_present_irts || that_present_irts) {
         if (!(this_present_irts && that_present_irts))
           return false;
@@ -6435,8 +6435,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_erts = true && this.isSetErts();
-      boolean that_present_erts = true && that.isSetErts();
+      boolean this_present_erts = this.isSetErts();
+      boolean that_present_erts = that.isSetErts();
       if (this_present_erts || that_present_erts) {
         if (!(this_present_erts && that_present_erts))
           return false;
@@ -7289,8 +7289,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_rd = true && this.isSetRd();
-      boolean that_present_rd = true && that.isSetRd();
+      boolean this_present_rd = this.isSetRd();
+      boolean that_present_rd = that.isSetRd();
       if (this_present_rd || that_present_rd) {
         if (!(this_present_rd && that_present_rd))
           return false;
@@ -8149,8 +8149,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_prefix = true && this.isSetPrefix();
-      boolean that_present_prefix = true && that.isSetPrefix();
+      boolean this_present_prefix = this.isSetPrefix();
+      boolean that_present_prefix = that.isSetPrefix();
       if (this_present_prefix || that_present_prefix) {
         if (!(this_present_prefix && that_present_prefix))
           return false;
@@ -8158,8 +8158,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_nexthop = true && this.isSetNexthop();
-      boolean that_present_nexthop = true && that.isSetNexthop();
+      boolean this_present_nexthop = this.isSetNexthop();
+      boolean that_present_nexthop = that.isSetNexthop();
       if (this_present_nexthop || that_present_nexthop) {
         if (!(this_present_nexthop && that_present_nexthop))
           return false;
@@ -8167,8 +8167,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_rd = true && this.isSetRd();
-      boolean that_present_rd = true && that.isSetRd();
+      boolean this_present_rd = this.isSetRd();
+      boolean that_present_rd = that.isSetRd();
       if (this_present_rd || that_present_rd) {
         if (!(this_present_rd && that_present_rd))
           return false;
@@ -9053,8 +9053,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_prefix = true && this.isSetPrefix();
-      boolean that_present_prefix = true && that.isSetPrefix();
+      boolean this_present_prefix = this.isSetPrefix();
+      boolean that_present_prefix = that.isSetPrefix();
       if (this_present_prefix || that_present_prefix) {
         if (!(this_present_prefix && that_present_prefix))
           return false;
@@ -9062,8 +9062,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_rd = true && this.isSetRd();
-      boolean that_present_rd = true && that.isSetRd();
+      boolean this_present_rd = this.isSetRd();
+      boolean that_present_rd = that.isSetRd();
       if (this_present_rd || that_present_rd) {
         if (!(this_present_rd && that_present_rd))
           return false;
@@ -9863,8 +9863,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_peerIp = true && this.isSetPeerIp();
-      boolean that_present_peerIp = true && that.isSetPeerIp();
+      boolean this_present_peerIp = this.isSetPeerIp();
+      boolean that_present_peerIp = that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
         if (!(this_present_peerIp && that_present_peerIp))
           return false;
@@ -10617,8 +10617,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_peerIp = true && this.isSetPeerIp();
-      boolean that_present_peerIp = true && that.isSetPeerIp();
+      boolean this_present_peerIp = this.isSetPeerIp();
+      boolean that_present_peerIp = that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
         if (!(this_present_peerIp && that_present_peerIp))
           return false;
@@ -11375,8 +11375,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_peerIp = true && this.isSetPeerIp();
-      boolean that_present_peerIp = true && that.isSetPeerIp();
+      boolean this_present_peerIp = this.isSetPeerIp();
+      boolean that_present_peerIp = that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
         if (!(this_present_peerIp && that_present_peerIp))
           return false;
@@ -11384,8 +11384,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_srcIp = true && this.isSetSrcIp();
-      boolean that_present_srcIp = true && that.isSetSrcIp();
+      boolean this_present_srcIp = this.isSetSrcIp();
+      boolean that_present_srcIp = that.isSetSrcIp();
       if (this_present_srcIp || that_present_srcIp) {
         if (!(this_present_srcIp && that_present_srcIp))
           return false;
@@ -12133,8 +12133,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_peerIp = true && this.isSetPeerIp();
-      boolean that_present_peerIp = true && that.isSetPeerIp();
+      boolean this_present_peerIp = this.isSetPeerIp();
+      boolean that_present_peerIp = that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
         if (!(this_present_peerIp && that_present_peerIp))
           return false;
@@ -12973,8 +12973,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_peerIp = true && this.isSetPeerIp();
-      boolean that_present_peerIp = true && that.isSetPeerIp();
+      boolean this_present_peerIp = this.isSetPeerIp();
+      boolean that_present_peerIp = that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
         if (!(this_present_peerIp && that_present_peerIp))
           return false;
@@ -12982,8 +12982,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_afi = true && this.isSetAfi();
-      boolean that_present_afi = true && that.isSetAfi();
+      boolean this_present_afi = this.isSetAfi();
+      boolean that_present_afi = that.isSetAfi();
       if (this_present_afi || that_present_afi) {
         if (!(this_present_afi && that_present_afi))
           return false;
@@ -12991,8 +12991,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_safi = true && this.isSetSafi();
-      boolean that_present_safi = true && that.isSetSafi();
+      boolean this_present_safi = this.isSetSafi();
+      boolean that_present_safi = that.isSetSafi();
       if (this_present_safi || that_present_safi) {
         if (!(this_present_safi && that_present_safi))
           return false;
@@ -13913,8 +13913,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_peerIp = true && this.isSetPeerIp();
-      boolean that_present_peerIp = true && that.isSetPeerIp();
+      boolean this_present_peerIp = this.isSetPeerIp();
+      boolean that_present_peerIp = that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
         if (!(this_present_peerIp && that_present_peerIp))
           return false;
@@ -13922,8 +13922,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_afi = true && this.isSetAfi();
-      boolean that_present_afi = true && that.isSetAfi();
+      boolean this_present_afi = this.isSetAfi();
+      boolean that_present_afi = that.isSetAfi();
       if (this_present_afi || that_present_afi) {
         if (!(this_present_afi && that_present_afi))
           return false;
@@ -13931,8 +13931,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_safi = true && this.isSetSafi();
-      boolean that_present_safi = true && that.isSetSafi();
+      boolean this_present_safi = this.isSetSafi();
+      boolean that_present_safi = that.isSetSafi();
       if (this_present_safi || that_present_safi) {
         if (!(this_present_safi && that_present_safi))
           return false;
@@ -14771,8 +14771,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_logFileName = true && this.isSetLogFileName();
-      boolean that_present_logFileName = true && that.isSetLogFileName();
+      boolean this_present_logFileName = this.isSetLogFileName();
+      boolean that_present_logFileName = that.isSetLogFileName();
       if (this_present_logFileName || that_present_logFileName) {
         if (!(this_present_logFileName && that_present_logFileName))
           return false;
@@ -14780,8 +14780,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_logLevel = true && this.isSetLogLevel();
-      boolean that_present_logLevel = true && that.isSetLogLevel();
+      boolean this_present_logLevel = this.isSetLogLevel();
+      boolean that_present_logLevel = that.isSetLogLevel();
       if (this_present_logLevel || that_present_logLevel) {
         if (!(this_present_logLevel && that_present_logLevel))
           return false;
@@ -17281,8 +17281,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_success = true && this.isSetSuccess();
-      boolean that_present_success = true && that.isSetSuccess();
+      boolean this_present_success = this.isSetSuccess();
+      boolean that_present_success = that.isSetSuccess();
       if (this_present_success || that_present_success) {
         if (!(this_present_success && that_present_success))
           return false;

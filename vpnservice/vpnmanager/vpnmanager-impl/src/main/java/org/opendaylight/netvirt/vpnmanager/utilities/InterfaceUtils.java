@@ -98,7 +98,7 @@ public class InterfaceUtils {
   }
 
   public static boolean isOperational(DataBroker dataBroker, String ifName) {
-    return getInterfaceStateFromOperDS(dataBroker, ifName) == null ? false : true;
+    return getInterfaceStateFromOperDS(dataBroker, ifName) != null;
   }
 
   public static InstanceIdentifier<Interface> buildStateInterfaceId(String interfaceName) {
