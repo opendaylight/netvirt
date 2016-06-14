@@ -30,6 +30,7 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityGroupCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
 
 /**
  * Unit test fort {@link SecurityGroupCacheManagerImpl}
@@ -40,6 +41,7 @@ public class SecurityGroupCacheManagerImplTest {
     @InjectMocks private SecurityGroupCacheManagerImpl securityGroupCacheManagerImpl;
     @Mock private INeutronPortCRUD neutronPortCache;
     @Mock private INeutronSecurityGroupCRUD securityGroupCache;
+    @Mock private INeutronSecurityRuleCRUD neutronSecurityRuleCache;
     @Mock NeutronPort neutronPort_Vm1;
     @Mock NeutronPort neutronPort_Vm2;
     @Mock NeutronPort neutronPort_Vm3;
@@ -81,12 +83,10 @@ public class SecurityGroupCacheManagerImplTest {
         securityGroups_Vm_2.add(neutronSecurityGroup_2);
         List<NeutronSecurityGroup> securityGroups_Vm_3 = new ArrayList<>();
         securityGroups_Vm_3.add(neutronSecurityGroup_3);
-        List<NeutronSecurityRule> securityRule_1 = new ArrayList<>();
-        securityRule_1.add(neutronSecurityRule_1);
-        List<NeutronSecurityRule> securityRule_2 = new ArrayList<>();
-        securityRule_2.add(neutronSecurityRule_2);
-        List<NeutronSecurityRule> securityRule_3 = new ArrayList<>();
-        securityRule_3.add(neutronSecurityRule_3);
+        List<NeutronSecurityRule> securityRule = new ArrayList<>();
+        securityRule.add(neutronSecurityRule_1);
+        securityRule.add(neutronSecurityRule_2);
+        securityRule.add(neutronSecurityRule_3);
 
         neutron_IPs_1.add(neutron_ip_1);
         neutron_IPs_2.add(neutron_ip_2);
@@ -104,12 +104,16 @@ public class SecurityGroupCacheManagerImplTest {
         when(neutronPort_Vm3.getSecurityGroups()).thenReturn(securityGroups_Vm_3);
         when(neutronPort_Vm4.getSecurityGroups()).thenReturn(securityGroups_Vm_1);
         when(neutronPort_Vm5.getSecurityGroups()).thenReturn(securityGroups_Vm_3);
-        when(neutronSecurityGroup_1.getSecurityRules()).thenReturn(securityRule_1);
-        when(neutronSecurityGroup_2.getSecurityRules()).thenReturn(securityRule_2);
-        when(neutronSecurityGroup_3.getSecurityRules()).thenReturn(securityRule_3);
+        when(neutronSecurityRuleCache.getAllNeutronSecurityRules()).thenReturn(securityRule);
         when(neutronSecurityGroup_1.getSecurityGroupUUID()).thenReturn(SECURITY_GROUP_ID_1);
         when(neutronSecurityGroup_2.getSecurityGroupUUID()).thenReturn(SECURITY_GROUP_ID_2);
         when(neutronSecurityGroup_3.getSecurityGroupUUID()).thenReturn(SECURITY_GROUP_ID_3);
+        when(neutronSecurityGroup_1.getID()).thenReturn(SECURITY_GROUP_ID_1);
+        when(neutronSecurityGroup_2.getID()).thenReturn(SECURITY_GROUP_ID_2);
+        when(neutronSecurityGroup_3.getID()).thenReturn(SECURITY_GROUP_ID_3);
+        when(neutronSecurityRule_1.getSecurityRuleGroupID()).thenReturn(SECURITY_GROUP_ID_1);
+        when(neutronSecurityRule_2.getSecurityRuleGroupID()).thenReturn(SECURITY_GROUP_ID_2);
+        when(neutronSecurityRule_3.getSecurityRuleGroupID()).thenReturn(SECURITY_GROUP_ID_3);
         when(neutronSecurityRule_1.getSecurityRemoteGroupID()).thenReturn(SECURITY_GROUP_ID_1);
         when(neutronSecurityRule_3.getSecurityRemoteGroupID()).thenReturn(SECURITY_GROUP_ID_2);
         when(neutronPort_Vm1.getFixedIPs()).thenReturn(neutron_IPs_1);

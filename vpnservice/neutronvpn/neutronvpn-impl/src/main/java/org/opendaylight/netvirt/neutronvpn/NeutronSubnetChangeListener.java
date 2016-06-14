@@ -87,7 +87,7 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
                     input.getName(), network);
             return;
         }
-        handleNeutronSubnetCreated(input.getUuid(), input.getCidr(), networkId, input.getTenantId());
+        handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), input.getNetworkId(), input.getTenantId());
         neutronvpnUtils.addToSubnetCache(input);
     }
 

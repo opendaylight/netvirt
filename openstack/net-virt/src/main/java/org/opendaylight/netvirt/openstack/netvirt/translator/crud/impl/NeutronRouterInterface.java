@@ -17,7 +17,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter_Interface;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronRouterCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronRouter_NetworkReference;
@@ -29,7 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.router
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfoBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
@@ -109,11 +107,7 @@ public class NeutronRouterInterface extends  AbstractNeutronInterface<Router, Ne
 
     @Override
     public boolean routerInUse(String routerUUID) {
-        if (!routerExists(routerUUID)) {
-            return true;
-        }
-        NeutronRouter target = getRouter(routerUUID);
-        return (target.getInterfaces().size() > 0);
+        return !routerExists(routerUUID);
     }
 
     @Override
@@ -166,14 +160,6 @@ public class NeutronRouterInterface extends  AbstractNeutronInterface<Router, Ne
                 externalGatewayInfo = builder.build();
             }
             routerBuilder.setExternalGatewayInfo(externalGatewayInfo);
-        }
-        if (router.getInterfaces() != null) {
-            Map<String, NeutronRouter_Interface> mapInterfaces = new HashMap<>();
-            List<Interfaces> interfaces = new ArrayList<>();
-            for (Entry<String, NeutronRouter_Interface> entry : mapInterfaces.entrySet()) {
-                interfaces.add((Interfaces) entry.getValue());
-            }
-            routerBuilder.setInterfaces(interfaces);
         }
         if (router.getID() != null) {
             routerBuilder.setUuid(toUuid(router.getID()));
@@ -237,19 +223,6 @@ public class NeutronRouterInterface extends  AbstractNeutronInterface<Router, Ne
             result.setExternalGatewayInfo(extGwInfo);
         }
 
-        if (router.getInterfaces() != null) {
-            Map<String, NeutronRouter_Interface> interfaces = new HashMap<>();
-            for (Interfaces mdInterface : router.getInterfaces()) {
-                NeutronRouter_Interface pojoInterface = new NeutronRouter_Interface();
-                String id = String.valueOf(mdInterface.getUuid().getValue());
-                pojoInterface.setID(id);
-                pojoInterface.setTenantID(String.valueOf(mdInterface.getTenantId().getValue()));
-                pojoInterface.setSubnetUUID(String.valueOf(mdInterface.getSubnetId().getValue()));
-                pojoInterface.setPortUUID(String.valueOf(mdInterface.getPortId().getValue()));
-                interfaces.put(id, pojoInterface);
-            }
-            result.setInterfaces(interfaces);
-        }
         return result;
     }
     

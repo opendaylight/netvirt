@@ -108,7 +108,7 @@ public class NeutronUtils {
     public NeutronSecurityRule buildNeutronSecurityRule(String direction, String ethertype, String protocol,
                                                          String ipPrefix, Integer portMin, Integer portMax) {
         NeutronSecurityRule rule = new NeutronSecurityRule();
-        rule.setSecurityRuleUUID(UUID.randomUUID().toString());
+        rule.setID(UUID.randomUUID().toString());
         rule.setSecurityRemoteGroupID(null);
         rule.setSecurityRuleDirection(direction);
         rule.setSecurityRuleEthertype(ethertype);
@@ -136,7 +136,7 @@ public class NeutronUtils {
         String id = UUID.randomUUID().toString();
         NeutronSecurityGroup sg = new NeutronSecurityGroup();
         sg.setSecurityGroupName("SG-" + id);
-        sg.setSecurityGroupUUID(id);
+        sg.setID(id);
         sg.setTenantID(tenantId);
 
         List<NeutronSecurityRule> ruleList = new ArrayList<>(rules.length);
@@ -147,7 +147,6 @@ public class NeutronUtils {
             ruleCRUD.addNeutronSecurityRule(rule);
         }
 
-        sg.setSecurityRules(ruleList);
         groupCRUD.add(sg);
 
         return sg;
@@ -160,12 +159,26 @@ public class NeutronUtils {
     public void removeNeutronSecurityGroupAndRules(NeutronSecurityGroup sg) {
         INeutronSecurityGroupCRUD groupCRUD =
                 (INeutronSecurityGroupCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityGroupCRUD.class, this);
+
+        groupCRUD.removeNeutronSecurityGroup(sg.getID());
+    }
+
+    /**
+     * Get the NeutronSecurityRule and its associated NeutronSecurityGroup
+     * @param sg NeutronSecurityGroup to to get the rules for
+     * @return List of NeutronSecurityRule
+     */
+    public List<NeutronSecurityRule>  getNeutronSecurityGroupRules(NeutronSecurityGroup sg) {
         INeutronSecurityRuleCRUD ruleCRUD =
                 (INeutronSecurityRuleCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityRuleCRUD.class, this);
 
-        for (NeutronSecurityRule rule : sg.getSecurityRules()) {
-            ruleCRUD.removeNeutronSecurityRule(rule.getSecurityRuleUUID());
+        List<NeutronSecurityRule> rules = new ArrayList<>();
+        List<NeutronSecurityRule> securityRules = ruleCRUD.getAllNeutronSecurityRules();
+        for (NeutronSecurityRule securityRule : securityRules) {
+            if (sg.getID().equals(securityRule.getSecurityRuleGroupID())) {
+                rules.add(securityRule);
+            }
         }
-        groupCRUD.removeNeutronSecurityGroup(sg.getID());
+        return rules;
     }
 }
