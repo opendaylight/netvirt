@@ -124,7 +124,7 @@ public class NeutronSecurityGroupInterface extends AbstractNeutronInterface<Secu
             .fetchINeutronSecurityRuleCRUD(this);
         INeutronSecurityRuleCRUD srCrud = interfaces.getSecurityRuleInterface();
 
-        List<NeutronSecurityRule> rules = new ArrayList<NeutronSecurityRule>();
+        List<NeutronSecurityRule> rules = new ArrayList<>();
         String sgId = group.getUuid().getValue();
         for (NeutronSecurityRule rule: srCrud.getAllNeutronSecurityRules()) {
             if (rule.getSecurityRuleGroupID().equals(sgId)) {

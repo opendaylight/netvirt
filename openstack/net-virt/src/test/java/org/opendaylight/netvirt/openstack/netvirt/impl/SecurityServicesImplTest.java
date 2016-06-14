@@ -235,7 +235,7 @@ public class SecurityServicesImplTest {
      */
     @Test
     public void testGetDhcpServerPortWithFixedIpEmpty() {
-        when(neutronPort_Vm1.getFixedIPs()).thenReturn(new ArrayList<Neutron_IPs>());
+        when(neutronPort_Vm1.getFixedIPs()).thenReturn(new ArrayList<>());
         NeutronPort dhcpPort = securityServicesImpl.getDhcpServerPort(mock(OvsdbTerminationPointAugmentation.class));
         assertEquals(dhcpPort,null);
     }
@@ -245,7 +245,7 @@ public class SecurityServicesImplTest {
      */
     @Test
     public void testGetDhcpServerPortWithNoPortinSubnet() {
-        when(subnet.getPortsInSubnet()).thenReturn(new ArrayList<NeutronPort>());
+        when(subnet.getPortsInSubnet()).thenReturn(new ArrayList<>());
         NeutronPort dhcpPort = securityServicesImpl.getDhcpServerPort(mock(OvsdbTerminationPointAugmentation.class));
         assertEquals(dhcpPort,null);
     }
