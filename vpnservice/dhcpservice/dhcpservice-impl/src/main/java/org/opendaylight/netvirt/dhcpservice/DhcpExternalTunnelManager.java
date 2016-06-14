@@ -122,7 +122,7 @@ public class DhcpExternalTunnelManager {
                 if(NeutronUtils.isPortVnicTypeNormal(port)) {
                     continue;
                 }
-                String macAddress = port.getMacAddress();
+                String macAddress = port.getMacAddress().getValue();
                 Uuid networkId = port.getNetworkId();
                 String segmentationId = DhcpServiceUtils.getSegmentationId(networkId, broker);
                 if (segmentationId == null) {

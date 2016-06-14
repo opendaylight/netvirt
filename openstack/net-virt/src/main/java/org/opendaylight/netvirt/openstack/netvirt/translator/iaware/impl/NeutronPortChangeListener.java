@@ -136,8 +136,8 @@ public class NeutronPortChangeListener implements ClusteredDataChangeListener, A
             List<NeutronPort_AllowedAddressPairs> pairs = new ArrayList<>();
             for (AllowedAddressPairs mdPair : port.getAllowedAddressPairs()) {
                 NeutronPort_AllowedAddressPairs pair = new NeutronPort_AllowedAddressPairs();
-                pair.setIpAddress(mdPair.getIpAddress());
-                pair.setMacAddress(mdPair.getMacAddress());
+                pair.setIpAddress(String.valueOf(mdPair.getIpAddress().getValue()));
+                pair.setMacAddress(mdPair.getMacAddress().getValue());
                 pairs.add(pair);
             }
             result.setAllowedAddressPairs(pairs);
@@ -164,7 +164,7 @@ public class NeutronPortChangeListener implements ClusteredDataChangeListener, A
             }
             result.setFixedIPs(ips);
         }
-        result.setMacAddress(port.getMacAddress());
+        result.setMacAddress(port.getMacAddress().getValue());
         result.setName(port.getName());
         result.setNetworkUUID(String.valueOf(port.getNetworkId().getValue()));
         if (port.getSecurityGroups() != null) {
@@ -194,14 +194,11 @@ public class NeutronPortChangeListener implements ClusteredDataChangeListener, A
         PortBindingExtension binding = port.getAugmentation(PortBindingExtension.class);
         result.setBindinghostID(binding.getHostId());
         if (binding.getVifDetails() != null) {
-            List<NeutronPort_VIFDetail> details = new ArrayList<>();
-            for (VifDetails vifDetail : binding.getVifDetails()) {
-                NeutronPort_VIFDetail detail = new NeutronPort_VIFDetail();
-                detail.setPortFilter(vifDetail.isPortFilter());
-                detail.setOvsHybridPlug(vifDetail.isOvsHybridPlug());
-                details.add(detail);
+            final Map<String, String> details = new HashMap<String, String>(binding.getVifDetails().size());
+            for (final VifDetails vifDetail : binding.getVifDetails()) {
+                details.put(vifDetail.getDetailsKey(), vifDetail.getValue());
             }
-            result.setVIFDetail(details);
+            result.setVIFDetails(details);
         }
         result.setBindingvifType(binding.getVifType());
         result.setBindingvnicType(binding.getVnicType());

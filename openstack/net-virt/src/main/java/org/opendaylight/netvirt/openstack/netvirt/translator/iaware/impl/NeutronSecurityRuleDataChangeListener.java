@@ -162,8 +162,8 @@ public class NeutronSecurityRuleDataChangeListener implements ClusteredDataChang
         if (rule.getPortRangeMax() != null) {
             answer.setSecurityRulePortMax(rule.getPortRangeMax());
         }
-        if (rule.getId() != null) {
-            answer.setID(rule.getId().getValue());
+        if (rule.getUuid() != null) {
+            answer.setID(rule.getUuid().getValue());
         }
         return answer;
     }

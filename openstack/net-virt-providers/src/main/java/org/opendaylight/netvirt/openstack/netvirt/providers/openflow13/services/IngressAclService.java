@@ -20,6 +20,7 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
@@ -44,6 +45,7 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +53,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
     private static final Logger LOG = LoggerFactory.getLogger(IngressAclService.class);
     private volatile SecurityServicesManager securityServicesManager;
     private volatile SecurityGroupCacheManger securityGroupCacheManger;
+    private volatile INeutronSecurityRuleCRUD neutronSecurityRule;
     private static final int PORT_RANGE_MIN = 1;
     private static final int PORT_RANGE_MAX = 65535;
 
@@ -68,11 +71,11 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                                        String portUuid, boolean write) {
 
         LOG.trace("programPortSecurityGroup neutronSecurityGroup: {} ", securityGroup);
-        if (securityGroup == null || securityGroup.getSecurityRules() == null) {
+        if (securityGroup == null || getSecurityRulesforGroup(securityGroup) == null) {
             return;
         }
 
-        List<NeutronSecurityRule> portSecurityList = securityGroup.getSecurityRules();
+        List<NeutronSecurityRule> portSecurityList = getSecurityRulesforGroup(securityGroup);
         /* Iterate over the Port Security Rules in the Port Security Group bound to the port*/
         for (NeutronSecurityRule portSecurityRule : portSecurityList) {
 
@@ -764,6 +767,17 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         }
     }
 
+    private List<NeutronSecurityRule> getSecurityRulesforGroup(NeutronSecurityGroup securityGroup) {
+        List<NeutronSecurityRule> securityRules = new ArrayList<>();
+        List<NeutronSecurityRule> rules = neutronSecurityRule.getAllNeutronSecurityRules();
+        for (NeutronSecurityRule securityRule : rules) {
+            if (securityGroup.getID().equals(securityRule.getSecurityRuleGroupID())) {
+                securityRules.add(securityRule);
+            }
+        }
+        return securityRules;
+    }
+
     @Override
     public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
         super.setDependencies(bundleContext.getServiceReference(IngressAclProvider.class.getName()), this);
@@ -771,6 +785,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                 (SecurityServicesManager) ServiceHelper.getGlobalInstance(SecurityServicesManager.class, this);
         securityGroupCacheManger =
                 (SecurityGroupCacheManger) ServiceHelper.getGlobalInstance(SecurityGroupCacheManger.class, this);
+        neutronSecurityRule = (INeutronSecurityRuleCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityRuleCRUD.class, this);
     }
 
     @Override

@@ -20,6 +20,7 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
@@ -45,6 +46,7 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +55,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
     private static final Logger LOG = LoggerFactory.getLogger(EgressAclService.class);
     private volatile SecurityServicesManager securityServicesManager;
     private volatile SecurityGroupCacheManger securityGroupCacheManger;
+    private volatile INeutronSecurityRuleCRUD neutronSecurityRule;
     private static final int DHCP_SOURCE_PORT = 67;
     private static final int DHCP_DESTINATION_PORT = 68;
     private static final int DHCPV6_SOURCE_PORT = 547;
@@ -75,11 +78,11 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                                        NeutronSecurityGroup securityGroup, String portUuid, boolean write) {
 
         LOG.trace("programPortSecurityGroup: neutronSecurityGroup: {} ", securityGroup);
-        if (securityGroup == null || securityGroup.getSecurityRules() == null) {
+        if (securityGroup == null || getSecurityRulesforGroup(securityGroup) == null) {
             return;
         }
 
-        List<NeutronSecurityRule> portSecurityList = securityGroup.getSecurityRules();
+        List<NeutronSecurityRule> portSecurityList = getSecurityRulesforGroup(securityGroup);
         /* Iterate over the Port Security Rules in the Port Security Group bound to the port*/
         for (NeutronSecurityRule portSecurityRule : portSecurityList) {
 
@@ -878,6 +881,16 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         }
     }
 
+    private List<NeutronSecurityRule> getSecurityRulesforGroup(NeutronSecurityGroup securityGroup) {
+        List<NeutronSecurityRule> securityRules = new ArrayList<>();
+        List<NeutronSecurityRule> rules = neutronSecurityRule.getAllNeutronSecurityRules();
+        for (NeutronSecurityRule securityRule : rules) {
+            if (securityGroup.getID().equals(securityRule.getSecurityRuleGroupID())) {
+                securityRules.add(securityRule);
+            }
+        }
+        return securityRules;
+    }
 
     @Override
     public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
@@ -886,6 +899,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                 (SecurityServicesManager) ServiceHelper.getGlobalInstance(SecurityServicesManager.class, this);
         securityGroupCacheManger =
                 (SecurityGroupCacheManger) ServiceHelper.getGlobalInstance(SecurityGroupCacheManger.class, this);
+        neutronSecurityRule = (INeutronSecurityRuleCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityRuleCRUD.class, this);
     }
 
     @Override
