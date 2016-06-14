@@ -322,7 +322,7 @@ public class PktHandler implements PacketProcessingListener {
                         && (ifMgr.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6AddressMode())))
                     || ((!subnet.getIpv6RAMode().isEmpty())
                         && (ifMgr.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6RAMode())))) {
-                    prefixList.add(subnet.getSubnetCidr());
+                    prefixList.add(String.valueOf(subnet.getSubnetCidr().getValue()));
                 }
 
                 if (subnet.getIpv6RAMode().equalsIgnoreCase(ifMgr.IPV6_DHCPV6_STATELESS)) {

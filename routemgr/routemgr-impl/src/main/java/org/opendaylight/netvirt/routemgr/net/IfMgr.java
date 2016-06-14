@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.routemgr.net;
 import com.google.common.net.InetAddresses;
 import org.opendaylight.netvirt.routemgr.utils.RoutemgrUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -133,8 +134,7 @@ public class IfMgr {
 
     /**
      * Add Subnet
-     *
-     * @param snetId subnet id
+     *  @param snetId subnet id
      * @param name subnet name
      * @param networkId network id
      * @param tenantId tenant id
@@ -147,7 +147,7 @@ public class IfMgr {
      */
     public void addSubnet(Uuid snetId, String name, Uuid networkId, Uuid tenantId,
                           IpAddress gatewayIp, List<AllocationPools> poolsList,
-                          String ipVersion, String subnetCidr,
+                          String ipVersion, IpPrefix subnetCidr,
                           String ipV6AddressMode, String ipV6RaMode) {
 
         // Save the gateway ipv6 address in its fully expanded format. We always store the v6Addresses

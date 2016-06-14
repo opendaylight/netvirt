@@ -268,7 +268,7 @@ public class NetDataListener implements DataChangeListener {
                         fixedip.getSubnetId(),
                         port.getNetworkId(),
                         fixedip.getIpAddress(),
-                        port.getMacAddress(),
+                        String.valueOf(port.getMacAddress()),
                         port.getDeviceOwner());
             } else {
                 // Add host interface
@@ -276,7 +276,7 @@ public class NetDataListener implements DataChangeListener {
                         fixedip.getSubnetId(),
                         port.getNetworkId(),
                         fixedip.getIpAddress(),
-                        port.getMacAddress(),
+                        String.valueOf(port.getMacAddress()),
                         port.getDeviceOwner());
             }
         }

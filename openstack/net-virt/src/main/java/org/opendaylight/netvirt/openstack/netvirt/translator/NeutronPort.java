@@ -12,6 +12,7 @@ package org.opendaylight.netvirt.openstack.netvirt.translator;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -78,7 +79,7 @@ public class NeutronPort implements Serializable, INeutronObject {
 
     //@XmlElement (name = "binding:vif_details")
     @XmlElement (namespace = "binding", name = "vif_details")
-    List<NeutronPort_VIFDetail> vifDetails;
+    Map<String, String> vifDetails;
 
     @XmlElement (name = "extra_dhcp_opts")
     List<NeutronPort_ExtraDHCPOption> extraDHCPOptions;
@@ -126,7 +127,7 @@ public class NeutronPort implements Serializable, INeutronObject {
     public Boolean getAdminStateUp() { return adminStateUp; }
 
     public void setAdminStateUp(Boolean newValue) {
-            adminStateUp = newValue;
+        adminStateUp = newValue;
     }
 
     public String getStatus() {
@@ -201,20 +202,20 @@ public class NeutronPort implements Serializable, INeutronObject {
         this.extraDHCPOptions = extraDHCPOptions;
     }
 
-    public List<NeutronPort_VIFDetail> getVIFDetail() {
+    public Map<String, String> getVIFDetails() {
         return vifDetails;
     }
 
-    public void setVIFDetail(List<NeutronPort_VIFDetail> vifDetails) {
+    public void setVIFDetails(Map<String, String> vifDetails) {
         this.vifDetails = vifDetails;
     }
 
     public String getBindinghostID() {
-      return bindinghostID;
+        return bindinghostID;
     }
 
     public void setBindinghostID(String bindinghostID) {
-      this.bindinghostID = bindinghostID;
+        this.bindinghostID = bindinghostID;
     }
 
     public String getBindingvnicType() {
