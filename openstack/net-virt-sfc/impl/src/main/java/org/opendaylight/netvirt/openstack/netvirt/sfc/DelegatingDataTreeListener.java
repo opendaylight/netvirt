@@ -11,10 +11,12 @@ package org.opendaylight.netvirt.openstack.netvirt.sfc;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import javax.annotation.Nonnull;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -32,7 +34,9 @@ import org.slf4j.LoggerFactory;
 public class DelegatingDataTreeListener<T extends DataObject> implements AutoCloseable, DataTreeChangeListener<T> {
     private static final Logger LOG = LoggerFactory.getLogger(DelegatingDataTreeListener.class);
     protected INetvirtSfcOF13Provider provider;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+        .setNameFormat("NV-SfcDTL-%d").build();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1, threadFactory);
     private final INetvirtSfcDataProcessor<T> dataProcessor;
     private ListenerRegistration<DelegatingDataTreeListener<T>> listenerRegistration;
 
