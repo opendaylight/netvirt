@@ -55,15 +55,6 @@ public class NeutronRouter implements Serializable, INeutronObject {
     @XmlElement (name = "routes")
     List<Routes> routes;
 
-    /* Holds a map of OpenStackRouterInterfaces by subnet UUID
-     * used for internal mapping to DOVE
-     */
-    Map<String, NeutronRouter_Interface> interfaces;
-
-    public NeutronRouter() {
-        interfaces = new HashMap<>();
-    }
-
     public String getID() { return routerUUID; }
 
     public void setID(String id) { this.routerUUID = id; }
@@ -190,22 +181,6 @@ public class NeutronRouter implements Serializable, INeutronObject {
         return ans;
     }
 
-    public void setInterfaces(Map<String, NeutronRouter_Interface> input) {
-        interfaces = input;
-    }
-
-    public Map<String, NeutronRouter_Interface> getInterfaces() {
-        return interfaces;
-    }
-
-    public void addInterface(String s, NeutronRouter_Interface i) {
-        interfaces.put(s, i);
-    }
-
-    public void removeInterface(String s) {
-        interfaces.remove(s);
-    }
-
     public void initDefaults() {
         adminStateUp = true;
     }
@@ -222,8 +197,6 @@ public class NeutronRouter implements Serializable, INeutronObject {
             ", distributed=" + distributed +
             ", gw_port_id=" + gatewayPortId +
             ", routes=" + routes +
-            ", interfaces=" + interfaces +
             "]";
     }
-
 }

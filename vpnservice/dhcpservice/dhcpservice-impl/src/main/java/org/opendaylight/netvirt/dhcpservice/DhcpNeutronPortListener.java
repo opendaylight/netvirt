@@ -139,7 +139,7 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataChangeListenerBas
     }
 
     private String getMacAddress(Port port) {
-        String macAddress = port.getMacAddress();
+        String macAddress = port.getMacAddress().getValue();
         return macAddress;
     }
 }
