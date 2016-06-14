@@ -303,7 +303,7 @@ public class NetvirtSfcWorkaroundOF13Provider implements INetvirtSfcOF13Provider
             }
             //should be sffdplport, but they should all be the same 6633/4790
             // TODO: Coexistence: SFC flows should take this using new sf dpl augmentation
-            if (addSfFlows == true) {
+            if (addSfFlows) {
                 sfcClassifierService.program_sfEgress(dataPathId, sfIpPort, rsp.getName().getValue(), true);
                 sfcClassifierService.program_sfIngress(dataPathId, sfIpPort, sfOfPort, sfIpAddr, sfDplPortName,
                         rsp.getName().getValue(), true);

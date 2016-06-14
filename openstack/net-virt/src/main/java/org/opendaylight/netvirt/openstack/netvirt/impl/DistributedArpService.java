@@ -206,7 +206,7 @@ public class DistributedArpService implements ConfigInterface {
 
                 // Arp rules for dhcp port should be removed from compute node
                 // when delete the last VM instance belongs to the network (bug 5456)
-                if (false == arpNeeded && Action.DELETE == actionForNode && null != network_Ips && !network_Ips.isEmpty()) {
+                if (!arpNeeded && Action.DELETE == actionForNode && null != network_Ips && !network_Ips.isEmpty()) {
                     for (NeutronPort port : neutronPortCache.getAllPorts()) {
                          if (!port.getDeviceOwner().equalsIgnoreCase(ROUTER_INTERFACE_DEVICE_OWNER)) {
                              final String portMacAddress = port.getMacAddress();
