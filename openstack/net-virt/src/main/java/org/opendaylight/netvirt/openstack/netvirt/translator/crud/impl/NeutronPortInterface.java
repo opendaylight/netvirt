@@ -8,10 +8,7 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.translator.crud.impl;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort_AllowedAddressPairs;
@@ -24,6 +21,7 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtensionBuilder;
@@ -41,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtensionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -140,14 +139,11 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
         PortBindingExtension binding = port.getAugmentation(PortBindingExtension.class);
         result.setBindinghostID(binding.getHostId());
         if (binding.getVifDetails() != null) {
-            List<NeutronPort_VIFDetail> details = new ArrayList<>();
-            for (VifDetails vifDetail : binding.getVifDetails()) {
-                NeutronPort_VIFDetail detail = new NeutronPort_VIFDetail();
-                detail.setPortFilter(vifDetail.isPortFilter());
-                detail.setOvsHybridPlug(vifDetail.isOvsHybridPlug());
-                details.add(detail);
+            final Map<String, String> details = new HashMap<String, String>(binding.getVifDetails().size());
+            for (final VifDetails vifDetail : binding.getVifDetails()) {
+                details.put(vifDetail.getDetailsKey(), vifDetail.getValue());
             }
-            result.setVIFDetail(details);
+            result.setVIFDetails(details);
         }
         result.setBindingvifType(binding.getVifType());
         result.setBindingvnicType(binding.getVnicType());
@@ -167,8 +163,8 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
             List<NeutronPort_AllowedAddressPairs> pairs = new ArrayList<>();
             for (AllowedAddressPairs mdPair : port.getAllowedAddressPairs()) {
                 NeutronPort_AllowedAddressPairs pair = new NeutronPort_AllowedAddressPairs();
-                pair.setIpAddress(mdPair.getIpAddress());
-                pair.setMacAddress(mdPair.getMacAddress());
+                pair.setIpAddress(String.valueOf(mdPair.getIpAddress().getValue()));
+                pair.setMacAddress(mdPair.getMacAddress().getValue());
                 pairs.add(pair);
             }
             result.setAllowedAddressPairs(pairs);
@@ -195,7 +191,7 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
             }
             result.setFixedIPs(ips);
         }
-        result.setMacAddress(port.getMacAddress());
+        result.setMacAddress(port.getMacAddress().getValue());
         result.setName(port.getName());
         result.setNetworkUUID(String.valueOf(port.getNetworkId().getValue()));
         if (port.getSecurityGroups() != null) {
@@ -228,15 +224,16 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
         if (neutronPort.getBindinghostID() != null) {
             bindingBuilder.setHostId(neutronPort.getBindinghostID());
         }
-        if (neutronPort.getVIFDetail() != null) {
-            List<VifDetails> listVifDetail = new ArrayList<>();
-            for (NeutronPort_VIFDetail detail: neutronPort.getVIFDetail()) {
-                VifDetailsBuilder vifDetailsBuilder = new VifDetailsBuilder();
-                if (detail.getPortFilter() != null) {
-                    vifDetailsBuilder.setPortFilter(detail.getPortFilter());
+        if (neutronPort.getVIFDetails() != null) {
+            final Map<String, String> vifDetails = neutronPort.getVIFDetails();
+            final List<VifDetails> listVifDetail = new ArrayList<VifDetails>(vifDetails.size());
+            for (final Map.Entry<String, String> vifDetail : vifDetails.entrySet()) {
+                final VifDetailsBuilder vifDetailsBuilder = new VifDetailsBuilder();
+                if (vifDetail.getKey() != null) {
+                    vifDetailsBuilder.setDetailsKey(vifDetail.getKey());
                 }
-                if (detail.getOvsHybridPlug() != null) {
-                    vifDetailsBuilder.setOvsHybridPlug(detail.getOvsHybridPlug());
+                if (vifDetail.getValue() != null) {
+                    vifDetailsBuilder.setValue(vifDetail.getValue());
                 }
                 listVifDetail.add(vifDetailsBuilder.build());
             }
@@ -262,8 +259,8 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
             List<AllowedAddressPairs> listAllowedAddressPairs = new ArrayList<>();
             for (NeutronPort_AllowedAddressPairs allowedAddressPairs : neutronPort.getAllowedAddressPairs()) {
                     AllowedAddressPairsBuilder allowedAddressPairsBuilder = new AllowedAddressPairsBuilder();
-                    allowedAddressPairsBuilder.setIpAddress(allowedAddressPairs.getIpAddress());
-                    allowedAddressPairsBuilder.setMacAddress(allowedAddressPairs.getMacAddress());
+                    allowedAddressPairsBuilder.setIpAddress(new IpPrefixOrAddress(allowedAddressPairs.getIpAddress().toCharArray()));
+                    allowedAddressPairsBuilder.setMacAddress(new MacAddress(allowedAddressPairs.getMacAddress()));
                     listAllowedAddressPairs.add(allowedAddressPairsBuilder.build());
             }
             portBuilder.setAllowedAddressPairs(listAllowedAddressPairs);
@@ -295,7 +292,7 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
             portBuilder.setFixedIps(listNeutronIPs);
         }
         if (neutronPort.getMacAddress() != null) {
-            portBuilder.setMacAddress(neutronPort.getMacAddress());
+            portBuilder.setMacAddress(new MacAddress(neutronPort.getMacAddress()));
         }
         if (neutronPort.getName() != null) {
         portBuilder.setName(neutronPort.getName());
