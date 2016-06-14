@@ -159,7 +159,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
             if (portId != null) {
                 List<Uuid> portList = builder.getPortList();
                 if (portList == null) {
-                    portList = new ArrayList<Uuid>();
+                    portList = new ArrayList<>();
                 }
                 portList.add(portId);
                 builder.setPortList(portList);
@@ -240,7 +240,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
     private void updateVpnInstanceNode(String vpnName, List<String> rd, List<String> irt, List<String> ert) {
 
         VpnInstanceBuilder builder = null;
-        List<VpnTarget> vpnTargetList = new ArrayList<VpnTarget>();
+        List<VpnTarget> vpnTargetList = new ArrayList<>();
         boolean isLockAcquired = false;
         InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class).
                 child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
@@ -256,7 +256,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
             }
             if (irt != null && !irt.isEmpty()) {
                 if (ert != null && !ert.isEmpty()) {
-                    List<String> commonRT = new ArrayList<String>(irt);
+                    List<String> commonRT = new ArrayList<>(irt);
                     commonRT.retainAll(ert);
 
                     for (String common : commonRT) {
@@ -346,7 +346,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
             if (networks != null) {
                 List<Uuid> nwList = builder.getNetworkIds();
                 if (nwList == null) {
-                    nwList = new ArrayList<Uuid>();
+                    nwList = new ArrayList<>();
                 }
                 nwList.addAll(networks);
                 builder.setNetworkIds(nwList);
@@ -446,7 +446,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
             return;
         }
         String infName = port.getUuid().getValue();
-        List<Adjacency> adjList = new ArrayList<Adjacency>();
+        List<Adjacency> adjList = new ArrayList<>();
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
 
         // find router associated to vpn
@@ -564,7 +564,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
 
         CreateL3VPNOutputBuilder opBuilder = new CreateL3VPNOutputBuilder();
         SettableFuture<RpcResult<CreateL3VPNOutput>> result = SettableFuture.create();
-        List<RpcError> errorList = new ArrayList<RpcError>();
+        List<RpcError> errorList = new ArrayList<>();
         int failurecount = 0;
         int warningcount = 0;
 
@@ -673,7 +673,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         GetL3VPNOutputBuilder opBuilder = new GetL3VPNOutputBuilder();
         SettableFuture<RpcResult<GetL3VPNOutput>> result = SettableFuture.create();
         Uuid inputVpnId = input.getId();
-        List<VpnInstance> vpns = new ArrayList<VpnInstance>();
+        List<VpnInstance> vpns = new ArrayList<>();
 
         try {
             if (inputVpnId == null) {
@@ -712,7 +712,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
                             .withWarning(ErrorType.PROTOCOL, "invalid-value", message).build());
                 }
             }
-            List<L3vpnInstances> l3vpnList = new ArrayList<L3vpnInstances>();
+            List<L3vpnInstances> l3vpnList = new ArrayList<>();
             for (VpnInstance vpnInstance : vpns) {
                 Uuid vpnId = new Uuid(vpnInstance.getVpnInstanceName());
                 // create VpnMaps id
@@ -723,8 +723,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
                 List<String> rd = Arrays.asList(vpnInstance.getIpv4Family().getRouteDistinguisher().split(","));
                 List<VpnTarget> vpnTargetList = vpnInstance.getIpv4Family().getVpnTargets().getVpnTarget();
 
-                List<String> ertList = new ArrayList<String>();
-                List<String> irtList = new ArrayList<String>();
+                List<String> ertList = new ArrayList<>();
+                List<String> irtList = new ArrayList<>();
 
                 for (VpnTarget vpnTarget : vpnTargetList) {
                     if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
@@ -766,7 +766,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
 
         DeleteL3VPNOutputBuilder opBuilder = new DeleteL3VPNOutputBuilder();
         SettableFuture<RpcResult<DeleteL3VPNOutput>> result = SettableFuture.create();
-        List<RpcError> errorList = new ArrayList<RpcError>();
+        List<RpcError> errorList = new ArrayList<>();
 
         int failurecount = 0;
         int warningcount = 0;
@@ -932,7 +932,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
     }
 
     protected List<Adjacency> addAdjacencyforExtraRoute(List<Routes> routeList, boolean rtrUp, String vpnifname) {
-        List<Adjacency> adjList = new ArrayList<Adjacency>();
+        List<Adjacency> adjList = new ArrayList<>();
         for (Routes route : routeList) {
             if (route != null && route.getNexthop() != null && route.getDestination() != null) {
                 boolean isLockAcquired = false;
@@ -1105,7 +1105,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
     }
 
     protected List<String> associateNetworksToVpn(Uuid vpn, List<Uuid> networks) {
-        List<String> failed = new ArrayList<String>();
+        List<String> failed = new ArrayList<>();
         if (!networks.isEmpty()) {
             // store in Data Base
             updateVpnMaps(vpn, null, null, null, networks);
@@ -1132,7 +1132,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
     }
 
     protected List<String> dissociateNetworksFromVpn(Uuid vpn, List<Uuid> networks) {
-        List<String> failed = new ArrayList<String>();
+        List<String> failed = new ArrayList<>();
         if (networks != null && !networks.isEmpty()) {
             // store in Data Base
             clearFromVpnMaps(vpn, null, networks);
@@ -1422,7 +1422,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
     }
 
     protected List<Uuid> getSubnetsforVpn(Uuid vpnid) {
-        List<Uuid> subnets = new ArrayList<Uuid>();
+        List<Uuid> subnets = new ArrayList<>();
         //read subnetmaps
         InstanceIdentifier<Subnetmaps> subnetmapsid = InstanceIdentifier.builder(Subnetmaps.class).build();
         Optional<Subnetmaps> subnetmaps = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
@@ -1439,7 +1439,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
     }
 
     public List<String> showNeutronPortsCLI() {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         result.add(String.format(" %-34s  %-22s  %-22s  %-6s ", "PortName", "Mac Address", "IP Address",
                 "Prefix Length"));
         result.add("---------------------------------------------------------------------------------------");
@@ -1462,7 +1462,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
     }
 
     public List<String> showVpnConfigCLI(Uuid vpnuuid) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         if (vpnuuid == null) {
             System.out.println("");
             System.out.println("Displaying VPN config for all VPNs");

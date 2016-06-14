@@ -85,9 +85,9 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> {
     }
 
     private void setupTableMissSmacFlow(BigInteger dpId) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
-        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
-        List <ActionInfo> actionsInfos = new ArrayList <ActionInfo> ();
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
+        List <ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
         mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { ElanConstants.ELAN_DMAC_TABLE }));
@@ -99,9 +99,9 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> {
     }
 
     private void setupTableMissDmacFlow(BigInteger dpId) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
 
-        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { ElanConstants.ELAN_UNKNOWN_DMAC_TABLE }));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, ElanConstants.ELAN_DMAC_TABLE, getTableMissFlowRef(ElanConstants.ELAN_DMAC_TABLE),

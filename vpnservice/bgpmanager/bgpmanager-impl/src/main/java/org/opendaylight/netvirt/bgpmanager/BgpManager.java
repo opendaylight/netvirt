@@ -116,8 +116,8 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
     @Override
     public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) throws Exception {
-        bcm.addVrf(rd, new ArrayList<String>(importRts), 
-                       new ArrayList<String>(exportRts)); 
+        bcm.addVrf(rd, new ArrayList<>(importRts),
+                new ArrayList<>(exportRts));
     }
 
     @Override

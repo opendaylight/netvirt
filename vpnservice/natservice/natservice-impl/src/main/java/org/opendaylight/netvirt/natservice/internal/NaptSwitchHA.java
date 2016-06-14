@@ -575,8 +575,8 @@ public class NaptSwitchHA {
     }
 
     public List<BucketInfo> handleGroupInPrimarySwitch() {
-        List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
-        List<ActionInfo> listActionInfoPrimary = new ArrayList<ActionInfo>();
+        List<BucketInfo> listBucketInfo = new ArrayList<>();
+        List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
         listActionInfoPrimary.add(new ActionInfo(ActionType.nx_resubmit,
                 new String[]{String.valueOf(NatConstants.TERMINATING_SERVICE_TABLE)}));
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
@@ -585,7 +585,7 @@ public class NaptSwitchHA {
     }
 
     public List<BucketInfo> handleGroupInNeighborSwitches(BigInteger dpnId, String routerName, BigInteger naptSwitch) {
-        List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+        List<BucketInfo> listBucketInfo = new ArrayList<>();
         String ifNamePrimary;
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
@@ -659,7 +659,7 @@ public class NaptSwitchHA {
 
     protected List<ActionInfo> getEgressActionsForInterface(String ifName, long routerId) {
         LOG.debug("getEgressActionsForInterface called for interface {}", ifName);
-        List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
+        List<ActionInfo> listActionInfo = new ArrayList<>();
         try {
             Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
                     interfaceManager.getEgressActionsForInterface(
@@ -747,7 +747,7 @@ public class NaptSwitchHA {
     public FlowEntity buildSnatFlowEntityForNaptSwitch(BigInteger dpId, String routerName, long routerVpnId, int addordel) {
 
         FlowEntity flowEntity;
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[]{ 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
@@ -756,7 +756,7 @@ public class NaptSwitchHA {
         String flowRef = getFlowRefSnat(dpId, NatConstants.PSNAT_TABLE, routerName);
 
         if (addordel == NatConstants.ADD_FLOW) {
-            List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+            List<InstructionInfo> instructions = new ArrayList<>();
 
             instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]
                     { NatConstants.OUTBOUND_NAPT_TABLE }));

@@ -55,22 +55,22 @@ public class DHCP extends Packet {
     private static Map<String, Pair<Integer, Integer>> fieldCoordinates = new LinkedHashMap<String, Pair<Integer, Integer>>() {
         private static final long serialVersionUID = 1L;
         {
-            put(OP, new ImmutablePair<Integer, Integer>(0, 8));
-            put(HTYPE, new ImmutablePair<Integer, Integer>(8, 8));
-            put(HLEN, new ImmutablePair<Integer, Integer>(16, 8));
-            put(HOPS, new ImmutablePair<Integer, Integer>(24, 8));
-            put(XID, new ImmutablePair<Integer, Integer>(32, 32));
-            put(SECS, new ImmutablePair<Integer, Integer>(64, 16));
-            put(FLAGS, new ImmutablePair<Integer, Integer>(80, 16));
-            put(CIADDR, new ImmutablePair<Integer, Integer>(96, 32));
-            put(YIADDR, new ImmutablePair<Integer, Integer>(128, 32));
-            put(SIADDR, new ImmutablePair<Integer, Integer>(160, 32));
-            put(GIADDR, new ImmutablePair<Integer, Integer>(192, 32));
-            put(CHADDR, new ImmutablePair<Integer, Integer>(224, 128));
-            put(SNAME, new ImmutablePair<Integer, Integer>(352, 512));
-            put(FILE, new ImmutablePair<Integer, Integer>(864, 1024));
-            put(MCOOKIE, new ImmutablePair<Integer, Integer>(1888, 32));
-            put(OPTIONS, new ImmutablePair<Integer, Integer>(1920, 0));
+            put(OP, new ImmutablePair<>(0, 8));
+            put(HTYPE, new ImmutablePair<>(8, 8));
+            put(HLEN, new ImmutablePair<>(16, 8));
+            put(HOPS, new ImmutablePair<>(24, 8));
+            put(XID, new ImmutablePair<>(32, 32));
+            put(SECS, new ImmutablePair<>(64, 16));
+            put(FLAGS, new ImmutablePair<>(80, 16));
+            put(CIADDR, new ImmutablePair<>(96, 32));
+            put(YIADDR, new ImmutablePair<>(128, 32));
+            put(SIADDR, new ImmutablePair<>(160, 32));
+            put(GIADDR, new ImmutablePair<>(192, 32));
+            put(CHADDR, new ImmutablePair<>(224, 128));
+            put(SNAME, new ImmutablePair<>(352, 512));
+            put(FILE, new ImmutablePair<>(864, 1024));
+            put(MCOOKIE, new ImmutablePair<>(1888, 32));
+            put(OPTIONS, new ImmutablePair<>(1920, 0));
         }
     };
 
@@ -82,7 +82,7 @@ public class DHCP extends Packet {
 
     public DHCP(boolean writeAccess) {
         super(writeAccess);
-        fieldValues = new HashMap<String, byte[]>();
+        fieldValues = new HashMap<>();
         hdrFieldCoordMap = fieldCoordinates;
         hdrFieldsMap = fieldValues;
         corrupted = false;

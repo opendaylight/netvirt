@@ -187,7 +187,7 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
         }
         if (!dpId.equals(DHCPMConstants.INVALID_DPID)) {
             installDhcpEntries(interfaceName, dpId);
-            dhcpManager.updateInterfaceCache(interfaceName, new ImmutablePair<BigInteger, String>(dpId, add.getPhysAddress().getValue()));
+            dhcpManager.updateInterfaceCache(interfaceName, new ImmutablePair<>(dpId, add.getPhysAddress().getValue()));
         }
     }
 

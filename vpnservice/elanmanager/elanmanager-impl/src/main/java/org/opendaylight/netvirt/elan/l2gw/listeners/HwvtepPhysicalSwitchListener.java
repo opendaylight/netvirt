@@ -290,7 +290,7 @@ public class HwvtepPhysicalSwitchListener
         List<L2gatewayConnection> l2GwConnections = null;
         List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
         if (allL2GwConns != null) {
-            l2GwConnections = new ArrayList<L2gatewayConnection>();
+            l2GwConnections = new ArrayList<>();
             for (Uuid l2GatewayId : l2GatewayIds) {
                 for (L2gatewayConnection l2GwConn : allL2GwConns) {
                     if (l2GwConn.getL2gatewayId().equals(l2GatewayId)) {

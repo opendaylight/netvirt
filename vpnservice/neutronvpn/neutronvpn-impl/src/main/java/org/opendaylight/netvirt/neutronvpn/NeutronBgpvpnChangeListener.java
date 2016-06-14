@@ -73,8 +73,8 @@ public class NeutronBgpvpnChangeListener extends AbstractDataChangeListener<Bgpv
         }
         // Create internal VPN
         // handle route-target
-        List<String> irt = new ArrayList<String>();
-        List<String> ert = new ArrayList<String>();
+        List<String> irt = new ArrayList<>();
+        List<String> ert = new ArrayList<>();
         List<String> inrt = input.getRouteTargets();
         List<String> inirt = input.getImportTargets();
         List<String> inert = input.getExportTargets();

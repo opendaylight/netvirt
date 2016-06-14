@@ -349,7 +349,7 @@ public class ElanUtils {
      * @return the elan interface mac addresses
      */
     public static List<PhysAddress> getElanInterfaceMacAddresses(String interfaceName) {
-        List<PhysAddress> macAddresses = new ArrayList<PhysAddress>();
+        List<PhysAddress> macAddresses = new ArrayList<>();
         ElanInterfaceMac elanInterfaceMac = ElanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
         if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
             List<MacEntry> macEntries = elanInterfaceMac.getMacEntry();
@@ -456,7 +456,7 @@ public class ElanUtils {
      * @return list of dpIds
      */
     public static List<BigInteger> getParticipatingDPNsInElanInstance(String elanInstanceName) {
-        List<BigInteger> dpIds = new ArrayList<BigInteger>();
+        List<BigInteger> dpIds = new ArrayList<>();
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanInstanceName);
         Optional<ElanDpnInterfacesList> existingElanDpnInterfaces =
                 ElanUtils.read(dataBroker, LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
@@ -618,12 +618,12 @@ public class ElanUtils {
         int lportTag = interfaceInfo.getInterfaceTag();
         long elanTag = elanInfo.getElanTag();
         // Matching metadata and eth_src fields
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 ElanUtils.getElanMetadataLabel(elanInfo.getElanTag(), lportTag),
                 ElanUtils.getElanMetadataMask() }));
         mkMatches.add(new MatchInfo(MatchFieldType.eth_src, new String[] { macAddress }));
-        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { ElanConstants.ELAN_DMAC_TABLE }));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, ElanConstants.ELAN_SMAC_TABLE,
@@ -679,7 +679,7 @@ public class ElanUtils {
      * @return
      */
     public static List<MatchInfo> getTunnelIdMatchForFilterEqualsLPortTag(int lportTag) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {
                 BigInteger.valueOf(lportTag)}));
@@ -695,7 +695,7 @@ public class ElanUtils {
      * @return
      */
     public static List<Instruction> getInstructionsInPortForOutGroup(String ifName) {
-        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List<Instruction> mkInstructions = new ArrayList<>();
         List<Action> actions = ElanUtils.getEgressActionsForInterface(ifName, /*tunnelKey*/ null );
 
         mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
@@ -718,7 +718,7 @@ public class ElanUtils {
      * @return the egress actions for interface
      */
     public static List<Action> getEgressActionsForInterface(String ifName, Long tunnelKey) {
-        List<Action> listAction = new ArrayList<Action>();
+        List<Action> listAction = new ArrayList<>();
         try {
             GetEgressActionsForInterfaceInput getEgressActionInput =
                     new GetEgressActionsForInterfaceInputBuilder().setIntfName(ifName).setTunnelKey(tunnelKey).build();
@@ -845,12 +845,12 @@ public class ElanUtils {
      */
     public static Flow buildLocalDmacFlowEntry(long elanTag, BigInteger dpId, String ifName, String macAddress,
                                                String displayName, long ifTag) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
         mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { macAddress }));
 
-        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List<Instruction> mkInstructions = new ArrayList<>();
         List<Action> actions = getEgressActionsForInterface(ifName, /* tunnelKey */ null);
         mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         Flow flow = MDSALUtil.buildFlowNew(ElanConstants.ELAN_DMAC_TABLE,
@@ -887,13 +887,13 @@ public class ElanUtils {
      */
     public static Flow buildRemoteDmacFlowEntry(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
                                                  String macAddress, String displayName) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchInfo(MatchFieldType.metadata,
                                     new BigInteger[]{ ElanUtils.getElanMetadataLabel(elanTag),
                                                       MetaDataUtil.METADATA_MASK_SERVICE }));
         mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { macAddress }));
 
-        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List<Instruction> mkInstructions = new ArrayList<>();
 
         //List of Action for the provided Source and Destination DPIDs
         try {
@@ -1010,7 +1010,7 @@ public class ElanUtils {
     public static ServicesInfo getServiceInfo(String elanInstanceName, long elanTag, String interfaceName) {
         int priority = ElanConstants.ELAN_SERVICE_PRIORITY;
         int instructionKey = 0;
-        List<Instruction> instructions = new ArrayList<Instruction>();
+        List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(ElanConstants.ELAN_SMAC_TABLE, ++instructionKey));
 
@@ -1167,7 +1167,7 @@ public class ElanUtils {
     }
 
     public static List<MatchInfo> getTunnelMatchesForServiceId(int elanTag) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[]{BigInteger.valueOf(elanTag)}));
 
@@ -1190,7 +1190,7 @@ public class ElanUtils {
     }
 
     public static void createTerminatingServiceActions(BigInteger destDpId, int serviceId, List<Action> actions) {
-        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List<Instruction> mkInstructions = new ArrayList<>();
         mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         CreateTerminatingServiceActionsInput input = new CreateTerminatingServiceActionsInputBuilder().setDpnId(destDpId).setServiceId(serviceId).setInstruction(mkInstructions).build();
 
@@ -1328,7 +1328,7 @@ public class ElanUtils {
     }
 
     public static List<MatchInfo> buildMatchesForElanTagShFlagAndDstMac(long elanTag, boolean shFlag, String macAddr) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 ElanUtils.getElanMetadataLabel(elanTag, shFlag), MetaDataUtil.METADATA_MASK_SERVICE_SH_FLAG }));
         mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { macAddr }));
@@ -1354,7 +1354,7 @@ public class ElanUtils {
     public static Flow buildDmacFlowForExternalRemoteMac(BigInteger dpId, String extDeviceNodeId, long elanTag,
             Long vni, String dstMacAddress, String displayName ) {
         List<MatchInfo> mkMatches = buildMatchesForElanTagShFlagAndDstMac(elanTag, /*shFlag*/ false, dstMacAddress);
-        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List<Instruction> mkInstructions = new ArrayList<>();
         try {
             List<Action> actions = getExternalItmEgressAction(dpId, new NodeId(extDeviceNodeId), vni);
             mkInstructions.add( MDSALUtil.buildApplyActionsInstruction(actions) );
@@ -1427,7 +1427,7 @@ public class ElanUtils {
             long elanTag, String macAddress, String displayName) {
         List<MatchInfo> mkMatches = buildMatchesForElanTagShFlagAndDstMac(elanTag, /*shFlag*/ false, macAddress);
 
-        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List<Instruction> mkInstructions = new ArrayList<>();
 
         try {
             //List of Action for the provided Source and Destination DPIDs

@@ -108,7 +108,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
 
     private ElanForwardingEntriesHandler elanForwardingEntriesHandler;
     private Map<String, ConcurrentLinkedQueue<ElanInterface>> unProcessedElanInterfaces =
-            new ConcurrentHashMap<String, ConcurrentLinkedQueue<ElanInterface>> ();
+            new ConcurrentHashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(ElanInterfaceManager.class);
 
@@ -221,7 +221,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
         InstanceIdentifier<ElanInterfaceMac> elanInterfaceId = ElanUtils.getElanInterfaceMacEntriesOperationalDataPath(interfaceName);
         Optional<ElanInterfaceMac> existingElanInterface = ElanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, elanInterfaceId);
         if(existingElanInterface.isPresent()) {
-            List<PhysAddress> macAddresses = new ArrayList<PhysAddress>();
+            List<PhysAddress> macAddresses = new ArrayList<>();
             List<MacEntry> existingMacEntries = existingElanInterface.get().getMacEntry();
             List<MacEntry> macEntries = new ArrayList<>();
             if (existingMacEntries != null && !existingMacEntries.isEmpty()) {
@@ -373,7 +373,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
         if (elanTag == null) {
             ConcurrentLinkedQueue<ElanInterface> elanInterfaces = unProcessedElanInterfaces.get(elanInstanceName);
             if (elanInterfaces == null) {
-                elanInterfaces = new ConcurrentLinkedQueue<ElanInterface>();
+                elanInterfaces = new ConcurrentLinkedQueue<>();
             }
             elanInterfaces.add(elanInterfaceAdded);
             unProcessedElanInterfaces.put(elanInstanceName, elanInterfaces);
@@ -576,7 +576,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
         BigInteger dpnId = interfaceInfo.getDpId();
         int elanTag = elanInfo.getElanTag().intValue();
         int bucketId = bucketKeyStart;
-        List<Bucket> listBuckets = new ArrayList<Bucket>();
+        List<Bucket> listBuckets = new ArrayList<>();
         ElanDpnInterfacesList elanDpns = ElanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
         if(elanDpns != null) {
             List<DpnInterfaces> dpnInterfaceses = elanDpns.getDpnInterfaces();
@@ -599,7 +599,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
 
     private List<Bucket> getRemoteBCGroupBuckets(ElanInstance elanInfo, BigInteger dpnId, int bucketId) {
         int elanTag = elanInfo.getElanTag().intValue();
-        List<Bucket> listBucketInfo = new ArrayList<Bucket>();
+        List<Bucket> listBucketInfo = new ArrayList<>();
         ElanDpnInterfacesList elanDpns = ElanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
         if(elanDpns != null) {
             List<DpnInterfaces> dpnInterfaceses = elanDpns.getDpnInterfaces();
@@ -626,13 +626,13 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
         BigInteger dpnId = interfaceInfo.getDpId();
         int elanTag = elanInfo.getElanTag().intValue();
         long groupId = ElanUtils.getElanRemoteBCGID(elanTag);
-        List<Bucket> listBucket = new ArrayList<Bucket>();
+        List<Bucket> listBucket = new ArrayList<>();
         int bucketId = 0;
         ElanDpnInterfacesList elanDpns = ElanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
         if(elanDpns != null) {
             List<DpnInterfaces> dpnInterfaceses = elanDpns.getDpnInterfaces();
             for(DpnInterfaces dpnInterface : dpnInterfaceses) {
-              List<Bucket> remoteListBucketInfo = new ArrayList<Bucket>();
+              List<Bucket> remoteListBucketInfo = new ArrayList<>();
                 if(ElanUtils.isDpnPresent(dpnInterface.getDpId()) && !dpnInterface.getDpId().equals(dpnId) && dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()) {
                     for(String ifName : dpnInterface.getInterfaces()) {
                         // In case if there is a InterfacePort in the cache which is not in
@@ -682,7 +682,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
     }
 
     private List<MatchInfo> getMatchesForElanTag(Long elanTag) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 ElanUtils.getElanMetadataLabel(elanTag),
@@ -692,7 +692,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
 
 
     private List<MatchInfo> buildMatchesForVni(Long vni) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         MatchInfo match = new MatchInfo(MatchFieldType.tunnel_id,
                                         new BigInteger[]{BigInteger.valueOf(vni)} );
         mkMatches.add(match);
@@ -701,15 +701,15 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
 
     private List<Instruction> getInstructionsForOutGroup(
             long groupId) {
-        List<Instruction> mkInstructions = new ArrayList<Instruction>();
-        List <Action> actions = new ArrayList <Action> ();
+        List<Instruction> mkInstructions = new ArrayList<>();
+        List <Action> actions = new ArrayList<>();
         actions.add(new ActionInfo(ActionType.group, new String[]{Long.toString(groupId)}).buildAction());
         mkInstructions.add(MDSALUtil.getWriteActionsInstruction(actions, 0));
         return mkInstructions;
     }
 
     private List<MatchInfo> getMatchesForElanTag(long elanTag, boolean isSHFlagSet) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 ElanUtils.getElanMetadataLabel(elanTag, isSHFlagSet),
@@ -728,7 +728,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
      * @return the instructions ready to be installed in a flow
      */
     private List<InstructionInfo> getInstructionsExtTunnelTable(Long elanTag) {
-        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionInfo(InstructionType.write_metadata,
                                                new BigInteger[] {
                                                        ElanUtils.getElanMetadataLabel(elanTag),
@@ -816,7 +816,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
     }
 
     public void setupElanBroadcastGroups(ElanInstance elanInfo, BigInteger dpnId) {
-        List<Bucket> listBucket = new ArrayList<Bucket>();
+        List<Bucket> listBucket = new ArrayList<>();
         int bucketId = 0;
         long groupId = ElanUtils.getElanRemoteBCGID(elanInfo.getElanTag());
 
@@ -844,7 +844,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
     }
 
     public void setupLocalBroadcastGroups(ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
-        List<Bucket> listBucket = new ArrayList<Bucket>();
+        List<Bucket> listBucket = new ArrayList<>();
         int bucketId = 0;
         BigInteger dpnId = interfaceInfo.getDpId();
         long groupId = ElanUtils.getElanLocalBCGID(elanInfo.getElanTag());
@@ -1019,7 +1019,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
 
         int priority = ElanConstants.ELAN_SERVICE_PRIORITY;
         int instructionKey = 0;
-        List<Instruction> instructions = new ArrayList<Instruction>();
+        List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanUtils.getElanMetadataLabel(elanInfo.getElanTag()), MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(ElanConstants.ELAN_SMAC_TABLE, ++instructionKey));
         BoundServices
@@ -1052,7 +1052,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
     }
 
     private List<Action> getInterfacePortActions(InterfaceInfo interfaceInfo) {
-        List<Action> listAction = new ArrayList<Action>();
+        List<Action> listAction = new ArrayList<>();
         int actionKey = 0;
         listAction.add((new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {BigInteger.valueOf(interfaceInfo.getInterfaceTag())}, actionKey)).buildAction());
         actionKey++;
@@ -1082,7 +1082,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
     }
 
     private List<String> createElanInterfacesList(String elanInstanceName, String interfaceName, BigInteger dpId) {
-        List<String> interfaceNames = new ArrayList<String>();
+        List<String> interfaceNames = new ArrayList<>();
         interfaceNames.add(interfaceName);
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId)
                 .setInterfaces(interfaceNames).setKey(new DpnInterfacesKey(dpId)).build();
@@ -1349,7 +1349,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
     }
 
     private List<MatchInfo> getMatchesForFilterEqualsLPortTag(int LportTag) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 MetaDataUtil.getLportTagMetaData(LportTag),
@@ -1360,7 +1360,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
 
 
     private List<MatchInfo> getTunnelIdMatchForFilterEqualsLPortTag(int LportTag) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {
                 BigInteger.valueOf(LportTag)}));
@@ -1379,7 +1379,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
 
     public static List<Bucket> getRemoteBCGroupBucketsOfElanL2GwDevices(ElanInstance elanInfo, BigInteger dpnId,
             int bucketId) {
-        List<Bucket> listBucketInfo = new ArrayList<Bucket>();
+        List<Bucket> listBucketInfo = new ArrayList<>();
         ConcurrentMap<String, L2GatewayDevice> map = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(elanInfo.getElanInstanceName());
         for (L2GatewayDevice device : map.values()) {
