@@ -1,0 +1,254 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_304b0eb2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Single Space required in if statement.",
+      "range": {
+        "startLine": 178,
+        "startChar": 10,
+        "endLine": 178,
+        "endChar": 11
+      },
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_90c77a12",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Single Space required in if statement.",
+      "range": {
+        "startLine": 193,
+        "startChar": 10,
+        "endLine": 193,
+        "endChar": 11
+      },
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_f0d7d6bd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Shall we write like that \nList\u003cUuid\u003e subnetIdList \u003d new ArrayList\u003c\u003e();?",
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_70cc6636",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Single Space required in if statement.",
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_d0d1f2ce",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Single Space required in if statement.",
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_b0d6fec3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Single Space required in if statement.",
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_10db6aee",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Single Space required in if statement.",
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_b0ed5e8e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpConfigureCommand.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Single Space required in if statement.",
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_f0feb637",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpConfigureCommand.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Single Space required in if statement.",
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_30f94e4e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpConfigureCommand.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Single Space required in if statement.",
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_1089aaca",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpConfigureCommand.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Single space required.",
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_30a78e51",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpShowCommand.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Single Space required in if statement.",
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_50aa021a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpShowCommand.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Single Space required in if statement.",
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_f0acf637",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpShowCommand.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-15T13:25:58Z",
+      "side": 1,
+      "message": "Single Space required in if statement.",
+      "revId": "36cce46328c4804f7acd6adebd2e2e4ce2cd2197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
