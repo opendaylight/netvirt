@@ -30,7 +30,7 @@ public class BgpRouter {
 
     private enum Optype {
         START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR
-    };
+    }
 
     private final static int GET_RTS_INIT = 0;
     private final static int GET_RTS_NEXT = 1;

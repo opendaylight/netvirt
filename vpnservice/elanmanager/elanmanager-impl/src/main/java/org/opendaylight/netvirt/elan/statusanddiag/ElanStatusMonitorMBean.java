@@ -9,6 +9,6 @@ package org.opendaylight.netvirt.elan.statusanddiag;
 
 public interface ElanStatusMonitorMBean {
 
-    public String acquireServiceStatus();
+    String acquireServiceStatus();
 
 }

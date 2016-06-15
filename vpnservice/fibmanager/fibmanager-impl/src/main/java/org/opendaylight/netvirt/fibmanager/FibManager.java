@@ -321,7 +321,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         instructions.add(new InstructionInfo(InstructionType.write_actions,actionsInfos));
         makeConnectedRoute(localDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW);
 
-        actionsInfos=new ArrayList<ActionInfo>();;
+        actionsInfos=new ArrayList<ActionInfo>();
         instructions=new ArrayList<InstructionInfo>();
         actionsInfos.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
         actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));

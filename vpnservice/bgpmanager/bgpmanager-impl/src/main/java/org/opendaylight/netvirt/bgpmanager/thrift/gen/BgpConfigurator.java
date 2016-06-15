@@ -32,81 +32,87 @@ public class BgpConfigurator {
 
   public interface Iface {
 
-    public int startBgp(int asNumber, String routerId, int port, int holdTime, int keepAliveTime, int stalepathTime, boolean announceFbit) throws org.apache.thrift.TException;
+    int startBgp(int asNumber, String routerId, int port, int holdTime, int keepAliveTime, int stalepathTime,
+                 boolean announceFbit) throws org.apache.thrift.TException;
 
-    public int stopBgp(int asNumber) throws org.apache.thrift.TException;
+    int stopBgp(int asNumber) throws org.apache.thrift.TException;
 
-    public int createPeer(String ipAddress, int asNumber) throws org.apache.thrift.TException;
+    int createPeer(String ipAddress, int asNumber) throws org.apache.thrift.TException;
 
-    public int deletePeer(String ipAddress) throws org.apache.thrift.TException;
+    int deletePeer(String ipAddress) throws org.apache.thrift.TException;
 
-    public int addVrf(String rd, List<String> irts, List<String> erts) throws org.apache.thrift.TException;
+    int addVrf(String rd, List<String> irts, List<String> erts) throws org.apache.thrift.TException;
 
-    public int delVrf(String rd) throws org.apache.thrift.TException;
+    int delVrf(String rd) throws org.apache.thrift.TException;
 
-    public int pushRoute(String prefix, String nexthop, String rd, int label) throws org.apache.thrift.TException;
+    int pushRoute(String prefix, String nexthop, String rd, int label) throws org.apache.thrift.TException;
 
-    public int withdrawRoute(String prefix, String rd) throws org.apache.thrift.TException;
+    int withdrawRoute(String prefix, String rd) throws org.apache.thrift.TException;
 
-    public int setEbgpMultihop(String peerIp, int nHops) throws org.apache.thrift.TException;
+    int setEbgpMultihop(String peerIp, int nHops) throws org.apache.thrift.TException;
 
-    public int unsetEbgpMultihop(String peerIp) throws org.apache.thrift.TException;
+    int unsetEbgpMultihop(String peerIp) throws org.apache.thrift.TException;
 
-    public int setUpdateSource(String peerIp, String srcIp) throws org.apache.thrift.TException;
+    int setUpdateSource(String peerIp, String srcIp) throws org.apache.thrift.TException;
 
-    public int unsetUpdateSource(String peerIp) throws org.apache.thrift.TException;
+    int unsetUpdateSource(String peerIp) throws org.apache.thrift.TException;
 
-    public int enableAddressFamily(String peerIp, af_afi afi, af_safi safi) throws org.apache.thrift.TException;
+    int enableAddressFamily(String peerIp, af_afi afi, af_safi safi) throws org.apache.thrift.TException;
 
-    public int disableAddressFamily(String peerIp, af_afi afi, af_safi safi) throws org.apache.thrift.TException;
+    int disableAddressFamily(String peerIp, af_afi afi, af_safi safi) throws org.apache.thrift.TException;
 
-    public int setLogConfig(String logFileName, String logLevel) throws org.apache.thrift.TException;
+    int setLogConfig(String logFileName, String logLevel) throws org.apache.thrift.TException;
 
-    public int enableGracefulRestart(int stalepathTime) throws org.apache.thrift.TException;
+    int enableGracefulRestart(int stalepathTime) throws org.apache.thrift.TException;
 
-    public int disableGracefulRestart() throws org.apache.thrift.TException;
+    int disableGracefulRestart() throws org.apache.thrift.TException;
 
-    public Routes getRoutes(int optype, int winSize) throws org.apache.thrift.TException;
+    Routes getRoutes(int optype, int winSize) throws org.apache.thrift.TException;
 
   }
 
   public interface AsyncIface {
 
-    public void startBgp(int asNumber, String routerId, int port, int holdTime, int keepAliveTime, int stalepathTime, boolean announceFbit, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void startBgp(int asNumber, String routerId, int port, int holdTime, int keepAliveTime, int stalepathTime,
+                  boolean announceFbit, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void stopBgp(int asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void stopBgp(int asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void createPeer(String ipAddress, int asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void createPeer(String ipAddress, int asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void deletePeer(String ipAddress, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void deletePeer(String ipAddress, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void addVrf(String rd, List<String> irts, List<String> erts, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void addVrf(String rd, List<String> irts, List<String> erts,
+                org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void delVrf(String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void delVrf(String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void pushRoute(String prefix, String nexthop, String rd, int label, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void pushRoute(String prefix, String nexthop, String rd, int label,
+                   org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void withdrawRoute(String prefix, String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void withdrawRoute(String prefix, String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void setEbgpMultihop(String peerIp, int nHops, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void setEbgpMultihop(String peerIp, int nHops, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void unsetEbgpMultihop(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void unsetEbgpMultihop(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void setUpdateSource(String peerIp, String srcIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void setUpdateSource(String peerIp, String srcIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void unsetUpdateSource(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void unsetUpdateSource(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void enableAddressFamily(String peerIp, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void enableAddressFamily(String peerIp, af_afi afi, af_safi safi,
+                             org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void disableAddressFamily(String peerIp, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void disableAddressFamily(String peerIp, af_afi afi, af_safi safi,
+                              org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void setLogConfig(String logFileName, String logLevel, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void setLogConfig(String logFileName, String logLevel, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void enableGracefulRestart(int stalepathTime, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void enableGracefulRestart(int stalepathTime, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void disableGracefulRestart(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void disableGracefulRestart(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void getRoutes(int optype, int winSize, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    void getRoutes(int optype, int winSize, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
   }
 
