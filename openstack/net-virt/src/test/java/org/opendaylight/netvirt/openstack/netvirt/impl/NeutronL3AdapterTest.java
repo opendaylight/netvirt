@@ -871,14 +871,14 @@ public class NeutronL3AdapterTest {
         Map<String,NeutronNetwork> networkCleanupCache = new HashMap<>();
         INeutronNetworkCRUD neutronNetworkCache = mock(INeutronNetworkCRUD.class);
         NeutronNetwork neutronNetwork = mock(NeutronNetwork.class);
-        List <NeutronNetwork> neutronNetworkList = new ArrayList<NeutronNetwork>();
+        List <NeutronNetwork> neutronNetworkList = new ArrayList<>();
         neutronNetworkList.add(neutronNetwork);
         when(neutronNetworkCache.getAllNetworks()).thenReturn(neutronNetworkList);
 
         Map<String,NeutronPort> portCleanupCache = new HashMap<>();
         INeutronPortCRUD neutronPortCache = mock(INeutronPortCRUD.class);
         NeutronPort neutronPort = mock(NeutronPort.class);
-        List <NeutronPort> neutronPortList = new ArrayList<NeutronPort>();
+        List <NeutronPort> neutronPortList = new ArrayList<>();
         neutronPortList.add(neutronPort);
         when(neutronPortCache.getAllPorts()).thenReturn(neutronPortList);
         // Mock variables
