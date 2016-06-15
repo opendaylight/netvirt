@@ -35,7 +35,7 @@ public enum StatusCode {
     UNDEFINED("Undefined Error");
 
     private String description;
-    private StatusCode(String description) {
+    StatusCode(String description) {
         this.description = description;
     }
 
