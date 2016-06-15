@@ -1168,7 +1168,9 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                     if (dstBridgeNode != null) {
                         destTunnelStatus = addTunnelPort(dstBridgeNode, networkType, dst, src);
                     }
-
+                    if ((sourceTunnelStatus == true) &&  (destTunnelStatus = true)) {
+                        LOG.info("Created src and dst TunnelPorts");
+                    }
                     if (sourceTunnelStatus) {
                         boolean isDestinNw = tenantNetworkManager.isTenantNetworkPresentInNode(dstBridgeNode, segmentationId);
                         //Check whether the network is present in src & dst node
