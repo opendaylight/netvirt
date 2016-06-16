@@ -16,6 +16,24 @@
       "revId": "2399724911850d01f436641042c58c35993d0146",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_65765f40",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SouthboundImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-06-16T18:08:04Z",
+      "side": 0,
+      "message": "Uhm...by accident? Putting it back.",
+      "parentUuid": "ba51214e_45e4fb3a",
+      "revId": "2399724911850d01f436641042c58c35993d0146",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }

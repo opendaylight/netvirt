@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_85a613c0",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-06-16T18:08:04Z",
+      "side": 1,
+      "message": "If the ping fails it returns non-zero and the assert fires. Do you mean more than that?",
+      "parentUuid": "ba51214e_45699b8a",
+      "revId": "b5093c172e45a1cb3ec0317588042ce74c57aa7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_25dd8771",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SouthboundImpl.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-06-16T17:35:39Z",
       "side": 1,
       "message": "do we need this log still :)\n\nIf so, might want to add {} for the connectioninfo and just include it as a vararg.",
+      "revId": "b5093c172e45a1cb3ec0317588042ce74c57aa7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_e599cf6f",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SouthboundImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-06-16T18:08:04Z",
+      "side": 1,
+      "message": "This is *far* from the worst debugging log statement I have left in code ;-) Removing",
+      "parentUuid": "ba51214e_25dd8771",
       "revId": "b5093c172e45a1cb3ec0317588042ce74c57aa7a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_c59e4b56",
+        "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetvirtItUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-06-16T18:08:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba51214e_25c46791",
+      "revId": "b5093c172e45a1cb3ec0317588042ce74c57aa7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_0548432c",
         "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetvirtItUtils.java",
         "patchSetId": 1
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_65c49f40",
+        "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetvirtItUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-06-16T18:08:04Z",
+      "side": 1,
+      "message": "The functionality hsa not changed with this block. It just checks first to see if the whole NotifyingDataChangeListener waiting thing can be avoided if possible. Just a little optimization. Not married to it at all, happy to revert it if you feel strongly.",
+      "parentUuid": "ba51214e_0548432c",
+      "revId": "b5093c172e45a1cb3ec0317588042ce74c57aa7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_e558affc",
         "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/PingableNeutronNetItUtil.java",
         "patchSetId": 1
@@ -81,6 +153,30 @@
       "writtenOn": "2016-06-16T17:35:39Z",
       "side": 1,
       "message": "might as well add a constant",
+      "range": {
+        "startLine": 54,
+        "startChar": 33,
+        "endLine": 54,
+        "endChar": 37
+      },
+      "revId": "b5093c172e45a1cb3ec0317588042ce74c57aa7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_25d107fc",
+        "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/PingableNeutronNetItUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-06-16T18:08:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba51214e_e558affc",
       "range": {
         "startLine": 54,
         "startChar": 33,
