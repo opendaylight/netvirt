@@ -566,14 +566,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     protected FlowEntity buildOutboundFlowEntity(BigInteger dpId, long routerId) {
         LOG.debug("NAT Service : buildOutboundFlowEntity called for dpId {} and routerId{}", dpId, routerId);
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 BigInteger.valueOf(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
 
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
@@ -630,7 +630,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     protected List<ActionInfo> getEgressActionsForInterface(String ifName, long routerId) {
         LOG.debug("NAT Service : getEgressActionsForInterface called for interface {}", ifName);
-        List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
+        List<ActionInfo> listActionInfo = new ArrayList<>();
         try {
             Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
                 interfaceManager.getEgressActionsForInterface(
@@ -695,15 +695,15 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         LOG.debug("NAT Service : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}", dpId, routerName, groupId );
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 BigInteger.valueOf(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
 
 
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        List<ActionInfo> actionsInfo = new ArrayList<ActionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfo = new ArrayList<>();
 
         ActionInfo actionSetField = new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {
                         BigInteger.valueOf(routerId)}) ;
@@ -755,12 +755,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private FlowEntity buildTsFlowEntity(BigInteger dpId, String routerName) {
 
         BigInteger routerId = BigInteger.valueOf (NatUtil.getVpnId(dataBroker, routerName));
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.tunnel_id, new  BigInteger[] {routerId }));
 
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[]
                 { routerId, MetaDataUtil.METADATA_MASK_VRFID }));
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]
@@ -823,7 +823,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("NAT Service : Installing SNAT miss entry in switch {}", dpnId);
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
         String ifNamePrimary = getTunnelInterfaceName( dpnId, primarySwitchId);
-        List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+        List<BucketInfo> listBucketInfo = new ArrayList<>();
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
 
         if(ifNamePrimary != null) {
@@ -860,8 +860,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             LOG.debug("NAT Service : Installing SNAT miss entry in Primary NAPT switch {} ", dpnId);
 
 /*
-            List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
-            List<ActionInfo> listActionInfoPrimary =  new ArrayList<ActionInfo>();
+            List<BucketInfo> listBucketInfo = new ArrayList<>();
+            List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
             listActionInfoPrimary.add(new ActionInfo(ActionType.nx_resubmit, new String[]{String.valueOf(NatConstants.TERMINATING_SERVICE_TABLE)}));
             BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
             listBucketInfo.add(0, bucketPrimary);
@@ -898,7 +898,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     public FlowEntity buildNaptPfibFlowEntity(BigInteger dpId, long segmentId) {
 
         LOG.debug("NAT Service : buildNaptPfibFlowEntity is called for dpId {}, segmentId {}", dpId, segmentId );
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
@@ -1021,13 +1021,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
      }
 
     private void makeLFibTableEntry(BigInteger dpId, long serviceId, long tableId) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[]{0x8847L}));
         matches.add(new MatchInfo(MatchFieldType.mpls_label, new String[]{Long.toString(serviceId)}));
 
-        List<Instruction> instructions = new ArrayList<Instruction>();
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        List<Instruction> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
         Instruction writeInstruction = new InstructionInfo(InstructionType.apply_actions, actionsInfos).buildInstruction(0);
         instructions.add(writeInstruction);
@@ -1046,7 +1046,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     private void makeTunnelTableEntry(BigInteger dpnId, long serviceId, List<Instruction> customInstructions) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
 
         LOG.debug("NAT Service : Create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", dpnId , serviceId);
 
@@ -1726,7 +1726,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
                 //Remove the group entry which forwards the traffic to the out port (VXLAN tunnel).
                 long groupId = createGroupId(getGroupIdKey(routerName));
-                List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+                List<BucketInfo> listBucketInfo = new ArrayList<>();
                 GroupEntity pSNatGroupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll, listBucketInfo);
 
                 LOG.info("NAT Service : Remove the group {} for the non active switch with the DPN ID {} and router ID {}", groupId, dpnId, routerId);
@@ -1937,7 +1937,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     private void removeTunnelTableEntry(BigInteger dpnId, long serviceId) {
         LOG.info("NAT Service : remove terminatingServiceActions called with DpnId = {} and label = {}", dpnId , serviceId);
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(serviceId)}));
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
@@ -1949,7 +1949,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     private void removeLFibTableEntry(BigInteger dpnId, long serviceId) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x8847L }));
         matches.add(new MatchInfo(MatchFieldType.mpls_label, new String[]{Long.toString(serviceId)}));

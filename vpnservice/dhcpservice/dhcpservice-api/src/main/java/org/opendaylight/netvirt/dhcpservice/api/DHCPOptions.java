@@ -72,7 +72,7 @@ public class DHCPOptions {
     private LinkedHashMap<Byte, DhcpOption> options;
 
     public DHCPOptions() {
-        options = new LinkedHashMap<Byte, DhcpOption>();
+        options = new LinkedHashMap<>();
     }
 
     private void setOption(DhcpOption opt) {

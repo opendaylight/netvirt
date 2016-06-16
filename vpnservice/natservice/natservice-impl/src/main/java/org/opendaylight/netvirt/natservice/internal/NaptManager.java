@@ -230,7 +230,7 @@ public class NaptManager  {
                   *        b) Nothing worked return error
                   */
                  SubnetUtils externalIpSubnet;
-                 List<String> allIps = new ArrayList<String>();
+                 List<String> allIps = new ArrayList<>();
                  String subnetPrefix = "/" + String.valueOf(NatConstants.DEFAULT_PREFIX);
                  if( !externalIp.contains(subnetPrefix) ) {
                     EXTSUBNET_FLAG = true;

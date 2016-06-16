@@ -610,7 +610,7 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         }
         BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         String phyAddress = interfaceState==null ? "":interfaceState.getPhysAddress().getValue();
-        pair = new ImmutablePair<BigInteger, String>(dpId, phyAddress);
+        pair = new ImmutablePair<>(dpId, phyAddress);
         dhcpMgr.updateInterfaceCache(interfaceName, pair);
         return pair;
     }

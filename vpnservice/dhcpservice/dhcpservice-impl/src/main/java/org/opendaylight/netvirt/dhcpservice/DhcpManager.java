@@ -40,7 +40,7 @@ public class DhcpManager implements AutoCloseable {
     private String dhcpOptDefDomainName;
     private INeutronVpnManager neutronVpnService;
     // cache used to maintain DpnId and physical address for each interface.
-    private static HashMap<String, ImmutablePair<BigInteger, String>> interfaceToDpnIdMacAddress = new HashMap<String, ImmutablePair<BigInteger, String>>();
+    private static HashMap<String, ImmutablePair<BigInteger, String>> interfaceToDpnIdMacAddress = new HashMap<>();
 
     /**
     * @param db - dataBroker reference
@@ -132,8 +132,8 @@ public class DhcpManager implements AutoCloseable {
     }
 
     public void setupTableMissForDhcpTable(BigInteger dpId) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
+        List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.LPORT_DISPATCHER_TABLE }));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DHCP_TABLE, "DHCPTableMissFlow",
@@ -144,8 +144,8 @@ public class DhcpManager implements AutoCloseable {
     }
 
     private void setupTableMissForHandlingExternalTunnel(BigInteger dpId) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
+        List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.EXTERNAL_TUNNEL_TABLE }));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL, "DHCPTableMissFlowForExternalTunnel",

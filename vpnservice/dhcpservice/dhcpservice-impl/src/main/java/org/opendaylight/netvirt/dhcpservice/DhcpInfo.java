@@ -64,7 +64,7 @@ public class DhcpInfo  {
 
     protected DhcpInfo addDnsServer(String dnsServerIp) {
         if(_dnsServers == null) {
-            _dnsServers = new ArrayList<String>();
+            _dnsServers = new ArrayList<>();
         }
         _dnsServers.add(dnsServerIp);
         return this;

@@ -188,7 +188,7 @@ public class NeutronvpnUtils {
     protected static List<Uuid> getNeutronRouterSubnetIds(DataBroker broker, Uuid routerId) {
         logger.info("getNeutronRouterSubnetIds for {}", routerId.getValue());
 
-        List<Uuid> subnetIdList = new ArrayList<Uuid>();
+        List<Uuid> subnetIdList = new ArrayList<>();
         Ports ports = getNeutrounPorts(broker);
         if(ports != null && ports.getPort() != null) {
             for (Port port: ports.getPort()) {

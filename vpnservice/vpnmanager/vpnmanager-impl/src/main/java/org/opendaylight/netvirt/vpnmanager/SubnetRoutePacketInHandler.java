@@ -288,7 +288,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             arpPacket = createARPPacket(ARP.REQUEST, abySenderMAC, abySenderIpAddress, VpnConstants.MAC_Broadcast,
                     abyTargetIpAddress);
             ethPacket = createEthernetPacket(abySenderMAC, VpnConstants.EthernetDestination_Broadcast, arpPacket);
-            lstActionInfo = new ArrayList<ActionInfo>();
+            lstActionInfo = new ArrayList<>();
             lstActionInfo.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));
             transmitPacketInput = MDSALUtil.getPacketOutDefault(lstActionInfo, ethPacket, dpnId);
             packetService.transmitPacket(transmitPacketInput);
