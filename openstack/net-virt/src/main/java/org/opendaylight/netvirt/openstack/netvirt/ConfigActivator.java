@@ -106,6 +106,7 @@ public class ConfigActivator implements BundleActivator {
     private List<Pair<Object, ServiceRegistration>> servicesAndRegistrations = new ArrayList<>();
     private ProviderContext providerContext;
     private boolean conntrackEnabled = false;
+    private boolean intBridgeGenMac = true;
 
     public ConfigActivator(ProviderContext providerContext) {
         this.providerContext = providerContext;
@@ -120,7 +121,7 @@ public class ConfigActivator implements BundleActivator {
         registerService(context, new String[] {ConfigurationService.class.getName()},
                 null, configurationService);
 
-        BridgeConfigurationManagerImpl bridgeConfigurationManager = new BridgeConfigurationManagerImpl();
+        BridgeConfigurationManagerImpl bridgeConfigurationManager = new BridgeConfigurationManagerImpl(intBridgeGenMac);
         registerService(context, new String[] {BridgeConfigurationManager.class.getName()},
                 null, bridgeConfigurationManager);
 
@@ -344,5 +345,9 @@ public class ConfigActivator implements BundleActivator {
 
     public void setConntrackEnabled(boolean conntrackEnabled) {
         this.conntrackEnabled = conntrackEnabled;
+    }
+
+    public void setIntBridgeGenMac(boolean intBridgeGenMac) {
+        this.intBridgeGenMac = intBridgeGenMac;
     }
 }

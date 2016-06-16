@@ -35,6 +35,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osgi.framework.ServiceReference;
@@ -53,6 +54,17 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
     private volatile ConfigurationService configurationService;
     private volatile NetworkingProviderManager networkingProviderManager;
     private volatile Southbound southbound;
+    private boolean intBridgeGenMac;
+    private Random random;
+
+    public BridgeConfigurationManagerImpl() {
+        this(true);
+    }
+
+    public BridgeConfigurationManagerImpl(boolean intBridgeGenMac) {
+        this.intBridgeGenMac = intBridgeGenMac;
+        this.random = new Random(System.currentTimeMillis());
+    }
 
     public void setConfigurationService(ConfigurationService configurationService) {
         this.configurationService = configurationService;
@@ -301,17 +313,37 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
     private boolean createIntegrationBridge(Node ovsdbNode) {
         Preconditions.checkNotNull(configurationService);
 
-        if (!addBridge(ovsdbNode, configurationService.getIntegrationBridgeName())) {
+        if (!addBridge(ovsdbNode, configurationService.getIntegrationBridgeName(),
+                                            intBridgeGenMac ? generateRandomMac() : null)) {
             LOG.debug("Integration Bridge Creation failed");
             return false;
         }
         return true;
     }
 
+    private String generateRandomMac() {
+        byte[] macBytes = new byte[6];
+        random.nextBytes(macBytes);
+        macBytes[0] &= 0xfc; //the two low bits of the first byte need to be zero
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        int i = 0;
+        while(true) {
+            stringBuilder.append(String.format("%02x", macBytes[i++]));
+            if (i >= 6) {
+                break;
+            }
+            stringBuilder.append(':');
+        }
+
+        return stringBuilder.toString();
+    }
+
     private boolean createExternalBridge(Node ovsdbNode) {
         Preconditions.checkNotNull(configurationService);
 
-        if (!addBridge(ovsdbNode, configurationService.getExternalBridgeName())) {
+        if (!addBridge(ovsdbNode, configurationService.getExternalBridgeName(), null)) {
             LOG.debug("External Bridge Creation failed");
             return false;
         }
@@ -481,7 +513,7 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
     /**
      * Add Bridge to a Node
      */
-    private boolean addBridge(Node ovsdbNode, String bridgeName) {
+    private boolean addBridge(Node ovsdbNode, String bridgeName, String mac) {
         boolean rv = true;
         if ((!southbound.isBridgeOnOvsdbNode(ovsdbNode, bridgeName)) ||
                 (southbound.getBridgeFromConfig(ovsdbNode, bridgeName) == null)) {
@@ -489,7 +521,7 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
             if (configurationService.isUserSpaceEnabled()) {
                 dpType = DatapathTypeNetdev.class;
             }
-            rv = southbound.addBridge(ovsdbNode, bridgeName, getControllersFromOvsdbNode(ovsdbNode), dpType);
+            rv = southbound.addBridge(ovsdbNode, bridgeName, getControllersFromOvsdbNode(ovsdbNode), dpType, mac);
         }
         return rv;
     }
