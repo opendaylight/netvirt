@@ -16,6 +16,24 @@
       "revId": "2399724911850d01f436641042c58c35993d0146",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_eab6be89",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-06-16T16:47:40Z",
+      "side": 1,
+      "message": "Because we really only need it now for the integration bridge. That\u0027s why I stuck it here.",
+      "parentUuid": "ba51214e_4a69aa8a",
+      "revId": "2399724911850d01f436641042c58c35993d0146",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
