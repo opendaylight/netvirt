@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_511de1bc",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-16T12:15:10Z",
+      "side": 1,
+      "message": "Can you add the TODO comment in the code? This is from an earlier comment from Vishal.",
+      "revId": "178ff91d2611594c4454d103506306abc5a1ff62",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
