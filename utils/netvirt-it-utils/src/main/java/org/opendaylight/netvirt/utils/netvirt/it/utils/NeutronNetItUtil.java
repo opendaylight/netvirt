@@ -8,9 +8,10 @@
 
 package org.opendaylight.netvirt.utils.netvirt.it.utils;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Vector;
 
 import com.google.common.collect.Maps;
 import org.junit.Assert;
@@ -40,7 +41,29 @@ public class NeutronNetItUtil {
 
     public SouthboundUtils southboundUtils;
     public NeutronUtils neutronUtils;
-    public Vector<NeutronPort> neutronPorts = new Vector();
+
+    /**
+     * Information about a port created using createPort() - fields should be pretty self explanatory
+     */
+    public class PortInfo {
+        public PortInfo(String name, long ofPort) {
+            this.name = name;
+            this.ofPort = ofPort;
+            this.ip = ipFor(ofPort);
+            this.mac = macFor(ofPort);
+        }
+
+        public String name;
+        public NeutronPort neutronPort;
+        public String ip;
+        public String mac;
+        public long ofPort;
+    }
+
+    /**
+     * Maps port names (the ones you pass in to createPort() to their PortInfo objects
+     */
+    public Map<String, PortInfo> portInfoByName = new HashMap<String, PortInfo>();
 
     /**
      * Construct a new NeutronNetItUtil.
@@ -48,7 +71,7 @@ public class NeutronNetItUtil {
      * @param tenantId tenant ID
      */
     public NeutronNetItUtil(SouthboundUtils southboundUtils, String tenantId) {
-        this(southboundUtils, tenantId, "101", "f7:00:00:0f:00:", "10.0.0.", "10.0.0.0/24");
+        this(southboundUtils, tenantId, "101", "f4:00:00:0f:00:", "10.0.0.", "10.0.0.0/24");
     }
 
     /**
@@ -89,10 +112,13 @@ public class NeutronNetItUtil {
      * Clean up all created neutron objects.
      */
     public void destroy() {
-        for (NeutronPort port : neutronPorts) {
-            neutronUtils.removeNeutronPort(port.getID());
+        for (PortInfo portInfo : portInfoByName.values()) {
+            neutronUtils.removeNeutronPort(portInfo.neutronPort.getID());
         }
-        neutronPorts.clear();
+        //TODO: probably more polite to clean up everything else as well...
+        //TODO: for now just assume that the docker image will be recreated
+        //TODO: before each test
+        portInfoByName.clear();
 
         if (neutronSubnet != null) {
             neutronUtils.removeNeutronSubnet(neutronSubnet.getID());
@@ -111,7 +137,7 @@ public class NeutronNetItUtil {
      * @param portName name for this port
      * @throws InterruptedException if we're interrupted while waiting for objects to be created
      */
-    public void createPort(Node bridge, String portName) throws InterruptedException {
+    public void createPort(Node bridge, String portName) throws InterruptedException, IOException {
         createPort(bridge, portName, "compute:None");
     }
 
@@ -123,21 +149,36 @@ public class NeutronNetItUtil {
      * @param secGroups Optional NeutronSecurityGroup objects see NeutronUtils.createNeutronSecurityGroup()
      * @throws InterruptedException if we're interrupted while waiting for objects to be created
      */
-    public void createPort(Node bridge, String portName, String owner, NeutronSecurityGroup... secGroups) throws InterruptedException {
-        long idx = neutronPorts.size() + 1;
+    public void createPort(Node bridge, String portName, String owner, NeutronSecurityGroup... secGroups)
+                                                                            throws InterruptedException, IOException {
+        PortInfo portInfo = buildPortInfo(portName);
+        doCreatePort(bridge, portInfo, owner, "internal", secGroups);
+    }
+
+    protected PortInfo buildPortInfo(String portName) {
+        Assert.assertFalse("Can't have two ports with the same name", portInfoByName.containsKey(portName));
+
+        long idx = portInfoByName.size() + 1;
         Assert.assertTrue(idx < 256);
-        String mac = macFor(idx);
-        String ip = ipFor(idx);
+        return new PortInfo(portName, idx);
+    }
+
+    protected void doCreatePort(Node bridge, PortInfo portInfo, String owner,
+                                String portType, NeutronSecurityGroup ... secGroups) throws InterruptedException {
+
         String portId = UUID.randomUUID().toString();
-        neutronPorts.add(neutronUtils.createNeutronPort(id, subnetId, portId, owner, ip, mac, secGroups));
+        portInfo.neutronPort = neutronUtils.createNeutronPort(
+                id, subnetId, portId, owner, portInfo.ip, portInfo.mac, secGroups);
 
         //TBD: Use NotifyingDataChangeListener
         Thread.sleep(1000);
 
         Map<String, String> externalIds = Maps.newHashMap();
-        externalIds.put("attached-mac", mac);
+        externalIds.put("attached-mac", portInfo.mac);
         externalIds.put("iface-id", portId);
-        southboundUtils.addTerminationPoint(bridge, portName, "internal", null, externalIds, idx);
+        southboundUtils.addTerminationPoint(bridge, portInfo.name, portType, null, externalIds, portInfo.ofPort);
+
+        portInfoByName.put(portInfo.name, portInfo);
     }
 
     /**
@@ -146,7 +187,7 @@ public class NeutronNetItUtil {
      * @return the mac address
      */
     public String macFor(long portNum) {
-        return macPfx + String.format("%02x", portNum);
+        return macPfx + String.format("%02x", 5 - portNum);
     }
 
     /**
