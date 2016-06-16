@@ -1666,7 +1666,7 @@ public class MatchUtils {
                 break;
             }
         }
-        Map<Integer,Integer> portMap = new HashMap<Integer,Integer>();
+        Map<Integer,Integer> portMap = new HashMap<>();
         int tempMedian = 0;
         int currentMedain = median;
         for (int tempMedianOffset = medianOffset;16 > tempMedianOffset;tempMedianOffset++) {
