@@ -161,7 +161,7 @@ public class ExternalNetworkListener extends AbstractDataChangeListener<Networks
             for (VpnToDpnList dpn : dpnListInVpn) {
                 BigInteger dpnId = dpn.getDpnId();
                 long vpnId = NatUtil.readVpnId(broker, vpnInstOp.get().getVrfId());
-                if (create == true) {
+                if (create) {
                     installDefNATRouteInDPN(dpnId, vpnId);
                 } else {
                     removeDefNATRouteInDPN(dpnId, vpnId);

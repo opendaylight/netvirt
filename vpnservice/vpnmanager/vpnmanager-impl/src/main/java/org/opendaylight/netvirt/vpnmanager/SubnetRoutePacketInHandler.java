@@ -141,7 +141,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 if (pkt instanceof ARP) {
                     s_logger.debug("SubnetRoutePacketInHandler: ARP packet received");
                     ARP arpPacket = (ARP) pkt;
-                    boolean arpReply = (arpPacket.getOpCode() == 2) ? true : false;
+                    boolean arpReply = (arpPacket.getOpCode() == 2);
                     if (arpReply) {
                         //Handle subnet routes arp responses
                         s_logger.debug("SubnetRoutePacketInHandler: ARP reply received");
