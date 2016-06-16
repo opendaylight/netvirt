@@ -87,6 +87,7 @@ public class NetvirtItUtils {
                 FlowUtils.createNodeBuilder(datapathId);
         FlowBuilder flowBuilder =
                 FlowUtils.initFlowBuilder(new FlowBuilder(), flowId, table);
+
         InstanceIdentifier<Flow> iid = FlowUtils.createFlowPath(flowBuilder, nodeBuilder);
 
         NotifyingDataChangeListener waitForIt = new NotifyingDataChangeListener(LogicalDatastoreType.CONFIGURATION,
