@@ -185,6 +185,7 @@ public class SouthboundImpl implements Southbound {
 
         LOG.info("addBridge: node: {}, bridgeName: {}, controller(s): {}", ovsdbNode, bridgeName, controllersStr);
         ConnectionInfo connectionInfo = getConnectionInfo(ovsdbNode);
+        LOG.warn("JOSH please god let this work {}", System.getProperty("int.br.mac." + connectionInfo.toString()));
         if (connectionInfo != null) {
             NodeBuilder bridgeNodeBuilder = new NodeBuilder();
             InstanceIdentifier<Node> bridgeIid =
@@ -218,8 +219,8 @@ public class SouthboundImpl implements Southbound {
             }
             bridgeNodeBuilder.addAugmentation(OvsdbBridgeAugmentation.class, ovsdbBridgeAugmentationBuilder.build());
 
-            result = mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, bridgeIid, bridgeNodeBuilder.build());
-            LOG.info("addBridge: result: {}", result);
+            Node node = bridgeNodeBuilder.build();
+            result = mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, bridgeIid, node);
         } else {
             throw new InvalidParameterException("Could not find ConnectionInfo");
         }

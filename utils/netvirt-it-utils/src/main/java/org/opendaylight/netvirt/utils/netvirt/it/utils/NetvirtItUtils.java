@@ -87,6 +87,12 @@ public class NetvirtItUtils {
                 FlowUtils.createNodeBuilder(datapathId);
         FlowBuilder flowBuilder =
                 FlowUtils.initFlowBuilder(new FlowBuilder(), flowId, table);
+
+        if(null != FlowUtils.getFlow(flowBuilder, nodeBuilder,
+                dataBroker.newReadOnlyTransaction(), LogicalDatastoreType.OPERATIONAL)) {
+            return;
+        }
+
         InstanceIdentifier<Flow> iid = FlowUtils.createFlowPath(flowBuilder, nodeBuilder);
 
         NotifyingDataChangeListener waitForIt = new NotifyingDataChangeListener(LogicalDatastoreType.CONFIGURATION,
