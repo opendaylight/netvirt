@@ -32,6 +32,7 @@ public class NetvirtProvider implements BindingAwareProvider, AutoCloseable {
     private static final Entity ownerInstanceEntity = new Entity(
             Constants.NETVIRT_OWNER_ENTITY_TYPE, Constants.NETVIRT_OWNER_ENTITY_TYPE);
     private boolean conntrackEnabled = false;
+    private boolean intBridgeGenMac;
 
     public NetvirtProvider(BundleContext bundleContext, EntityOwnershipService eos) {
         LOG.info("NetvirtProvider: bundleContext: {}", bundleContext);
@@ -68,6 +69,7 @@ public class NetvirtProvider implements BindingAwareProvider, AutoCloseable {
         LOG.info("NetvirtProvider: onSessionInitiated isConntrackEnabled: {}", this.conntrackEnabled);
         this.activator = new ConfigActivator(providerContext);
         activator.setConntrackEnabled(this.conntrackEnabled);
+        activator.setIntBridgeGenMac(this.intBridgeGenMac);
         try {
             activator.start(bundleContext);
         } catch (Exception e) {
@@ -81,5 +83,13 @@ public class NetvirtProvider implements BindingAwareProvider, AutoCloseable {
 
     public void setConntrackEnabled(boolean conntackEnabled) {
         this.conntrackEnabled = conntackEnabled;
+    }
+
+    public boolean getIntBridgeGenMac() {
+        return intBridgeGenMac;
+    }
+
+    public void setIntBridgeGenMac(boolean intBridgeGenMac) {
+        this.intBridgeGenMac = intBridgeGenMac;
     }
 }
