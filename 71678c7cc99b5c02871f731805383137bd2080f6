@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_94be40fe",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-17T13:28:13Z",
+      "side": 1,
+      "message": "checkstyle will want a space\n\nDo we need to check for getFixedIps !\u003d null",
+      "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_74bbac0e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-17T13:28:13Z",
+      "side": 1,
+      "message": "what is the // for?\n\ncheckstyle will expect 8 spaces for the following indent",
+      "range": {
+        "startLine": 363,
+        "startChar": 121,
+        "endLine": 363,
+        "endChar": 123
+      },
+      "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_d488b824",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-17T13:28:13Z",
+      "side": 1,
+      "message": "There are test mocks provided which should allow you to remove much of the mocking and improve the setup. They are AbstractDataChangeListenerTest and AbstractDataBrokerTest.\n\nBgpManagerTest and NeutronFloatingIPInterfaceTest are both examples.",
+      "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_b48d4434",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-17T13:28:13Z",
+      "side": 1,
+      "message": "this could be replaced with the test mocks.",
+      "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_547ca820",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-17T13:28:13Z",
+      "side": 1,
+      "message": "any plan to add asserts to verify the code works?",
+      "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_d43718af",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-17T13:28:13Z",
+      "side": 1,
+      "message": "white space",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 4
+      },
+      "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
