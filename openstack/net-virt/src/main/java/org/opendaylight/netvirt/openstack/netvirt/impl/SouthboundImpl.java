@@ -176,6 +176,11 @@ public class SouthboundImpl implements Southbound {
 
     public boolean addBridge(Node ovsdbNode, String bridgeName, List<String> controllersStr,
                              final Class<? extends DatapathTypeBase> dpType) {
+        return addBridge(ovsdbNode, bridgeName, controllersStr, dpType, null);
+    }
+
+    public boolean addBridge(Node ovsdbNode, String bridgeName, List<String> controllersStr,
+                             final Class<? extends DatapathTypeBase> dpType, String mac) {
         boolean result;
 
         LOG.info("addBridge: node: {}, bridgeName: {}, controller(s): {}", ovsdbNode, bridgeName, controllersStr);
@@ -197,6 +202,12 @@ public class SouthboundImpl implements Southbound {
             bridgeOtherConfigsBuilder.setBridgeOtherConfigValue("true");
             List<BridgeOtherConfigs> bridgeOtherConfigsList = new ArrayList<>();
             bridgeOtherConfigsList.add(bridgeOtherConfigsBuilder.build());
+            if (mac != null) {
+                BridgeOtherConfigsBuilder macOtherConfigBuilder = new BridgeOtherConfigsBuilder();
+                macOtherConfigBuilder.setBridgeOtherConfigKey("hwaddr");
+                macOtherConfigBuilder.setBridgeOtherConfigValue(mac);
+                bridgeOtherConfigsList.add(macOtherConfigBuilder.build());
+            }
             ovsdbBridgeAugmentationBuilder.setBridgeOtherConfigs(bridgeOtherConfigsList);
             setManagedByForBridge(ovsdbBridgeAugmentationBuilder, ovsdbNode.getKey());
             if (dpType != null) {

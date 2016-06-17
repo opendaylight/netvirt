@@ -38,7 +38,9 @@ public interface Southbound {
     String getOvsdbNodeUUID(Node node);
     String getOsdbNodeExternalIdsValue(OvsdbNodeAugmentation ovsdbNodeAugmentation, String key);
     boolean addBridge(Node ovsdbNode, String bridgeName, List<String> controllersStr,
-                      final Class<? extends DatapathTypeBase> dpType);
+                                                      final Class<? extends DatapathTypeBase> dpType);
+    boolean addBridge(Node ovsdbNode, String bridgeName, List<String> controllersStr,
+                                                      final Class<? extends DatapathTypeBase> dpType, String mac);
     boolean deleteBridge(Node ovsdbNode);
     OvsdbBridgeAugmentation readBridge(Node node, String name);
     Node readBridgeNode(Node node, String name);

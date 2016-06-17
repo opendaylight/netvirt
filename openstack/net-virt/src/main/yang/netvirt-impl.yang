@@ -42,6 +42,10 @@ module netvirt-impl {
             leaf conntrack-enabled {
                 type boolean;
             }
+
+            leaf int-bridge-gen-mac {
+                type boolean;
+            }
         }
     }
 }
