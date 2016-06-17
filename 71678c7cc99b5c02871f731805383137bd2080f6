@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_944e40c0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-17T14:15:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba51214e_94be40fe",
+      "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_74bbac0e",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_744bacb0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-17T14:15:39Z",
+      "side": 1,
+      "message": "the \"//\" is to enforce the editor to break the line at this point and not create a long line.\nwither way i removed that.",
+      "parentUuid": "ba51214e_74bbac0e",
+      "range": {
+        "startLine": 363,
+        "startChar": 121,
+        "endLine": 363,
+        "endChar": 123
+      },
+      "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_d488b824",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
         "patchSetId": 2
@@ -53,6 +95,24 @@
       "writtenOn": "2016-06-17T13:28:13Z",
       "side": 1,
       "message": "There are test mocks provided which should allow you to remove much of the mocking and improve the setup. They are AbstractDataChangeListenerTest and AbstractDataBrokerTest.\n\nBgpManagerTest and NeutronFloatingIPInterfaceTest are both examples.",
+      "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_b41704a3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-17T14:15:39Z",
+      "side": 1,
+      "message": "this abstract classes are not available in this project.\nin order to use them we will need to add \n\u003cdependency\u003e\n      \u003cgroupId\u003eorg.opendaylight.controller\u003c/groupId\u003e\n      \u003cartifactId\u003esal-binding-broker-impl\u003c/artifactId\u003e\n      \u003ctype\u003etest-jar\u003c/type\u003e\n      \u003cscope\u003etest\u003c/scope\u003e\n    \u003c/dependency\u003e\n\nto the project pom.xml\n\ni didn\u0027t want to go there in my first commit to this project, give me a while in i\u0027ll do :)",
+      "parentUuid": "ba51214e_d488b824",
       "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +153,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_546dc831",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-17T14:15:39Z",
+      "side": 1,
+      "message": "these unit-tests was aimed verifying the NPE so in case we didn\u0027t got an exception it means we are ok.\ni agree that we should enlarge the coverage and cover more assertions. if you think that i should add something specific for this flow let me know and i\u0027ll add it",
+      "parentUuid": "ba51214e_547ca820",
+      "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_d43718af",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
         "patchSetId": 2
@@ -104,6 +182,30 @@
       "writtenOn": "2016-06-17T13:28:13Z",
       "side": 1,
       "message": "white space",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 4
+      },
+      "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_34513463",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-17T14:15:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba51214e_d43718af",
       "range": {
         "startLine": 99,
         "startChar": 0,
