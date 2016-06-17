@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_f4cfbcae",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-17T12:31:13Z",
+      "side": 1,
+      "message": "I can\u0027t seem to find the assert(ping) on 0",
+      "parentUuid": "ba51214e_85a613c0",
+      "revId": "b5093c172e45a1cb3ec0317588042ce74c57aa7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_25dd8771",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SouthboundImpl.java",
         "patchSetId": 1
@@ -136,6 +154,24 @@
       "side": 1,
       "message": "The functionality hsa not changed with this block. It just checks first to see if the whole NotifyingDataChangeListener waiting thing can be avoided if possible. Just a little optimization. Not married to it at all, happy to revert it if you feel strongly.",
       "parentUuid": "ba51214e_0548432c",
+      "revId": "b5093c172e45a1cb3ec0317588042ce74c57aa7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_74e44c3b",
+        "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetvirtItUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-17T12:31:13Z",
+      "side": 1,
+      "message": "Not sure if there is much of an optimization here or if it does what I think. The verify looks for the configuration first - since that has to happen before the operational can even be done. And we use the notify so we are not polling.\n\nSeems like with this block we would likely return and not really verify since the operational takes the longest to be written to mdsal.",
+      "parentUuid": "ba51214e_65c49f40",
       "revId": "b5093c172e45a1cb3ec0317588042ce74c57aa7a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
