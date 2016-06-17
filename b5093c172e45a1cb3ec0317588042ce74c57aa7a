@@ -178,6 +178,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_54d148fa",
+        "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetvirtItUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-06-17T13:45:47Z",
+      "side": 1,
+      "message": "Killed it in a new patch set.",
+      "parentUuid": "ba51214e_74e44c3b",
+      "revId": "b5093c172e45a1cb3ec0317588042ce74c57aa7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_e558affc",
         "filename": "utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/PingableNeutronNetItUtil.java",
         "patchSetId": 1
