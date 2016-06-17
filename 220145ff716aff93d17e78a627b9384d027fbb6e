@@ -1,0 +1,344 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_7ba0bef4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give a single space before brace.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_dba58a05",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give single space before brace.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_bbaa56d2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give single space before brace.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_1baf02e5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give single space before brace.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_fbab2ed4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give single space before brace.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_5bb97a2d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give single space before brace.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_3bb6463e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give single space before brace.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_9b82f250",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give single space before brace.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_7b871e62",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give single space before brace.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_bb81b64c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give single space before brace.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_1b96e294",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give single space before brace.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_fb920e9e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give single space before brace.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_5be7ba40",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpConfigureCommand.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give single space after if.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_7bd55e42",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpConfigureCommand.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "system.out.println statement? as per code guideline shouldn\u0027t use.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_9bd03255",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpConfigureCommand.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "system.out.println statement? as per code guideline shouldn\u0027t use.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_fbd96e84",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpConfigureCommand.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "Please give single space after if.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_dbcaaaa0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpShowCommand.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "system.out.println statement? as per code guideline shouldn\u0027t use.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_bbcff6af",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpShowCommand.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "system.out.println statement? as per code guideline shouldn\u0027t use.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_1bc42291",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpShowCommand.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "system.out.println statement? as per code guideline shouldn\u0027t use.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_fbc04e7e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpShowCommand.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-17T05:55:26Z",
+      "side": 1,
+      "message": "system.out.println statement? as per code guideline shouldn\u0027t use.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
