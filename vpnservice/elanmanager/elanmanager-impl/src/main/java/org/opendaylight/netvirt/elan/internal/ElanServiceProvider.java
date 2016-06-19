@@ -51,6 +51,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstanceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface.EtreeInterfaceType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
@@ -329,6 +334,37 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         return isSuccess;
     }
 
+    @Override
+    public boolean createEtreeInstance(String elanInstanceName, long macTimeout, String description) {
+        ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(elanInstanceName);
+        boolean isSuccess = true;
+        if (existingElanInstance != null) {
+            if (compareWithExistingElanInstance(existingElanInstance, macTimeout, description)) {
+                logger.warn("Etree Instance is already present in the Operational DS {}", existingElanInstance);
+                return true;
+            } else {
+                EtreeInstance etreeInstance = new EtreeInstanceBuilder().build();
+                ElanInstance updateElanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
+                        .setDescription(description).setMacTimeout(macTimeout)
+                        .setKey(new ElanInstanceKey(elanInstanceName))
+                        .addAugmentation(EtreeInstance.class, etreeInstance).build();
+                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
+                        ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName), updateElanInstance);
+                logger.debug("Updating the Etree Instance {} with MAC TIME-OUT %l and Description %s ",
+                        updateElanInstance, macTimeout, description);
+            }
+        } else {
+            EtreeInstance etreeInstance = new EtreeInstanceBuilder().build();
+            ElanInstance elanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
+                    .setMacTimeout(macTimeout).setDescription(description).setKey(new ElanInstanceKey(elanInstanceName))
+                    .addAugmentation(EtreeInstance.class, etreeInstance).build();
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
+                    ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstance);
+            logger.debug("Creating the new Etree Instance {}", elanInstance);
+        }
+        return isSuccess;
+    }
+
     public static boolean compareWithExistingElanInstance(ElanInstance existingElanInstance, long macTimeOut,
             String description) {
         boolean isEqual = false;
@@ -345,6 +381,11 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
     }
 
     @Override
+    public boolean deleteEtreeInstance(String etreeInstanceName) {
+        return deleteElanInstance(etreeInstanceName);
+    }
+
+    @Override
     public boolean deleteElanInstance(String elanInstanceName) {
         boolean isSuccess = false;
         ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(elanInstanceName);
@@ -357,6 +398,30 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
                 ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName));
         isSuccess = true;
         return isSuccess;
+    }
+
+    @Override
+    public void addEtreeInterface(String etreeInstanceName, String interfaceName, EtreeInterfaceType interfaceType,
+            List<String> staticMacAddresses, String description) {
+        ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(etreeInstanceName);
+        if (existingElanInstance != null && existingElanInstance.getAugmentation(EtreeInstance.class) != null) {
+            EtreeInterface etreeInterface = new EtreeInterfaceBuilder().setEtreeInterfaceType(interfaceType).build();
+            ElanInterface elanInterface;
+            if (staticMacAddresses == null) {
+                elanInterface = new ElanInterfaceBuilder().setElanInstanceName(etreeInstanceName)
+                        .setDescription(description).setName(interfaceName).setKey(new ElanInterfaceKey(interfaceName))
+                        .addAugmentation(EtreeInterface.class, etreeInterface).build();
+            } else {
+                elanInterface = new ElanInterfaceBuilder().setElanInstanceName(etreeInstanceName)
+                        .setDescription(description).setName(interfaceName)
+                        .setStaticMacEntries(getPhysAddress(staticMacAddresses))
+                        .setKey(new ElanInterfaceKey(interfaceName))
+                        .addAugmentation(EtreeInterface.class, etreeInterface).build();
+            }
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
+                    ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName), elanInterface);
+            logger.debug("Creating the new Etree Interface {}", elanInterface);
+        }
     }
 
     @Override
@@ -379,7 +444,6 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName), elanInterface);
             logger.debug("Creating the new ELan Interface {}", elanInterface);
         }
-
     }
 
     @Override
@@ -400,6 +464,12 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName), elanInterface);
         }
+    }
+
+    @Override
+    public void deleteEtreeInterface(String elanInstanceName, String interfaceName) {
+        deleteElanInterface(elanInstanceName, interfaceName);
+        logger.debug("deleting the Etree Interface {}", interfaceName);
     }
 
     @Override

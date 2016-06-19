@@ -130,7 +130,7 @@ public class HwvtepLocalUcastMacListener extends
         // Cache MAC for furthur processing later
         elanL2GwDevice.addUcastLocalMac(macAdded);
 
-        ElanL2GatewayUtils.installL2GwUcastMacInElan(elan, elanL2GwDevice, macAddress);
+        ElanL2GatewayUtils.installL2GwUcastMacInElan(elan, elanL2GwDevice, macAddress, null);
     }
 
     @Override
