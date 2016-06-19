@@ -15,8 +15,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 
-public interface IElanService {
-    boolean createElanInstance(String elanInstanceName, long macTimeout, String description);
+
+public interface IElanService extends IEtreeService {
+    boolean createElanInstance(String elanInstanceName, long MacTimeout, String description);
 
     void updateElanInstance(String elanInstanceName, long newMacTimout, String newDescription);
 
