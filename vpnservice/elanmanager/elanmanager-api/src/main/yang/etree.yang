@@ -1,23 +1,27 @@
 module etree {
-	namespace "urn:opendaylight:netvirt:etree";
-	prefix etree;
-	
+	namespace "urn:opendaylight:netvirt:elan:etree";
+	prefix elan-etree;
+
 	import elan {prefix elan;}
-	
+
 	import yang-ext {prefix ext; revision-date "2013-07-09";}
-	
+
+	import hwvtep {prefix hwvtep;}
+
+	import network-topology {prefix "topo"; revision-date "2013-10-21"; }
+
 	revision "2016-06-14" {
         description "etree module";
     }
-    
+
     augment "/elan:elan-interfaces/elan:elan-interface" {
         ext:augment-identifier "etree-interface";
-        leaf rootInterface {
+        leaf root-interface {
             type boolean;
             description "True for root interface, false for leaf interface.";
         }
     }
-    
+
     augment "/elan:elan-instances/elan:elan-instance" {
         ext:augment-identifier "etree-instance";
         leaf etree-leaf-tag {
@@ -26,5 +30,26 @@ module etree {
                          Each ETree instance has 2 unique tags: elan-tag for roots and etree-leaf-tag for leafs";
         }
     }
-    
+
+    augment "/elan:elan-tag-name-map/elan:elan-tag-name" {
+        ext:augment-identifier "etree-leaf-tag-name";
+        leaf etree-leaf-tag {
+            type    uint32;
+        }
+    }
+
+    augment "/topo:network-topology/topo:topology/topo:node" {
+        description "Augment topology node for a hwvtep node";
+        ext:augment-identifier "etree-logical-node";
+        uses hwvtep:hwvtep-global-attributes {
+            augment "logical-switches" {
+                description "Augment logical switch for etree logical switch";
+                ext:augment-identifier "etree-logical-switches";
+                leaf rootSwitch {
+                    type boolean;
+                    description "True for logical switch that supports only root interfaces, false for leaves interfaces.";
+                }
+            }
+        }
+    }
 }
