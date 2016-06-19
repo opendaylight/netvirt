@@ -22,6 +22,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <module>
           <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:dhcpservice:impl">prefix:dhcpservice-impl</type>
           <name>dhcpservice-default</name>
+          <dhcp-enabled>true</dhcp-enabled>
           <broker>
             <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-broker-osgi-registry</type>
             <name>binding-osgi-broker</name>
