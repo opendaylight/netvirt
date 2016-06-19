@@ -1,6 +1,9 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    <reference id="elanProviderRef" interface="org.opendaylight.netvirt.elanmanager.api.IElanService" availability="optional" />
-    <reference id="interfaceManagerRef" interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager"  availability="optional" />
+    <reference id="elanProviderRef" interface="org.opendaylight.netvirt.elanmanager.api.IElanService"
+        availability="optional" />
+    <reference id="interfaceManagerRef"
+        interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager"
+        availability="optional" />
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
             <action class="org.opendaylight.netvirt.elan.cli.ElanAdd">
@@ -63,8 +66,34 @@
                 <property name="interfaceManager" ref="interfaceManagerRef" />
             </action>
         </command>
-	<command>
+        <command>
             <action class="org.opendaylight.netvirt.elan.cli.l2gw.L2GwUtilsCacheCli">
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.elan.cli.etree.EtreeAdd">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.elan.cli.etree.EtreeGet">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.elan.cli.etree.EtreeInterfaceAdd">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.elan.cli.etree.EtreeInterfaceGet">
+                <property name="elanProvider" ref="elanProviderRef" />
+                <property name="interfaceManager" ref="interfaceManagerRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.elan.cli.etree.EtreeInterfaceDelete">
+                <property name="elanProvider" ref="elanProviderRef" />
             </action>
         </command>
     </command-bundle>
