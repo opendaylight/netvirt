@@ -39,8 +39,8 @@ module aclservice-api {
     }
 
     augment "/ietf-acl:access-lists/ietf-acl:acl/ietf-acl:access-list-entries/ietf-acl:ace" {
-        description "Security Group Attributes";
-        ext:augment-identifier "security-group-attr";
+        description "Security Rule Attributes";
+        ext:augment-identifier "security-rule-attr";
         leaf remote-group-id {
             description "The remote group ID to be associated with this security group rule.";
             type yang:uuid;

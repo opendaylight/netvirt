@@ -124,7 +124,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
-      <version>1.10.19</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -149,6 +148,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
               org.opendaylight.netvirt.openstack.netvirt.sfc.workaround.services
             </Export-Package>
           </instructions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <!--<propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>-->
         </configuration>
       </plugin>
       <plugin>

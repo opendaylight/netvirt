@@ -185,7 +185,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     private boolean addTunnelPort (Node node, String tunnelType, InetAddress src, InetAddress dst) {
         String tunnelBridgeName = configurationService.getIntegrationBridgeName();
         String portName = getTunnelName(tunnelType, dst);
-        LOG.info("addTunnelPort enter: portName: {}", portName);
+        LOG.info("Added TunnelPort : portName: {}", portName);
         if (southbound.extractTerminationPointAugmentation(node, portName) != null
                 || southbound.isTunnelTerminationPointExist(node, tunnelBridgeName, portName)) {
             LOG.info("Tunnel {} is present in {} of {}", portName, tunnelBridgeName, node.getNodeId().getValue());
@@ -1168,7 +1168,11 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                     if (dstBridgeNode != null) {
                         destTunnelStatus = addTunnelPort(dstBridgeNode, networkType, dst, src);
                     }
-
+                    if (sourceTunnelStatus &&  destTunnelStatus) {
+                        LOG.debug("Created Source and destination TunnelPorts :{}, {}", src, dst);
+                    }  else {
+                        LOG.debug("Source and destination TunnelPort status :{}, {}", sourceTunnelStatus, destTunnelStatus);
+                    }
                     if (sourceTunnelStatus) {
                         boolean isDestinNw = tenantNetworkManager.isTenantNetworkPresentInNode(dstBridgeNode, segmentationId);
                         //Check whether the network is present in src & dst node

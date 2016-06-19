@@ -76,21 +76,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-          <executions>
-            <execution>
-              <phase>process-sources</phase>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
-          </executions>
         <configuration>
-          <configLocation>
-            ${project.basedir}/../../commons/src/main/resources/vpns_checks.xml
-          </configLocation>
-          <failsOnError>true</failsOnError>
-          <includes>**/*.java,**/*.xml,**/*.ini,**/*.sh,**/*.bat</includes>
-          <excludes>**\/target\/,**\/bin\/,**\/third-party,**\/yang-gen-sal</excludes>
+          <!--<propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>-->
+          <excludes>**/yang/</excludes>
         </configuration>
       </plugin>
     </plugins>
