@@ -85,6 +85,8 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                     return;
                 }
                 String interfaceName = interfaceInfoOp.get().getInterfaceName();
+                logger.debug("Received a packet with srcMac: {} ElanTag: {} PortTag: {} InterfaceName: {}", macAddress,
+                        elanTag, portTag, interfaceName);
                 ElanTagName elanTagName = ElanUtils.getElanInfoByElanTag(elanTag);
                 if (elanTagName == null) {
                     logger.warn("not able to find elanTagName in elan-tag-name-map for elan tag {}", elanTag);
