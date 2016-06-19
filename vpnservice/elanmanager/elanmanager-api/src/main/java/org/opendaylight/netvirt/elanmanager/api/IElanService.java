@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.elanmanager.api;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface.EtreeInterfaceType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
@@ -15,7 +16,7 @@ import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
 import java.util.Collection;
 import java.util.List;
 
-public interface IElanService {
+public interface IElanService extends IEtreeService {
     boolean createElanInstance(String elanInstanceName, long MacTimeout, String description);
     void updateElanInstance(String elanInstanceName, long newMacTimout, String newDescription);
     boolean deleteElanInstance(String elanInstanceName);
@@ -33,5 +34,4 @@ public interface IElanService {
     ElanInstance getElanInstance(String elanInstanceName);
     List<ElanInstance> getElanInstances();
     List<String> getElanInterfaces(String elanInstanceName);
-
 }
