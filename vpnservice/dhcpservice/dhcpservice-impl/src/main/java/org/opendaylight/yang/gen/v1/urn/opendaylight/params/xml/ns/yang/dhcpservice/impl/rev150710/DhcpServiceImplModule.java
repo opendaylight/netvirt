@@ -23,6 +23,7 @@ public class DhcpServiceImplModule extends org.opendaylight.yang.gen.v1.urn.open
     public java.lang.AutoCloseable createInstance() {
         RpcProviderRegistry rpcregistryDependency = getRpcregistryDependency();
         DhcpProvider dhcpProvider = new DhcpProvider();
+        dhcpProvider.setControllerDhcpEnabled(getControllerDhcpEnabled());
         dhcpProvider.setNotificationProviderService(getNotificationServiceDependency());
         dhcpProvider.setMdsalManager(getMdsalutilDependency());
         dhcpProvider.setNeutronVpnManager(getNeutronvpnDependency());

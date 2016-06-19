@@ -76,6 +76,11 @@ module dhcpservice-impl {
                     }
                 }
             }
+
+            leaf controller-dhcp-enabled {
+                description "Enable the dhcpservice on the controller";
+                type boolean;
+            }
         }
     }
 }
