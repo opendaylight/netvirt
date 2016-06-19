@@ -63,8 +63,29 @@
                 <property name="interfaceManager" ref="interfaceManagerRef" />
             </action>
         </command>
-	<command>
+	    <command>
             <action class="org.opendaylight.netvirt.elan.cli.l2gw.L2GwUtilsCacheCli">
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.elan.cli.etree.EtreeAdd">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.elan.cli.etree.EtreeGet">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.elan.cli.etree.EtreeInterfaceAdd">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.elan.cli.etree.EtreeInterfaceGet">
+                <property name="elanProvider" ref="elanProviderRef" />
+                <property name="interfaceManager" ref="interfaceManagerRef" />
             </action>
         </command>
     </command-bundle>
