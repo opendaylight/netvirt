@@ -44,6 +44,7 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
     private EntityOwnershipService entityOwnershipService;
     private DhcpDesignatedDpnListener dhcpDesignatedDpnListener;
     private DhcpL2GatewayConnectionListener dhcpL2GatewayConnectionListener;
+    private boolean dhcpServiceEnabled = true;
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -61,8 +62,6 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
             packetListener = notificationService.registerNotificationListener(dhcpPktHandler);
             dhcpNodeListener = new NodeListener(dataBroker, dhcpManager, dhcpExternalTunnelManager);
             dhcpConfigListener = new DhcpConfigListener(dataBroker, dhcpManager);
-            dhcpInterfaceEventListener = new DhcpInterfaceEventListener(dhcpManager, dataBroker, dhcpExternalTunnelManager);
-            dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(dataBroker, dhcpExternalTunnelManager);
             dhcpLogicalSwitchListener = new DhcpLogicalSwitchListener(dhcpExternalTunnelManager, dataBroker);
             dhcpUCastMacListener = new DhcpUCastMacListener(dhcpExternalTunnelManager, dataBroker);
             dhcpUCastMacListener.registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
@@ -72,6 +71,12 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
             dhcpDesignatedDpnListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
             dhcpL2GatewayConnectionListener = new DhcpL2GatewayConnectionListener(dataBroker, dhcpExternalTunnelManager);
             dhcpL2GatewayConnectionListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+
+            if (dhcpServiceEnabled) {
+                dhcpInterfaceEventListener = new DhcpInterfaceEventListener(dhcpManager, dataBroker, dhcpExternalTunnelManager);
+                dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(dataBroker, dhcpExternalTunnelManager);
+            }
+
         } catch (Exception e) {
             LOG.error("Error initializing services {}", e);
         }
@@ -113,5 +118,9 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
 
     public void setEntityOwnershipService(EntityOwnershipService entityOwnershipService) {
         this.entityOwnershipService = entityOwnershipService;
+    }
+
+    public void setDhcpServiceEnabled(boolean dhcpServiceEnabled) {
+        this.dhcpServiceEnabled = dhcpServiceEnabled;
     }
 }
