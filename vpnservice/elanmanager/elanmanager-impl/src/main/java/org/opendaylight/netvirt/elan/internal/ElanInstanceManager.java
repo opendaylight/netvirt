@@ -17,6 +17,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
@@ -35,7 +36,6 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     private ElanServiceProvider elanServiceProvider = null;
     private static volatile ElanInstanceManager elanInstanceManager = null;
-
     private static final Logger logger = LoggerFactory.getLogger(ElanInstanceManager.class);
 
     private ElanInstanceManager(ElanServiceProvider elanServiceProvider) {
@@ -85,7 +85,19 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         }
         // Release tag
         ElanUtils.releaseId(elanServiceProvider.getIdManager(), ElanConstants.ELAN_ID_POOL_NAME, elanName);
+        if (deletedElan.getAugmentation(EtreeInstance.class) != null) {
+            removeEtreeInstance(deletedElan);
+        }
+    }
 
+    private void removeEtreeInstance(ElanInstance deletedElan) {
+        // Release leaves tag
+        ElanUtils.releaseId(elanServiceProvider.getIdManager(), ElanConstants.ELAN_ID_POOL_NAME,
+                deletedElan.getElanInstanceName() + ElanConstants.LEAVES_POSTFIX);
+
+        ElanUtils.delete(elanServiceProvider.getBroker(), LogicalDatastoreType.OPERATIONAL,
+                ElanUtils.getElanInfoEntriesOperationalDataPath(
+                deletedElan.getAugmentation(EtreeInstance.class).getEtreeLeafTagVal().getValue()));
     }
 
     @Override
