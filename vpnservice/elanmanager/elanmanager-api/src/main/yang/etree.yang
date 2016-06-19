@@ -27,4 +27,10 @@ module etree {
         }
     }
     
+    augment "/elan:elan-tag-name-map/elan:elan-tag-name" {
+        ext:augment-identifier "etree-leaf-tag-name";
+        leaf etree-leaf-tag {
+            type    uint32;
+        }
+    }
 }
