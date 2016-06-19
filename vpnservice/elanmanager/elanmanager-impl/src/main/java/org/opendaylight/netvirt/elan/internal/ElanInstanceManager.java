@@ -18,6 +18,7 @@ import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
@@ -119,7 +120,19 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
         }
         // Release tag
         ElanUtils.releaseId(idManager, ElanConstants.ELAN_ID_POOL_NAME, elanName);
+        
+        if (deletedElan.getAugmentation(EtreeInstance.class) != null) {
+            removeEtreeInstance(deletedElan);
+        }
+    }
 
+    private void removeEtreeInstance(ElanInstance deletedElan) {
+        // Release leaves tag
+        ElanUtils.releaseId(idManager, ElanConstants.ELAN_ID_POOL_NAME,
+                deletedElan.getElanInstanceName() + ElanConstants.LEAVES_POSTFIX);
+
+        ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanInfoEntriesOperationalDataPath(
+                deletedElan.getAugmentation(EtreeInstance.class).getEtreeLeafTagVal().getValue()));
     }
 
     @Override
