@@ -44,10 +44,17 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
     private EntityOwnershipService entityOwnershipService;
     private DhcpDesignatedDpnListener dhcpDesignatedDpnListener;
     private DhcpL2GatewayConnectionListener dhcpL2GatewayConnectionListener;
+    private boolean dhcpEnabled = true;
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
         LOG.info("DhcpProvider Session Initiated");
+
+        // do not start the dhcp service if dhcpEnabled config is "false"
+        if(!dhcpEnabled){
+            return;
+        }
+
         try {
             final DataBroker dataBroker = session.getSALService(DataBroker.class);
             final PacketProcessingService pktProcessingService = session.getRpcService(PacketProcessingService.class);
@@ -113,5 +120,9 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
 
     public void setEntityOwnershipService(EntityOwnershipService entityOwnershipService) {
         this.entityOwnershipService = entityOwnershipService;
+    }
+
+    public void setDhcpEnabled(boolean dhcpEnabled) {
+        this.dhcpEnabled = dhcpEnabled;
     }
 }
