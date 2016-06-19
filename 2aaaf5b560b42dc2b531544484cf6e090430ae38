@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_5a269117",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-06-19T11:14:12Z",
+      "side": 1,
+      "message": "The log statement says that the Session is Initiated but then it exits here. I think there should be a clear log statement saying whether or not it\u0027s running. Also, total nitpick but the style check wants a space after the if before the (",
+      "range": {
+        "startLine": 55,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 18
+      },
+      "revId": "2aaaf5b560b42dc2b531544484cf6e090430ae38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
