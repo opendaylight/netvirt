@@ -1,0 +1,30 @@
+module etree {
+	namespace "urn:opendaylight:netvirt:etree";
+	prefix etree;
+	
+	import elan {prefix elan;}
+	
+	import yang-ext {prefix ext; revision-date "2013-07-09";}
+	
+	revision "2016-06-14" {
+        description "etree module";
+    }
+    
+    augment "/elan:elan-interfaces/elan:elan-interface" {
+        ext:augment-identifier "etree-interface";
+        leaf rootInterface {
+            type boolean;
+            description "True for root interface, false for leaf interface.";
+        }
+    }
+    
+    augment "/elan:elan-instances/elan:elan-instance" {
+        ext:augment-identifier "etree-instance";
+        leaf etree-leaf-tag {
+            type    uint32;
+            description "Unique identifier across all the tenants for the ETREE's leafs.
+                         Each ETree instance has 2 unique tags: elan-tag for roots and etree-leaf-tag for leafs";
+        }
+    }
+    
+}
