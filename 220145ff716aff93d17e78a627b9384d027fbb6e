@@ -327,6 +327,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_76f3b373",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpShowCommand.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T13:55:11Z",
+      "side": 1,
+      "message": "I think these are OK here since this is a karaf shell command to print to the console. I don\u0027t think the logger will do that.",
+      "parentUuid": "ba51214e_dbcaaaa0",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_bbcff6af",
         "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpShowCommand.java",
         "patchSetId": 6
