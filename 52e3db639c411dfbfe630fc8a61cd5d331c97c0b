@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_63af70e4",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1171,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-20T12:27:57Z",
+      "side": 1,
+      "message": "The code can right make simple as\n\nif (sourceTunnelStatus \u0026\u0026  destTunnelStatus) {",
+      "revId": "52e3db639c411dfbfe630fc8a61cd5d331c97c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_43aceced",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1172,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-20T12:27:57Z",
+      "side": 1,
+      "message": "Give space before second open brace.\nLOG.debug(\"Created Source and destination TunnelPorts :{}, {}\", src, dst);",
+      "revId": "52e3db639c411dfbfe630fc8a61cd5d331c97c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_a3b98830",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1174,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-20T12:27:57Z",
+      "side": 1,
+      "message": "Give space after comma to avoid checkstyle error.",
+      "revId": "52e3db639c411dfbfe630fc8a61cd5d331c97c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
