@@ -171,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_bdeec720",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T00:04:38Z",
+      "side": 1,
+      "message": "Shlomi, is the expectation that the test will not create a NPE and pass, or if it does produce an NPE the test fails? If so, then maybe there should be a specific negative case that will produce a NPE?",
+      "parentUuid": "ba51214e_546dc831",
+      "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_d43718af",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
         "patchSetId": 2
