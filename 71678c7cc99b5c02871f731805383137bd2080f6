@@ -189,6 +189,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_0882134f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-20T08:37:52Z",
+      "side": 1,
+      "message": "the expectation is that the test will pass since there is no NPE. since i added the null check for the fixedIp value we can\u0027t produce a case that the code will throw NPE",
+      "parentUuid": "ba51214e_bdeec720",
+      "revId": "71678c7cc99b5c02871f731805383137bd2080f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_d43718af",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
         "patchSetId": 2
