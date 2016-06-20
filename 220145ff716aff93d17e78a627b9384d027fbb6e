@@ -240,6 +240,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_1dac13a0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpConfigureCommand.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-20T04:38:20Z",
+      "side": 1,
+      "message": "@Vinothkumar: This is karaf-cli and need to print msg to the use running CLI. That guideline is for normal impl code and suggests using log statements. This is a perfectly valid and appropriate use of println.",
+      "parentUuid": "ba51214e_7bd55e42",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_9bd03255",
         "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpConfigureCommand.java",
         "patchSetId": 6
@@ -251,6 +269,24 @@
       "writtenOn": "2016-06-17T05:55:26Z",
       "side": 1,
       "message": "system.out.println statement? as per code guideline shouldn\u0027t use.",
+      "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_fdb03ff6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpConfigureCommand.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-20T04:38:20Z",
+      "side": 1,
+      "message": "@Vinothkumar: same as above.",
+      "parentUuid": "ba51214e_9bd03255",
       "revId": "220145ff716aff93d17e78a627b9384d027fbb6e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
