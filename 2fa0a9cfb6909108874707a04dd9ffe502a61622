@@ -16,6 +16,24 @@
       "revId": "2fa0a9cfb6909108874707a04dd9ffe502a61622",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_2321f89f",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-06-20T12:35:46Z",
+      "side": 1,
+      "message": "I copied the same convention from the original elan-tag:\nIn list elan-instance:\nleaf elan-tag {\n                type    uint32;\n                description \"ELAN unique identifier which is unique across all the tenants.\n                             This will be created internally and if provided, the value will be discarded.\";\n            }\n\nIn elan-tag-name-map:\nleaf elan-tag {\n                type uint32;\n            }\n\nBecause I\u0027m augmenting the same nodes I want to keep the same convention.",
+      "parentUuid": "ba51214e_bdd52745",
+      "revId": "2fa0a9cfb6909108874707a04dd9ffe502a61622",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
