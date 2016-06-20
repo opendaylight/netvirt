@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_bdd52745",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T00:37:26Z",
+      "side": 1,
+      "message": "is this etree-leaf-tag any different the the earlier one? If these end up the same type  we should probably create a type and use it consistently. Otherwise maybe we should change the names here and remove leaf.",
+      "revId": "2fa0a9cfb6909108874707a04dd9ffe502a61622",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
