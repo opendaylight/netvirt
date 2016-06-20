@@ -381,8 +381,13 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         String lockName = port.getUuid().getValue();
 
         // find the subnet to which this port is associated
+        if(port.getFixedIps() == null || port.getFixedIps().isEmpty()) {
+            LOG.debug("port {} doesn't have ip", port.getName());
+            return null;
+        }
         FixedIps ip = port.getFixedIps().get(0);
-        String ipValue = ip.getIpAddress().getIpv4Address().getValue();
+        String ipValue = (ip.getIpAddress().getIpv4Address() != null ) ? ip.getIpAddress().getIpv4Address().getValue() :
+            ip.getIpAddress().getIpv6Address().getValue();
         InstanceIdentifier id = NeutronvpnUtils.buildFixedIpToPortNameIdentifier(ipValue);
         PortFixedipToPortNameBuilder builder = new PortFixedipToPortNameBuilder().setPortFixedip(ipValue)
                 .setPortName(infName);
