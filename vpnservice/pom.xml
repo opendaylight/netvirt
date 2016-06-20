@@ -31,6 +31,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module>dhcpservice</module>
     <module>natservice</module>
     <module>aclservice</module>
+    <module>ipv6service</module>
     <module>distribution/karaf</module>
     <module>features</module>
     <module>vpnservice-artifacts</module>
