@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_7d8d4f7b",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/config/default-config.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T00:00:12Z",
+      "side": 1,
+      "message": "for both cases dhcp is enabled: with neutron dhcp agent or netvirt dhcp service, so maybe this value should be more like: dhcp-provider \u003d {neutron, netvirt}. Maybe even agent or service.\n\nOr to keep it simple just add service to the field like dhcp-service-enabled?",
+      "revId": "24e7352d9887536e8311a5d003c2210c20a7da3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_9d902397",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/yang/dhcpservice-impl.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T00:00:12Z",
+      "side": 1,
+      "message": "look like tabs instead of spaces here",
+      "revId": "24e7352d9887536e8311a5d003c2210c20a7da3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
