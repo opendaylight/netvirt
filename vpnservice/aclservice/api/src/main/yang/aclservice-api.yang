@@ -38,17 +38,9 @@ module aclservice-api {
 
     }
 
-    augment "/ietf-acl:access-lists/ietf-acl:acl" {
+    augment "/ietf-acl:access-lists/ietf-acl:acl/ietf-acl:access-list-entries" {
         description "Security Group Attributes";
         ext:augment-identifier "security-group-attr";
-        leaf id {
-            type yang:uuid;
-            description "Security Rule ID.";
-        }
-        leaf security-group-id {
-            type yang:uuid;
-            description "The security group ID to associate with this security group rule.";
-        }
         leaf remote-group-id {
             description "The remote group ID to be associated with this security group rule.";
             type yang:uuid;
@@ -75,5 +67,5 @@ module aclservice-api {
             type yang:uuid;
             description "The security group ID to associate with this interface.";
         }
-   }
+    }
 }
