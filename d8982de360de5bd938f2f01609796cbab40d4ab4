@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_8e746bfe",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T17:38:00Z",
+      "side": 1,
+      "message": "tabs should be spaces",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 1
+      },
+      "revId": "d8982de360de5bd938f2f01609796cbab40d4ab4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_ce65c346",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T17:38:00Z",
+      "side": 1,
+      "message": "would an enum be better or more readable?",
+      "revId": "d8982de360de5bd938f2f01609796cbab40d4ab4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_6e547754",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T17:38:00Z",
+      "side": 1,
+      "message": "description? If the same as the etree-leaf-tag then maybe a type to cover both would be good and then add a uses xxx here.",
+      "revId": "d8982de360de5bd938f2f01609796cbab40d4ab4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_ae4e8fbf",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T17:38:00Z",
+      "side": 1,
+      "message": "more text? This description here is already implied since this is an augment. It would be good to describe what the augment is. Same for the other descriptions added.",
+      "revId": "d8982de360de5bd938f2f01609796cbab40d4ab4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_eec7e710",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T17:38:00Z",
+      "side": 1,
+      "message": "hyphen rather mixed case",
+      "revId": "d8982de360de5bd938f2f01609796cbab40d4ab4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
