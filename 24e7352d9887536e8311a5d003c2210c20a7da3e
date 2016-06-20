@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_5d77abd4",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/config/default-config.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-06-20T08:57:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba51214e_7d8d4f7b",
+      "revId": "24e7352d9887536e8311a5d003c2210c20a7da3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_9d902397",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/yang/dhcpservice-impl.yang",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-06-20T00:00:12Z",
       "side": 1,
       "message": "look like tabs instead of spaces here",
+      "revId": "24e7352d9887536e8311a5d003c2210c20a7da3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_9d814392",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/yang/dhcpservice-impl.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-06-20T08:57:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba51214e_9d902397",
       "revId": "24e7352d9887536e8311a5d003c2210c20a7da3e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
