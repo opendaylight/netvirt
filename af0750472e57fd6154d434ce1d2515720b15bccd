@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_7dbb8f0e",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T00:42:35Z",
+      "side": 1,
+      "message": "nitpicks about the tabs and whitespace in this file.",
+      "revId": "af0750472e57fd6154d434ce1d2515720b15bccd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_9dbe63fe",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T00:42:35Z",
+      "side": 1,
+      "message": "should add elan in the namespace. netvirt:elan:etree",
+      "range": {
+        "startLine": 2,
+        "startChar": 37,
+        "endLine": 2,
+        "endChar": 42
+      },
+      "revId": "af0750472e57fd6154d434ce1d2515720b15bccd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_dd373baf",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T00:42:35Z",
+      "side": 1,
+      "message": "elan-etree",
+      "revId": "af0750472e57fd6154d434ce1d2515720b15bccd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_bd3c0795",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-06-20T00:42:35Z",
+      "side": 1,
+      "message": "yang conventions would be root-interface",
+      "revId": "af0750472e57fd6154d434ce1d2515720b15bccd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
