@@ -34,6 +34,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private static final Logger LOG = LoggerFactory.getLogger(NeutronvpnProvider.class);
     private NeutronvpnManager nvManager;
     private NeutronvpnNatManager nvNatManager;
+    private NeutronvpnUtils nVpnUtils;
     private IMdsalApiManager mdsalManager;
     private LockManagerService lockManager;
     private NeutronBgpvpnChangeListener bgpvpnListener;
@@ -41,11 +42,13 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private NeutronSubnetChangeListener subnetListener;
     private NeutronRouterChangeListener routerListener;
     private NeutronPortChangeListener portListener;
+    private NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
     private RpcProviderRegistry rpcProviderRegistry;
     private L2GatewayProvider l2GatewayProvider;
     private NotificationPublishService notificationPublishService;
     private NotificationService notificationService;
     private EntityOwnershipService entityOwnershipService;
+    private DataBroker broker;
 
     public NeutronvpnProvider(RpcProviderRegistry rpcRegistry,NotificationPublishService notificationPublishService,
                               NotificationService notificationService) {
@@ -79,18 +82,22 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
         try {
             final DataBroker dbx = session.getSALService(DataBroker.class);
             nvNatManager = new NeutronvpnNatManager(dbx, mdsalManager);
-            nvManager = new NeutronvpnManager(dbx, mdsalManager,notificationPublishService,notificationService, nvNatManager);
+            nvManager = new NeutronvpnManager(dbx, mdsalManager,notificationPublishService,notificationService,
+                    nvNatManager, nVpnUtils);
             final BindingAwareBroker.RpcRegistration<NeutronvpnService> rpcRegistration =
                     getRpcProviderRegistry().addRpcImplementation(NeutronvpnService.class, nvManager);
             bgpvpnListener = new NeutronBgpvpnChangeListener(dbx, nvManager);
-            networkListener = new NeutronNetworkChangeListener(dbx, nvManager, nvNatManager);
-            subnetListener = new NeutronSubnetChangeListener(dbx, nvManager);
-            routerListener = new NeutronRouterChangeListener(dbx, nvManager, nvNatManager);
+            networkListener = new NeutronNetworkChangeListener(dbx, nvManager, nvNatManager, nVpnUtils);
+            subnetListener = new NeutronSubnetChangeListener(dbx, nvManager, nVpnUtils);
+            routerListener = new NeutronRouterChangeListener(dbx, nvManager, nvNatManager, nVpnUtils);
             portListener = new NeutronPortChangeListener(dbx, nvManager, nvNatManager,
-                    notificationPublishService,notificationService);
+                    notificationPublishService,notificationService, nVpnUtils);
             portListener.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
+            floatingIpMapListener = new NeutronFloatingToFixedIpMappingChangeListener(dbx);
             nvManager.setLockManager(lockManager);
+            portListener.setLockManager(lockManager);
+            floatingIpMapListener.setLockManager(lockManager);
             l2GatewayProvider = new L2GatewayProvider(dbx, rpcProviderRegistry, entityOwnershipService);
 
             LOG.info("NeutronvpnProvider Session Initiated");
@@ -105,6 +112,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
         subnetListener.close();
         routerListener.close();
         networkListener.close();
+        floatingIpMapListener.close();
         bgpvpnListener.close();
         nvManager.close();
         l2GatewayProvider.close();
@@ -148,7 +156,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
 
     @Override
     public Subnet getNeutronSubnet(Uuid subnetId) {
-        return nvManager.getNeutronSubnet(subnetId);
+        return nVpnUtils.getNeutronSubnet(broker, subnetId);
     }
 
     @Override
