@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_e326e0b9",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1171,
+      "author": {
+        "id": 1575
+      },
+      "writtenOn": "2016-06-20T11:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba51214e_51aa0171",
+      "revId": "ab47de58656ba3c5e08ea1a0e8e9bae28a1e2813",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_71c46540",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-06-16T11:55:05Z",
       "side": 1,
       "message": "This would only print the log if both ports were allocated and not if one failed. Maybe their should be an else clause to print the two booleans.\n\nDo we even need this log, though? The addTunnelport() is already logging the status at an info level.\n\nIf we do keep the log, I think it would be good to include the tunnel values like source tunnel: (src, dst), dst tunnel: (dst,src)",
+      "revId": "ab47de58656ba3c5e08ea1a0e8e9bae28a1e2813",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_c32bdc80",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1172,
+      "author": {
+        "id": 1575
+      },
+      "writtenOn": "2016-06-20T11:53:16Z",
+      "side": 1,
+      "message": "Agree , As the info log is present already, but the info is not clear as the tunnel is added or not.so Modified the existing LOG.info and added debug after both src and dst tunnels are created along with the value.",
+      "parentUuid": "ba51214e_71c46540",
       "revId": "ab47de58656ba3c5e08ea1a0e8e9bae28a1e2813",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
