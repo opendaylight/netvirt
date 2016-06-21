@@ -90,7 +90,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
             subnetListener = new NeutronSubnetChangeListener(dbx, nvManager);
             routerListener = new NeutronRouterChangeListener(dbx, nvManager, nvNatManager);
             portListener = new NeutronPortChangeListener(dbx, nvManager, nvNatManager,
-                    notificationPublishService,notificationService);
+                    notificationPublishService,notificationService, floatingIpMapListener);
             portListener.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
             floatingIpMapListener = new NeutronFloatingToFixedIpMappingChangeListener(dbx);
@@ -159,8 +159,8 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     }
 
     @Override
-    public String uuidToTapPortName(Uuid id) {
-        return NeutronvpnUtils.uuidToTapPortName(id);
+    public String getVifPortName(Port port) {
+        return NeutronvpnUtils.getVifPortName(port);
     }
 
     @Override
