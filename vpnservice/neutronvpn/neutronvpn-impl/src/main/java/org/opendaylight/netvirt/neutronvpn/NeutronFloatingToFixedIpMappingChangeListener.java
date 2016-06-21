@@ -26,16 +26,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPortsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPortsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports
-        .PortsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports
-        .PortsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports
-        .ports.IpMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports
-        .ports.IpMappingBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports
-        .ports.IpMappingKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.PortsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.PortsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMappingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMappingKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -100,6 +95,11 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
     protected void remove(InstanceIdentifier<Floatingip> identifier, Floatingip input) {
         if (LOG.isTraceEnabled()) {
             LOG.trace("Neutron Floating IP deleted : key: " + identifier + ", value=" + input);
+        }
+        IpAddress fixedIp = input.getFixedIpAddress();
+        if (fixedIp != null) {
+            clearFromFloatingIpInfo(input.getRouterId().getValue(), input.getPortId().getValue(), fixedIp
+                    .getIpv4Address().getValue());
         }
     }
 
@@ -262,6 +262,79 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
             }
         } catch (Exception e) {
             LOG.error("Failed to delete ipMapping from FloatingIpInfo DS for fixed Ip {}", fixedIpAddress);
+        }
+    }
+
+    protected void dissociatefixedIPFromFloatingIP(String fixedNeutronPortName) {
+        boolean isLockAcquired = false;
+        InstanceIdentifier.InstanceIdentifierBuilder<FloatingIpInfo> floatingIpInfoIdentifierBuilder =
+                InstanceIdentifier.builder(FloatingIpInfo.class);
+        try {
+            Optional<FloatingIpInfo> optionalFloatingIPInfo = NeutronvpnUtils.read(broker, LogicalDatastoreType
+                    .CONFIGURATION, floatingIpInfoIdentifierBuilder.build());
+            if (optionalFloatingIPInfo.isPresent() && optionalFloatingIPInfo.get() != null) {
+                List<RouterPorts> routerPortsList = optionalFloatingIPInfo.get().getRouterPorts();
+                if (routerPortsList != null && !routerPortsList.isEmpty()) {
+                    for (RouterPorts routerPorts : routerPortsList) {
+                        List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating
+                                .ip.info.router.ports.Ports> portsList = routerPorts.getPorts();
+                        if (portsList != null && !portsList.isEmpty()) {
+                            String routerName = routerPorts.getRouterId();
+                            InstanceIdentifier.InstanceIdentifierBuilder<RouterPorts> routerPortsIdentifierBuilder =
+                                    floatingIpInfoIdentifierBuilder.child(RouterPorts.class, new RouterPortsKey
+                                            (routerName));
+                            if (portsList.size() == 1) {
+                                try {
+                                    // remove entire routerPorts node
+                                    isLockAcquired = NeutronvpnUtils.lock(lockManager, routerName);
+                                    //Fixme :planning to use synchronized blocks for entire NeutronVPN module instead
+                                    // of using this lockmanager timed API.
+                                    LOG.debug("removing routerPorts node: {} ", routerName);
+                                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifierBuilder.build());
+
+                                } catch (Exception e) {
+                                    LOG.error("Failure in deletion of routerPorts node {}", routerName);
+                                } finally {
+                                    if (isLockAcquired) {
+                                        NeutronvpnUtils.unlock(lockManager, routerName);
+                                    }
+                                }
+                            } else {
+                                InstanceIdentifier.InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn
+                                        .opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports
+                                        .Ports> portsIdentifierBuilder = routerPortsIdentifierBuilder.child(org
+                                        .opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
+                                        .floating.ip.info.router.ports.Ports.class, new PortsKey(fixedNeutronPortName));
+                                try {
+                                    // remove entire ports node under this routerPorts node
+                                    isLockAcquired = NeutronvpnUtils.lock(lockManager, fixedNeutronPortName);
+                                    LOG.debug("removing ports node {} under routerPorts node {}",
+                                            fixedNeutronPortName, routerName);
+                                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION,
+                                            portsIdentifierBuilder.build());
+                                } catch (Exception e) {
+                                    LOG.error("Failure in deletion of routerPorts node {}", routerName);
+                                } finally {
+                                    if (isLockAcquired) {
+                                        NeutronvpnUtils.unlock(lockManager, routerName);
+                                    }
+                                }
+                            }
+                            LOG.debug("Deletion from FloatingIpInfo DS successful for fixedIP neutron port {} ",
+                                    fixedNeutronPortName);
+                        } else {
+                            LOG.debug("Neutron port {} not associated to any floating IP", fixedNeutronPortName);
+                        }
+                    }
+                } else {
+                    LOG.debug("No router present containing fixed to floating IP association(s)");
+                }
+            } else {
+                LOG.debug("FloatingIPInfo DS empty. Hence, no router present containing fixed to floating IP " +
+                        "association(s)");
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to dissociate fixedIP from FloatingIpInfo DS for neutron port {}", fixedNeutronPortName);
         }
     }
 }
