@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
     private final DataBroker broker;
     IMdsalApiManager mdsalUtil;
 
+    private static final String DEVICE_OWNER_GATEWAY_INF = "network:router_gateway";
     private static final int EXTERNAL_NO_CHANGE = 0;
     private static final int EXTERNAL_ADDED = 1;
     private static final int EXTERNAL_REMOVED = 2;
@@ -81,6 +83,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 logger.trace("External Network removal detected " +
                         "for router " +  routerId.getValue());
                 removeExternalNetworkFromRouter(origExtNetId, update);
+                //gateway mac unset handled as part of gateway clear deleting top-level routers node
                 return;
             }
             origExtNetId = original.getExternalGatewayInfo().getExternalNetworkId();
@@ -412,12 +415,12 @@ public class NeutronvpnNatManager implements AutoCloseable {
     private void addExternalRouter(Router update, DataBroker broker) {
         Uuid routerId = update.getUuid();
         Uuid extNetId = update.getExternalGatewayInfo().getExternalNetworkId();
+        Uuid gatewayPortId = update.getGatewayPortId();
 
         // Create and add Routers object for this Router to the ExtRouters list
 
         // Create a Routers object
-        InstanceIdentifier<Routers> routersIdentifier = InstanceIdentifier.builder(ExtRouters.class).
-                child(Routers.class, new RoutersKey(routerId.getValue())).build();
+        InstanceIdentifier<Routers> routersIdentifier = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
 
         try {
             Optional<Routers> optionalRouters = NeutronvpnUtils.read(broker,
@@ -446,6 +449,13 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 }
                 builder.setExternalIps(ext_fixed_ips);
             }
+            if (gatewayPortId != null) {
+                logger.trace("Setting/Updating gateway Mac for router {}", routerId.getValue());
+                Port port = NeutronvpnUtils.getNeutronPort(broker, gatewayPortId);
+                if (port.getDeviceOwner().equals(DEVICE_OWNER_GATEWAY_INF)) {
+                    builder.setExtGwMacAddress(port.getMacAddress());
+                }
+            }
             List<Uuid> subList = NeutronvpnUtils.getNeutronRouterSubnetIds(broker, routerId);
             builder.setSubnetIds(subList);
             Routers routerss = builder.build();
@@ -467,8 +477,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
     private void removeExternalRouter(Uuid extNetId, Router update, DataBroker broker) {
         Uuid routerId = update.getUuid();
 
-        InstanceIdentifier<Routers> routersIdentifier = InstanceIdentifier.builder(ExtRouters.class).
-                child(Routers.class, new RoutersKey(routerId.getValue())).build();
+        InstanceIdentifier<Routers> routersIdentifier = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
 
         try {
             Optional<Routers> optionalRouters = NeutronvpnUtils.read(broker,
@@ -494,8 +503,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
     private void handleExternalFixedIpsForRouter(Router update, DataBroker broker) {
         Uuid routerId = update.getUuid();
 
-        InstanceIdentifier<Routers> routersIdentifier = InstanceIdentifier.builder(ExtRouters.class).
-                child(Routers.class, new RoutersKey(routerId.getValue())).build();
+        InstanceIdentifier<Routers> routersIdentifier = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
 
         try {
             Optional<Routers> optionalRouters = NeutronvpnUtils.read(broker,
@@ -528,8 +536,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
 
     public void handleSubnetsForExternalRouter(Uuid routerId, DataBroker broker) {
 
-        InstanceIdentifier<Routers> routersIdentifier = InstanceIdentifier.builder(ExtRouters.class).
-                child(Routers.class, new RoutersKey(routerId.getValue())).build();
+        InstanceIdentifier<Routers> routersIdentifier = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
 
         try {
             Optional<Routers> optionalRouters = NeutronvpnUtils.read(broker,
@@ -565,8 +572,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
     private void handleSnatSettingChangeForRouter(Router update, DataBroker broker) {
         Uuid routerId = update.getUuid();
 
-        InstanceIdentifier<Routers> routersIdentifier = InstanceIdentifier.builder(ExtRouters.class).
-                child(Routers.class, new RoutersKey(routerId.getValue())).build();
+        InstanceIdentifier<Routers> routersIdentifier = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
 
         try {
             Optional<Routers> optionalRouters = NeutronvpnUtils.read(broker,
