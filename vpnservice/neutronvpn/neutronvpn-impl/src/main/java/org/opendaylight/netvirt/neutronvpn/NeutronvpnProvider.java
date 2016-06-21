@@ -160,8 +160,8 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     }
 
     @Override
-    public String uuidToTapPortName(Uuid id) {
-        return NeutronvpnUtils.uuidToTapPortName(id);
+    public String getVifPortName(Port port) {
+        return NeutronvpnUtils.getVifPortName(port);
     }
 
     @Override
