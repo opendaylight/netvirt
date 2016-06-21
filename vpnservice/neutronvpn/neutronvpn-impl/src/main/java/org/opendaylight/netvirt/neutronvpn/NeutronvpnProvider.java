@@ -47,7 +47,6 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private NotificationPublishService notificationPublishService;
     private NotificationService notificationService;
     private EntityOwnershipService entityOwnershipService;
-    private DataBroker broker;
 
     public NeutronvpnProvider(RpcProviderRegistry rpcRegistry,NotificationPublishService notificationPublishService,
                               NotificationService notificationService) {
@@ -90,7 +89,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
             subnetListener = new NeutronSubnetChangeListener(dbx, nvManager);
             routerListener = new NeutronRouterChangeListener(dbx, nvManager, nvNatManager);
             portListener = new NeutronPortChangeListener(dbx, nvManager, nvNatManager,
-                    notificationPublishService,notificationService);
+                    notificationPublishService,notificationService, floatingIpMapListener);
             portListener.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
             floatingIpMapListener = new NeutronFloatingToFixedIpMappingChangeListener(dbx);
@@ -155,12 +154,12 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
 
     @Override
     public Subnet getNeutronSubnet(Uuid subnetId) {
-        return NeutronvpnUtils.getNeutronSubnet(broker, subnetId);
+        return nvManager.getNeutronSubnet(subnetId);
     }
 
     @Override
-    public String uuidToTapPortName(Uuid id) {
-        return NeutronvpnUtils.uuidToTapPortName(id);
+    public String getVifPortName(Port port) {
+        return NeutronvpnUtils.getVifPortName(port);
     }
 
     @Override
