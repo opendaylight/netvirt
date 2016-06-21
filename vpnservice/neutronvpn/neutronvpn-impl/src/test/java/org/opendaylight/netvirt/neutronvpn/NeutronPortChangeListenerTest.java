@@ -48,6 +48,8 @@ public class NeutronPortChangeListenerTest {
     @Mock
     NotificationService notiService;
     @Mock
+    NeutronvpnUtils nVpnUtils;
+    @Mock
     ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
     @Mock
     WriteTransaction mockWriteTx;
@@ -62,7 +64,8 @@ public class NeutronPortChangeListenerTest {
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
 
-        neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, nVpnMgr, nVpnNatMgr, notiPublishService, notiService);
+        neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, nVpnMgr, nVpnNatMgr,
+                notiPublishService, notiService, nVpnUtils);
     }
 
     @Test
