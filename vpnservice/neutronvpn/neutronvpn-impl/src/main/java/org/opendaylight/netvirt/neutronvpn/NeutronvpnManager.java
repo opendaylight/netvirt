@@ -825,8 +825,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         boolean isLockAcquired = false;
         String lockName = vpnId.getValue() + subnet.getValue();
         String elanInstanceName = sn.getNetworkId().getValue();
-        InstanceIdentifier<ElanInstance>elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-        Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
+        InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class).child
+                (ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
+        Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+                elanIdentifierId);
+        //TODO: Cache it in add so can reuse it in update and delete. Best would be to cache in some ElanUtils
         long elanTag = elanInstance.get().getElanTag();
         Uuid routerId = NeutronvpnUtils.getVpnMap(broker, vpnId).getRouterId();
         if (vpnId.equals(routerId)) {
@@ -861,15 +864,18 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         boolean isLockAcquired = false;
         String lockName = vpnId.getValue() + subnet.getValue();
         String elanInstanceName = sn.getNetworkId().getValue();
-        InstanceIdentifier<ElanInstance>elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-        Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
+        InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class).child
+                (ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
+        Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+                elanIdentifierId);
         long elanTag = elanInstance.get().getElanTag();
         try {
             isLockAcquired = NeutronvpnUtils.lock(lockManager, lockName);
-            checkAndPublishSubnetUpdNotification(subnet, sn.getSubnetIp(), vpnId.getValue(), isBeingAssociated, elanTag);
+            checkAndPublishSubnetUpdNotification(subnet, sn.getSubnetIp(), vpnId.getValue(), isBeingAssociated,
+                    elanTag);
             logger.debug("Subnet updated in Vpn notification sent");
-        }catch (Exception e){
-            logger.error("Subnet updated in Vpn notification failed",e);
+        } catch (Exception e) {
+            logger.error("Subnet updated in Vpn notification failed", e);
         }finally {
             if (isLockAcquired) {
                 NeutronvpnUtils.unlock(lockManager, lockName);
@@ -1036,8 +1042,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         boolean isLockAcquired = false;
         String lockName = vpnId.getValue() + subnet.getValue();
         String elanInstanceName = sn.getNetworkId().getValue();
-        InstanceIdentifier<ElanInstance>elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-        Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
+        InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class).child
+                (ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
+        Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+                elanIdentifierId);
         long elanTag = elanInstance.get().getElanTag();
         Uuid routerId = NeutronvpnUtils.getVpnMap(broker, vpnId).getRouterId();
         if (vpnId.equals(routerId)) {
@@ -1106,57 +1114,80 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
     }
 
     protected List<String> associateNetworksToVpn(Uuid vpn, List<Uuid> networks) {
-        List<String> failed = new ArrayList<>();
+
+        List<String> failedNwList = new ArrayList<String>();
+        List<Uuid> passedNwList = new ArrayList<>();
         if (!networks.isEmpty()) {
-            // store in Data Base
-            updateVpnMaps(vpn, null, null, null, networks);
             // process corresponding subnets for VPN
             for (Uuid nw : networks) {
-                Network net = NeutronvpnUtils.getNeutronNetwork(broker, nw);
-                if (net == null) {
-                    failed.add(nw.getValue());
+                Network network = NeutronvpnUtils.getNeutronNetwork(broker, nw);
+                Uuid vpnId = NeutronvpnUtils.getVpnForNetwork(broker, nw);
+                if (network == null) {
+                    failedNwList.add(String.format("network %s not found", nw.getValue()));
+                } else if (vpnId != null) {
+                    failedNwList.add(String.format("network %s already associated to another VPN %s", nw.getValue(),
+                            vpnId.getValue()));
                 } else {
                     List<Uuid> networkSubnets = NeutronvpnUtils.getSubnetIdsFromNetworkId(broker, nw);
-                    logger.debug("Adding network subnets...");
+                    logger.debug("Adding network subnets...{}", networkSubnets);
                     if (networkSubnets != null) {
                         for (Uuid subnet : networkSubnets) {
-                            addSubnetToVpn(vpn, subnet);
+                            // check if subnet added as router interface to some router
+                            Uuid routerVpnId = NeutronvpnUtils.getVpnForSubnet(broker, subnet);
+                            if (routerVpnId == null) {
+                                addSubnetToVpn(vpn, subnet);
+                                passedNwList.add(nw);
+                            } else {
+                                failedNwList.add(String.format("subnet %s already added as router interface bound to " +
+                                        "internal/external VPN %s", subnet.getValue (), routerVpnId.getValue()));
+                            }
                         }
                     }
-                    if (net.getAugmentation(NetworkL3Extension.class).isExternal()) {
-                        nvpnNatManager.addExternalNetworkToVpn(net, vpn);
+                    if (network.getAugmentation(NetworkL3Extension.class) != null && network.getAugmentation
+                            (NetworkL3Extension.class).isExternal()) {
+                        nvpnNatManager.addExternalNetworkToVpn(network, vpn);
                     }
                 }
             }
+            updateVpnMaps(vpn, null, null, null, passedNwList);
         }
-        return failed;
+        return failedNwList;
     }
 
     protected List<String> dissociateNetworksFromVpn(Uuid vpn, List<Uuid> networks) {
-        List<String> failed = new ArrayList<>();
+
+        List<String> failedNwList = new ArrayList<String>();
+        List<Uuid> passedNwList = new ArrayList<>();
         if (networks != null && !networks.isEmpty()) {
-            // store in Data Base
-            clearFromVpnMaps(vpn, null, networks);
             // process corresponding subnets for VPN
             for (Uuid nw : networks) {
-                Network net = NeutronvpnUtils.getNeutronNetwork(broker, nw);
-                if (net == null) {
-                    failed.add(nw.getValue());
+                Network network = NeutronvpnUtils.getNeutronNetwork(broker, nw);
+                if (network == null) {
+                    failedNwList.add(String.format("network %s not found", nw.getValue()));
                 } else {
                     List<Uuid> networkSubnets = NeutronvpnUtils.getSubnetIdsFromNetworkId(broker, nw);
                     logger.debug("Removing network subnets...");
                     if (networkSubnets != null) {
                         for (Uuid subnet : networkSubnets) {
-                            removeSubnetFromVpn(vpn, subnet);
+                            // check if subnet added as router interface to some router
+                            Uuid routerVpnId = NeutronvpnUtils.getVpnForSubnet(broker, subnet);
+                            if (routerVpnId == null) {
+                                removeSubnetFromVpn(vpn, subnet);
+                                passedNwList.add(nw);
+                            } else {
+                                failedNwList.add(String.format("subnet %s added as router interface bound to " +
+                                        "internal/external VPN %s", subnet.getValue (), routerVpnId.getValue()));
+                            }
                         }
                     }
-                    if (net.getAugmentation(NetworkL3Extension.class).isExternal()) {
-                        nvpnNatManager.removeExternalNetworkFromVpn(net);
+                    if (network.getAugmentation(NetworkL3Extension.class).isExternal()) {
+                        nvpnNatManager.removeExternalNetworkFromVpn(network);
                     }
                 }
             }
+            clearFromVpnMaps(vpn, null, passedNwList);
         }
-        return failed;
+        return failedNwList;
     }
 
     @Override
@@ -1174,7 +1205,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
                 if (netIds != null && !netIds.isEmpty()) {
                     List<String> failed = associateNetworksToVpn(vpnId, netIds);
                     if (!failed.isEmpty()) {
-                        returnMsg.append("network(s) not found : ").append(failed);
+                        returnMsg.append(failed);
                     }
                 }
             } else {
@@ -1215,9 +1246,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
                 Router rtr = NeutronvpnUtils.getNeutronRouter(broker, routerId);
                 VpnMap vpnMap = NeutronvpnUtils.getVpnMap(broker, vpnId);
                 if (rtr != null && vpnMap != null) {
+                    Uuid extVpnId = NeutronvpnUtils.getVpnForRouter(broker, routerId, true);
                     if (vpnMap.getRouterId() != null) {
                         returnMsg.append("vpn ").append(vpnId.getValue()).append(" already associated to router ")
                                 .append(vpnMap.getRouterId().getValue());
+                    } else if (extVpnId != null) {
+                        returnMsg.append("router ").append(routerId.getValue()).append(" already associated to " +
+                                "another VPN ").append(extVpnId.getValue());
                     } else {
                         associateRouterToVpn(vpnId, routerId);
                     }
@@ -1262,7 +1297,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
                 if (netIds != null && !netIds.isEmpty()) {
                     List<String> failed = dissociateNetworksFromVpn(vpnId, netIds);
                     if (!failed.isEmpty()) {
-                        returnMsg.append("netowrk(s) not found : ").append(failed);
+                        returnMsg.append(failed);
                     }
                 }
             } else {
@@ -1304,7 +1339,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
                 if (routerId != null) {
                     Router rtr = NeutronvpnUtils.getNeutronRouter(broker, routerId);
                     if (rtr != null) {
-                        dissociateRouterFromVpn(vpnId, routerId);
+                        Uuid routerVpnId = NeutronvpnUtils.getVpnForRouter(broker, routerId, true);
+                        if (!routerVpnId.equals(vpnId)) {
+                            returnMsg.append("input router ").append(routerId.getValue()).append(" associated to " +
+                                    "vpn ").append(routerVpnId.getValue()).append("instead of the vpn given as input");
+                        } else {
+                            dissociateRouterFromVpn(vpnId, routerId);
+                        }
                     } else {
                         returnMsg.append("router not found : ").append(routerId.getValue());
                     }
@@ -1441,11 +1482,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         try {
             Optional<Ports> ports = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, portidentifier);
             if (ports.isPresent() && ports.get().getPort() != null) {
-                List<Port> portList = ports.get().getPort();
-                for (Port port : portList) {
-                    result.add(String.format(" %-34s  %-22s  %-22s  %-6s ", port.getUuid().getValue(), port
-                            .getMacAddress(), port.getFixedIps().get(0).getIpAddress().getIpv4Address().getValue(),
-                            NeutronvpnUtils.getIPPrefixFromPort(broker, port)));
+                for (Port port : ports.get().getPort()) {
+                    if (port.getFixedIps() != null && !port.getFixedIps().isEmpty()) {
+                        result.add(String.format(" %-34s  %-22s  %-22s  %-6s ", port.getUuid().getValue(), port.
+                                getMacAddress(), port.getFixedIps().get(0).getIpAddress().getIpv4Address().getValue(),
+                                NeutronvpnUtils.getIPPrefixFromPort(broker, port)));
+                    }
                 }
             }
         } catch (Exception e) {
@@ -1528,7 +1570,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         return help.toString();
     }
 
-    private void checkAndPublishSubnetAddNotification(Uuid subnetId, String subnetIp, String vpnName, Boolean isExternalvpn, Long elanTag)throws InterruptedException{
+    private void checkAndPublishSubnetAddNotification(Uuid subnetId, String subnetIp, String vpnName,
+                                                      Boolean isExternalvpn, Long elanTag)throws InterruptedException {
         SubnetAddedToVpnBuilder builder = new SubnetAddedToVpnBuilder();
 
         logger.info("publish notification called");
@@ -1542,7 +1585,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         notificationPublishService.putNotification(builder.build());
     }
 
-    private void checkAndPublishSubnetDelNotification(Uuid subnetId, String subnetIp, String vpnName, Boolean isExternalvpn, Long elanTag)throws InterruptedException{
+    private void checkAndPublishSubnetDelNotification(Uuid subnetId, String subnetIp, String vpnName,
+                                                      Boolean isExternalvpn, Long elanTag) throws InterruptedException {
         SubnetDeletedFromVpnBuilder builder = new SubnetDeletedFromVpnBuilder();
 
         logger.info("publish notification called");
@@ -1556,7 +1600,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         notificationPublishService.putNotification(builder.build());
     }
 
-    private void checkAndPublishSubnetUpdNotification(Uuid subnetId, String subnetIp, String vpnName, Boolean isExternalvpn, Long elanTag)throws InterruptedException{
+    private void checkAndPublishSubnetUpdNotification(Uuid subnetId, String subnetIp, String vpnName,
+                                                      Boolean isExternalvpn, Long elanTag) throws InterruptedException {
         SubnetUpdatedInVpnBuilder builder = new SubnetUpdatedInVpnBuilder();
 
         logger.info("publish notification called");

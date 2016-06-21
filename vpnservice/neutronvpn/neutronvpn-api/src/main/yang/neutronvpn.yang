@@ -163,6 +163,18 @@ module neutronvpn {
         }
     }
 
+    /* container to maintain mapping between neutron router and DPN(s) on which vpn-interfaces for router are present
+    container neutron-router-dpns {
+        list router-dpn-list {
+            key router-id;
+            leaf router-id { type yang:uuid;}
+            list dpn-vpninterfaces-list {
+                key dpn-id;
+                leaf dpn-id { type uint64;}
+                leaf-list vpninterfaces-list { type yang:uuid;}
+            }
+        }
+    }
 
     /* container for DHCP Configuration */
     container dhcp-config {
@@ -404,23 +416,23 @@ module neutronvpn {
     }
 
     notification router-associated-to-vpn {
-                description "router association to vpn";
-                leaf router-id{
-                    type yang:uuid;
-                }
-                leaf vpn-id{
-                    type yang:uuid;
-                }
-        }
+            description "router association to vpn";
+            leaf router-id{
+                type yang:uuid;
+            }
+            leaf vpn-id{
+                type yang:uuid;
+            }
+    }
 
-        notification router-disassociated-from-vpn {
-                description "router disassociation from vpn";
-                leaf router-id{
-                    type yang:uuid;
-                }
-                leaf vpn-id{
-                    type yang:uuid;
-                }
-        }
+    notification router-disassociated-from-vpn {
+            description "router disassociation from vpn";
+            leaf router-id{
+                type yang:uuid;
+            }
+            leaf vpn-id{
+                type yang:uuid;
+            }
+    }
 
 }
