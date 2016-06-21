@@ -37,4 +37,6 @@ public interface INeutronVpnManager {
 
     IpAddress getNeutronSubnetGateway(Uuid subnetId);
 
+    String getVifPortName(Port port);
+
 }
