@@ -31,10 +31,10 @@ public interface INeutronVpnManager {
 
     Subnet getNeutronSubnet(Uuid subnetId);
 
-    String uuidToTapPortName(Uuid id);
-
     Port getNeutronPort(Uuid portId);
 
     IpAddress getNeutronSubnetGateway(Uuid subnetId);
+
+    String getVifPortName(Port port);
 
 }
