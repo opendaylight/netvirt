@@ -17,7 +17,6 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGrou
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
-import org.opendaylight.netvirt.utils.neutron.utils.NeutronUtils;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;

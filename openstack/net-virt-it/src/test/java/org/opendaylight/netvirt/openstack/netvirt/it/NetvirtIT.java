@@ -46,20 +46,20 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.netvirt.utils.netvirt.it.utils.NetvirtItUtils;
 import org.opendaylight.netvirt.utils.netvirt.it.utils.NeutronNetItUtil;
 import org.opendaylight.netvirt.utils.neutron.utils.NeutronUtils;
-import org.opendaylight.neutron.spi.INeutronPortCRUD;
-import org.opendaylight.neutron.spi.INeutronSecurityGroupCRUD;
-import org.opendaylight.neutron.spi.INeutronSecurityRuleCRUD;
-import org.opendaylight.neutron.spi.NeutronPort;
-import org.opendaylight.neutron.spi.NeutronSecurityGroup;
-import org.opendaylight.neutron.spi.NeutronSecurityRule;
-import org.opendaylight.neutron.spi.NeutronNetwork;
-import org.opendaylight.neutron.spi.NeutronSubnet;
 import org.opendaylight.ovsdb.lib.notation.Version;
 import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityGroupCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.ItConstants;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.OvsdbItUtils;
@@ -537,7 +537,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         NeutronSecurityGroup neutronSG = new NeutronSecurityGroup();
         neutronSG.setSecurityGroupName("DefaultSG");
         neutronSG.setID("d3329053-bae5-4bf4-a2d1-7330f11ba5db");
-        neutronSG.setTenantID(tenantId);
+        neutronSG.setSecurityGroupTenantID(tenantId);
 
         List<NeutronSecurityRule> nsrs = new ArrayList<>();
         NeutronSecurityRule nsrIN = new NeutronSecurityRule();
@@ -548,7 +548,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         nsrIN.setSecurityRuleProtocol("TCP");
         nsrIN.setSecurityRuleRemoteIpPrefix("10.0.0.0/24");
         nsrIN.setID("823faaf7-175d-4f01-a271-0bf56fb1e7e6");
-        nsrIN.setTenantID(tenantId);
+        nsrIN.setSecurityRuleTenantID(tenantId);
 
         NeutronSecurityRule nsrEG = new NeutronSecurityRule();
         nsrEG.setSecurityRemoteGroupID(null);
@@ -558,14 +558,14 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         nsrEG.setSecurityRuleProtocol("TCP");
         nsrEG.setSecurityRuleRemoteIpPrefix("10.0.0.0/24");
         nsrEG.setID("823faaf7-175d-4f01-a271-0bf56fb1e7e1");
-        nsrEG.setTenantID(tenantId);
+        nsrEG.setSecurityRuleTenantID(tenantId);
 
         nsrs.add(nsrIN);
         nsrs.add(nsrEG);
 
         ineutronSecurityRuleCRUD.addNeutronSecurityRule(nsrIN);
         ineutronSecurityRuleCRUD.addNeutronSecurityRule(nsrEG);
-        ineutronSecurityGroupCRUD.add(neutronSG);
+        ineutronSecurityGroupCRUD.addNeutronSecurityGroup(neutronSG);
 
         List<NeutronSecurityGroup> sgs = new ArrayList<>();
         sgs.add(neutronSG);
@@ -573,7 +573,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
         INeutronPortCRUD iNeutronPortCRUD =
                 (INeutronPortCRUD) ServiceHelper.getGlobalInstance(INeutronPortCRUD.class, this);
-        iNeutronPortCRUD.update(portId, nport);
+        iNeutronPortCRUD.updatePort(portId, nport);
 
         LOG.info("Neutron ports have been added");
         Thread.sleep(10000);
@@ -583,7 +583,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         flowId = "Ingress_IP" + nn.getProviderSegmentationID() + "_" + nport.getMacAddress() + "_Permit_";
         nvItUtils.verifyFlow(datapathId, flowId, pipelineOrchestrator.getTable(Service.INGRESS_ACL));
 
-        ineutronSecurityGroupCRUD.remove(neutronSG.getID());
+        ineutronSecurityGroupCRUD.removeNeutronSecurityGroup(neutronSG.getID());
         ineutronSecurityRuleCRUD.removeNeutronSecurityRule(nsrEG.getID());
         ineutronSecurityRuleCRUD.removeNeutronSecurityRule(nsrIN.getID());
     }
