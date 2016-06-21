@@ -16,6 +16,24 @@
       "revId": "dd45cdafe4c7107f2763dc14f3dc24ce44d8ea92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_b1ba6bdf",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1485,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-06-21T12:42:48Z",
+      "side": 1,
+      "message": "I agree with the order switch; is neutronPort.getPortUUID() guaranteed not to be null?",
+      "parentUuid": "da5c1566_f457b500",
+      "revId": "dd45cdafe4c7107f2763dc14f3dc24ce44d8ea92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
