@@ -24,6 +24,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPortsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.PortsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
@@ -119,7 +123,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         }
         /* check if router interface has been created */
         if ((input.getDeviceOwner() != null) && (input.getDeviceId() != null)) {
-            if (input.getDeviceOwner().equals(NeutronvpnUtils.DEVICE_OWNER_ROUTER_INF)) {
+            if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
                 handleRouterInterfaceAdded(input);
                 /* nothing else to do here */
                 return;
@@ -143,7 +147,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             return;
         }
         if ((input.getDeviceOwner() != null) && (input.getDeviceId() != null)) {
-            if (input.getDeviceOwner().equals(NeutronvpnUtils.DEVICE_OWNER_ROUTER_INF)) {
+            if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
                 handleRouterInterfaceRemoved(input);
                 /* nothing else to do here */
                 return;
@@ -169,9 +173,14 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<FixedIps>();
         List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<FixedIps>();
 
+        /* check if VIF type updated as part of port binding */
+        if (NeutronvpnUtils.isPortVifTypeUpdated(original, update)) {
+            updateOfPortInterface(original, update);
+        }
+
         /* check if router interface has been updated */
         if ((update.getDeviceOwner() != null) && (update.getDeviceId() != null)) {
-            if (update.getDeviceOwner().equals(NeutronvpnUtils.DEVICE_OWNER_ROUTER_INF)) {
+            if (update.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
                 handleRouterInterfaceAdded(update);
                 /* nothing else to do here */
                 return;
@@ -208,8 +217,8 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                     }
                 }
             } else {
-                LOG.error("Neutron network {} corresponding to router interface port {} for neutron router {} already" +
-                        " associated to VPN {}", infNetworkId.getValue(), routerPort.getUuid().getValue(), routerId
+                LOG.warn("Neutron network {} corresponding to router interface port {} for neutron router {} already " +
+                        "associated to VPN {}", infNetworkId.getValue(), routerPort.getUuid().getValue(), routerId
                         .getValue(), existingVpnId.getValue());
             }
         }
@@ -258,6 +267,8 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     }
 
     private void handleNeutronPortDeleted(Port port) {
+        //dissociate fixedIP from floatingIP if associated
+        dissociatefixedIPFromFloatingIP(port.getUuid().getValue());
         LOG.debug("Of-port-interface removal");
         LOG.debug("Remove port from subnet");
         // remove port from local Subnets DS
@@ -325,15 +336,20 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     }
 
     private Interface createInterface(Port port) {
-        String parentRefName = NeutronvpnUtils.uuidToTapPortName(port.getUuid());
+
+        String parentRefName = NeutronvpnUtils.getVifPortName(port);
         String interfaceName = port.getUuid().getValue();
         IfL2vlan.L2vlanMode l2VlanMode = IfL2vlan.L2vlanMode.Trunk;
         InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
         IfL2vlanBuilder ifL2vlanBuilder = new IfL2vlanBuilder();
         ifL2vlanBuilder.setL2vlanMode(l2VlanMode);
-        ParentRefsBuilder parentRefsBuilder = new ParentRefsBuilder().setParentInterface(parentRefName);
-        interfaceBuilder.setEnabled(true).setName(interfaceName).setType(L2vlan.class).addAugmentation(IfL2vlan
-                .class, ifL2vlanBuilder.build()).addAugmentation(ParentRefs.class, parentRefsBuilder.build());
+        if (parentRefName != null) {
+            ParentRefsBuilder parentRefsBuilder = new ParentRefsBuilder().setParentInterface(parentRefName);
+            interfaceBuilder.addAugmentation(ParentRefs.class, parentRefsBuilder.build());
+        }
+
+        interfaceBuilder.setEnabled(true).setName(interfaceName).setType(L2vlan.class)
+                .addAugmentation(IfL2vlan.class, ifL2vlanBuilder.build());
         return interfaceBuilder.build();
     }
 
@@ -352,6 +368,41 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         } catch (Exception e) {
             LOG.error("Failed to delete interface {} due to the exception {}", name, e.getMessage());
         }
+    }
+
+    private Interface updateInterface(Port original, Port update) {
+        String parentRefName = NeutronvpnUtils.getVifPortName(update);
+        String interfaceName = original.getUuid().getValue();
+        InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
+
+        if (parentRefName != null) {
+            ParentRefsBuilder parentRefsBuilder = new ParentRefsBuilder().setParentInterface(parentRefName);
+            interfaceBuilder.addAugmentation(ParentRefs.class, parentRefsBuilder.build());
+        }
+
+        interfaceBuilder.setName(interfaceName);
+        return interfaceBuilder.build();
+    }
+
+    private String updateOfPortInterface(Port original, Port updated) {
+        Interface inf = updateInterface(original, updated);
+        String infName = inf.getName();
+
+        LOG.debug("Updating OFPort Interface {}", infName);
+        InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(infName);
+        try {
+            Optional<Interface> optionalInf = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+                    interfaceIdentifier);
+            if (optionalInf.isPresent()) {
+                MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
+            } else {
+                LOG.error("Interface {} doesn't exist", infName);
+            }
+        } catch (Exception e) {
+            LOG.error("failed to update interface {} due to the exception {} ", infName, e);
+        }
+
+        return infName;
     }
 
     private void createElanInterface(Port port, String name) {
@@ -467,5 +518,77 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         builder.setSubnetId(subnetId);
 
         notificationPublishService.putNotification(builder.build());
+    }
+
+
+    private void dissociatefixedIPFromFloatingIP(String fixedNeutronPortName) {
+        boolean isLockAcquired = false;
+        InstanceIdentifier.InstanceIdentifierBuilder<FloatingIpInfo> floatingIpInfoIdentifierBuilder =
+                InstanceIdentifier.builder(FloatingIpInfo.class);
+        try {
+            Optional<FloatingIpInfo> optionalFloatingIPInfo = NeutronvpnUtils.read(broker, LogicalDatastoreType
+                    .CONFIGURATION, floatingIpInfoIdentifierBuilder.build());
+            if (optionalFloatingIPInfo.isPresent() && optionalFloatingIPInfo.get() != null) {
+                List<RouterPorts> routerPortsList = optionalFloatingIPInfo.get().getRouterPorts();
+                if (routerPortsList != null && !routerPortsList.isEmpty()) {
+                    for (RouterPorts routerPorts : routerPortsList) {
+                        List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating
+                                .ip.info.router.ports.Ports> portsList = routerPorts.getPorts();
+                        if (portsList != null && !portsList.isEmpty()) {
+                            String routerName = routerPorts.getRouterId();
+                            InstanceIdentifier.InstanceIdentifierBuilder<RouterPorts> routerPortsIdentifierBuilder =
+                                    floatingIpInfoIdentifierBuilder.child(RouterPorts.class, new RouterPortsKey
+                                            (routerName));
+                            if (portsList.size() == 1) {
+                                try {
+                                    // remove entire routerPorts node
+                                    isLockAcquired = NeutronvpnUtils.lock(lockManager, routerName);
+                                    LOG.debug("removing routerPorts node: {} ", routerName);
+                                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifierBuilder.build());
+
+                                } catch (Exception e) {
+                                    LOG.error("Failure in deletion of routerPorts node {}", routerName);
+                                } finally {
+                                    if (isLockAcquired) {
+                                        NeutronvpnUtils.unlock(lockManager, routerName);
+                                    }
+                                }
+                            } else {
+                                InstanceIdentifier.InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn
+                                        .opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports
+                                        .Ports> portsIdentifierBuilder = routerPortsIdentifierBuilder.child(org
+                                        .opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
+                                        .floating.ip.info.router.ports.Ports.class, new PortsKey(fixedNeutronPortName));
+                                try {
+                                    // remove entire ports node under this routerPorts node
+                                    isLockAcquired = NeutronvpnUtils.lock(lockManager, fixedNeutronPortName);
+                                    LOG.debug("removing ports node {} under routerPorts node {}",
+                                            fixedNeutronPortName, routerName);
+                                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION,
+                                            portsIdentifierBuilder.build());
+                                } catch (Exception e) {
+                                    LOG.error("Failure in deletion of routerPorts node {}", routerName);
+                                } finally {
+                                    if (isLockAcquired) {
+                                        NeutronvpnUtils.unlock(lockManager, routerName);
+                                    }
+                                }
+                            }
+                            LOG.debug("Deletion from FloatingIpInfo DS successful for fixedIP neutron port {} ",
+                                    fixedNeutronPortName);
+                        } else {
+                            LOG.debug("Neutron port {} not associated to any floating IP", fixedNeutronPortName);
+                        }
+                    }
+                } else {
+                    LOG.debug("No router present containing fixed to floating IP association(s)");
+                }
+            } else {
+                LOG.debug("FloatingIPInfo DS empty. Hence, no router present containing fixed to floating IP " +
+                        "association(s)");
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to dissociate fixedIP from FloatingIpInfo DS for neutron port {}", fixedNeutronPortName);
+        }
     }
 }
