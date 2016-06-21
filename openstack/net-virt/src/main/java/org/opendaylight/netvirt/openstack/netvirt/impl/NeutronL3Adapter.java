@@ -1590,7 +1590,9 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
     }
 
     private void storeNetworkInCleanupCache(NeutronNetwork network) {
-        this.networkCleanupCache.put(network.getNetworkUUID(), network);
+        if (network != null) {
+            this.networkCleanupCache.put(network.getNetworkUUID(), network);
+        }
     }
 
 
