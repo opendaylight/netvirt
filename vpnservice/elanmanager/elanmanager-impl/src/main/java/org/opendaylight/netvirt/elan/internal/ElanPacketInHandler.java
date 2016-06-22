@@ -58,9 +58,9 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
     @Override
     public void onPacketReceived(PacketReceived notification) {
-        Class<? extends PacketInReason>  pktInReason =  notification.getPacketInReason();
+        Class<? extends PacketInReason> pktInReason = notification.getPacketInReason();
         short tableId = notification.getTableId().getValue();
-        if(pktInReason == NoMatch.class && tableId == ElanConstants.ELAN_SMAC_TABLE) {
+        if (pktInReason == NoMatch.class && tableId == ElanConstants.ELAN_SMAC_TABLE) {
             try {
                 byte[] data = notification.getPayload();
                 Ethernet res = new Ethernet();
@@ -88,46 +88,59 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 }
                 String elanName = elanTagName.getName();
                 MacEntry macEntry = ElanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
-                if(macEntry != null && macEntry.getInterface() == interfaceName) {
+                if (macEntry != null && macEntry.getInterface() == interfaceName) {
                     BigInteger macTimeStamp = macEntry.getControllerLearnedForwardingEntryTimestamp();
-                    if (System.currentTimeMillis() > macTimeStamp.longValue()+2000) {
+                    if (System.currentTimeMillis() > macTimeStamp.longValue() + 2000) {
                         /*
-                         * Protection time expired. Even though the MAC has been learnt (it is in the cache)
-                         * the packets are punted to controller. Which means, the the flows were not successfully
-                         * created in the DPN, but the MAC entry has been added successfully in the cache.
+                         * Protection time expired. Even though the MAC has been
+                         * learnt (it is in the cache) the packets are punted to
+                         * controller. Which means, the the flows were not
+                         * successfully created in the DPN, but the MAC entry
+                         * has been added successfully in the cache.
                          *
-                         * So, the cache has to be cleared and the flows and cache should be recreated (clearing
-                         * of cache is required so that the timestamp is updated).
+                         * So, the cache has to be cleared and the flows and
+                         * cache should be recreated (clearing of cache is
+                         * required so that the timestamp is updated).
                          */
-                        InstanceIdentifier<MacEntry> macEntryId =  ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+                        InstanceIdentifier<MacEntry> macEntryId = ElanUtils
+                                .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
                         ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
                     } else {
                         // Protection time running. Ignore packets for 2 seconds
                         return;
                     }
-                } else if(macEntry != null) {
-                    // MAC address has moved. Overwrite the mapping and replace MAC flows
+                } else if (macEntry != null) {
+                    // MAC address has moved. Overwrite the mapping and replace
+                    // MAC flows
                     long macTimeStamp = macEntry.getControllerLearnedForwardingEntryTimestamp().longValue();
-                    if (System.currentTimeMillis() > macTimeStamp+1000) {
+                    if (System.currentTimeMillis() > macTimeStamp + 1000) {
 
-                        InstanceIdentifier<MacEntry> macEntryId =  ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+                        InstanceIdentifier<MacEntry> macEntryId = ElanUtils
+                                .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
                         ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
                         tryAndRemoveInvalidMacEntry(elanName, macEntry);
                     } else {
-                        // New FEs flood their packets on all interfaces. This can lead
-                        // to many contradicting packet_ins. Ignore all packets received
+                        // New FEs flood their packets on all interfaces. This
+                        // can lead
+                        // to many contradicting packet_ins. Ignore all packets
+                        // received
                         // within 1s after the first packet_in
                         return;
                     }
                 }
-                BigInteger timeStamp = new BigInteger(String.valueOf((long)System.currentTimeMillis()));
-                macEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress).setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp).setIsStaticAddress(false).build();
-                InstanceIdentifier<MacEntry> macEntryId = ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+                BigInteger timeStamp = new BigInteger(String.valueOf((long) System.currentTimeMillis()));
+                macEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
+                        .setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp)
+                        .setIsStaticAddress(false).build();
+                InstanceIdentifier<MacEntry> macEntryId = ElanUtils
+                        .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry);
-                InstanceIdentifier<MacEntry> elanMacEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
+                InstanceIdentifier<MacEntry> elanMacEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName,
+                        physAddress);
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, elanMacEntryId, macEntry);
                 ElanInstance elanInstance = ElanUtils.getElanInstanceByName(elanName);
-                ElanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), elanInstance.getMacTimeout(), macAddress);
+                ElanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName),
+                        elanInstance.getMacTimeout(), macAddress);
 
                 BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
                 ElanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
@@ -139,12 +152,11 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
     }
 
-
     /*
- * Though this method is a little costlier because it uses try-catch construct, it is used
- * only in rare scenarios like MAC movement or invalid Static MAC having been added on a
- * wrong ELAN.
- */
+     * Though this method is a little costlier because it uses try-catch
+     * construct, it is used only in rare scenarios like MAC movement or invalid
+     * Static MAC having been added on a wrong ELAN.
+     */
     private void tryAndRemoveInvalidMacEntry(String elanName, MacEntry macEntry) {
         ElanInstance elanInfo = ElanUtils.getElanInstanceByName(elanName);
         if (elanInfo == null) {
@@ -155,8 +167,11 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
         InterfaceInfo oldInterfaceLport = interfaceManager.getInterfaceInfo(macEntry.getInterface());
         if (oldInterfaceLport == null) {
-            logger.warn(String.format("MAC %s is been added (either statically or dynamically) on an invalid Logical Port %s. "
-                    + "Manual cleanup may be necessary", macEntry.getMacAddress(), macEntry.getInterface()));
+            logger.warn(
+                    String.format(
+                            "MAC %s is been added (either statically or dynamically) on an invalid Logical Port %s. "
+                                    + "Manual cleanup may be necessary",
+                            macEntry.getMacAddress(), macEntry.getInterface()));
             return;
         }
         ElanUtils.deleteMacFlows(elanInfo, oldInterfaceLport, macEntry);
