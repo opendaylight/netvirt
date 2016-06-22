@@ -8,8 +8,8 @@
 
 package org.opendaylight.netvirt.aclservice;
 
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.netvirt.aclservice.api.AclService;
 
@@ -33,5 +33,5 @@ public class AclServiceProvider implements BindingAwareProvider, AclService, Aut
     @Override
     public void close() throws Exception {
         LOG.info("ACL Service closed");
-     }
+    }
 }
