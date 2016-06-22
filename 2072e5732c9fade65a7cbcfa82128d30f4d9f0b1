@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_457ce920",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-22T10:07:43Z",
+      "side": 1,
+      "message": "As per good code practices shall we write like that,\n\nLOG.error(\"failed to update interface {} due to the exception\", infName);\n\nor\n\nLOG.error(\"failed to update interface {} due to the exception\", infName);\nthrow new RuntimeException(\"failed to update interface due to the exception\", e);",
+      "revId": "2072e5732c9fade65a7cbcfa82128d30f4d9f0b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_45ca2950",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-22T10:07:43Z",
+      "side": 1,
+      "message": "This is my suggestion - This method contains many conditional statements and it may cause sonar defect. and we can split this method.",
+      "revId": "2072e5732c9fade65a7cbcfa82128d30f4d9f0b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_25c73547",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 877,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-22T10:07:43Z",
+      "side": 1,
+      "message": "Give space before e.",
+      "revId": "2072e5732c9fade65a7cbcfa82128d30f4d9f0b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_c5dd9916",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1131,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-22T10:07:43Z",
+      "side": 1,
+      "message": "Here we can add networkSubnets arguments in the logger statement. this will be useful for code debug purpose.",
+      "revId": "2072e5732c9fade65a7cbcfa82128d30f4d9f0b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
