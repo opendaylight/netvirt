@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_e511bdad",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-22T10:30:04Z",
+      "side": 1,
+      "message": "or\n\nLOG.error(\"failed to update interface {} due to the exception\", infName, e);",
+      "parentUuid": "ba51214e_457ce920",
+      "revId": "2072e5732c9fade65a7cbcfa82128d30f4d9f0b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_45ca2950",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 10
