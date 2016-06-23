@@ -495,6 +495,30 @@
       "revId": "2072e5732c9fade65a7cbcfa82128d30f4d9f0b1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_fa94b338",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-23T10:09:34Z",
+      "side": 1,
+      "message": "@Vinoth: My question here was more about \u0027instanceof\u0027 vs \u0027isAssignableFrom\u0027. I would prefer npe.getNetwokType() as no point creating a new local variable just for this.",
+      "parentUuid": "ba51214e_2fa26fae",
+      "range": {
+        "startLine": 503,
+        "startChar": 20,
+        "endLine": 503,
+        "endChar": 74
+      },
+      "revId": "2072e5732c9fade65a7cbcfa82128d30f4d9f0b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
