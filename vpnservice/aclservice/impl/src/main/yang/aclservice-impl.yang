@@ -4,7 +4,8 @@ module aclservice-impl {
     prefix "aclservice-impl";
 
     import config {prefix config; revision-date 2013-04-05;}
-    import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28;}
+    import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+    import odl-mdsalutil { prefix odl-mdsal; revision-date 2016-04-06;}
     import aclservice-api { prefix sg-api; revision-date 2016-06-08;}
 
     description
@@ -28,10 +29,27 @@ module aclservice-impl {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity mdsal:binding-broker-osgi-registry;
+                        config:required-identity md-sal-binding:binding-broker-osgi-registry;
                     }
                 }
             }
+            container rpc-registry {
+                uses config:service-ref {
+                     refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-rpc-registry;
+                     }
+                }
+            }
+            container mdsalutil {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity odl-mdsal:odl-mdsalutil;
+                    }
+                }
+            }
+
         }
     }
 }

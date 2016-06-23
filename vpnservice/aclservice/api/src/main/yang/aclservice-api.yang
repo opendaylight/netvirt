@@ -20,7 +20,7 @@ module aclservice-api {
 
     identity aclservice-api {
         base "config:service-type";
-        config:java-class "org.opendaylight.netvirt.aclservice.api.AclService";
+        config:java-class "org.opendaylight.netvirt.aclservice.api.AclServiceManager";
     }
 
     identity direction-base {
