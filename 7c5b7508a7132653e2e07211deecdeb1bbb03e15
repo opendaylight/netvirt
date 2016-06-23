@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_f5c164e5",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 656
+      },
+      "writtenOn": "2016-06-23T13:21:59Z",
+      "side": 1,
+      "message": "you should use the same enum, instead of creating it again",
+      "revId": "7c5b7508a7132653e2e07211deecdeb1bbb03e15",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_95b0e88c",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 656
+      },
+      "writtenOn": "2016-06-23T13:21:59Z",
+      "side": 1,
+      "message": "a logical switch can have both leaves and roots",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 20
+      },
+      "revId": "7c5b7508a7132653e2e07211deecdeb1bbb03e15",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
