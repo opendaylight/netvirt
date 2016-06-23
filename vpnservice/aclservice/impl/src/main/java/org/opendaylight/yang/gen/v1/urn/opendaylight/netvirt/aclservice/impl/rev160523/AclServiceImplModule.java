@@ -19,6 +19,8 @@ public class AclServiceImplModule extends org.opendaylight.yang.gen.v1.urn.opend
     @Override
     public java.lang.AutoCloseable createInstance() {
         AclServiceProvider provider = new AclServiceProvider();
+        provider.setMdsalManager(getMdsalutilDependency());
+        provider.setRpcProviderRegistry(getRpcRegistryDependency());
         getBrokerDependency().registerProvider(provider);
         return provider;
 
