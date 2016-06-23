@@ -16,6 +16,24 @@
       "revId": "3755afbdbfaf94a930430f0b52d7dcbab1857a73",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_80ff0834",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-06-23T15:45:00Z",
+      "side": 0,
+      "message": "The formatting changes are necessary anyway, because this file didn\u0027t follow the check-style conventions",
+      "parentUuid": "ba51214e_a03a0ccb",
+      "revId": "3755afbdbfaf94a930430f0b52d7dcbab1857a73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
