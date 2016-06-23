@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_955e2844",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 656
+      },
+      "writtenOn": "2016-06-23T13:37:52Z",
+      "side": 1,
+      "message": "will the same mac have two flows?\nor will it be or in the regular or in the etree?",
+      "revId": "56ee7e4a9be0e8a52e668cd6331140bcb2f0f14a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_d506e01f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 656
+      },
+      "writtenOn": "2016-06-23T13:37:52Z",
+      "side": 1,
+      "message": "this seems like a duplication of the code bellow.\ntry to extract it to a helper method.",
+      "revId": "56ee7e4a9be0e8a52e668cd6331140bcb2f0f14a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
