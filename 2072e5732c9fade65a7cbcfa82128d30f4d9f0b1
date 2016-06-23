@@ -471,6 +471,30 @@
       "revId": "2072e5732c9fade65a7cbcfa82128d30f4d9f0b1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_2fa26fae",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-23T05:01:14Z",
+      "side": 1,
+      "message": "@Vishal - This question you have already addressed in the above comments (Line:500). if we want to check without specific class type, then we can use as if(npe.getNetworkType() !\u003d null), but here checking only certain specific class type (NetworkTypeVlan or NetworkTypeGre).",
+      "parentUuid": "ba51214e_06667851",
+      "range": {
+        "startLine": 503,
+        "startChar": 20,
+        "endLine": 503,
+        "endChar": 74
+      },
+      "revId": "2072e5732c9fade65a7cbcfa82128d30f4d9f0b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
