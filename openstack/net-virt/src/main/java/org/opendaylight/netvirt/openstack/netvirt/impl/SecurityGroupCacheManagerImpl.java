@@ -119,7 +119,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
             }
             NeutronPort cachedport = neutronPortCache.getPort(cachedportUuid);
             if (null == cachedport) {
-                LOG.error("In processPortAdded cachedport port not found in neuton cache:"
+                LOG.warn("In processPortAdded cachedport port not found in neuton cache:"
                             + " cachedportUuid:" + cachedportUuid);
                 continue;
             }
