@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_4088501f",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-23T15:07:42Z",
+      "side": 1,
+      "message": "why do we need to augment this? hwvtep.yang all its elements are specifically for the purpose of configuring the hwvtep schema and nothing else. This information can\u0027t be used by hwvtep plugin or device running hwvtep schema. Similar purpose could be achieved in another yang model owned by application which references this logical switch.",
+      "range": {
+        "startLine": 52,
+        "startChar": 12,
+        "endLine": 52,
+        "endChar": 38
+      },
+      "revId": "9a2500eb8c1729f75a91e48c7686246b4f014739",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
