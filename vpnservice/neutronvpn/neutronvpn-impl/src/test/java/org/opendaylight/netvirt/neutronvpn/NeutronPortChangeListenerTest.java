@@ -30,6 +30,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtensionBuilder;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -59,6 +61,8 @@ public class NeutronPortChangeListenerTest {
     ReadOnlyTransaction mockReadTx;
     @Mock
     Network mockNetwork;
+    @Mock
+    PortSecurityExtension portSecurityExtension;
 
     @Before
     public void setUp() {
@@ -70,6 +74,7 @@ public class NeutronPortChangeListenerTest {
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
+        doReturn(true).when(portSecurityExtension).isPortSecurityEnabled();
         when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
             thenReturn(Futures.immediateCheckedFuture(Optional.of(mockNetwork)));
 
@@ -85,9 +90,12 @@ public class NeutronPortChangeListenerTest {
         IpAddress ipv6 = new IpAddress(new Ipv6Address("1::1"));
         FixedIpsBuilder fib = new FixedIpsBuilder();
         fib.setIpAddress(ipv6);
-        List<FixedIps> fixedIps = new ArrayList<FixedIps>();
+        List<FixedIps> fixedIps = new ArrayList<>();
         fixedIps.add(fib.build());
         pb.setFixedIps(fixedIps);
+        PortSecurityExtensionBuilder portSecurityBuilder = new PortSecurityExtensionBuilder();
+        portSecurityBuilder.setPortSecurityEnabled(true);
+        pb.addAugmentation(PortSecurityExtension.class, portSecurityBuilder .build());
         Port port = pb.build();
         neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
     }
@@ -101,9 +109,12 @@ public class NeutronPortChangeListenerTest {
         IpAddress ipv4 = new IpAddress(new Ipv4Address("2.2.2.2"));
         FixedIpsBuilder fib = new FixedIpsBuilder();
         fib.setIpAddress(ipv4);
-        List<FixedIps> fixedIps = new ArrayList<FixedIps>();
+        List<FixedIps> fixedIps = new ArrayList<>();
         fixedIps.add(fib.build());
         pb.setFixedIps(fixedIps);
+        PortSecurityExtensionBuilder portSecurityBuilder = new PortSecurityExtensionBuilder();
+        portSecurityBuilder.setPortSecurityEnabled(true);
+        pb.addAugmentation(PortSecurityExtension.class, portSecurityBuilder .build());
         Port port = pb.build();
         neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
     }
@@ -114,8 +125,11 @@ public class NeutronPortChangeListenerTest {
         pb.setUuid(new Uuid("12345678-1234-1234-1234-123456789012"));
         pb.setNetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
         pb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
-        List<FixedIps> fixedIps = new ArrayList<FixedIps>();
+        List<FixedIps> fixedIps = new ArrayList<>();
         pb.setFixedIps(fixedIps);
+        PortSecurityExtensionBuilder portSecurityBuilder = new PortSecurityExtensionBuilder();
+        portSecurityBuilder.setPortSecurityEnabled(true);
+        pb.addAugmentation(PortSecurityExtension.class, portSecurityBuilder .build());
         Port port = pb.build();
         neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
     }

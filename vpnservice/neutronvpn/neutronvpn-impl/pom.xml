@@ -67,6 +67,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>natservice-api</artifactId>
             <version>${vpnservices.version}</version>
         </dependency>
+        <dependency>
+        	<groupId>org.opendaylight.netvirt</groupId>
+        	<artifactId>aclservice-api</artifactId>
+        	<version>0.3.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <!--
