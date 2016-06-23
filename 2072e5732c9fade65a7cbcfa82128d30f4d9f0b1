@@ -519,6 +519,30 @@
       "revId": "2072e5732c9fade65a7cbcfa82128d30f4d9f0b1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_1a05277a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-23T10:34:55Z",
+      "side": 1,
+      "message": "@Vishal, Now i have understood your question.\n\ninstanceof can only be used with reference types, not primitive types.\nisAssignableFrom() can be used with any class objects.\n\nWhen using instanceof, you need to know the class of \"B\" at compile time. \nWhen using isAssignableFrom() it can be dynamic and change during runtime.\n\nImportant:\nNote 1:\nif we used instanceof (null instanceof X is false, no matter what X is)\nnull.getClass().isAssignableFrom(X) will throw a NullPoniterException.\nNote 2: Performace wise instanceof is good.\n\nMy question here is if we used instanceOf operator, then do required null check?.",
+      "parentUuid": "ba51214e_fa94b338",
+      "range": {
+        "startLine": 503,
+        "startChar": 20,
+        "endLine": 503,
+        "endChar": 74
+      },
+      "revId": "2072e5732c9fade65a7cbcfa82128d30f4d9f0b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
