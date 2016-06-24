@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_10dea311",
+        "filename": "vpnservice/features/src/main/features/features.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-06-24T12:40:07Z",
+      "side": 1,
+      "message": "ipv6service-api bundle will also be required for the imple bundle once all the files in the routermanager branch are to moved to the new bundle",
+      "revId": "71d1586e5290a80364f40200fac17e9ea4feebc6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_a33173ee",
+        "filename": "vpnservice/ipv6service/impl/src/main/config/default-config.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-06-24T12:40:07Z",
+      "side": 1,
+      "message": "can we have the name as just ipv6service",
+      "revId": "71d1586e5290a80364f40200fac17e9ea4feebc6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
