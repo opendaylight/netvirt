@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba51214e_309f6754",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-24T10:21:07Z",
+      "side": 1,
+      "message": "why this notification doesn\u0027t call addToFloatingIpInfo?\nwhat other flow is triggering the creation of FloatingIpInfo?",
+      "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_f0316fa3",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 12
@@ -13,6 +30,41 @@
       "writtenOn": "2016-06-24T08:46:51Z",
       "side": 1,
       "message": "wouldn\u0027t it make sense to add this code in FloatingIpListener since this code is related to floating ip only?",
+      "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_d020abf9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-24T10:21:07Z",
+      "side": 1,
+      "message": "1) is this bug exist also in Mitaka?\n2) my comment was more like a \"code convention\" question. wouldn\u0027t it be more sense to expect code that related to FloatingIp to be near the code where all handling of FloatingIp is done. i find it confusing to look in several places the creation/deletion of a specific type of element.\n3) general question regarding using locks in this flow. it seems that lock are used only to protect from concurrent writing to mdsal but not from races. for example an add of routerPort that runs in parallel to a delete can end up with a non-expected result\nwhat is protecting the code from such races?",
+      "parentUuid": "ba51214e_50ac9ba0",
+      "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_b0aa576e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1132,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-24T10:21:07Z",
+      "side": 1,
+      "message": "missing {}",
       "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
