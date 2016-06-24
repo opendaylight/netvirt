@@ -159,14 +159,8 @@ public class PktHandler implements PacketProcessingListener {
                     LOG.warn("No learnt interface is available for the given target IP {}",
                         nsPdu.getTargetIpAddress());
                     return;
-                } else if (!port.getDeviceOwner().equalsIgnoreCase(ifMgr.NETWORK_ROUTER_INTERFACE)) {
-                    pktProccessedCounter++;
-                    //TODO: Revisit this part of code when North-South communication is implemented.
-                    LOG.debug("Ignoring Neighbor Solicitation for a non-router interface {}",
-                        nsPdu.getTargetIpAddress());
-                    return;
                 }
-
+               
                 //formulate the NA response
                 NeighborAdvertisePacketBuilder naPacket = new NeighborAdvertisePacketBuilder();
                 updateNAResponse(nsPdu, port, naPacket);

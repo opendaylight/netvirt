@@ -64,7 +64,7 @@ public class VirtualPort  {
     }
 
     public Uuid getNetworkID() {
-        return intfUUID;
+        return networkID;
     }
 
     public VirtualPort setNetworkID(Uuid networkID) {

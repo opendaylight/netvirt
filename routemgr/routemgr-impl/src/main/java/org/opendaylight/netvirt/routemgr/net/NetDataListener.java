@@ -222,7 +222,7 @@ public class NetDataListener implements DataChangeListener {
         ifMgr.addSubnet(snet.getUuid(), snet.getName(),
                     snet.getNetworkId(), snet.getTenantId(),
                     snet.getGatewayIp(), poolsList,
-                    IP_VERSION_MAP.get(snet.getIpVersion()), snet.getCidr(),
+                    IP_VERSION_MAP.get(snet.getIpVersion()), snet.getCidr().toString(),
                     ipv6AddrMode, ipv6RaMode);
 
         return;
@@ -268,7 +268,7 @@ public class NetDataListener implements DataChangeListener {
                         fixedip.getSubnetId(),
                         port.getNetworkId(),
                         fixedip.getIpAddress(),
-                        port.getMacAddress(),
+                        port.getMacAddress().getValue(),
                         port.getDeviceOwner());
             } else {
                 // Add host interface
@@ -276,7 +276,7 @@ public class NetDataListener implements DataChangeListener {
                         fixedip.getSubnetId(),
                         port.getNetworkId(),
                         fixedip.getIpAddress(),
-                        port.getMacAddress(),
+                        port.getMacAddress().getValue(),
                         port.getDeviceOwner());
             }
         }

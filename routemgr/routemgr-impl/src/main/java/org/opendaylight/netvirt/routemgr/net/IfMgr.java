@@ -48,6 +48,7 @@ public class IfMgr {
     private HashMap<Uuid, List<VirtualPort>> unprocessedRouterIntfs;
     private HashMap<Uuid, List<VirtualPort>> unprocessedSubnetIntfs;
     private static final IfMgr IFMGR_INSTANCE = new IfMgr();
+    private IPv6RtrFlow ipv6RtrFlow;
 
     private IfMgr() {
         init();
@@ -171,7 +172,7 @@ public class IfMgr {
 
             // Add address pool
             for (AllocationPools pool : poolsList) {
-                snet.addPool(pool.getStart(), pool.getEnd());
+                snet.addPool(pool.getStart().toString(), pool.getEnd().toString());
             }
 
             vsubnets.put(snetId, snet);
@@ -253,6 +254,7 @@ public class IfMgr {
             RoutemgrUtil instance = RoutemgrUtil.getInstance();
             MacAddress ifaceMac = MacAddress.getDefaultInstance(macAddress);
             v6IntfMap.put(instance.getIpv6LinkLocalAddressFromMac(ifaceMac), intf);
+            programNSFlowForAddress(intf, instance.getIpv6LinkLocalAddressFromMac(ifaceMac), true);
         } else {
             intf.setSubnetInfo(snetId, fixedIp);
         }
@@ -273,6 +275,7 @@ public class IfMgr {
         }
         if (fixedIp.getIpv6Address() != null) {
             v6IntfMap.put(fixedIp.getIpv6Address(), intf);
+            programNSFlowForAddress(intf, fixedIp.getIpv6Address(), true);
         }
         return;
     }
@@ -351,10 +354,14 @@ public class IfMgr {
                 RoutemgrUtil instance = RoutemgrUtil.getInstance();
                 MacAddress ifaceMac = MacAddress.getDefaultInstance(intf.getMacAddress());
                 v6IntfMap.remove(instance.getIpv6LinkLocalAddressFromMac(ifaceMac), intf);
+                programNSFlowForAddress(intf, instance.getIpv6LinkLocalAddressFromMac(ifaceMac), false);
             }
             for (IpAddress ipAddr : intf.getIpAddresses()) {
                 if (ipAddr.getIpv6Address() != null) {
                     v6IntfMap.remove(ipAddr.getIpv6Address());
+                    if (intf.getDeviceOwner().equalsIgnoreCase(NETWORK_ROUTER_INTERFACE)) {
+                        programNSFlowForAddress(intf, ipAddr.getIpv6Address(), false);
+                    }
                 }
             }
             vintfs.remove(portId);
@@ -405,5 +412,35 @@ public class IfMgr {
     public VirtualPort getInterfaceForMacAddress(String macAddress) {
         logger.debug("obtaining the virtual interface for {}", macAddress);
         return (v6MacToPortMapping.get(macAddress));
+    }
+
+    public VirtualPort obtainV6Interface(Uuid id) {
+        VirtualPort intf = vintfs.get(id);
+        if(intf == null) {
+            return null;
+        }
+        for (VirtualSubnet snet : intf.getSubnets()) {
+            if(snet.getGatewayIp().getIpv6Address() != null) {
+                return intf;
+            }
+        }
+        return null;
+    }
+
+    public void setIPv6RtrFlowService(IPv6RtrFlow ipv6RtrFlowService) {
+        this.ipv6RtrFlow = ipv6RtrFlowService;
+    }
+
+    private void programNSFlowForAddress(VirtualPort intf, Ipv6Address address, boolean action) {
+        Uuid netId = intf.getNetworkID();
+        for (VirtualPort port : vintfs.values()) {
+            if ((port.getOfPort() != null) && (port.getNetworkID().equals(netId))) {
+                if (action == true) {
+                   ipv6RtrFlow.addIcmpv6NSFlow2Controller(port.getDpId(), address);
+                } else {
+                    ipv6RtrFlow.removeIcmpv6NSFlow2Controller(port.getDpId(), address);
+                }
+            }
+        }
     }
 }

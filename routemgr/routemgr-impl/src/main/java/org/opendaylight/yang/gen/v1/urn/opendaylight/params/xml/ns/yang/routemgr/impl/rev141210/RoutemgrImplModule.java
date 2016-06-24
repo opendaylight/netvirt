@@ -46,6 +46,7 @@ public class RoutemgrImplModule extends org.opendaylight.yang.gen.v1.urn.openday
         DataBroker dataService = getDataBrokerDependency();
         RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency();
 
+        IPv6RtrFlow ipv6RtrFlow = new IPv6RtrFlow();
         IPv6RtrFlow.setDataBroker (dataService);
 
         Preconditions.checkNotNull(dataService);
@@ -54,15 +55,18 @@ public class RoutemgrImplModule extends org.opendaylight.yang.gen.v1.urn.openday
         netDataListener = new NetDataListener (dataService);
         netDataListener.registerDataChangeListener();
 
-        ovsdbDataListener = new OvsdbDataListener(dataService);
+        ovsdbDataListener = new OvsdbDataListener(dataService, ipv6RtrFlow);
         ovsdbDataListener.registerDataChangeListener();
+
+        IfMgr ifMgr = IfMgr.getIfMgrInstance();
+        ifMgr.setIPv6RtrFlowService(ipv6RtrFlow);
 
         PacketProcessingService packetProcessingService =
                 rpcRegistryDependency.getRpcService(PacketProcessingService.class);
         ipPktHandler = new PktHandler();
         ipPktHandler.setDataBrokerService(dataService);
         ipPktHandler.setPacketProcessingService(packetProcessingService);
-        ipPktHandler.setIfMgrInstance(IfMgr.getIfMgrInstance());
+        ipPktHandler.setIfMgrInstance(ifMgr);
         packetListener = notificationService.registerNotificationListener(ipPktHandler);
         LOG.debug ("started the packethandler to receive pdus");
 
