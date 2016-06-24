@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_f0316fa3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-24T08:46:51Z",
+      "side": 1,
+      "message": "wouldn\u0027t it make sense to add this code in FloatingIpListener since this code is related to floating ip only?",
+      "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
