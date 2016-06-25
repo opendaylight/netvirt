@@ -435,7 +435,7 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
                 return false;
             }
             Node extBridgeNode = southbound.readBridgeNode(ovsdbNode, brExt);
-            Preconditions.checkNotNull(extBridgeNode);
+            Preconditions.checkNotNull(extBridgeNode, "br-ex cannot be null or empty!");
             if (!addPatchPort(extBridgeNode, brExt, portNameExt, portNameInt)) {
                 LOG.error("Add Port {} to Bridge {} failed", portNameExt, brExt);
                 return false;
