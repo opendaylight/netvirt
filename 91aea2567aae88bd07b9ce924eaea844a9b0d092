@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_b055371f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-26T14:37:47Z",
+      "side": 1,
+      "message": "this will get NPE when there is only IpV6 in the notification",
+      "revId": "91aea2567aae88bd07b9ce924eaea844a9b0d092",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
