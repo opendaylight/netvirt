@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_faf065cb",
+        "filename": "features/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-06-27T07:54:52Z",
+      "side": 1,
+      "message": "openflowplugin-li feature dependencies have to be removed similar to the master feature pom file.\nOFP has removed all -li feature set.\nRemove the features-openflowplugin-extension-li dependency also.",
+      "revId": "2c2eb9515dc32c4ef9c51df8280f92e992dfb623",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_3abadde1",
+        "filename": "features/src/main/features/features.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-06-27T07:54:52Z",
+      "side": 1,
+      "message": "Remove this feature to be in sync with master branch.\nNow only one ovsdb-openstack feature is available as OFP has renamed features-li as features.",
+      "revId": "2c2eb9515dc32c4ef9c51df8280f92e992dfb623",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
