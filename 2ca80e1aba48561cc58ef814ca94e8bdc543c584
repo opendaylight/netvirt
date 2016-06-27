@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "9a561d44_c04ad426",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-06-27T13:37:20Z",
+      "side": 1,
+      "message": "What happens if the lock isn\u0027t acquired?",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_0055ecc5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-06-27T13:37:20Z",
+      "side": 1,
+      "message": "Same question as above...",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_fa6185d4",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 20
