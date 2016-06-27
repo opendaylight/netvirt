@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_da68018a",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/NetDataListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-06-27T07:35:51Z",
+      "side": 1,
+      "message": "instead of String.valueof(), use port.getMacAddress().getValue().\nReplace it below also.",
+      "revId": "e73e4ae86bb19211895337de909d008b30fbaa25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
