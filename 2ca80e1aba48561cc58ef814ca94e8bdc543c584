@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_fa6185d4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-27T06:57:29Z",
+      "side": 1,
+      "message": "what this function should do? i would expect to update all properties of the port.\nin case the parent have changed you might need to remove the parent interface",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_1a79d993",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-27T06:57:29Z",
+      "side": 1,
+      "message": "are you assuming that the vif interface already exist when updating the interface?\nif not you should re-create it",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
