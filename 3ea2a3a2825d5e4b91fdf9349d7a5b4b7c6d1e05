@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_2b8d7132",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-06-27T16:37:00Z",
+      "side": 1,
+      "message": "Should the ace be a added to the corresponding acl which represents the security group?",
+      "range": {
+        "startLine": 78,
+        "startChar": 22,
+        "endLine": 78,
+        "endChar": 31
+      },
+      "revId": "3ea2a3a2825d5e4b91fdf9349d7a5b4b7c6d1e05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
