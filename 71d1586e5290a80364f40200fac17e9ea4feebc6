@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_fdda1f16",
+        "filename": "vpnservice/features/src/main/features/features.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-27T11:11:46Z",
+      "side": 1,
+      "message": "Will update in my next patchset.",
+      "parentUuid": "ba51214e_10dea311",
+      "revId": "71d1586e5290a80364f40200fac17e9ea4feebc6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_a33173ee",
         "filename": "vpnservice/ipv6service/impl/src/main/config/default-config.xml",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-06-24T12:40:07Z",
       "side": 1,
       "message": "can we have the name as just ipv6service",
+      "revId": "71d1586e5290a80364f40200fac17e9ea4feebc6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_5decebc7",
+        "filename": "vpnservice/ipv6service/impl/src/main/config/default-config.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-27T11:11:46Z",
+      "side": 1,
+      "message": "I tried to follow the same convention as used by other services. \n\n@Kalai, can you please give some additional details on where this name is used/referenced?",
+      "parentUuid": "ba51214e_a33173ee",
       "revId": "71d1586e5290a80364f40200fac17e9ea4feebc6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
