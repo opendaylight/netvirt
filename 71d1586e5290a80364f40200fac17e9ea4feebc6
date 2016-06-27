@@ -69,6 +69,24 @@
       "revId": "71d1586e5290a80364f40200fac17e9ea4feebc6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_1d1d5374",
+        "filename": "vpnservice/ipv6service/impl/src/main/config/default-config.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-06-27T12:17:30Z",
+      "side": 1,
+      "message": "@Sridhar, i don\u0027t suppose this has any specific reference. If its part of any naming convention, i am ok with it. Just felt, as if this a default instance of the ipv6 service that is been provided so wanted a generic name for the module.",
+      "parentUuid": "9a561d44_5decebc7",
+      "revId": "71d1586e5290a80364f40200fac17e9ea4feebc6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
