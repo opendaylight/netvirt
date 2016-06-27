@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
@@ -262,6 +263,35 @@ public class NeutronvpnUtils {
             prt = port.get();
         }
         return prt;
+    }
+    public static boolean isPortSecurityEnabled(Port port) {
+        PortSecurityExtension portSecurity = port.getAugmentation(PortSecurityExtension.class);
+        return (portSecurity != null && portSecurity.isPortSecurityEnabled() != null);
+    }
+
+    public static Boolean getPortSecurityEnabled(Port port) {
+        PortSecurityExtension portSecurity = port.getAugmentation(PortSecurityExtension.class);
+        if (portSecurity != null) {
+            return portSecurity.isPortSecurityEnabled();
+        }
+        return null;
+    }
+
+    protected static Interface getOfPortInterface(DataBroker broker, Port port) {
+        String name = port.getUuid().getValue();
+        InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(name);
+        try {
+            Optional<Interface> optionalInf = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+                    interfaceIdentifier);
+            if (optionalInf.isPresent()) {
+                return optionalInf.get();
+            } else {
+                logger.error("Interface {} is not present", name);
+            }
+        } catch (Exception e) {
+            logger.error("Failed to get interface {} due to the exception {}", name, e.getMessage());
+        }
+        return null;
     }
 
     protected static Subnet getNeutronSubnet(DataBroker broker, Uuid subnetId) {
