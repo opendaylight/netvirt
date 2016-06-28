@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_60882323",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-06-28T10:27:04Z",
+      "side": 1,
+      "message": "Yes, I agree that it will blow up the code. But in the longer run, elan/etree/eline etc. should get augmented under l2service, so that there will be clearer separation between each services.",
+      "parentUuid": "9a561d44_80aa97d2",
+      "revId": "a3c302f97108d3ff13de770869f480a7e0df2b28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_4cb6fbdd",
         "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
         "patchSetId": 8
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "ETreeRootsTag \u003d\u003d ElanTag\nEtreeLeavesTag \u003d\u003d a new elan TAG we allocated especially for leaves interfaces.\nBecause it is allocated by the IdManager which guarantee uniqueness, we used it to allocate the Leaves Tag as well. What manipulation do you suggest that would have given us a unique id which can\u0027t conflict with a future IdManager tags?\nBTW, the ID we pass to the IdManager to get the leaves tag is: ElanName + Postfix. The postfix is \"_leaves\".",
       "parentUuid": "9a561d44_4cb6fbdd",
+      "revId": "a3c302f97108d3ff13de770869f480a7e0df2b28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_809e1755",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-06-28T10:27:04Z",
+      "side": 1,
+      "message": "IdManager involves id pool locking and some data store writes. So it has performance impact in highly scaled deployment. \n\nPlease use the following manipulation:\n\nETreeRootsTag \u003d ElanConstants.ETREE_LABEL_MIN + (((elanTag % ElanConstants.ETREE_LABEL_MIN) *2) - 1); \n\nEtreeLeavesTag \u003d ElanConstants.ETREE_LABEL_MIN + (((elanTag % ElanConstants.ETREE_LABEL_MIN) *2));",
+      "parentUuid": "9a561d44_40eebf23",
       "revId": "a3c302f97108d3ff13de770869f480a7e0df2b28",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
