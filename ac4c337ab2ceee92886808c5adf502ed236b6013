@@ -1,0 +1,265 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_accd1760",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclInterfaceEventListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "My doubt is the log error message is related to current functionality?",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_2c090796",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclInterfaceEventListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "Please change to LOG.info(\"Port removed {}\", port);",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_8cfe536a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclInterfaceEventListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "LOG.info(\"Port added {}\", port);",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_ccf7ab8b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclInterfaceEventListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "Please remove an empty lines.",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_4c2b9beb",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "Shall we change like,\nif (port \u003d\u003d null)",
+      "range": {
+        "startLine": 196,
+        "startChar": 8,
+        "endLine": 196,
+        "endChar": 25
+      },
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_cc3e8b29",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "Remove an empty lines.",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_2c7e27e5",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "Javadoc comments is missing",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_8c83f3cb",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "Javadoc comments is missing.",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_6c881fe8",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "Javadoc comments is missing.",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_cc6ccb39",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "Javadoc comments is missing.",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_0c77e303",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "Javadoc comments is missing.",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_ec738f13",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "Javadoc comments is missing.",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_6c5f7f73",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "Javadoc comments is missing.",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_cc532b6b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/IngressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "Javadoc comments is missing.",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_ac50775f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/IngressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T09:17:07Z",
+      "side": 1,
+      "message": "Remove an extra lines.",
+      "revId": "ac4c337ab2ceee92886808c5adf502ed236b6013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
