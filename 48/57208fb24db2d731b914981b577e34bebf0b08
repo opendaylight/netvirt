@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Andre Fredette <afredette@redhat.com>
+Submitted-by: Andre Fredette <afredette@redhat.com>
+Submitted-at: Tue, 28 Jun 2016 13:13:13 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/40931
+Project: netvirt
+Branch: refs/heads/topic/routermanager
