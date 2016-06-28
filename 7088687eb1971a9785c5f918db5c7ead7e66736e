@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_16036db9",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-28T13:15:29Z",
+      "side": 1,
+      "message": "We are not taking into account the vlan_id/network_id in the match conditions, so this leads to a generic flow where packets from a NON-IPV6 network would also be punted to the controller. \n\nThis is not optimal. If you plan to re-visit this use-case in a separate patch its fine. \n\nI remember sharing this comment previously, so want to check if we are aligned here.",
+      "revId": "7088687eb1971a9785c5f918db5c7ead7e66736e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
