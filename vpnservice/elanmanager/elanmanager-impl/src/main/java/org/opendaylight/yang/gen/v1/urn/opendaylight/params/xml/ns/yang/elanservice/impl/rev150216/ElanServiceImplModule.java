@@ -40,6 +40,7 @@ public class ElanServiceImplModule extends org.opendaylight.yang.gen.v1.urn.open
         provider.setItmManager(getItmmanagerDependency());
         provider.setIdManager(idManager);
         provider.setEntityOwnershipService(getEntityOwnershipServiceDependency());
+        provider.setGenerateIntBridgeMac(getIntBridgeGenMac());
         getBrokerDependency().registerProvider(provider);
         return provider;
     }
