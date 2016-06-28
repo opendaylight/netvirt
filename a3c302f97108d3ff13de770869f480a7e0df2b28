@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_8c82d3fe",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-06-28T08:56:25Z",
+      "side": 1,
+      "message": "I see etree is augmented into elan. It should be other way around. For me, elan is special case of etree (i.e. etree is created with only root interfaces).",
+      "revId": "a3c302f97108d3ff13de770869f480a7e0df2b28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_4cb6fbdd",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-06-28T08:56:25Z",
+      "side": 1,
+      "message": "I don\u0027t think it is necessary to define etree-leaf-tag and get it stored in MD-SAL datastore. The etree-root-tag and etree-leaf-tag can be calculated in the run time using a formula on etree-id like we do it for deriving ELAN Local/Remote BC group id\u0027s.",
+      "revId": "a3c302f97108d3ff13de770869f480a7e0df2b28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
