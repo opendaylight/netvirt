@@ -85,6 +85,9 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     private static final ElanStatusMonitor elanStatusMonitor = ElanStatusMonitor.getInstance();
     static DataStoreJobCoordinator dataStoreJobCoordinator;
+    private ElanOvsdbNodeListener elanOvsdbNodeListener;
+
+    private boolean generateIntBridgeMac = true;
 
     public static void setDataStoreJobCoordinator(DataStoreJobCoordinator ds) {
         dataStoreJobCoordinator = ds;
@@ -139,6 +142,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
 
             elanNodeListener = new ElanNodeListener(broker, mdsalManager);
+            elanOvsdbNodeListener = new ElanOvsdbNodeListener(broker, generateIntBridgeMac);
 
             elanPacketInHandler = new ElanPacketInHandler(broker);
             elanPacketInHandler.setInterfaceManager(interfaceManager);
@@ -519,5 +523,13 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             }
         }
         return elanInterfaces;
+    }
+
+    public boolean getGenerateIntBridgeMac() {
+        return generateIntBridgeMac;
+    }
+
+    public void setGenerateIntBridgeMac(boolean generateIntBridgeMac) {
+        this.generateIntBridgeMac = generateIntBridgeMac;
     }
 }

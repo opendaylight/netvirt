@@ -85,6 +85,9 @@ module elanservice-impl {
                     }
                 }
             }
+            leaf int-bridge-gen-mac {
+                type boolean;
+            }
         }
     }
 }
