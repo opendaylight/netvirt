@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_d1710479",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6242
+      },
+      "writtenOn": "2016-06-28T06:30:14Z",
+      "side": 1,
+      "message": "updated.",
+      "parentUuid": "9a561d44_d1ae24e7",
+      "revId": "3ea2a3a2825d5e4b91fdf9349d7a5b4b7c6d1e05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_11b9bc2e",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleConstants.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-06-28T05:37:35Z",
       "side": 1,
       "message": "Remove an extra line.",
+      "revId": "3ea2a3a2825d5e4b91fdf9349d7a5b4b7c6d1e05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_f1ffe8a8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 6242
+      },
+      "writtenOn": "2016-06-28T06:30:14Z",
+      "side": 1,
+      "message": "updated",
+      "parentUuid": "9a561d44_11b9bc2e",
       "revId": "3ea2a3a2825d5e4b91fdf9349d7a5b4b7c6d1e05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -94,6 +130,24 @@
       "writtenOn": "2016-06-28T05:35:31Z",
       "side": 1,
       "message": "the best way to do null check like,\nif (securityRule.getRemoteIpPrefix().getIpv4Prefix() !\u003d null)",
+      "revId": "3ea2a3a2825d5e4b91fdf9349d7a5b4b7c6d1e05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_91582cfc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 6242
+      },
+      "writtenOn": "2016-06-28T06:30:14Z",
+      "side": 1,
+      "message": "agreed and code is updated.",
+      "parentUuid": "9a561d44_91a5cc06",
       "revId": "3ea2a3a2825d5e4b91fdf9349d7a5b4b7c6d1e05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
