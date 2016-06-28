@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_b1ca906c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-06-28T06:48:11Z",
+      "side": 1,
+      "message": "I think, both origSecurityEnabled and updatedSecurityEnabled could be null in a scenario where SG is disabled with both PORT create and update actions. In this case, no action is triggered for ACL service from this listner",
+      "parentUuid": "9a561d44_c6daece8",
+      "revId": "b858de8820f5399cb3307a50b159a5753f0fe4fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_a6d7f8be",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-06-28T00:37:11Z",
       "side": 1,
       "message": "change to “if (updatedSecurityEnabled)”?",
+      "revId": "b858de8820f5399cb3307a50b159a5753f0fe4fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_11c89c73",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-06-28T06:48:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_a6d7f8be",
       "revId": "b858de8820f5399cb3307a50b159a5753f0fe4fb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
