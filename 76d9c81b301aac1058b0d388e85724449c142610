@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_0cc4033f",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/IElanService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-06-28T09:29:37Z",
+      "side": 1,
+      "message": "Can you have new interface IEtreeService to define etree specific APIs ? \nIn that case, elanamager module should be changed to l2manager so that it can support l2services like etree, elan, eline etc.",
+      "revId": "76d9c81b301aac1058b0d388e85724449c142610",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_2ce2a7d5",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/IElanService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-06-28T09:29:37Z",
+      "side": 1,
+      "message": "Nit: remove whitespace.",
+      "revId": "76d9c81b301aac1058b0d388e85724449c142610",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_ccd04bfa",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/etree/EtreeAdd.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-06-28T09:29:37Z",
+      "side": 1,
+      "message": "package name has to be changed accordingly.\napplicable for all etree specific classes.",
+      "revId": "76d9c81b301aac1058b0d388e85724449c142610",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_8c0c9396",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/etree/EtreeAdd.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-06-28T09:29:37Z",
+      "side": 1,
+      "message": "Let us have EtreeServiceProvider to implement IEtreeService.",
+      "revId": "76d9c81b301aac1058b0d388e85724449c142610",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_4c60bb35",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/etree/EtreeGet.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-06-28T09:29:37Z",
+      "side": 1,
+      "message": "Shouldn\u0027t it be modeled as L2Instance (ElanInstance and EtreeInstance get augmented into L2Instance) ?",
+      "revId": "76d9c81b301aac1058b0d388e85724449c142610",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_cc768bd8",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-06-28T09:29:37Z",
+      "side": 1,
+      "message": "There should be EtreeInstanceManager which should handle all the DCN\u0027s related to EtreeInstance augmentation. Let us factor out common code b/w ELAN and ETREE for reusing it.",
+      "revId": "76d9c81b301aac1058b0d388e85724449c142610",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_0c81a38f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-06-28T09:29:37Z",
+      "side": 1,
+      "message": "As mentioned earlier, we don\u0027t have use id manager to allocated id for etree leave nodes. It can be derived from etree tag itself.",
+      "revId": "76d9c81b301aac1058b0d388e85724449c142610",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_0c588355",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 877,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-06-28T09:29:37Z",
+      "side": 1,
+      "message": "same comment as before. Let us factor out etree specific code into different class.",
+      "revId": "76d9c81b301aac1058b0d388e85724449c142610",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_4c31db0a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/OSGI-INF/blueprint/blueprint.xml",
+        "patchSetId": 11
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-06-28T09:29:37Z",
+      "side": 1,
+      "message": "Nit: remove tabs",
+      "revId": "76d9c81b301aac1058b0d388e85724449c142610",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
