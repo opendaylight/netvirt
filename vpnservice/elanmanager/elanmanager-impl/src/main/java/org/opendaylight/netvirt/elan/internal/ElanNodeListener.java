@@ -47,8 +47,8 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> {
             listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
                     getWildCardPath(), ElanNodeListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
         } catch (final Exception e) {
-            logger.error("IfmNodeConnectorListener: DataChange listener registration fail!", e);
-            throw new IllegalStateException("IfmNodeConnectorListener: registration Listener failed.", e);
+            logger.error("ElanNodeListener: DataChange listener registration fail!", e);
+            throw new IllegalStateException("ElanNodeListener: registration Listener failed.", e);
         }
     }
 
