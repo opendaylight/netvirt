@@ -52,6 +52,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                         <type xmlns:entity-ownership="urn:opendaylight:params:xml:ns:yang:controller:md:sal:core:spi:entity-ownership-service">entity-ownership:entity-ownership-service</type>
                         <name>entity-ownership-service</name>
                     </entity-ownership-service>
+                    <int-bridge-gen-mac>true</int-bridge-gen-mac>
                 </module>
             </modules>
             <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
