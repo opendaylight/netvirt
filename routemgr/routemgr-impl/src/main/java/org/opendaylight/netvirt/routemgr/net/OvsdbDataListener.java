@@ -8,11 +8,10 @@
 
 package org.opendaylight.netvirt.routemgr.net;
 
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
-
 import java.lang.Integer;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -20,6 +19,11 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
+import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.InterfaceExternalIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -47,12 +51,18 @@ public class OvsdbDataListener implements DataChangeListener {
 
     private HashMap<String, Integer> processedNodes;
     private IPv6RtrFlow ipv6RtrFlow;
+    private Collection<String> patchIntf;
 
-    public OvsdbDataListener(DataBroker dataBroker) {
+    public OvsdbDataListener(DataBroker dataBroker, IPv6RtrFlow ipv6RtrFlowService) {
         this.dataService    = dataBroker;
         this.processedNodes = new HashMap<>();
-        this.ipv6RtrFlow    = new IPv6RtrFlow();
+        this.ipv6RtrFlow    = ipv6RtrFlowService;
         this.ifMgr = IfMgr.getIfMgrInstance();
+        ConfigurationService configService =
+            (ConfigurationService) ServiceHelper.getGlobalInstance(ConfigurationService.class, this);
+        if (configService != null) {
+            patchIntf = configService.getPatchPortNames().values();
+        }
     }
 
     public void registerDataChangeListener() {
@@ -97,6 +107,11 @@ public class OvsdbDataListener implements DataChangeListener {
         Uuid                              interfaceUuid;
         Long                              ofPort = 0L;
 
+        if (patchIntf == null) {
+            ConfigurationService configService =
+                (ConfigurationService) ServiceHelper.getGlobalInstance(ConfigurationService.class, this);
+            patchIntf = configService.getPatchPortNames().values();
+        }
         for (Map.Entry<InstanceIdentifier<?>, DataObject> newPort : changes.getCreatedData().entrySet()) {
             if (newPort.getKey().getTargetType().equals(OvsdbTerminationPointAugmentation.class)) {
                 //LOG.trace("processPortCreation: {}", newPort);
@@ -126,14 +141,28 @@ public class OvsdbDataListener implements DataChangeListener {
                     if (intf.getOfport() != null) {
                         ofPort = intf.getOfport();
                         ifMgr.updateInterface(interfaceUuid, dpId, ofPort);
-                        Integer refCnt = (Integer) processedNodes.get(dpId);
-                        if (refCnt == null) {
-                            refCnt = new Integer(1);
-                            processedNodes.put(dpId, refCnt);
-                            ipv6RtrFlow.addIcmpv6Flow2Controller(dpId);
-                        } else {
-                            refCnt++;
+                        if (patchIntf.contains(intf.getName())) {
+                            ipv6RtrFlow.addIcmpv6NSFlow2Controller(dpId, ofPort);
                         }
+                    }
+                    Uuid externalId = getExternalInterfaceId(intf.getInterfaceExternalIds());
+                    if (externalId == null) {
+                        LOG.debug("No external iface-id associated with the port {}", interfaceUuid);
+                        continue;
+                    }
+                    VirtualPort port = ifMgr.obtainV6Interface(externalId);
+                    if (port == null) {
+                        LOG.debug("No interface is associated with a v6 subnet for externalId {} of port {}",
+                            externalId, interfaceUuid);
+                        continue;
+                    }
+                    Integer refCnt = (Integer) processedNodes.get(dpId);
+                    if (refCnt == null) {
+                        refCnt = new Integer(1);
+                        processedNodes.put(dpId, refCnt);
+                        ipv6RtrFlow.addIcmpv6RSFlow2Controller(dpId);
+                    } else {
+                        refCnt++;
                     }
                 }
             }
@@ -169,13 +198,27 @@ public class OvsdbDataListener implements DataChangeListener {
                 if (ovsdbBridgeAugmentation != null && ovsdbBridgeAugmentation.getDatapathId() != null) {
                     dpId = tpParentNode.getAugmentation(OvsdbBridgeAugmentation.class).getDatapathId().getValue();
                     ifMgr.deleteInterface(interfaceUuid, dpId);
+                    if (patchIntf.contains(removedTPAugmentationData.getName())) {
+                        ipv6RtrFlow.removeIcmpv6NSFlow2Controller(dpId);
+                    }
                     Integer refCnt = (Integer) processedNodes.get(dpId);
                     if (refCnt == null) {
-                        LOG.error("refCnt isn't present for dpId={} ", dpId);
+                        LOG.debug("v6 associated interfaces not available for node {}", dpId);
                     } else {
+                        Uuid externalId = getExternalInterfaceId(removedTPAugmentationData.getInterfaceExternalIds());
+                       if (externalId == null) {
+                            LOG.debug("No external iface-id associated with the port {}", interfaceUuid);
+                            continue;
+                        }
+                        VirtualPort port = ifMgr.obtainV6Interface(externalId);
+                        if (port == null) {
+                            LOG.debug("No interface is associated with a v6 subnet for the external id{} of port {}",
+                                externalId, interfaceUuid);
+                            continue;
+                        }
                         refCnt--;
                         if (refCnt == 0) {
-                            ipv6RtrFlow.removeIcmpv6Flow2Controller(dpId);
+                            ipv6RtrFlow.removeIcmpv6RSFlow2Controller(dpId);
                             processedNodes.remove(dpId);
                         }
                     }
@@ -221,6 +264,9 @@ public class OvsdbDataListener implements DataChangeListener {
                     if (intf.getOfport() != null) {
                         ofPort = intf.getOfport();
                         ifMgr.updateInterface(interfaceUuid, dpId, ofPort);
+                        if (patchIntf.contains(intf.getName())) {
+                            ipv6RtrFlow.addIcmpv6NSFlow2Controller(dpId, ofPort);
+                        }
                     }
                 }
             }
@@ -246,6 +292,20 @@ public class OvsdbDataListener implements DataChangeListener {
                 @SuppressWarnings("unchecked")
                 T dataObject = (T) change.getValue();
                 return dataObject;
+            }
+        }
+        return null;
+    }
+
+    private Uuid getExternalInterfaceId(List<InterfaceExternalIds> extIdList) {
+        if (extIdList == null) {
+            return null;
+        }
+        for (InterfaceExternalIds ifaceId : extIdList) {
+            LOG.trace("for external iface {}", ifaceId.getExternalIdKey());
+            if ("iface-id".equals(ifaceId.getExternalIdKey())) {
+                Uuid id = new Uuid(ifaceId.getExternalIdValue());
+                return id;
             }
         }
         return null;

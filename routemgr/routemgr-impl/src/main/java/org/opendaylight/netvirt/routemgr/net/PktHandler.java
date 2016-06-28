@@ -159,12 +159,6 @@ public class PktHandler implements PacketProcessingListener {
                     LOG.warn("No learnt interface is available for the given target IP {}",
                         nsPdu.getTargetIpAddress());
                     return;
-                } else if (!port.getDeviceOwner().equalsIgnoreCase(ifMgr.NETWORK_ROUTER_INTERFACE)) {
-                    pktProccessedCounter++;
-                    //TODO: Revisit this part of code when North-South communication is implemented.
-                    LOG.debug("Ignoring Neighbor Solicitation for a non-router interface {}",
-                        nsPdu.getTargetIpAddress());
-                    return;
                 }
 
                 //formulate the NA response
@@ -178,7 +172,7 @@ public class PktHandler implements PacketProcessingListener {
                                               .setNode(new NodeRef(outNode))
                                               .setEgress(packet.getIngress()).build();
                 // Tx the packet out of the controller.
-                if(pktProcessService != null) {
+                if (pktProcessService != null) {
                     LOG.debug("transmitting the packet out on {}", packet.getIngress());
                     pktProcessService.transmitPacket(input);
                     pktProccessedCounter++;
@@ -318,7 +312,7 @@ public class PktHandler implements PacketProcessingListener {
                 if (gatewayIp.getIpv4Address() != null)
                     continue;
 
-                if(((!subnet.getIpv6AddressMode().isEmpty())
+                if (((!subnet.getIpv6AddressMode().isEmpty())
                         && (ifMgr.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6AddressMode())))
                     || ((!subnet.getIpv6RAMode().isEmpty())
                         && (ifMgr.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6RAMode())))) {
