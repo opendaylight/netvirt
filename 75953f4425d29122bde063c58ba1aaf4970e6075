@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_7173d8b1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T05:28:33Z",
+      "side": 1,
+      "message": "Here my suggestion we can directly replace portUpdated.getUuid().getValue() instead of declaring interfaceName variable. because intefaceName nowhere used inside the method.",
+      "revId": "75953f4425d29122bde063c58ba1aaf4970e6075",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
