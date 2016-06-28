@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_f1c0882c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-06-28T07:15:54Z",
+      "side": 1,
+      "message": "I understand why the lock is useful, but this code doesn\u0027t handle the case where isLockAcquired ends up being false. Either we care about the result, in which case we should handle it, or we don\u0027t, in which case we should ignore it entirely (and perhaps use the version of getLock() with no timeout).\n\nWith the code as it is, if things go badly wrong and we don\u0027t get a lock, we\u0027ll delete the node anyway, which is rather surprising (and liable to cause difficulty debugging errors).",
+      "parentUuid": "9a561d44_71e2b804",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_0055ecc5",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
         "patchSetId": 20
