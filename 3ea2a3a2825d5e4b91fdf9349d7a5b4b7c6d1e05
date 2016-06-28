@@ -46,6 +46,23 @@
       "revId": "3ea2a3a2825d5e4b91fdf9349d7a5b4b7c6d1e05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_91a5cc06",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T05:35:31Z",
+      "side": 1,
+      "message": "the best way to do null check like,\nif (securityRule.getRemoteIpPrefix().getIpv4Prefix() !\u003d null)",
+      "revId": "3ea2a3a2825d5e4b91fdf9349d7a5b4b7c6d1e05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
