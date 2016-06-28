@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_91ab0c89",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-28T07:24:48Z",
+      "side": 1,
+      "message": "Please store the value of LLA in some local variable and use it in both the calls (i.e., v6IntfMap and programNSFlowForAddress).",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_d1d0e4f9",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-28T07:24:48Z",
+      "side": 1,
+      "message": "I guess this makes all the NS packets on the external network to be punted to the controller. Right?",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_31e200d6",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-28T07:24:48Z",
+      "side": 1,
+      "message": "Can you please explain what is this check?",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_512b34eb",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-06-28T07:24:48Z",
+      "side": 1,
+      "message": "nitpick: You can remove this space.",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
