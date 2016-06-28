@@ -19,6 +19,63 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_008de77b",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "required single space to avoid checkstyle error after if.",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_60e9431a",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/IfMgr.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "required single space to avoid check style error after if.",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_e0c39388",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "required single space to avoid check style error after if.",
+      "range": {
+        "startLine": 137,
+        "startChar": 25,
+        "endLine": 137,
+        "endChar": 26
+      },
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_d1d0e4f9",
         "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
         "patchSetId": 2
@@ -47,6 +104,193 @@
       "writtenOn": "2016-06-28T07:24:48Z",
       "side": 1,
       "message": "Can you please explain what is this check?",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_00bb270f",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "required single space to avoid check style error after if.",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_605e63eb",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "Shall we write like that to improve debugging information.\n\nLOG.debug(\"No external iface-id {} associated with the port\", externalId);",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_c01c8f16",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "externalId or port?",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_0017a7ee",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "Single space required after if.",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_60d30339",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "Single space required after if.",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_40d87f53",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "Single space required after if.",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_a0dd1b45",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "Single space required after if.",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_80e29701",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "Single space required after if.",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_e0e6f315",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "Single space required after if.",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_c0e3ef03",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "Single space required after for.",
+      "revId": "267a03478be3791693aeadc983b3590ce611d69f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_20f10bce",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/OvsdbDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-06-28T10:20:15Z",
+      "side": 1,
+      "message": "Shall we write like as a code good practice,\nif (\"iface-id\".equals(ifaceId.getExternalIdKey()))",
       "revId": "267a03478be3791693aeadc983b3590ce611d69f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
