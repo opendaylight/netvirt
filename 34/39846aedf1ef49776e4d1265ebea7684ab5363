@@ -1,0 +1,9 @@
+Code-Review+1: Alexis de Talhouët <adetalhouet@inocybe.com>
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Sridhar Gaddam <sgaddam@redhat.com>
+Code-Review+2: Andre Fredette <afredette@redhat.com>
+Submitted-by: Andre Fredette <afredette@redhat.com>
+Submitted-at: Tue, 28 Jun 2016 11:23:43 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/40871
+Project: netvirt
+Branch: refs/heads/master
