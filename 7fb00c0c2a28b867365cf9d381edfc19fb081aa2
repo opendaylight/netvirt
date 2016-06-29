@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_8587410f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-29T09:28:34Z",
+      "side": 1,
+      "message": "Actually we\u0027ll be using EntityOwnershipService to make sure it gets update on only one node. Looking at current code DTCL or CDTCL won\u0027t make any difference as this is just a transformer class. We may need to do it later when we look to optimize performance in a clustered setup, for reasons similar to why we\u0027re movin to CDTCL in other classes like NeutronPortListener.",
+      "parentUuid": "9a561d44_2562b5d8",
+      "range": {
+        "startLine": 44,
+        "startChar": 49,
+        "endLine": 44,
+        "endChar": 80
+      },
+      "revId": "7fb00c0c2a28b867365cf9d381edfc19fb081aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_8ab58ecf",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
         "patchSetId": 3
