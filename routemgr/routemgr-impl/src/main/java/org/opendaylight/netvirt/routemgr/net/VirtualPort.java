@@ -64,7 +64,7 @@ public class VirtualPort  {
     }
 
     public Uuid getNetworkID() {
-        return intfUUID;
+        return networkID;
     }
 
     public VirtualPort setNetworkID(Uuid networkID) {
@@ -100,7 +100,7 @@ public class VirtualPort  {
     public List<VirtualSubnet> getSubnets() {
         List<VirtualSubnet> subnetList = new ArrayList<>();
         for(SubnetInfo sInfo : snetInfo.values()) {
-            if(sInfo.getSubnet() != null) {
+            if (sInfo.getSubnet() != null) {
                 subnetList.add(sInfo.getSubnet());
             }
         }
@@ -175,7 +175,7 @@ public class VirtualPort  {
         }
 
         for (SubnetInfo sInfo: snetInfo.values()) {
-            if(sInfo.getSubnet() != null) {
+            if (sInfo.getSubnet() != null) {
                 sInfo.getSubnet().removeInterface(this);
             }
         }
@@ -184,8 +184,8 @@ public class VirtualPort  {
     @Override
     public String toString() {
         return "VirtualPort[IntfUUid=" + intfUUID + " NodeUUId=" + nodeUUID+" subnetInfo=" +
-            snetInfo + " NetworkId=" + networkID + " mac=" + " ofPort=" + ofPort +
-            macAddress + " routerFlag=" + routerIntfFlag + " dpId=" + dpId + "]";
+            snetInfo + " NetworkId=" + networkID + " mac=" + macAddress + " ofPort=" + ofPort +
+            " routerFlag=" + routerIntfFlag + " dpId=" + dpId + "]";
     }
 
     private class SubnetInfo {
