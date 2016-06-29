@@ -9,7 +9,7 @@
 package org.opendaylight.netvirt.openstack.netvirt.sfc;
 
 import com.google.common.base.Preconditions;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev150317.access.lists.Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**

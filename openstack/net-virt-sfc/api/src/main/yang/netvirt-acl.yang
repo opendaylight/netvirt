@@ -3,7 +3,7 @@ module netvirt-sfc-acl {
     namespace "urn:opendaylight:params:xml:ns:yang:netvirt:sfc:acl";
     prefix "acl";
 
-    import ietf-access-control-list { prefix ietf-acl; revision-date 2015-03-17; }
+    import ietf-access-control-list { prefix ietf-acl; revision-date 2016-02-18; }
     import yang-ext { prefix ext; }
 
     revision "2015-01-05" {
