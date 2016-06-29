@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_ca92e69e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-29T07:19:15Z",
+      "side": 1,
+      "message": "I believe this is not the clustered DTCL, right? We need to move to using CDTLs in all of vpnservice code, so would recommend doing it for newer code coming in.",
+      "range": {
+        "startLine": 44,
+        "startChar": 49,
+        "endLine": 44,
+        "endChar": 80
+      },
+      "revId": "7fb00c0c2a28b867365cf9d381edfc19fb081aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_8ab58ecf",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-29T07:19:15Z",
+      "side": 1,
+      "message": "should be trace as output will be too verbose. If want to retain debug, should only print rule uuid.",
+      "range": {
+        "startLine": 73,
+        "startChar": 16,
+        "endLine": 73,
+        "endChar": 21
+      },
+      "revId": "7fb00c0c2a28b867365cf9d381edfc19fb081aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_aa997270",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-29T07:19:15Z",
+      "side": 1,
+      "message": "this should be trace, output will be too verbose to be a debug.",
+      "range": {
+        "startLine": 194,
+        "startChar": 16,
+        "endLine": 194,
+        "endChar": 21
+      },
+      "revId": "7fb00c0c2a28b867365cf9d381edfc19fb081aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_2aad6289",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-29T07:19:15Z",
+      "side": 1,
+      "message": "Should add a trace statement with \"updates on security rules not supported\". We should never see it in logs but if we do it means assumption no longer holds true or some bug.",
+      "revId": "7fb00c0c2a28b867365cf9d381edfc19fb081aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
