@@ -38,3 +38,7 @@ Contents
 - readable_flows.py : script for formatting ovs-ofctl dump-flows output into a more readable format. Run w/ -h for help
 
 - pplogs.py : script for reformatting serialized nested objects in OpenDaylight log lines. Run w/ -h for help
+
+- VPN-Service-NetVirt.postman_collection.json : restconf requests to get datapath id's and create transport zone.
+  - Make sure to update the dpn-id's, portnames and ip-addresses for your VTEPs in "Create TZA"
+
