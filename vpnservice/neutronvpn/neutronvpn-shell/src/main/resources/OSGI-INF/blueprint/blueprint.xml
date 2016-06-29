@@ -38,13 +38,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         </command>
 
         <command>
-            <action class="org.opendaylight.vpnservice.neutronvpn.shell.DhcpConfigureCommand">
+            <action class="org.opendaylight.netvirt.neutronvpn.shell.DhcpConfigureCommand">
                 <property name="dataBroker" ref="dataBrokerRef"/>
             </action>
         </command>
 
         <command>
-            <action class="org.opendaylight.vpnservice.neutronvpn.shell.DhcpShowCommand">
+            <action class="org.opendaylight.netvirt.neutronvpn.shell.DhcpShowCommand">
                 <property name="dataBroker" ref="dataBrokerRef"/>
             </action>
         </command>
