@@ -11,7 +11,7 @@ package org.opendaylight.netvirt.openstack.netvirt.sfc.it.utils;
 import java.util.List;
 
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfcName;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SftType;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SftTypeName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.ServiceFunctionChainsBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChain;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChainBuilder;
@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev1407
 public class ServiceFunctionChainUtils extends AbstractUtils {
     public SfcServiceFunctionBuilder sfcServiceFunctionBuilder(SfcServiceFunctionBuilder sfcServiceFunctionBuilder,
                                                                String name,
-                                                               SftType type) {
+                                                               SftTypeName type) {
         return sfcServiceFunctionBuilder
                 .setName(name)
                 .setType(type);
