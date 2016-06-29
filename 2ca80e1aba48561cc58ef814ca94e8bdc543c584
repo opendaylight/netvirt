@@ -71,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_0ae4de39",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-29T07:05:56Z",
+      "side": 1,
+      "message": "This function is only called from updateOfInterface which in turn is only called from port update() when parent-ref was missing in create but got added later. Parent doesn\u0027t change once created. This function basically handles port update that comes when nova does port binding after selecting the host to spawn VM on. This is not for handling ALL port updates. Any other information needed for interface is already part of create, except vif binding which comes in update.",
+      "parentUuid": "9a561d44_fa6185d4",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_1a79d993",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 20
@@ -82,6 +100,24 @@
       "writtenOn": "2016-06-27T06:57:29Z",
       "side": 1,
       "message": "are you assuming that the vif interface already exist when updating the interface?\nif not you should re-create it",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_cac0267f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-29T07:05:56Z",
+      "side": 1,
+      "message": "Yes, interface will be created on port create. Without binding information we cant set parentref [tap vs vhu?] and that is what can come in an update and we\u0027re setting here.",
+      "parentUuid": "9a561d44_1a79d993",
       "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
