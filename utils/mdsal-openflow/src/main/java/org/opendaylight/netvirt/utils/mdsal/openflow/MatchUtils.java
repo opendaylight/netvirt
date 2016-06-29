@@ -1708,4 +1708,57 @@ public class MatchUtils {
         }
         return null;
     }
+
+    public static MatchBuilder createEthSrcDstMatch(MatchBuilder matchBuilder,
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress srcMac,
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress dstMac) {
+        EthernetMatchBuilder ethernetMatch = new EthernetMatchBuilder();
+        if (srcMac != null) {
+            EthernetSourceBuilder ethSourceBuilder = new EthernetSourceBuilder();
+            ethSourceBuilder.setAddress(new MacAddress(srcMac.getValue()));
+            ethernetMatch.setEthernetSource(ethSourceBuilder.build());
+        }
+        if (dstMac != null) {
+            EthernetDestinationBuilder ethDestinationBuild = new EthernetDestinationBuilder();
+            ethDestinationBuild.setAddress(new MacAddress(dstMac.getValue()));
+            ethernetMatch.setEthernetDestination(ethDestinationBuild.build());
+        }
+        if (matchBuilder.getEthernetMatch() != null && matchBuilder.getEthernetMatch().getEthernetType() != null) {
+            ethernetMatch.setEthernetType(matchBuilder.getEthernetMatch().getEthernetType());
+        }
+
+        matchBuilder.setEthernetMatch(ethernetMatch.build());
+
+        return matchBuilder;
+    }
+
+    public static MatchBuilder addRemoteIpPrefix(MatchBuilder matchBuilder,
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix sourceIpPrefix,
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix destIpPrefix) {
+        Ipv4MatchBuilder ipv4match = new Ipv4MatchBuilder();
+        if (null != sourceIpPrefix) {
+            ipv4match.setIpv4Source(new Ipv4Prefix(sourceIpPrefix.getValue()));
+        }
+        if (null != destIpPrefix) {
+            ipv4match.setIpv4Destination(new Ipv4Prefix(destIpPrefix.getValue()));
+        }
+        matchBuilder.setLayer3Match(ipv4match.build());
+
+        return matchBuilder;
+    }
+
+    public static MatchBuilder addRemoteIpv6Prefix(MatchBuilder matchBuilder,
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix sourceIpPrefix,
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix destinationIpv6Network) {
+        Ipv6MatchBuilder ipv6match = new Ipv6MatchBuilder();
+        if (null != sourceIpPrefix) {
+            ipv6match.setIpv6Source(new Ipv6Prefix(sourceIpPrefix.getValue()));
+        }
+        if (null != destinationIpv6Network) {
+            ipv6match.setIpv6Destination(new Ipv6Prefix(destinationIpv6Network.getValue()));
+        }
+        matchBuilder.setLayer3Match(ipv6match.build());
+
+        return matchBuilder;
+    }
 }
