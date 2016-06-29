@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_d0c8ab76",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-06-29T07:05:56Z",
+      "side": 1,
+      "message": "trigger for this is port getting deleted, it won\u0027t show up in FloatingIpListener.",
+      "parentUuid": "ba51214e_f0316fa3",
+      "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_b0aa576e",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 12
