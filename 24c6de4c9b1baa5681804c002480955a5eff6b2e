@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_5e4faf92",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/BridgeUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-06-30T10:34:41Z",
+      "side": 1,
+      "message": "in old netvirt there was a code (BridgeConfigurationManagerImpl.java) that create patch ports between the br-ex and br-int. this code is missing here therefore traffic will not pass between the two bridges",
+      "revId": "24c6de4c9b1baa5681804c002480955a5eff6b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_7e4d5372",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/BridgeUtils.java",
         "patchSetId": 2
