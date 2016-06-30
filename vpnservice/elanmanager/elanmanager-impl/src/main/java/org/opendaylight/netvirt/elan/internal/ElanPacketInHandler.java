@@ -11,6 +11,7 @@ import java.math.BigInteger;
 
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -127,7 +128,9 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 InstanceIdentifier<MacEntry> elanMacEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, elanMacEntryId, macEntry);
                 ElanInstance elanInstance = ElanUtils.getElanInstanceByName(elanName);
-                ElanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), elanInstance.getMacTimeout(), macAddress);
+                WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
+                ElanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), elanInstance.getMacTimeout(), macAddress, flowWritetx);
+                flowWritetx.submit();
 
                 BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
                 ElanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
@@ -159,7 +162,9 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                     + "Manual cleanup may be necessary", macEntry.getMacAddress(), macEntry.getInterface()));
             return;
         }
-        ElanUtils.deleteMacFlows(elanInfo, oldInterfaceLport, macEntry);
+        WriteTransaction flowDeletetx = broker.newWriteOnlyTransaction();
+        ElanUtils.deleteMacFlows(elanInfo, oldInterfaceLport, macEntry, flowDeletetx);
+        flowDeletetx.submit();
         ElanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo, Arrays.asList(macEntry.getMacAddress()));
     }
 
