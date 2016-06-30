@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.inject.Inject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +35,6 @@ import org.junit.runner.RunWith;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.mdsal.it.base.AbstractMdsalTestBase;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.netvirt.openstack.netvirt.NeutronModelsDataStoreHelper;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.NeutronNetwork;
 import org.opendaylight.netvirt.utils.netvirt.it.utils.ItConstants;
@@ -53,6 +53,7 @@ import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.options.MavenUrlReference;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.util.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,6 @@ import org.slf4j.LoggerFactory;
 public class NetvirtIT extends AbstractMdsalTestBase {
     private static final Logger LOG = LoggerFactory.getLogger(NetvirtIT.class);
     private static final String FEATURE = "odl-netvirt-it";
-    private static DataBroker dataBroker = null;
     private static NetvirtItUtils itUtils;
     private static String addressStr;
     private static String portStr;
@@ -73,6 +73,9 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static NeutronUtils neutronUtils = new NeutronUtils();
     private static NeutronModelsDataStoreHelper neutronModelsDataStoreHelper;
     private static final String NETWORK_TYPE_VXLAN = "vxlan";
+    @Inject @Filter(timeout=60000)
+    private static DataBroker dataBroker = null;
+
 
     @Override
     public String getModuleName() {
@@ -198,7 +201,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             }
         }
 
-        dataBroker = NetvirtItUtils.getDatabroker(getProviderContext());
+        assertNotNull("dataBroker should not be null", dataBroker);
         itUtils = new NetvirtItUtils(dataBroker);
         mdsalUtils = new MdsalUtils(dataBroker);
         assertNotNull("mdsalUtils should not be null", mdsalUtils);
@@ -208,30 +211,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         southboundUtils = new SouthboundUtils(mdsalUtils);
         neutronModelsDataStoreHelper = new NeutronModelsDataStoreHelper(dataBroker);
         setup.set(true);
-    }
-
-    private BindingAwareBroker.ProviderContext getProviderContext() {
-        BindingAwareBroker.ProviderContext providerContext = null;
-        for (int i=0; i < 60; i++) {
-            providerContext = getSession();
-            if (providerContext != null) {
-                break;
-            } else {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    LOG.warn("Interrupted while waiting for provider context", e);
-                }
-            }
-        }
-        assertNotNull("providercontext should not be null", providerContext);
-        /* One more second to let the provider finish initialization */
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            LOG.warn("Interrupted while waiting for other provider", e);
-        }
-        return providerContext;
     }
 
     @Test
