@@ -117,13 +117,12 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             broker = session.getSALService(DataBroker.class);
 
             ElanUtils.setDataBroker(broker);
-            ElanUtils.setIfaceMgrRpcService(interfaceManagerRpcService);
-            ElanUtils.setItmRpcService(itmRpcService);
+            ElanUtils.setElanServiceProvider(this);
             ElanUtils.setMdsalManager(mdsalManager);
 
             elanForwardingEntriesHandler = new ElanForwardingEntriesHandler(broker);
 
-            elanInterfaceManager = ElanInterfaceManager.getElanInterfaceManager();
+            elanInterfaceManager = ElanInterfaceManager.getElanInterfaceManager(this);
             elanInterfaceManager.setInterfaceManager(interfaceManager);
             elanInterfaceManager.setIdManager(idManager);
             elanInterfaceManager.setMdSalApiManager(mdsalManager);
@@ -155,8 +154,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
                     mdsalManager);
             rpcProviderRegistry.addRpcImplementation(ElanStatisticsService.class, interfaceStatsService);
 
-            elanInterfaceStateChangeListener = new ElanInterfaceStateChangeListener(broker, elanInterfaceManager);
-            elanInterfaceStateChangeListener.setInterfaceManager(interfaceManager);
+            elanInterfaceStateChangeListener = ElanInterfaceStateChangeListener.getElanInterfaceStateChangeListener(this);
 
             infStateChangeClusteredListener = new ElanInterfaceStateClusteredListener(broker, elanInterfaceManager);
 

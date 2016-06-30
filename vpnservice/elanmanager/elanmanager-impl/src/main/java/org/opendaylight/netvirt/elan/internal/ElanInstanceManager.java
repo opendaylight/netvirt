@@ -7,10 +7,12 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import com.google.common.base.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
@@ -33,7 +35,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import com.google.common.base.Optional;
 
 public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance> implements AutoCloseable {
     private DataBroker broker;
@@ -109,7 +111,7 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
                 for (String elanInterfaceName : elanInterfaces) {
                     InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils.getElanInterfaceConfigurationDataPathId(elanInterfaceName);
                     InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterfaceName);
-                    elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName, interfaceInfo);
+                    elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName, interfaceInfo, false);
                     ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
                 }
             }
@@ -129,7 +131,10 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
             return;
         } else if (update.getElanTag() == null) {
             // update the elan-Instance with new properties
-            ElanUtils.updateOperationalDataStore(broker, idManager, update);
+            WriteTransaction tx = broker.newWriteOnlyTransaction();
+            ElanUtils.updateOperationalDataStore(broker, idManager,
+                    update, new ArrayList<String>(), tx);
+            ElanUtils.waitForTransactionToComplete(tx);
             return;
         }
         elanInterfaceManager.handleunprocessedElanInterfaces(update);
@@ -139,8 +144,11 @@ public class ElanInstanceManager extends AbstractDataChangeListener<ElanInstance
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance elanInstanceAdded) {
         Elan elanInfo = ElanUtils.getElanByName(elanInstanceAdded.getElanInstanceName());
         if(elanInfo == null) {
-            ElanUtils.updateOperationalDataStore(broker, idManager, elanInstanceAdded);
-        }
+            WriteTransaction tx = broker.newWriteOnlyTransaction();
+        ElanUtils.updateOperationalDataStore(broker, idManager, elanInstanceAdded,
+                new ArrayList<String>(), tx);
+        ElanUtils.waitForTransactionToComplete(tx);
+    }
     }
 
     public ElanInstance getElanInstanceByName(String elanInstanceName) {
