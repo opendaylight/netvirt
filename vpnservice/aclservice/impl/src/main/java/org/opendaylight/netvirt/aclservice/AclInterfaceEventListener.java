@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.aclservice;
 
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -38,6 +39,8 @@ public class AclInterfaceEventListener extends AsyncDataTreeChangeListenerBase<I
         super(Interface.class, AclInterfaceEventListener.class);
         this.aclServiceManger = aclServiceManger;
         this.broker = broker;
+
+        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
     @Override
