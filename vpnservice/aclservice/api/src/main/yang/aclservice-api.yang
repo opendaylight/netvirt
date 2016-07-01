@@ -8,7 +8,7 @@ module aclservice-api {
     import ietf-yang-types { prefix "yang"; revision-date 2013-07-15; }
     import yang-ext { prefix ext; revision-date 2013-07-09;}
     import ietf-interfaces { prefix "ietf-if"; revision-date 2014-05-08;}
-
+    import ietf-inet-types { prefix "inet"; revision-date 2010-09-24; }
 
     description
         "ACL Service module";
@@ -36,6 +36,14 @@ module aclservice-api {
         description "Egress direction.";
         base direction-base;
 
+    }
+
+    typedef ip-prefix-or-address {
+        description "ip prefix or ip address";
+        type union {
+            type inet:ip-prefix;
+            type inet:ip-address;
+        }
     }
 
     augment "/ietf-acl:access-lists/ietf-acl:acl/ietf-acl:access-list-entries/ietf-acl:ace" {
@@ -66,6 +74,16 @@ module aclservice-api {
         leaf-list security-groups {
             type yang:uuid;
             description "The security group ID to associate with this interface.";
+        }
+        list allowed-address-pairs {
+            description "Allowed address pairs for this interface.";
+            key "mac-address ip-address";
+            leaf mac-address {
+                type yang:mac-address;
+            }
+            leaf ip-address {
+                type ip-prefix-or-address;
+            }
         }
     }
 }
