@@ -105,6 +105,24 @@
       "revId": "a3c302f97108d3ff13de770869f480a7e0df2b28",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_1796b594",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/etree.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-07-01T06:32:40Z",
+      "side": 1,
+      "message": "EtreeRootsTag \u003d\u003d elanTag. It is not a different entity in our solution. This is what I\u0027m matching on in table 0. Separating it to another value will add complication to the code. Because Elan is like Etree with all roots, the root interfaces behave exactly the same like Elan. They can communicate will all other interfaces, and all other interfaces can communicate with them. This is why it is the same entity as elan tag.\nThe only performance impact here is another lock for the data stores (2 locks instead of the original 1), and it\u0027s per network not per interface. So we are not talking on a high-frequency event.",
+      "parentUuid": "9a561d44_809e1755",
+      "revId": "a3c302f97108d3ff13de770869f480a7e0df2b28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
