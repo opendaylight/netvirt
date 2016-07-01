@@ -13,17 +13,26 @@ import java.util.List;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AclServiceManagerImpl implements AclServiceManager {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AclServiceManagerImpl.class);
 
     private List<AclServiceListener> aclServiceListenerList;
 
     /**
      * Intialize the acl service listener list.
      */
-    public AclServiceManagerImpl() {
+    public AclServiceManagerImpl(final IngressAclServiceImpl ingressAclService,
+            final EgressAclServiceImpl egressAclService) {
         aclServiceListenerList = new ArrayList<>();
+
+        addAclServiceListner(ingressAclService);
+        addAclServiceListner(egressAclService);
+
+        LOG.info("ACL Service Initiated");
     }
 
     @Override
