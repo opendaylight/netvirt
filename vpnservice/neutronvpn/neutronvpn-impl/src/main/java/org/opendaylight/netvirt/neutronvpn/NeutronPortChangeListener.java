@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.neutronvpn;
 
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -22,12 +23,15 @@ import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.api.rev160608.InterfaceAclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.api.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
@@ -189,6 +193,8 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             handleNeutronPortUpdated(original, update);
             NeutronvpnUtils.addToPortCache(update);
         }
+
+        handlePortSecurityUpdated(original, update);
     }
 
     private void handleRouterInterfaceAdded(Port routerPort) {
@@ -304,6 +310,80 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         }
     }
 
+    private void handlePortSecurityUpdated(Port portOriginal, Port portUpdated) {
+        Boolean origSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(portOriginal);
+        Boolean updatedSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(portUpdated);
+        String interfaceName = portUpdated.getUuid().getValue();
+        Interface portInterface = NeutronvpnUtils.getOfPortInterface(broker, portUpdated);
+        if (portInterface != null) {
+            InterfaceAclBuilder interfaceAclBuilder = null;
+            if (origSecurityEnabled != updatedSecurityEnabled) {
+                interfaceAclBuilder = new InterfaceAclBuilder();
+                interfaceAclBuilder.setPortSecurityEnabled(updatedSecurityEnabled);
+                if (updatedSecurityEnabled) {
+                    // Handle security group enabled
+                    List<Uuid> securityGroups = portUpdated.getSecurityGroups();
+                    if (securityGroups != null) {
+                        interfaceAclBuilder.setSecurityGroups(securityGroups);
+                    }
+                } else {
+                    // Handle security group disabled
+                    interfaceAclBuilder.setSecurityGroups(Lists.newArrayList());
+                }
+            } else {
+                if (updatedSecurityEnabled) {
+                    // handle SG add/delete delta
+                    InterfaceAcl interfaceAcl = portInterface.getAugmentation(InterfaceAcl.class);
+                    interfaceAclBuilder = new InterfaceAclBuilder(interfaceAcl);
+                    List<Uuid> addedGroups = getsecurityGroupChanged(portUpdated.getSecurityGroups(),
+                            portOriginal.getSecurityGroups());
+                    List<Uuid> deletedGroups = getsecurityGroupChanged(portOriginal.getSecurityGroups(),
+                            portUpdated.getSecurityGroups());
+                    List<Uuid> securityGroups = interfaceAcl.getSecurityGroups();
+                    if (addedGroups != null) {
+                        securityGroups.addAll(addedGroups);
+                    }
+                    if (deletedGroups != null) {
+                        securityGroups.removeAll(deletedGroups);
+                    }
+                    interfaceAclBuilder.setSecurityGroups(securityGroups);
+                }
+            }
+
+            if (interfaceAclBuilder != null) {
+                InterfaceBuilder builder = new InterfaceBuilder(portInterface)
+                        .addAugmentation(InterfaceAcl.class, interfaceAclBuilder.build());
+                InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(interfaceName);
+                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, builder.build());
+            }
+        } else {
+            LOG.error("Interface {} is not present", interfaceName);
+        }
+    }
+
+    private List<Uuid> getsecurityGroupChanged(List<Uuid> port1SecurityGroups, List<Uuid> port2SecurityGroups) {
+        if (port1SecurityGroups == null) {
+            return null;
+        }
+
+        if (port2SecurityGroups == null) {
+            return port1SecurityGroups;
+        }
+
+        List<Uuid> list1 = new ArrayList<>(port1SecurityGroups);
+        List<Uuid> list2 = new ArrayList<>(port2SecurityGroups);
+        for (Iterator<Uuid> iterator = list1.iterator(); iterator.hasNext();) {
+            Uuid securityGroup1 = iterator.next();
+            for (Uuid securityGroup2 : list2) {
+                if (securityGroup1.getValue().equals(securityGroup2.getValue())) {
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+        return list1;
+    }
+
     private String createOfPortInterface(Port port) {
         Interface inf = createInterface(port);
         String infName = inf.getName();
@@ -334,6 +414,17 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         ParentRefsBuilder parentRefsBuilder = new ParentRefsBuilder().setParentInterface(parentRefName);
         interfaceBuilder.setEnabled(true).setName(interfaceName).setType(L2vlan.class).addAugmentation(IfL2vlan
                 .class, ifL2vlanBuilder.build()).addAugmentation(ParentRefs.class, parentRefsBuilder.build());
+
+        if (NeutronvpnUtils.isPortSecurityEnabled(port)) {
+            InterfaceAclBuilder interfaceAclBuilder = new InterfaceAclBuilder();
+            interfaceAclBuilder.setPortSecurityEnabled(true);
+            List<Uuid> securityGroups = port.getSecurityGroups();
+            if (securityGroups != null) {
+                interfaceAclBuilder.setSecurityGroups(securityGroups);
+            }
+            interfaceBuilder.addAugmentation(InterfaceAcl.class, interfaceAclBuilder.build());
+        }
+
         return interfaceBuilder.build();
     }
 
