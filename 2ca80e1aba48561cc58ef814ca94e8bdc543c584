@@ -37,6 +37,42 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_8a146ef6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-01T08:37:03Z",
+      "side": 1,
+      "message": "Planning to do lock without timeout for entire module.\nWill do this in subsequent patch.",
+      "parentUuid": "9a561d44_f1c0882c",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_37e4993a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-01T08:37:03Z",
+      "side": 1,
+      "message": "Added a fix me in the code for the same.",
+      "parentUuid": "9a561d44_b7f8a9e6",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_0055ecc5",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
         "patchSetId": 20
@@ -48,6 +84,24 @@
       "writtenOn": "2016-06-27T13:37:20Z",
       "side": 1,
       "message": "Same question as above...",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_77d57142",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-01T08:37:03Z",
+      "side": 1,
+      "message": "Replied above.",
+      "parentUuid": "9a561d44_0055ecc5",
       "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
