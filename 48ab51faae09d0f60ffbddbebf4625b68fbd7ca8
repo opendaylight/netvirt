@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_663c8930",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-01T08:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba51214e_03001f00",
+      "revId": "48ab51faae09d0f60ffbddbebf4625b68fbd7ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
