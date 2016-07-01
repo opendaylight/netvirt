@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_56e78e12",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/BridgeUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-01T12:49:13Z",
+      "side": 1,
+      "message": "Vishal, does netvirt-vpnservice use br-ex? Daya mentioned the other day everything is on br-int.",
+      "parentUuid": "9a561d44_5e4faf92",
+      "revId": "24c6de4c9b1baa5681804c002480955a5eff6b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_7e4d5372",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/BridgeUtils.java",
         "patchSetId": 2
