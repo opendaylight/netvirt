@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_70a0bf90",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-01T08:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba51214e_f0316fa3",
+      "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_b0aa576e",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 12
@@ -89,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_308927ec",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1132,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-01T08:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba51214e_b0aa576e",
+      "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_30bac7de",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 12
@@ -100,6 +136,30 @@
       "writtenOn": "2016-06-24T09:06:03Z",
       "side": 1,
       "message": "my comment was about moving this check to line 488:\n\nif(npe !\u003d null  \u0026\u0026 npe.getNetworkType() !\u003d null)\n\n@Vinoth: yes, instanceof would make null check redundant, wanted someone to confirm if okay to use instance of in this case.",
+      "range": {
+        "startLine": 489,
+        "startChar": 16,
+        "endLine": 489,
+        "endChar": 38
+      },
+      "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_90a3d39d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-01T08:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba51214e_30bac7de",
       "range": {
         "startLine": 489,
         "startChar": 16,
