@@ -11,6 +11,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <required-capabilities>
     <capability>urn:opendaylight:netvirt:ipv6service:impl?module=ipv6service-impl&amp;revision=2016-06-20</capability>
     <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
+    <capability>urn:opendaylight:genius:mdsalutil?module=odl-mdsalutil&amp;revision=2016-04-06</capability>
+    <capability>urn:opendaylight:genius:interfacemanager?module=odl-interface&amp;revision=2016-04-06</capability>
   </required-capabilities>
   <configuration>
 
@@ -23,14 +25,22 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-broker-osgi-registry</type>
             <name>binding-osgi-broker</name>
           </broker>
-          <rpc-registry>
+          <rpcregistry>
             <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-rpc-registry</type>
             <name>binding-rpc-broker</name>
-          </rpc-registry>
+          </rpcregistry>
           <notification-service>
              <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-notification-service</type>
              <name>binding-notification-broker</name>
           </notification-service>
+          <mdsalutil>
+             <type xmlns:mdsalutil="urn:opendaylight:genius:mdsalutil">mdsalutil:odl-mdsalutil</type>
+             <name>mdsalutil-service</name>
+          </mdsalutil>
+          <odlinterface>
+             <type xmlns:odlif="urn:opendaylight:genius:interfacemanager">odlif:odl-interface</type>
+             <name>interfacemgr-service</name>
+          </odlinterface>
         </module>
       </modules>
     </data>
