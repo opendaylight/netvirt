@@ -52,6 +52,8 @@ public class NeutronPortChangeListenerTest {
     @Mock
     NotificationService notiService;
     @Mock
+    NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
+    @Mock
     ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
     @Mock
     WriteTransaction mockWriteTx;
@@ -73,7 +75,8 @@ public class NeutronPortChangeListenerTest {
         when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
             thenReturn(Futures.immediateCheckedFuture(Optional.of(mockNetwork)));
 
-        neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, nVpnMgr, nVpnNatMgr, notiPublishService, notiService);
+        neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, nVpnMgr, nVpnNatMgr,
+                notiPublishService, notiService, floatingIpMapListener);
     }
 
     @Test
