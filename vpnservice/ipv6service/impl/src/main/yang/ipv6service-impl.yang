@@ -4,6 +4,8 @@ module ipv6service-impl {
     prefix "ipv6service-impl";
 
     import config { prefix config; revision-date 2013-04-05; }
+    import odl-interface {prefix odlif; revision-date 2016-04-06;}
+    import odl-mdsalutil { prefix odl-mdsal; revision-date 2016-04-06;}
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
     import opendaylight-md-sal-dom {prefix dom; revision-date 2013-10-28;}
 
@@ -55,12 +57,28 @@ module ipv6service-impl {
                   }
                 }
             }
-            container rpc-registry {
+            container rpcregistry {
                 uses config:service-ref {
                   refine type {
                     mandatory true;
                     config:required-identity md-sal-binding:binding-rpc-registry;
                   }
+                }
+            }
+            container mdsalutil {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity odl-mdsal:odl-mdsalutil;
+                    }
+                }
+            }
+            container odlinterface {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity odlif:odl-interface;
+                    }
                 }
             }
         }
