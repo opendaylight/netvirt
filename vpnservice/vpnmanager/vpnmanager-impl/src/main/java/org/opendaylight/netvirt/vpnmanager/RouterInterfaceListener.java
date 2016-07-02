@@ -9,8 +9,8 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
@@ -21,28 +21,31 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RouterInterfaceListener extends AbstractDataChangeListener<Interfaces> {
+public class RouterInterfaceListener extends AbstractDataChangeListener<Interfaces> implements AutoCloseable {
+
     private static final Logger LOG = LoggerFactory.getLogger(RouterInterfaceListener.class);
+
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private DataBroker broker;
-    private VpnInterfaceManager vpnInterfaceManager;
 
-    public RouterInterfaceListener(final DataBroker db) {
+    private final DataBroker broker;
+    private final VpnInterfaceManager vpnInterfaceManager;
+
+    public RouterInterfaceListener(final DataBroker db, final VpnInterfaceManager vpnInterfaceManager) {
         super(Interfaces.class);
-        broker = db;
-        registerListener(db);
-    }
-
-    void setVpnInterfaceManager(VpnInterfaceManager vpnInterfaceManager) {
+        this.broker = db;
         this.vpnInterfaceManager = vpnInterfaceManager;
     }
 
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                    getWildCardPath(), RouterInterfaceListener.this, DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("Router interface DataChange listener registration fail !", e);
+    public void start() {
+        listenerRegistration = broker.registerDataChangeListener(
+                LogicalDatastoreType.CONFIGURATION, getWildCardPath(),
+                RouterInterfaceListener.this, DataChangeScope.SUBTREE);
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (listenerRegistration != null) {
+            listenerRegistration.close();
         }
     }
 
@@ -56,7 +59,7 @@ public class RouterInterfaceListener extends AbstractDataChangeListener<Interfac
         final String routerId = identifier.firstKeyOf(RouterInterfaces.class).getRouterId().getValue();
         String interfaceName = interfaceInfo.getInterfaceId();
 
-        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, 
+        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                 VpnUtil.getRouterInterfaceId(interfaceName), VpnUtil.getRouterInterface(interfaceName, routerId));
 
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState =
