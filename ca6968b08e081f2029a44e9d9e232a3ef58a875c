@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_c23118a4",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/translator/iaware/impl/NeutronFloatingIPDataTreeChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-02T12:08:31Z",
+      "side": 1,
+      "message": "The previous was using ClusterDataChange - looks like we lose that now. Does that matter?",
+      "revId": "ca6968b08e081f2029a44e9d9e232a3ef58a875c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
