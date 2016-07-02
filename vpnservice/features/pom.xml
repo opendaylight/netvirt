@@ -141,13 +141,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <version>${vpnmanager.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>vpnmanager-impl</artifactId>
-      <version>${vpnmanager.version}</version>
-      <classifier>config</classifier>
-      <type>xml</type>
-    </dependency>
-    <dependency>
       <groupId>org.opendaylight.genius</groupId>
       <artifactId>interfacemgr-shell</artifactId>
       <version>${interfacemgr.version}</version>
