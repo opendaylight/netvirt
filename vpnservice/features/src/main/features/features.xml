@@ -25,7 +25,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
     <feature version='${openflowplugin.version}'>odl-openflowplugin-nsf-model</feature>
     <feature version="${openflowplugin.version}">odl-openflowplugin-nxm-extensions</feature>
-    <feature version="${ovsdb.version}">odl-ovsdb-southbound-impl-rest</feature>
+    <feature version="${ovsdb.version}">odl-ovsdb-southbound-api</feature>
     <feature version='${ovsdb.version}'>odl-ovsdb-hwvtepsouthbound-api</feature>
     <feature version='${genius.version}'>odl-genius-api</feature>
     <bundle>mvn:org.opendaylight.controller/liblldp/{{VERSION}}</bundle>
@@ -40,7 +40,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </feature>
   <feature name='odl-netvirt-vpnservice-impl' version='${project.version}' description='OpenDaylight :: vpnservice :: impl '>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
-    <feature version="${ovsdb.version}">odl-ovsdb-southbound-impl-rest</feature>
+    <feature version="${ovsdb.version}">odl-ovsdb-southbound-impl</feature>
     <feature version='${ovsdb.version}'>odl-ovsdb-hwvtepsouthbound</feature>
     <feature version='${project.version}'>odl-netvirt-vpnservice-api</feature>
     <feature version="${openflowplugin.version}">odl-openflowplugin-southbound</feature>
@@ -74,21 +74,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <configfile finalname="aclservice-impl-default-config.xml">mvn:org.opendaylight.netvirt/aclservice-impl/{{VERSION}}/xml/config</configfile>
 
   </feature>
-  <feature name='odl-netvirt-vpnservice-impl-rest' version='${project.version}' description='OpenDaylight :: vpnservice :: impl :: REST '>
-    <feature version="${project.version}">odl-netvirt-vpnservice-impl</feature>
-    <feature version="${restconf.version}">odl-restconf</feature>
-  </feature>
-  <feature name='odl-netvirt-vpnservice-impl-ui' version='${project.version}' description='OpenDaylight :: vpnservice :: impl :: UI'>
-    <feature version="${project.version}">odl-netvirt-vpnservice-impl-rest</feature>
-    <feature version="${restconf.version}">odl-mdsal-apidocs</feature>
-    <feature version="${mdsal.version}">odl-mdsal-xsql</feature>
-  </feature>
-  <feature name='odl-netvirt-vpnservice-core' version='${project.version}' description='OpenDaylight :: vpnservice :: core'>
-    <feature version="${neutron.version}">odl-neutron-service</feature>
-    <feature version="${project.version}">odl-netvirt-vpnservice-impl-ui</feature>
-  </feature>
   <feature name='odl-netvirt-vpnservice-openstack' version='${project.version}' description='OpenDaylight :: vpnservice :: openstack'>
     <feature version="${neutron.version}">odl-neutron-service</feature>
-    <feature version="${project.version}">odl-netvirt-vpnservice-impl-rest</feature>
+    <feature version="${project.version}">odl-netvirt-vpnservice-impl</feature>
+    <feature version="${restconf.version}">odl-restconf</feature>
   </feature>
   </features>
