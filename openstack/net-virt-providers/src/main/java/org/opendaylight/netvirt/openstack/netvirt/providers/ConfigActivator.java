@@ -216,6 +216,7 @@ public class ConfigActivator implements BundleActivator {
                         (NodeCacheManager) context.getService(reference);
                 if (service != null) {
                     gatewayMacResolverService.setDependencies(service);
+                    pipelineOrchestrator.setDependencies(context, null);
                 }
                 return service;
             }

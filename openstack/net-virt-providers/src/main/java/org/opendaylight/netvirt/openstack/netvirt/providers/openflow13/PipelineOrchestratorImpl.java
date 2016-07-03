@@ -192,8 +192,10 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
     public void setDependencies(BundleContext bundleContext, ServiceReference serviceReference) {
         NodeCacheManager nodeCacheManager =
                 (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
-        nodeCacheManager.cacheListenerAdded(
-                bundleContext.getServiceReference(PipelineOrchestrator.class.getName()), this);
+        if (nodeCacheManager != null) {
+            nodeCacheManager.cacheListenerAdded(
+                    bundleContext.getServiceReference(PipelineOrchestrator.class.getName()), this);
+        }
         southbound =
                 (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
     }
