@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_08120fb1",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-03T09:27:23Z",
+      "side": 1,
+      "message": "In this patch, I\u0027m using MDSAL to program the flows and not via Genius Interface Manager.\n\nI have few questions regarding Service Binding, which we shall discuss during our weekly meeting. Once we finalize the approach, I\u0027ll modify the code accordingly.\n\nUntil then, if you have any review comments, please share your comments. Thanks.",
+      "revId": "5b9510c1cf133b8a661c2947f677b7d362264052",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
