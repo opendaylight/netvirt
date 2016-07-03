@@ -9,10 +9,9 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AclBase;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.api.rev160608.DirectionEgress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.api.rev160608.DirectionIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.EthertypeV4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.EthertypeV6;
 
 public final class NeutronSecurityRuleConstants {
 
