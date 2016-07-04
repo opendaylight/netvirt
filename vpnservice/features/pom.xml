@@ -42,6 +42,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <idmanager.version>${genius.version}</idmanager.version>
     <itm.version>${genius.version}</itm.version>
     <neutronvpn.version>${vpnservices.version}</neutronvpn.version>
+    <configfile.directory>etc/opendaylight/karaf</configfile.directory>
   </properties>
   <dependencyManagement>
     <dependencies>
