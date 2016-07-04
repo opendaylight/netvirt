@@ -9,7 +9,7 @@
 package org.opendaylight.netvirt.bgpmanager.commands;
 
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.*;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.*;
 
 public class Commands {
     private static BgpManager bm;
