@@ -9,28 +9,23 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Ipv6ServiceProvider implements BindingAwareProvider, AutoCloseable {
+public class Ipv6ServiceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceProvider.class);
 
     private DataBroker broker;
 
-    public Ipv6ServiceProvider() {
+    public Ipv6ServiceProvider(final DataBroker dataBroker) {
+        this.broker = dataBroker;
     }
 
-    @Override
-    public void onSessionInitiated(ProviderContext session) {
-        broker = session.getSALService(DataBroker.class);
+    public void start() {
         LOG.info("IPv6 Service Initiated");
     }
 
-    @Override
-    public void close() throws Exception {
+    public void close() {
         LOG.info("IPv6 Service closed");
     }
 }
