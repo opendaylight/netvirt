@@ -110,6 +110,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
+        logger.info("ElanServiceProvider onSessionInitiated");
         elanStatusMonitor.reportStatus("STARTING");
         try {
             createIdPool();

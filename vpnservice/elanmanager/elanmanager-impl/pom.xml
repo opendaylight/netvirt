@@ -18,7 +18,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>elanmanager-impl</artifactId>
-  <version>${vpnservices.version}</version>
   <packaging>bundle</packaging>
 
   <properties>
@@ -124,6 +123,22 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           <scope>test</scope>
       </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <configuration>
+          <instructions>
+            <Bundle-Activator>org.opendaylight.netvirt.elan.internal.ElanBundleActivator</Bundle-Activator>
+          </instructions>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
 
     <!--
         Maven Site Configuration
