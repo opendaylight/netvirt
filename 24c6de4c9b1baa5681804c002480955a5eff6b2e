@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "9a561d44_b218ad85",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-07-04T14:24:36Z",
+      "side": 1,
+      "message": "I\u0027m not sure / don\u0027t think this is a good idea .. email me to discuss further, if interested. (It\u0027s NOT the cause of the loading issue, but I just saw this while glancing over this change.)",
+      "revId": "24c6de4c9b1baa5681804c002480955a5eff6b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_1e31b7ec",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanOvsdbNodeListener.java",
         "patchSetId": 2
