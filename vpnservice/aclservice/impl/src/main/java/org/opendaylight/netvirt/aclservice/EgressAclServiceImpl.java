@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class EgressAclServiceImpl implements AclServiceListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(EgressAclServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EgressAclServiceImpl.class);
 
     private IMdsalApiManager mdsalUtil;
     short tableIdInstall = 22;
@@ -41,7 +41,7 @@ public class EgressAclServiceImpl implements AclServiceListener {
     private DataBroker dataBroker;
 
     /**
-     * Intilaze the member variables.
+     * Initialize the member variables.
      * @param dataBroker the data broker instance.
      * @param interfaceManager the interface manager instance.
      * @param mdsalUtil the mdsal util instance.
@@ -55,7 +55,6 @@ public class EgressAclServiceImpl implements AclServiceListener {
 
     @Override
     public boolean applyAcl(Interface port) {
-
         if (!AclServiceUtils.isPortSecurityEnabled(port, dataBroker)) {
             return false;
         }
@@ -94,7 +93,7 @@ public class EgressAclServiceImpl implements AclServiceListener {
      */
     private void programFixedSecurityGroup(BigInteger dpid, String dhcpMacAddress,
                                            String attachMac, int addOrRemove) {
-        logger.info("programFixedSecurityGroup :  adding default security group rules.");
+        LOG.info("programFixedSecurityGroup :  adding default security group rules.");
         egressAclDhcpAllowClientTraffic(dpid, dhcpMacAddress, attachMac, addOrRemove);
         egressAclDhcpv6AllowClientTraffic(dpid, dhcpMacAddress, attachMac, addOrRemove);
         egressAclDhcpDropServerTraffic(dpid, dhcpMacAddress, attachMac, addOrRemove);
@@ -115,8 +114,8 @@ public class EgressAclServiceImpl implements AclServiceListener {
      */
     private void egressAclDhcpDropServerTraffic(BigInteger dpId, String dhcpMacAddress,
             String attachMac, int addOrRemove) {
-        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclServiceUtils.dhcpServerPort_IpV4,
-            AclServiceUtils.dhcpClientPort_IpV4);
+        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclServiceUtils.DHCP_SERVER_PORT_IPV4,
+            AclServiceUtils.DHCP_CLIENT_PORT_IPV4);
         matches.add(new MatchInfo(MatchFieldType.eth_src,
             new String[] { attachMac }));
         matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
@@ -142,8 +141,8 @@ public class EgressAclServiceImpl implements AclServiceListener {
      */
     private void egressAclDhcpv6DropServerTraffic(BigInteger dpId, String dhcpMacAddress,
                                                   String attachMac, int addOrRemove) {
-        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclServiceUtils.dhcpServerPort_Ipv6,
-            AclServiceUtils.dhcpClientPort_IpV6);
+        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclServiceUtils.DHCP_SERVER_PORT_IPV6,
+            AclServiceUtils.DHCP_CLIENT_PORT_IPV6);
         matches.add(new MatchInfo(MatchFieldType.eth_src,
             new String[] { attachMac }));
         matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
@@ -166,14 +165,14 @@ public class EgressAclServiceImpl implements AclServiceListener {
      * @param dpidLong the dpid
      * @param segmentationId the segmentation id
      * @param dhcpMacAddress the DHCP server mac address
-     * @param attachMac the mac address of  the port
+     * @param attachMac the mac address of the port
      * @param write is write or delete
      * @param protoPortMatchPriority the priority
      */
     private void egressAclDhcpAllowClientTraffic(BigInteger dpId, String dhcpMacAddress,
                                                  String attachMac, int addOrRemove) {
-        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclServiceUtils.dhcpClientPort_IpV4,
-            AclServiceUtils.dhcpServerPort_IpV4);
+        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclServiceUtils.DHCP_CLIENT_PORT_IPV4,
+            AclServiceUtils.DHCP_SERVER_PORT_IPV4);
         matches.add(new MatchInfo(MatchFieldType.eth_src,
             new String[] { attachMac }));
         matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
@@ -208,8 +207,8 @@ public class EgressAclServiceImpl implements AclServiceListener {
      */
     private void egressAclDhcpv6AllowClientTraffic(BigInteger dpId, String dhcpMacAddress,
                                                    String attachMac, int addOrRemove) {
-        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclServiceUtils.dhcpClientPort_IpV6,
-            AclServiceUtils.dhcpServerPort_Ipv6);
+        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclServiceUtils.DHCP_CLIENT_PORT_IPV6,
+            AclServiceUtils.DHCP_SERVER_PORT_IPV6);
         matches.add(new MatchInfo(MatchFieldType.eth_src,
             new String[] { attachMac }));
         matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
@@ -264,7 +263,7 @@ public class EgressAclServiceImpl implements AclServiceListener {
     }
 
     /**
-     * Adds  the rule to forward the packets known packets .
+     * Adds the rule to forward the packets known packets.
      * @param dpId the dpId
      * @param attachMac the attached mac address
      * @param priority the priority of the flow
@@ -374,13 +373,13 @@ public class EgressAclServiceImpl implements AclServiceListener {
             MDSALUtil.buildFlowEntity(dpId, tableIdInstall,
                 flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclServiceUtils.COOKIE_ACL_BASE, matches, null);
-            logger.trace("Removing Acl Flow DpId {}, vmMacAddress {}", dpId, flowId);
+            LOG.trace("Removing Acl Flow DpId {}, vmMacAddress {}", dpId, flowId);
             // TODO Need to be done as a part of genius integration
             //mdsalUtil.removeFlow(flowEntity);
         } else {
             MDSALUtil.buildFlowEntity(dpId, tableId,
                 flowId ,priority, flowName, 0, 0, cookie, matches, instructions);
-            logger.trace("Installing  DpId {}, flowId {}", dpId, flowId);
+            LOG.trace("Installing  DpId {}, flowId {}", dpId, flowId);
             // TODO Need to be done as a part of genius integration
             //mdsalUtil.installFlow(flowEntity);
         }
@@ -406,9 +405,9 @@ public class EgressAclServiceImpl implements AclServiceListener {
             programConntrackForwardRule(dpid, attachMac, AclServiceUtils.CT_STATE_NEW_PRIORITY_DROP,
                 "Tracked_Invalid",AclServiceUtils.TRACKED_INV_CT_STATE, AclServiceUtils.TRACKED_INV_CT_STATE_MASK,
                 write );
-            logger.info("programEgressAclFixedConntrackRule :  default connection tracking rule are added.");
+            LOG.info("programEgressAclFixedConntrackRule :  default connection tracking rule are added.");
         } catch (Exception e) {
-            logger.error("Failed to add default conntrack rules : " , e);
+            LOG.error("Failed to add default conntrack rules : " , e);
         }
     }
 }
