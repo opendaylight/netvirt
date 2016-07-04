@@ -23,7 +23,9 @@ import org.slf4j.LoggerFactory;
 
 public class AclInterfaceEventListener extends AsyncDataTreeChangeListenerBase<Interface, AclInterfaceEventListener>
     implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable {
+
     private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceEventListener.class);
+
     /** Our registration. */
     public static final TopologyId OVSDB_TOPOLOGY_ID = new TopologyId(new Uri("ovsdb:1"));
     public static final String EXTERNAL_ID_INTERFACE_ID = "iface-id";
@@ -31,7 +33,7 @@ public class AclInterfaceEventListener extends AsyncDataTreeChangeListenerBase<I
     private final DataBroker broker;
 
     /**
-     * Intialize the member variables.
+     * Initialize the member variables.
      * @param aclServiceManger the AclServiceManager instance.
      * @param broker the data broker instance.
      */
@@ -61,7 +63,6 @@ public class AclInterfaceEventListener extends AsyncDataTreeChangeListenerBase<I
     protected void update(InstanceIdentifier<Interface> key, Interface dataObjectModificationBefore,
                           Interface dataObjectModificationAfter) {
         // TODO Auto-generated method stub
-
     }
 
     @Override

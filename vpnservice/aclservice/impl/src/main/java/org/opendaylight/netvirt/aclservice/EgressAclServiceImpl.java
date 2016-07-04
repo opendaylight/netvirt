@@ -44,7 +44,7 @@ public class EgressAclServiceImpl implements AclServiceListener {
     private DataBroker dataBroker;
 
     /**
-     * Intilaze the member variables.
+     * Initialize the member variables.
      * @param dataBroker the data broker instance.
      * @param interfaceManager the interface manager instance.
      * @param mdsalManager the mdsal manager instance.
