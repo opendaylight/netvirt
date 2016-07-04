@@ -3,6 +3,7 @@ package org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.impl.re
 import org.opendaylight.netvirt.aclservice.AclServiceProvider;
 
 public class AclServiceImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.impl.rev160523.AbstractAclServiceImplModule {
+
     public AclServiceImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
@@ -23,6 +24,5 @@ public class AclServiceImplModule extends org.opendaylight.yang.gen.v1.urn.opend
         provider.setRpcProviderRegistry(getRpcRegistryDependency());
         getBrokerDependency().registerProvider(provider);
         return provider;
-
     }
 }

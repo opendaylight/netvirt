@@ -16,11 +16,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 
 public class AclServiceManagerImpl implements AclServiceManager {
 
-
     private List<AclServiceListener> aclServiceListenerList;
 
     /**
-     * Intialize the acl service listener list.
+     * Initialize the ACL service listener list.
      */
     public AclServiceManagerImpl() {
         aclServiceListenerList = new ArrayList<>();
@@ -29,18 +28,16 @@ public class AclServiceManagerImpl implements AclServiceManager {
     @Override
     public void addAclServiceListner(AclServiceListener aclServiceListner) {
         aclServiceListenerList.add(aclServiceListner);
-
     }
 
     @Override
     public void removeAclServiceListner(AclServiceListener aclServiceListner) {
         aclServiceListenerList.remove(aclServiceListner);
-
     }
 
     @Override
     public void notify(Interface port, Action action) {
-        for (AclServiceListener aclServiceListener:aclServiceListenerList) {
+        for (AclServiceListener aclServiceListener : aclServiceListenerList) {
             if (action == Action.ADD) {
                 aclServiceListener.applyAcl(port);
             } else if (action == Action.UPDATE) {
@@ -49,7 +46,6 @@ public class AclServiceManagerImpl implements AclServiceManager {
                 aclServiceListener.removeAcl(port);
             }
         }
-
     }
 
 }
