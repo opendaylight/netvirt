@@ -124,10 +124,6 @@ public class EgressAclServiceImpl implements AclServiceListener {
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
-        actionsInfos.add(new ActionInfo(ActionType.drop_action,
-            new String[] {}));
         String flowName = "Egress_DHCP_Server_v4" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Drop_";
         syncFlow(dpId, tableIdInstall, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
             AclServiceUtils.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
@@ -151,10 +147,6 @@ public class EgressAclServiceImpl implements AclServiceListener {
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
-        actionsInfos.add(new ActionInfo(ActionType.drop_action,
-            new String[] {}));
         String flowName = "Egress_DHCP_Server_v4" + "_" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Drop_";
         syncFlow(dpId, tableIdInstall, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
             AclServiceUtils.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
@@ -284,11 +276,6 @@ public class EgressAclServiceImpl implements AclServiceListener {
             new String[] { attachMac }));
         List<InstructionInfo> instructions = new ArrayList<>();
 
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
-        actionsInfos.add(new ActionInfo(ActionType.goto_table,
-            new String[] {}));
-
         instructions.add(new InstructionInfo(InstructionType.goto_table,
             new long[] { tableIdNext }));
         String flowName = "Egress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_" + flowId;
@@ -317,10 +304,6 @@ public class EgressAclServiceImpl implements AclServiceListener {
             new String[] { attachMac }));
         List<InstructionInfo> instructions = new ArrayList<>();
 
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
-        actionsInfos.add(new ActionInfo(ActionType.drop_action,
-            new String[] {}));
         String flowName = "Egress_Fixed_Conntrk_NewDrop_" + dpId + "_" + attachMac + "_" + flowId;
         syncFlow(dpId, tableIdInstall, flowName, priority, "ACL", 0, 0,
             AclServiceUtils.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
@@ -340,11 +323,6 @@ public class EgressAclServiceImpl implements AclServiceListener {
             new String[] { attachMac }));
 
         List<InstructionInfo> instructions = new ArrayList<>();
-
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
-        actionsInfos.add(new ActionInfo(ActionType.goto_table,
-                new String[] {}));
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
             new long[] { tableIdNext }));
