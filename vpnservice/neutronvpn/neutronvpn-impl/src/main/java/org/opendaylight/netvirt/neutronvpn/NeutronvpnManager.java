@@ -21,14 +21,12 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargetsBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets
-        .VpnTargetBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance
-        .Ipv4FamilyBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4FamilyBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -39,7 +37,39 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateRouterInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.CreateL3VPNInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.CreateL3VPNOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.CreateL3VPNOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DeleteL3VPNInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DeleteL3VPNOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DeleteL3VPNOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DissociateNetworksInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DissociateNetworksOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DissociateNetworksOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DissociateRouterInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetL3VPNInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetL3VPNInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetL3VPNOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetL3VPNOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.L3vpnInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterAssociatedToVpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterAssociatedToVpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterDisassociatedFromVpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterDisassociatedFromVpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetAddedToVpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetDeletedFromVpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetUpdatedInVpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfacesKey;
@@ -55,17 +85,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.createl3vpn.input.L3vpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.getl3vpn.output.L3vpnInstances;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.getl3vpn.output
-        .L3vpnInstancesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.getl3vpn.output.L3vpnInstancesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
@@ -86,11 +112,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , EventListener{
+public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, EventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(NeutronvpnManager.class);
     private final DataBroker broker;
@@ -891,18 +916,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         }
     }
 
-
-
-        // router-interfaces-map
-//    list router-interfaces {
-//        key router-id;
-//        leaf router-id { type yang:uuid; }
-//        list interfaces {
-//            key interface-id;
-//            leaf interface-id { type yang:uuid; }
-//        }
-//    }
-////}
     InstanceIdentifier<RouterInterfaces> getRouterInterfacesId(Uuid routerId) {
         return InstanceIdentifier.builder(RouterInterfacesMap.class)
                 .child(RouterInterfaces.class, new RouterInterfacesKey(routerId)).build();
@@ -1090,8 +1103,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
             logger.debug("Updating association of subnets to external vpn {}", vpnId.getValue());
             if (routerSubnets != null) {
                 for (Uuid subnetId : routerSubnets) {
-                    updateVpnForSubnet(vpnId, subnetId,true);
+                    updateVpnForSubnet(vpnId, subnetId, true);
                 }
+            }
+            try {
+                checkAndPublishRouterAssociatedtoVpnNotification(routerId, vpnId);
+                logger.debug("notification upon association of router {} to VPN {} published", routerId.getValue(),
+                        vpnId.getValue());
+            } catch (Exception e) {
+                logger.error("publishing of notification upon association of router {} to VPN {} failed : ", routerId
+                        .getValue(), vpnId.getValue(), e);
             }
         } else {
             logger.debug("Adding subnets to internal vpn {}", vpnId.getValue());
@@ -1111,6 +1132,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
             }
         }
         clearFromVpnMaps(vpnId, routerId, null);
+        try {
+            checkAndPublishRouterDisassociatedFromVpnNotification(routerId, vpnId);
+            logger.debug("notification upon disassociation of router {} from VPN {} published", routerId.getValue(),
+                    vpnId.getValue());
+        } catch (Exception e) {
+            logger.error("publishing of notification upon disassociation of router {} from VPN {} failed : ", routerId
+                    .getValue(), vpnId.getValue(), e);
+        }
     }
 
     protected List<String> associateNetworksToVpn(Uuid vpn, List<Uuid> networks) {
@@ -1133,13 +1162,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
                     if (networkSubnets != null) {
                         for (Uuid subnet : networkSubnets) {
                             // check if subnet added as router interface to some router
-                            Uuid routerVpnId = NeutronvpnUtils.getVpnForSubnet(broker, subnet);
-                            if (routerVpnId == null) {
+                            Uuid subnetVpnId = NeutronvpnUtils.getVpnForSubnet(broker, subnet);
+                            if (subnetVpnId == null) {
                                 addSubnetToVpn(vpn, subnet);
                                 passedNwList.add(nw);
                             } else {
                                 failedNwList.add(String.format("subnet %s already added as router interface bound to " +
-                                        "internal/external VPN %s", subnet.getValue (), routerVpnId.getValue()));
+                                        "internal/external VPN %s", subnet.getValue (), subnetVpnId.getValue()));
                             }
                         }
                     }
@@ -1165,19 +1194,23 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
                 if (network == null) {
                     failedNwList.add(String.format("network %s not found", nw.getValue()));
                 } else {
-                    List<Uuid> networkSubnets = NeutronvpnUtils.getSubnetIdsFromNetworkId(broker, nw);
-                    logger.debug("Removing network subnets...");
-                    if (networkSubnets != null) {
-                        for (Uuid subnet : networkSubnets) {
-                            // check if subnet added as router interface to some router
-                            Uuid routerVpnId = NeutronvpnUtils.getVpnForSubnet(broker, subnet);
-                            if (routerVpnId == null) {
+                    Uuid vpnId = NeutronvpnUtils.getVpnForNetwork(broker, nw);
+                    if (vpn.equals(vpnId)) {
+                        List<Uuid> networkSubnets = NeutronvpnUtils.getSubnetIdsFromNetworkId(broker, nw);
+                        logger.debug("Removing network subnets...");
+                        if (networkSubnets != null) {
+                            for (Uuid subnet : networkSubnets) {
                                 removeSubnetFromVpn(vpn, subnet);
                                 passedNwList.add(nw);
-                            } else {
-                                failedNwList.add(String.format("subnet %s added as router interface bound to " +
-                                        "internal/external VPN %s", subnet.getValue (), routerVpnId.getValue()));
                             }
+                        }
+                    } else {
+                        if (vpnId == null) {
+                            failedNwList.add(String.format("input network %s not associated to any vpn yet", nw
+                                    .getValue()));
+                        } else {
+                            failedNwList.add(String.format("input network %s associated to a another vpn %s instead " +
+                                    "of the one given as input", nw.getValue(), vpnId.getValue()));
                         }
                     }
                     if (network.getAugmentation(NetworkL3Extension.class).isExternal()) {
@@ -1340,11 +1373,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
                     Router rtr = NeutronvpnUtils.getNeutronRouter(broker, routerId);
                     if (rtr != null) {
                         Uuid routerVpnId = NeutronvpnUtils.getVpnForRouter(broker, routerId, true);
-                        if (!routerVpnId.equals(vpnId)) {
-                            returnMsg.append("input router ").append(routerId.getValue()).append(" associated to " +
-                                    "vpn ").append(routerVpnId.getValue()).append("instead of the vpn given as input");
-                        } else {
+                        if (vpnId.equals(routerVpnId)) {
                             dissociateRouterFromVpn(vpnId, routerId);
+                        } else {
+                            if (routerVpnId == null) {
+                                returnMsg.append("input router ").append(routerId.getValue()).append(" not associated" +
+                                        " to any vpn yet");
+                            } else {
+                                returnMsg.append("input router ").append(routerId.getValue()).append(" associated to " +
+                                        "vpn ").append(routerVpnId.getValue()).append("instead of the vpn given as " +
+                                        "input");
+                            }
                         }
                     } else {
                         returnMsg.append("router not found : ").append(routerId.getValue());
@@ -1615,4 +1654,19 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable , Eve
         notificationPublishService.putNotification(builder.build());
     }
 
+    private void checkAndPublishRouterAssociatedtoVpnNotification(Uuid routerId, Uuid vpnId) throws
+            InterruptedException {
+        RouterAssociatedToVpn routerAssociatedToVpn = new RouterAssociatedToVpnBuilder().setRouterId(routerId)
+                .setVpnId(vpnId).build();
+        logger.info("publishing notification upon association of router to VPN");
+        notificationPublishService.putNotification(routerAssociatedToVpn);
+    }
+
+    private void checkAndPublishRouterDisassociatedFromVpnNotification(Uuid routerId, Uuid vpnId) throws
+            InterruptedException {
+        RouterDisassociatedFromVpn routerDisassociatedFromVpn = new RouterDisassociatedFromVpnBuilder().setRouterId
+                (routerId).setVpnId(vpnId).build();
+        logger.info("publishing notification upon disassociation of router from VPN");
+        notificationPublishService.putNotification(routerDisassociatedFromVpn);
+    }
 }
