@@ -1,6 +1,31 @@
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    <reference id="elanProviderRef" interface="org.opendaylight.netvirt.elanmanager.api.IElanService" availability="optional" />
-    <reference id="interfaceManagerRef" interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager"  availability="optional" />
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+    <!-- <reference id="elanProviderRef" interface="org.opendaylight.netvirt.elanmanager.api.IElanService" 
+        availability="optional" /> -->
+    <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+        odl:type="default" />
+    <reference id="rpcRegistry"
+        interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry" />
+    <reference id="notificationService"
+        interface="org.opendaylight.controller.md.sal.binding.api.NotificationService" />
+    <reference id="interfaceManagerRef"
+        interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
+    <reference id="mdsalApi"
+        interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+    <reference id="itmProvider" interface="org.opendaylight.genius.itm.api.IITMProvider" />
+    <reference id="entityOwner"
+        interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
+    <bean id="elanProviderRef" class="org.opendaylight.netvirt.elan.internal.ElanServiceProvider"
+        init-method="init">
+        <property name="dataBroker" ref="dataBroker" />
+        <property name="rpcProviderRegistry" ref="rpcRegistry" />
+        <property name="notificationService" ref="notificationService" />
+        <property name="interfaceManager" ref="interfaceManagerRef" />
+        <property name="mdsalManager" ref="mdsalApi" />
+        <property name="itmManager" ref="itmProvider" />
+        <property name="entityOwnershipService" ref="entityOwner" />
+    </bean>
+    <service ref="elanProviderRef" interface="org.opendaylight.netvirt.elanmanager.api.IElanService"
+        odl:type="default" />
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
             <action class="org.opendaylight.netvirt.elan.cli.ElanAdd">
@@ -63,7 +88,7 @@
                 <property name="interfaceManager" ref="interfaceManagerRef" />
             </action>
         </command>
-	<command>
+        <command>
             <action class="org.opendaylight.netvirt.elan.cli.l2gw.L2GwUtilsCacheCli">
             </action>
         </command>
