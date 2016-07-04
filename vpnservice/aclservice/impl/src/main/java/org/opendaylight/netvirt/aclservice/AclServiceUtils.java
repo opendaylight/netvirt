@@ -60,6 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AclServiceUtils {
+
     public static final Integer PROTO_MATCH_PRIORITY = 61010;
     public static final Integer PREFIX_MATCH_PRIORITY = 61009;
     public static final Integer PROTO_PREFIX_MATCH_PRIORITY = 61008;
@@ -71,10 +72,10 @@ public class AclServiceUtils {
     public static final Integer CT_STATE_TRACKED_EXIST_PRIORITY = 62020;
     public static final Integer CT_STATE_TRACKED_NEW_PRIORITY = 62010;
     public static final Integer CT_STATE_NEW_PRIORITY_DROP = 36007;
-    public static final short dhcpClientPort_IpV4 = 68;
-    public static final short dhcpServerPort_IpV4 = 67;
-    public static final short dhcpClientPort_IpV6 = 568;
-    public static final short dhcpServerPort_Ipv6 = 567;
+    public static final short DHCP_CLIENT_PORT_IPV4 = 68;
+    public static final short DHCP_SERVER_PORT_IPV4 = 67;
+    public static final short DHCP_CLIENT_PORT_IPV6 = 568;
+    public static final short DHCP_SERVER_PORT_IPV6 = 567;
     public static final BigInteger COOKIE_ACL_BASE = new BigInteger("6900000", 16);
     public static final int UNTRACKED_CT_STATE = 0x00;
     public static final int UNTRACKED_CT_STATE_MASK = 0x20;
@@ -86,6 +87,8 @@ public class AclServiceUtils {
     public static final int TRACKED_CT_STATE_MASK = 0x37;
     public static final int TRACKED_NEW_CT_STATE_MASK = 0x21;
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceUtils.class);
+
+    private AclServiceUtils() { }
 
     /**
      * Retrieves the Interface from the datastore.
