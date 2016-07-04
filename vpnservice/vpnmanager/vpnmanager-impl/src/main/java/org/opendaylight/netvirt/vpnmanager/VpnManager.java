@@ -22,9 +22,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnRouteList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
@@ -38,10 +35,8 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -72,10 +67,12 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
             new FutureCallback<Void>() {
+                @Override
                 public void onSuccess(Void result) {
                     LOG.debug("Success in Datastore operation");
                 }
 
+                @Override
                 public void onFailure(Throwable error) {
                     LOG.error("Error in Datastore operation", error);
                 }
@@ -347,7 +344,6 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
 
     private InstanceIdentifier<?> getVpnInstanceOpListenerPath() {
         return InstanceIdentifier.create(VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class);
-
     }
 
     @Override
@@ -415,6 +411,21 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         }
     }
 
+    private <T extends DataObject> void delete(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.delete(datastoreType, path);
+        Futures.addCallback(tx.submit(), DEFAULT_CALLBACK);
+    }
+
+    protected VpnInstance getVpnInstance(String vpnInstanceName) {
+        InstanceIdentifier<VpnInstance> id =
+                InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class, new VpnInstanceKey(vpnInstanceName))
+                        .build();
+        Optional<VpnInstance> vpnInstance = read(LogicalDatastoreType.CONFIGURATION, id);
+
+        return ( vpnInstance.isPresent() ) ? vpnInstance.get() : null;
+    }
+
     protected VpnInstanceOpDataEntry getVpnInstanceOpData(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = read(LogicalDatastoreType.OPERATIONAL, id);
@@ -422,12 +433,6 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
             return vpnInstanceOpData.get();
         }
         return null;
-    }
-
-    private <T extends DataObject> void delete(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.delete(datastoreType, path);
-        Futures.addCallback(tx.submit(), DEFAULT_CALLBACK);
     }
 
     private class FibEntriesListener extends AbstractDataChangeListener<VrfEntry>  {

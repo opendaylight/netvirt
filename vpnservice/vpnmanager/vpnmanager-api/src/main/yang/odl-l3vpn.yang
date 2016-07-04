@@ -260,7 +260,7 @@ module odl-l3vpn {
         }
 
 
-      /* container to maintain mapping between neutron router and DPN(s) on which vpn-interfaces for router are present */
+    /* container to maintain mapping between neutron router and DPN(s) on which vpn-interfaces for router are present */
     container neutron-router-dpns {
         list router-dpn-list {
             key router-id;
