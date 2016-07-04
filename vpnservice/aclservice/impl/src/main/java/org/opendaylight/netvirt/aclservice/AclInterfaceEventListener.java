@@ -41,16 +41,6 @@ public class AclInterfaceEventListener extends AsyncDataTreeChangeListenerBase<I
     }
 
     @Override
-    public void close() throws Exception {
-        try {
-            super.close();
-        } catch (Exception e) {
-            LOG.error("Error while closing {}", e.getMessage());
-
-        }
-    }
-
-    @Override
     protected InstanceIdentifier<Interface> getWildCardPath() {
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
     }
