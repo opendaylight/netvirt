@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 public class IngressAclServiceImpl implements AclServiceListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(IngressAclServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IngressAclServiceImpl.class);
 
     private IMdsalApiManager mdsalUtil;
     short tableIdInstall = 20;
@@ -94,7 +94,7 @@ public class IngressAclServiceImpl implements AclServiceListener {
      */
     private void programFixedSecurityGroup(BigInteger dpid, String dhcpMacAddress,
                                         String attachMac, int addOrRemove) {
-        logger.info("programFixedSecurityGroup :  adding default security group rules.");
+        LOG.info("programFixedSecurityGroup :  adding default security group rules.");
         ingressAclDhcpAllowServerTraffic(dpid, dhcpMacAddress, attachMac,
             addOrRemove, AclServiceUtils.PROTO_PREFIX_MATCH_PRIORITY);
         ingressAclDhcpv6AllowServerTraffic(dpid, dhcpMacAddress, attachMac,
@@ -118,8 +118,8 @@ public class IngressAclServiceImpl implements AclServiceListener {
      */
     private void ingressAclDhcpAllowServerTraffic(BigInteger dpId, String dhcpMacAddress,
                                                   String attachMac, int addOrRemove, int protoPortMatchPriority) {
-        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclServiceUtils.dhcpServerPort_IpV4,
-            AclServiceUtils.dhcpClientPort_IpV4);
+        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclServiceUtils.DHCP_SERVER_PORT_IPV4,
+            AclServiceUtils.DHCP_CLIENT_PORT_IPV4);
         matches.add(new MatchInfo(MatchFieldType.eth_dst,
                 new String[] { attachMac }));
         matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
@@ -156,8 +156,8 @@ public class IngressAclServiceImpl implements AclServiceListener {
      */
     private void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress,
                                                     String attachMac, int addOrRemove, Integer protoPortMatchPriority) {
-        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclServiceUtils.dhcpServerPort_Ipv6,
-            AclServiceUtils.dhcpClientPort_IpV6);
+        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclServiceUtils.DHCP_SERVER_PORT_IPV6,
+            AclServiceUtils.DHCP_CLIENT_PORT_IPV6);
         matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { attachMac }));
         matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
             new long[] { AclServiceUtils.TRACKED_NEW_CT_STATE, AclServiceUtils.TRACKED_NEW_CT_STATE_MASK}));
@@ -323,13 +323,13 @@ public class IngressAclServiceImpl implements AclServiceListener {
             MDSALUtil.buildFlowEntity(dpId, tableIdInstall,
                 flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", idleTimeOut, hardTimeOut,
                 AclServiceUtils.COOKIE_ACL_BASE, matches, null);
-            logger.trace("Removing Acl Flow DpId {}, vmMacAddress {}", dpId, flowId);
+            LOG.trace("Removing Acl Flow DpId {}, vmMacAddress {}", dpId, flowId);
             // TODO Need to be done as a part of genius integration
             // mdsalUtil.removeFlow(flowEntity);
         } else {
             MDSALUtil.buildFlowEntity(dpId, tableId,
                 flowId ,priority, flowName, idleTimeOut, hardTimeOut, cookie, matches, instructions);
-            logger.trace("Installing  DpId {}, flowId {}", dpId, flowId);
+            LOG.trace("Installing  DpId {}, flowId {}", dpId, flowId);
             // TODO Need to be done as a part of genius integration
             //mdsalUtil.installFlow(flowEntity);
         }
@@ -355,9 +355,9 @@ public class IngressAclServiceImpl implements AclServiceListener {
             programConntrackForwardRule(dpid, attachMac, AclServiceUtils.CT_STATE_NEW_PRIORITY_DROP,
                 "Tracked_Invalid",AclServiceUtils.TRACKED_INV_CT_STATE, AclServiceUtils.TRACKED_INV_CT_STATE_MASK,
                 write );
-            logger.info("programIngressAclFixedConntrackRule :  default connection tracking rule are added.");
+            LOG.info("programIngressAclFixedConntrackRule :  default connection tracking rule are added.");
         } catch (Exception e) {
-            logger.error("Failed to add default conntrack rules : " , e);
+            LOG.error("Failed to add default conntrack rules : " , e);
         }
     }
 }
