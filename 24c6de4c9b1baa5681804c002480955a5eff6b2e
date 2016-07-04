@@ -60,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_fc3b1ce9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/BridgeUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-04T05:48:01Z",
+      "side": 1,
+      "message": "I confirmed with Daya that vpnservice does *not* use br-ex. For now I create it so that devstack with work. As such, we don\u0027t need patch ports since all br-ex needs to do is exist. We should modify devstack and then remove the code here that creates br-ex.",
+      "parentUuid": "9a561d44_56e78e12",
+      "revId": "24c6de4c9b1baa5681804c002480955a5eff6b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_7e4d5372",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/BridgeUtils.java",
         "patchSetId": 2
