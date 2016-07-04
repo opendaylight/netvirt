@@ -301,10 +301,12 @@ public class PktHandler implements PacketProcessingListener {
                                       MacAddress vmMac, VirtualPort routerPort) {
             RoutemgrUtil instance = RoutemgrUtil.getInstance();
             short icmpv6RaFlags = 0;
-            short prefixFlags = 0;
+            short autoConfPrefixFlags = 0;
+            short statefulPrefixFlags = 0;
             String gatewayMac = null;
             IpAddress gatewayIp;
-            List<String> prefixList = new ArrayList<String>();
+            List<String> autoConfigPrefixList = new ArrayList<String>();
+            List<String> statefulConfigPrefixList = new ArrayList<String>();
 
             for (VirtualSubnet subnet : routerPort.getSubnets()) {
                 gatewayIp = subnet.getGatewayIp();
@@ -312,11 +314,14 @@ public class PktHandler implements PacketProcessingListener {
                 if (gatewayIp.getIpv4Address() != null)
                     continue;
 
-                if (((!subnet.getIpv6AddressMode().isEmpty())
-                        && (ifMgr.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6AddressMode())))
-                    || ((!subnet.getIpv6RAMode().isEmpty())
-                        && (ifMgr.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6RAMode())))) {
-                    prefixList.add(String.valueOf(subnet.getSubnetCidr().getValue()));
+                if (!subnet.getIpv6RAMode().isEmpty()) {
+                    if (ifMgr.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6RAMode())) {
+                        autoConfigPrefixList.add(String.valueOf(subnet.getSubnetCidr().getValue()));
+                    }
+
+                    if (subnet.getIpv6RAMode().equalsIgnoreCase(ifMgr.IPV6_DHCPV6_STATEFUL)) {
+                        statefulConfigPrefixList.add(String.valueOf(subnet.getSubnetCidr().getValue()));
+                    }
                 }
 
                 if (subnet.getIpv6RAMode().equalsIgnoreCase(ifMgr.IPV6_DHCPV6_STATELESS)) {
@@ -335,8 +340,9 @@ public class PktHandler implements PacketProcessingListener {
 
             raPacket.setVersion(pdu.getVersion());
             raPacket.setFlowLabel(pdu.getFlowLabel());
+            int prefixListLength = autoConfigPrefixList.size() + statefulConfigPrefixList.size();
             raPacket.setIpv6Length(ICMPV6_RA_LENGTH_WO_OPTIONS + ICMPV6_OPTION_SOURCE_LLA_LENGTH
-                    + prefixList.size() * ICMPV6_OPTION_PREFIX_LENGTH);
+                    + prefixListLength * ICMPV6_OPTION_PREFIX_LENGTH);
             raPacket.setNextHeader(pdu.getNextHeader());
             raPacket.setHopLimit(RoutemgrUtil.ICMPv6_MAX_HOP_LIMIT);
             raPacket.setSourceIpv6(instance.getIpv6LinkLocalAddressFromMac(sourceMac));
@@ -362,14 +368,21 @@ public class PktHandler implements PacketProcessingListener {
             prefix.setOptionLength((short)4);
             // Note: EUI-64 auto-configuration requires 64 bits.
             prefix.setPrefixLength((short)64);
-            prefixFlags = (short) (prefixFlags | (1 << 7)); // On-link flag
-            prefixFlags = (short) (prefixFlags | (1 << 6)); // Autonomous address-configuration flag.
-            prefix.setFlags((short)prefixFlags);
             prefix.setValidLifetime((long) IPV6_RA_VALID_LIFETIME);
             prefix.setPreferredLifetime((long) IPV6_RA_PREFERRED_LIFETIME);
             prefix.setReserved((long) 0);
 
-            for (String v6Prefix : prefixList) {
+            autoConfPrefixFlags = (short) (autoConfPrefixFlags | (1 << 7)); // On-link flag
+            autoConfPrefixFlags = (short) (autoConfPrefixFlags | (1 << 6)); // Autonomous address-configuration flag.
+            for (String v6Prefix : autoConfigPrefixList) {
+                prefix.setFlags((short)autoConfPrefixFlags);
+                prefix.setPrefix(new Ipv6Prefix(v6Prefix));
+                pList.add(prefix.build());
+            }
+
+            statefulPrefixFlags = (short) (statefulPrefixFlags | (1 << 7)); // On-link flag
+            for (String v6Prefix : statefulConfigPrefixList) {
+                prefix.setFlags((short)statefulPrefixFlags);
                 prefix.setPrefix(new Ipv6Prefix(v6Prefix));
                 pList.add(prefix.build());
             }

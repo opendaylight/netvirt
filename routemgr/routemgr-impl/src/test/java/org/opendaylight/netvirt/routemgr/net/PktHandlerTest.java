@@ -8,6 +8,11 @@
 
 package org.opendaylight.netvirt.routemgr.net;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -20,14 +25,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceivedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 public class PktHandlerTest {
     private PacketProcessingService pktProcessService;
@@ -364,9 +367,17 @@ public class PktHandlerTest {
         v6Subnet2.setIpv6RAMode(ifMgrInstance.IPV6_DHCPV6_STATELESS);
         v6Subnet2.setSubnetCidr(new IpPrefix("2001:db8:2222::/64".toCharArray()));
 
+        VirtualSubnet v6Subnet3 = new VirtualSubnet();
+        v6Subnet3.setRouter(vRouter);
+        v6Subnet3.setGatewayIp(gwIpAddress);
+        v6Subnet3.setIpv6AddressMode(ifMgrInstance.IPV6_DHCPV6_STATEFUL);
+        v6Subnet3.setIpv6RAMode(ifMgrInstance.IPV6_DHCPV6_STATEFUL);
+        v6Subnet3.setSubnetCidr(new IpPrefix("2001:db8:3333::/64".toCharArray()));
+
         List<VirtualSubnet> subnetList = new ArrayList<>();
         subnetList.add(v6Subnet1);
         subnetList.add(v6Subnet2);
+        subnetList.add(v6Subnet3);
         when(intf.getSubnets()).thenReturn(subnetList);
 
         InstanceIdentifier<Node> ncId = InstanceIdentifier.builder(Nodes.class)
@@ -377,16 +388,16 @@ public class PktHandlerTest {
                 "50 7B 9D 78 54 F3",                               // Source MAC
                 "86 DD",                                           // IPv6
                 "60 00 00 00",                                     // Version 6, traffic class E0, no flowlabel
-                "00 58",                                           // Payload length
+                "00 78",                                           // Payload length
                 "3A",                                              // Next header is ICMPv6
                 "FF",                                              // Hop limit
                 "FE 80 00 00 00 00 00 00 52 7B 9D FF FE 78 54 F3", // Source IP
                 "FE 80 00 00 00 00 00 00 F8 16 3E FF FE 69 2C F3", // Destination IP
                 "86",                                              // ICMPv6 router advertisement.
                 "00",                                              // Code
-                "9A C4",                                           // Checksum (valid)
+                "2E 03",                                           // Checksum (valid)
                 "40",                                              // Current Hop Limit
-                "40",                                              // ICMPv6 RA Flags
+                "C0",                                              // ICMPv6 RA Flags
                 "11 94",                                           // Router Lifetime
                 "00 00 00 00",                                     // Reachable time
                 "00 00 00 00",                                     // Retransmission time.
@@ -408,7 +419,15 @@ public class PktHandlerTest {
                 "00 27 8D 00",                                     // Valid lifetime
                 "00 09 3A 80",                                     // Preferred lifetime
                 "00 00 00 00",                                     // Reserved
-                "20 01 0D B8 22 22 00 00 00 00 00 00 00 00 00 00"  // Prefix
+                "20 01 0D B8 22 22 00 00 00 00 00 00 00 00 00 00", // Prefix
+                "03",                                              // Type: Prefix Information
+                "04",                                              // Option length
+                "40",                                              // Prefix length
+                "80",                                              // Prefix flags
+                "00 27 8D 00",                                     // Valid lifetime
+                "00 09 3A 80",                                     // Preferred lifetime
+                "00 00 00 00",                                     // Reserved
+                "20 01 0D B8 33 33 00 00 00 00 00 00 00 00 00 00"  // Prefix
         );
 
         pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
