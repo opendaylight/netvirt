@@ -16,6 +16,24 @@
       "revId": "c1ff200a86af146b4c9fc67e63261ba6e257a2d0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_123eb9b8",
+        "filename": "routemgr/routemgr-impl/src/main/java/org/opendaylight/netvirt/routemgr/net/PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-04T10:28:52Z",
+      "side": 1,
+      "message": "Mainly did it for readability sake. But I agree that we can use a single variable.\n\nWhen we move this code to new Netvirt, we can update it. Thanks.",
+      "parentUuid": "9a561d44_1237d9e4",
+      "revId": "c1ff200a86af146b4c9fc67e63261ba6e257a2d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
