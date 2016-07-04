@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_d581cb4b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-07-04T14:56:19Z",
+      "side": 1,
+      "message": "I did not know that this is what we do everywhere and that utils.config is not a bundle - had assumed so far every ODL JAR is an OSGi bundle! Ignore this feedback in that case.",
+      "parentUuid": "9a561d44_b218ad85",
+      "revId": "24c6de4c9b1baa5681804c002480955a5eff6b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_1e31b7ec",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanOvsdbNodeListener.java",
         "patchSetId": 2
