@@ -31,8 +31,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
-                                                       AutoCloseable {
+public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnserviceProvider.class);
     private VpnInterfaceManager vpnInterfaceManager;
@@ -149,6 +148,12 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager,
         vpnInterfaceManager.delExtraRoute(destination, rd, routerID);
     }
 
+    @Override
+    public boolean existsVpn(String vpnName) {
+        if (vpnManager != null) {
+            return vpnManager.getVpnInstance(vpnName) != null;
+        }
+    }
 
     @Override
     public boolean isVPNConfigured() {

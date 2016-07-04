@@ -14,5 +14,14 @@ public interface IVpnManager {
     void setFibService(IFibManager fibManager);
     void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label);
     void delExtraRoute(String destination, String rd, String routerID);
+
+    /**
+     * Returns true if the specified VPN exists
+     *
+     * @param vpnName it must match against the vpn-instance-name attrib in one of the VpnInstances
+     *
+     * @return
+     */
+    boolean existsVpn(String vpnName);
     boolean isVPNConfigured();
 }
