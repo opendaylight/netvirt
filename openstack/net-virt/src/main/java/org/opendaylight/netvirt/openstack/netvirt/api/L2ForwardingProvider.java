@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.api;
 
+import java.util.List;
+
 /**
  *  This interface allows L2Forwarding flows to be written to devices
  */
@@ -21,6 +23,8 @@ public interface L2ForwardingProvider {
     void programTunnelOut(Long dpidLong, String segmentationId, Long OFPortOut, String attachedMac, boolean write);
     void programVlanOut(Long dpidLong, String segmentationId, Long ethPort, String attachedMac, boolean write);
     void programTunnelFloodOut(Long dpidLong, String segmentationId, Long OFPortOut, boolean write);
+    void programTunnelFloodOut(Long dpidLong, String segmentationId, Long OFInPort, List<Long> OFOutPorts, boolean write);
+
     void programVlanFloodOut(Long dpidLong, String segmentationId, Long ethPort, boolean write);
     void programTunnelMiss(Long dpidLong, String segmentationId, boolean write);
     void programVlanMiss(Long dpidLong, String segmentationId, Long ethPort, boolean write);
