@@ -12,8 +12,8 @@ import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -41,31 +41,35 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 @SuppressWarnings("deprecation")
 public class ElanSmacFlowEventListener implements SalFlowListener {
-    private final DataBroker broker;
-    private IInterfaceManager interfaceManager;
+
+    private  ElanServiceProvider elanServiceProvider = null;
+    private static volatile ElanSmacFlowEventListener elanSmacFlowEventListener = null;
     private static final Logger logger = LoggerFactory.getLogger(ElanSmacFlowEventListener.class);
 
-    public ElanSmacFlowEventListener(DataBroker dataBroker) {
-        broker = dataBroker;
-    }
-    private SalFlowService salFlowService;
-
-    public SalFlowService getSalFlowService() {
-        return this.salFlowService;
+    public ElanSmacFlowEventListener(ElanServiceProvider elanServiceProvider) {
+        this.elanServiceProvider = elanServiceProvider;
     }
 
-    public void setSalFlowService(final SalFlowService salFlowService) {
-        this.salFlowService = salFlowService;
+    public static ElanSmacFlowEventListener getElanSmacFlowEventListener(ElanServiceProvider elanServiceProvider) {
+        if (elanSmacFlowEventListener == null)
+            synchronized (ElanPacketInHandler.class) {
+                if (elanSmacFlowEventListener == null)
+                {
+                    ElanSmacFlowEventListener elanSmacFlowEventListener = new ElanSmacFlowEventListener(elanServiceProvider);
+                    return elanSmacFlowEventListener;
+
+                }
+            }
+        return elanSmacFlowEventListener;
     }
-    public void setInterfaceManager(IInterfaceManager interfaceManager) {
-        this.interfaceManager = interfaceManager;
-    }
+
 
     public void setMdSalApiManager(IMdsalApiManager mdsalManager) {
     }
     @Override
     public void onFlowAdded(FlowAdded arg0) {
         // TODO Auto-generated method stub
+
     }
 
     @Override
@@ -79,7 +83,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 return;
             }
             final String srcMacAddress = flowRemoved.getMatch().getEthernetMatch()
-                    .getEthernetSource().getAddress().getValue().toUpperCase();
+                .getEthernetSource().getAddress().getValue().toUpperCase();
             int portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
             if (portTag == 0) {
                 logger.debug(String.format("Flow removed event on SMAC flow entry. But having port Tag as 0 "));
@@ -97,13 +101,15 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 return;
             }
             MacEntry macEntry = ElanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
-            InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
-            if(macEntry != null && interfaceInfo != null) {
-                ElanUtils.deleteMacFlows(ElanUtils.getElanInstanceByName(elanTagInfo.getName()), interfaceInfo, macEntry);
+            InterfaceInfo interfaceInfo = elanServiceProvider.getInterfaceManager().getInterfaceInfo(interfaceName);
+            if (macEntry != null && interfaceInfo != null) {
+                WriteTransaction deleteFlowTx = elanServiceProvider.getBroker().newWriteOnlyTransaction();
+                ElanUtils.deleteMacFlows(ElanUtils.getElanInstanceByName(elanTagInfo.getName()), interfaceInfo, macEntry, deleteFlowTx);
+                deleteFlowTx.submit();
             }
             InstanceIdentifier<MacEntry> macEntryIdForElanInterface =  ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
             InstanceIdentifier<MacEntry> macEntryIdForElanInstance  =  ElanUtils.getMacEntryOperationalDataPath(elanTagInfo.getName(), physAddress);
-            WriteTransaction tx = broker.newWriteOnlyTransaction();
+            WriteTransaction tx = elanServiceProvider.getBroker().newWriteOnlyTransaction();
             tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
             tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInstance);
             ListenableFuture<Void> writeResult = tx.submit();
@@ -121,25 +127,31 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 }
             });
         }
+
     }
 
     @Override
     public void onFlowUpdated(FlowUpdated arg0) {
         // TODO Auto-generated method stub
+
     }
 
     @Override
     public void onNodeErrorNotification(NodeErrorNotification arg0) {
         // TODO Auto-generated method stub
+
     }
 
     @Override
     public void onNodeExperimenterErrorNotification(NodeExperimenterErrorNotification arg0) {
         // TODO Auto-generated method stub
+
     }
 
     @Override
     public void onSwitchFlowRemoved(SwitchFlowRemoved switchFlowRemoved) {
-        // TODO Auto-generated method stub
+
     }
+
+
 }
