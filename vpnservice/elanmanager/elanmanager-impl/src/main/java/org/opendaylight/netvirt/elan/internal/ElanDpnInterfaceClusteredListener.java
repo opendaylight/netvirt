@@ -34,22 +34,37 @@ import com.google.common.util.concurrent.ListenableFuture;
 public class ElanDpnInterfaceClusteredListener
         extends AsyncClusteredDataChangeListenerBase<DpnInterfaces, ElanDpnInterfaceClusteredListener>
         implements AutoCloseable {
-    private DataBroker broker;
-    private ElanInterfaceManager elanInterfaceManager;
+    private ElanServiceProvider elanServiceProvider = null;
+    private static volatile ElanDpnInterfaceClusteredListener elanDpnInterfaceClusteredListener = null;
     private ListenerRegistration<DataChangeListener> listenerRegistration;
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnInterfaceClusteredListener.class);
 
-    public ElanDpnInterfaceClusteredListener(final DataBroker db, final ElanInterfaceManager ifManager) {
+
+    public ElanDpnInterfaceClusteredListener(ElanServiceProvider elanServiceProvider) {
         super(DpnInterfaces.class, ElanDpnInterfaceClusteredListener.class);
-        broker = db;
-        elanInterfaceManager = ifManager;
-        registerListener(db);
+        this.elanServiceProvider = elanServiceProvider;
+        registerListener(elanServiceProvider.getBroker());
     }
 
+    public static ElanDpnInterfaceClusteredListener getelanDpnInterfaceClusteredListener(
+            ElanServiceProvider elanServiceProvider) {
+        if (elanDpnInterfaceClusteredListener == null){
+            synchronized (ElanDpnInterfaceClusteredListener.class)
+            {
+                if (elanDpnInterfaceClusteredListener == null)
+                {
+                    ElanDpnInterfaceClusteredListener elanDpnInterfaceClusteredListener = new ElanDpnInterfaceClusteredListener(elanServiceProvider);
+                    return elanDpnInterfaceClusteredListener;
+
+                }
+            }
+        }
+        return elanDpnInterfaceClusteredListener;
+    }
     private void registerListener(final DataBroker db) {
         try {
-            listenerRegistration = broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+            listenerRegistration = elanServiceProvider.getBroker().registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
                     getWildCardPath(), ElanDpnInterfaceClusteredListener.this, AsyncDataBroker.DataChangeScope.BASE);
         } catch (final Exception e) {
             LOG.error("DpnInterfaces DataChange listener registration fail!", e);
@@ -117,7 +132,7 @@ public class ElanDpnInterfaceClusteredListener
 
     @Override
     protected void update(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces original,
-            final DpnInterfaces dpnInterfaces) {
+                          final DpnInterfaces dpnInterfaces) {
         LOG.debug("dpninterfaces update fired new size {}", dpnInterfaces.getInterfaces().size());
         if (dpnInterfaces.getInterfaces().size() == 0) {
             LOG.debug("dpninterfaces last dpn interface on this elan {} ", dpnInterfaces.getKey());
@@ -143,4 +158,5 @@ public class ElanDpnInterfaceClusteredListener
     private String getElanName(InstanceIdentifier<DpnInterfaces> identifier) {
         return identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
     }
+
 }
