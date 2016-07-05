@@ -287,7 +287,7 @@ public class AclServiceUtils {
      * @return list of matches.
      */
     public static List<MatchInfoBase> programDhcpMatches(int srcPort, int dscPort) {
-        List<MatchInfoBase> matches = new ArrayList<>();
+        List<MatchInfoBase> matches = new ArrayList<>(6);
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { NwConstants.ETHTYPE_IPV4 }));
         matches.add(new MatchInfo(MatchFieldType.ip_proto,
