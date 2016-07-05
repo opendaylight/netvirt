@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_2610df4d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-07-05T14:39:11Z",
+      "side": 1,
+      "message": "This is probably wrong review to bring this up but presence of this method has me confused about what this class is about. Isn\u0027t this class for implementing ACLs? This method is pushing flows which are unique to way OpenStack security groups are implemented. Won\u0027t it be better for such \u0027internal\u0027 SGs to be programmed as ACLs/ACLEntries? This looks like polluting ACL logic with SG and makes ACL service not generic enough. If we want to add SG logic into ACL why do we need to go though hoops for creating separate ACL service and use Ietf ACL yang when SG listener can directly do the same, similar to old netvirt model.",
+      "range": {
+        "startLine": 151,
+        "startChar": 17,
+        "endLine": 151,
+        "endChar": 42
+      },
+      "revId": "1d5d1734983c289e0c474ad75190ba819f6d0c42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
