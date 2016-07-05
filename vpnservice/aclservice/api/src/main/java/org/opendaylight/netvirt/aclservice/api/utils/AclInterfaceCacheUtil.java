@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 public final class AclInterfaceCacheUtil {
     private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceCacheUtil.class);
-
     static ConcurrentMap<String, AclInterface> cachedMap = new ConcurrentHashMap<>();
 
     public static void addAclInterfaceToCache(String interfaceId, AclInterface aclInterface) {
@@ -37,4 +36,6 @@ public final class AclInterfaceCacheUtil {
     public static AclInterface getAclInterfaceFromCache(String interfaceId) {
         return cachedMap.get(interfaceId);
     }
+
+    private AclInterfaceCacheUtil() { }
 }
