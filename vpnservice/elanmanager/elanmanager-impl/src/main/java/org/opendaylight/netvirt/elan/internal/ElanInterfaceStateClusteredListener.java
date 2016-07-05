@@ -25,24 +25,44 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ElanInterfaceStateClusteredListener extends
-        AsyncClusteredDataChangeListenerBase<Interface, ElanInterfaceStateClusteredListener> implements AutoCloseable {
-    private DataBroker broker;
-    private ElanInterfaceManager elanInterfaceManager;
+    AsyncClusteredDataChangeListenerBase<Interface, ElanInterfaceStateClusteredListener> implements AutoCloseable {
+    public  ElanServiceProvider getElanServiceProvider() {
+        return elanServiceProvider;
+    }
+    public void setElanServiceProvider(ElanServiceProvider elanServiceProvider) {
+        this.elanServiceProvider = elanServiceProvider;
+    }
+
+    private  ElanServiceProvider elanServiceProvider = null;
+    private static volatile ElanInterfaceStateClusteredListener elanInterfaceStateClusteredListener = null;
     private ListenerRegistration<DataChangeListener> listenerRegistration;
 
     private static final Logger logger = LoggerFactory.getLogger(ElanInterfaceStateClusteredListener.class);
 
-    public ElanInterfaceStateClusteredListener(final DataBroker db, final ElanInterfaceManager ifManager) {
+
+    public ElanInterfaceStateClusteredListener(ElanServiceProvider elanServiceProvider) {
         super(Interface.class, ElanInterfaceStateClusteredListener.class);
-        broker = db;
-        elanInterfaceManager = ifManager;
-        registerListener(db);
+        this.elanServiceProvider = elanServiceProvider;
+        registerListener(this.elanServiceProvider.getBroker());
+    }
+    public static ElanInterfaceStateClusteredListener getElanInterfaceStateClusteredListener(
+        ElanServiceProvider elanServiceProvider) {
+        if (elanInterfaceStateClusteredListener == null)
+            synchronized (ElanInterfaceStateClusteredListener.class) {
+                if (elanInterfaceStateClusteredListener == null)
+                {
+                    ElanInterfaceStateClusteredListener elanInterfaceStateClusteredListener = new ElanInterfaceStateClusteredListener(elanServiceProvider);
+                    return elanInterfaceStateClusteredListener;
+
+                }
+            }
+        return elanInterfaceStateClusteredListener;
     }
 
     private void registerListener(final DataBroker db) {
         try {
-            listenerRegistration = broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getWildCardPath(), ElanInterfaceStateClusteredListener.this, AsyncDataBroker.DataChangeScope.BASE);
+            listenerRegistration = elanServiceProvider.getBroker().registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                getWildCardPath(), ElanInterfaceStateClusteredListener.this, AsyncDataBroker.DataChangeScope.BASE);
         } catch (final Exception e) {
             logger.error("Elan Interfaces DataChange listener registration fail!", e);
             throw new IllegalStateException("ElanInterface registration Listener failed.", e);
@@ -94,10 +114,11 @@ public class ElanInterfaceStateClusteredListener extends
         ExternalTunnel externalTunnel = ElanUtils.getExternalTunnel(interfaceName, LogicalDatastoreType.CONFIGURATION);
         if (externalTunnel != null) {
             logger.debug("handling external tunnel update event for ext device dst {}  src {} ",
-                    externalTunnel.getDestinationDevice(), externalTunnel.getSourceDevice());
-            elanInterfaceManager.handleExternalTunnelStateEvent(externalTunnel, update);
+                externalTunnel.getDestinationDevice(), externalTunnel.getSourceDevice());
+            elanServiceProvider.getElanInterfaceManager().handleExternalTunnelStateEvent(externalTunnel, update);
         } else {
             logger.trace("External tunnel not found with interfaceName: {}", interfaceName);
         }
     }
+
 }

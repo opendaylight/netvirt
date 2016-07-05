@@ -14,40 +14,47 @@ import java.util.concurrent.Callable;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-public class ElanInterfaceAddWorker implements Callable<List<ListenableFuture<Void>>> {
+public class InterfaceAddWorkerOnElanInterface implements Callable<List<ListenableFuture<Void>>> {
     private String key;
     private ElanInterface elanInterface;
     private ElanInstance elanInstance;
     private InterfaceInfo interfaceInfo;
     private ElanInterfaceManager dataChangeListener;
+    private boolean isFirstInterfaceInDpn;
+    private static final Logger logger = LoggerFactory.getLogger(InterfaceAddWorkerOnElanInterface.class);
 
-    public ElanInterfaceAddWorker(String key, ElanInterface elanInterface, InterfaceInfo interfaceInfo,
-            ElanInstance elanInstance, ElanInterfaceManager dataChangeListener) {
+    public InterfaceAddWorkerOnElanInterface(String key, ElanInterface elanInterface, InterfaceInfo interfaceInfo,
+                                             ElanInstance elanInstance, boolean isFirstInterfaceInDpn, ElanInterfaceManager dataChangeListener) {
         super();
         this.key = key;
         this.elanInterface = elanInterface;
         this.interfaceInfo = interfaceInfo;
         this.elanInstance = elanInstance;
         this.dataChangeListener = dataChangeListener;
+        this.isFirstInterfaceInDpn = isFirstInterfaceInDpn;
     }
 
     @Override
     public String toString() {
-        return "ElanInterfaceAddWorker [key=" + key + ", elanInterface=" + elanInterface + ", elanInstance="
-                + elanInstance + ", interfaceInfo=" + interfaceInfo + "]";
+        return "InterfaceAddWorkerOnElanInterface [key=" + key + ", elanInterface=" + elanInterface + ", elanInstance="
+            + elanInstance + ", interfaceInfo=" + interfaceInfo + "]";
     }
 
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        dataChangeListener.addElanInterface(elanInterface, interfaceInfo, elanInstance);
+        try {
+            dataChangeListener.setupEntriesForElanInterface(elanInstance, elanInterface, interfaceInfo, isFirstInterfaceInDpn);
+        } catch (Exception e) {
+            logger.error("Error while processing {} for {}, error {}", key, elanInterface, e);
+        }
         return futures;
     }
-    
-    
 
 }
