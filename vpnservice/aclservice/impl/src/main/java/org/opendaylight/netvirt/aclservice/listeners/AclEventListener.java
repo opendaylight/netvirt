@@ -37,12 +37,14 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     private static final Logger LOG = LoggerFactory.getLogger(AclEventListener.class);
     private final AclServiceManager aclServiceManager;
+    private final AclClusterUtil aclClusterUtil;
     private final DataBroker dataBroker;
 
     @Inject
-    public AclEventListener(final AclServiceManager aclServiceManager, DataBroker dataBroker) {
+    public AclEventListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil, DataBroker dataBroker) {
         super(Acl.class, AclEventListener.class);
         this.aclServiceManager = aclServiceManager;
+        this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
     }
 
@@ -78,12 +80,12 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         // find and update added ace rules in acl
         List<Ace> addedAceRules = getChangedAceList(aclAfter, aclBefore);
         updateRemoteAclCache(addedAceRules, aclAfter.getAclName(), AclServiceManager.Action.ADD);
-        if (interfaceList != null && AclClusterUtil.isEntityOwner()) {
+        if (interfaceList != null && aclClusterUtil.isEntityOwner()) {
             updateAceRules(interfaceList, addedAceRules, AclServiceManager.Action.ADD);
         }
         // find and update deleted ace rules in acl
         List<Ace> deletedAceRules = getChangedAceList(aclBefore, aclAfter);
-        if (interfaceList != null && AclClusterUtil.isEntityOwner()) {
+        if (interfaceList != null && aclClusterUtil.isEntityOwner()) {
             updateAceRules(interfaceList, deletedAceRules, AclServiceManager.Action.REMOVE);
         }
         updateRemoteAclCache(deletedAceRules, aclAfter.getAclName(), AclServiceManager.Action.REMOVE);
