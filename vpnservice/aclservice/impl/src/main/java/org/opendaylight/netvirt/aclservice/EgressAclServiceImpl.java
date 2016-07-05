@@ -10,8 +10,8 @@ package org.opendaylight.netvirt.aclservice;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -25,8 +25,13 @@ import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
+import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,9 +39,7 @@ public class EgressAclServiceImpl implements AclServiceListener {
 
     private static final Logger logger = LoggerFactory.getLogger(EgressAclServiceImpl.class);
 
-    private IMdsalApiManager mdsalUtil;
-    short tableIdInstall = 22;
-    short tableIdNext = 23;
+    private IMdsalApiManager mdsalManager;
     private OdlInterfaceRpcService interfaceManager;
     private DataBroker dataBroker;
 
@@ -44,13 +47,13 @@ public class EgressAclServiceImpl implements AclServiceListener {
      * Intilaze the member variables.
      * @param dataBroker the data broker instance.
      * @param interfaceManager the interface manager instance.
-     * @param mdsalUtil the mdsal util instance.
+     * @param mdsalManager the mdsal manager instance.
      */
     public EgressAclServiceImpl(DataBroker dataBroker, OdlInterfaceRpcService interfaceManager,
-                                IMdsalApiManager mdsalUtil) {
+                                IMdsalApiManager mdsalManager) {
         this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
-        this.mdsalUtil = mdsalUtil;
+        this.mdsalManager = mdsalManager;
     }
 
     @Override
@@ -64,6 +67,10 @@ public class EgressAclServiceImpl implements AclServiceListener {
             interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
         String attachMac = interfaceState.getPhysAddress().getValue();
         programFixedSecurityGroup(dpId, "", attachMac, NwConstants.ADD_FLOW);
+
+        // TODO: uncomment bindservice() when the acl flow programming is
+        // implemented
+        // bindService(port.getName());
         return true;
     }
 
@@ -82,11 +89,60 @@ public class EgressAclServiceImpl implements AclServiceListener {
             interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
         String attachMac = interfaceState.getPhysAddress().getValue();
         programFixedSecurityGroup(dpId, "", attachMac, NwConstants.DEL_FLOW);
+
+        // TODO: uncomment unbindService() when the acl flow programming is
+        // implemented
+        // unbindService(port.getName());
         return true;
     }
 
     /**
+     * Bind service.
+     *
+     * @param interfaceName the interface name
+     */
+    private void bindService(String interfaceName) {
+        int flowPriority = AclConstants.EGRESS_ACL_DEFAULT_FLOW_PRIORITY;
+
+        int instructionKey = 0;
+        List<Instruction> instructions = new ArrayList<>();
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(AclConstants.EGRESS_ACL_TABLE_ID, ++instructionKey));
+        BoundServices serviceInfo = AclServiceUtils.getBoundServices(
+                String.format("%s.%s.%s", "vpn", "egressacl", interfaceName), AclConstants.EGRESS_ACL_SERVICE_PRIORITY,
+                flowPriority, AclServiceUtils.COOKIE_ACL_BASE, instructions);
+        InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
+                AclConstants.EGRESS_ACL_SERVICE_PRIORITY, ServiceModeIngress.class);
+        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, serviceInfo);
+    }
+
+    /**
+     * Unbind service.
+     *
+     * @param interfaceName the interface name
+     */
+    private void unbindService(String interfaceName) {
+        InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
+                AclConstants.EGRESS_ACL_SERVICE_PRIORITY, ServiceModeIngress.class);
+        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
+    }
+
+    /**
+     * Gets the instructions for dispatcher table resubmit.
+     *
+     * @return the instructions for dispatcher table resubmit
+     */
+    private List<InstructionInfo> getInstructionsForDispatcherTableResubmit() {
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit,
+                new String[] {Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        return instructions;
+    }
+
+    /**
      * Program the default anti-spoofing rule and the conntrack rules.
+     *
      * @param dpid the dpid
      * @param dhcpMacAddress the dhcp mac address.
      * @param attachMac The vm mac address
@@ -129,7 +185,7 @@ public class EgressAclServiceImpl implements AclServiceListener {
         actionsInfos.add(new ActionInfo(ActionType.drop_action,
             new String[] {}));
         String flowName = "Egress_DHCP_Server_v4" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Drop_";
-        syncFlow(dpId, tableIdInstall, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
             AclServiceUtils.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -156,7 +212,7 @@ public class EgressAclServiceImpl implements AclServiceListener {
         actionsInfos.add(new ActionInfo(ActionType.drop_action,
             new String[] {}));
         String flowName = "Egress_DHCP_Server_v4" + "_" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Drop_";
-        syncFlow(dpId, tableIdInstall, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
             AclServiceUtils.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -190,9 +246,9 @@ public class EgressAclServiceImpl implements AclServiceListener {
 
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
-            new long[] { tableIdNext }));
+            new long[] { AclConstants.EGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Egress_DHCP_Client_v4" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Permit_";
-        syncFlow(dpId, tableIdInstall, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
             AclServiceUtils.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -225,9 +281,9 @@ public class EgressAclServiceImpl implements AclServiceListener {
             actionsInfos));
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
-            new long[] { tableIdNext }));
+            new long[] { AclConstants.EGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Egress_DHCP_Client_v4" + "_" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Permit_";
-        syncFlow(dpId, tableIdInstall, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
             AclServiceUtils.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -244,9 +300,9 @@ public class EgressAclServiceImpl implements AclServiceListener {
     private void programConntrackRecircRule(BigInteger dpId, String attachMac, Integer priority, String flowId,
                                              int conntrackState, int conntrackMask, int addOrRemove) {
         List<MatchInfoBase> matches = new ArrayList<>();
-        matches.add((MatchInfoBase)new MatchInfo(MatchFieldType.eth_type,
+        matches.add(new MatchInfo(MatchFieldType.eth_type,
             new long[] { NwConstants.ETHTYPE_IPV4 }));
-        matches.add((MatchInfoBase)new NxMatchInfo(NxMatchFieldType.ct_state,
+        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
             new long[] {conntrackState, conntrackMask}));
         matches.add(new MatchInfo(MatchFieldType.eth_src,
             new String[] { attachMac }));
@@ -255,11 +311,11 @@ public class EgressAclServiceImpl implements AclServiceListener {
         List<ActionInfo> actionsInfos = new ArrayList<>();
 
         actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-            new String[] {"0", "0", "0", Short.toString(tableIdInstall)}, 2));
+            new String[] {"0", "0", "0", Short.toString(AclConstants.EGRESS_ACL_TABLE_ID)}, 2));
         instructions.add(new InstructionInfo(InstructionType.apply_actions,
             actionsInfos));
         String flowName = "Egress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_" + flowId;
-        syncFlow(dpId, tableIdInstall, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
             AclServiceUtils.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -276,9 +332,9 @@ public class EgressAclServiceImpl implements AclServiceListener {
     private void programConntrackForwardRule(BigInteger dpId, String attachMac, Integer priority, String flowId,
                                              int conntrackState, int conntrackMask, int addOrRemove) {
         List<MatchInfoBase> matches = new ArrayList<>();
-        matches.add((MatchInfoBase)new MatchInfo(MatchFieldType.eth_type,
+        matches.add(new MatchInfo(MatchFieldType.eth_type,
             new long[] { NwConstants.ETHTYPE_IPV4 }));
-        matches.add((MatchInfoBase)new NxMatchInfo(NxMatchFieldType.ct_state,
+        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
             new long[] {conntrackState, conntrackMask}));
         matches.add(new MatchInfo(MatchFieldType.eth_src,
             new String[] { attachMac }));
@@ -290,9 +346,9 @@ public class EgressAclServiceImpl implements AclServiceListener {
             new String[] {}));
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
-            new long[] { tableIdNext }));
+            new long[] { AclConstants.EGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Egress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_" + flowId;
-        syncFlow(dpId, tableIdInstall, flowName, priority, "ACL", 0, 0,
+        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, priority, "ACL", 0, 0,
             AclServiceUtils.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -309,9 +365,9 @@ public class EgressAclServiceImpl implements AclServiceListener {
     private void programConntrackDropRule(BigInteger dpId, String attachMac, Integer priority, String flowId,
                                           int conntrackState, int conntrackMask, int addOrRemove) {
         List<MatchInfoBase> matches = new ArrayList<>();
-        matches.add((MatchInfoBase)new MatchInfo(MatchFieldType.eth_type,
+        matches.add(new MatchInfo(MatchFieldType.eth_type,
             new long[] { NwConstants.ETHTYPE_IPV4 }));
-        matches.add((MatchInfoBase)new NxMatchInfo(NxMatchFieldType.ct_state,
+        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
             new long[] { conntrackState, conntrackMask}));
         matches.add(new MatchInfo(MatchFieldType.eth_src,
             new String[] { attachMac }));
@@ -322,7 +378,7 @@ public class EgressAclServiceImpl implements AclServiceListener {
         actionsInfos.add(new ActionInfo(ActionType.drop_action,
             new String[] {}));
         String flowName = "Egress_Fixed_Conntrk_NewDrop_" + dpId + "_" + attachMac + "_" + flowId;
-        syncFlow(dpId, tableIdInstall, flowName, priority, "ACL", 0, 0,
+        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, priority, "ACL", 0, 0,
             AclServiceUtils.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -347,9 +403,9 @@ public class EgressAclServiceImpl implements AclServiceListener {
                 new String[] {}));
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
-            new long[] { tableIdNext }));
+            new long[] { AclConstants.EGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Egress_ARP_" + dpId + "_" + attachMac ;
-        syncFlow(dpId, tableIdInstall, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
             AclServiceUtils.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -371,9 +427,8 @@ public class EgressAclServiceImpl implements AclServiceListener {
                           int idleTimeOut, int hardTimeOut, BigInteger cookie, List<? extends MatchInfoBase>  matches,
                           List<InstructionInfo> instructions, int addOrRemove) {
         if (addOrRemove == NwConstants.DEL_FLOW) {
-            MDSALUtil.buildFlowEntity(dpId, tableIdInstall,
-                flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
-                AclServiceUtils.COOKIE_ACL_BASE, matches, null);
+            MDSALUtil.buildFlowEntity(dpId, tableId, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+                    AclServiceUtils.COOKIE_ACL_BASE, matches, null);
             logger.trace("Removing Acl Flow DpId {}, vmMacAddress {}", dpId, flowId);
             // TODO Need to be done as a part of genius integration
             //mdsalUtil.removeFlow(flowEntity);
