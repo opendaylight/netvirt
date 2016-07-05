@@ -30,16 +30,26 @@ import java.util.List;
 public class ElanNodeListener extends AbstractDataChangeListener<Node> {
 
     private static final Logger logger = LoggerFactory.getLogger(ElanNodeListener.class);
-
-    private IMdsalApiManager mdsalManager;
+    private static volatile ElanNodeListener elanNodeListener = null;
+    private ElanServiceProvider elanServiceProvider = null;
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private final DataBroker broker;
+    public static ElanNodeListener getElanNodeListener(ElanServiceProvider elanServiceProvider) {
+        if(elanNodeListener == null)
+            synchronized (ElanNodeListener.class) {
+                if(elanNodeListener == null)
+                {
+                    ElanNodeListener elanNodeListener = new ElanNodeListener(elanServiceProvider);
+                    return elanNodeListener;
 
-    public ElanNodeListener(final DataBroker db, IMdsalApiManager mdsalManager) {
+                }
+            }
+        return elanNodeListener;
+    }
+
+    public ElanNodeListener(ElanServiceProvider elanServiceProvider) {
         super(Node.class);
-        broker = db;
-        this.mdsalManager = mdsalManager;
-        registerListener(db);
+        this.elanServiceProvider= elanServiceProvider;
+        registerListener(this.elanServiceProvider.getBroker());
     }
 
     private void registerListener(final DataBroker db) {
@@ -85,9 +95,9 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> {
     }
 
     private void setupTableMissSmacFlow(BigInteger dpId) {
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        List<InstructionInfo> mkInstructions = new ArrayList<>();
-        List <ActionInfo> actionsInfos = new ArrayList<>();
+        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+        List <ActionInfo> actionsInfos = new ArrayList <ActionInfo> ();
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
         mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { ElanConstants.ELAN_DMAC_TABLE }));
@@ -95,22 +105,24 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> {
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, ElanConstants.ELAN_SMAC_TABLE, getTableMissFlowRef(ElanConstants.ELAN_SMAC_TABLE),
                 0, "ELAN sMac Table Miss Flow", 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_SMAC,
                 mkMatches, mkInstructions);
-        mdsalManager.installFlow(flowEntity);
+        this.elanServiceProvider.getMdsalManager().installFlow(flowEntity);
     }
 
     private void setupTableMissDmacFlow(BigInteger dpId) {
-        List<MatchInfo> mkMatches = new ArrayList<>();
+        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
 
-        List<InstructionInfo> mkInstructions = new ArrayList<>();
+        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
         mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { ElanConstants.ELAN_UNKNOWN_DMAC_TABLE }));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, ElanConstants.ELAN_DMAC_TABLE, getTableMissFlowRef(ElanConstants.ELAN_DMAC_TABLE),
                 0, "ELAN dMac Table Miss Flow", 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC,
                 mkMatches, mkInstructions);
-        mdsalManager.installFlow(flowEntity);
+        this.elanServiceProvider.getMdsalManager().installFlow(flowEntity);
     }
 
     private String getTableMissFlowRef(long tableId) {
         return new StringBuffer().append(tableId).toString();
     }
+
+
 }
