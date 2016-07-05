@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.statisitcs;
 import com.google.common.util.concurrent.Futures;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 //import org.opendaylight.genius.ericsson.mdsalutil.statistics.StatValue;
@@ -43,21 +44,31 @@ import java.util.Set;
 import java.util.concurrent.Future;
 
 public class ElanStatisticsImpl implements ElanStatisticsService {
-    private DataBroker dataBroker;
-    private IInterfaceManager interfaceManager;
-    private IMdsalApiManager mdsalMgr;
+    private ElanServiceProvider elanServiceProvider;
     private static final Logger logger = LoggerFactory.getLogger(ElanStatisticsImpl.class);
+    private static volatile ElanStatisticsImpl elanStatisticsImpl;
 
-    public ElanStatisticsImpl(DataBroker dataBroker, IInterfaceManager interfaceManager,
-            IMdsalApiManager mdsalMgr) {
-        this.interfaceManager = interfaceManager;
-        this.dataBroker = dataBroker;
-        this.mdsalMgr = mdsalMgr;
+
+    private ElanStatisticsImpl(ElanServiceProvider elanServiceProvider) {
+        super();
+        this.elanServiceProvider = elanServiceProvider;
+
+
+    }
+
+    public static ElanStatisticsImpl getElanStatisticsService(ElanServiceProvider elanServiceProvider) {
+        if (elanStatisticsImpl == null)
+            synchronized (ElanStatisticsImpl.class) {
+                if (elanStatisticsImpl == null) {
+                    elanStatisticsImpl = new ElanStatisticsImpl(elanServiceProvider);
+                }
+            }
+        return elanStatisticsImpl;
     }
 
     @Override
     public Future<RpcResult<GetElanInterfaceStatisticsOutput>> getElanInterfaceStatistics(
-            GetElanInterfaceStatisticsInput input) {
+        GetElanInterfaceStatisticsInput input) {
         String interfaceName = input.getInterfaceName();
         logger.debug("getElanInterfaceStatistics is called for elan interface {}", interfaceName);
         RpcResultBuilder<GetElanInterfaceStatisticsOutput> rpcResultBuilder = null;
@@ -73,7 +84,7 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
         String elanInstanceName = elanInterface.getElanInstanceName();
         ElanInstance elanInfo = ElanUtils.getElanInstanceByName(elanInstanceName);
         long elanTag = elanInfo.getElanTag();
-        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
+        InterfaceInfo interfaceInfo = elanServiceProvider.getInterfaceManager().getInterfaceInfo(interfaceName);
         ServicesInfo serviceInfo = ElanUtils.getServiceInfo(elanInstanceName, elanTag, interfaceName);
         //FIXME [ELANBE] Get this API Later
         short tableId = 0;
@@ -88,8 +99,8 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
             logger.debug("interface {} is down and returning with no statistics", interfaceName);
             rpcResultBuilder = RpcResultBuilder.success();
             return Futures.immediateFuture(rpcResultBuilder.withResult(new GetElanInterfaceStatisticsOutputBuilder().setStatResult(new StatResultBuilder()
-            .setStatResultCode(ResultCode.NotFound).setByteRxCount(0L).setByteTxCount(0L).setPacketRxCount(0L)
-            .setPacketTxCount(0L).build()).build()).build());
+                .setStatResultCode(ResultCode.NotFound).setByteRxCount(0L).setByteTxCount(0L).setPacketRxCount(0L)
+                .setPacketTxCount(0L).build()).build()).build());
         }
         rpcResultBuilder = RpcResultBuilder.success();
         return Futures.immediateFuture(rpcResultBuilder.withResult(queryforElanInterfaceStatistics(tableId, elanInstanceName, interfaceInfo)).build());
@@ -102,14 +113,14 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
         if (tableId == IfmConstants.VLAN_INTERFACE_INGRESS_TABLE) {
             VlanInterfaceInfo vlanInterfaceInfo = (VlanInterfaceInfo)interfaceInfo;
             matches = InterfaceServiceUtil.getMatchInfoForVlanLPort(dpId, interfaceInfo.getPortNo(),
-                    InterfaceServiceUtil.getVlanId(interfaceName, dataBroker), vlanInterfaceInfo.isVlanTransparent());
+                InterfaceServiceUtil.getVlanId(interfaceName, elanServiceProvider.getBroker()), vlanInterfaceInfo.isVlanTransparent());
         } else {
             matches = InterfaceServiceUtil.getLPortDispatcherMatches(ElanConstants.ELAN_SERVICE_INDEX, interfaceInfo.getInterfaceTag());
         }
         long groupId = interfaceInfo.getGroupId();
         Set<Object> statRequestKeys = InterfaceServiceUtil.getStatRequestKeys(dpId, tableId, matches, String.format("%s.%s", elanInstanceName, interfaceName), groupId);
-       // StatisticsInfo statsInfo = new StatisticsInfo(statRequestKeys);
-//        org.opendaylight.genius.ericsson.mdsalutil.statistics.StatResult statResult = mdsalMgr.queryForStatistics(interfaceName, statsInfo);
+        // StatisticsInfo statsInfo = new StatisticsInfo(statRequestKeys);
+//        org.opendaylight.vpnservice.ericsson.mdsalutil.statistics.StatResult statResult = mdsalMgr.queryForStatistics(interfaceName, statsInfo);
 //        ResultCode resultCode = ResultCode.Success;
 //        if (!statResult.isComplete()) {
 //            resultCode = ResultCode.Incomplete;
@@ -124,7 +135,7 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
     }
 
     private Future<RpcResult<GetElanInterfaceStatisticsOutput>> getFutureWithAppErrorMessage(
-            RpcResultBuilder<GetElanInterfaceStatisticsOutput> rpcResultBuilder, String message) {
+        RpcResultBuilder<GetElanInterfaceStatisticsOutput> rpcResultBuilder, String message) {
         rpcResultBuilder.withError(ErrorType.APPLICATION, message);
         return Futures.immediateFuture(rpcResultBuilder.build());
     }

@@ -11,16 +11,12 @@ package org.opendaylight.netvirt.elan.internal;
 import java.math.BigInteger;
 import java.util.List;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -30,41 +26,36 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnel.list.InternalTunnel;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener<Interface> implements AutoCloseable {
-    private DataBroker broker;
-    private IInterfaceManager interfaceManager;
-    private ElanInterfaceManager elanInterfaceManager;
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
+public class ElanInterfaceStateChangeListener extends AsyncDataTreeChangeListenerBase<Interface,ElanInterfaceStateChangeListener> implements AutoCloseable {
+
+    private  ElanServiceProvider elanServiceProvider = null;
+    private static volatile ElanInterfaceStateChangeListener elanInterfaceStateChangeListener = null;
     private static final Logger logger = LoggerFactory.getLogger(ElanInterfaceStateChangeListener.class);
 
-    public ElanInterfaceStateChangeListener(final DataBroker db, final ElanInterfaceManager ifManager) {
-        super(Interface.class);
-        broker = db;
-        elanInterfaceManager = ifManager;
-        registerListener(db);
+
+    private ElanInterfaceStateChangeListener(ElanServiceProvider elanServiceProvider) {
+        super(Interface.class, ElanInterfaceStateChangeListener.class);
+        this.elanServiceProvider = elanServiceProvider;
+        registerListener(LogicalDatastoreType.OPERATIONAL,this.elanServiceProvider.getBroker());
+
     }
 
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getWildCardPath(), ElanInterfaceStateChangeListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            logger.error("Elan Interfaces DataChange listener registration fail!", e);
-            throw new IllegalStateException("ElanInterface registration Listener failed.", e);
-        }
-    }
+    public static ElanInterfaceStateChangeListener getElanInterfaceStateChangeListener(
+        ElanServiceProvider elanServiceProvider) {
+        if (elanInterfaceStateChangeListener == null)
+            synchronized (ElanInterfaceStateChangeListener.class) {
+                if (elanInterfaceStateChangeListener == null)
+                {
+                    ElanInterfaceStateChangeListener elanInterfaceStateChangeListener = new ElanInterfaceStateChangeListener(elanServiceProvider);
+                    return elanInterfaceStateChangeListener;
 
-    private InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    }
-
-    public void setInterfaceManager(IInterfaceManager interfaceManager) {
-        this.interfaceManager = interfaceManager;
+                }
+            }
+        return elanInterfaceStateChangeListener;
     }
 
     @Override
@@ -72,7 +63,7 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
         logger.trace("Received interface {} Down event", delIf);
         String interfaceName =  delIf.getName();
         ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
-        if(elanInterface == null) {
+        if (elanInterface == null) {
             logger.debug("No Elan Interface is created for the interface:{} ", interfaceName);
             return;
         }
@@ -85,8 +76,8 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
         String elanInstanceName = elanInterface.getElanInstanceName();
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(elanInstanceName);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-        ElanInterfaceRemoveWorker removeWorker = new ElanInterfaceRemoveWorker(elanInstanceName, elanInstance, 
-                interfaceName, interfaceInfo, elanInterfaceManager);
+        InterfaceRemoveWorkerOnElan removeWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInstance,
+            interfaceName, interfaceInfo, true, elanServiceProvider.getElanInterfaceManager());
         coordinator.enqueueJob(elanInstanceName, removeWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
@@ -98,11 +89,13 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
             logger.trace("Interface type for interface {} is null", interfaceName);
             return;
         }
-        if(update.getType().equals(Tunnel.class)) {
-            if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
-                InternalTunnel internalTunnel = getTunnelState(interfaceName);
-                if (internalTunnel != null) {
-                    elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
+        if (update.getType().equals(Tunnel.class)) {
+            if (!original.getOperStatus().equals(Interface.OperStatus.Unknown) && !update.getOperStatus().equals(Interface.OperStatus.Unknown)){
+                if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
+                    InternalTunnel internalTunnel = getTunnelState(interfaceName);
+                    if (internalTunnel != null) {
+                        elanServiceProvider.getElanInterfaceManager().handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
+                    }
                 }
             }
         }
@@ -113,20 +106,20 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
         logger.trace("Received interface {} up event", intrf);
         String interfaceName =  intrf.getName();
         ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
-        if(elanInterface == null) {
+        if (elanInterface == null) {
             if (intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
-                if(intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
+                if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
                     InternalTunnel internalTunnel = getTunnelState(interfaceName);
                     if (internalTunnel != null) {
-                        elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
-                                internalTunnel.getDestinationDPN());
+                        elanServiceProvider.getElanInterfaceManager().handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
+                            internalTunnel.getDestinationDPN());
                     }
                 }
             }
             return;
         }
         InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName);
-        elanInterfaceManager.add(elanInterfaceId, elanInterface);
+        elanServiceProvider.getElanInterfaceManager().add(elanInterfaceId, elanInterface);
     }
 
     @Override
@@ -136,7 +129,7 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
 
     public  InternalTunnel getTunnelState(String interfaceName) {
         InternalTunnel internalTunnel = null;
-        TunnelList tunnelList = ElanUtils.buildInternalTunnel(broker);
+        TunnelList tunnelList = ElanUtils.buildInternalTunnel(elanServiceProvider.getBroker());
         if (tunnelList != null && tunnelList.getInternalTunnel() != null) {
             List<InternalTunnel> internalTunnels = tunnelList.getInternalTunnel();
             for (InternalTunnel tunnel : internalTunnels) {
@@ -148,4 +141,15 @@ public class ElanInterfaceStateChangeListener extends AbstractDataChangeListener
         }
         return internalTunnel;
     }
+    @Override
+    protected InstanceIdentifier<Interface> getWildCardPath() {
+        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
+    }
+
+
+    @Override
+    protected ElanInterfaceStateChangeListener getDataTreeChangeListener() {
+        return this;
+    }
+
 }
