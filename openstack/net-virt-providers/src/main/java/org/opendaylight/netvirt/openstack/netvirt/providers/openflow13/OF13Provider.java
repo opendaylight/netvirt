@@ -9,10 +9,7 @@
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13;
 
 import java.net.InetAddress;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -264,7 +261,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
          */
 
         handleLocalBcastOut(dpid, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, true);
-        handleTunnelFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, true);
+        handleTunnelFloodOut(node, segmentationId, true);
 
         /*
          * TODO : Optimize the following 2 writes to be restricted only for the very first port known in a segment.
@@ -329,7 +326,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
          */
 
         handleLocalBcastOut(dpid, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, false);
-        handleTunnelFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, false);
+        handleTunnelFloodOut(node, segmentationId, false);
     }
 
     private void programLocalIngressTunnelBridgeRules(Node node, Long dpid, String segmentationId, String attachedMac, long tunnelOFPort, long localPort) {
@@ -351,8 +348,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
          * table=1,priority=16384,tun_id=0x5,dl_dst=ff:ff:ff:ff:ff:ff \
          * actions=output:10,output:11,goto_table:2
          */
-
-        handleTunnelFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, tunnelOFPort, true);
+        handleTunnelFloodOut(node, segmentationId, true);
 
     }
 
@@ -429,7 +425,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
          * actions=output:10,output:11,goto_table:2
          */
 
-        handleTunnelFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, tunnelOFPort, false);
+        handleTunnelFloodOut(node, segmentationId, false);
     }
 
     private void programLocalVlanRules(Node node, Long dpid, String segmentationId, String attachedMac, long localPort) {
@@ -1133,7 +1129,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
     @Override
     public boolean handleInterfaceUpdate(NeutronNetwork network, Node srcNode, OvsdbTerminationPointAugmentation intf) {
-        LOG.debug("handleInterfaceUpdate: network: {} srcNode: {}, intf: {}",
+        LOG.info("handleInterfaceUpdate: network: {} srcNode: {}, intf: {}",
                     network.getProviderSegmentationID(), srcNode.getNodeId(), intf.getName());
         Preconditions.checkNotNull(nodeCacheManager);
 
@@ -1485,6 +1481,47 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             Short localTable, String segmentationId,
             Long OFPortOut, boolean write) {
         l2ForwardingProvider.programTunnelFloodOut(dpidLong, segmentationId, OFPortOut, write);
+    }
+    private void handleTunnelFloodOut(Node node, String segmentationId, boolean write) {
+        List<TerminationPoint> terminationPoints = southbound.extractTerminationPoints(node);
+        List<Long> allHostPorts = new ArrayList();
+        List<Long> allTunnelPorts = new ArrayList();
+        LOG.info("----handleTunnelFloodOut start----");
+        long dpid = getIntegrationBridgeOFDPID(node);
+        for (TerminationPoint tp:terminationPoints) {
+            OvsdbTerminationPointAugmentation ovsdbTerminationPointAugmentation = tp.getAugmentation(OvsdbTerminationPointAugmentation.class);
+            String attachedMac = southbound.getInterfaceExternalIdsValue(ovsdbTerminationPointAugmentation, Constants.EXTERNAL_ID_VM_MAC);
+            if (attachedMac != null) {
+                NeutronNetwork network = tenantNetworkManager.getTenantNetwork(ovsdbTerminationPointAugmentation);
+                if (network != null && network.getProviderSegmentationID().equals(segmentationId)) {
+                    Long outPort = southbound.getOFPort(ovsdbTerminationPointAugmentation);
+                    allHostPorts.add(outPort);
+                }
+            }
+            else if (southbound.isTunnel(ovsdbTerminationPointAugmentation)) {
+                Long outPort = southbound.getOFPort(ovsdbTerminationPointAugmentation);
+                allTunnelPorts.add(outPort);
+            }
+
+        }
+        LOG.info("----handleTunnelFloodOut allHostPorts is {},allTunnelPorts is {}----",allHostPorts, allTunnelPorts );
+
+        for (Long inPort:allHostPorts) {
+            List<Long> outPorts = new ArrayList();
+            for (Long port:allHostPorts) {
+                if (port != inPort) {
+                    outPorts.add(port);
+                }
+            }
+            outPorts.addAll(allTunnelPorts);
+            if (outPorts.size()>0) {
+                l2ForwardingProvider.programTunnelFloodOut(dpid, segmentationId, inPort, outPorts, true);
+            }
+            else {
+                l2ForwardingProvider.programTunnelFloodOut(dpid, segmentationId, inPort, outPorts, false);
+            }
+        }
+        LOG.info("----handleTunnelFloodOut end----");
     }
 
     /*
