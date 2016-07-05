@@ -21,7 +21,7 @@
       <bean factory-ref="netvirtImplConfig" factory-method="isConntrackEnabled" />
     </argument>
     <argument>
-      <bean factory-ref="netvirtImplConfig" factory-method="getIntBridgeGenMac" />
+      <bean factory-ref="netvirtImplConfig" factory-method="isIntBridgeGenMac" />
     </argument>
   </bean>
 
