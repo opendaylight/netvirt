@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * loss of user code.
  *
  */
-public class IpPrefixOrAddressBuilder {
+public final class IpPrefixOrAddressBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(IpPrefixOrAddressBuilder.class);
 
@@ -30,4 +30,6 @@ public class IpPrefixOrAddressBuilder {
             return new IpPrefixOrAddress(ipAddress);
         }
     }
+
+    private IpPrefixOrAddressBuilder() { }
 }
