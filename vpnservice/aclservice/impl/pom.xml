@@ -8,6 +8,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
@@ -16,11 +17,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <relativePath>../../commons/config-parent</relativePath>
   </parent>
 
-  <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>aclservice-impl</artifactId>
   <version>0.4.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -60,10 +61,90 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>neutronvpn-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
+
+    <!-- Dependencies used only by code under src/test (<scope>test) -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>aclservice-api</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.xtend</groupId>
+      <artifactId>org.eclipse.xtend.lib</artifactId>
+      <scope>test</scope>
+    </dependency>
+<!--
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <scope>test</scope>
+    </dependency>
+ -->
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>sal-binding-broker-impl</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- TODO move this into odlparent (version into dependencyManagement) -->
+    <dependency>
+      <groupId>com.google.dagger</groupId>
+      <artifactId>dagger</artifactId>
+      <!-- This version has to kept the same as com.google.dagger:dagger-compiler's -->
+      <version>2.5</version>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <plugin>
+        <!-- TODO Any objection to moving this up into odlparent for all projects? -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+          <annotationProcessorPaths>
+            <!-- dagger-compiler is here instead of standard <dependency> with <optional>true
+                 because of a version conflict between Guava 19 required by Dagger 2.5
+                 and Guava 18 currently used by OpenDaylight dependencyManagement.
+                 (java.lang.NoSuchMethodError: com.google.common.base.CharMatcher.whitespace()Lcom/google/common/base/CharMatcher)
+
+                 Also dagger.@Component in src/test/java did not generated code (only src/main/java)
+                 when the dagger-compiler was a standard <dependency> with <optional>true,
+                 whereas putting it here makes that work.
+
+                 Anyhow even when odlparent will upgrade from Guava 18 to Guava 19,
+                 keeping code generators separate from application's main classpath
+                 is a better build architecture overall, so please keep this as-is.
+             -->
+            <path>
+              <groupId>com.google.dagger</groupId>
+              <artifactId>dagger-compiler</artifactId>
+              <!-- This version has to kept the same as com.google.dagger:dagger's <dependency> -->
+              <version>2.5</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.xtend</groupId>
+        <artifactId>xtend-maven-plugin</artifactId>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
