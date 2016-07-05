@@ -41,11 +41,57 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <groupId>org.opendaylight.mdsal.model</groupId>
       <artifactId>yang-ext</artifactId>
     </dependency>
+
+    <!-- Dependencies used only by code under src/test (<scope>test) -->
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>mdsalutil-api</artifactId>
+      <version>${genius.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>sal-binding-broker-impl</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.xtend</groupId>
+      <artifactId>org.eclipse.xtend.lib</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.dagger</groupId>
+      <artifactId>dagger</artifactId>
+      <!-- This version has to kept the same as com.google.dagger:dagger-compiler's -->
+      <version>2.5</version>
+    </dependency>
+
   </dependencies>
 
   <build>
     <plugins>
-      <plugin>
+       <plugin>
+         <groupId>org.eclipse.xtend</groupId>
+         <artifactId>xtend-maven-plugin</artifactId>
+       </plugin>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-jar-plugin</artifactId>
+         <executions>
+           <execution>
+             <goals>
+               <goal>test-jar</goal>
+             </goals>
+           </execution>
+         </executions>
+       </plugin>
+       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
