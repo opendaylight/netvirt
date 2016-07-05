@@ -8,6 +8,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
@@ -16,11 +17,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <relativePath>../../commons/config-parent</relativePath>
   </parent>
 
-  <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>aclservice-impl</artifactId>
   <version>0.3.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -65,7 +66,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>utils.config</artifactId>
       <version>${vpns.ovsdb.version}</version>
     </dependency>
-     <dependency>
+    <dependency>
       <groupId>org.opendaylight.netvirt</groupId>
       <artifactId>elanmanager-api</artifactId>
       <version>${vpnservices.version}</version>
@@ -80,10 +81,68 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>java-ipv6</artifactId>
       <version>0.16</version>
     </dependency>
+
+    <!-- Dependencies used only by code under src/test (<scope>test) -->
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>mdsalutil-api</artifactId>
+      <version>${genius.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.yangtools</groupId>
+      <artifactId>testutils</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.xtend</groupId>
+      <artifactId>org.eclipse.xtend.lib</artifactId>
+      <scope>test</scope>
+    </dependency>
+<!--
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <scope>test</scope>
+    </dependency>
+ -->
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>sal-binding-broker-impl</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.mycila.guice.extensions</groupId>
+      <artifactId>mycila-guice-jsr250</artifactId>
+      <version>4.0.rc1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.vorburger</groupId>
+      <artifactId>xtendbeans</artifactId>
+      <version>1.2.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.eclipse.xtend</groupId>
+        <artifactId>xtend-maven-plugin</artifactId>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
