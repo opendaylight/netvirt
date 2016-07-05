@@ -75,7 +75,7 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
             futures.add(ElanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceAdd(logicalSwitchName, elanL2GwDevice));
 
             List<IpAddress> expectedPhyLocatorIps = Lists.newArrayList();
-            HwvtepRemoteMcastMacListener list = new HwvtepRemoteMcastMacListener(ElanUtils.getDataBroker(),
+            HwvtepRemoteMcastMacListener list = new HwvtepRemoteMcastMacListener(ElanUtils.getElanServiceProvider().getBroker(),
                     logicalSwitchName, elanL2GwDevice, expectedPhyLocatorIps,
                     new Callable<List<ListenableFuture<Void>>>() {
                         @Override
