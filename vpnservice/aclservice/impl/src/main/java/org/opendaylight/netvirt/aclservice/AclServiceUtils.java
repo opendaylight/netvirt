@@ -194,8 +194,7 @@ public class AclServiceUtils {
         }
         InterfaceAcl aclInPort = port.getAugmentation(InterfaceAcl.class);
         if (aclInPort == null) {
-            LOG.error("getSecurityGroupInPortList: no security group associated}",
-                port.getName());
+            LOG.error("getSecurityGroupInPortList: no security group associated to Interface port: {}", port.getName());
             return false;
         }
         return aclInPort.isPortSecurityEnabled();
