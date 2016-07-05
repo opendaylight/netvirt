@@ -644,6 +644,89 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
     }
 
     /*
+     * (Table:1) Egress Tunnel Traffic
+     * Match: Destination Ethernet Addr and Local InPort
+     * Instruction: Set TunnelID and GOTO Table Tunnel Table (n)
+     * table=110,priority=16383,tun_id=0x5,in-port=2,dl_dst=01:00:00:00:00:00/01:00:00:00:00:00 \
+     * actions=output:1,output:3
+     */
+    @Override
+    public void programTunnelFloodOut(Long dpidLong, String segmentationId, Long OFInPort, List<Long> OFOutPorts, boolean write) {
+
+        String nodeName = OPENFLOW + dpidLong;
+        NodeBuilder nodeBuilder = createNodeBuilder(nodeName);
+        FlowBuilder flowBuilder = new FlowBuilder();
+
+        // Create the OF Match using MatchBuilder
+        MatchBuilder matchBuilder = new MatchBuilder();
+        // Match TunnelID
+        MatchUtils.addNxRegMatch(matchBuilder,
+                new MatchUtils.RegMatch(ClassifierService.REG_FIELD, ClassifierService.REG_VALUE_FROM_LOCAL));
+        MatchUtils.createTunnelIDMatch(matchBuilder, new BigInteger(segmentationId));
+        MatchUtils.createInPortMatch(matchBuilder, dpidLong, OFInPort);
+        // Match DMAC
+        MatchUtils.createDestEthMatch(matchBuilder, new MacAddress("01:00:00:00:00:00"),
+                new MacAddress("01:00:00:00:00:00"));
+        flowBuilder.setMatch(matchBuilder.build());
+
+        // Add Flow Attributes
+        String flowName = "TunnelFloodOut_" + segmentationId + "_" + OFInPort;
+        final FlowId flowId = new FlowId(flowName);
+        flowBuilder
+                .setId(flowId)
+                .setBarrier(true)
+                .setTableId(getTable())
+                .setKey(new FlowKey(flowId))
+                .setPriority(16383)  // FIXME: change it back to 16384 once bug 3005 is fixed.
+                .setFlowName(flowName)
+                .setHardTimeout(0)
+                .setIdleTimeout(0);
+
+
+        // Instantiate the Builders for the OF Actions and Instructions
+        //List<Instruction> existingInstructions = InstructionUtils.extractExistingInstructions(flow);
+        if (write) {
+            List<Instruction> instructions = new ArrayList<>();
+            List<Action> actionList = new ArrayList<>();
+            // Set the Output Port/Iface
+            for ( Long OFOutPort:OFOutPorts) {
+                /* Create output action for port*/
+                ActionBuilder ab = new ActionBuilder();
+                NodeConnectorId ncid = new NodeConnectorId(OPENFLOW + dpidLong + ":" + OFOutPort);
+                LOG.error("createOutputPortInstructions() Node Connector ID is - Type=openflow: DPID={} port={} existingInstructions={}", dpidLong, OFOutPort, instructions);
+                OutputActionBuilder oab = new OutputActionBuilder();
+                oab.setOutputNodeConnector(ncid);
+                ab.setAction(new OutputActionCaseBuilder().setOutputAction(oab.build()).build());
+
+
+                ab.setOrder(actionList.size());
+                ab.setKey(new ActionKey(actionList.size()));
+                actionList.add(ab.build());
+            }
+            ApplyActionsBuilder aab = new ApplyActionsBuilder();
+            aab.setAction(actionList);
+            LOG.error("createOutputPortInstructions() : applyAction {}", aab.build());
+
+            Instruction outputPortInstruction = new InstructionBuilder()
+                    .setInstruction(new ApplyActionsCaseBuilder().setApplyActions(aab.build()).build())
+                    .setOrder(0)
+                    .setKey(new InstructionKey(0))
+                    .build();
+
+            // Add InstructionsBuilder to FlowBuilder
+            InstructionUtils.setFlowBuilderInstruction(flowBuilder, outputPortInstruction);
+            writeFlow(flowBuilder, nodeBuilder);
+        } else {
+            /* if all port are removed, remove the flow too. */
+            Flow flow = this.getFlow(flowBuilder, nodeBuilder);
+            if (flow!=null) {
+                removeFlow(flowBuilder, nodeBuilder);
+            }
+        }
+    }
+
+
+    /*
      * (Table:1) Egress VLAN Traffic
      * Match: Destination Ethernet Addr and VLAN id
      * Instruction: GOTO table 2 and Output port eth interface
