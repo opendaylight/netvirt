@@ -41,11 +41,39 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <groupId>org.opendaylight.mdsal.model</groupId>
       <artifactId>yang-ext</artifactId>
     </dependency>
+
+    <!-- Dependencies used only by code under src/test (<scope>test) -->
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>mdsalutil-api</artifactId>
+      <version>${genius.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
-      <plugin>
+       <plugin>
+         <groupId>org.eclipse.xtend</groupId>
+         <artifactId>xtend-maven-plugin</artifactId>
+       </plugin>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-jar-plugin</artifactId>
+         <executions>
+           <execution>
+             <goals>
+               <goal>test-jar</goal>
+             </goals>
+           </execution>
+         </executions>
+       </plugin>
+       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
