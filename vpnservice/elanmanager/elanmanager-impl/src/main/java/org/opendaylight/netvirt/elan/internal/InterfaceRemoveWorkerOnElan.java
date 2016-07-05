@@ -13,37 +13,46 @@ import java.util.concurrent.Callable;
 
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-public class ElanInterfaceRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
+public class InterfaceRemoveWorkerOnElan implements Callable<List<ListenableFuture<Void>>> {
     private String key;
     private ElanInstance elanInfo;
     private String interfaceName;
     private InterfaceInfo interfaceInfo;
+    private boolean isInterfaceStateRemoved;
     private ElanInterfaceManager dataChangeListener;
+    private static final Logger logger = LoggerFactory.getLogger(InterfaceRemoveWorkerOnElan.class);
 
-    public ElanInterfaceRemoveWorker(String key, ElanInstance elanInfo, String interfaceName,
-            InterfaceInfo interfaceInfo, ElanInterfaceManager dataChangeListener) {
+    public InterfaceRemoveWorkerOnElan(String key, ElanInstance elanInfo, String interfaceName,
+                                       InterfaceInfo interfaceInfo, boolean isInterfaceStateRemoved, ElanInterfaceManager dataChangeListener) {
         super();
         this.key = key;
         this.elanInfo = elanInfo;
         this.interfaceName = interfaceName;
         this.interfaceInfo = interfaceInfo;
+        this.isInterfaceStateRemoved = isInterfaceStateRemoved;
         this.dataChangeListener = dataChangeListener;
     }
 
     @Override
     public String toString() {
-        return "ElanInterfaceRemoveWorker [key=" + key + ", elanInfo=" + elanInfo +
-                ", interfaceName=" + interfaceName
-                + ", interfaceInfo=" + interfaceInfo + "]";
+        return "InterfaceRemoveWorkerOnElan [key=" + key + ", elanInfo=" + elanInfo +
+            ", interfaceName=" + interfaceName
+            + ", interfaceInfo=" + interfaceInfo + "]";
     }
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        dataChangeListener.removeElanInterface(elanInfo, interfaceName, interfaceInfo);
+        try {
+            dataChangeListener.removeElanInterface(elanInfo, interfaceName, interfaceInfo, isInterfaceStateRemoved);
+        } catch (Exception e) {
+            logger.error("Error while processing {} for {}, error {}", key, interfaceName, e);
+        }
         return futures;
     }
 

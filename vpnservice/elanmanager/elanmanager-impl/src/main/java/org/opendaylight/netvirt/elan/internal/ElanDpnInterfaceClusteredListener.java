@@ -32,25 +32,36 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 
 public class ElanDpnInterfaceClusteredListener
-        extends AsyncClusteredDataChangeListenerBase<DpnInterfaces, ElanDpnInterfaceClusteredListener>
-        implements AutoCloseable {
-    private DataBroker broker;
-    private ElanInterfaceManager elanInterfaceManager;
+    extends AsyncClusteredDataChangeListenerBase<DpnInterfaces, ElanDpnInterfaceClusteredListener>
+    implements AutoCloseable {
+    private ElanServiceProvider elanServiceProvider = null;
+    private static volatile ElanDpnInterfaceClusteredListener elanDpnInterfaceClusteredListener = null;
     private ListenerRegistration<DataChangeListener> listenerRegistration;
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnInterfaceClusteredListener.class);
 
-    public ElanDpnInterfaceClusteredListener(final DataBroker db, final ElanInterfaceManager ifManager) {
+
+    public ElanDpnInterfaceClusteredListener(ElanServiceProvider elanServiceProvider) {
         super(DpnInterfaces.class, ElanDpnInterfaceClusteredListener.class);
-        broker = db;
-        elanInterfaceManager = ifManager;
-        registerListener(db);
+        this.elanServiceProvider = elanServiceProvider;
+        registerListener(elanServiceProvider.getBroker());
     }
 
+    public static ElanDpnInterfaceClusteredListener getElanDpnInterfaceClusteredListener(
+        ElanServiceProvider elanServiceProvider) {
+        if (elanDpnInterfaceClusteredListener == null) {
+            synchronized (ElanDpnInterfaceClusteredListener.class) {
+                if (elanDpnInterfaceClusteredListener == null) {
+                    elanDpnInterfaceClusteredListener = new ElanDpnInterfaceClusteredListener(elanServiceProvider);
+                }
+            }
+        }
+        return elanDpnInterfaceClusteredListener;
+    }
     private void registerListener(final DataBroker db) {
         try {
-            listenerRegistration = broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getWildCardPath(), ElanDpnInterfaceClusteredListener.this, AsyncDataBroker.DataChangeScope.BASE);
+            listenerRegistration = elanServiceProvider.getBroker().registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                getWildCardPath(), ElanDpnInterfaceClusteredListener.this, AsyncDataBroker.DataChangeScope.BASE);
         } catch (final Exception e) {
             LOG.error("DpnInterfaces DataChange listener registration fail!", e);
         }
@@ -59,7 +70,7 @@ public class ElanDpnInterfaceClusteredListener
     @Override
     public InstanceIdentifier<DpnInterfaces> getWildCardPath() {
         return InstanceIdentifier.builder(ElanDpnInterfaces.class).child(ElanDpnInterfacesList.class)
-                .child(DpnInterfaces.class).build();
+            .child(DpnInterfaces.class).build();
     }
 
     @Override
@@ -76,17 +87,17 @@ public class ElanDpnInterfaceClusteredListener
         final String elanName = getElanName(id);
         if (ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).isEmpty()) {
             LOG.debug("dpnInterface updation, no external l2 devices to update for elan {} with Dp Id:", elanName,
-                    dpnInterfaces.getDpId());
+                dpnInterfaces.getDpId());
             return;
         }
         ElanClusterUtils.runOnlyInLeaderNode(elanName, "updating mcast mac upon tunnel event",
-                new Callable<List<ListenableFuture<Void>>>() {
-                    @Override
-                    public List<ListenableFuture<Void>> call() throws Exception {
-                        return Lists.newArrayList(
-                                ElanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName));
-                    }
-                });
+            new Callable<List<ListenableFuture<Void>>>() {
+                @Override
+                public List<ListenableFuture<Void>> call() throws Exception {
+                    return Lists.newArrayList(
+                        ElanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName));
+                }
+            });
     }
 
     @Override
@@ -94,30 +105,30 @@ public class ElanDpnInterfaceClusteredListener
         // this is the last dpn interface on this elan
         final String elanName = getElanName(identifier);
         LOG.debug("Received ElanDpnInterface removed for for elan {} with Dp Id ", elanName,
-                dpnInterfaces.getDpId());
+            dpnInterfaces.getDpId());
 
         if (ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).isEmpty()) {
             LOG.debug("dpnInterface removed, no external l2 devices to update for elan {} with Dp Id:", elanName,
-                    dpnInterfaces.getDpId());
+                dpnInterfaces.getDpId());
             return;
         }
         ElanClusterUtils.runOnlyInLeaderNode(elanName, "handling ElanDpnInterface removed",
-                new Callable<List<ListenableFuture<Void>>>() {
-                    @Override
-                    public List<ListenableFuture<Void>> call() throws Exception {
-                        // deleting Elan L2Gw Devices UcastLocalMacs From Dpn
-                        ElanL2GatewayUtils.deleteElanL2GwDevicesUcastLocalMacsFromDpn(elanName,
-                                dpnInterfaces.getDpId());
-                        // updating remote mcast mac on l2gw devices
-                        return Lists.newArrayList(
-                                ElanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName));
-                    }
-                });
+            new Callable<List<ListenableFuture<Void>>>() {
+                @Override
+                public List<ListenableFuture<Void>> call() throws Exception {
+                    // deleting Elan L2Gw Devices UcastLocalMacs From Dpn
+                    ElanL2GatewayUtils.deleteElanL2GwDevicesUcastLocalMacsFromDpn(elanName,
+                        dpnInterfaces.getDpId());
+                    // updating remote mcast mac on l2gw devices
+                    return Lists.newArrayList(
+                        ElanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName));
+                }
+            });
     }
 
     @Override
     protected void update(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces original,
-            final DpnInterfaces dpnInterfaces) {
+                          final DpnInterfaces dpnInterfaces) {
         LOG.debug("dpninterfaces update fired new size {}", dpnInterfaces.getInterfaces().size());
         if (dpnInterfaces.getInterfaces().size() == 0) {
             LOG.debug("dpninterfaces last dpn interface on this elan {} ", dpnInterfaces.getKey());
@@ -130,7 +141,7 @@ public class ElanDpnInterfaceClusteredListener
     protected void add(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
         if (dpnInterfaces.getInterfaces().size() == 1) {
             LOG.debug("dpninterfaces first dpn interface on this elan {} {} ", dpnInterfaces.getKey(),
-                    dpnInterfaces.getInterfaces().get(0));
+                dpnInterfaces.getInterfaces().get(0));
             // this is the first dpn interface on this elan
             handleUpdate(identifier, dpnInterfaces);
         }
@@ -143,4 +154,5 @@ public class ElanDpnInterfaceClusteredListener
     private String getElanName(InstanceIdentifier<DpnInterfaces> identifier) {
         return identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
     }
+
 }
