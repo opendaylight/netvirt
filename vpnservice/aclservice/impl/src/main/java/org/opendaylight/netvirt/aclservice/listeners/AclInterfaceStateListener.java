@@ -93,7 +93,6 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     @Override
     protected void update(InstanceIdentifier<Interface> key, Interface dataObjectModificationBefore,
                           Interface dataObjectModificationAfter) {
-        // TODO Auto-generated method stub
     }
 
     @Override
