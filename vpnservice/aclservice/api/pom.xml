@@ -41,11 +41,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <groupId>org.opendaylight.mdsal.model</groupId>
       <artifactId>yang-ext</artifactId>
     </dependency>
+
   </dependencies>
 
   <build>
     <plugins>
-      <plugin>
+       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
