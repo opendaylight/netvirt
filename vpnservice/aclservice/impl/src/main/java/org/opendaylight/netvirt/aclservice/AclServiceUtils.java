@@ -28,10 +28,21 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -217,5 +228,39 @@ public class AclServiceUtils {
         matches.add(new MatchInfo(MatchFieldType.udp_src,
                 new long[] { dscPort}));
         return matches;
+    }
+
+    /**
+     * Builds the service id.
+     *
+     * @param interfaceName the interface name
+     * @param serviceIndex the service index
+     * @param serviceMode the service mode
+     * @return the instance identifier
+     */
+    public static InstanceIdentifier<BoundServices> buildServiceId(String interfaceName, short serviceIndex,
+            Class<? extends ServiceModeBase> serviceMode) {
+        return InstanceIdentifier.builder(ServiceBindings.class)
+                .child(ServicesInfo.class, new ServicesInfoKey(interfaceName, serviceMode))
+                .child(BoundServices.class, new BoundServicesKey(serviceIndex)).build();
+    }
+
+    /**
+     * Gets the bound services.
+     *
+     * @param serviceName the service name
+     * @param servicePriority the service priority
+     * @param flowPriority the flow priority
+     * @param cookie the cookie
+     * @param instructions the instructions
+     * @return the bound services
+     */
+    public static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
+            BigInteger cookie, List<Instruction> instructions) {
+        StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie).setFlowPriority(flowPriority)
+                .setInstruction(instructions);
+        return new BoundServicesBuilder().setKey(new BoundServicesKey(servicePriority)).setServiceName(serviceName)
+                .setServicePriority(servicePriority).setServiceType(ServiceTypeFlowBased.class)
+                .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
 }
