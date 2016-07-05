@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_f557af00",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-05T10:24:31Z",
+      "side": 1,
+      "message": "Why? We do this in other places. utils.config is not a bundle so I think the only other option would be to put into all the bundles that use it. No?",
+      "parentUuid": "9a561d44_b218ad85",
+      "revId": "24c6de4c9b1baa5681804c002480955a5eff6b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_1e31b7ec",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanOvsdbNodeListener.java",
         "patchSetId": 2
@@ -48,6 +66,30 @@
       "writtenOn": "2016-06-30T06:37:26Z",
       "side": 1,
       "message": "would prefer this to be debug.",
+      "range": {
+        "startLine": 76,
+        "startChar": 15,
+        "endLine": 76,
+        "endChar": 19
+      },
+      "revId": "24c6de4c9b1baa5681804c002480955a5eff6b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_5c03280f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanOvsdbNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-05T10:24:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_1e31b7ec",
       "range": {
         "startLine": 76,
         "startChar": 15,
@@ -136,6 +178,30 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_9f049216",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/BridgeUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-05T10:24:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_7e4d5372",
+      "range": {
+        "startLine": 184,
+        "startChar": 12,
+        "endLine": 184,
+        "endChar": 16
+      },
+      "revId": "24c6de4c9b1baa5681804c002480955a5eff6b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_9e5ca727",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/BridgeUtils.java",
         "patchSetId": 2
@@ -147,6 +213,30 @@
       "writtenOn": "2016-06-30T06:37:26Z",
       "side": 1,
       "message": "this should be debug",
+      "range": {
+        "startLine": 228,
+        "startChar": 12,
+        "endLine": 228,
+        "endChar": 16
+      },
+      "revId": "24c6de4c9b1baa5681804c002480955a5eff6b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_ff094e2d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/BridgeUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-05T10:24:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_9e5ca727",
       "range": {
         "startLine": 228,
         "startChar": 12,
@@ -182,6 +272,30 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_df0e0a34",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanConstants.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-05T10:24:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_7e74339c",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 66
+      },
+      "revId": "24c6de4c9b1baa5681804c002480955a5eff6b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_be6ecbc7",
         "filename": "vpnservice/features/src/main/features/features.xml",
         "patchSetId": 2
@@ -193,6 +307,30 @@
       "writtenOn": "2016-06-30T06:37:26Z",
       "side": 1,
       "message": "shouldn\u0027t these be before elan-impl as per dependency order?",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 82
+      },
+      "revId": "24c6de4c9b1baa5681804c002480955a5eff6b2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_cb05acc3",
+        "filename": "vpnservice/features/src/main/features/features.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-05T10:24:31Z",
+      "side": 1,
+      "message": "I don\u0027t think the ordering matters",
+      "parentUuid": "9a561d44_be6ecbc7",
       "range": {
         "startLine": 64,
         "startChar": 0,
