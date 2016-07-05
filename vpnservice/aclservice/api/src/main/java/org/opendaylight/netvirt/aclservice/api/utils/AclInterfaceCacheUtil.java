@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.aclservice.api.utils;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class AclInterfaceCacheUtil {
+public final class AclInterfaceCacheUtil {
     static ConcurrentMap<String, AclInterface> cachedMap = new ConcurrentHashMap<>();
 
     public static void addAclInterfaceToCache(String interfaceId, AclInterface aclInterface) {
@@ -29,4 +29,6 @@ public class AclInterfaceCacheUtil {
     public static AclInterface getAclInterfaceFromCache(String interfaceId) {
         return cachedMap.get(interfaceId);
     }
+
+    private AclInterfaceCacheUtil() { }
 }
