@@ -49,6 +49,46 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_8e373de3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-07-06T16:18:36Z",
+      "side": 1,
+      "message": "It should be the table id passed I suppose, the existing code is incorrect as well.",
+      "range": {
+        "startLine": 430,
+        "startChar": 44,
+        "endLine": 430,
+        "endChar": 56
+      },
+      "revId": "1d5d1734983c289e0c474ad75190ba819f6d0c42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_ce3135ee",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/IngressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-07-06T16:18:36Z",
+      "side": 1,
+      "message": "Should be tableId.",
+      "revId": "1d5d1734983c289e0c474ad75190ba819f6d0c42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_a62b4f81",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 2
