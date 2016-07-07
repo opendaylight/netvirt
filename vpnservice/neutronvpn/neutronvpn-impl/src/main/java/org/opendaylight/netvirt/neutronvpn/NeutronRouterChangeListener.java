@@ -75,7 +75,7 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
             LOG.trace("Adding Router : key: " + identifier + ", value=" + input);
         }
         // Create internal VPN
-        nvpnManager.createL3Vpn(input.getUuid(), null, null, null, null, null, input.getUuid(), null);
+        nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, input.getUuid(), null);
         NeutronvpnUtils.addToRouterCache(input);
     }
 
