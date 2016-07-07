@@ -89,6 +89,12 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
         if (LOG.isTraceEnabled()) {
             LOG.trace("Neutron Floating IP created: key: " + identifier + ", value=" + input);
         }
+        IpAddress fixedIp = input.getFixedIpAddress();
+        if (fixedIp != null) {
+            addToFloatingIpInfo(input.getRouterId().getValue(), input.getFloatingNetworkId(), input.getPortId()
+                    .getValue(), fixedIp.getIpv4Address().getValue(), input.getFloatingIpAddress().getIpv4Address()
+                    .getValue());
+        }
     }
 
     @Override
