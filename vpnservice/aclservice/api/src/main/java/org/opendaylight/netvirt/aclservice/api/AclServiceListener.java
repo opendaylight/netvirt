@@ -12,10 +12,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 
 public interface AclServiceListener {
 
-    public boolean applyAcl(Interface port);
+    boolean applyAcl(Interface port);
 
-    public boolean updateAcl(Interface port);
+    boolean updateAcl(Interface port);
 
-    public boolean removeAcl(Interface port);
+    boolean removeAcl(Interface port);
 
 }
