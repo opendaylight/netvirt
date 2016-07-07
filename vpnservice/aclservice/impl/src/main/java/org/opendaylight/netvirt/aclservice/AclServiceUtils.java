@@ -17,6 +17,7 @@ import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -104,20 +105,18 @@ public class AclServiceUtils {
      * @param path the wild card path.
      * @return the required object.
      */
-    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                          InstanceIdentifier<T> path) {
-
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
+    public static <T extends DataObject> Optional<T> read(
+            DataBroker broker, LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
 
         Optional<T> result = Optional.absent();
+        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
         try {
-            result = tx.read(datastoreType, path).get();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            result = tx.read(datastoreType, path).checkedGet();
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to read InstanceIdentifier {} from {}", path, datastoreType, e);
         } finally {
             tx.close();
         }
-
         return result;
     }
 
