@@ -165,7 +165,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
             RouterInterface routerInterface = optRouterInterface.get();
             String routerName = routerInterface.getRouterName();
             LOG.debug("Handling DOWN event for router interface {} in Router {}", interfaceName, routerName);
-            vpnInterfaceManager.removeFromNeutronRouterDpnsMap(routerName, interfaceName,dpnId);
+            vpnInterfaceManager.removeFromNeutronRouterDpnsMap(routerName, interfaceName, dpnId);
         } else {
             LOG.debug("No Router interface configured to handle  DOWN event for {}", interfaceName);
         }

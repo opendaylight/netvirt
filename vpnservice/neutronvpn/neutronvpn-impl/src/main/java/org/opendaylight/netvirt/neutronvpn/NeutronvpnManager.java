@@ -568,6 +568,44 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
+    public void createL3InternalVpn(Uuid vpn, String name, Uuid tenant, List<String> rd, List<String> irt, List<String> ert,
+                                    Uuid router, List<Uuid> networks) {
+
+        // Update VPN Instance node
+        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert);
+
+        // Update local vpn-subnet DS
+        updateVpnMaps(vpn, name, router, tenant, networks);
+
+        if (router != null) {
+            Uuid existingVpn = NeutronvpnUtils.getVpnForRouter(broker, router, true);
+            if (existingVpn != null) {
+                List<Uuid> routerSubnets = NeutronvpnUtils.getNeutronRouterSubnetIds(broker, router);
+                if (routerSubnets != null) {
+                    // Update the router interfaces alone and exit
+                    for (Uuid subnetId : routerSubnets) {
+                        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class).
+                                child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
+                        Optional<Subnetmap> snMap = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+                        if (snMap.isPresent()) {
+                            Subnetmap sn = snMap.get();
+                            List<Uuid> portList = sn.getPortList();
+                            if (portList != null) {
+                                for (Uuid port : sn.getPortList()) {
+                                    addToNeutronRouterInterfacesMap(router, port.getValue());
+                                }
+                            }
+                        }
+                    }
+                }
+                logger.info("Creation of Internal L3VPN skipped for VPN {} due to router {} already associated to " +
+                        "external VPN {}", vpn.getValue(), router.getValue(), existingVpn.getValue());
+                return;
+            }
+            associateRouterToInternalVpn(vpn, router);
+        }
+    }
+
     public void createL3Vpn(Uuid vpn, String name, Uuid tenant, List<String> rd, List<String> irt, List<String> ert,
                             Uuid router, List<Uuid> networks) {
 
@@ -879,6 +917,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             for (Uuid port : sn.getPortList()) {
                 logger.debug("adding vpn-interface for port {}", port.getValue());
                 createVpnInterface(vpnId, NeutronvpnUtils.getNeutronPort(broker, port));
+                if (routerId != null) {
+                    addToNeutronRouterInterfacesMap(routerId, port.getValue());
+                }
             }
         }
     }
@@ -1098,27 +1139,36 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected void associateRouterToVpn(Uuid vpnId, Uuid routerId) {
         updateVpnMaps(vpnId, null, routerId, null, null);
+        logger.debug("Updating association of subnets to external vpn {}", vpnId.getValue());
         List<Uuid> routerSubnets = NeutronvpnUtils.getNeutronRouterSubnetIds(broker, routerId);
-        if (!vpnId.equals(routerId)) {
-            logger.debug("Updating association of subnets to external vpn {}", vpnId.getValue());
-            if (routerSubnets != null) {
-                for (Uuid subnetId : routerSubnets) {
-                    updateVpnForSubnet(vpnId, subnetId, true);
-                }
+//      if (!vpnId.equals(routerId)) {
+        if (routerSubnets != null) {
+            for (Uuid subnetId : routerSubnets) {
+                updateVpnForSubnet(vpnId, subnetId, true);
             }
-            try {
-                checkAndPublishRouterAssociatedtoVpnNotification(routerId, vpnId);
-                logger.debug("notification upon association of router {} to VPN {} published", routerId.getValue(),
-                        vpnId.getValue());
-            } catch (Exception e) {
-                logger.error("publishing of notification upon association of router {} to VPN {} failed : ", routerId
-                        .getValue(), vpnId.getValue(), e);
-            }
-        } else {
-            logger.debug("Adding subnets to internal vpn {}", vpnId.getValue());
-            for (Uuid subnet : routerSubnets) {
-                addSubnetToVpn(vpnId, subnet);
-            }
+        }
+        try {
+            checkAndPublishRouterAssociatedtoVpnNotification(routerId, vpnId);
+            logger.debug("notification upon association of router {} to VPN {} published", routerId.getValue(),
+                    vpnId.getValue());
+        } catch (Exception e) {
+            logger.error("publishing of notification upon association of router {} to VPN {} failed : ", routerId
+                    .getValue(), vpnId.getValue(), e);
+        }
+//        }
+//        else {
+//            logger.debug("Adding subnets to internal vpn {}", vpnId.getValue());
+//            for (Uuid subnet : routerSubnets) {
+//                addSubnetToVpn(vpnId, subnet);
+//            }
+//        }
+    }
+
+    protected void associateRouterToInternalVpn(Uuid vpnId, Uuid routerId) {
+        List<Uuid> routerSubnets = NeutronvpnUtils.getNeutronRouterSubnetIds(broker, routerId);
+        logger.debug("Adding subnets to internal vpn {}", vpnId.getValue());
+        for (Uuid subnet : routerSubnets) {
+            addSubnetToVpn(vpnId, subnet);
         }
     }
 
@@ -1523,9 +1573,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (ports.isPresent() && ports.get().getPort() != null) {
                 for (Port port : ports.get().getPort()) {
                     if (port.getFixedIps() != null && !port.getFixedIps().isEmpty()) {
-                        result.add(String.format(" %-34s  %-22s  %-22s  %-6s ", port.getUuid().getValue(), port.
-                                getMacAddress(), port.getFixedIps().get(0).getIpAddress().getIpv4Address().getValue(),
-                                NeutronvpnUtils.getIPPrefixFromPort(broker, port)));
+                        result.add(String.format(" %-34s  %-22s  %-22s  %-6s ", port.getUuid().getValue(), port
+                                .getMacAddress(), port.getFixedIps().get(0).getIpAddress().getIpv4Address().getValue
+                                (), NeutronvpnUtils.getIPPrefixFromPort(broker, port)));
                     }
                 }
             }
