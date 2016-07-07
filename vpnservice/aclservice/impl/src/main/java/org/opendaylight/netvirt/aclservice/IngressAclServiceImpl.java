@@ -13,6 +13,7 @@ import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -33,11 +34,11 @@ public class IngressAclServiceImpl implements AclServiceListener {
 
     private static final Logger logger = LoggerFactory.getLogger(IngressAclServiceImpl.class);
 
-    private IMdsalApiManager mdsalUtil;
+    private final IMdsalApiManager mdsalUtil;
     short tableIdInstall = 20;
     short tableIdNext = 21;
-    private OdlInterfaceRpcService interfaceManager;
-    private DataBroker dataBroker;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final DataBroker dataBroker;
 
     /**
      * Intilaze the member variables.
@@ -320,18 +321,16 @@ public class IngressAclServiceImpl implements AclServiceListener {
             int idleTimeOut, int hardTimeOut, BigInteger cookie, List<? extends MatchInfoBase>  matches,
             List<InstructionInfo> instructions, int addOrRemove) {
         if (addOrRemove == NwConstants.DEL_FLOW) {
-            MDSALUtil.buildFlowEntity(dpId, tableIdInstall,
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableIdInstall,
                 flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", idleTimeOut, hardTimeOut,
                 AclServiceUtils.COOKIE_ACL_BASE, matches, null);
-            logger.trace("Removing Acl Flow DpId {}, vmMacAddress {}", dpId, flowId);
-            // TODO Need to be done as a part of genius integration
-            // mdsalUtil.removeFlow(flowEntity);
+            logger.trace("Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
+            mdsalUtil.removeFlow(flowEntity);
         } else {
-            MDSALUtil.buildFlowEntity(dpId, tableId,
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                 flowId ,priority, flowName, idleTimeOut, hardTimeOut, cookie, matches, instructions);
-            logger.trace("Installing  DpId {}, flowId {}", dpId, flowId);
-            // TODO Need to be done as a part of genius integration
-            //mdsalUtil.installFlow(flowEntity);
+            logger.trace("Installing DpnId {}, flowId {}", dpId, flowId);
+            mdsalUtil.installFlow(flowEntity);
         }
     }
 
