@@ -218,8 +218,8 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                     }
                 }
             } else {
-                LOG.warn("Neutron network {} corresponding to router interface port {} for neutron router {} already " +
-                        "associated to VPN {}", infNetworkId.getValue(), routerPort.getUuid().getValue(), routerId
+                LOG.error("Neutron network {} corresponding to router interface port {} for neutron router {} already" +
+                        " associated to VPN {}", infNetworkId.getValue(), routerPort.getUuid().getValue(), routerId
                         .getValue(), existingVpnId.getValue());
             }
         }
