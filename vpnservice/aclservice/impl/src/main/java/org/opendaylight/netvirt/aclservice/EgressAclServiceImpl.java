@@ -393,22 +393,18 @@ public class EgressAclServiceImpl implements AclServiceListener {
      * @param write whether to add or remove the flow.
      */
     private void programEgressAclFixedConntrackRule(BigInteger dpid, String attachMac, int write) {
-        try {
-            programConntrackRecircRule(dpid, attachMac,AclServiceUtils.CT_STATE_UNTRACKED_PRIORITY,
-                "Untracked",AclServiceUtils.UNTRACKED_CT_STATE,AclServiceUtils.UNTRACKED_CT_STATE_MASK, write );
-            programConntrackForwardRule(dpid, attachMac, AclServiceUtils.CT_STATE_TRACKED_EXIST_PRIORITY,
-                "Tracked_Established", AclServiceUtils.TRACKED_EST_CT_STATE, AclServiceUtils.TRACKED_CT_STATE_MASK,
-                write );
-            programConntrackForwardRule(dpid, attachMac, AclServiceUtils.CT_STATE_TRACKED_EXIST_PRIORITY,
-                "Tracked_Related", AclServiceUtils.TRACKED_REL_CT_STATE, AclServiceUtils.TRACKED_CT_STATE_MASK, write );
-            programConntrackDropRule(dpid, attachMac, AclServiceUtils.CT_STATE_NEW_PRIORITY_DROP,
-                "Tracked_New", AclServiceUtils.TRACKED_NEW_CT_STATE, AclServiceUtils.TRACKED_NEW_CT_STATE_MASK, write );
-            programConntrackForwardRule(dpid, attachMac, AclServiceUtils.CT_STATE_NEW_PRIORITY_DROP,
-                "Tracked_Invalid",AclServiceUtils.TRACKED_INV_CT_STATE, AclServiceUtils.TRACKED_INV_CT_STATE_MASK,
-                write );
-            logger.info("programEgressAclFixedConntrackRule :  default connection tracking rule are added.");
-        } catch (Exception e) {
-            logger.error("Failed to add default conntrack rules : " , e);
-        }
+        programConntrackRecircRule(dpid, attachMac,AclServiceUtils.CT_STATE_UNTRACKED_PRIORITY,
+            "Untracked",AclServiceUtils.UNTRACKED_CT_STATE,AclServiceUtils.UNTRACKED_CT_STATE_MASK, write );
+        programConntrackForwardRule(dpid, attachMac, AclServiceUtils.CT_STATE_TRACKED_EXIST_PRIORITY,
+            "Tracked_Established", AclServiceUtils.TRACKED_EST_CT_STATE, AclServiceUtils.TRACKED_CT_STATE_MASK,
+            write );
+        programConntrackForwardRule(dpid, attachMac, AclServiceUtils.CT_STATE_TRACKED_EXIST_PRIORITY,
+            "Tracked_Related", AclServiceUtils.TRACKED_REL_CT_STATE, AclServiceUtils.TRACKED_CT_STATE_MASK, write );
+        programConntrackDropRule(dpid, attachMac, AclServiceUtils.CT_STATE_NEW_PRIORITY_DROP,
+            "Tracked_New", AclServiceUtils.TRACKED_NEW_CT_STATE, AclServiceUtils.TRACKED_NEW_CT_STATE_MASK, write );
+        programConntrackForwardRule(dpid, attachMac, AclServiceUtils.CT_STATE_NEW_PRIORITY_DROP,
+            "Tracked_Invalid",AclServiceUtils.TRACKED_INV_CT_STATE, AclServiceUtils.TRACKED_INV_CT_STATE_MASK,
+            write );
+        logger.info("programEgressAclFixedConntrackRule :  default connection tracking rule are added.");
     }
 }
