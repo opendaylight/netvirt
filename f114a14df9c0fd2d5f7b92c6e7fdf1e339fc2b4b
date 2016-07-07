@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_1aea430f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-07T11:38:31Z",
+      "side": 0,
+      "message": "What is the FindBugs complaint? With OpenFlow a drop rule is an empty action so this might be why this code is the way it is. Maybe we need an override or ignore on these lines with a comment to indicate the reasoning.\n\nOther than that, I think the fix is the actionInfos need to be added to the instructions.",
+      "revId": "f114a14df9c0fd2d5f7b92c6e7fdf1e339fc2b4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
