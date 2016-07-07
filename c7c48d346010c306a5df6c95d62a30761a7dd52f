@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_1a38839f",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-07T11:50:43Z",
+      "side": 1,
+      "message": "imports should not be wildcarded",
+      "revId": "c7c48d346010c306a5df6c95d62a30761a7dd52f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_da6c4b9f",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/L2ForwardingService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-07T11:50:43Z",
+      "side": 1,
+      "message": "nitpick, the indent is off",
+      "revId": "c7c48d346010c306a5df6c95d62a30761a7dd52f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
