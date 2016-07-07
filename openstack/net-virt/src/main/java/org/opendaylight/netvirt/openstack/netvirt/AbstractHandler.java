@@ -64,7 +64,8 @@ public abstract class AbstractHandler {
      * @see EventDispatcher
      */
     protected void enqueueEvent(AbstractEvent abstractEvent) {
-        LOG.info("enqueueEvent: evenDispatcher: {} - {}", eventDispatcher, abstractEvent);
+        LOG.debug("enqueueEvent evenDispatcher : {} with event : {}",
+                eventDispatcher, abstractEvent);
         Preconditions.checkNotNull(eventDispatcher);
         eventDispatcher.enqueueEvent(abstractEvent);
     }
