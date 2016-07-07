@@ -16,6 +16,24 @@
       "revId": "f114a14df9c0fd2d5f7b92c6e7fdf1e339fc2b4b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_1ad4031f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-07-07T12:08:03Z",
+      "side": 0,
+      "message": "The actionInfo was supposed to be set in the instructions. But the empty instruction list will indicate a drop action and this was not caught while testing. It will be more apporpriate to set in the instruction\n  instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos)); \n\nSimilar error is present in some of the other drop instruction as well due to copy/paste.",
+      "parentUuid": "9a561d44_1aea430f",
+      "revId": "f114a14df9c0fd2d5f7b92c6e7fdf1e339fc2b4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
