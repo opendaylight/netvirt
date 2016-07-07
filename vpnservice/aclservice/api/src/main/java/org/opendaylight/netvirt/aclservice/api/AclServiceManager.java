@@ -17,9 +17,9 @@ public interface AclServiceManager {
         REMOVE
     }
 
-    public void addAclServiceListner(AclServiceListener aclServiceListner);
+    void addAclServiceListner(AclServiceListener aclServiceListner);
 
-    public void removeAclServiceListner(AclServiceListener aclServiceListner);
+    void removeAclServiceListner(AclServiceListener aclServiceListner);
 
-    public void notify(Interface port, Action action);
+    void notify(Interface port, Action action);
 }
