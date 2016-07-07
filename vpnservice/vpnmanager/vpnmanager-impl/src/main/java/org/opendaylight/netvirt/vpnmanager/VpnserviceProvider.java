@@ -69,8 +69,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
             notificationService.registerNotificationListener(subnetRoutePacketInHandler);
             vpnManager.setVpnInterfaceManager(vpnInterfaceManager);
             createIdPool();
-			
-			RouterInterfaceListener routerListener = new RouterInterfaceListener(dataBroker);
+            RouterInterfaceListener routerListener = new RouterInterfaceListener(dataBroker);
             routerListener.setVpnInterfaceManager(vpnInterfaceManager);
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
@@ -153,7 +152,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
         if (vpnManager != null) {
             return vpnManager.getVpnInstance(vpnName) != null;
         }
-        LOG.info("Could not acquire handle to vpnManager, returning false for existsVpn({})", vpnName);
+        LOG.warn("Could not acquire handle to vpnManager, returning false for existsVpn({})", vpnName);
         return false;
     }
 
