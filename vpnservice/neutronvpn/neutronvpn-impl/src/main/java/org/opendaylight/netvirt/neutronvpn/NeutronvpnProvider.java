@@ -89,11 +89,11 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
             networkListener = new NeutronNetworkChangeListener(dbx, nvManager, nvNatManager);
             subnetListener = new NeutronSubnetChangeListener(dbx, nvManager);
             routerListener = new NeutronRouterChangeListener(dbx, nvManager, nvNatManager);
+            floatingIpMapListener = new NeutronFloatingToFixedIpMappingChangeListener(dbx);
             portListener = new NeutronPortChangeListener(dbx, nvManager, nvNatManager,
                     notificationPublishService,notificationService, floatingIpMapListener);
             portListener.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
-            floatingIpMapListener = new NeutronFloatingToFixedIpMappingChangeListener(dbx);
             nvManager.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
             floatingIpMapListener.setLockManager(lockManager);
