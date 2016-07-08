@@ -80,6 +80,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     public void onSessionInitiated(ProviderContext session) {
         try {
             final DataBroker dbx = session.getSALService(DataBroker.class);
+            floatingIpMapListener = new NeutronFloatingToFixedIpMappingChangeListener(dbx);
             nvNatManager = new NeutronvpnNatManager(dbx, mdsalManager);
             nvManager = new NeutronvpnManager(dbx, mdsalManager,notificationPublishService,notificationService,
                     nvNatManager);
@@ -93,7 +94,6 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
                     notificationPublishService,notificationService, floatingIpMapListener);
             portListener.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
-            floatingIpMapListener = new NeutronFloatingToFixedIpMappingChangeListener(dbx);
             nvManager.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
             floatingIpMapListener.setLockManager(lockManager);
