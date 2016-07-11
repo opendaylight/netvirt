@@ -79,7 +79,7 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
         }
         Uuid networkId = input.getNetworkId();
         Network network = NeutronvpnUtils.getNeutronNetwork(broker, networkId);
-        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+        if (network == null || NeutronvpnUtils.isNetworkTypeGre(network)) {
             //FIXME: This should be removed when support for VLAN and GRE network types is added
             LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}.",
                     input.getName(), network);
@@ -96,7 +96,7 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
         }
         Uuid networkId = input.getNetworkId();
         Network network = NeutronvpnUtils.getNeutronNetwork(broker, networkId);
-        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+        if (network == null || NeutronvpnUtils.isNetworkTypeGre(network)) {
             //FIXME: This should be removed when support for VLAN and GRE network types is added
             LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}.",
                     input.getName(), network);
@@ -114,7 +114,7 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
         }
         Uuid networkId = update.getNetworkId();
         Network network = NeutronvpnUtils.getNeutronNetwork(broker, networkId);
-        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+        if (network == null || NeutronvpnUtils.isNetworkTypeGre(network)) {
             LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}."
                     + " Skipping the processing of Subnet update DCN", update.getName(), network);
             return;

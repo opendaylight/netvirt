@@ -15,6 +15,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLogicalSwitchListener;
 import org.opendaylight.netvirt.elan.l2gw.jobs.AssociateHwvtepToElanJob;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DisAssociateHwvtepFromElanJob;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
@@ -104,7 +105,7 @@ public class L2GatewayConnectionUtils {
 
         Uuid networkUuid = input.getNetworkId();
         ElanInstance elanInstance = elanInstanceManager.getElanInstanceByName(networkUuid.getValue());
-        if (elanInstance == null || elanInstance.getVni() == null) {
+        if (elanInstance == null || !ElanUtils.isVxlan(elanInstance)) {
             LOG.error("Neutron network with id {} is not present", networkUuid.getValue());
         } else {
             Uuid l2GatewayId = input.getL2gatewayId();

@@ -235,7 +235,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
                 }
 
                 // Removing all those MACs from External Devices belonging to this ELAN
-                if ( elanInfo.getVni() != null && elanInfo.getVni() != 0 ) {
+                if (ElanUtils.isVxlan(elanInfo)) {
                     ElanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo, macAddresses);
                 }
             }
@@ -456,7 +456,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
                  */
                 programRemoteDmacFlow(elanInstance, interfaceInfo);
                 // The 1st ElanInterface in a DPN must program the Ext Tunnel table, but only if Elan has VNI
-                if ( elanInstance.getVni() != null && elanInstance.getVni().longValue() != 0 ) {
+                if (ElanUtils.isVxlan(elanInstance)) {
                     setExternalTunnelTable(dpId, elanInstance);
                 }
                 ElanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(dpId, elanInstance);
@@ -912,7 +912,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
                                                           0,  // idleTimeout
                                                           0,  // hardTimeout
                                                           ITMConstants.COOKIE_ITM_EXTERNAL.add(BigInteger.valueOf(elanTag)),
-                                                          buildMatchesForVni(elanInfo.getVni()),
+                                                          buildMatchesForVni(elanInfo.getSegmentationId()),
                                                           getInstructionsExtTunnelTable(elanTag) );
 
         mdsalManager.installFlow(flowEntity);
@@ -954,7 +954,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
         mdsalManager.installFlow(interfaceInfo.getDpId(), flowEntity);
 
         // only if vni is present in elanInfo, perform the following
-        if (elanInfo.getVni() != null && elanInfo.getVni() != 0) {
+        if (ElanUtils.isVxlan(elanInfo)) {
            Flow flowEntity2 = MDSALUtil.buildFlowNew(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE, getUnknownDmacFlowRef(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE, elanTag, /*SH flag*/true),
                 5, elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_UNKNOWN_DMAC.add(BigInteger.valueOf(elanTag)), getMatchesForElanTag(elanTag, /*SH flag*/true),
                 getInstructionsForOutGroup(ElanUtils.getElanLocalBCGID(elanTag)));
@@ -979,7 +979,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
             removeUnknownDmacFlow(dpId, elanInfo);
             removeElanBroadcastGroup(elanInfo, interfaceInfo);
             removeLocalBroadcastGroup(elanInfo, interfaceInfo);
-            if ( elanInfo.getVni() != null && elanInfo.getVni().longValue() != 0 ) {
+            if (ElanUtils.isVxlan(elanInfo)) {
                 unsetExternalTunnelTable(dpId, elanInfo);
             }
             removeFilterEqualsTable(elanInfo, interfaceInfo);
@@ -999,7 +999,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
                                      .build();
         mdsalManager.removeFlow(dpId, flow);
 
-        if ( elanInfo.getVni() != null && elanInfo.getVni() > 0 ) {
+        if (ElanUtils.isVxlan(elanInfo)) {
            Flow flow2 = new FlowBuilder().setId(new FlowId(getUnknownDmacFlowRef(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE,
                                                                                 elanInfo.getElanTag(), /*SH flag*/ true)))
                                         .setTableId(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE)
@@ -1315,7 +1315,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
             elanInterfaceManager.installFlowsAndGroups(elanInstance, interfaceInfo);
             elanInterfaceManager.installMacAddressTables(elanInstance, interfaceInfo);
 
-            if (elanInstance.getVni() != null && elanInstance.getVni() != 0) {
+            if (ElanUtils.isVxlan(elanInstance)) {
                 List<PhysAddress> macAddresses = ElanUtils
                         .getElanInterfaceMacAddresses(interfaceInfo.getInterfaceName());
                 if (macAddresses != null && !macAddresses.isEmpty()) {
@@ -1338,7 +1338,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
             elanInterfaceManager.removeFlowsAndGroups(elanInstance, interfaceInfo);
 
             // Removing MACs from External Devices belonging to this ELAN
-            if (elanInstance.getVni() != null && elanInstance.getVni() != 0) {
+            if (ElanUtils.isVxlan(elanInstance)) {
                 List<PhysAddress> macAddresses = ElanUtils
                         .getElanInterfaceMacAddresses(interfaceInfo.getInterfaceName());
                 if (macAddresses != null && !macAddresses.isEmpty()) {
@@ -1388,7 +1388,7 @@ public class ElanInterfaceManager extends AbstractDataChangeListener<ElanInterfa
             if (interfaceName == null) {
                 continue;
             }
-            List<Action> listActionInfo = ElanUtils.buildItmEgressActions(interfaceName, elanInfo.getVni());
+            List<Action> listActionInfo = ElanUtils.buildItmEgressActions(interfaceName, elanInfo.getSegmentationId());
             listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                     MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
             bucketId++;
