@@ -85,6 +85,7 @@ public class DhcpExternalTunnelManager {
 
     private ConcurrentMap<BigInteger, Set<Pair<IpAddress, String>>> designatedDpnsToTunnelIpElanNameCache = new ConcurrentHashMap<>();
     private ConcurrentMap<Pair<IpAddress, String>, Set<String>> tunnelIpElanNameToVmMacCache = new ConcurrentHashMap<>();
+    private ConcurrentMap<Pair<IpAddress, String>, Set<String>> availableVMCache = new ConcurrentHashMap<>();
     private ConcurrentMap<Pair<BigInteger, String>, Port> vniMacAddressToPortCache = new ConcurrentHashMap<>();
     private ItmRpcService itmRpcService;
     private EntityOwnershipService entityOwnershipService;
@@ -162,9 +163,7 @@ public class DhcpExternalTunnelManager {
     }
 
     public void unInstallDhcpFlowsForVms(String elanInstanceName, List<BigInteger> dpns, String vmMacAddress) {
-        for (BigInteger dpn : dpns) {
-            unInstallDhcpEntries(dpn, vmMacAddress, entityOwnershipService);
-        }
+        unInstallDhcpEntriesOnDpns(dpns, vmMacAddress);
         removeFromLocalCache(elanInstanceName, vmMacAddress);
     }
 
@@ -236,6 +235,20 @@ public class DhcpExternalTunnelManager {
         setOfExistingVmMacAddress.add(vmMacAddress);
         logger.trace("Updating tunnelIpElanNameToVmMacCache for tunnelIpElanName {} value {}", tunnelIpElanName, setOfExistingVmMacAddress);
         tunnelIpElanNameToVmMacCache.put(tunnelIpElanName, setOfExistingVmMacAddress);
+        updateExistingVMTunnelIPCache(tunnelIp, elanInstanceName, vmMacAddress);
+    }
+
+    public void updateExistingVMTunnelIPCache(IpAddress tunnelIp, String elanInstanceName, String vmMacAddress) {
+        Pair<IpAddress, String> tunnelIpElanName = new ImmutablePair<IpAddress, String>(tunnelIp, elanInstanceName);
+        Set<String> listExistingVmMacAddress;
+        listExistingVmMacAddress = availableVMCache.get(tunnelIpElanName);
+        if (null == listExistingVmMacAddress) {
+            listExistingVmMacAddress = new HashSet<String>();
+        }
+        listExistingVmMacAddress.add(vmMacAddress);
+        logger.trace("Updating availableVMCache for tunnelIpElanName {} value {}", tunnelIpElanName,
+                listExistingVmMacAddress);
+        availableVMCache.put(tunnelIpElanName, listExistingVmMacAddress);
     }
 
     public void handleDesignatedDpnDown(BigInteger dpnId, List<BigInteger> listOfDpns) {
@@ -688,15 +701,52 @@ public class DhcpExternalTunnelManager {
     public void unInstallDhcpFlowsForVms(String elanInstanceName, IpAddress tunnelIp, List<BigInteger> dpns) {
         Pair<IpAddress, String> tunnelIpElanNamePair = new ImmutablePair<>(tunnelIp, elanInstanceName);
         Set<String> vmMacs = tunnelIpElanNameToVmMacCache.get(tunnelIpElanNamePair);
-        logger.trace("In unInstallFlowsForVms elanInstanceName {}, tunnelIp {}, dpns {}, vmMacs {}", elanInstanceName, tunnelIp, dpns, vmMacs);
+        logger.trace("In unInstallFlowsForVms elanInstanceName {}, tunnelIp {}, dpns {}, vmMacs {}",
+                elanInstanceName, tunnelIp, dpns, vmMacs);
         if (vmMacs == null) {
             return;
         }
         for (String vmMacAddress : vmMacs) {
-            for (BigInteger dpn : dpns) {
-                unInstallDhcpEntries(dpn, vmMacAddress, entityOwnershipService);
-            }
+            unInstallDhcpEntriesOnDpns(dpns, vmMacAddress);
         }
         tunnelIpElanNameToVmMacCache.remove(tunnelIpElanNamePair);
     }
+
+    public void removeFromAvailableCache(Pair<IpAddress, String> tunnelIpElanName) {
+        availableVMCache.remove(tunnelIpElanName);
+    }
+
+    private void unInstallDhcpEntriesOnDpns(List<BigInteger> dpns, String vmMacAddress) {
+        for (BigInteger dpn : dpns) {
+            unInstallDhcpEntries(dpn, vmMacAddress, entityOwnershipService);
+        }
+    }
+
+    public IpAddress getTunnelIpBasedOnElan(String elanInstanceName, String vmMacAddress) {
+        if (logger.isTraceEnabled()) {
+            logger.trace("DhcpExternalTunnelManager getTunnelIpBasedOnElan elanInstanceName " + elanInstanceName);
+        }
+        IpAddress tunnelIp = null;
+        Set<Pair<IpAddress, String>> tunnelElanKeySet = availableVMCache.keySet();
+        Set<String> listExistingVmMacAddress;
+        for (Pair<IpAddress, String> pair : tunnelElanKeySet) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("DhcpExternalTunnelManager getTunnelIpBasedOnElan left  " + pair.getLeft() + " right:" +
+                        pair.getRight());
+            }
+            if (pair.getRight().trim().equalsIgnoreCase(elanInstanceName.trim())) {
+                listExistingVmMacAddress = availableVMCache.get(pair);
+                if (listExistingVmMacAddress != null && !listExistingVmMacAddress.isEmpty() &&
+                        listExistingVmMacAddress.contains(vmMacAddress)) {
+                    tunnelIp = pair.getLeft();
+                    break;
+                }
+            }
+        }
+        if (logger.isTraceEnabled()) {
+            logger.trace("DhcpExternalTunnelManager getTunnelIpBasedOnElan returned tunnelIP " + tunnelIp);
+        }
+        return tunnelIp;
+    }
+
 }
