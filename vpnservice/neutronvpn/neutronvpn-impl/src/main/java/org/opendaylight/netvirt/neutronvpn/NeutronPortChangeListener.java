@@ -261,7 +261,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             LOG.debug("Adding VPN Interface");
             nvpnManager.createVpnInterface(vpnId, port);
             Uuid routerId = NeutronvpnUtils.getVpnMap(broker, vpnId).getRouterId();
-            if(routerId != null) {
+            if (routerId != null) {
                 nvpnManager.addToNeutronRouterInterfacesMap(routerId, port.getUuid().getValue());
             }
         }
@@ -283,12 +283,12 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         // ELAN interface is also implicitly deleted as part of this operation
         LOG.debug("Of-port-interface removal", port);
         deleteOfPortInterface(port);
-
-        Uuid routerId = NeutronvpnUtils.getVpnMap(broker, vpnId).getRouterId();
-        if(routerId != null) {
-            nvpnManager.removeFromNeutronRouterInterfacesMap(routerId, port.getUuid().getValue());
+        if (vpnId != null) {
+            Uuid routerId = NeutronvpnUtils.getVpnMap(broker, vpnId).getRouterId();
+            if (routerId != null) {
+                nvpnManager.removeFromNeutronRouterInterfacesMap(routerId, port.getUuid().getValue());
+            }
         }
-
     }
 
     private void handleNeutronPortUpdated(Port portoriginal, Port portupdate) {
