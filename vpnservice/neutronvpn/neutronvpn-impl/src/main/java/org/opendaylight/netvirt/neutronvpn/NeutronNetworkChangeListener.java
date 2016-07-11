@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
@@ -80,9 +81,9 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         if (LOG.isTraceEnabled()) {
             LOG.trace("Adding Network : key: " + identifier + ", value=" + input);
         }
-        if (NeutronvpnUtils.isNetworkTypeVlanOrGre(input)) {
-            //FIXME: This should be removed when support for VLAN and GRE network types is added
-            LOG.error("neutron vpn doesn't support vlan/gre network provider type for this network {}.", input);
+        if (!NeutronvpnUtils.isNetworkTypeSupported(input)) {
+            //FIXME: This should be removed when support for GRE network types is added
+            LOG.error("Neutronvpn doesn't support gre network provider type for this network {}.", input);
             return;
         }
         //Create ELAN instance for this network
@@ -99,9 +100,9 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         if (LOG.isTraceEnabled()) {
             LOG.trace("Removing Network : key: " + identifier + ", value=" + input);
         }
-        if (NeutronvpnUtils.isNetworkTypeVlanOrGre(input)) {
-            //FIXME: This should be removed when support for VLAN and GRE network types is added
-            LOG.error("Neutronvpn doesn't support vlan/gre network provider type for this network {}.", input);
+        if (!NeutronvpnUtils.isNetworkTypeSupported(input)) {
+            //FIXME: This should be removed when support for GRE network types is added
+            LOG.error("Neutronvpn doesn't support gre network provider type for this network {}.", input);
             return;
         }
         //Delete ELAN instance for this network
@@ -122,10 +123,14 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
 
     private void createElanInstance(Network input) {
         String elanInstanceName = input.getUuid().getValue();
+        Class<? extends SegmentTypeBase> segmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(input);
         String segmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(input);
         ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName);
-        if (segmentationId != null) {
-            elanInstanceBuilder.setVni(Long.valueOf(segmentationId));
+        if (segmentType != null) {
+            elanInstanceBuilder.setSegmentType(segmentType);
+            if (segmentationId != null) {
+                elanInstanceBuilder.setSegmentationId(Long.valueOf(segmentationId));
+            }
         }
         elanInstanceBuilder.setKey(new ElanInstanceKey(elanInstanceName));
         ElanInstance elanInstance = elanInstanceBuilder.build();

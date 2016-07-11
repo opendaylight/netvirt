@@ -42,10 +42,18 @@ module elan {
                 description "ELAN unique identifier which is unique across all the tenants.
                              This will be created internally and if provided, the value will be discarded.";
             }
-            leaf vni {
-                type    uint32;
-                description "Optional. Network identifier. It's mandatory when there are external devices
-                             participating in the ELAN";
+            leaf segment-type {
+                description "Optional. Network segment type. It's mandatory when there are external
+                                devices participating in the ELAN";
+                type identityref {
+                    base segment-type-base;
+                }
+            }
+            leaf segmentation-id {
+                type uint32;
+                description "Optional. Isolated segment on the physical network. For example,
+                                if segment-type is vlan, this ID is a vlan identifier. If segment-type
+                                is vxlan, this ID is a vni";
             }
             leaf mac-timeout {
                 type uint32 {
@@ -245,4 +253,29 @@ module elan {
             }
         }
     }
+
+    identity segment-type-base {
+        description "Base entity for all network segment types";
+    }
+
+    identity segment-type-flat {
+        description "Flat network segment type";
+        base segment-type-base;
+    }
+
+    identity segment-type-vlan {
+        description "VLAN network segment type";
+        base segment-type-base;
+    }
+
+    identity segment-type-vxlan {
+        description "VxLAN network segment type";
+        base segment-type-base;
+    }
+
+    identity segment-type-gre {
+        description "GRE network segment type";
+        base segment-type-base;
+    }
+
 }
