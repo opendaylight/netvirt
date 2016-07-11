@@ -356,7 +356,7 @@ public class ElanL2GatewayUtils {
             for (LocalUcastMacs localUcastMac : l2gwDeviceLocalMacs) {
                 //TODO batch these ops
                 ElanUtils.installDmacFlowsToExternalRemoteMac(dpnId, l2gwDevice.getHwvtepNodeId(), elan.getElanTag(),
-                        elan.getVni(), localUcastMac.getMacEntryKey().getValue(), elanName);
+                        elan.getSegmentationId(), localUcastMac.getMacEntryKey().getValue(), elanName);
             }
             LOG.debug("Installing L2gw device [{}] local macs [size: {}] in dpn [{}] for elan [{}]",
                     l2gwDevice.getHwvtepNodeId(), l2gwDeviceLocalMacs.size(), dpnId, elanName);
@@ -403,7 +403,7 @@ public class ElanL2GatewayUtils {
                                 for (DpnInterfaces elanDpn : elanDpns) {
                                     // TODO batch the below call
                                     fts.addAll(ElanUtils.installDmacFlowsToExternalRemoteMac(elanDpn.getDpId(),
-                                            extDeviceNodeId, elan.getElanTag(), elan.getVni(), macToBeAdded,
+                                            extDeviceNodeId, elan.getElanTag(), elan.getSegmentationId(), macToBeAdded,
                                             elanInstanceName));
                                 }
                             } else {
