@@ -1,5 +1,9 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608;
 
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefixBuilder;
 
 /**
  * The purpose of generated class in src/main/java for Union types is to create new instances of unions from a string representation.
@@ -13,7 +17,12 @@ package org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev1606
 public class IpPrefixOrAddressBuilder {
 
     public static IpPrefixOrAddress getDefaultInstance(java.lang.String defaultValue) {
-        throw new java.lang.UnsupportedOperationException("Not yet implemented");
+        try {
+            IpPrefix ipPrefix = IpPrefixBuilder.getDefaultInstance(defaultValue);
+            return new IpPrefixOrAddress(ipPrefix);
+        } catch (IllegalArgumentException e) {
+            IpAddress ipAddress = IpAddressBuilder.getDefaultInstance(defaultValue);
+            return new IpPrefixOrAddress(ipAddress);
+        }
     }
-
 }
