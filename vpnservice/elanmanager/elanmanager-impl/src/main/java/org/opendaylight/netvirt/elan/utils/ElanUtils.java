@@ -1613,5 +1613,9 @@ public class ElanUtils {
         }
     }
 
+    public static boolean isVxlan(ElanInstance elanInstance) {
+        return elanInstance != null && ElanInstance.SegmentType.Vxlan.equals(elanInstance.getSegmentType())
+                && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().longValue() != 0;
+    }
 }
 
