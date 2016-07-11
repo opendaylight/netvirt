@@ -122,6 +122,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return elanInterfaceManager;
     }
 
+    @Override
     protected InstanceIdentifier<ElanInterface> getWildCardPath() {
         return InstanceIdentifier.create(ElanInterfaces.class).child(ElanInterface.class);
     }
@@ -171,7 +172,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 removeUnknownDmacFlow(dpId, elanInfo, deleteFlowGroupTx);
                 removeElanBroadcastGroup(elanInfo, interfaceInfo, deleteFlowGroupTx);
                 removeLocalBroadcastGroup(elanInfo, interfaceInfo, deleteFlowGroupTx);
-                if ( elanInfo.getVni() != null && elanInfo.getVni().longValue() != 0 ) {
+                if (ElanUtils.isVxlan(elanInfo)) {
                     unsetExternalTunnelTable(dpId, elanInfo);
                 }
             } else {
@@ -238,7 +239,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     }
 
                     // Removing all those MACs from External Devices belonging to this ELAN
-                    if ( elanInfo.getVni() != null && elanInfo.getVni() != 0 ) {
+                    if (ElanUtils.isVxlan(elanInfo)) {
                         ElanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo, macAddresses);
                     }
                 }
@@ -457,7 +458,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 // ELAN's 1st ElanInterface added to this DPN
                 dpnInterfaces = createElanInterfacesList(elanInstanceName, interfaceName, dpId, tx);
                 // The 1st ElanInterface in a DPN must program the Ext Tunnel table, but only if Elan has VNI
-                if ( elanInstance.getVni() != null && elanInstance.getVni().longValue() != 0 ) {
+                if (ElanUtils.isVxlan(elanInstance)) {
                     setExternalTunnelTable(dpId, elanInstance);
                 }
                 ElanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(dpId, elanInstance);
@@ -894,7 +895,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             0,  // idleTimeout
             0,  // hardTimeout
             ITMConstants.COOKIE_ITM_EXTERNAL.add(BigInteger.valueOf(elanTag)),
-            buildMatchesForVni(elanInfo.getVni()),
+            buildMatchesForVni(elanInfo.getSegmentationId()),
             getInstructionsExtTunnelTable(elanTag) );
 
         elanServiceProvider.getMdsalManager().installFlow(flowEntity);
@@ -936,7 +937,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         elanServiceProvider.getMdsalManager().addFlowToTx(dpId, flowEntity, writeFlowGroupTx);
 
         // only if vni is present in elanInfo, perform the following
-        if (elanInfo.getVni() != null && elanInfo.getVni() != 0) {
+        if (ElanUtils.isVxlan(elanInfo)) {
             Flow flowEntity2 = MDSALUtil.buildFlowNew(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE, getUnknownDmacFlowRef(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE, elanTag, /*SH flag*/true),
                 5, elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_UNKNOWN_DMAC.add(BigInteger.valueOf(elanTag)), getMatchesForElanTag(elanTag, /*SH flag*/true),
                 getInstructionsForOutGroup(ElanUtils.getElanLocalBCGID(elanTag)));
@@ -954,7 +955,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             .build();
         elanServiceProvider.getMdsalManager().removeFlowToTx(dpId, flow, deleteFlowGroupTx);
 
-        if ( elanInfo.getVni() != null && elanInfo.getVni() > 0 ) {
+        if (ElanUtils.isVxlan(elanInfo)) {
             Flow flow2 = new FlowBuilder().setId(new FlowId(getUnknownDmacFlowRef(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE,
                 elanInfo.getElanTag(), /*SH flag*/ true)))
                 .setTableId(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE)
@@ -1237,7 +1238,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             if (interfaceName == null) {
                 continue;
             }
-            List<Action> listActionInfo = ElanUtils.buildItmEgressActions(interfaceName, elanInfo.getVni());
+            List<Action> listActionInfo = ElanUtils.buildItmEgressActions(interfaceName, elanInfo.getSegmentationId());
             listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                 MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
             bucketId++;
