@@ -114,7 +114,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             LOG.trace("Adding Port : key: " + identifier + ", value=" + input);
         }
         Network network = NeutronvpnUtils.getNeutronNetwork(broker, input.getNetworkId());
-        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+        if (network == null || NeutronvpnUtils.isNetworkTypeGre(network)) {
             //FIXME: This should be removed when support for VLAN and GRE network types is added
             LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}.",
                     input.getName(), network);
@@ -142,7 +142,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             LOG.trace("Removing Port : key: " + identifier + ", value=" + input);
         }
         Network network = NeutronvpnUtils.getNeutronNetwork(broker, input.getNetworkId());
-        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+        if (network == null || NeutronvpnUtils.isNetworkTypeGre(network)) {
             //FIXME: This should be removed when support for VLAN and GRE network types is added
             LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}.",
                     input.getName(), network);
@@ -170,7 +170,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         }
 
         Network network = NeutronvpnUtils.getNeutronNetwork(broker, update.getNetworkId());
-        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+        if (network == null || NeutronvpnUtils.isNetworkTypeGre(network)) {
             LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}."
                     + " Skipping the processing of Port update DCN", update.getName(), network);
             return;

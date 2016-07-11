@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableBiMap;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -20,14 +21,18 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance.SegmentType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
@@ -37,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -80,10 +86,19 @@ import java.util.concurrent.Future;
 public class NeutronvpnUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(NeutronvpnUtils.class);
+    private static final ImmutableBiMap<Class<? extends NetworkTypeBase>, SegmentType> NETWORK_MAP =
+            new ImmutableBiMap.Builder<Class<? extends NetworkTypeBase>, SegmentType>()
+            .put(NetworkTypeFlat.class, SegmentType.Flat)
+            .put(NetworkTypeGre.class, SegmentType.Gre)
+            .put(NetworkTypeVlan.class, SegmentType.Vlan)
+            .put(NetworkTypeVxlan.class, SegmentType.Vxlan)
+            .build();
+
     public static ConcurrentHashMap<Uuid, Network> networkMap = new ConcurrentHashMap<Uuid, Network>();
     public static ConcurrentHashMap<Uuid, Router> routerMap = new ConcurrentHashMap<Uuid, Router>();
     public static ConcurrentHashMap<Uuid, Port> portMap = new ConcurrentHashMap<Uuid, Port>();
     public static ConcurrentHashMap<Uuid, Subnet> subnetMap = new ConcurrentHashMap<Uuid, Subnet>();
+
 
     private NeutronvpnUtils() {
         throw new UnsupportedOperationException("Utility class should not be instantiated");
@@ -462,6 +477,11 @@ public class NeutronvpnUtils {
         subnetMap.remove(subnet.getUuid());
     }
 
+    public static SegmentType getSegmentTypeFromNeutronNetwork(Network network) {
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        return providerExtension != null ? NETWORK_MAP.get(providerExtension.getNetworkType()) : null;
+    }
+
     static InstanceIdentifier<PortFixedipToPortName> buildFixedIpToPortNameIdentifier(String fixedIp) {
         InstanceIdentifier<PortFixedipToPortName> id = InstanceIdentifier.builder(NeutronPortData.class).child
                 (PortFixedipToPortName.class, new PortFixedipToPortNameKey(fixedIp)).build();
@@ -516,11 +536,10 @@ public class NeutronvpnUtils {
         return result;
     }
 
-    static boolean isNetworkTypeVlanOrGre(Network network) {
+    static boolean isNetworkTypeGre(Network network) {
         NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
         if (npe != null && npe.getNetworkType() != null) {
-            if (npe.getNetworkType().isAssignableFrom(NetworkTypeVlan.class) ||
-                    npe.getNetworkType().isAssignableFrom(NetworkTypeGre.class)) {
+            if (npe.getNetworkType().isAssignableFrom(NetworkTypeGre.class)) {
                 logger.trace("Network is of type {}", npe.getNetworkType());
                 return true;
             }
