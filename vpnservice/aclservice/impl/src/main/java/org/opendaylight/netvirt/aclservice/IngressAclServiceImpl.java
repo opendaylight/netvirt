@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.aclservice;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -27,11 +29,20 @@ import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.AceType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +71,7 @@ public class IngressAclServiceImpl implements AclServiceListener {
     @Override
     public boolean applyAcl(Interface port) {
 
-        if (!AclServiceUtils.isPortSecurityEnabled(port, dataBroker)) {
+        if (!AclServiceUtils.isPortSecurityEnabled(port)) {
             return false;
         }
         BigInteger dpId = AclServiceUtils.getDpnForInterface(interfaceManager, port.getName());
@@ -68,6 +79,8 @@ public class IngressAclServiceImpl implements AclServiceListener {
             interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
         String attachMac = interfaceState.getPhysAddress().getValue();
         programFixedSecurityGroup(dpId, "", attachMac, NwConstants.ADD_FLOW);
+        List<Uuid> securityGroupsUuid = AclServiceUtils.getPortSecurityGroups(port);
+        programCustomRules(port, securityGroupsUuid, dpId, attachMac,NwConstants.ADD_FLOW );
 
         // TODO: uncomment bindservice() when interface mgr supports egress
         // service binding also when acl flow programming is implemented
@@ -83,7 +96,7 @@ public class IngressAclServiceImpl implements AclServiceListener {
 
     @Override
     public boolean removeAcl(Interface port) {
-        if (!AclServiceUtils.isPortSecurityEnabled(port, dataBroker)) {
+        if (!AclServiceUtils.isPortSecurityEnabled(port)) {
             return false;
         }
         BigInteger dpId = AclServiceUtils.getDpnForInterface(interfaceManager, port.getName());
@@ -91,7 +104,8 @@ public class IngressAclServiceImpl implements AclServiceListener {
             interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
         String attachMac = interfaceState.getPhysAddress().getValue();
         programFixedSecurityGroup(dpId, "", attachMac, NwConstants.DEL_FLOW);
-
+        List<Uuid> securityGroupsUuid = AclServiceUtils.getPortSecurityGroups(port);
+        programCustomRules(port, securityGroupsUuid, dpId, attachMac,NwConstants.DEL_FLOW );
         // TODO: uncomment bindservice() when interface mgr supports egress
         // service binding also when acl flow programming is implemented
         // unbindService(port.getName());
@@ -149,6 +163,60 @@ public class IngressAclServiceImpl implements AclServiceListener {
         programIngressAclFixedConntrackRule(dpid, attachMac, addOrRemove);
         //}
         programArpRule(dpid,attachMac, addOrRemove);
+    }
+
+    /**
+     * Programs the custom flows.
+     *
+     * @param port the interface
+     * @param securityGroupsUuid the list of SG uuid to be applied
+     * @param dpId the dpId
+     * @param attachMac the attached mac
+     * @param addOrRemove whether to delete or add flow
+     */
+    private void programCustomRules(Interface port, List<Uuid> securityGroupsUuid, BigInteger dpId, String attachMac,
+                                    int addOrRemove) {
+        for (Uuid sgUuid :securityGroupsUuid ) {
+            Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
+            AccessListEntries accessListEntries = acl.getAccessListEntries();
+            List<Ace> aceList = accessListEntries.getAce();
+            for (Ace ace: aceList) {
+                SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
+                if (!aceAttr.getDirection().equals(DirectionIngress.class)) {
+                    continue;
+                }
+                Matches matches = ace.getMatches();
+
+                AceType aceType = matches.getAceType();
+                Map<String,List<MatchInfoBase>>  flowMap = null;
+                if (aceType instanceof AceIp) {
+                    flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
+                }
+                if (null == flowMap) {
+                    return;
+                }
+                for ( String  flowName : flowMap.keySet()) {
+                    List<MatchInfoBase> flows = flowMap.get(flowName);
+                    flowName = flowName + "Ingress" + attachMac;
+                    flows .add(new MatchInfo(MatchFieldType.eth_dst,
+                        new String[] { attachMac }));
+                    /*flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
+                        new long[] { AclServiceUtils.TRACKED_NEW_CT_STATE,
+                                     AclServiceUtils.TRACKED_NEW_CT_STATE_MASK}));*/
+                    List<InstructionInfo> instructions = new ArrayList<>();
+                    List<ActionInfo> actionsInfos = new ArrayList<>();
+                    actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
+                        new String[] {"1", "0", "0", "255"}, 2));
+                    instructions.add(new InstructionInfo(InstructionType.apply_actions,
+                        actionsInfos));
+                    instructions.add(new InstructionInfo(InstructionType.goto_table,
+                        new long[] { AclConstants.INGRESS_ACL_NEXT_TABLE_ID }));
+                    syncFlow(dpId, AclConstants.INGRESS_ACL_TABLE_ID, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY,
+                        "ACL", 0, 0, AclServiceUtils.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
+                }
+            }
+        }
+
     }
 
     /**
@@ -241,7 +309,7 @@ public class IngressAclServiceImpl implements AclServiceListener {
             new long[] { NwConstants.ETHTYPE_IPV4 }));
         matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
             new long[] {conntrackState, conntrackMask}));
-        matches.add(new MatchInfo(MatchFieldType.eth_src,
+        matches.add(new MatchInfo(MatchFieldType.eth_dst,
             new String[] { attachMac }));
         List<InstructionInfo> instructions = new ArrayList<>();
 
@@ -274,7 +342,7 @@ public class IngressAclServiceImpl implements AclServiceListener {
                 new long[] { NwConstants.ETHTYPE_IPV4 }));
         matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
             new long[] {conntrackState, conntrackMask}));
-        matches.add(new MatchInfo(MatchFieldType.eth_src,
+        matches.add(new MatchInfo(MatchFieldType.eth_dst,
             new String[] { attachMac }));
         List<InstructionInfo> instructions = new ArrayList<>();
 
@@ -307,7 +375,7 @@ public class IngressAclServiceImpl implements AclServiceListener {
                 new long[] { NwConstants.ETHTYPE_IPV4 }));
         matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
             new long[] { conntrackState, conntrackMask}));
-        matches.add(new MatchInfo(MatchFieldType.eth_src,
+        matches.add(new MatchInfo(MatchFieldType.eth_dst,
             new String[] { attachMac }));
         List<InstructionInfo> instructions = new ArrayList<>();
 
@@ -329,8 +397,8 @@ public class IngressAclServiceImpl implements AclServiceListener {
     private void programArpRule(BigInteger dpId, String attachMac, int addOrRemove) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV4 }));
-        matches.add(new MatchInfo(MatchFieldType.arp_tpa,
+                new long[] { NwConstants.ETHTYPE_ARP }));
+        matches.add(new MatchInfo(MatchFieldType.arp_tha,
                     new String[] { attachMac }));
 
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -365,14 +433,13 @@ public class IngressAclServiceImpl implements AclServiceListener {
             int idleTimeOut, int hardTimeOut, BigInteger cookie, List<? extends MatchInfoBase>  matches,
             List<InstructionInfo> instructions, int addOrRemove) {
         if (addOrRemove == NwConstants.DEL_FLOW) {
-            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                flowName, AclServiceUtils.PROTO_MATCH_PRIORITY, "ACL", idleTimeOut, hardTimeOut,
-                AclServiceUtils.COOKIE_ACL_BASE, matches, null);
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,flowId,
+                priority, flowName , idleTimeOut, hardTimeOut, cookie, matches, null);
             logger.trace("Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
             mdsalManager.removeFlow(flowEntity);
         } else {
-            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                flowId ,priority, flowName, idleTimeOut, hardTimeOut, cookie, matches, instructions);
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId,
+                priority, flowName, idleTimeOut, hardTimeOut, cookie, matches, instructions);
             logger.trace("Installing DpnId {}, flowId {}", dpId, flowId);
             mdsalManager.installFlow(flowEntity);
         }
@@ -394,7 +461,7 @@ public class IngressAclServiceImpl implements AclServiceListener {
             "Tracked_Related", AclServiceUtils.TRACKED_REL_CT_STATE, AclServiceUtils.TRACKED_CT_STATE_MASK, write );
         programConntrackDropRule(dpid, attachMac, AclServiceUtils.CT_STATE_NEW_PRIORITY_DROP,
             "Tracked_New", AclServiceUtils.TRACKED_NEW_CT_STATE, AclServiceUtils.TRACKED_NEW_CT_STATE_MASK, write );
-        programConntrackForwardRule(dpid, attachMac, AclServiceUtils.CT_STATE_NEW_PRIORITY_DROP,
+        programConntrackDropRule(dpid, attachMac, AclServiceUtils.CT_STATE_NEW_PRIORITY_DROP,
             "Tracked_Invalid",AclServiceUtils.TRACKED_INV_CT_STATE, AclServiceUtils.TRACKED_INV_CT_STATE_MASK,
             write );
         logger.info("programIngressAclFixedConntrackRule :  default connection tracking rule are added.");
