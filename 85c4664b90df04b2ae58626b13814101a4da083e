@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_d358ac34",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1593,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-11T11:34:47Z",
+      "side": 1,
+      "message": "Nitpick. VXLAN is a single acronym and the convention for this project is that only the first letter is capitalized (like \"getVni\") so this should be isVxlan.",
+      "revId": "85c4664b90df04b2ae58626b13814101a4da083e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
