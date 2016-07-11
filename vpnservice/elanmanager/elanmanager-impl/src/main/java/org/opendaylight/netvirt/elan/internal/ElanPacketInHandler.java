@@ -7,38 +7,35 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
-
+import java.util.Arrays;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.elan.utils.ElanConstants;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
-import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.NoMatch;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketInReason;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.NoMatch;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketInReason;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
-
-import java.util.Arrays;
 
 @SuppressWarnings("deprecation")
 public class ElanPacketInHandler implements PacketProcessingListener {
@@ -58,9 +55,9 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
     @Override
     public void onPacketReceived(PacketReceived notification) {
-        Class<? extends PacketInReason>  pktInReason =  notification.getPacketInReason();
+        Class<? extends PacketInReason> pktInReason = notification.getPacketInReason();
         short tableId = notification.getTableId().getValue();
-        if(pktInReason == NoMatch.class && tableId == ElanConstants.ELAN_SMAC_TABLE) {
+        if (pktInReason == NoMatch.class && tableId == ElanConstants.ELAN_SMAC_TABLE) {
             try {
                 byte[] data = notification.getPayload();
                 Ethernet res = new Ethernet();
@@ -88,29 +85,31 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 }
                 String elanName = elanTagName.getName();
                 MacEntry macEntry = ElanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
-                if(macEntry != null && macEntry.getInterface() == interfaceName) {
+                if (macEntry != null && macEntry.getInterface() == interfaceName) {
                     BigInteger macTimeStamp = macEntry.getControllerLearnedForwardingEntryTimestamp();
-                    if (System.currentTimeMillis() > macTimeStamp.longValue()+2000) {
+                    if (System.currentTimeMillis() > macTimeStamp.longValue() + 2000) {
                         /*
-                         * Protection time expired. Even though the MAC has been learnt (it is in the cache)
-                         * the packets are punted to controller. Which means, the the flows were not successfully
-                         * created in the DPN, but the MAC entry has been added successfully in the cache.
+                         * Protection time expired. Even though the MAC has been learnt (it is in the cache) the packets
+                         * are punted to controller. Which means, the the flows were not successfully created in the
+                         * DPN, but the MAC entry has been added successfully in the cache.
                          *
-                         * So, the cache has to be cleared and the flows and cache should be recreated (clearing
-                         * of cache is required so that the timestamp is updated).
+                         * So, the cache has to be cleared and the flows and cache should be recreated (clearing of
+                         * cache is required so that the timestamp is updated).
                          */
-                        InstanceIdentifier<MacEntry> macEntryId =  ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+                        InstanceIdentifier<MacEntry> macEntryId = ElanUtils
+                                .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
                         ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
                     } else {
                         // Protection time running. Ignore packets for 2 seconds
                         return;
                     }
-                } else if(macEntry != null) {
+                } else if (macEntry != null) {
                     // MAC address has moved. Overwrite the mapping and replace MAC flows
                     long macTimeStamp = macEntry.getControllerLearnedForwardingEntryTimestamp().longValue();
-                    if (System.currentTimeMillis() > macTimeStamp+1000) {
+                    if (System.currentTimeMillis() > macTimeStamp + 1000) {
 
-                        InstanceIdentifier<MacEntry> macEntryId =  ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+                        InstanceIdentifier<MacEntry> macEntryId = ElanUtils
+                                .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
                         ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
                         tryAndRemoveInvalidMacEntry(elanName, macEntry);
                     } else {
@@ -120,14 +119,19 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                         return;
                     }
                 }
-                BigInteger timeStamp = new BigInteger(String.valueOf((long)System.currentTimeMillis()));
-                macEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress).setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp).setIsStaticAddress(false).build();
-                InstanceIdentifier<MacEntry> macEntryId = ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+                BigInteger timeStamp = new BigInteger(String.valueOf((long) System.currentTimeMillis()));
+                macEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
+                        .setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp)
+                        .setIsStaticAddress(false).build();
+                InstanceIdentifier<MacEntry> macEntryId = ElanUtils
+                        .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry);
-                InstanceIdentifier<MacEntry> elanMacEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
+                InstanceIdentifier<MacEntry> elanMacEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName,
+                        physAddress);
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, elanMacEntryId, macEntry);
                 ElanInstance elanInstance = ElanUtils.getElanInstanceByName(elanName);
-                ElanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), elanInstance.getMacTimeout(), macAddress);
+                ElanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName),
+                        elanInstance.getMacTimeout(), macAddress);
 
                 BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
                 ElanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
@@ -139,12 +143,10 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
     }
 
-
     /*
- * Though this method is a little costlier because it uses try-catch construct, it is used
- * only in rare scenarios like MAC movement or invalid Static MAC having been added on a
- * wrong ELAN.
- */
+     * Though this method is a little costlier because it uses try-catch construct, it is used only in rare scenarios
+     * like MAC movement or invalid Static MAC having been added on a wrong ELAN.
+     */
     private void tryAndRemoveInvalidMacEntry(String elanName, MacEntry macEntry) {
         ElanInstance elanInfo = ElanUtils.getElanInstanceByName(elanName);
         if (elanInfo == null) {
@@ -155,8 +157,11 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
         InterfaceInfo oldInterfaceLport = interfaceManager.getInterfaceInfo(macEntry.getInterface());
         if (oldInterfaceLport == null) {
-            logger.warn(String.format("MAC %s is been added (either statically or dynamically) on an invalid Logical Port %s. "
-                    + "Manual cleanup may be necessary", macEntry.getMacAddress(), macEntry.getInterface()));
+            logger.warn(
+                    String.format(
+                            "MAC %s is been added (either statically or dynamically) on an invalid Logical Port %s. "
+                                    + "Manual cleanup may be necessary",
+                            macEntry.getMacAddress(), macEntry.getInterface()));
             return;
         }
         ElanUtils.deleteMacFlows(elanInfo, oldInterfaceLport, macEntry);
