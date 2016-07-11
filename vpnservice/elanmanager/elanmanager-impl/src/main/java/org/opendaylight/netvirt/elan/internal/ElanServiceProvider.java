@@ -8,11 +8,11 @@
 
 package org.opendaylight.netvirt.elan.internal;
 
+import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -20,19 +20,19 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.netvirt.elan.l2gw.internal.ElanL2GatewayProvider;
-import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
-import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
-import org.opendaylight.netvirt.elan.utils.ElanConstants;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
-import org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
-import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.api.IITMProvider;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.elan.l2gw.internal.ElanL2GatewayProvider;
+import org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl;
+import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
+import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
+import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
@@ -56,8 +56,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
 
 public class ElanServiceProvider implements BindingAwareProvider, IElanService, AutoCloseable {
 
@@ -100,7 +98,6 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         return dataStoreJobCoordinator;
     }
 
-
     public ElanServiceProvider(RpcProviderRegistry rpcRegistry) {
         rpcProviderRegistry = rpcRegistry;
         elanStatusMonitor.registerMbean();
@@ -140,19 +137,16 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             elanInstanceManager.setElanInterfaceManager(elanInterfaceManager);
             elanInstanceManager.setInterfaceManager(interfaceManager);
 
-
             elanNodeListener = new ElanNodeListener(broker, mdsalManager);
             elanOvsdbNodeListener = new ElanOvsdbNodeListener(broker, generateIntBridgeMac);
 
             elanPacketInHandler = new ElanPacketInHandler(broker);
             elanPacketInHandler.setInterfaceManager(interfaceManager);
 
-
             elanSmacFlowEventListener = new ElanSmacFlowEventListener(broker);
             elanSmacFlowEventListener.setMdSalApiManager(mdsalManager);
             elanSmacFlowEventListener.setInterfaceManager(interfaceManager);
             elanSmacFlowEventListener.setSalFlowService(session.getRpcService(SalFlowService.class));
-
 
             // Initialize statistics rpc provider for elan
             ElanStatisticsService interfaceStatsService = new ElanStatisticsImpl(broker, interfaceManager,
