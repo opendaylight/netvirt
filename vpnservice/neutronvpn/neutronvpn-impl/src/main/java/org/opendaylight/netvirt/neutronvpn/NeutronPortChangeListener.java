@@ -21,7 +21,6 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataCh
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -38,18 +37,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortAddedToSubnetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortRemovedFromSubnetBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.port.data.PortFixedipToPortNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
@@ -74,8 +68,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private NotificationService notificationService;
 
 
-    public NeutronPortChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,
-                                     NeutronvpnNatManager nVpnNatMgr,
+    public NeutronPortChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,NeutronvpnNatManager nVpnNatMgr,
                                      NotificationPublishService notiPublishService, NotificationService notiService) {
         super(Port.class);
         broker = db;
@@ -121,7 +114,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             LOG.trace("Adding Port : key: " + identifier + ", value=" + input);
         }
         Network network = NeutronvpnUtils.getNeutronNetwork(broker, input.getNetworkId());
-        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+        if (network == null || NeutronvpnUtils.isNetworkTypeGre(network)) {
             //FIXME: This should be removed when support for VLAN and GRE network types is added
             LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}.",
                     input.getName(), network);
@@ -140,6 +133,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
             handleNeutronPortCreated(input);
         }
+
     }
 
     @Override
@@ -148,10 +142,10 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             LOG.trace("Removing Port : key: " + identifier + ", value=" + input);
         }
         Network network = NeutronvpnUtils.getNeutronNetwork(broker, input.getNetworkId());
-        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+        if (network == null || NeutronvpnUtils.isNetworkTypeGre(network)) {
             //FIXME: This should be removed when support for VLAN and GRE network types is added
-            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of " +
-                    "network {}.", input.getName(), network);
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}.",
+                    input.getName(), network);
             return;
         }
         NeutronvpnUtils.removeFromPortCache(input);
@@ -174,17 +168,18 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             LOG.trace("Updating Port : key: " + identifier + ", original value=" + original + ", update value=" +
                     update);
         }
+
         Network network = NeutronvpnUtils.getNeutronNetwork(broker, update.getNetworkId());
-        if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
+        if (network == null || NeutronvpnUtils.isNetworkTypeGre(network)) {
             LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}."
                     + " Skipping the processing of Port update DCN", update.getName(), network);
             return;
         }
-        List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<>();
-        List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<>();
+        List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<FixedIps>();
+        List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<FixedIps>();
 
         /* check if VIF type updated as part of port binding */
-        if(NeutronvpnUtils.isPortVifTypeUpdated(original, update)) {
+        if (NeutronvpnUtils.isPortVifTypeUpdated(original, update)) {
             updateOfPortInterface(original, update);
         }
         NeutronvpnUtils.addToPortCache(update);
@@ -197,6 +192,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 return;
             }
         }
+
         if (!oldIPs.equals(newIPs)) {
             Iterator<FixedIps> iterator = newIPs.iterator();
             while (iterator.hasNext()) {
@@ -223,18 +219,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                             vpnId = routerId;
                         }
                         nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
-                        String ipValue = portIP.getIpAddress().getIpv4Address().getValue();
-                        nvpnManager.updateSubnetNodeWithFixedIps(portIP.getSubnetId(), routerId,
-                                routerPort.getUuid(), ipValue, routerPort.getMacAddress().getValue());
                         nvpnNatManager.handleSubnetsForExternalRouter(routerId, broker);
-                        PhysAddress mac = new PhysAddress(routerPort.getMacAddress().getValue());
-                        LOG.trace("NeutronPortChangeListener Add Subnet Gateway IP {} MAC {} Interface {} VPN {}",
-                                portIP.getIpAddress().getIpv4Address(),routerPort.getMacAddress(),
-                                routerPort.getUuid().getValue(), vpnId.getValue());
-                        NeutronvpnUtils.createVpnPortFixedIpToPort(broker, vpnId.getValue(), ipValue, routerPort
-                                .getUuid().getValue(), routerPort.getMacAddress().getValue(), true, true, false);
-                    } else {
-                        LOG.error("No IPv4 address assigned to port {)", routerPort.getUuid().getValue());
                     }
                 }
             } else {
@@ -255,32 +240,10 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                         vpnId = routerId;
                     }
                     nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId());
-                    nvpnManager.updateSubnetNodeWithFixedIps(portIP.getSubnetId(), null,
-                            null, null, null);
                     nvpnNatManager.handleSubnetsForExternalRouter(routerId, broker);
-                    String ipValue = portIP.getIpAddress().getIpv4Address().getValue();
-                    NeutronvpnUtils.removeVpnPortFixedIpToPort(broker, vpnId.getValue(), ipValue);
-                } else {
-                    LOG.error("No IPv4 address assigned to port {)", routerPort.getUuid().getValue());
                 }
             }
         }
-    }
-
-    private Long getVpnIdFromUuid(Uuid vpnId) {
-        long vpn = 1;
-        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstanceToVpnId.class).
-                child(VpnInstance.class, new VpnInstanceKey(vpnId.getValue())).build();
-        try {
-            Optional<VpnInstance> optional = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
-                    id);
-            if (optional.isPresent()) {
-                vpn = optional.get().getVpnId();
-            }
-        } catch (Exception e) {
-            LOG.error("Failed to retrieve vpn instance for the Subnet .", e.getMessage());
-        }
-        return vpn;
     }
 
     private void handleNeutronPortCreated(Port port) {
@@ -304,7 +267,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             LOG.debug("Adding VPN Interface");
             nvpnManager.createVpnInterface(vpnId, port);
             Uuid routerId = NeutronvpnUtils.getVpnMap(broker, vpnId).getRouterId();
-            if(routerId != null) {
+            if (routerId != null) {
                 nvpnManager.addToNeutronRouterInterfacesMap(routerId, port.getUuid().getValue());
             }
         }
@@ -326,12 +289,11 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         if (vpnId != null) {
             // remove vpn-interface for this neutron port
             LOG.debug("removing VPN Interface");
-            nvpnManager.deleteVpnInterface(vpnId, port);
+            nvpnManager.deleteVpnInterface(port);
         }
-
         // Remove of-port interface for this neutron port
         // ELAN interface is also implicitly deleted as part of this operation
-        LOG.debug("Of-port-interface removal");
+        LOG.debug("Of-port-interface removal", port);
         deleteOfPortInterface(port);
         if (vpnId != null) {
             Uuid routerId = NeutronvpnUtils.getVpnMap(broker, vpnId).getRouterId();
@@ -362,7 +324,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         Uuid vpnIdor = removePortFromSubnets(portoriginal);
 
         if (vpnIdor != null) {
-            nvpnManager.deleteVpnInterface(vpnIdor, portoriginal);
+            nvpnManager.deleteVpnInterface(portoriginal);
             Uuid routerId = NeutronvpnUtils.getVpnMap(broker, vpnIdor).getRouterId();
             if(routerId != null) {
                 nvpnManager.removeFromNeutronRouterInterfacesMap(routerId, portoriginal.getUuid().getValue());
@@ -484,7 +446,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> list2 =
                 new ArrayList<>(port2AllowedAddressPairs);
         for (Iterator<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> iterator =
-             list1.iterator(); iterator.hasNext();) {
+                list1.iterator(); iterator.hasNext();) {
             org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs allowedAddressPair1 =
                     iterator.next();
             for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs allowedAddressPair2 : list2) {
@@ -535,27 +497,21 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         } catch (Exception e) {
             LOG.error("failed to create interface {} due to the exception {} ", infName, e.getMessage());
         }
-
         return infName;
     }
 
     private Interface createInterface(Port port) {
+
         String parentRefName = NeutronvpnUtils.getVifPortName(port);
         String interfaceName = port.getUuid().getValue();
         IfL2vlan.L2vlanMode l2VlanMode = IfL2vlan.L2vlanMode.Trunk;
         InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
         IfL2vlanBuilder ifL2vlanBuilder = new IfL2vlanBuilder();
-
-        Network network = NeutronvpnUtils.getNeutronNetwork(broker, port.getNetworkId());
         ifL2vlanBuilder.setL2vlanMode(l2VlanMode);
-
-        if(parentRefName != null) {
+        if (parentRefName != null) {
             ParentRefsBuilder parentRefsBuilder = new ParentRefsBuilder().setParentInterface(parentRefName);
             interfaceBuilder.addAugmentation(ParentRefs.class, parentRefsBuilder.build());
         }
-
-        interfaceBuilder.setEnabled(true).setName(interfaceName).setType(L2vlan.class)
-                .addAugmentation(IfL2vlan.class, ifL2vlanBuilder.build());
 
         if (NeutronvpnUtils.isPortSecurityEnabled(port)) {
             InterfaceAclBuilder interfaceAclBuilder = new InterfaceAclBuilder();
@@ -573,6 +529,9 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             }
             interfaceBuilder.addAugmentation(InterfaceAcl.class, interfaceAclBuilder.build());
         }
+
+        interfaceBuilder.setEnabled(true).setName(interfaceName).setType(L2vlan.class)
+                .addAugmentation(IfL2vlan.class, ifL2vlanBuilder.build());
         return interfaceBuilder.build();
     }
 
@@ -598,7 +557,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         String interfaceName = original.getUuid().getValue();
         InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
 
-        if(parentRefName != null) {
+        if (parentRefName != null) {
             ParentRefsBuilder parentRefsBuilder = new ParentRefsBuilder().setParentInterface(parentRefName);
             interfaceBuilder.addAugmentation(ParentRefs.class, parentRefsBuilder.build());
         }
@@ -622,7 +581,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 LOG.error("Interface {} doesn't exist", infName);
             }
         } catch (Exception e) {
-            LOG.error("failed to update interface {} due to the exception {} ", infName, e.getMessage());
+            LOG.error("failed to update interface {} due to the exception {} ", infName, e);
         }
 
         return infName;
@@ -645,28 +604,34 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private Uuid addPortToSubnets(Port port) {
         Uuid subnetId = null;
         Uuid vpnId = null;
-        String infName = port.getUuid().getValue();
         Subnetmap subnetmap = null;
+        String infName = port.getUuid().getValue();
         boolean isLockAcquired = false;
         String lockName = port.getUuid().getValue();
-        String elanInstanceName = port.getNetworkId().getValue();
-        InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class).child
-                (ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-        Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
-                elanIdentifierId);
-        long elanTag = elanInstance.get().getElanTag();
 
         // find the subnet to which this port is associated
+        if(port.getFixedIps() == null || port.getFixedIps().isEmpty()) {
+            LOG.debug("port {} doesn't have ip", port.getName());
+            return null;
+        }
         FixedIps ip = port.getFixedIps().get(0);
+        String ipValue = (ip.getIpAddress().getIpv4Address() != null ) ? ip.getIpAddress().getIpv4Address().getValue() :
+            ip.getIpAddress().getIpv6Address().getValue();
+        InstanceIdentifier id = NeutronvpnUtils.buildFixedIpToPortNameIdentifier(ipValue);
+        PortFixedipToPortNameBuilder builder = new PortFixedipToPortNameBuilder().setPortFixedip(ipValue)
+                .setPortName(infName);
+        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
+        LOG.debug("fixedIp-name map for neutron port with fixedIp: {}, name: {} added to NeutronPortData DS",
+                ipValue, infName);
         subnetId = ip.getSubnetId();
         subnetmap = nvpnManager.updateSubnetmapNodeWithPorts(subnetId, port.getUuid(), null);
         if (subnetmap != null) {
             vpnId = subnetmap.getVpnId();
         }
-        if (vpnId != null) {
+        if(vpnId != null) {
             try {
                 isLockAcquired = NeutronvpnUtils.lock(lockManager, lockName);
-                checkAndPublishPortAddNotification(subnetmap.getSubnetIp(), subnetId, port.getUuid(), elanTag);
+                checkAndPublishPortAddNotification(subnetmap.getSubnetIp(), subnetId, port.getUuid());
                 LOG.debug("Port added to subnet notification sent");
             } catch (Exception e) {
                 LOG.error("Port added to subnet notification failed", e);
@@ -685,24 +650,22 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         Subnetmap subnetmap = null;
         boolean isLockAcquired = false;
         String lockName = port.getUuid().getValue();
-        String elanInstanceName = port.getNetworkId().getValue();
-        InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class).child
-                (ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-        Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
-                elanIdentifierId);
-        long elanTag = elanInstance.get().getElanTag();
 
         // find the subnet to which this port is associated
         FixedIps ip = port.getFixedIps().get(0);
+        String ipValue = ip.getIpAddress().getIpv4Address().getValue();
+        InstanceIdentifier id = NeutronvpnUtils.buildFixedIpToPortNameIdentifier(ipValue);
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
+        LOG.debug("fixedIp-name map for neutron port with fixedIp: {} deleted from NeutronPortData DS", ipValue);
         subnetId = ip.getSubnetId();
         subnetmap = nvpnManager.removePortsFromSubnetmapNode(subnetId, port.getUuid(), null);
         if (subnetmap != null) {
             vpnId = subnetmap.getVpnId();
         }
-        if (vpnId != null) {
+        if(vpnId != null) {
             try {
                 isLockAcquired = NeutronvpnUtils.lock(lockManager, lockName);
-                checkAndPublishPortRemoveNotification(subnetmap.getSubnetIp(), subnetId, port.getUuid(), elanTag);
+                checkAndPublishPortRemoveNotification(subnetmap.getSubnetIp(), subnetId, port.getUuid());
                 LOG.debug("Port removed from subnet notification sent");
             } catch (Exception e) {
                 LOG.error("Port removed from subnet notification failed", e);
@@ -715,8 +678,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         return vpnId;
     }
 
-    private void checkAndPublishPortAddNotification(String subnetIp, Uuid subnetId, Uuid portId, Long elanTag) throws
-            InterruptedException {
+    private void checkAndPublishPortAddNotification(String subnetIp, Uuid subnetId, Uuid portId)throws InterruptedException{
         PortAddedToSubnetBuilder builder = new PortAddedToSubnetBuilder();
 
         LOG.info("publish notification called");
@@ -724,13 +686,11 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         builder.setSubnetIp(subnetIp);
         builder.setSubnetId(subnetId);
         builder.setPortId(portId);
-        builder.setElanTag(elanTag);
 
         notificationPublishService.putNotification(builder.build());
     }
 
-    private void checkAndPublishPortRemoveNotification(String subnetIp, Uuid subnetId, Uuid portId, Long elanTag)
-            throws InterruptedException {
+    private void checkAndPublishPortRemoveNotification(String subnetIp, Uuid subnetId, Uuid portId)throws InterruptedException{
         PortRemovedFromSubnetBuilder builder = new PortRemovedFromSubnetBuilder();
 
         LOG.info("publish notification called");
@@ -738,9 +698,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         builder.setPortId(portId);
         builder.setSubnetIp(subnetIp);
         builder.setSubnetId(subnetId);
-        builder.setElanTag(elanTag);
 
         notificationPublishService.putNotification(builder.build());
     }
-
 }
