@@ -87,7 +87,7 @@ public class ElanServiceChainHandler implements AutoCloseable {
         // updates map which stores relationship between elan and elanLPortTag and scfTag
         ElanServiceChainUtils.updateElanToLportTagMap(broker, elanName, elanLportTag, scfTag, addOrRemove);
 
-        Long vni = elanInstance.get().getVni();
+        Long vni = elanInstance.get().getSegmentationId();
         if ( vni == null ) {
             logger.warn("There is no VNI for elan {}. VNI is mandatory. Returning", elanName);
             return;
