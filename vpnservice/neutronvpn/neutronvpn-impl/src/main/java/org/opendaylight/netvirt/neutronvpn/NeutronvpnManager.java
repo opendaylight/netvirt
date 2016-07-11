@@ -1557,18 +1557,39 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     public List<String> showNeutronPortsCLI() {
         List<String> result = new ArrayList<>();
-        result.add(String.format(" %-34s  %-22s  %-22s  %-6s ", "PortName", "Mac Address", "IP Address",
-                "Prefix Length"));
-        result.add("---------------------------------------------------------------------------------------");
+        result.add(String.format(" %-36s  %-19s  %-13s  %-20s ", "Port ID", "Mac Address", "Prefix Length", "IP " +
+                "Address"));
+        result.add("-------------------------------------------------------------------------------------------");
         InstanceIdentifier<Ports> portidentifier = InstanceIdentifier.create(Neutron.class).child(Ports.class);
         try {
             Optional<Ports> ports = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, portidentifier);
             if (ports.isPresent() && ports.get().getPort() != null) {
-                for (Port port : ports.get().getPort()) {
-                    if (port.getFixedIps() != null && !port.getFixedIps().isEmpty()) {
-                        result.add(String.format(" %-34s  %-22s  %-22s  %-6s ", port.getUuid().getValue(), port
-                                .getMacAddress(), port.getFixedIps().get(0).getIpAddress().getIpv4Address().
-                                getValue(), NeutronvpnUtils.getIPPrefixFromPort(broker, port)));
+                List<Port> portList = ports.get().getPort();
+                for (Port port : portList) {
+                    List<FixedIps> fixedIPs = port.getFixedIps();
+                    try {
+                        if (fixedIPs != null && !fixedIPs.isEmpty()) {
+                            List<String> ipList = new ArrayList<>();
+                            for (FixedIps fixedIp : fixedIPs) {
+                                IpAddress ipAddress = fixedIp.getIpAddress();
+                                if (ipAddress.getIpv4Address() != null) {
+                                    ipList.add(ipAddress.getIpv4Address().getValue());
+                                } else {
+                                    ipList.add((ipAddress.getIpv6Address().getValue()));
+                                }
+                            }
+                            result.add(String.format(" %-36s  %-19s  %-13s  %-20s ", port.getUuid().getValue(), port
+                                    .getMacAddress().getValue(), NeutronvpnUtils.getIPPrefixFromPort(broker, port),
+                                    ipList.toString()));
+                        } else {
+                            result.add(String.format(" %-36s  %-19s  %-13s  %-20s ", port.getUuid().getValue(), port
+                                    .getMacAddress().getValue(), "Not Assigned", "Not Assigned"));
+                        }
+                    } catch (Exception e) {
+                        logger.error("Failed to retrieve neutronPorts info for port {}: ", port.getUuid().getValue(),
+                                e);
+                        System.out.println("Failed to retrieve neutronPorts info for port: " + port.getUuid()
+                                .getValue() + ": " + e.getMessage());
                     }
                 }
             }

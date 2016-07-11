@@ -120,6 +120,8 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                     input.getName(), network);
             return;
         }
+        NeutronvpnUtils.addToPortCache(input);
+
         /* check if router interface has been created */
         if ((input.getDeviceOwner() != null) && (input.getDeviceId() != null)) {
             if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
@@ -128,8 +130,9 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 return;
             }
         }
-        handleNeutronPortCreated(input);
-        NeutronvpnUtils.addToPortCache(input);
+        if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
+            handleNeutronPortCreated(input);
+        }
 
     }
 
@@ -145,6 +148,8 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                     input.getName(), network);
             return;
         }
+        NeutronvpnUtils.removeFromPortCache(input);
+
         if ((input.getDeviceOwner() != null) && (input.getDeviceId() != null)) {
             if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
                 handleRouterInterfaceRemoved(input);
@@ -152,8 +157,9 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 return;
             }
         }
-        handleNeutronPortDeleted(input);
-        NeutronvpnUtils.removeFromPortCache(input);
+        if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
+            handleNeutronPortDeleted(input);
+        }
     }
 
     @Override
@@ -176,6 +182,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         if (NeutronvpnUtils.isPortVifTypeUpdated(original, update)) {
             updateOfPortInterface(original, update);
         }
+        NeutronvpnUtils.addToPortCache(update);
 
         /* check if router interface has been updated */
         if ((update.getDeviceOwner() != null) && (update.getDeviceId() != null)) {
@@ -195,9 +202,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 }
             }
             handleNeutronPortUpdated(original, update);
-            NeutronvpnUtils.addToPortCache(update);
         }
-
         handlePortSecurityUpdated(original, update);
     }
 
@@ -292,6 +297,10 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     }
 
     private void handleNeutronPortUpdated(Port portoriginal, Port portupdate) {
+        if (portoriginal.getFixedIps() == null || portoriginal.getFixedIps().isEmpty()) {
+            handleNeutronPortCreated(portupdate);
+            return;
+        }
         LOG.debug("Add port to subnet");
         // add port FixedIP to local Subnets DS
         Uuid vpnIdup = addPortToSubnets(portupdate);
