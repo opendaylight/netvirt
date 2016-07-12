@@ -16,6 +16,24 @@
       "revId": "df1b93f85d6e13f6c316539a8f234d9c18acf38d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_0b64a8e3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-07-12T07:54:25Z",
+      "side": 1,
+      "message": "We would probably have to take it up as a separate activity. No point putting it in common for one service while others are still defining these in their own individual files.",
+      "parentUuid": "9a561d44_0b0f882f",
+      "revId": "df1b93f85d6e13f6c316539a8f234d9c18acf38d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
