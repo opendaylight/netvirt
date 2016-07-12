@@ -77,6 +77,26 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>idmanager-api</artifactId>
             <version>${genius.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.ovsdb</groupId>
+            <artifactId>southbound-api</artifactId>
+            <version>${vpns.ovsdb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.ovsdb</groupId>
+            <artifactId>utils.mdsal-utils</artifactId>
+            <version>${vpns.ovsdb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.ovsdb</groupId>
+            <artifactId>utils.southbound-utils</artifactId>
+            <version>${vpns.ovsdb.version}</version>
+        </dependency>
+        <dependency>
+        <groupId>org.opendaylight.ovsdb</groupId>
+        <artifactId>utils.config</artifactId>
+        <version>${vpns.ovsdb.version}</version>
+        </dependency>
     </dependencies>
 
     <!--
