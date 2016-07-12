@@ -23,13 +23,14 @@ import org.slf4j.LoggerFactory;
 
 public class NeutronRouterChangeListener extends AbstractDataChangeListener<Router> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronRouterChangeListener.class);
-
     private ListenerRegistration<DataChangeListener> listenerRegistration;
+    private IfMgr ifMgr;
     private final DataBroker broker;
 
     public NeutronRouterChangeListener(final DataBroker db) {
         super(Router.class);
         broker = db;
+        this.ifMgr = IfMgr.getIfMgrInstance();
         registerListener(db);
     }
 
@@ -51,11 +52,13 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
     @Override
     protected void add(InstanceIdentifier<Router> identifier, Router input) {
         LOG.info("Add Router notification handler is invoked...");
+        ifMgr.addRouter(input.getUuid(), input.getName(), input.getTenantId(), input.isAdminStateUp());
     }
 
     @Override
     protected void remove(InstanceIdentifier<Router> identifier, Router input) {
         LOG.info("Remove Router notification handler is invoked...");
+        ifMgr.removeRouter(input.getUuid());
     }
 
     @Override
