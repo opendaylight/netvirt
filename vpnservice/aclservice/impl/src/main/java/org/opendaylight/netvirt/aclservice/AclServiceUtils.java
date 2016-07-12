@@ -85,15 +85,9 @@ public class AclServiceUtils {
      * @param interfaceName the interface name
      * @return the interface.
      */
-    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-        .Interface getInterface(DataBroker broker, String interfaceName) {
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-            .Interface> optInterface =
-                read(broker, LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName));
-        if (optInterface.isPresent()) {
-            return optInterface.get();
-        }
-        return null;
+    public static Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+        .Interface> getInterface(DataBroker broker, String interfaceName) {
+        return read(broker, LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName));
     }
 
     /**

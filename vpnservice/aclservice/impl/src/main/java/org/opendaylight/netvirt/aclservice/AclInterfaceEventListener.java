@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
+import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -47,11 +48,13 @@ public class AclInterfaceEventListener extends AsyncDataTreeChangeListenerBase<I
 
     @Override
     protected void remove(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface port =
-                AclServiceUtils.getInterface(broker,dataObjectModification.getName());
-        LOG.info("Port removed {}", port);
-        aclServiceManger.notify(port, Action.REMOVE);
-
+        Optional<
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
+            > optPort = AclServiceUtils.getInterface(broker, dataObjectModification.getName());
+        if (optPort.isPresent()) {
+            LOG.info("Port removed {}", optPort.get());
+            aclServiceManger.notify(optPort.get(), Action.REMOVE);
+        }
     }
 
     @Override
@@ -63,11 +66,13 @@ public class AclInterfaceEventListener extends AsyncDataTreeChangeListenerBase<I
 
     @Override
     protected void add(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface port =
-                AclServiceUtils.getInterface(broker,dataObjectModification.getName());
-        LOG.info("Port added {}", port);
-        aclServiceManger.notify(port, Action.ADD);
-
+        Optional<
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
+            > optPort = AclServiceUtils.getInterface(broker, dataObjectModification.getName());
+        if (optPort.isPresent()) {
+            LOG.info("Port added {}", optPort.get());
+            aclServiceManger.notify(optPort.get(), Action.ADD);
+        }
     }
 
     @Override
