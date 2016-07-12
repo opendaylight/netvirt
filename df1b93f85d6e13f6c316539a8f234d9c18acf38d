@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_0b0f882f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2016-07-12T07:36:20Z",
+      "side": 1,
+      "message": "I would like the service priorities to be defined in NwConstants file of Genius...wont that be better?",
+      "revId": "df1b93f85d6e13f6c316539a8f234d9c18acf38d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
