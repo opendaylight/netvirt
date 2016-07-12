@@ -16,6 +16,7 @@ public final class DHCPMConstants {
 
     public static final int DEFAULT_DHCP_FLOW_PRIORITY = 50;
     public static final int ARP_FLOW_PRIORITY = 50;
+    public static final short DEFAULT_FLOW_PRIORITY = 100;
 
     public static final BigInteger COOKIE_DHCP_BASE = new BigInteger("6800000", 16);
     public static final BigInteger METADATA_ALL_CLEAR_MASK = new BigInteger("0000000000000000", 16);
@@ -32,5 +33,9 @@ public final class DHCPMConstants {
     public static final int DEFAULT_LEASE_TIME = 86400;
     public static final String DEFAULT_DOMAIN_NAME = "openstacklocal";
 
+    public static final short DHCP_SERVICE_PRIORITY = 1;
+    public static final short DHCP_TABLE = (short) 25;
+
+    public static final BigInteger COOKIE_VM_INGRESS_TABLE = new BigInteger("6800001", 16);
     public static final BigInteger INVALID_DPID = new BigInteger("-1");
 }
