@@ -7,11 +7,21 @@
  */
 package org.opendaylight.netvirt.ipv6service;
 
+import com.google.common.collect.ImmutableBiMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Base;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Off;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Slaac;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Stateful;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Stateless;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -22,13 +32,28 @@ import org.slf4j.LoggerFactory;
 
 public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subnet> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetChangeListener.class);
+    private static final ImmutableBiMap<Class<? extends IpVersionBase>,String> IPV_MAP
+            = new ImmutableBiMap.Builder<Class<? extends IpVersionBase>,String>()
+            .put(IpVersionV4.class, Ipv6Constants.IP_VERSION_V4)
+            .put(IpVersionV6.class, Ipv6Constants.IP_VERSION_V6)
+            .build();
+
+    private static final ImmutableBiMap<Class<? extends Dhcpv6Base>,String> DHCPV6_MAP
+            = new ImmutableBiMap.Builder<Class<? extends Dhcpv6Base>,String>()
+            .put(Dhcpv6Off.class,Ipv6Constants.DHCPV6_OFF)
+            .put(Dhcpv6Stateful.class,Ipv6Constants.IPV6_DHCPV6_STATEFUL)
+            .put(Dhcpv6Slaac.class,Ipv6Constants.IPV6_SLAAC)
+            .put(Dhcpv6Stateless.class,Ipv6Constants.IPV6_DHCPV6_STATELESS)
+            .build();
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
+    private IfMgr ifMgr;
     private final DataBroker broker;
 
     public NeutronSubnetChangeListener(final DataBroker db) {
         super(Subnet.class);
         broker = db;
+        this.ifMgr = IfMgr.getIfMgrInstance();
         registerListener(db);
     }
 
@@ -50,11 +75,23 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
     @Override
     protected void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
         LOG.info("Add Subnet notification handler is invoked...");
+        String ipv6AddrMode = "";
+        if (input.getIpv6AddressMode() != null) {
+            ipv6AddrMode = DHCPV6_MAP.get(input.getIpv6AddressMode());
+        }
+        String ipv6RaMode = "";
+        if (input.getIpv6RaMode() != null) {
+            ipv6RaMode = DHCPV6_MAP.get(input.getIpv6RaMode());
+        }
+        ifMgr.addSubnet(input.getUuid(), input.getName(), input.getNetworkId(),
+                input.getTenantId(), input.getGatewayIp(), IPV_MAP.get(input.getIpVersion()),
+                input.getCidr(), ipv6AddrMode, ipv6RaMode);
     }
 
     @Override
     protected void remove(InstanceIdentifier<Subnet> identifier, Subnet input) {
         LOG.info("Remove Subnet notification handler is invoked...");
+        ifMgr.removeSubnet(input.getUuid());
     }
 
     @Override
