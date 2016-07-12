@@ -81,8 +81,6 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
         try {
             final DataBroker dbx = session.getSALService(DataBroker.class);
             nvNatManager = new NeutronvpnNatManager(dbx, mdsalManager);
-            nvManager = new NeutronvpnManager(dbx, mdsalManager,notificationPublishService,notificationService,
-                    nvNatManager);
             final BindingAwareBroker.RpcRegistration<NeutronvpnService> rpcRegistration =
                     getRpcProviderRegistry().addRpcImplementation(NeutronvpnService.class, nvManager);
             bgpvpnListener = new NeutronBgpvpnChangeListener(dbx, nvManager);
@@ -91,9 +89,11 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
             routerListener = new NeutronRouterChangeListener(dbx, nvManager, nvNatManager);
             floatingIpMapListener = new NeutronFloatingToFixedIpMappingChangeListener(dbx);
             portListener = new NeutronPortChangeListener(dbx, nvManager, nvNatManager,
-                    notificationPublishService,notificationService, floatingIpMapListener);
+                    notificationPublishService,notificationService);
             portListener.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
+            nvManager = new NeutronvpnManager(dbx, mdsalManager,notificationPublishService,notificationService,
+                    nvNatManager, floatingIpMapListener);
             nvManager.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
             floatingIpMapListener.setLockManager(lockManager);
