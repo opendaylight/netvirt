@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_8808be92",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpUCastMacListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-12T06:47:31Z",
+      "side": 1,
+      "message": "give space after if",
+      "revId": "6eea4c06a6736cc94a942abb5f3115933805881c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_28f9b280",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpUCastMacListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-12T06:47:31Z",
+      "side": 1,
+      "message": "give space here also",
+      "range": {
+        "startLine": 83,
+        "startChar": 32,
+        "endLine": 83,
+        "endChar": 34
+      },
+      "revId": "6eea4c06a6736cc94a942abb5f3115933805881c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_48eea6b5",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpUCastMacListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-12T06:47:31Z",
+      "side": 1,
+      "message": "Same as above",
+      "range": {
+        "startLine": 131,
+        "startChar": 52,
+        "endLine": 131,
+        "endChar": 54
+      },
+      "revId": "6eea4c06a6736cc94a942abb5f3115933805881c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_08f4ae85",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpUCastMacListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-12T06:47:31Z",
+      "side": 1,
+      "message": "Give space after if",
+      "range": {
+        "startLine": 131,
+        "startChar": 10,
+        "endLine": 131,
+        "endChar": 11
+      },
+      "revId": "6eea4c06a6736cc94a942abb5f3115933805881c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
