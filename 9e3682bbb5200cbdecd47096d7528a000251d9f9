@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_54592259",
+        "filename": "vpnservice/aclservice/api/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/netvirt/aclservice/rev160608/IpPrefixOrAddressBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5972
+      },
+      "writtenOn": "2016-07-12T00:29:22Z",
+      "side": 1,
+      "message": "getDefaultInstance may throw exception, here do not need catch exception or add some logs?",
+      "revId": "9e3682bbb5200cbdecd47096d7528a000251d9f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
