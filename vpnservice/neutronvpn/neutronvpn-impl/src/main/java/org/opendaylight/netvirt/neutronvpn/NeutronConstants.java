@@ -22,5 +22,9 @@ public class NeutronConstants {
     public static final String VIF_TYPE_MACVTAP = "macvtap";
     public static final String PREFIX_TAP = "tap";
     public static final String PREFIX_VHOSTUSER = "vhu";
+    public static final String RD_IDPOOL_NAME = "RouteDistinguisherPool";
+    public static final long RD_IDPOOL_START = 1L;
+    public static final String RD_IDPOOL_SIZE = "65535";// 16 bit AS specific part of RD
+    public static final String RD_PROPERTY_KEY = "vpnservice.admin.rdvalue";//stored in etc/custom.propertie
 
 }
