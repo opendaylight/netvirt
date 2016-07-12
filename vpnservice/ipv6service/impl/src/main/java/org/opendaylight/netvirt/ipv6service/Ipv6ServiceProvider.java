@@ -12,9 +12,12 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +25,14 @@ public class Ipv6ServiceProvider implements BindingAwareProvider, AutoCloseable 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceProvider.class);
     private IInterfaceManager interfaceManager;
     private IMdsalApiManager mdsalManager;
+    private Ipv6PktHandler ipv6PktHandler;
     private OdlInterfaceRpcService interfaceManagerRpc;
     private NeutronPortChangeListener portListener;
+    private Registration packetListener = null;
+    private NotificationProviderService notificationService;
     private NeutronSubnetChangeListener subnetListener;
     private NeutronRouterChangeListener routerListener;
+    private IfMgr ifMgr;
     private Ipv6ServiceInterfaceEventListener ipv6ServiceInterfaceEventListener;
 
     private DataBroker broker;
@@ -36,11 +43,19 @@ public class Ipv6ServiceProvider implements BindingAwareProvider, AutoCloseable 
     @Override
     public void onSessionInitiated(ProviderContext session) {
         broker = session.getSALService(DataBroker.class);
+        final PacketProcessingService pktProcessingService = session.getRpcService(PacketProcessingService.class);
         portListener = new NeutronPortChangeListener(broker);
         subnetListener = new NeutronSubnetChangeListener(broker);
         routerListener = new NeutronRouterChangeListener(broker);
+
+        ifMgr = IfMgr.getIfMgrInstance();
+        ifMgr.setInterfaceManagerRpc(interfaceManagerRpc);
         ipv6ServiceInterfaceEventListener = new Ipv6ServiceInterfaceEventListener(broker);
         ipv6ServiceInterfaceEventListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        ipv6PktHandler = new Ipv6PktHandler();
+        ipv6PktHandler.setIfMgrInstance(ifMgr);
+        ipv6PktHandler.setPacketProcessingService(pktProcessingService);
+        packetListener = notificationService.registerNotificationListener(ipv6PktHandler);
         LOG.info("IPv6 Service Initiated");
     }
 
@@ -57,8 +72,12 @@ public class Ipv6ServiceProvider implements BindingAwareProvider, AutoCloseable 
         this.interfaceManager = interfaceManager;
     }
 
-    public void setInterfaceManagerRpcService(OdlInterfaceRpcService interfaceManager) {
+    public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {
         this.interfaceManagerRpc = interfaceManagerRpc;
+    }
+
+    public void setNotificationProviderService(NotificationProviderService notificationServiceDependency) {
+        this.notificationService = notificationServiceDependency;
     }
 
     public void setMdsalManager(IMdsalApiManager mdsalManager) {
