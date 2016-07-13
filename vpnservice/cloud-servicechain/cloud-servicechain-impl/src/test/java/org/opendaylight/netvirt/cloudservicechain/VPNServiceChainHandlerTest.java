@@ -89,7 +89,7 @@ public class VPNServiceChainHandlerTest {
     final String RD = "1.1.1.1:10";
     final String vpnName = "1";
     final long vpnId = 1;
-    final int scfTag = 1;
+    final long scfTag = 1L;
     final int servChainTag = 100;
     final int dpnId = 1;
     final int lportTag = 1;
