@@ -19,6 +19,7 @@ import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -100,10 +101,11 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
         if (ofportIds == null || ofportIds.isEmpty()) {
             return;
         }
+        String interfaceName = del.getName();
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
         BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
-                DhcpServiceUtils.getInterfaceFromConfigDS(del.getName(), dataBroker);
+                DhcpServiceUtils.getInterfaceFromConfigDS(interfaceName, dataBroker);
         if (iface != null) {
             IfTunnel tunnelInterface = iface.getAugmentation(IfTunnel.class);
             if (tunnelInterface != null && !tunnelInterface.isInternal()) {
@@ -115,7 +117,6 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
                 return;
             }
         }
-        String interfaceName = del.getName();
         logger.trace("Received remove DCN for interface {} dpId {}", interfaceName, dpId);
         unInstallDhcpEntries(interfaceName, dpId);
         dhcpManager.removeInterfaceCache(interfaceName);
@@ -181,6 +182,7 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
                 List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(dataBroker);
                 if (dpns.contains(dpId)) {
                     dhcpExternalTunnelManager.handleTunnelStateUp(tunnelIp, dpId);
+                    dhcpManager.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL);
                 }
                 return;
             }
@@ -208,11 +210,13 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
 
     private void unInstallDhcpEntries(String interfaceName, BigInteger dpId) {
         String vmMacAddress = getAndRemoveVmMacAddress(interfaceName);
+        dhcpManager.unbindDhcpService(interfaceName);
         dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress);
     }
 
     private void installDhcpEntries(String interfaceName, BigInteger dpId) {
         String vmMacAddress = getAndUpdateVmMacAddress(interfaceName);
+        dhcpManager.bindDhcpService(interfaceName, DHCPMConstants.DHCP_TABLE);
         dhcpManager.installDhcpEntries(dpId, vmMacAddress);
     }
 
