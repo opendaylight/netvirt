@@ -126,10 +126,11 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
                 LOG.debug("NaptFlowRemovedEventHandler : IpPortExternal not found, BGP vpn might be associated with router");
                 //router must be associated with BGP vpn ID
                 long bgpVpnId = routerId;
+                LOG.debug("NaptFlowRemovedEventHandler : BGP VPN ID {}", bgpVpnId);
                 String vpnName = NatUtil.getRouterName(dataBroker, bgpVpnId);
                 String routerName = NatUtil.getRouterIdfromVpnId(dataBroker, vpnName);
                 routerId = NatUtil.getVpnId(dataBroker, routerName);
-                LOG.debug("NaptFlowRemovedEventHandler : Router ID {}, BGP VPN ID {}", routerId, bgpVpnId);
+                LOG.debug("NaptFlowRemovedEventHandler : Router ID {}", routerId);
                 ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId, internalIpv4HostAddress, internalPortNumber.toString(), protocol);
                 if(ipPortExternal == null) {
                     LOG.error("NaptFlowRemovedEventHandler : IpPortExternal is null while queried from the model for routerId {}",routerId);
@@ -140,7 +141,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
             int externalPortNumber = ipPortExternal.getPortNum();
 
             //Create an NAPT event and place it in the queue.
-            NAPTEntryEvent naptEntryEvent =  new NAPTEntryEvent(externalIpAddress, externalPortNumber, routerId, NAPTEntryEvent.Operation.DELETE, protocol);
+            NAPTEntryEvent naptEntryEvent =  new NAPTEntryEvent(externalIpAddress, externalPortNumber, routerId, NAPTEntryEvent.Operation.DELETE, protocol, null, false);
             naptEventdispatcher.addNaptEvent(naptEntryEvent);
 
             //Get the DPN ID from the Node

@@ -28,6 +28,7 @@ public class NATServiceModule extends org.opendaylight.yang.gen.v1.urn.opendayli
         NatServiceProvider provider = new NatServiceProvider(getRpcRegistryDependency());
         provider.setNotificationService(getNotificationServiceDependency());
         provider.setMdsalManager(getMdsalutilDependency());
+        provider.setInterfaceManager(getOdlinterfaceDependency());
         provider.setBgpManager(getBgpmanagerDependency());
         getBrokerDependency().registerProvider(provider);
         return provider;

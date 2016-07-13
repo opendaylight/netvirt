@@ -95,19 +95,25 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                     LOG.debug("NAT Service : sourceIPPortKey {} mapping maintained in the map", sourceIPPortKey);
                     if (!incomingPacketMap.contains(sourceIPPortKey)) {
                         incomingPacketMap.add(internalIPAddress + portNumber);
-
+                        LOG.trace("NAT Service : Processing new Packet");
                         BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata();
                         routerId = (metadata.and(MetaDataUtil.METADATA_MASK_VRFID)).longValue();
                         if( routerId <= 0) {
-                            LOG.error("Nat Service : Router ID is invalid");
+                            LOG.error("NAT Service : Router ID is invalid");
                             return;
                         }
                         //send to Event Queue
+                        LOG.trace("NAT Service : Creating NaptEvent for routerId {} and sourceIp {} and Port {}", routerId,
+                                internalIPAddress, portNumber);
                         NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress,portNumber,routerId,
-                                operation,protocol);
+                                operation,protocol, packetReceived, false);
                         naptEventdispatcher.addNaptEvent(naptEntryEvent);
+                        LOG.trace("NAT Service : PacketInHandler sent event to NaptEventHandler");
                     } else {
-                        LOG.trace("Ignore the packet, already processed");
+                        LOG.trace("NAT Service : Packet already processed");
+                        NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress,portNumber,routerId,
+                                operation,protocol, packetReceived, true);
+                        LOG.trace("NAT Service : PacketInHandler sent event to NaptEventHandler");
                     }
                 }else {
                     LOG.error("Nullpointer exception in retrieving internalIPAddress");

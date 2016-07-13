@@ -1030,20 +1030,20 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
 
         Optional<DpnVpninterfacesList> optionalRouterDpnList = VpnUtil.read(broker, LogicalDatastoreType
-                .CONFIGURATION, routerDpnListIdentifier);
+                .OPERATIONAL, routerDpnListIdentifier);
         RouterInterfaces routerInterface = new RouterInterfacesBuilder().setKey(new RouterInterfacesKey(vpnInterfaceName)).setInterface(vpnInterfaceName).build();
         if (optionalRouterDpnList.isPresent()) {
-            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routerDpnListIdentifier.child(
+            MDSALUtil.syncWrite(broker,  LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier.child(
                     RouterInterfaces.class,  new RouterInterfacesKey(vpnInterfaceName)), routerInterface);
         } else {
-            MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION,
+            MDSALUtil.syncUpdate(broker,  LogicalDatastoreType.OPERATIONAL,
                     getRouterId(routerName),
                     new RouterDpnListBuilder().setRouterId(routerName).build());
             //VpnToDpnListBuilder vpnToDpnList = new VpnToDpnListBuilder().setDpnId(dpnId);
             DpnVpninterfacesListBuilder dpnVpnList = new DpnVpninterfacesListBuilder().setDpnId(dpId);
             List<RouterInterfaces> routerInterfaces =  new ArrayList<>();
             routerInterfaces.add(routerInterface);
-            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routerDpnListIdentifier,
+            MDSALUtil.syncWrite(broker,  LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier,
                     dpnVpnList.setRouterInterfaces(routerInterfaces).build());
         }
     }
@@ -1056,16 +1056,16 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
         InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
         Optional<DpnVpninterfacesList> optionalRouterDpnList = VpnUtil.read(broker, LogicalDatastoreType
-                .CONFIGURATION, routerDpnListIdentifier);
+                .OPERATIONAL, routerDpnListIdentifier);
         if (optionalRouterDpnList.isPresent()) {
             List<RouterInterfaces> routerInterfaces = optionalRouterDpnList.get().getRouterInterfaces();
             RouterInterfaces routerInterface = new RouterInterfacesBuilder().setKey(new RouterInterfacesKey(vpnInterfaceName)).setInterface(vpnInterfaceName).build();
 
             if (routerInterfaces != null && routerInterfaces.remove(routerInterface)) {
                 if (routerInterfaces.isEmpty()) {
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerDpnListIdentifier);
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
                 } else {
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerDpnListIdentifier.child(
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier.child(
                             RouterInterfaces.class,
                             new RouterInterfacesKey(vpnInterfaceName)));
                 }
@@ -1080,16 +1080,16 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
         InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
         Optional<DpnVpninterfacesList> optionalRouterDpnList = VpnUtil.read(broker, LogicalDatastoreType
-                .CONFIGURATION, routerDpnListIdentifier);
+                .OPERATIONAL, routerDpnListIdentifier);
         if (optionalRouterDpnList.isPresent()) {
             List<RouterInterfaces> routerInterfaces = optionalRouterDpnList.get().getRouterInterfaces();
             RouterInterfaces routerInterface = new RouterInterfacesBuilder().setKey(new RouterInterfacesKey(vpnInterfaceName)).setInterface(vpnInterfaceName).build();
 
             if (routerInterfaces != null && routerInterfaces.remove(routerInterface)) {
                 if (routerInterfaces.isEmpty()) {
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerDpnListIdentifier);
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
                 } else {
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerDpnListIdentifier.child(
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier.child(
                             RouterInterfaces.class,
                             new RouterInterfacesKey(vpnInterfaceName)));
                 }
