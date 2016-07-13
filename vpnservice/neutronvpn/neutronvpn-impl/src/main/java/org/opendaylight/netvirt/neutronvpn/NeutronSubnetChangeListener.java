@@ -124,7 +124,7 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
     }
 
     private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId) {
-        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null, null, null);
+        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null, null);
         if (networkId != null) {
             createSubnetToNetworkMapping(subnetId, networkId);
         }
@@ -149,7 +149,7 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
         if (networkId != null && !networkId.equals(oldNetworkId)) {
             createSubnetToNetworkMapping(subnetId, networkId);
         }
-        nvpnManager.updateSubnetNode(subnetId, null, tenantId, networkId, null, null, null);
+        nvpnManager.updateSubnetNode(subnetId, null, tenantId, networkId, null, null);
     }
 
     private void createSubnetToNetworkMapping(Uuid subnetId, Uuid networkId) {

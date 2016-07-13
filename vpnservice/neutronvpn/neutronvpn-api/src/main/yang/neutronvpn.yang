@@ -46,6 +46,10 @@ module neutronvpn {
             leaf-list port-list {
               type yang:uuid;
             }
+
+            leaf-list direct-port-list{
+              type yang:uuid;
+            }
         }
     }
 

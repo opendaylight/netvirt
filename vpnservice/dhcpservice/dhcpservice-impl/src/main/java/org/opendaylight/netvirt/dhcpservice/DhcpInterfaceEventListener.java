@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpserv
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -185,8 +186,14 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
             }
         }
         if (!dpId.equals(DHCPMConstants.INVALID_DPID)) {
-            installDhcpEntries(interfaceName, dpId);
-            dhcpManager.updateInterfaceCache(interfaceName, new ImmutablePair<>(dpId, add.getPhysAddress().getValue()));
+            Port port = dhcpManager.getNeutronPort(interfaceName);
+            Subnet subnet = dhcpManager.getNeutronSubnet(port);
+            if (null != subnet && subnet.isEnableDhcp()) {
+                logger.info("DhcpInterfaceEventListener add isEnableDhcp" + subnet.isEnableDhcp());
+                installDhcpEntries(interfaceName, dpId);
+                dhcpManager.updateInterfaceCache(interfaceName, new ImmutablePair<>(dpId,
+                                                    add.getPhysAddress().getValue()));
+            }
         }
     }
 

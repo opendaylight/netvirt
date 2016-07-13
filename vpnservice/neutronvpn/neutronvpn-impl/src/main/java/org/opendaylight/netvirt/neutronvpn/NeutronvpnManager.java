@@ -152,7 +152,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     protected Subnetmap updateSubnetNode(Uuid subnetId, String subnetIp, Uuid tenantId, Uuid networkId, Uuid routerId,
-                                         Uuid vpnId, Uuid portId) {
+                                         Uuid vpnId) {
         Subnetmap subnetmap = null;
         SubnetmapBuilder builder = null;
         boolean isLockAcquired = false;
@@ -183,15 +183,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
             if (tenantId != null) {
                 builder.setTenantId(tenantId);
-            }
-
-            if (portId != null) {
-                List<Uuid> portList = builder.getPortList();
-                if (portList == null) {
-                    portList = new ArrayList<>();
-                }
-                portList.add(portId);
-                builder.setPortList(portList);
             }
 
             subnetmap = builder.build();
@@ -241,6 +232,92 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
         } catch (Exception e) {
             logger.error("Removal from subnetmap failed for node: {}", subnetId.getValue());
+        } finally {
+            if (isLockAcquired) {
+                NeutronvpnUtils.unlock(lockManager, subnetId.getValue());
+            }
+        }
+        return subnetmap;
+    }
+
+    protected Subnetmap updateSubnetmapNodeWithPorts(Uuid subnetId, Uuid portId, Uuid directPortId) {
+        Subnetmap subnetmap = null;
+        boolean isLockAcquired = false;
+        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
+                new SubnetmapKey(subnetId)).build();
+        try {
+            Optional<Subnetmap> sn = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+            if (sn.isPresent()) {
+                SubnetmapBuilder builder = new SubnetmapBuilder(sn.get());
+                if (null != portId) {
+                    List<Uuid> portList = builder.getPortList();
+                    if (null == portList) {
+                        portList = new ArrayList<Uuid>();
+                    }
+                    portList.add(portId);
+                    builder.setPortList(portList);
+                    logger.debug("Updating existing subnetmap node {} with port {}", subnetId.getValue(),
+                            portId.getValue());
+                }
+                if (null != directPortId) {
+                    List<Uuid> directPortList = builder.getDirectPortList();
+                    if (null == directPortList) {
+                        directPortList = new ArrayList<Uuid>();
+                    }
+                    directPortList.add(directPortId);
+                    builder.setDirectPortList(directPortList);
+                    logger.debug("Updating existing subnetmap node {} with port {}", subnetId.getValue(),
+                            directPortId.getValue());
+                }
+                subnetmap = builder.build();
+                isLockAcquired = NeutronvpnUtils.lock(lockManager, subnetId.getValue());
+                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
+            } else {
+                logger.error("Trying to update non-existing subnetmap node {} ", subnetId.getValue());
+            }
+        } catch (Exception e) {
+            logger.error("Updating port list of a given subnetMap failed for node: {} with exception{}",
+                    subnetId.getValue(), e);
+        } finally {
+            if (isLockAcquired) {
+                NeutronvpnUtils.unlock(lockManager, subnetId.getValue());
+            }
+        }
+        return subnetmap;
+    }
+
+    protected Subnetmap removePortsFromSubnetmapNode(Uuid subnetId, Uuid portId, Uuid directPortId) {
+        Subnetmap subnetmap = null;
+        boolean isLockAcquired = false;
+        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
+                new SubnetmapKey(subnetId)).build();
+        try {
+            Optional<Subnetmap> sn = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+            if (sn.isPresent()) {
+                SubnetmapBuilder builder = new SubnetmapBuilder(sn.get());
+                if (null != portId && null != builder.getPortList()) {
+                    List<Uuid> portList = builder.getPortList();
+                    portList.remove(portId);
+                    builder.setPortList(portList);
+                    logger.debug("Removing port {} from existing subnetmap node: {} ", portId.getValue(),
+                            subnetId.getValue());
+                }
+                if (null != directPortId && null != builder.getDirectPortList()) {
+                    List<Uuid> directPortList = builder.getDirectPortList();
+                    directPortList.remove(directPortId);
+                    builder.setDirectPortList(directPortList);
+                    logger.debug("Removing direct port {} from existing subnetmap node: {} ", directPortId.getValue(),
+                            subnetId.getValue());
+                }
+                subnetmap = builder.build();
+                isLockAcquired = NeutronvpnUtils.lock(lockManager, subnetId.getValue());
+                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
+            } else {
+                logger.error("Trying to remove port from non-existing subnetmap node {}", subnetId.getValue());
+            }
+        } catch (Exception e) {
+            logger.error("Removing a port from port list of a subnetmap failed for node: {} with expection {}",
+                    subnetId.getValue(), e);
         } finally {
             if (isLockAcquired) {
                 NeutronvpnUtils.unlock(lockManager, subnetId.getValue());
@@ -887,7 +964,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected void addSubnetToVpn(Uuid vpnId, Uuid subnet) {
         logger.debug("Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
-        Subnetmap sn = updateSubnetNode(subnet, null, null, null, null, vpnId, null);
+        Subnetmap sn = updateSubnetNode(subnet, null, null, null, null, vpnId);
         boolean isLockAcquired = false;
         String lockName = vpnId.getValue() + subnet.getValue();
         String elanInstanceName = sn.getNetworkId().getValue();
@@ -929,7 +1006,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected void updateVpnForSubnet(Uuid vpnId, Uuid subnet, boolean isBeingAssociated) {
         logger.debug("Updating VPN {} for subnet {}", vpnId.getValue(), subnet.getValue());
-        Subnetmap sn = updateSubnetNode(subnet, null, null, null, null, vpnId, null);
+        Subnetmap sn = updateSubnetNode(subnet, null, null, null, null, vpnId);
         boolean isLockAcquired = false;
         String lockName = vpnId.getValue() + subnet.getValue();
         String elanInstanceName = sn.getNetworkId().getValue();

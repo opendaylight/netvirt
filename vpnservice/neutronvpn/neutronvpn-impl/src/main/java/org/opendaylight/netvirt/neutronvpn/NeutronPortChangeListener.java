@@ -245,6 +245,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
 
     private void handleNeutronPortCreated(Port port) {
         if (!NeutronUtils.isPortVnicTypeNormal(port)) {
+            nvpnManager.updateSubnetmapNodeWithPorts(port.getFixedIps().get(0).getSubnetId(), null, port.getUuid());
             LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created",
                     port.getUuid().getValue());
             return;
@@ -270,6 +271,12 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     }
 
     private void handleNeutronPortDeleted(Port port) {
+        if (!NeutronUtils.isPortVnicTypeNormal(port)) {
+            nvpnManager.removePortsFromSubnetmapNode(port.getFixedIps().get(0).getSubnetId(), null, port.getUuid());
+            LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created",
+                    port.getUuid().getValue());
+            return;
+        }
         //dissociate fixedIP from floatingIP if associated
         nvpnManager.dissociatefixedIPFromFloatingIP(port.getUuid().getValue());
         LOG.debug("Remove port from subnet");
@@ -533,7 +540,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         LOG.debug("fixedIp-name map for neutron port with fixedIp: {}, name: {} added to NeutronPortData DS",
                 ipValue, infName);
         subnetId = ip.getSubnetId();
-        subnetmap = nvpnManager.updateSubnetNode(subnetId, null, null, null, null, null, port.getUuid());
+        subnetmap = nvpnManager.updateSubnetmapNodeWithPorts(subnetId, port.getUuid(), null);
         if (subnetmap != null) {
             vpnId = subnetmap.getVpnId();
         }
@@ -567,7 +574,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
         LOG.debug("fixedIp-name map for neutron port with fixedIp: {} deleted from NeutronPortData DS", ipValue);
         subnetId = ip.getSubnetId();
-        subnetmap = nvpnManager.removeFromSubnetNode(subnetId, null, null, null, port.getUuid());
+        subnetmap = nvpnManager.removePortsFromSubnetmapNode(subnetId, port.getUuid(), null);
         if (subnetmap != null) {
             vpnId = subnetmap.getVpnId();
         }
