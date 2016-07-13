@@ -1683,7 +1683,7 @@ public class ElanUtils {
      *            the display name
      * @throws ElanException in case of issues creating the flow objects
      */
-    public void installDmacFlowsToInternalRemoteMac(BigInteger localDpId, BigInteger remoteDpId, long lportTag,
+    public void installDmacFlowsToInternalRemoteMac(BigInteger localDpId, BigInteger remoteDpId, int lportTag,
             long elanTag, String macAddress, String displayName) throws ElanException {
         Flow flow = buildDmacFlowForInternalRemoteMac(localDpId, remoteDpId, lportTag, elanTag, macAddress,
                 displayName);
@@ -1885,7 +1885,7 @@ public class ElanUtils {
      * @throws ElanException in case of issues creating the flow objects
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public Flow buildDmacFlowForInternalRemoteMac(BigInteger localDpId, BigInteger remoteDpId, long lportTag,
+    public Flow buildDmacFlowForInternalRemoteMac(BigInteger localDpId, BigInteger remoteDpId, int lportTag,
             long elanTag, String macAddress, String displayName) throws ElanException {
         List<MatchInfo> mkMatches = buildMatchesForElanTagShFlagAndDstMac(elanTag, /* shFlag */ false, macAddress);
 

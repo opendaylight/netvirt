@@ -23,7 +23,7 @@ public interface ICloudServiceChain {
      * @param lportTag LportTag of the VPN Pseudo Logical Port
      * @param addOrRemove states if pipeline must be created or removed
      */
-    void programVpnToScfPipeline(String vpnName, short tableId, int scfTag, int lportTag, int addOrRemove);
+    void programVpnToScfPipeline(String vpnName, short tableId, long scfTag, int lportTag, int addOrRemove);
 
 
     /**
@@ -39,7 +39,7 @@ public interface ICloudServiceChain {
      *                           ServiceChains using the VPNPseudoPort as egress port.
      * @param addOrRemove
      */
-    void programScfToVpnPipeline(String vpnName, int scfTag, int servChainTag, long dpnId, int lportTag,
+    void programScfToVpnPipeline(String vpnName, long scfTag, int servChainTag, long dpnId, int lportTag,
                                  boolean isLastServiceChain, int addOrRemove);
 
     /**
@@ -68,7 +68,7 @@ public interface ICloudServiceChain {
      *     ingress port.
      * @param addOrRemove States if the flows must be added or removed
      */
-    void programElanScfPipeline(String elanName, short tableId, int scfTag, int elanLportTag,
+    void programElanScfPipeline(String elanName, short tableId, long scfTag, int elanLportTag,
                                 boolean isLastServiceChain, int addOrRemove);
     // TODO: To be removed when sdnc is changed so that it calls the following API instead:
     void programElanScfPipeline(String elanName, short tableId, int scfTag, int elanLportTag, int addOrRemove);
