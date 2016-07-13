@@ -24,10 +24,16 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
@@ -44,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -126,6 +133,35 @@ public class AclServiceUtils {
     }
 
     /**
+     * Retrieves the acl matching the key from the data store.
+     *
+     * @param broker the data broker
+     * @param aclKey the acl key
+     * @return the acl
+     */
+    public static Acl getAcl(DataBroker broker, String aclKey) {
+        Optional<Acl> optAcl = read(broker,
+            LogicalDatastoreType.CONFIGURATION, getAclInstanceIdentifier(aclKey));
+        if (optAcl.isPresent()) {
+            return optAcl.get();
+        }
+        return null;
+    }
+
+    /** Creates the Acl instance identifier.
+     *
+     * @param aclKey the acl key
+     * @return the instance identifier
+     */
+    public static InstanceIdentifier<Acl> getAclInstanceIdentifier(String aclKey) {
+        return InstanceIdentifier
+                .builder(AccessLists.class)
+                .child(Acl.class,
+                        new AclKey(aclKey,Ipv4Acl.class))
+                .build();
+    }
+
+    /**
      * Get the data path number for the interface.
      * @param interfaceManagerRpcService interfaceManagerRpcService instance.
      * @param ifName the interface name.
@@ -188,10 +224,9 @@ public class AclServiceUtils {
     /**
      * Checks whether port security is enabled for the port.
      * @param port the port.
-     * @param broker the data broker.
      * @return the port security is enabled/not.
      */
-    public static boolean isPortSecurityEnabled(Interface port, DataBroker broker) {
+    public static boolean isPortSecurityEnabled(Interface port) {
         if (port == null) {
             LOG.error("Port is Null");
             return false;
@@ -202,6 +237,43 @@ public class AclServiceUtils {
             return false;
         }
         return aclInPort.isPortSecurityEnabled();
+    }
+
+    /**
+     * Checks whether port security is enabled for the port.
+     * @param port the port.
+     * @return the list of security groups.
+     */
+    public static List<Uuid> getPortSecurityGroups(Interface port) {
+        if (port == null) {
+            LOG.error("Port is Null");
+            return null;
+        }
+        InterfaceAcl aclInPort = port.getAugmentation(InterfaceAcl.class);
+        if (aclInPort == null) {
+            LOG.error("getSecurityGroupInPortList: no security group associated}",
+                port.getName());
+            return null;
+        }
+        return aclInPort.getSecurityGroups();
+    }
+
+    /**
+     * Retrieves the security rule attribute augmentation from the access list.
+     * @param ace the access list entry
+     * @return the security rule attributes
+     */
+    public static SecurityRuleAttr  getAccesssListAttributes(Ace ace) {
+        if (ace == null) {
+            LOG.error("Ace is Null");
+            return null;
+        }
+        SecurityRuleAttr aceAttributes = ace.getAugmentation(SecurityRuleAttr.class);
+        if (aceAttributes == null) {
+            LOG.error("Ace is null");
+            return null;
+        }
+        return aceAttributes;
     }
 
     /**
