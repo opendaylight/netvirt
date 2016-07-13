@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.elan.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -27,9 +28,11 @@ import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.elan.l2gw.internal.ElanL2GatewayProvider;
 import org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
+import org.opendaylight.netvirt.elan.utils.BridgeUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.genius.interfacemanager.exceptions.InterfaceAlreadyExistsException;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.api.IITMProvider;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -47,9 +50,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.statistics.rev150824.ElanStatisticsService;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -59,6 +64,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
 
+import jline.internal.Log;
+
 public class ElanServiceProvider implements BindingAwareProvider, IElanService, AutoCloseable {
 
     private IdManagerService idManager;
@@ -67,6 +74,8 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
     private OdlInterfaceRpcService interfaceManagerRpcService;
     private ElanInstanceManager elanInstanceManager;
     private ElanForwardingEntriesHandler elanForwardingEntriesHandler;
+    private BridgeUtils bridgeUtils;
+
     public IdManagerService getIdManager() {
         return idManager;
     }
@@ -178,7 +187,8 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             getDataStoreJobCoordinator();
             broker = session.getSALService(DataBroker.class);
 
-            elanOvsdbNodeListener = new ElanOvsdbNodeListener(broker, generateIntBridgeMac);
+            bridgeUtils = new BridgeUtils(broker);
+            elanOvsdbNodeListener = new ElanOvsdbNodeListener(broker, generateIntBridgeMac, bridgeUtils, this);
             ElanUtils.setElanServiceProvider(this);
             elanForwardingEntriesHandler = ElanForwardingEntriesHandler.getElanForwardingEntriesHandler(this);
             elanInterfaceManager = ElanInterfaceManager.getElanInterfaceManager(this);
@@ -558,4 +568,101 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
     public void setGenerateIntBridgeMac(boolean generateIntBridgeMac) {
         this.generateIntBridgeMac = generateIntBridgeMac;
     }
+
+    @Override
+    public void createExternalElanNetworks(Node node) {
+        Optional<Map<String, String>> providerMappingsOpt = bridgeUtils.getOpenvswitchOtherConfigMap(node,
+                BridgeUtils.PROVIDER_MAPPINGS_KEY);
+        if (!providerMappingsOpt.isPresent()) {
+            logger.trace("No provider mappings was found for node {}", node.getNodeId().getValue());
+            return;
+        }
+
+        List<ElanInstance> elanInstances = getElanInstances();
+        if (elanInstances == null || elanInstances.isEmpty()) {
+            logger.trace("No ELAN instances found");
+            return;
+        }
+
+        Map<String, String> providerMappings = providerMappingsOpt.get();
+        for (ElanInstance elanInstance : elanInstances) {
+            String physicalNetworkName = elanInstance.getPhysicalNetworkName();
+            if (physicalNetworkName != null && providerMappings.containsKey(physicalNetworkName)) {
+                String interfaceName = providerMappings.get(physicalNetworkName);
+                createExternalElanNetwork(elanInstance, node, interfaceName);
+            }
+        }
+    }
+
+    @Override
+    public void createExternalElanNetwork(ElanInstance elanInstance) {
+        if (elanInstance.getPhysicalNetworkName() == null) {
+            logger.trace("No physical network attached to {}", elanInstance.getElanInstanceName());
+            return;
+        }
+
+        List<Node> nodes = bridgeUtils.getOvsNodes();
+        if (nodes == null || nodes.isEmpty()) {
+            logger.trace("No OVS nodes found while creating external network for ELAN {}",
+                    elanInstance.getElanInstanceName());
+            return;
+        }
+
+        for (Node node : nodes) {
+            String interfaceName = bridgeUtils.getPhysicalInterfaceName(node, elanInstance.getPhysicalNetworkName());
+            createExternalElanNetwork(elanInstance, node, interfaceName);
+        }
+    }
+
+    private void createExternalElanNetwork(ElanInstance elanInstance, Node node, String interfaceName) {
+        if (interfaceName == null) {
+            logger.trace("No physial interface is attached to {} node {}", elanInstance.getPhysicalNetworkName(),
+                    node.getNodeId().getValue());
+        }
+
+        String patchPortName = BridgeUtils.getPatchPortName(interfaceName);
+        String elanInterfaceName = createIetfInterfaces(elanInstance, patchPortName);
+        addElanInterface(elanInstance.getElanInstanceName(), elanInterfaceName, null, null);
+    }
+
+    /**
+     * Create ietf-interfaces based on the ELAN segment type.<br>
+     * For segment type flat - create transparent interface pointing to the
+     * patch-port attached to the physnet port.<br>
+     * For segment type vlan - create trunk interface pointing to the patch-port
+     * attached to the physnet port + trunk-member interface pointing to the
+     * trunk interface.
+     *
+     * @param elanInstance
+     *            ELAN instance
+     * @param parentRef
+     *            parent interface name
+     * @return the name of the interface to be added to the ELAN instance i.e.
+     *         trunk-member name for vlan network and transparent for flat
+     *         network or null otherwise
+     */
+    private String createIetfInterfaces(ElanInstance elanInstance, String parentRef) {
+        String interfaceName = null;
+        Long segmentationId = elanInstance.getSegmentationId();
+
+        try {
+            if (ElanUtils.isFlat(elanInstance)) {
+                interfaceName = parentRef + ":flat";
+                interfaceManager.createVLANInterface(interfaceName, parentRef, null, null, null,
+                        IfL2vlan.L2vlanMode.Transparent);
+            } else if (ElanUtils.isVlan(elanInstance)) {
+                String trunkName = parentRef + ":trunk";
+                interfaceManager.createVLANInterface(interfaceName, parentRef, null, null, null,
+                        IfL2vlan.L2vlanMode.Trunk);
+                interfaceName = parentRef + ':' + segmentationId;
+                interfaceManager.createVLANInterface(interfaceName, trunkName, null, segmentationId.intValue(), null,
+                        IfL2vlan.L2vlanMode.TrunkMember);
+            }
+        } catch (InterfaceAlreadyExistsException e) {
+            logger.trace("Interface {} was already created", interfaceName);
+        }
+
+        return interfaceName;
+    }
+
 }

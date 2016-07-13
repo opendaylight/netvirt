@@ -59,6 +59,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanTagNameMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeFlat;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMacKey;
@@ -1618,6 +1620,17 @@ public class ElanUtils {
         return elanInstance != null && elanInstance.getSegmentType() != null
                 && elanInstance.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
                 && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().longValue() != 0;
+    }
+
+    public static boolean isVlan(ElanInstance elanInstance) {
+        return elanInstance != null && elanInstance.getSegmentType() != null
+                && elanInstance.getSegmentType().isAssignableFrom(SegmentTypeVlan.class)
+                && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().longValue() != 0;
+    }
+
+    public static boolean isFlat(ElanInstance elanInstance) {
+        return elanInstance != null && elanInstance.getSegmentType() != null
+                && elanInstance.getSegmentType().isAssignableFrom(SegmentTypeFlat.class);
     }
 }
 
