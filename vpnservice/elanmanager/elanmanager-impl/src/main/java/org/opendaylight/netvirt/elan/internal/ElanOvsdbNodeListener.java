@@ -23,6 +23,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * Listen for new OVSDB nodes and then make sure they have the necessary bridges configured
  */
@@ -79,6 +80,7 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> {
     protected void add(InstanceIdentifier<Node> identifier, Node node) {
         logger.debug("ElanOvsdbNodeListener.add, new node detected {}", node);
         doNodeUpdate(node);
+        elanProvider.createExternalElanNetworks(node);
     }
 
     private void doNodeUpdate(Node node) {

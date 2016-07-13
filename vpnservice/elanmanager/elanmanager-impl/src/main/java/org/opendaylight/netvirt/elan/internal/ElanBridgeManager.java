@@ -12,15 +12,21 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeNetdev;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 
 import java.util.Collections;
 import org.slf4j.Logger;
@@ -133,6 +139,32 @@ public class ElanBridgeManager {
             prepareIntegrationBridge(ovsdbNode, node);
         }
 
+    }
+
+    /**
+     * Get all OVS nodes from topology.
+     * @return a list of all nodes or null if not found
+     */
+    public List<Node> getOvsNodes() {
+        InstanceIdentifier<Topology> inst = InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
+                new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID));
+        Topology topology = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, inst);
+        return topology != null ? topology.getNode() : null;
+    }
+
+    /**
+     * Get the OVS node physical interface name from provider mappings.
+     * @param node OVSDB node
+     * @param physicalNetworkName name of physical network
+     */
+    public String getPhysicalInterfaceName(Node node, String physicalNetworkName) {
+        Optional<Map<String, String>> providerMappings = getOpenvswitchOtherConfigMap(node, PROVIDER_MAPPINGS_KEY);
+        if (!providerMappings.isPresent()) {
+            LOG.trace("Physical network {} not found in {}", physicalNetworkName, PROVIDER_MAPPINGS_KEY);
+            return null;
+        }
+
+        return providerMappings.get().get(physicalNetworkName);
     }
 
     private void prepareIntegrationBridge(Node ovsdbNode, Node brIntNode) {
