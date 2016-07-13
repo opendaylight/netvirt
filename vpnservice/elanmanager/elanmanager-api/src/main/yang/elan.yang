@@ -55,6 +55,10 @@ module elan {
                                 if segment-type is vlan, this ID is a vlan identifier. If segment-type
                                 is vxlan, this ID is a vni";
             }
+            leaf physical-network-name {
+                type string;
+                description "Optional. The name of the phyiscal network attached to the ELAN.";
+            }
             leaf mac-timeout {
                 type uint32 {
                     range "0..65535";
