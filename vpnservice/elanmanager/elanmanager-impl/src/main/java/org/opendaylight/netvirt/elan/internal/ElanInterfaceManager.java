@@ -936,8 +936,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
         elanServiceProvider.getMdsalManager().addFlowToTx(dpId, flowEntity, writeFlowGroupTx);
 
-        // only if vni is present in elanInfo, perform the following
-        if (ElanUtils.isVxlan(elanInfo)) {
+        // only if ELAN can connect to external netowrk, perform the following
+        if (ElanUtils.isVxlan(elanInfo) || ElanUtils.isVlan(elanInfo) || ElanUtils.isFlat(elanInfo)) {
             Flow flowEntity2 = MDSALUtil.buildFlowNew(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE, getUnknownDmacFlowRef(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE, elanTag, /*SH flag*/true),
                 5, elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_UNKNOWN_DMAC.add(BigInteger.valueOf(elanTag)), getMatchesForElanTag(elanTag, /*SH flag*/true),
                 getInstructionsForOutGroup(ElanUtils.getElanLocalBCGID(elanTag)));
