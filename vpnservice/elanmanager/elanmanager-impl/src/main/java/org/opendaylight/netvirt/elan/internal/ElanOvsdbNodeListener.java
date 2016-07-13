@@ -79,6 +79,7 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> {
     protected void add(InstanceIdentifier<Node> identifier, Node node) {
         logger.debug("ElanOvsdbNodeListener.add, new node detected {}", node);
         doNodeUpdate(node);
+        elanProvider.createExternalElanNetworks(node);
     }
 
     private void doNodeUpdate(Node node) {
