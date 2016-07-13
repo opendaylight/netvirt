@@ -399,9 +399,8 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private String createOfPortInterface(Port port) {
         Interface inf = createInterface(port);
         String infName = inf.getName();
-
         LOG.debug("Creating OFPort Interface {}", infName);
-        InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(infName);
+        InstanceIdentifier<Interface> interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(infName);
         try {
             Optional<Interface> optionalInf = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
                     interfaceIdentifier);
@@ -505,8 +504,12 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 .class, new ElanInterfaceKey(name)).build();
         ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
                 .setName(name).setStaticMacEntries(physAddresses).setKey(new ElanInterfaceKey(name)).build();
-        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, elanInterface);
-        LOG.debug("Creating new ELan Interface {}", elanInterface);
+        try {
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, elanInterface);
+        } catch (Exception e) {
+            LOG.error("failed to create ElanInterface {} due to the exception {} ", name, e.getMessage());
+        }
+        LOG.debug("Creating new ELan Interface {}", name);
     }
 
     // adds port to subnet list and creates vpnInterface
