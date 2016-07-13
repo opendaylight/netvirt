@@ -8,7 +8,7 @@ module natservice-impl {
     import opendaylight-sal-binding-broker-impl { prefix md-sal-binding-impl; revision-date 2013-10-28; }
     import odl-mdsalutil { prefix odl-mdsal; revision-date 2016-04-06;}
     import bgpmanager-api { prefix bgpmgr-api; revision-date 2015-04-20;}
-    import odl-interface {prefix odlif; revision-date 2015-03-31;}
+    import odl-interface {prefix odlif; revision-date 2016-04-06;}
 
     description
         "Service definition for NAT Service module";
