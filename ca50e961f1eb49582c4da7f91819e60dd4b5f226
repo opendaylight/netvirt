@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_1aa0679e",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/utils/ElanPhysicalPortCacheUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-07-13T19:42:23Z",
+      "side": 1,
+      "message": "should be synchronize to prevent races",
+      "revId": "ca50e961f1eb49582c4da7f91819e60dd4b5f226",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_ba9e9b52",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-07-13T19:42:23Z",
+      "side": 1,
+      "message": "what will happen if the Network is configured before the physnet cache is populated? in this case dpnInterface will be empty and the elan interface will not be created.\nwhen the node is connected (physnet is created) you need to create elan interfaces to all the existing networks.\ni assume this can also happen when the OVS will be restarted while the ODL is still up",
+      "revId": "ca50e961f1eb49582c4da7f91819e60dd4b5f226",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_1aaea785",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-07-13T19:42:23Z",
+      "side": 1,
+      "message": "should this be protected from cluster multiple creation?",
+      "revId": "ca50e961f1eb49582c4da7f91819e60dd4b5f226",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
