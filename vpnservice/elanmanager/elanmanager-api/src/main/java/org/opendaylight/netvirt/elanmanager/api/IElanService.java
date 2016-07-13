@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elanmanager.api;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
 
 import java.util.Collection;
@@ -33,5 +34,9 @@ public interface IElanService {
     ElanInstance getElanInstance(String elanInstanceName);
     List<ElanInstance> getElanInstances();
     List<String> getElanInterfaces(String elanInstanceName);
+
+    void createExternalElanNetwork(ElanInstance elanInstance);
+
+    void createExternalElanNetworks(Node node);
 
 }
