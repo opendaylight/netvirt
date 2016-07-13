@@ -20,6 +20,8 @@ import org.opendaylight.controller.md.sal.binding.api.*;
 import org.opendaylight.genius.mdsalutil.*;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -676,6 +678,28 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
         VrfTables vrfTableNew = new VrfTablesBuilder().setRouteDistinguisher(rd).
                     setVrfEntry(vrfEntryList).build();
+
+        VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
+    }
+
+    public synchronized void addSubnetRouteFibEntryToDS(String rd, String prefix,
+                                                        String nexthop, int label,long elantag) {
+
+        SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
+
+        VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).
+                setNextHopAddress(nexthop).setLabel((long)label).addAugmentation(SubnetRoute.class,route).build();
+        LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nexthop, label, elantag);
+
+        List<VrfEntry> vrfEntryList = new ArrayList<VrfEntry>();
+        vrfEntryList.add(vrfEntry);
+
+        InstanceIdentifierBuilder<VrfTables> idBuilder =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+        InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
+
+        VrfTables vrfTableNew = new VrfTablesBuilder().setRouteDistinguisher(rd).
+                setVrfEntry(vrfEntryList).build();
 
         VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
     }
