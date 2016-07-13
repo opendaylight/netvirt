@@ -124,7 +124,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
      * @param lportTag VpnPseudo Port lportTag
      * @param addOrRemove States if the VPN2SCF Pipeline must be installed or removed
      */
-    public void programVpnToScfPipeline(String vpnName, short tableId, int scfTag, int lportTag, int addOrRemove) {
+    public void programVpnToScfPipeline(String vpnName, short tableId, long scfTag, int lportTag, int addOrRemove) {
         // This entries must be created in the DPN where the CGNAT is installed. Since it is not possible
         // to know where CGNAT is located, this entries are installed in all the VPN footprint.
 
@@ -175,7 +175,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
      * @param lportTag Lport tag
      * @return the fake VpnPseudoPort interface name
      */
-    private String buildVpnPseudoPortIfName(Long dpId, int scfTag, int scsTag, int lportTag) {
+    private String buildVpnPseudoPortIfName(Long dpId, long scfTag, int scsTag, int lportTag) {
         return new StringBuilder("VpnPseudo.").append(dpId).append(NwConstants.FLOWID_SEPARATOR)
                                               .append(lportTag).append(NwConstants.FLOWID_SEPARATOR)
                                               .append(scfTag).append(NwConstants.FLOWID_SEPARATOR)
@@ -200,8 +200,8 @@ public class VPNServiceChainHandler implements AutoCloseable {
      * @param isLastServiceChain Flag stating if there is no other ServiceChain using this VpnPseudoPort
      * @param addOrRemove States if pipeline must be installed or removed
      */
-    public void programScfToVpnPipeline(String vpnName, int scfTag, int servChainTag, long dpnId, int vpnPseudoLportTag,
-                                        boolean isLastServiceChain, int addOrRemove) {
+    public void programScfToVpnPipeline(String vpnName, long scfTag, int servChainTag, long dpnId,
+                                        int vpnPseudoLportTag, boolean isLastServiceChain, int addOrRemove) {
         // These Flows must be installed in the DPN where the last SF in the ServiceChain is located
         //   + ScForwardingTable (75):  (This one is created and maintained by ScHopManager)
         //       - Match:  scfTag + servChainId + lportTagOfvVSF    Instr: VpnPseudoPortTag + SI=L3VPN + GOTO LPortDisp
