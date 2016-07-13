@@ -16,15 +16,15 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance.SegmentType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -86,8 +86,10 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
             LOG.error("Neutronvpn doesn't support gre network provider type for this network {}.", input);
             return;
         }
-        //Create ELAN instance for this network
-        createElanInstance(input);
+        // Create ELAN instance for this network
+        ElanInstance elanInstance = createElanInstance(input);
+        // Create ELAN interface and IETF interfaces for the physical network
+        NeutrovpnServiceAccessor.getElanProvider().createExternalElanNetwork(elanInstance);
         if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
             nvpnNatManager.addExternalNetwork(input);
             NeutronvpnUtils.addToNetworkCache(input);
@@ -105,11 +107,14 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
             return;
         }
         //Delete ELAN instance for this network
-        deleteElanInstance(input.getUuid().getValue());
+        String elanInstanceName = input.getUuid().getValue();
+        deleteElanInstance(elanInstanceName);
         if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
             nvpnNatManager.removeExternalNetwork(input);
             NeutronvpnUtils.removeFromNetworkCache(input);
         }
+
+        // TODO: delete elan-interfaces for physnet port
     }
 
     @Override
@@ -120,15 +125,19 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         }
     }
 
-    private void createElanInstance(Network input) {
+    private ElanInstance createElanInstance(Network input) {
         String elanInstanceName = input.getUuid().getValue();
         SegmentType segmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(input);
         String segmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(input);
+        String physicalNetworkName = NeutronvpnUtils.getPhysicalNetworkName(input);
         ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName);
         if (segmentType != null) {
             elanInstanceBuilder.setSegmentType(segmentType);
             if (segmentationId != null) {
                 elanInstanceBuilder.setSegmentationId(Long.valueOf(segmentationId));
+            }
+            if (physicalNetworkName != null) {
+                elanInstanceBuilder.setPhysicalNetworkName(physicalNetworkName);
             }
         }
         elanInstanceBuilder.setKey(new ElanInstanceKey(elanInstanceName));
@@ -136,6 +145,7 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         InstanceIdentifier<ElanInstance> id = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
         MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
+        return elanInstance;
     }
 
     private void deleteElanInstance(String elanInstanceName) {

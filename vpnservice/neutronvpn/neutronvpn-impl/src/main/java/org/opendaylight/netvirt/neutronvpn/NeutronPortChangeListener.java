@@ -399,7 +399,6 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private String createOfPortInterface(Port port) {
         Interface inf = createInterface(port);
         String infName = inf.getName();
-
         LOG.debug("Creating OFPort Interface {}", infName);
         InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(infName);
         try {
@@ -501,12 +500,12 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         List<PhysAddress> physAddresses = new ArrayList<>();
         physAddresses.add(new PhysAddress(port.getMacAddress().getValue()));
 
-        InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
-                .class, new ElanInterfaceKey(name)).build();
-        ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
-                .setName(name).setStaticMacEntries(physAddresses).setKey(new ElanInterfaceKey(name)).build();
+        InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class)
+                .child(ElanInterface.class, new ElanInterfaceKey(name)).build();
+        ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName).setName(name)
+                .setStaticMacEntries(physAddresses).setKey(new ElanInterfaceKey(name)).build();
         MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, elanInterface);
-        LOG.debug("Creating new ELan Interface {}", elanInterface);
+        LOG.debug("Creating new ELan Interface {}", name);
     }
 
     // adds port to subnet list and creates vpnInterface
