@@ -24,6 +24,7 @@ import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -122,7 +123,7 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
         L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(l2DeviceName);
         if (l2GwDevice != null) {
             if (!L2GatewayUtils.isGatewayAssociatedToL2Device(l2GwDevice)
-                    && L2GatewayUtils.isL2GwDeviceConnected(l2GwDevice)) {
+                    && l2GwDevice.isConnected()) {
                 // VTEP already discovered; create ITM tunnels
                 final String hwvtepId = l2GwDevice.getHwvtepNodeId();
                 InstanceIdentifier<Node> iid = HwvtepSouthboundUtils.createInstanceIdentifier(new NodeId(hwvtepId));
@@ -170,7 +171,7 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
             // Delete ITM tunnels if it's last Gateway deleted and device is connected
             // Also, do not delete device from cache if it's connected
             if (L2GatewayUtils.isLastL2GatewayBeingDeleted(l2GwDevice)) {
-                if (L2GatewayUtils.isL2GwDeviceConnected(l2GwDevice)) {
+                if (l2GwDevice.isConnected()) {
                     l2GwDevice.removeL2GatewayId(input.getUuid());
                     // Delete ITM tunnels
                     final String hwvtepId = l2GwDevice.getHwvtepNodeId();
@@ -200,6 +201,12 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
                     });
                 } else {
                     L2GatewayCacheUtils.removeL2DeviceFromCache(l2DeviceName);
+                    // Cleaning up the config DS
+                    NodeId nodeId = new NodeId(l2GwDevice.getHwvtepNodeId());
+                    NodeId psNodeId = HwvtepSouthboundUtils.createManagedNodeId(nodeId, l2DeviceName);
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, HwvtepSouthboundUtils.createInstanceIdentifier(nodeId));
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, HwvtepSouthboundUtils.createInstanceIdentifier(psNodeId));
+
                 }
             } else {
                 l2GwDevice.removeL2GatewayId(input.getUuid());

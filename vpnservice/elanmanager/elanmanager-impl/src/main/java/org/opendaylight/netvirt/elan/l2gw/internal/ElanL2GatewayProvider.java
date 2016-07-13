@@ -23,7 +23,7 @@ import org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
-import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepPhysicalLocatorListener;
+import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepTerminationPointListener;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
@@ -48,7 +48,7 @@ public class ElanL2GatewayProvider implements AutoCloseable {
     private L2GatewayConnectionListener l2GwConnListener;
     private HwvtepPhysicalSwitchListener hwvtepPhySwitchListener;
     private HwvtepLocalUcastMacListener torMacsListener;
-    private HwvtepPhysicalLocatorListener physicalLocatorListener;
+    private HwvtepTerminationPointListener physicalLocatorListener;
 
     static DataStoreJobCoordinator dataStoreJobCoordinator;
 
@@ -96,7 +96,7 @@ public class ElanL2GatewayProvider implements AutoCloseable {
         this.hwvtepPhySwitchListener = new HwvtepPhysicalSwitchListener(broker, itmRpcService);
         this.hwvtepPhySwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
 
-        physicalLocatorListener = new HwvtepPhysicalLocatorListener(broker);
+        physicalLocatorListener = new HwvtepTerminationPointListener(broker);
         try {
             EntityOwnerUtils.registerEntityCandidateForOwnerShip(entityOwnershipService,
                     HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,

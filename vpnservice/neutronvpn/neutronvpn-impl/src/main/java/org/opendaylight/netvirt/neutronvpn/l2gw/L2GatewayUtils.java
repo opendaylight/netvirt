@@ -34,10 +34,6 @@ public class L2GatewayUtils {
         return (l2GwDevice.getL2GatewayIds().size() == 1);
     }
 
-    protected static boolean isL2GwDeviceConnected(L2GatewayDevice l2GwDevice) {
-        return (l2GwDevice.getHwvtepNodeId() != null);
-    }
-
     protected static boolean isItmTunnelsCreatedForL2Device(L2GatewayDevice l2GwDevice) {
         return (l2GwDevice.getHwvtepNodeId() != null && l2GwDevice.getL2GatewayIds().size() > 0);
     }
