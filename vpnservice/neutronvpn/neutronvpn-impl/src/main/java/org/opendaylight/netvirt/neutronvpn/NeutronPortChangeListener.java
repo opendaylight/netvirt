@@ -34,6 +34,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
@@ -341,9 +344,16 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                     if (securityGroups != null) {
                         interfaceAclBuilder.setSecurityGroups(securityGroups);
                     }
+                    List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> portAllowedAddressPairs =
+                            portUpdated.getAllowedAddressPairs();
+                    if (portAllowedAddressPairs != null) {
+                        interfaceAclBuilder
+                                .setAllowedAddressPairs(getAllowedAddressPairsForAclService(portAllowedAddressPairs));
+                    }
                 } else {
                     // Handle security group disabled
                     interfaceAclBuilder.setSecurityGroups(Lists.newArrayList());
+                    interfaceAclBuilder.setAllowedAddressPairs(Lists.newArrayList());
                 }
             } else {
                 if (updatedSecurityEnabled) {
@@ -355,19 +365,36 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                     List<Uuid> deletedGroups = getsecurityGroupChanged(portOriginal.getSecurityGroups(),
                             portUpdated.getSecurityGroups());
                     List<Uuid> securityGroups = interfaceAcl.getSecurityGroups();
+                    List<Uuid> updatedSecurityGroups =
+                            (securityGroups != null) ? new ArrayList<>(securityGroups) : new ArrayList<>();
                     if (addedGroups != null) {
-                        securityGroups.addAll(addedGroups);
+                        updatedSecurityGroups.addAll(addedGroups);
                     }
                     if (deletedGroups != null) {
-                        securityGroups.removeAll(deletedGroups);
+                        updatedSecurityGroups.removeAll(deletedGroups);
                     }
-                    interfaceAclBuilder.setSecurityGroups(securityGroups);
+                    interfaceAclBuilder.setSecurityGroups(updatedSecurityGroups);
+
+                    List<AllowedAddressPairs> addedAllowedAddressPairs = getAllowedAddressPairsChanged(
+                            portUpdated.getAllowedAddressPairs(), portOriginal.getAllowedAddressPairs());
+                    List<AllowedAddressPairs> deletedAllowedAddressPairs = getAllowedAddressPairsChanged(
+                            portOriginal.getAllowedAddressPairs(), portUpdated.getAllowedAddressPairs());
+                    List<AllowedAddressPairs> allowedAddressPairs = interfaceAcl.getAllowedAddressPairs();
+                    List<AllowedAddressPairs> updatedAllowedAddressPairs =
+                            (allowedAddressPairs != null) ? new ArrayList<>(allowedAddressPairs) : new ArrayList<>();
+                    if (addedAllowedAddressPairs != null) {
+                        updatedAllowedAddressPairs.addAll(addedAllowedAddressPairs);
+                    }
+                    if (deletedAllowedAddressPairs != null) {
+                        updatedAllowedAddressPairs.removeAll(deletedAllowedAddressPairs);
+                    }
+                    interfaceAclBuilder.setAllowedAddressPairs(updatedAllowedAddressPairs);
                 }
             }
 
             if (interfaceAclBuilder != null) {
-                InterfaceBuilder builder = new InterfaceBuilder(portInterface)
-                        .addAugmentation(InterfaceAcl.class, interfaceAclBuilder.build());
+                InterfaceBuilder builder = new InterfaceBuilder(portInterface).addAugmentation(InterfaceAcl.class,
+                        interfaceAclBuilder.build());
                 InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(interfaceName);
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, builder.build());
             }
@@ -397,6 +424,56 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             }
         }
         return list1;
+    }
+
+    private List<AllowedAddressPairs> getAllowedAddressPairsChanged(
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> port1AllowedAddressPairs,
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> port2AllowedAddressPairs) {
+        if (port1AllowedAddressPairs == null) {
+            return null;
+        }
+
+        if (port2AllowedAddressPairs == null) {
+            return getAllowedAddressPairsForAclService(port1AllowedAddressPairs);
+        }
+
+        List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> list1 =
+                new ArrayList<>(port1AllowedAddressPairs);
+        List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> list2 =
+                new ArrayList<>(port2AllowedAddressPairs);
+        for (Iterator<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> iterator =
+                list1.iterator(); iterator.hasNext();) {
+            org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs allowedAddressPair1 =
+                    iterator.next();
+            for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs allowedAddressPair2 : list2) {
+                if (allowedAddressPair1.getKey().equals(allowedAddressPair2.getKey())) {
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+        return getAllowedAddressPairsForAclService(list1);
+    }
+
+    private List<AllowedAddressPairs> getAllowedAddressPairsForAclService(
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> portAllowedAddressPairs) {
+        List<AllowedAddressPairs> aclAllowedAddressPairs = new ArrayList<>();
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs portAllowedAddressPair : portAllowedAddressPairs) {
+            AllowedAddressPairsBuilder aclAllowedAdressPairBuilder = new AllowedAddressPairsBuilder();
+            org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress ipAddress =
+                    portAllowedAddressPair.getIpAddress();
+            if (ipAddress != null && ipAddress.getValue() != null) {
+                if (ipAddress.getIpPrefix() != null) {
+                    aclAllowedAdressPairBuilder.setIpAddress(new IpPrefixOrAddress(ipAddress.getIpPrefix()));
+                } else {
+                    aclAllowedAdressPairBuilder.setIpAddress(new IpPrefixOrAddress(ipAddress.getIpAddress()));
+                }
+            }
+
+            aclAllowedAdressPairBuilder.setMacAddress(portAllowedAddressPair.getMacAddress());
+            aclAllowedAddressPairs.add(aclAllowedAdressPairBuilder.build());
+        }
+        return aclAllowedAddressPairs;
     }
 
     private String createOfPortInterface(Port port) {
@@ -438,6 +515,13 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             List<Uuid> securityGroups = port.getSecurityGroups();
             if (securityGroups != null) {
                 interfaceAclBuilder.setSecurityGroups(securityGroups);
+            }
+
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> portAllowedAddressPairs =
+                    port.getAllowedAddressPairs();
+            if (portAllowedAddressPairs != null) {
+                interfaceAclBuilder
+                        .setAllowedAddressPairs(getAllowedAddressPairsForAclService(portAllowedAddressPairs));
             }
             interfaceBuilder.addAugmentation(InterfaceAcl.class, interfaceAclBuilder.build());
         }
