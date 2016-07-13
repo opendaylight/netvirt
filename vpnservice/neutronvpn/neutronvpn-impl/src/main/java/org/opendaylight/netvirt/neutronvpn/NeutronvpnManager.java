@@ -124,6 +124,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     IMdsalApiManager mdsalUtil;
     private NotificationPublishService notificationPublishService;
     private NotificationService notificationService;
+    private NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
     Boolean isExternalVpn;
 
     /**
@@ -131,12 +132,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      * @param mdsalManager - MDSAL Util API access
      */
     public NeutronvpnManager(final DataBroker db, IMdsalApiManager mdsalManager,NotificationPublishService notiPublishService,
-                             NotificationService notiService, NeutronvpnNatManager vpnNatMgr) {
+                             NotificationService notiService, NeutronvpnNatManager vpnNatMgr,
+                             NeutronFloatingToFixedIpMappingChangeListener neutronFloatingToFixedIpMappingChangeListener) {
         broker = db;
         mdsalUtil = mdsalManager;
         nvpnNatManager = vpnNatMgr;
         notificationPublishService = notiPublishService;
         notificationService = notiService;
+        floatingIpMapListener = neutronFloatingToFixedIpMappingChangeListener;
     }
 
     public void setLockManager(LockManagerService lockManager) {
@@ -1155,6 +1158,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             logger.error("publishing of notification upon association of router {} to VPN {} failed : ", routerId
                     .getValue(), vpnId.getValue(), e);
         }
+    }
+
+    protected void dissociatefixedIPFromFloatingIP(String fixedNeutronPortName) {
+        floatingIpMapListener.dissociatefixedIPFromFloatingIP(fixedNeutronPortName);
     }
 
     protected void associateRouterToInternalVpn(Uuid vpnId, Uuid routerId) {

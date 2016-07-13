@@ -76,7 +76,7 @@ public class NeutronPortChangeListenerTest {
             thenReturn(Futures.immediateCheckedFuture(Optional.of(mockNetwork)));
 
         neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, nVpnMgr, nVpnNatMgr,
-                notiPublishService, notiService, floatingIpMapListener);
+                notiPublishService, notiService);
     }
 
     @Test

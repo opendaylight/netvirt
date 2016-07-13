@@ -63,19 +63,16 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private LockManagerService lockManager;
     private NotificationPublishService notificationPublishService;
     private NotificationService notificationService;
-    private NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
 
 
     public NeutronPortChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,NeutronvpnNatManager nVpnNatMgr,
-                                     NotificationPublishService notiPublishService, NotificationService notiService,
-                                     NeutronFloatingToFixedIpMappingChangeListener neutronFloatingToFixedIpMappingChangeListener) {
+                                     NotificationPublishService notiPublishService, NotificationService notiService) {
         super(Port.class);
         broker = db;
         nvpnManager = nVpnMgr;
         nvpnNatManager = nVpnNatMgr;
         notificationPublishService = notiPublishService;
         notificationService = notiService;
-        floatingIpMapListener = neutronFloatingToFixedIpMappingChangeListener;
         registerListener(db);
     }
 
@@ -274,7 +271,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
 
     private void handleNeutronPortDeleted(Port port) {
         //dissociate fixedIP from floatingIP if associated
-        floatingIpMapListener.dissociatefixedIPFromFloatingIP(port.getUuid().getValue());
+        nvpnManager.dissociatefixedIPFromFloatingIP(port.getUuid().getValue());
         LOG.debug("Remove port from subnet");
         // remove port from local Subnets DS
         Uuid vpnId = removePortFromSubnets(port);
