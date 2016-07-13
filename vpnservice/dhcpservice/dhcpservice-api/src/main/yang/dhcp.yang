@@ -4,7 +4,7 @@ module vpnservice-dhcp {
 
     import ietf-inet-types {
         prefix inet;
-        revision-date "2010-09-24";
+        revision-date "2013-07-15";
     }
 
     revision "2016-04-28" {

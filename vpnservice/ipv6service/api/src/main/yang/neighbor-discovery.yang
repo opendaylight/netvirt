@@ -11,8 +11,8 @@ module neighbor-discovery {
     namespace "urn:opendaylight:netvirt:ipv6service:nd:packet";
     prefix nd;
 
-    import ietf-yang-types {prefix yang; revision-date "2010-09-24";}
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-yang-types {prefix yang; revision-date "2013-07-15";}
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
 
     revision 2016-06-20 { description "ND informational message packets"; }
 

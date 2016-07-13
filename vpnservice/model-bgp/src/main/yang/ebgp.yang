@@ -8,7 +8,7 @@ module ebgp {
   prefix "ericsson-bgp";
 
   // import some basic inet types
-  import ietf-inet-types { prefix inet; revision-date "2010-09-24"; }
+  import ietf-inet-types { prefix inet; revision-date "2013-07-15"; }
 
   // meta
   organization

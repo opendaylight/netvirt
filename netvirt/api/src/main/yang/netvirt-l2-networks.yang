@@ -7,7 +7,7 @@ module netvirt-l2-networks {
         description "Initial revision of netvirt l2-networks definition";
     }
 
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import ietf-yang-types { prefix yang; }
     import netvirt-common { prefix "common"; }
 
