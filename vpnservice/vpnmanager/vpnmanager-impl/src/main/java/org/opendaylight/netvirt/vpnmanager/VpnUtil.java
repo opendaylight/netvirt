@@ -37,6 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
@@ -145,6 +147,24 @@ public class VpnUtil {
                         InstanceIdentifier.builder(IdPools.class).child(IdPool.class, new IdPoolKey(poolName));
         InstanceIdentifier<IdPool> id = idBuilder.build();
         return id;
+    }
+
+    static VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
+        InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+        InstanceIdentifier<VrfTables> id = idBuilder.build();
+
+        Optional<VrfTables> vrfTable = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (vrfTable.isPresent()) {
+            InstanceIdentifier<VrfEntry> vrfEntryId =
+                    InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).
+                            child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
+            Optional<VrfEntry> vrfEntry = read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+            if (vrfEntry.isPresent())  {
+                return ((VrfEntry)vrfEntry.get());
+            }
+        }
+        return null;
     }
 
     static InstanceIdentifier<VpnInterfaces> getVpnInterfacesIdentifier() {

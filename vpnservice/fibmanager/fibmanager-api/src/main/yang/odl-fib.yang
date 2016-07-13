@@ -2,6 +2,8 @@ module odl-fib {
     namespace "urn:opendaylight:netvirt:fibmanager";
     prefix odl-fib;
 
+    import yang-ext {prefix ext; revision-date "2013-07-09";}
+
     revision "2015-03-30" {
         description "FIB Manager module";
     }
@@ -29,6 +31,11 @@ module odl-fib {
                 type string;
             }
         }
+    }
+
+    augment "/odl-fib:fibEntries/odl-fib:vrfTables/odl-fib:vrfEntry" {
+            ext:augment-identifier "subnetRoute";
+            leaf elantag {type uint32;}
     }
 
     container fibEntries {
