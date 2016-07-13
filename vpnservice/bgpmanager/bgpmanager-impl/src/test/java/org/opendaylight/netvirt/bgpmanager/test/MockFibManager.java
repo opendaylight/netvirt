@@ -34,8 +34,8 @@ public class MockFibManager extends AbstractMockFibManager<VrfEntry> {
     }
 
     private InstanceIdentifier<VrfEntry> getWildCardPath() {
-            return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class);
-     }
+        return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class);
+    }
 
     @Override
     public void onDataTreeChanged(Collection<DataTreeModification<VrfEntry>> changes) {
@@ -43,7 +43,7 @@ public class MockFibManager extends AbstractMockFibManager<VrfEntry> {
             final InstanceIdentifier<VrfEntry> key = change.getRootPath().getRootIdentifier();
             final DataObjectModification<VrfEntry> mod = change.getRootNode();
 
-                switch (mod.getModificationType()) {
+            switch (mod.getModificationType()) {
                 case DELETE:
                     nFibEntries -= 1;
                     break;
@@ -56,9 +56,9 @@ public class MockFibManager extends AbstractMockFibManager<VrfEntry> {
                     break;
                 default:
                     throw new IllegalArgumentException("Unhandled modification  type " + mod.getModificationType());
-                }
             }
-     }
+        }
+    }
 
     public int getDataChgCount() {
         return nFibEntries;

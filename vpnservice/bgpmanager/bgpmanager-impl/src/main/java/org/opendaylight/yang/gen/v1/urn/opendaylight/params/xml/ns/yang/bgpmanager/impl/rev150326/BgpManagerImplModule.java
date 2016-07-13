@@ -21,6 +21,7 @@ public class BgpManagerImplModule extends org.opendaylight.yang.gen.v1.urn.opend
         // TODO:implement
         //throw new java.lang.UnsupportedOperationException();
         BgpManager provider = new BgpManager();
+        provider.setEntityOwnershipService(getEntityOwnershipServiceDependency());
         //provider.setITMProvider(getItmDependency());
         getBrokerDependency().registerProvider(provider);
         return provider;

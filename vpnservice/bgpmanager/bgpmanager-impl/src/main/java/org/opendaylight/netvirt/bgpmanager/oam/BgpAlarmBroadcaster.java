@@ -30,7 +30,7 @@ public class BgpAlarmBroadcaster extends NotificationBroadcasterSupport implemen
         Notification n;
         String alarmAddText, alarmSrc = "BGP";
         BgpAlarmErrorCodes userAlarm;
-        ArrayList<String> arrayList = new ArrayList<>();
+        ArrayList<String> arrayList = new ArrayList<String>();
 
         userAlarm = BgpAlarmErrorCodes.checkErrorSubcode(subcode);
         alarmAddText = "Peer=" + pfx;

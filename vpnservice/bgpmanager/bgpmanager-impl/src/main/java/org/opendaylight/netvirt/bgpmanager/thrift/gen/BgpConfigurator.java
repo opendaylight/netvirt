@@ -13,6 +13,7 @@ import org.apache.thrift.scheme.StandardScheme;
 
 import org.apache.thrift.scheme.TupleScheme;
 import org.apache.thrift.protocol.TTupleProtocol;
+import org.apache.thrift.protocol.TProtocolException;
 import org.apache.thrift.EncodingUtils;
 import org.apache.thrift.TException;
 import org.apache.thrift.async.AsyncMethodCallback;
@@ -22,9 +23,13 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,87 +37,81 @@ public class BgpConfigurator {
 
   public interface Iface {
 
-    int startBgp(int asNumber, String routerId, int port, int holdTime, int keepAliveTime, int stalepathTime,
-                 boolean announceFbit) throws org.apache.thrift.TException;
+    public int startBgp(int asNumber, String routerId, int port, int holdTime, int keepAliveTime, int stalepathTime, boolean announceFbit) throws org.apache.thrift.TException;
 
-    int stopBgp(int asNumber) throws org.apache.thrift.TException;
+    public int stopBgp(int asNumber) throws org.apache.thrift.TException;
 
-    int createPeer(String ipAddress, int asNumber) throws org.apache.thrift.TException;
+    public int createPeer(String ipAddress, int asNumber) throws org.apache.thrift.TException;
 
-    int deletePeer(String ipAddress) throws org.apache.thrift.TException;
+    public int deletePeer(String ipAddress) throws org.apache.thrift.TException;
 
-    int addVrf(String rd, List<String> irts, List<String> erts) throws org.apache.thrift.TException;
+    public int addVrf(String rd, List<String> irts, List<String> erts) throws org.apache.thrift.TException;
 
-    int delVrf(String rd) throws org.apache.thrift.TException;
+    public int delVrf(String rd) throws org.apache.thrift.TException;
 
-    int pushRoute(String prefix, String nexthop, String rd, int label) throws org.apache.thrift.TException;
+    public int pushRoute(String prefix, String nexthop, String rd, int label) throws org.apache.thrift.TException;
 
-    int withdrawRoute(String prefix, String rd) throws org.apache.thrift.TException;
+    public int withdrawRoute(String prefix, String rd) throws org.apache.thrift.TException;
 
-    int setEbgpMultihop(String peerIp, int nHops) throws org.apache.thrift.TException;
+    public int setEbgpMultihop(String peerIp, int nHops) throws org.apache.thrift.TException;
 
-    int unsetEbgpMultihop(String peerIp) throws org.apache.thrift.TException;
+    public int unsetEbgpMultihop(String peerIp) throws org.apache.thrift.TException;
 
-    int setUpdateSource(String peerIp, String srcIp) throws org.apache.thrift.TException;
+    public int setUpdateSource(String peerIp, String srcIp) throws org.apache.thrift.TException;
 
-    int unsetUpdateSource(String peerIp) throws org.apache.thrift.TException;
+    public int unsetUpdateSource(String peerIp) throws org.apache.thrift.TException;
 
-    int enableAddressFamily(String peerIp, af_afi afi, af_safi safi) throws org.apache.thrift.TException;
+    public int enableAddressFamily(String peerIp, af_afi afi, af_safi safi) throws org.apache.thrift.TException;
 
-    int disableAddressFamily(String peerIp, af_afi afi, af_safi safi) throws org.apache.thrift.TException;
+    public int disableAddressFamily(String peerIp, af_afi afi, af_safi safi) throws org.apache.thrift.TException;
 
-    int setLogConfig(String logFileName, String logLevel) throws org.apache.thrift.TException;
+    public int setLogConfig(String logFileName, String logLevel) throws org.apache.thrift.TException;
 
-    int enableGracefulRestart(int stalepathTime) throws org.apache.thrift.TException;
+    public int enableGracefulRestart(int stalepathTime) throws org.apache.thrift.TException;
 
-    int disableGracefulRestart() throws org.apache.thrift.TException;
+    public int disableGracefulRestart() throws org.apache.thrift.TException;
 
-    Routes getRoutes(int optype, int winSize) throws org.apache.thrift.TException;
+    public Routes getRoutes(int optype, int winSize) throws org.apache.thrift.TException;
 
   }
 
   public interface AsyncIface {
 
-    void startBgp(int asNumber, String routerId, int port, int holdTime, int keepAliveTime, int stalepathTime,
-                  boolean announceFbit, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void startBgp(int asNumber, String routerId, int port, int holdTime, int keepAliveTime, int stalepathTime, boolean announceFbit, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void stopBgp(int asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void stopBgp(int asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void createPeer(String ipAddress, int asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void createPeer(String ipAddress, int asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void deletePeer(String ipAddress, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void deletePeer(String ipAddress, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void addVrf(String rd, List<String> irts, List<String> erts,
-                org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void addVrf(String rd, List<String> irts, List<String> erts, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void delVrf(String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void delVrf(String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void pushRoute(String prefix, String nexthop, String rd, int label,
-                   org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void pushRoute(String prefix, String nexthop, String rd, int label, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void withdrawRoute(String prefix, String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void withdrawRoute(String prefix, String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void setEbgpMultihop(String peerIp, int nHops, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void setEbgpMultihop(String peerIp, int nHops, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void unsetEbgpMultihop(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void unsetEbgpMultihop(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void setUpdateSource(String peerIp, String srcIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void setUpdateSource(String peerIp, String srcIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void unsetUpdateSource(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void unsetUpdateSource(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void enableAddressFamily(String peerIp, af_afi afi, af_safi safi,
-                             org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void enableAddressFamily(String peerIp, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void disableAddressFamily(String peerIp, af_afi afi, af_safi safi,
-                              org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void disableAddressFamily(String peerIp, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void setLogConfig(String logFileName, String logLevel, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void setLogConfig(String logFileName, String logLevel, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void enableGracefulRestart(int stalepathTime, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void enableGracefulRestart(int stalepathTime, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void disableGracefulRestart(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void disableGracefulRestart(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    void getRoutes(int optype, int winSize, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void getRoutes(int optype, int winSize, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
   }
 
@@ -1229,7 +1228,7 @@ public class BgpConfigurator {
   public static class Processor<I extends Iface> extends org.apache.thrift.TBaseProcessor<I> implements org.apache.thrift.TProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class.getName());
     public Processor(I iface) {
-      super(iface, getProcessMap(new HashMap<>()));
+      super(iface, getProcessMap(new HashMap<String, org.apache.thrift.ProcessFunction<I, ? extends org.apache.thrift.TBase>>()));
     }
 
     protected Processor(I iface, Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> processMap) {
@@ -1640,7 +1639,7 @@ public class BgpConfigurator {
   public static class AsyncProcessor<I extends AsyncIface> extends org.apache.thrift.TBaseAsyncProcessor<I> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncProcessor.class.getName());
     public AsyncProcessor(I iface) {
-      super(iface, getProcessMap(new HashMap<>()));
+      super(iface, getProcessMap(new HashMap<String, org.apache.thrift.AsyncProcessFunction<I, ? extends org.apache.thrift.TBase, ?>>()));
     }
 
     protected AsyncProcessor(I iface, Map<String,  org.apache.thrift.AsyncProcessFunction<I, ? extends  org.apache.thrift.TBase, ?>> processMap) {
@@ -2617,7 +2616,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField STALEPATH_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("stalepathTime", org.apache.thrift.protocol.TType.I32, (short)6);
     private static final org.apache.thrift.protocol.TField ANNOUNCE_FBIT_FIELD_DESC = new org.apache.thrift.protocol.TField("announceFbit", org.apache.thrift.protocol.TType.BOOL, (short)7);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new startBgp_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new startBgp_argsTupleSchemeFactory());
@@ -2641,7 +2640,7 @@ public class BgpConfigurator {
       STALEPATH_TIME((short)6, "stalepathTime"),
       ANNOUNCE_FBIT((short)7, "announceFbit");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -2717,7 +2716,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.AS_NUMBER, new org.apache.thrift.meta_data.FieldMetaData("asNumber", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       tmpMap.put(_Fields.ROUTER_ID, new org.apache.thrift.meta_data.FieldMetaData("routerId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -3098,8 +3097,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_routerId = this.isSetRouterId();
-      boolean that_present_routerId = that.isSetRouterId();
+      boolean this_present_routerId = true && this.isSetRouterId();
+      boolean that_present_routerId = true && that.isSetRouterId();
       if (this_present_routerId || that_present_routerId) {
         if (!(this_present_routerId && that_present_routerId))
           return false;
@@ -3533,7 +3532,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new startBgp_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new startBgp_resultTupleSchemeFactory());
@@ -3545,7 +3544,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -3604,7 +3603,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -3887,7 +3886,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField AS_NUMBER_FIELD_DESC = new org.apache.thrift.protocol.TField("asNumber", org.apache.thrift.protocol.TType.I32, (short)1);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new stopBgp_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new stopBgp_argsTupleSchemeFactory());
@@ -3899,7 +3898,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       AS_NUMBER((short)1, "asNumber");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -3958,7 +3957,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.AS_NUMBER, new org.apache.thrift.meta_data.FieldMetaData("asNumber", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -4239,7 +4238,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new stopBgp_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new stopBgp_resultTupleSchemeFactory());
@@ -4251,7 +4250,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -4310,7 +4309,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -4594,7 +4593,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField IP_ADDRESS_FIELD_DESC = new org.apache.thrift.protocol.TField("ipAddress", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField AS_NUMBER_FIELD_DESC = new org.apache.thrift.protocol.TField("asNumber", org.apache.thrift.protocol.TType.I32, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new createPeer_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new createPeer_argsTupleSchemeFactory());
@@ -4608,7 +4607,7 @@ public class BgpConfigurator {
       IP_ADDRESS((short)1, "ipAddress"),
       AS_NUMBER((short)2, "asNumber");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -4669,7 +4668,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.IP_ADDRESS, new org.apache.thrift.meta_data.FieldMetaData("ipAddress", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.AS_NUMBER, new org.apache.thrift.meta_data.FieldMetaData("asNumber", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -4821,8 +4820,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_ipAddress = this.isSetIpAddress();
-      boolean that_present_ipAddress = that.isSetIpAddress();
+      boolean this_present_ipAddress = true && this.isSetIpAddress();
+      boolean that_present_ipAddress = true && that.isSetIpAddress();
       if (this_present_ipAddress || that_present_ipAddress) {
         if (!(this_present_ipAddress && that_present_ipAddress))
           return false;
@@ -5045,7 +5044,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new createPeer_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new createPeer_resultTupleSchemeFactory());
@@ -5057,7 +5056,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -5116,7 +5115,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -5399,7 +5398,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField IP_ADDRESS_FIELD_DESC = new org.apache.thrift.protocol.TField("ipAddress", org.apache.thrift.protocol.TType.STRING, (short)1);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new deletePeer_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new deletePeer_argsTupleSchemeFactory());
@@ -5411,7 +5410,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       IP_ADDRESS((short)1, "ipAddress");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -5468,7 +5467,7 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.IP_ADDRESS, new org.apache.thrift.meta_data.FieldMetaData("ipAddress", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -5575,8 +5574,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_ipAddress = this.isSetIpAddress();
-      boolean that_present_ipAddress = that.isSetIpAddress();
+      boolean this_present_ipAddress = true && this.isSetIpAddress();
+      boolean that_present_ipAddress = true && that.isSetIpAddress();
       if (this_present_ipAddress || that_present_ipAddress) {
         if (!(this_present_ipAddress && that_present_ipAddress))
           return false;
@@ -5753,7 +5752,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new deletePeer_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new deletePeer_resultTupleSchemeFactory());
@@ -5765,7 +5764,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -5824,7 +5823,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -6109,7 +6108,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField IRTS_FIELD_DESC = new org.apache.thrift.protocol.TField("irts", org.apache.thrift.protocol.TType.LIST, (short)2);
     private static final org.apache.thrift.protocol.TField ERTS_FIELD_DESC = new org.apache.thrift.protocol.TField("erts", org.apache.thrift.protocol.TType.LIST, (short)3);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new addVrf_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new addVrf_argsTupleSchemeFactory());
@@ -6125,7 +6124,7 @@ public class BgpConfigurator {
       IRTS((short)2, "irts"),
       ERTS((short)3, "erts");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -6186,7 +6185,7 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.IRTS, new org.apache.thrift.meta_data.FieldMetaData("irts", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -6221,11 +6220,11 @@ public class BgpConfigurator {
         this.rd = other.rd;
       }
       if (other.isSetIrts()) {
-        List<String> __this__irts = new ArrayList<>(other.irts);
+        List<String> __this__irts = new ArrayList<String>(other.irts);
         this.irts = __this__irts;
       }
       if (other.isSetErts()) {
-        List<String> __this__erts = new ArrayList<>(other.erts);
+        List<String> __this__erts = new ArrayList<String>(other.erts);
         this.erts = __this__erts;
       }
     }
@@ -6275,7 +6274,7 @@ public class BgpConfigurator {
 
     public void addToIrts(String elem) {
       if (this.irts == null) {
-        this.irts = new ArrayList<>();
+        this.irts = new ArrayList<String>();
       }
       this.irts.add(elem);
     }
@@ -6314,7 +6313,7 @@ public class BgpConfigurator {
 
     public void addToErts(String elem) {
       if (this.erts == null) {
-        this.erts = new ArrayList<>();
+        this.erts = new ArrayList<String>();
       }
       this.erts.add(elem);
     }
@@ -6417,8 +6416,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_rd = this.isSetRd();
-      boolean that_present_rd = that.isSetRd();
+      boolean this_present_rd = true && this.isSetRd();
+      boolean that_present_rd = true && that.isSetRd();
       if (this_present_rd || that_present_rd) {
         if (!(this_present_rd && that_present_rd))
           return false;
@@ -6426,8 +6425,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_irts = this.isSetIrts();
-      boolean that_present_irts = that.isSetIrts();
+      boolean this_present_irts = true && this.isSetIrts();
+      boolean that_present_irts = true && that.isSetIrts();
       if (this_present_irts || that_present_irts) {
         if (!(this_present_irts && that_present_irts))
           return false;
@@ -6435,8 +6434,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_erts = this.isSetErts();
-      boolean that_present_erts = that.isSetErts();
+      boolean this_present_erts = true && this.isSetErts();
+      boolean that_present_erts = true && that.isSetErts();
       if (this_present_erts || that_present_erts) {
         if (!(this_present_erts && that_present_erts))
           return false;
@@ -6588,7 +6587,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
                   org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
-                  struct.irts = new ArrayList<>(_list8.size);
+                  struct.irts = new ArrayList<String>(_list8.size);
                   for (int _i9 = 0; _i9 < _list8.size; ++_i9)
                   {
                     String _elem10;
@@ -6606,7 +6605,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
                   org.apache.thrift.protocol.TList _list11 = iprot.readListBegin();
-                  struct.erts = new ArrayList<>(_list11.size);
+                  struct.erts = new ArrayList<String>(_list11.size);
                   for (int _i12 = 0; _i12 < _list11.size; ++_i12)
                   {
                     String _elem13;
@@ -6726,7 +6725,7 @@ public class BgpConfigurator {
         if (incoming.get(1)) {
           {
             org.apache.thrift.protocol.TList _list18 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-            struct.irts = new ArrayList<>(_list18.size);
+            struct.irts = new ArrayList<String>(_list18.size);
             for (int _i19 = 0; _i19 < _list18.size; ++_i19)
             {
               String _elem20;
@@ -6739,7 +6738,7 @@ public class BgpConfigurator {
         if (incoming.get(2)) {
           {
             org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-            struct.erts = new ArrayList<>(_list21.size);
+            struct.erts = new ArrayList<String>(_list21.size);
             for (int _i22 = 0; _i22 < _list21.size; ++_i22)
             {
               String _elem23;
@@ -6759,7 +6758,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new addVrf_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new addVrf_resultTupleSchemeFactory());
@@ -6771,7 +6770,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -6830,7 +6829,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -7113,7 +7112,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField RD_FIELD_DESC = new org.apache.thrift.protocol.TField("rd", org.apache.thrift.protocol.TType.STRING, (short)1);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new delVrf_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new delVrf_argsTupleSchemeFactory());
@@ -7125,7 +7124,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       RD((short)1, "rd");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -7182,7 +7181,7 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -7289,8 +7288,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_rd = this.isSetRd();
-      boolean that_present_rd = that.isSetRd();
+      boolean this_present_rd = true && this.isSetRd();
+      boolean that_present_rd = true && that.isSetRd();
       if (this_present_rd || that_present_rd) {
         if (!(this_present_rd && that_present_rd))
           return false;
@@ -7467,7 +7466,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new delVrf_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new delVrf_resultTupleSchemeFactory());
@@ -7479,7 +7478,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -7538,7 +7537,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -7824,7 +7823,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField RD_FIELD_DESC = new org.apache.thrift.protocol.TField("rd", org.apache.thrift.protocol.TType.STRING, (short)3);
     private static final org.apache.thrift.protocol.TField LABEL_FIELD_DESC = new org.apache.thrift.protocol.TField("label", org.apache.thrift.protocol.TType.I32, (short)4);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new pushRoute_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new pushRoute_argsTupleSchemeFactory());
@@ -7842,7 +7841,7 @@ public class BgpConfigurator {
       RD((short)3, "rd"),
       LABEL((short)4, "label");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -7907,7 +7906,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.NEXTHOP, new org.apache.thrift.meta_data.FieldMetaData("nexthop", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -8149,8 +8148,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_prefix = this.isSetPrefix();
-      boolean that_present_prefix = that.isSetPrefix();
+      boolean this_present_prefix = true && this.isSetPrefix();
+      boolean that_present_prefix = true && that.isSetPrefix();
       if (this_present_prefix || that_present_prefix) {
         if (!(this_present_prefix && that_present_prefix))
           return false;
@@ -8158,8 +8157,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_nexthop = this.isSetNexthop();
-      boolean that_present_nexthop = that.isSetNexthop();
+      boolean this_present_nexthop = true && this.isSetNexthop();
+      boolean that_present_nexthop = true && that.isSetNexthop();
       if (this_present_nexthop || that_present_nexthop) {
         if (!(this_present_nexthop && that_present_nexthop))
           return false;
@@ -8167,8 +8166,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_rd = this.isSetRd();
-      boolean that_present_rd = that.isSetRd();
+      boolean this_present_rd = true && this.isSetRd();
+      boolean that_present_rd = true && that.isSetRd();
       if (this_present_rd || that_present_rd) {
         if (!(this_present_rd && that_present_rd))
           return false;
@@ -8473,7 +8472,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new pushRoute_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new pushRoute_resultTupleSchemeFactory());
@@ -8485,7 +8484,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -8544,7 +8543,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -8828,7 +8827,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField PREFIX_FIELD_DESC = new org.apache.thrift.protocol.TField("prefix", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField RD_FIELD_DESC = new org.apache.thrift.protocol.TField("rd", org.apache.thrift.protocol.TType.STRING, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new withdrawRoute_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new withdrawRoute_argsTupleSchemeFactory());
@@ -8842,7 +8841,7 @@ public class BgpConfigurator {
       PREFIX((short)1, "prefix"),
       RD((short)2, "rd");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -8901,7 +8900,7 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -9053,8 +9052,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_prefix = this.isSetPrefix();
-      boolean that_present_prefix = that.isSetPrefix();
+      boolean this_present_prefix = true && this.isSetPrefix();
+      boolean that_present_prefix = true && that.isSetPrefix();
       if (this_present_prefix || that_present_prefix) {
         if (!(this_present_prefix && that_present_prefix))
           return false;
@@ -9062,8 +9061,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_rd = this.isSetRd();
-      boolean that_present_rd = that.isSetRd();
+      boolean this_present_rd = true && this.isSetRd();
+      boolean that_present_rd = true && that.isSetRd();
       if (this_present_rd || that_present_rd) {
         if (!(this_present_rd && that_present_rd))
           return false;
@@ -9281,7 +9280,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new withdrawRoute_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new withdrawRoute_resultTupleSchemeFactory());
@@ -9293,7 +9292,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -9352,7 +9351,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -9636,7 +9635,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField PEER_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("peerIp", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField N_HOPS_FIELD_DESC = new org.apache.thrift.protocol.TField("nHops", org.apache.thrift.protocol.TType.I32, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new setEbgpMultihop_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setEbgpMultihop_argsTupleSchemeFactory());
@@ -9650,7 +9649,7 @@ public class BgpConfigurator {
       PEER_IP((short)1, "peerIp"),
       N_HOPS((short)2, "nHops");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -9711,7 +9710,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.N_HOPS, new org.apache.thrift.meta_data.FieldMetaData("nHops", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -9863,8 +9862,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_peerIp = this.isSetPeerIp();
-      boolean that_present_peerIp = that.isSetPeerIp();
+      boolean this_present_peerIp = true && this.isSetPeerIp();
+      boolean that_present_peerIp = true && that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
         if (!(this_present_peerIp && that_present_peerIp))
           return false;
@@ -10087,7 +10086,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new setEbgpMultihop_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setEbgpMultihop_resultTupleSchemeFactory());
@@ -10099,7 +10098,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -10158,7 +10157,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -10441,7 +10440,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField PEER_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("peerIp", org.apache.thrift.protocol.TType.STRING, (short)1);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new unsetEbgpMultihop_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new unsetEbgpMultihop_argsTupleSchemeFactory());
@@ -10453,7 +10452,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       PEER_IP((short)1, "peerIp");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -10510,7 +10509,7 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -10617,8 +10616,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_peerIp = this.isSetPeerIp();
-      boolean that_present_peerIp = that.isSetPeerIp();
+      boolean this_present_peerIp = true && this.isSetPeerIp();
+      boolean that_present_peerIp = true && that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
         if (!(this_present_peerIp && that_present_peerIp))
           return false;
@@ -10795,7 +10794,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new unsetEbgpMultihop_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new unsetEbgpMultihop_resultTupleSchemeFactory());
@@ -10807,7 +10806,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -10866,7 +10865,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -11150,7 +11149,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField PEER_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("peerIp", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField SRC_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("srcIp", org.apache.thrift.protocol.TType.STRING, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new setUpdateSource_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setUpdateSource_argsTupleSchemeFactory());
@@ -11164,7 +11163,7 @@ public class BgpConfigurator {
       PEER_IP((short)1, "peerIp"),
       SRC_IP((short)2, "srcIp");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -11223,7 +11222,7 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.SRC_IP, new org.apache.thrift.meta_data.FieldMetaData("srcIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -11375,8 +11374,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_peerIp = this.isSetPeerIp();
-      boolean that_present_peerIp = that.isSetPeerIp();
+      boolean this_present_peerIp = true && this.isSetPeerIp();
+      boolean that_present_peerIp = true && that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
         if (!(this_present_peerIp && that_present_peerIp))
           return false;
@@ -11384,8 +11383,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_srcIp = this.isSetSrcIp();
-      boolean that_present_srcIp = that.isSetSrcIp();
+      boolean this_present_srcIp = true && this.isSetSrcIp();
+      boolean that_present_srcIp = true && that.isSetSrcIp();
       if (this_present_srcIp || that_present_srcIp) {
         if (!(this_present_srcIp && that_present_srcIp))
           return false;
@@ -11603,7 +11602,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new setUpdateSource_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setUpdateSource_resultTupleSchemeFactory());
@@ -11615,7 +11614,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -11674,7 +11673,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -11957,7 +11956,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField PEER_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("peerIp", org.apache.thrift.protocol.TType.STRING, (short)1);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new unsetUpdateSource_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new unsetUpdateSource_argsTupleSchemeFactory());
@@ -11969,7 +11968,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       PEER_IP((short)1, "peerIp");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -12026,7 +12025,7 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -12133,8 +12132,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_peerIp = this.isSetPeerIp();
-      boolean that_present_peerIp = that.isSetPeerIp();
+      boolean this_present_peerIp = true && this.isSetPeerIp();
+      boolean that_present_peerIp = true && that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
         if (!(this_present_peerIp && that_present_peerIp))
           return false;
@@ -12311,7 +12310,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new unsetUpdateSource_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new unsetUpdateSource_resultTupleSchemeFactory());
@@ -12323,7 +12322,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -12382,7 +12381,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -12667,7 +12666,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField AFI_FIELD_DESC = new org.apache.thrift.protocol.TField("afi", org.apache.thrift.protocol.TType.I32, (short)2);
     private static final org.apache.thrift.protocol.TField SAFI_FIELD_DESC = new org.apache.thrift.protocol.TField("safi", org.apache.thrift.protocol.TType.I32, (short)3);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new enableAddressFamily_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new enableAddressFamily_argsTupleSchemeFactory());
@@ -12699,7 +12698,7 @@ public class BgpConfigurator {
        */
       SAFI((short)3, "safi");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -12760,7 +12759,7 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -12973,8 +12972,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_peerIp = this.isSetPeerIp();
-      boolean that_present_peerIp = that.isSetPeerIp();
+      boolean this_present_peerIp = true && this.isSetPeerIp();
+      boolean that_present_peerIp = true && that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
         if (!(this_present_peerIp && that_present_peerIp))
           return false;
@@ -12982,8 +12981,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_afi = this.isSetAfi();
-      boolean that_present_afi = that.isSetAfi();
+      boolean this_present_afi = true && this.isSetAfi();
+      boolean that_present_afi = true && that.isSetAfi();
       if (this_present_afi || that_present_afi) {
         if (!(this_present_afi && that_present_afi))
           return false;
@@ -12991,8 +12990,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_safi = this.isSetSafi();
-      boolean that_present_safi = that.isSetSafi();
+      boolean this_present_safi = true && this.isSetSafi();
+      boolean that_present_safi = true && that.isSetSafi();
       if (this_present_safi || that_present_safi) {
         if (!(this_present_safi && that_present_safi))
           return false;
@@ -13251,7 +13250,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new enableAddressFamily_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new enableAddressFamily_resultTupleSchemeFactory());
@@ -13263,7 +13262,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -13322,7 +13321,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -13607,7 +13606,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField AFI_FIELD_DESC = new org.apache.thrift.protocol.TField("afi", org.apache.thrift.protocol.TType.I32, (short)2);
     private static final org.apache.thrift.protocol.TField SAFI_FIELD_DESC = new org.apache.thrift.protocol.TField("safi", org.apache.thrift.protocol.TType.I32, (short)3);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new disableAddressFamily_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new disableAddressFamily_argsTupleSchemeFactory());
@@ -13639,7 +13638,7 @@ public class BgpConfigurator {
        */
       SAFI((short)3, "safi");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -13700,7 +13699,7 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -13913,8 +13912,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_peerIp = this.isSetPeerIp();
-      boolean that_present_peerIp = that.isSetPeerIp();
+      boolean this_present_peerIp = true && this.isSetPeerIp();
+      boolean that_present_peerIp = true && that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
         if (!(this_present_peerIp && that_present_peerIp))
           return false;
@@ -13922,8 +13921,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_afi = this.isSetAfi();
-      boolean that_present_afi = that.isSetAfi();
+      boolean this_present_afi = true && this.isSetAfi();
+      boolean that_present_afi = true && that.isSetAfi();
       if (this_present_afi || that_present_afi) {
         if (!(this_present_afi && that_present_afi))
           return false;
@@ -13931,8 +13930,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_safi = this.isSetSafi();
-      boolean that_present_safi = that.isSetSafi();
+      boolean this_present_safi = true && this.isSetSafi();
+      boolean that_present_safi = true && that.isSetSafi();
       if (this_present_safi || that_present_safi) {
         if (!(this_present_safi && that_present_safi))
           return false;
@@ -14191,7 +14190,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new disableAddressFamily_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new disableAddressFamily_resultTupleSchemeFactory());
@@ -14203,7 +14202,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -14262,7 +14261,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -14546,7 +14545,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField LOG_FILE_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("logFileName", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField LOG_LEVEL_FIELD_DESC = new org.apache.thrift.protocol.TField("logLevel", org.apache.thrift.protocol.TType.STRING, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new setLogConfig_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setLogConfig_argsTupleSchemeFactory());
@@ -14560,7 +14559,7 @@ public class BgpConfigurator {
       LOG_FILE_NAME((short)1, "logFileName"),
       LOG_LEVEL((short)2, "logLevel");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -14619,7 +14618,7 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.LOG_FILE_NAME, new org.apache.thrift.meta_data.FieldMetaData("logFileName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.LOG_LEVEL, new org.apache.thrift.meta_data.FieldMetaData("logLevel", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -14771,8 +14770,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_logFileName = this.isSetLogFileName();
-      boolean that_present_logFileName = that.isSetLogFileName();
+      boolean this_present_logFileName = true && this.isSetLogFileName();
+      boolean that_present_logFileName = true && that.isSetLogFileName();
       if (this_present_logFileName || that_present_logFileName) {
         if (!(this_present_logFileName && that_present_logFileName))
           return false;
@@ -14780,8 +14779,8 @@ public class BgpConfigurator {
           return false;
       }
 
-      boolean this_present_logLevel = this.isSetLogLevel();
-      boolean that_present_logLevel = that.isSetLogLevel();
+      boolean this_present_logLevel = true && this.isSetLogLevel();
+      boolean that_present_logLevel = true && that.isSetLogLevel();
       if (this_present_logLevel || that_present_logLevel) {
         if (!(this_present_logLevel && that_present_logLevel))
           return false;
@@ -14999,7 +14998,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new setLogConfig_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setLogConfig_resultTupleSchemeFactory());
@@ -15011,7 +15010,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -15070,7 +15069,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -15353,7 +15352,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField STALEPATH_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("stalepathTime", org.apache.thrift.protocol.TType.I32, (short)1);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new enableGracefulRestart_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new enableGracefulRestart_argsTupleSchemeFactory());
@@ -15365,7 +15364,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       STALEPATH_TIME((short)1, "stalepathTime");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -15424,7 +15423,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.STALEPATH_TIME, new org.apache.thrift.meta_data.FieldMetaData("stalepathTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -15705,7 +15704,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new enableGracefulRestart_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new enableGracefulRestart_resultTupleSchemeFactory());
@@ -15717,7 +15716,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -15776,7 +15775,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -16058,7 +16057,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("disableGracefulRestart_args");
 
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new disableGracefulRestart_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new disableGracefulRestart_argsTupleSchemeFactory());
@@ -16069,7 +16068,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
 ;
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -16122,7 +16121,7 @@ public class BgpConfigurator {
     }
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(disableGracefulRestart_args.class, metaDataMap);
     }
@@ -16305,7 +16304,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new disableGracefulRestart_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new disableGracefulRestart_resultTupleSchemeFactory());
@@ -16317,7 +16316,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -16376,7 +16375,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -16660,7 +16659,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField OPTYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("optype", org.apache.thrift.protocol.TType.I32, (short)1);
     private static final org.apache.thrift.protocol.TField WIN_SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("winSize", org.apache.thrift.protocol.TType.I32, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new getRoutes_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new getRoutes_argsTupleSchemeFactory());
@@ -16674,7 +16673,7 @@ public class BgpConfigurator {
       OPTYPE((short)1, "optype"),
       WIN_SIZE((short)2, "winSize");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -16736,7 +16735,7 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.OPTYPE, new org.apache.thrift.meta_data.FieldMetaData("optype", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       tmpMap.put(_Fields.WIN_SIZE, new org.apache.thrift.meta_data.FieldMetaData("winSize", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -17105,7 +17104,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRUCT, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
       schemes.put(StandardScheme.class, new getRoutes_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new getRoutes_resultTupleSchemeFactory());
@@ -17117,7 +17116,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -17174,7 +17173,7 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Routes.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -17281,8 +17280,8 @@ public class BgpConfigurator {
       if (that == null)
         return false;
 
-      boolean this_present_success = this.isSetSuccess();
-      boolean that_present_success = that.isSetSuccess();
+      boolean this_present_success = true && this.isSetSuccess();
+      boolean that_present_success = true && that.isSetSuccess();
       if (this_present_success || that_present_success) {
         if (!(this_present_success && that_present_success))
           return false;

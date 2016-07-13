@@ -13,7 +13,7 @@ public enum af_safi implements org.apache.thrift.TEnum {
 
   private final int value;
 
-  af_safi(int value) {
+  private af_safi(int value) {
     this.value = value;
   }
 

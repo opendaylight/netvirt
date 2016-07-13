@@ -11,9 +11,14 @@ package org.opendaylight.netvirt.bgpmanager.commands;
 import org.apache.karaf.shell.commands.*;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
+import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Command(scope = "odl", name = "bgp-network", 
+import java.util.List;
+
+@Command(scope = "odl", name = "bgp-network",
          description = "Add or delete BGP static routes")
 public class Network extends OsgiCommandSupport {
     private static final String RD = "--rd";
@@ -21,36 +26,39 @@ public class Network extends OsgiCommandSupport {
     private static final String NH = "--nexthop";
     private static final String LB = "--label";
 
-    @Argument(name="add|del", description="The desired operation", 
+    static final Logger LOGGER = LoggerFactory.getLogger(Network.class);
+    @Argument(name="add|del", description="The desired operation",
               required=true, multiValued = false)
     private String action = null;
 
-    @Option(name=RD, aliases={"-r"}, 
-            description="Route distinguisher", 
+    @Option(name=RD, aliases={"-r"},
+            description="Route distinguisher",
             required=false, multiValued=false)
     private String rd = null;
 
     @Option(name=PFX, aliases={"-p"},
-            description="prefix/length", 
+            description="prefix/length",
             required=false, multiValued=false)
     private String pfx = null;
 
     @Option(name=NH, aliases={"-n"},
-            description="Nexthop", 
-            required=false, multiValued=false)
-    private String nh = null;
+            description="Nexthop",
+            required=false, multiValued=true)
+    private List<String> nh = null;
 
     @Option(name=LB, aliases={"-l"},
-            description="Label", 
+            description="Label",
             required=false, multiValued=false)
     private String lbl = null;
+
+    private RouteOrigin staticOrigin = RouteOrigin.STATIC;
 
     private Object usage() {
         System.err.println(
             "usage: bgp-network ["+RD+" rd] ["+PFX+" prefix/len] ["
             +NH+" nexthop] ["+LB+" label] <add|del>");
         return null;
-    }       
+    }
 
     @Override
     protected Object doExecute() throws Exception {
@@ -59,7 +67,7 @@ public class Network extends OsgiCommandSupport {
         }
         BgpManager bm = Commands.getBgpManager();
         switch (action) {
-            case "add" : 
+            case "add":
                 int label = qbgpConstants.LBL_EXPLICIT_NULL;
                 if (pfx == null ) {
                     System.err.println("error: "+PFX+" is needed");
@@ -69,23 +77,27 @@ public class Network extends OsgiCommandSupport {
                     System.err.println("error: "+NH+" is needed");
                     return null;
                 }
-                //todo: syntactic validation of prefix
-                if (!Commands.isValid(nh, Commands.IPADDR, NH)) {
-                    return null;
+                //TODO: syntactic validation of prefix
+                for (String nextHop : nh) {
+                    if (!Commands.isValid(nextHop, Commands.IPADDR, NH)) {
+                        return null;
+                    }
                 }
                 if (lbl != null) {
                     if (!Commands.isValid(lbl, Commands.INT, LB)) {
                         return null;
                     } else {
                         label = Integer.valueOf(lbl);
-                    } 
+                    }
                 } else if (rd == null) {
                     System.err.println("error: "+RD+" is needed");
                     return null;
                 }
-                bm.addPrefix(rd, pfx, nh, label); 
+                LOGGER.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
+                bm.addPrefix(rd, pfx, nh, label, staticOrigin);
+                LOGGER.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
                 break;
-            case "del" :  
+            case "del":
                 if (pfx == null) {
                     System.err.println("error: "+PFX+" is needed");
                     return null;
@@ -93,9 +105,11 @@ public class Network extends OsgiCommandSupport {
                 if (nh != null || lbl != null) {
                     System.err.println("note: some option(s) not needed; ignored");
                 }
+                LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, pfx);
                 bm.deletePrefix(rd, pfx);
+                LOGGER.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, pfx);
                 break;
-            default :  
+            default:
                 return usage();
         }
         return null;

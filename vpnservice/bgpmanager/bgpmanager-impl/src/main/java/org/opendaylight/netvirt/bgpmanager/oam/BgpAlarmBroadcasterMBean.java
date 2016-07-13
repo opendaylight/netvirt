@@ -14,6 +14,6 @@ package org.opendaylight.netvirt.bgpmanager.oam;
  */
 public interface BgpAlarmBroadcasterMBean {
 
-    void sendBgpAlarmInfo(String pfx, int code, int subcode);
+    public void sendBgpAlarmInfo(String pfx, int code , int subcode);
 
 }

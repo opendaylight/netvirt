@@ -470,7 +470,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
     private void addPrefixToBGP(String rd, String prefix, String nextHopIp, long label) {
         try {
-            bgpManager.addPrefix(rd, prefix, nextHopIp, (int)label);
+            //FIXME: TBD once odl-fib yang has nexthoplist and related changes follow
+            //bgpManager.addPrefix(rd, prefix, nextHopIp, (int)label);
         } catch(Exception e) {
             LOG.error("Add prefix failed", e);
         }
@@ -983,10 +984,11 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                                 while (adjacencyIterator.hasNext()) {
                                     Adjacency adjacency = adjacencyIterator.next();
                                     try {
-                                        if (action == UpdateRouteAction.ADVERTISE_ROUTE)
-                                            bgpManager.addPrefix(rd, adjacency.getIpAddress(),
-                                                                 adjacency.getNextHopIp(),
-                                                                 adjacency.getLabel().intValue());
+                                        if (action == UpdateRouteAction.ADVERTISE_ROUTE) {
+                                            //FIXME: TBD once odl-fib yang has nexthoplist and related changes follow
+                                            //bgpManager.addPrefix(rd, adjacency.getIpAddress(), adjacency.getNextHopIp(), adjacency.getLabel().intValue());
+
+                                        }
                                         else if (action == UpdateRouteAction.WITHDRAW_ROUTE)
                                             bgpManager.deletePrefix(rd, adjacency.getIpAddress());
                                     } catch (Exception e) {
