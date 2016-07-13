@@ -165,9 +165,9 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
             // Note that in the DPN of the firstEndpoint we install the lportTag of the secondEndpoint and viceversa
             InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, add, firstDpnList,
-                                                             secondEndpointVpnUuid, secondVpnLportTag);
+                                                             secondEndpointVpnUuid, secondVpnLportTag.intValue());
             InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, add, secondDpnList,
-                                                             firstEndpointVpnUuid, firstVpnLportTag);
+                                                             firstEndpointVpnUuid, firstVpnLportTag.intValue());
             // Update the VPN -> DPNs Map.
             // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
             // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach

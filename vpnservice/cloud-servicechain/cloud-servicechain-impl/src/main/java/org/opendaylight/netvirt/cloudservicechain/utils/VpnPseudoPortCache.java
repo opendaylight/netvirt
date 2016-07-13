@@ -23,7 +23,7 @@ public class VpnPseudoPortCache {
         CacheUtil.createCache(VPNPSEUDOPORT_CACHE_NAME);
     }
 
-    public static void addVpnPseudoPortToCache(String vrfId, long vpnPseudoLportTag) {
+    public static void addVpnPseudoPortToCache(String vrfId, int vpnPseudoLportTag) {
         ConcurrentHashMap<String, Long> cache =
             (ConcurrentHashMap<String, Long>) CacheUtil.getCache(VPNPSEUDOPORT_CACHE_NAME);
         cache.put(vrfId, Long.valueOf(vpnPseudoLportTag));
