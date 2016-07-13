@@ -17,7 +17,6 @@ import java.net.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-//import org.opendaylight.bgpmanager.globals.BgpConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +29,7 @@ public class BgpCounters extends TimerTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(BgpCounters.class);
     public static BgpCountersBroadcaster bgpStatsBroadcaster = null;
     public MBeanServer bgpStatsServer = null;
-    public  Map <String, String> countersMap = new HashMap<>();
+    public  Map <String, String> countersMap = new HashMap<String, String>();
 
     @Override
     public void run () {
@@ -295,7 +294,7 @@ public class BgpCounters extends TimerTask {
         File file = new File("cmd_ip_bgp_summary.txt");
         Scanner scanner;
         String lineFromFile;
-        List<String> inputStrs = new ArrayList<>();
+        List<String> inputStrs = new ArrayList<String>();
         int i = 0;
         String as,rx, tx;
         boolean startEntries = false;
@@ -320,7 +319,7 @@ public class BgpCounters extends TimerTask {
             str = inputStrs.get(i);
             if (str.contains("State/PfxRcd")) {
                 startEntries = true;
-            } else if (startEntries) {
+            } else if (startEntries == true) {
                 result = str.split("\\s+");
                try {
                     StrIP = result[0].trim();
@@ -365,7 +364,7 @@ public class BgpCounters extends TimerTask {
        String lineFromFile;
        StringBuilder key = new StringBuilder();
        String totPfx = "";
-       List<String> inputStrs = new ArrayList<>();
+       List<String> inputStrs = new ArrayList<String>();
        try {
            scanner = new Scanner(file);
        } catch (IOException e) {
@@ -421,7 +420,7 @@ public class BgpCounters extends TimerTask {
         File file = new File("cmd_ip_bgp_vpnv4_all.txt");
         Scanner scanner;
         String lineFromFile;
-        List<String> inputStrs = new ArrayList<>();
+        List<String> inputStrs = new ArrayList<String>();
 
         try {
             scanner = new Scanner(file);
@@ -496,7 +495,6 @@ public class BgpCounters extends TimerTask {
         PrintWriter writer;
         boolean success;
 
-        System.gc();
         success = fileHndl.delete();
         if (!success) {
             try {

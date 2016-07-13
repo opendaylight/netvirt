@@ -18,12 +18,12 @@ import org.slf4j.LoggerFactory;
  * Created by ECHIAPT on 9/25/2015.
  */
 public class BgpCountersBroadcaster extends NotificationBroadcasterSupport implements BgpCountersBroadcasterMBean  {
-    public Map<String, String> bgpCountersMap = new HashMap<>();
+    public Map<String, String> bgpCountersMap = new HashMap<String, String>();
     private static final Logger LOGGER = LoggerFactory.getLogger(BgpCountersBroadcaster.class);
 
     public Map<String, String> retrieveCounterMap() {
         LOGGER.trace("Polled retrieveCounterMap");
-        Map<String, String> countersVal = new HashMap<>(bgpCountersMap);
+        Map<String, String> countersVal = new HashMap<String, String>(bgpCountersMap);
         Iterator<Map.Entry<String, String>> entries = countersVal.entrySet().iterator();
         while (entries.hasNext()) {
             Map.Entry<String, String> entry = entries.next();

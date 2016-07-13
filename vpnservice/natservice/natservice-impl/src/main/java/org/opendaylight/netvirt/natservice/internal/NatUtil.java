@@ -651,7 +651,8 @@ public class NatUtil {
     public static void addPrefixToBGP(IBgpManager bgpManager, String rd, String prefix, String nextHopIp, long label, Logger log) {
         try {
             LOG.info("VPN ADD: Adding Fib Entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHopIp, label);
-            bgpManager.addPrefix(rd, prefix, nextHopIp, (int)label);
+            //FIXME: To be refactored once odl-fib.yang is updated to have nexthoplist
+            //bgpManager.addPrefix(rd, prefix, nextHopIp, (int)label);
             LOG.info("VPN ADD: Added Fib Entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHopIp, label);
         } catch(Exception e) {
             log.error("Add prefix failed", e);
