@@ -16,6 +16,24 @@
       "revId": "d9610c9ea85b82fa53b155a66ba035d538cbe0b3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_d2ba5d6d",
+        "filename": "vpnservice/aclservice/api/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/netvirt/aclservice/rev160608/IpPrefixOrAddressBuilder.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-07-13T06:57:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_5768ff86",
+      "revId": "d9610c9ea85b82fa53b155a66ba035d538cbe0b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
