@@ -41,15 +41,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RdToElanOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.TaskState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rd.to.elan.op.RdToElanOpEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rd.to.elan.op.RdToElanOpEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rd.to.elan.op.RdToElanOpEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
@@ -87,6 +83,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.external.networks.Networks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.external.networks.NetworksBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.external.networks.NetworksKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -112,7 +112,6 @@ public class VpnSubnetRouteHandlerTest {
     SubnetUpdatedInVpn subnetUpdatedInVpn = null;
     SubnetDeletedFromVpn subnetDeletedFromVpn = null;
     SubnetToDpn subnetToDpn = null;
-    RdToElanOpEntry rdToElanOpEntry = null;
     String subnetIp = "10.1.1.24";
     String routeDistinguisher = "100:1";
     String nexthopIp = null;
@@ -141,6 +140,7 @@ public class VpnSubnetRouteHandlerTest {
     String idKey = null;
     AllocateIdOutput allocateIdOutput = null;
     AllocateIdInput allocateIdInput = null;
+    Networks networks = null;
     org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance vpnInstnce;
 
     InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
@@ -157,8 +157,6 @@ public class VpnSubnetRouteHandlerTest {
     InstanceIdentifier<Subnetmap> subMapid = InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class, new
             SubnetmapKey(subnetId)).build();
     InstanceIdentifier<PortOpData> portOpIdentifr = InstanceIdentifier.builder(PortOpData.class).build();
-    InstanceIdentifier<RdToElanOpEntry> rdIdentifier = InstanceIdentifier.builder(RdToElanOp.class).
-            child(RdToElanOpEntry.class, new RdToElanOpEntryKey(interfaceName, subnetIp)).build();
     InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
             .VpnInstance> instVpnInstance = getVpnInstanceToVpnIdIdentifier(interfaceName);
     InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.
@@ -166,6 +164,8 @@ public class VpnSubnetRouteHandlerTest {
             .yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance.class,
             new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances
                     .VpnInstanceKey(interfaceName)).build();
+    InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class).
+            child(Networks.class, new NetworksKey(portId)).build();
 
     @Mock DataBroker dataBroker;
     @Mock ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
@@ -185,11 +185,11 @@ public class VpnSubnetRouteHandlerTest {
     Optional<PortOpDataEntry> optionalPortOp;
     Optional<PortOpData> optionalPtOp;
     Optional<Subnetmap> optionalSubnetMap;
-    Optional<RdToElanOpEntry> optionalRd;
     Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance>
             optionalVpnInstnce;
     Optional<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance>
             vpnInstanceOptional;
+    Optional<Networks> optionalNetworks;
 
     @Before
     public void setUp() throws Exception {
@@ -212,12 +212,10 @@ public class VpnSubnetRouteHandlerTest {
         optionalPortOp = Optional.of(portOp);
         optionalPtOp = Optional.of(portOpData);
         optionalSubnetMap = Optional.of(subnetmap);
-        optionalRd = Optional.of(rdToElanOpEntry);
         optionalVpnInstnce = Optional.of(vpnInstance);
         vpnInstanceOptional = Optional.of(vpnInstnce);
+        optionalNetworks = Optional.of(networks);
 
-        doReturn(Futures.immediateCheckedFuture(optionalRd)).when(mockReadTx).read(LogicalDatastoreType.OPERATIONAL,
-                rdIdentifier);
         doReturn(Futures.immediateCheckedFuture(optionalIfState)).when(mockReadTx).read(LogicalDatastoreType
                 .OPERATIONAL, ifStateId);
         doReturn(Futures.immediateCheckedFuture(optionalSubs)).when(mockReadTx).read(LogicalDatastoreType
@@ -238,6 +236,8 @@ public class VpnSubnetRouteHandlerTest {
                 .CONFIGURATION, instVpnInstance);
         doReturn(Futures.immediateCheckedFuture(vpnInstanceOptional)).when(mockReadTx).read(LogicalDatastoreType
                 .CONFIGURATION,vpnInstanceIdentifier);
+        doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType
+                .CONFIGURATION,netsIdentifier);
         doReturn(idOutputOptional).when(idManager).allocateId(allocateIdInput);
     }
 
@@ -290,7 +290,7 @@ public class VpnSubnetRouteHandlerTest {
                 .setSubnetIp(subnetIp).setVpnName(interfaceName).setElanTag(elanTag).build();
         subnetOp = new SubnetOpDataEntryBuilder().setElanTag(elanTag).setNhDpnId(dpId).setSubnetCidr(subnetIp)
                 .setSubnetId(subnetId).setKey(new SubnetOpDataEntryKey(subnetId)).setVpnName(interfaceName)
-                .setVrfId(routeDistinguisher).setSubnetToDpn(subToDpn).setRouteAdvState(TaskState.Pending).build();
+                .setVrfId(routeDistinguisher).setSubnetToDpn(subToDpn).setRouteAdvState(TaskState.Done).build();
         vpnInstance = new VpnInstanceBuilder().setVpnId(elanTag).setVpnInstanceName(interfaceName).setVrfId
                 (interfaceName).setKey(new VpnInstanceKey(interfaceName)).build();
         subnetmap = new SubnetmapBuilder().setSubnetIp(subnetIp).setId(subnetId).setNetworkId(portId).setKey(new
@@ -302,14 +302,12 @@ public class VpnSubnetRouteHandlerTest {
         tunlEndPts = new TunnelEndPointsBuilder().setInterfaceName(interfaceName).setVLANID(10).setIpAddress
                 (ipAddress).build();
         tunnelEndPoints.add(tunlEndPts);
-        rdToElanOpEntry = new RdToElanOpEntryBuilder().setElanTag(elanTag).setRd(interfaceName).setVpnName
-                (interfaceName).setNextHopIp(nexthopIp)
-                .setKey(new RdToElanOpEntryKey(interfaceName, subnetIp)).setSubnetIp(subnetIp).build();
         ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher(routeDistinguisher).build();
         vpnInstnce = new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances
                 .VpnInstanceBuilder().setKey(new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn
                 .rev140815.vpn.instances.VpnInstanceKey(interfaceName)).setVpnInstanceName(interfaceName)
                 .setIpv4Family(ipv4Family).build();
+        networks = new NetworksBuilder().setId(portId).setKey(new NetworksKey(portId)).build();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();

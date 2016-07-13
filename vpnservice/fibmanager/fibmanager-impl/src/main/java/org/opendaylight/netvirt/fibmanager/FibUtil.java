@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -123,6 +124,32 @@ public class FibUtil {
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when getting Unique Id for key {}", idKey, e);
         }
+    }
+
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to
+            .vpn.id.VpnInstance>
+    getVpnInstanceToVpnIdIdentifier(String vpnName) {
+        return InstanceIdentifier.builder(VpnInstanceToVpnId.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                .VpnInstance.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                                .VpnInstanceKey(vpnName)).build();
+    }
+
+    static long getVpnId(DataBroker broker, String vpnName) {
+
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                .VpnInstance> id
+                = getVpnInstanceToVpnIdIdentifier(vpnName);
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                .VpnInstance> vpnInstance
+                = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+
+        long vpnId = -1;
+        if(vpnInstance.isPresent()) {
+            vpnId = vpnInstance.get().getVpnId();
+        }
+        return vpnId;
     }
 
     static final FutureCallback<Void> DEFAULT_CALLBACK =

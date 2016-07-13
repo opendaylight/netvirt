@@ -25,6 +25,9 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op
+        .data.entry.VpnToDpnList;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -116,23 +119,98 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         this.vpnInterfaceManager = vpnInterfaceManager;
     }
 
-    private void waitForOpRemoval(String id, long timeout) {
+    private void waitForOpRemoval(String rd, String vpnName) {
         //wait till DCN for update on VPN Instance Op Data signals that vpn interfaces linked to this vpn instance is zero
-        Runnable notifyTask = new VpnNotifyTask();
-        synchronized (id.intern()) {
-            try {
-                vpnOpMap.put(id, notifyTask);
-                synchronized (notifyTask) {
-                    try {
-                        notifyTask.wait(timeout);
-                    } catch (InterruptedException e) {
+        //TODO(vpnteam): Entire code would need refactoring to listen only on the parent object - VPNInstance
+        VpnInstanceOpDataEntry vpnOpEntry = null;
+        Long intfCount = 0L;
+        Long currentIntfCount = 0L;
+        long timeout = VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
+        Optional<VpnInstanceOpDataEntry> vpnOpValue = null;
+        vpnOpValue = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                VpnUtil.getVpnInstanceOpDataIdentifier(rd));
+
+        if ((vpnOpValue != null) && (vpnOpValue.isPresent())) {
+            vpnOpEntry = vpnOpValue.get();
+            List<VpnToDpnList> dpnToVpns = vpnOpEntry.getVpnToDpnList();
+            if (dpnToVpns != null) {
+                for (VpnToDpnList dpn : dpnToVpns) {
+                    if (dpn.getVpnInterfaces() != null) {
+                        intfCount = intfCount + dpn.getVpnInterfaces().size();
                     }
                 }
-            } finally {
-                vpnOpMap.remove(id);
+            }
+            //intfCount = vpnOpEntry.getVpnInterfaceCount();
+            while (true) {
+                if (intfCount > 0) {
+                    // Minimum wait time of 5 seconds for one VPN Interface clearance (inclusive of full trace on)
+                    timeout = intfCount * VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
+                    // Maximum wait time of 90 seconds for all VPN Interfaces clearance (inclusive of full trace on)
+                    if (timeout > VpnConstants.MAX_WAIT_TIME_IN_MILLISECONDS) {
+                        timeout = VpnConstants.MAX_WAIT_TIME_IN_MILLISECONDS;
+                    }
+                    LOG.info("VPNInstance removal count of interface at {} for for rd {}, vpnname {}",
+                            intfCount, rd, vpnName);
+                }
+                LOG.info("VPNInstance removal thread waiting for {} seconds for rd {}, vpnname {}",
+                        (timeout / 1000), rd, vpnName);
+
+                try {
+                    Thread.sleep(timeout);
+                } catch (java.lang.InterruptedException e) {
+                }
+//                Runnable notifyTask = new VpnNotifyTask();
+//                synchronized (rd.intern()) {
+//                    try {
+//                        vpnOpMap.put(rd, notifyTask);
+//                        synchronized (notifyTask) {
+//                            try {
+//                                notifyTask.wait(timeout);
+//                            } catch (InterruptedException e) {
+//                            }
+//                        }
+//                    } finally {
+//                        vpnOpMap.remove(rd);
+//                    }
+//                }
+
+                // Check current interface count
+                vpnOpValue = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                        VpnUtil.getVpnInstanceOpDataIdentifier(rd));
+                if ((vpnOpValue != null) && (vpnOpValue.isPresent())) {
+                    vpnOpEntry = vpnOpValue.get();
+                    dpnToVpns = vpnOpEntry.getVpnToDpnList();
+                    currentIntfCount = 0L;
+                    if (dpnToVpns != null) {
+                        for (VpnToDpnList dpn : dpnToVpns) {
+                            if (dpn.getVpnInterfaces() != null) {
+                                currentIntfCount = currentIntfCount + dpn.getVpnInterfaces().size();
+                            }
+                        }
+                    }
+                    //currentIntfCount = vpnOpEntry.getVpnInterfaceCount();
+                    if ((currentIntfCount == 0) || (currentIntfCount >= intfCount)) {
+                        // Either the FibManager completed its job to cleanup all vpnInterfaces in VPN
+                        // OR
+                        // There is no progress by FibManager in removing all the interfaces even after good time!
+                        // In either case, let us quit and take our chances.
+                        //TODO(vpnteam): L3VPN refactoring to take care of this case.
+                        LOG.info("VPNInstance bailing out of wait loop as currentIntfCount is {} for for rd {}, vpnname {}",
+                                currentIntfCount, rd, vpnName);
+                        break;
+                    } else {
+                        // There is some progress by FibManager, so let us give it some more time!
+                        intfCount = currentIntfCount;
+                    }
+                } else {
+                    // There is no VPNOPEntry.  Something else happened on the system !
+                    // So let us quit and take our chances.
+                    //TODO(vpnteam): L3VPN refactoring to take care of this case.
+                    break;
+                }
             }
         }
-
+        LOG.info("Returned out of waiting for  Op Data removal for rd {}, vpnname {}", rd, vpnName);
     }
 
     @Override
@@ -152,33 +230,10 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
                     VpnUtil.getVpnInstanceOpDataIdentifier(vpnName));
         }
 
-        if ((vpnOpValue != null) && (vpnOpValue.isPresent())) {
-            VpnInstanceOpDataEntry vpnOpEntry = null;
-            long timeout = VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
-            Long intfCount = 0L;
-
-            vpnOpEntry = vpnOpValue.get();
-            intfCount = vpnOpEntry.getVpnInterfaceCount();
-            if (intfCount != null && intfCount > 0) {
-                // Minimum wait time of 10 seconds for one VPN Interface clearance (inclusive of full trace on)
-                timeout = intfCount * 10000;
-                // Maximum wait time of 90 seconds for all VPN Interfaces clearance (inclusive of full trace on)
-                if (timeout > VpnConstants.MAX_WAIT_TIME_IN_MILLISECONDS) {
-                    timeout = VpnConstants.MAX_WAIT_TIME_IN_MILLISECONDS;
-                }
-                LOG.trace("VPNInstance removal count of interface at {} for for rd {}, vpnname {}",
-                        intfCount, rd, vpnName);
-            }
-            LOG.trace("VPNInstance removal thread waiting for {} seconds for rd {}, vpnname {}",
-                    (timeout/1000), rd, vpnName);
-
-            if ((rd != null)  && (!rd.isEmpty())) {
-                waitForOpRemoval(rd, timeout);
-            } else {
-                waitForOpRemoval(vpnName, timeout);
-            }
-
-            LOG.trace("Returned out of waiting for  Op Data removal for rd {}, vpnname {}", rd, vpnName);
+        if ((rd != null)  && (!rd.isEmpty())) {
+            waitForOpRemoval(rd, vpnName);
+        } else {
+            waitForOpRemoval(vpnName, vpnName);
         }
         // Clean up VpnInstanceToVpnId from Config DS
         VpnUtil.removeVpnInstanceToVpnId(broker, vpnName);
@@ -249,7 +304,6 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
                     fibManager.setConfTransType("L3VPN", "VXLAN");
                     LOG.trace("setting it to vxlan now");
                 } catch (Exception e) {
-                    LOG.trace("Exception caught setting the cached value for transportType");
                     LOG.error(e.getMessage());
                 }
             } else {
@@ -499,23 +553,26 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
             final VpnInstanceOpDataEntryKey key = identifier.firstKeyOf(VpnInstanceOpDataEntry.class, VpnInstanceOpDataEntryKey.class);
             String vpnName = key.getVrfId();
 
-            LOG.trace("VpnInstanceOpListener update: vpn name {} interface count in Old VpnOp Instance {} in New VpnOp Instance {}" ,
-                            vpnName, original.getVpnInterfaceCount(), update.getVpnInterfaceCount() );
+//            LOG.trace("VpnInstanceOpListener update: vpn name {} interface count in Old VpnOp Instance {} in New " +
+//                    "VpnOp Instance {}" ,
+//                            vpnName, original.getVpnInterfaceCount(), update.getVpnInterfaceCount() );
+//
+//            //if((original.getVpnToDpnList().size() != update.getVpnToDpnList().size()) && (update.getVpnToDpnList()
+// .size() == 0)) {
+//            if((original.getVpnInterfaceCount() != update.getVpnInterfaceCount()) && (update.getVpnInterfaceCount()
+//                    == 0)) {
+//                notifyTaskIfRequired(vpnName);
+//           }
+       }
 
-            //if((original.getVpnToDpnList().size() != update.getVpnToDpnList().size()) && (update.getVpnToDpnList().size() == 0)) {
-            if((original.getVpnInterfaceCount() != update.getVpnInterfaceCount()) && (update.getVpnInterfaceCount() == 0)) {
-                notifyTaskIfRequired(vpnName);
-            }
-        }
-
-        private void notifyTaskIfRequired(String vpnName) {
-            Runnable notifyTask = vpnOpMap.remove(vpnName);
-            if (notifyTask == null) {
-                LOG.trace("VpnInstanceOpListener update: No Notify Task queued for vpnName {}", vpnName);
-                return;
-            }
-            executorService.execute(notifyTask);
-        }
+//        private void notifyTaskIfRequired(String vpnName) {
+//            Runnable notifyTask = vpnOpMap.remove(vpnName);
+//            if (notifyTask == null) {
+//                LOG.trace("VpnInstanceOpListener update: No Notify Task queued for vpnName {}", vpnName);
+//                return;
+//            }
+//            executorService.execute(notifyTask);
+//        }
 
         @Override
         protected void add(InstanceIdentifier<VpnInstanceOpDataEntry> identifier, VpnInstanceOpDataEntry add) {
