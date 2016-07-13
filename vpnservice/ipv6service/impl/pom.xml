@@ -23,6 +23,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <properties>
     <openflow.plugin.version>0.3.0-SNAPSHOT</openflow.plugin.version>
+    <powermock.version>1.6.4</powermock.version>
   </properties>
 
   <dependencies>
@@ -66,10 +67,43 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${genius.version}</version>
     </dependency>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>neutronvpn-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.genius</groupId>
       <artifactId>interfacemanager-api</artifactId>
       <version>${genius.version}</version>
-      </dependency>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-mockito</artifactId>
+      <version>${powermock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-junit4</artifactId>
+      <version>${powermock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar-plugins.java</groupId>
+      <artifactId>sonar-jacoco-listeners</artifactId>
+      <version>${sonar-jacoco-listeners.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
