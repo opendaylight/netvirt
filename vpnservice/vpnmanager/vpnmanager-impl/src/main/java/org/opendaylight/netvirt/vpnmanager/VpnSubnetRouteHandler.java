@@ -38,6 +38,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.external.networks.Networks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.vpnservice.natservice.rev160111.external.networks.NetworksKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 import java.math.BigInteger;
@@ -88,6 +91,25 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         synchronized (this) {
             try {
+                Subnetmap subMap = null;
+
+                // Please check if subnetId belongs to an External Network
+                InstanceIdentifier<Subnetmap> subMapid = InstanceIdentifier.builder(Subnetmaps.class).
+                        child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
+                Optional<Subnetmap> sm = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, subMapid);
+                if (!sm.isPresent()) {
+                    logger.error("onSubnetAddedToVpn: Unable to retrieve subnetmap entry for subnet : " + subnetId);
+                    return;
+                }
+                subMap = sm.get();
+                InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class).
+                        child(Networks.class, new NetworksKey(subMap.getNetworkId())).build();
+                Optional<Networks> optionalNets = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, netsIdentifier);
+                if (optionalNets.isPresent()) {
+                    logger.info("onSubnetAddedToVpn: subnet {} is an external subnet on external network {}, so ignoring this for SubnetRoute",
+                            subnetId.getValue(), subMap.getNetworkId().getValue());
+                    return;
+                }
                 //Create and add SubnetOpDataEntry object for this subnet to the SubnetOpData container
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
                         child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
@@ -121,14 +143,6 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 subOpBuilder.setElanTag(elanTag);
 
                 // First recover set of ports available in this subnet
-                InstanceIdentifier<Subnetmap> subMapid = InstanceIdentifier.builder(Subnetmaps.class).
-                        child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
-                Optional<Subnetmap> sm = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, subMapid);
-                if (!sm.isPresent()) {
-                    logger.error("onSubnetAddedToVpn: Unable to retrieve subnetmap entry for subnet : " + subnetId);
-                    return;
-                }
-                Subnetmap subMap = sm.get();
                 List<Uuid> portList = subMap.getPortList();
                 if (portList != null) {
                     for (Uuid port: portList) {

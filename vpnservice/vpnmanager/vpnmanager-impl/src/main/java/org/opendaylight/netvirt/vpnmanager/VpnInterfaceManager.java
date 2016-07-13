@@ -93,10 +93,8 @@ import org.slf4j.LoggerFactory;
 public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration, opListenerRegistration;
-    private ConcurrentMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<>();
     private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
         .setNameFormat("NV-VpnIntfMgr-%d").build();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
     private final DataBroker broker;
     private final IBgpManager bgpManager;
     private IFibManager fibManager;
@@ -238,9 +236,15 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             return;
         }
         synchronized (interfaceName.intern()) {
-            if (VpnUtil.getOperationalVpnInterface(broker, vpnInterface.getName()) != null) {
-                LOG.trace("VPN Interface already provisioned , bailing out from here.");
-                return;
+            VpnInterface opVpnInterface = VpnUtil.getOperationalVpnInterface(broker, vpnInterface.getName());
+            if (opVpnInterface != null ) {
+                String opVpnName = opVpnInterface.getVpnInstanceName();
+                if(opVpnName.equals(vpnName)) {
+                    LOG.trace("VPN Interface already provisioned , bailing out from here.");
+                    return;
+                } else {
+                    LOG.trace("vpn interface {} configured with {}, operational {}", interfaceName, vpnName, opVpnName);
+                }
             }
             bindService(dpId, vpnName, interfaceName, lPortTag);
             updateDpnDbs(dpId, vpnName, interfaceName, true);
@@ -513,16 +517,14 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             LOG.info("Unbinding vpn service from interface {} ", interfaceName);
             unbindService(dpId, vpnName, interfaceName, lPortTag, isInterfaceStateDown);
 
-            //wait till DCN for removal of vpn interface in operational DS arrives
-            Runnable notifyTask = new VpnNotifyTask();
-            synchronized (interfaceName.intern()) {
-                vpnIntfMap.put(interfaceName, notifyTask);
-                synchronized (notifyTask) {
-                    try {
-                        notifyTask.wait(VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS);
-                    } catch (InterruptedException e) {
-                    }
-                }
+            // Holding a lock and sleeping is bad practice.
+            // However, we are sleeping for a second here due to race of binding with unbinding as
+            // unbinding makes asychronous calls to MDSAL while bind is all synchronous.
+            //TODO(vpnteam):  Need to put a better fix the binding/unbind racing
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOG.debug("Interrupted when sleeping for removal thread on interface {}", interfaceName, e);
             }
 
         }
@@ -898,19 +900,70 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             } else {
                 LOG.error("rd not retrievable as vpninstancetovpnid for vpn {} is absent, trying rd as ", vpnName, vpnName);
             }
-            notifyTaskIfRequired(interfaceName);
-        }
-
-        private void notifyTaskIfRequired(String intfName) {
-            Runnable notifyTask = vpnIntfMap.remove(intfName);
-            if (notifyTask == null) {
-                return;
-            }
-            executorService.execute(notifyTask);
         }
 
         @Override
         protected void update(InstanceIdentifier<VpnInterface> identifier, VpnInterface original, VpnInterface update) {
+            final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
+            String interfaceName = key.getName();
+
+            if (original.getVpnInstanceName().equals(update.getVpnInstanceName())) {
+                return;
+            }
+
+            //increment the vpn interface count in Vpn Instance Op Data
+            Long ifCnt = 0L;
+            VpnInstanceOpDataEntry vpnInstOp = null;
+            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to
+                    .vpn.id.VpnInstance>
+                    updId = VpnUtil.getVpnInstanceToVpnIdIdentifier(update.getVpnInstanceName());
+            Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                    .VpnInstance> updVpnInstance
+                    = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, updId);
+
+            if (updVpnInstance.isPresent()) {
+                String rd = null;
+                rd = updVpnInstance.get().getVrfId();
+
+                vpnInstOp = VpnUtil.getVpnInstanceOpData(broker, rd);
+
+                if (vpnInstOp != null && vpnInstOp.getVpnInterfaceCount() != null) {
+                    ifCnt = vpnInstOp.getVpnInterfaceCount();
+                }
+
+                LOG.trace("VpnInterfaceOpListener update: interface name {} rd {} interface count in updated Vpn Op Instance {}", interfaceName, rd, ifCnt);
+
+                VpnUtil.asyncUpdate(broker, LogicalDatastoreType.OPERATIONAL,
+                        VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+                        VpnUtil.updateIntfCntInVpnInstOpData(ifCnt + 1, rd), VpnUtil.DEFAULT_CALLBACK);
+            }
+
+            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to
+                    .vpn.id.VpnInstance>
+                    origId = VpnUtil.getVpnInstanceToVpnIdIdentifier(original.getVpnInstanceName());
+            Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                    .VpnInstance> origVpnInstance
+                    = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, origId);
+
+            if (origVpnInstance.isPresent()) {
+                String rd = null;
+                rd = origVpnInstance.get().getVrfId();
+
+                vpnInstOp = VpnUtil.getVpnInstanceOpData(broker, rd);
+                if (vpnInstOp != null && vpnInstOp.getVpnInterfaceCount() != null) {
+                    ifCnt = vpnInstOp.getVpnInterfaceCount();
+                } else {
+                    LOG.debug("VpnInterfaceOpListener update: Vpn interface count not recoverable from original, to handle update for rd {}", rd);
+                    return;
+                }
+                LOG.trace("VpnInterfaceOpListener update: interface name {} rd {} interface count in original Vpn Op Instance {}", interfaceName, rd, ifCnt);
+
+                if (ifCnt > 0) {
+                    VpnUtil.asyncUpdate(broker, LogicalDatastoreType.OPERATIONAL,
+                            VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+                            VpnUtil.updateIntfCntInVpnInstOpData(ifCnt - 1, rd), VpnUtil.DEFAULT_CALLBACK);
+                }
+            }
         }
 
         @Override
