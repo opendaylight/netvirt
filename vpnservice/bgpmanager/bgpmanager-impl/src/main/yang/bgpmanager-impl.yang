@@ -5,8 +5,9 @@ module bgpmanager-impl {
 
     import config { prefix config; revision-date 2013-04-05; }
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+    import opendaylight-sal-binding-broker-impl { prefix md-sal-binding-impl; revision-date 2013-10-28;}
+    import opendaylight-entity-ownership-service { prefix eos; revision-date 2015-08-10;}
     import bgpmanager-api { prefix bgpmgr-api; revision-date 2015-04-20;}
-    //import itm { prefix itm; revision-date 2015-07-01; }
 
     description
         "Service definition for bgpmanager project";
@@ -28,19 +29,43 @@ module bgpmanager-impl {
             container broker {
                 uses config:service-ref {
                     refine type {
-                        mandatory true;     //true or false
+                        mandatory true;
                         config:required-identity md-sal-binding:binding-broker-osgi-registry;
                     }
                 }
             }
-            /*container itm {
+            container rpcregistry {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity itm:itm;
+                        config:required-identity md-sal-binding:binding-rpc-registry;
                     }
                 }
-            }*/
+            }
+            container notification-service {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding-impl:binding-new-notification-service;
+                    }
+                }
+            }
+            container entity-ownership-service {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity eos:entity-ownership-service;
+                    }
+                }
+            }
+            container binding-normalized-node-serializer {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-normalized-node-serializer;
+                    }
+                }
+            }
         }
     }
 }

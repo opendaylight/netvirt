@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.bgpmanager.thrift.gen;
 import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.SchemeFactory;
 import org.apache.thrift.scheme.StandardScheme;
-
 import org.apache.thrift.scheme.TupleScheme;
 import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.EncodingUtils;
@@ -20,6 +19,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
+
 
 public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, java.io.Serializable, Cloneable, Comparable<Update> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Update");
@@ -32,7 +32,7 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
   private static final org.apache.thrift.protocol.TField PREFIX_FIELD_DESC = new org.apache.thrift.protocol.TField("prefix", org.apache.thrift.protocol.TType.STRING, (short)6);
   private static final org.apache.thrift.protocol.TField NEXTHOP_FIELD_DESC = new org.apache.thrift.protocol.TField("nexthop", org.apache.thrift.protocol.TType.STRING, (short)7);
 
-  private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+  private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
     schemes.put(StandardScheme.class, new UpdateStandardSchemeFactory());
     schemes.put(TupleScheme.class, new UpdateTupleSchemeFactory());
@@ -56,7 +56,7 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
     PREFIX((short)6, "prefix"),
     NEXTHOP((short)7, "nexthop");
 
-    private static final Map<String, _Fields> byName = new HashMap<>();
+    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
     static {
       for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -130,7 +130,7 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
   private byte __isset_bitfield = 0;
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
-    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.TYPE, new org.apache.thrift.meta_data.FieldMetaData("type", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.RESERVED, new org.apache.thrift.meta_data.FieldMetaData("reserved", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -540,8 +540,8 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
         return false;
     }
 
-    boolean this_present_rd = this.isSetRd();
-    boolean that_present_rd = that.isSetRd();
+    boolean this_present_rd = true && this.isSetRd();
+    boolean that_present_rd = true && that.isSetRd();
     if (this_present_rd || that_present_rd) {
       if (!(this_present_rd && that_present_rd))
         return false;
@@ -549,8 +549,8 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
         return false;
     }
 
-    boolean this_present_prefix = this.isSetPrefix();
-    boolean that_present_prefix = that.isSetPrefix();
+    boolean this_present_prefix = true && this.isSetPrefix();
+    boolean that_present_prefix = true && that.isSetPrefix();
     if (this_present_prefix || that_present_prefix) {
       if (!(this_present_prefix && that_present_prefix))
         return false;
@@ -558,8 +558,8 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
         return false;
     }
 
-    boolean this_present_nexthop = this.isSetNexthop();
-    boolean that_present_nexthop = that.isSetNexthop();
+    boolean this_present_nexthop = true && this.isSetNexthop();
+    boolean that_present_nexthop = true && that.isSetNexthop();
     if (this_present_nexthop || that_present_nexthop) {
       if (!(this_present_nexthop && that_present_nexthop))
         return false;

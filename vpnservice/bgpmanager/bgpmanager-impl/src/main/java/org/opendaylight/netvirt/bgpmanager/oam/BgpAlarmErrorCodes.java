@@ -30,7 +30,7 @@ public enum BgpAlarmErrorCodes {
         this.alarmType = alarmType;
     }
 
-    private static final Map<Integer, BgpAlarmErrorCodes> intToTypeMap = new HashMap<>();
+    private static final Map<Integer, BgpAlarmErrorCodes> intToTypeMap = new HashMap<Integer, BgpAlarmErrorCodes>();
     static {
         for (BgpAlarmErrorCodes type : BgpAlarmErrorCodes.values()) {
             intToTypeMap.put(type.error, type);
