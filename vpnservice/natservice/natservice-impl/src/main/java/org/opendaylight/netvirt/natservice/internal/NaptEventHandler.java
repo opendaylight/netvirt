@@ -11,13 +11,37 @@ package org.opendaylight.netvirt.natservice.internal;
 import org.opendaylight.genius.mdsalutil.*;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.genius.interfacemanager.globals.VlanInterfaceInfo;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.packet.Ethernet;
+import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.genius.mdsalutil.packet.IPv4;
+import org.opendaylight.genius.mdsalutil.packet.TCP;
+import org.opendaylight.genius.mdsalutil.packet.UDP;
+import org.opendaylight.controller.liblldp.NetUtils;
+import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +50,16 @@ public class NaptEventHandler {
     private static final Logger LOG = LoggerFactory.getLogger(NaptEventHandler.class);
     private static IMdsalApiManager mdsalManager;
     private DataBroker dataBroker;
+    private PacketProcessingService pktService;
+    private OdlInterfaceRpcService interfaceManagerRpc;
+    private IInterfaceManager interfaceManager;
 
     public NaptEventHandler(final DataBroker dataBroker) {
         this.dataBroker = dataBroker;
+    }
+
+    public void setInterfaceManager(IInterfaceManager interfaceManager) {
+        this.interfaceManager = interfaceManager;
     }
 
     public void setMdsalManager(IMdsalApiManager mdsalManager) {
@@ -37,6 +68,15 @@ public class NaptEventHandler {
 
     public void setNaptManager(NaptManager naptManager) {
         this.naptManager = naptManager;
+    }
+
+    public void setPacketProcessingService(PacketProcessingService packetService) {
+        this.pktService = packetService;
+    }
+
+    public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {
+        LOG.trace("Registered interfaceManager successfully");;
+        this.interfaceManagerRpc = interfaceManagerRpc;
     }
 
 
@@ -113,8 +153,78 @@ public class NaptEventHandler {
                 }
             }
             //Build and install the NAPT translation flows in the Outbound and Inbound NAPT tables
-            buildAndInstallNatFlows(dpnId, NatConstants.OUTBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId, internalAddress, externalAddress, protocol);
-            buildAndInstallNatFlows(dpnId, NatConstants.INBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId, externalAddress, internalAddress, protocol);
+            if(!naptEntryEvent.isPktProcessed()) {
+                buildAndInstallNatFlows(dpnId, NatConstants.OUTBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId, internalAddress, externalAddress, protocol);
+                buildAndInstallNatFlows(dpnId, NatConstants.INBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId, externalAddress, internalAddress, protocol);
+            }
+
+            //Send Packetout - tcp or udp packets which got punted to controller.
+            BigInteger metadata = naptEntryEvent.getPacketReceived().getMatch().getMetadata().getMetadata();
+            byte[] inPayload = naptEntryEvent.getPacketReceived().getPayload();
+            Ethernet ethPkt = new Ethernet();
+            if (inPayload != null) {
+                try {
+                    ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NumBitsInAByte);
+                } catch (Exception e) {
+                    LOG.warn("Failed to decode Packet", e);
+                    return;
+                }
+            }
+
+
+            long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
+            LOG.debug("NAT Service : portTag from incoming packet is {}", portTag);
+            String interfaceName = getInterfaceNameFromTag(portTag);
+            LOG.debug("NAT Service : interfaceName fetched from portTag is {}", interfaceName);
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface = null;
+            long vlanId =0;
+            iface = interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
+            if(iface == null) {
+                LOG.error("NAT Service : Unable to read interface {} from config DataStore", interfaceName);
+                return;
+            }
+            IfL2vlan ifL2vlan = iface.getAugmentation(IfL2vlan.class);
+            if(ifL2vlan != null && ifL2vlan.getVlanId() !=null){
+                vlanId = ifL2vlan.getVlanId().getValue() == null ? 0 : ifL2vlan.getVlanId().getValue();
+            }
+            InterfaceInfo infInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
+            if(infInfo !=null) {
+                LOG.debug("NAT Service : portName fetched from interfaceManager is {}", infInfo.getPortName());
+            }
+
+            byte[] pktOut = buildNaptPacketOut(ethPkt);
+
+            List<ActionInfo> actionInfos  = new ArrayList<ActionInfo>();
+            if (ethPkt.getPayload() instanceof IPv4) {
+                IPv4 ipPkt = (IPv4) ethPkt.getPayload();
+                if ((ipPkt.getPayload() instanceof TCP) || (ipPkt.getPayload() instanceof UDP) ) {
+                    if (ethPkt.getEtherType() != (short)NwConstants.ETHTYPE_802_1Q) {
+                        // VLAN Access port
+                        if(infInfo != null) {
+                            LOG.debug("NAT Service : vlanId is {}", vlanId);
+                            if(vlanId != 0) {
+                                // Push vlan
+                                actionInfos.add(new ActionInfo(ActionType.push_vlan, new String[] {}, 0));
+                                actionInfos.add(new ActionInfo(ActionType.set_field_vlan_vid,
+                                           new String[] { Long.toString(vlanId) }, 1));
+                            } else {
+                                LOG.debug("NAT Service : No vlanId {}, may be untagged", vlanId);
+                            }
+                        } else {
+                            LOG.error("NAT Service : error in getting interfaceInfo");
+                            return;
+                        }
+                    } else {
+                        // VLAN Trunk Port
+                        LOG.debug("NAT Service : This is VLAN Trunk port case - need not do VLAN tagging again");
+                    }
+                }
+            }
+            if(pktOut != null) {
+                sendNaptPacketOut(pktOut, infInfo, actionInfos, routerId);
+            } else {
+                LOG.warn("NAT Service : Unable to send Packet Out");
+            }
 
         }else{
             LOG.debug("NAT Service : Inside delete Operation of NaptEventHandler");
@@ -154,7 +264,8 @@ public class NaptEventHandler {
         snatFlowEntity.setSendFlowRemFlag(true);
 
         LOG.debug("NAT Service : Installing the NAPT flow in the table {} for the switch with the DPN ID {} ", tableId, dpnId);
-        mdsalManager.installFlow(snatFlowEntity);
+        mdsalManager.syncInstallFlow(snatFlowEntity, 1);
+        LOG.trace("NAT Service : Exited buildAndInstallNatflows");
     }
 
     private static List<MatchInfo> buildAndGetMatchInfo(String ip, int port, short tableId, NAPTEntryEvent.Protocol protocol, long segmentId, long vpnId){
@@ -250,6 +361,58 @@ public class NaptEventHandler {
         LOG.debug("NAT Service : Remove the flow in the table {} for the switch with the DPN ID {}", NatConstants.INBOUND_NAPT_TABLE, dpnId);
         mdsalManager.removeFlow(snatFlowEntity);
 
+    }
+
+    protected byte[] buildNaptPacketOut(Ethernet etherPkt) {
+
+        LOG.debug("NAT Service : About to build Napt Packet Out");
+        if (etherPkt.getPayload() instanceof IPv4) {
+            byte[] rawPkt;
+            IPv4 ipPkt = (IPv4) etherPkt.getPayload();
+            if ((ipPkt.getPayload() instanceof TCP) || (ipPkt.getPayload() instanceof UDP) ) {
+                try {
+                    rawPkt = etherPkt.serialize();
+                    return rawPkt;
+                } catch (PacketException e2) {
+                    // TODO Auto-generated catch block
+                    e2.printStackTrace();
+                    return null;
+                }
+             } else {
+                 LOG.error("NAT Service : Unable to build NaptPacketOut since its neither TCP nor UDP");
+                 return null;
+             }
+        }
+        LOG.error("NAT Service : Unable to build NaptPacketOut since its not IPv4 packet");
+        return null;
+
+    }
+
+    private void sendNaptPacketOut(byte[] pktOut, InterfaceInfo infInfo, List<ActionInfo> actionInfos, Long routerId) {
+        LOG.trace("NAT Service: Sending packet out DpId {}, interfaceInfo {}", infInfo.getDpId(), infInfo);
+        // set in_port, and action as OFPP_TABLE so that it starts from table 0 (lowest table as per spec)
+        actionInfos.add(new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {
+                  BigInteger.valueOf(routerId)}, 2));
+        actionInfos.add(new ActionInfo(ActionType.output, new String[] { "0xfffffff9" }, 3));
+        NodeConnectorRef in_port = MDSALUtil.getNodeConnRef(infInfo.getDpId(), String.valueOf(infInfo.getPortNo()));
+        LOG.debug("NAT Service : in_port for packetout is being set to {}", String.valueOf(infInfo.getPortNo()));
+        TransmitPacketInput output = MDSALUtil.getPacketOut(actionInfos, pktOut, infInfo.getDpId().longValue(), in_port);
+        LOG.trace("NAT Service: Transmitting packet: {}",output);
+        this.pktService.transmitPacket(output);
+    }
+
+    private String getInterfaceNameFromTag(long portTag) {
+        String interfaceName = null;
+        GetInterfaceFromIfIndexInput input = new GetInterfaceFromIfIndexInputBuilder().setIfIndex(new Integer((int)portTag)).build();
+        Future<RpcResult<GetInterfaceFromIfIndexOutput>> futureOutput = interfaceManagerRpc.getInterfaceFromIfIndex(input);
+        try {
+            GetInterfaceFromIfIndexOutput output = futureOutput.get().getResult();
+            interfaceName = output.getInterfaceName();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("NAT Service : Error while retrieving the interfaceName from tag using getInterfaceFromIfIndex RPC");
+        }
+        LOG.trace("NAT Service : Returning interfaceName {} for tag {} form getInterfaceNameFromTag", interfaceName, portTag);
+        return interfaceName;
     }
 
 }

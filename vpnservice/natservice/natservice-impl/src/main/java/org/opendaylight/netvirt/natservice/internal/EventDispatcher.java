@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class EventDispatcher implements Runnable {
     private BlockingQueue<NAPTEntryEvent> eventQueue;
     private NaptEventHandler naptEventHandler;
-    private static final Logger LOG = LoggerFactory.getLogger(NaptManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EventDispatcher.class);
 
     EventDispatcher(BlockingQueue<NAPTEntryEvent> eventQueue, NaptEventHandler naptEventHandler){
         this.eventQueue = eventQueue;
@@ -23,6 +23,8 @@ public class EventDispatcher implements Runnable {
     }
 
     public void addNaptEvent(NAPTEntryEvent naptEntryEvent){
+        LOG.trace("NAT Service : Adding event to eventQueue which is of size {} and remaining capacity {}",
+                eventQueue.size(), eventQueue.remainingCapacity());
         this.eventQueue.add(naptEntryEvent);
     }
 
@@ -32,7 +34,7 @@ public class EventDispatcher implements Runnable {
                 NAPTEntryEvent event = eventQueue.take();
                 naptEventHandler.handleEvent(event);
             } catch (InterruptedException e) {
-                LOG.error("EventDispatcher : Error in handling the event queue : ", e.getMessage());
+                LOG.error("NAT Service : EventDispatcher : Error in handling the event queue : ", e.getMessage());
                 e.printStackTrace();
             }
         }

@@ -575,7 +575,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         //Delete the DNAT and SNAT table entries
         removeDNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), routerId);
 
-        Uuid extNwId = getExtNetworkId(pIdentifier, LogicalDatastoreType.CONFIGURATION);
+        Uuid extNwId = getExtNetworkId(pIdentifier, LogicalDatastoreType.OPERATIONAL);
         if(extNwId == null) {
             LOG.error("External network associated with interface {} could not be retrieved", interfaceName);
             return;

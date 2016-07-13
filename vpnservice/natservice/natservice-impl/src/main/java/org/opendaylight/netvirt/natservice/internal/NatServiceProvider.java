@@ -16,6 +16,7 @@ import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
@@ -49,6 +50,7 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
     private NatNodeEventListener natNodeEventListener;
     private NAPTSwitchSelector naptSwitchSelector;
     private RouterPortsListener routerPortsListener;
+    private IInterfaceManager interfaceManager;
 
     public NatServiceProvider(RpcProviderRegistry rpcProviderRegistry) {
         this.rpcProviderRegistry = rpcProviderRegistry;
@@ -65,6 +67,10 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
     public void setBgpManager(IBgpManager bgpManager) {
         LOG.debug("BGP Manager reference initialized");
         this.bgpManager = bgpManager;
+    }
+
+    public void setInterfaceManager(IInterfaceManager interfaceManager) {
+        this.interfaceManager = interfaceManager;
     }
 
     @Override
@@ -105,9 +111,12 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             naptEventHandler = new NaptEventHandler(dataBroker);
             naptEventHandler.setMdsalManager(mdsalManager);
             naptEventHandler.setNaptManager(naptManager);
+            naptEventHandler.setPacketProcessingService(pktProcessingService);
+            naptEventHandler.setInterfaceManagerRpc(interfaceService);
+            naptEventHandler.setInterfaceManager(interfaceManager);
             naptEventQueue = new ArrayBlockingQueue<>(NatConstants.EVENT_QUEUE_LENGTH);
             eventDispatcher = new EventDispatcher(naptEventQueue, naptEventHandler);
-            new Thread(eventDispatcher).start();
+            new Thread(eventDispatcher, "NaptEvents").start();
 
             //Instantiate NaptPacketInHandler and register it in the notification service.
             naptPacketInHandler = new NaptPacketInHandler(eventDispatcher);
