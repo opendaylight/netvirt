@@ -20,6 +20,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -121,6 +122,11 @@ public class HwvtepPhysicalSwitchListener
             if (!L2GatewayConnectionUtils.isGatewayAssociatedToL2Device(l2GwDevice)) {
                 L2GatewayCacheUtils.removeL2DeviceFromCache(psName);
                 LOG.debug("{} details removed from L2Gateway Cache", psName);
+
+                MDSALUtil.syncDelete(this.dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        HwvtepSouthboundUtils.createInstanceIdentifier(new NodeId(l2GwDevice.getHwvtepNodeId())));
+                MDSALUtil.syncDelete(this.dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        HwvtepSouthboundUtils.createInstanceIdentifier(nodeId));
             } else {
                 LOG.debug("{} details are not removed from L2Gateway Cache as it has L2Gateway reference", psName);
             }
@@ -221,8 +227,8 @@ public class HwvtepPhysicalSwitchListener
 
                     // Initiate Logical switch creation for associated L2
                     // Gateway Connections
-                    List<L2gatewayConnection> l2GwConns = getAssociatedL2GwConnections(dataBroker,
-                            l2GwDevice.getL2GatewayIds());
+                    List<L2gatewayConnection> l2GwConns = L2GatewayConnectionUtils.getAssociatedL2GwConnections(
+                            dataBroker, l2GwDevice.getL2GatewayIds());
                     if (l2GwConns != null) {
                         LOG.debug("L2GatewayConnections associated for {} physical switch", psName);
 
@@ -275,48 +281,6 @@ public class HwvtepPhysicalSwitchListener
             LOG.trace("L2Gateway cache updated with below details: {}", l2GwDevice);
         }
         return l2GwDevice;
-    }
-
-    /**
-     * Gets the associated l2 gw connections.
-     *
-     * @param broker
-     *            the broker
-     * @param l2GatewayIds
-     *            the l2 gateway ids
-     * @return the associated l2 gw connections
-     */
-    private List<L2gatewayConnection> getAssociatedL2GwConnections(DataBroker broker, Set<Uuid> l2GatewayIds) {
-        List<L2gatewayConnection> l2GwConnections = null;
-        List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
-        if (allL2GwConns != null) {
-            l2GwConnections = new ArrayList<>();
-            for (Uuid l2GatewayId : l2GatewayIds) {
-                for (L2gatewayConnection l2GwConn : allL2GwConns) {
-                    if (l2GwConn.getL2gatewayId().equals(l2GatewayId)) {
-                        l2GwConnections.add(l2GwConn);
-                    }
-                }
-            }
-        }
-        return l2GwConnections;
-    }
-
-    /**
-     * Gets the all l2gateway connections.
-     *
-     * @param broker
-     *            the broker
-     * @return the all l2gateway connections
-     */
-    protected List<L2gatewayConnection> getAllL2gatewayConnections(DataBroker broker) {
-        InstanceIdentifier<L2gatewayConnections> inst = InstanceIdentifier.create(Neutron.class)
-                .child(L2gatewayConnections.class);
-        Optional<L2gatewayConnections> l2GwConns = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
-        if (l2GwConns.isPresent()) {
-            return l2GwConns.get().getL2gatewayConnection();
-        }
-        return null;
     }
 
     /**

@@ -41,7 +41,7 @@ public class L2GatewayDevice {
     List<LocalUcastMacs> ucastLocalMacs = Collections.synchronizedList(new ArrayList<>());
 
     /** the status of this device connectin */
-    AtomicBoolean connected = new AtomicBoolean(true);
+    AtomicBoolean connected = new AtomicBoolean(false);
 
     /**
      * VTEP device name mentioned with L2 Gateway.

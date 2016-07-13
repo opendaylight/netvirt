@@ -26,7 +26,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteL2GwDeviceMacsFromElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteLogicalSwitchJob;
-import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepPhysicalLocatorListener;
+import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepTerminationPointListener;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -893,6 +893,14 @@ public class ElanL2GatewayUtils {
         WriteTransaction transaction = broker.newWriteOnlyTransaction();
         for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice
                 .getInterfaces()) {
+            NodeId physicalSwitchNodeId = HwvtepSouthboundUtils.createManagedNodeId(nodeId,
+                    hwVtepDevice.getDeviceName());
+            TerminationPoint portTerminationPoint = HwvtepUtils.getPhysicalPortTerminationPoint(broker,
+                    LogicalDatastoreType.OPERATIONAL, physicalSwitchNodeId, deviceInterface.getInterfaceName());
+            if (portTerminationPoint == null) {
+                // port is not present in Hwvtep; don't configure VLAN bindings on this port
+                continue;
+            }
             List<VlanBindings> vlanBindings = new ArrayList<>();
             if (deviceInterface.getSegmentationIds() != null && !deviceInterface.getSegmentationIds().isEmpty()) {
                 for (Integer vlanId : deviceInterface.getSegmentationIds()) {
@@ -909,6 +917,28 @@ public class ElanL2GatewayUtils {
         ListenableFuture<Void> future = transaction.submit();
         LOG.info("Updated Hwvtep VlanBindings in config DS. NodeID: {}, LogicalSwitch: {}", nodeId.getValue(),
                 logicalSwitchName);
+        return future;
+    }
+
+    /**
+     * Update vlan bindings in l2 gateway device.
+     *
+     * @param nodeId
+     *            the node id
+     * @param psName
+     *            the physical switch name
+     * @param interfaceName
+     *            the interface in physical switch
+     * @param vlanBindings
+     *            the vlan bindings to be configured
+     * @return  the listenable future
+     */
+    public static ListenableFuture<Void> updateVlanBindingsInL2GatewayDevice(NodeId nodeId, String psName,
+            String interfaceName, List<VlanBindings> vlanBindings) {
+        WriteTransaction transaction = broker.newWriteOnlyTransaction();
+        HwvtepUtils.mergeVlanBindings(transaction, nodeId, psName, interfaceName, vlanBindings);
+        ListenableFuture<Void> future = transaction.submit();
+        LOG.info("Updated Hwvtep VlanBindings in config DS. NodeID: {}", nodeId.getValue());
         return future;
     }
 
@@ -1083,7 +1113,7 @@ public class ElanL2GatewayUtils {
         InstanceIdentifier<TerminationPoint> tpPath = HwvtepSouthboundUtils.createTerminationPointId
                 (nodeId, tpKey);
 
-        HwvtepPhysicalLocatorListener.runJobAfterPhysicalLocatorIsAvialable(tpPath, new Runnable() {
+        HwvtepTerminationPointListener.runJobAfterPhysicalLocatorIsAvialable(tpPath, new Runnable() {
             @Override
             public void run() {
                 HwvtepUtils.installUcastMacs(broker,
