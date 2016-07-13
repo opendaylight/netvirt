@@ -14,14 +14,20 @@ import com.google.common.collect.ImmutableBiMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance.SegmentType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
@@ -474,6 +480,44 @@ public class NeutronvpnUtils {
     public static SegmentType getSegmentTypeFromNeutronNetwork(Network network) {
         NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
         return providerExtension != null ? NETWORK_MAP.get(providerExtension.getNetworkType()) : null;
+    }
+
+    public static String getPhysicalNetworkName(Network network) {
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        return providerExtension != null ? providerExtension.getPhysicalNetwork() : null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static String createOfPortInterface(Interface iface, DataBroker broker) {
+        String infName = iface.getName();
+        logger.debug("Creating OFPort Interface {}", infName);
+        InstanceIdentifier<Interface> interfaceIdentifier = buildVlanInterfaceIdentifier(infName);
+        try {
+            Optional<Interface> optionalInf = read(broker, LogicalDatastoreType.CONFIGURATION,
+                    interfaceIdentifier);
+            if (!optionalInf.isPresent()) {
+                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, iface);
+            } else {
+                logger.error("Interface {} is already present", infName);
+            }
+        } catch (Exception e) {
+            logger.error("failed to create interface {} due to the exception {} ", infName, e.getMessage());
+        }
+        return infName;
+    }
+
+    public static void createElanInterface(String name, String elanInstanceName, List<PhysAddress> physAddresses,
+            DataBroker broker) {
+        logger.debug("Creating new ELan Interface {}", name);
+        InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
+                .class, new ElanInterfaceKey(name)).build();
+        ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
+                .setName(name).setStaticMacEntries(physAddresses).setKey(new ElanInterfaceKey(name)).build();
+        try {
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, elanInterface);
+        } catch (Exception e) {
+            logger.error("failed to create ElanInterface {} due to the exception {} ", name, e.getMessage());
+        }
     }
 
     static InstanceIdentifier<PortFixedipToPortName> buildFixedIpToPortNameIdentifier(String fixedIp) {

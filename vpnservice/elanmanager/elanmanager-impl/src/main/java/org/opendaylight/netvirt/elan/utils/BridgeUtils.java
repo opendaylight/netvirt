@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableBiMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -35,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ConnectionInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.InterfaceTypeEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ManagedNodeEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.OpenvswitchOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
@@ -43,7 +47,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -57,6 +63,7 @@ import org.slf4j.LoggerFactory;
 public class BridgeUtils {
     private static final Logger LOG = LoggerFactory.getLogger(BridgeUtils.class);
 
+    public static final String PROVIDER_MAPPINGS_KEY = "provider_mappings";
     private static final ImmutableBiMap<Class<? extends OvsdbFailModeBase>,String> OVSDB_FAIL_MODE_MAP
             = new ImmutableBiMap.Builder<Class<? extends OvsdbFailModeBase>,String>()
             .put(OvsdbFailModeStandalone.class,"standalone")
@@ -230,6 +237,53 @@ public class BridgeUtils {
         return result;
     }
 
+    /**
+     * Get OpenvSwitch other-config by key.
+     * @param node OVSDB node
+     * @param key key to extract from other-config
+     * @return the value for key or null if key not found
+     */
+    public String getOpenvswitchOtherConfig(Node node, String key) {
+        OvsdbNodeAugmentation ovsdbNode = node.getAugmentation(OvsdbNodeAugmentation.class);
+        if (ovsdbNode == null) {
+            Node nodeFromReadOvsdbNode = getOvsdbNodeFromOperational(node);
+            if (nodeFromReadOvsdbNode != null) {
+                ovsdbNode = nodeFromReadOvsdbNode.getAugmentation(OvsdbNodeAugmentation.class);
+            }
+        }
+
+        if (ovsdbNode != null && ovsdbNode.getOpenvswitchOtherConfigs() != null) {
+            for (OpenvswitchOtherConfigs openvswitchOtherConfigs : ovsdbNode.getOpenvswitchOtherConfigs()) {
+                if (openvswitchOtherConfigs.getOtherConfigKey().equals(key)) {
+                    return openvswitchOtherConfigs.getOtherConfigValue();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract OpenvSwitch other-config to key value map.
+     * @param node OVSDB node
+     * @param key key to extract from other-config
+     * @return Optional of key-value Map
+     */
+    public Optional<Map<String, String>> getOpenvswitchOtherConfigMap(Node node, String key) {
+        String providerMappings = getOpenvswitchOtherConfig(node, key);
+        return extractMultiKeyValueToMap(providerMappings);
+    }
+
+
+    public String getBridgeDatapathId(Node node) {
+        OvsdbBridgeAugmentation bridgeAugmentation = node.getAugmentation(OvsdbBridgeAugmentation.class);
+        if (bridgeAugmentation == null || bridgeAugmentation.getDatapathId() == null) {
+            return null;
+        }
+
+        return bridgeAugmentation.getDatapathId().getValue();
+    }
+
     private List<ControllerEntry> createControllerEntries(List<String> controllersStr) {
         List<ControllerEntry> controllerEntries = new ArrayList<>();
         if (controllersStr != null) {
@@ -304,6 +358,20 @@ public class BridgeUtils {
         return ovsdbBridgeAugmentation;
     }
 
+    @SuppressWarnings("unchecked")
+    private Node getOvsdbNodeFromOperational(Node bridgeNode) {
+        Node ovsdbNode = null;
+        OvsdbBridgeAugmentation bridgeAugmentation = bridgeNode.getAugmentation(OvsdbBridgeAugmentation.class);
+        if (bridgeAugmentation != null) {
+            InstanceIdentifier<Node> ovsdbNodeIid =
+                    (InstanceIdentifier<Node>) bridgeAugmentation.getManagedBy().getValue();
+            ovsdbNode = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, ovsdbNodeIid);
+        }else{
+            LOG.debug("readOvsdbNode: Provided node is not a bridge node : {}",bridgeNode);
+        }
+        return ovsdbNode;
+    }
+
     private String generateRandomMac() {
         byte[] macBytes = new byte[6];
         random.nextBytes(macBytes);
@@ -321,5 +389,22 @@ public class BridgeUtils {
         }
 
         return stringBuilder.toString();
+    }
+
+    private static Optional<Map<String, String>> extractMultiKeyValueToMap(String multiKeyValueStr) {
+        if (Strings.isNullOrEmpty(multiKeyValueStr)) {
+            return Optional.absent();
+        }
+
+        Map<String, String> valueMap = new HashMap<>();
+        Splitter splitter = Splitter.on(",");
+        for (String keyValue : splitter.split(multiKeyValueStr)) {
+            String[] split = keyValue.split(":", 2);
+            if (split != null && split.length == 2) {
+                valueMap.put(split[0], split[1]);
+            }
+        }
+
+        return Optional.of(valueMap);
     }
 }
