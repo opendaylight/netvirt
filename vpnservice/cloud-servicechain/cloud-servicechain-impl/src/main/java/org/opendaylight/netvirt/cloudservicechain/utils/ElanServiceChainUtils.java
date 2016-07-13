@@ -246,7 +246,7 @@ public class ElanServiceChainUtils {
     }
 
     /**
-     * Stores the relation between elanInstanceName and ElanLport and scfTag.
+     * Stores the relation between ElanLport and scfTag.
      *
      * @param broker dataBroker service reference
      * @param elanInstanceName Name of the ELAN. Typically its UUID
@@ -255,17 +255,17 @@ public class ElanServiceChainUtils {
      * @param addOrRemove States if flows must be added or removed
      */
     public static void updateElanToLportTagMap(final DataBroker broker, final String elanInstanceName,
-                                                final int lportTag, final int scfTag, final int addOrRemove) {
-        ElanToPseudoPortDataKey key = new ElanToPseudoPortDataKey(elanInstanceName);
+                                               final int lportTag, final int scfTag, final int addOrRemove) {
+        ElanToPseudoPortDataKey key = new ElanToPseudoPortDataKey(new Long(lportTag), new Integer(scfTag));
         InstanceIdentifier<ElanToPseudoPortData> path = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName))
                 .augmentation(ElanServiceChainState.class)
-                .child(ElanToPseudoPortData.class, new ElanToPseudoPortDataKey(elanInstanceName)).build();
+                .child(ElanToPseudoPortData.class, new ElanToPseudoPortDataKey(key)).build();
 
         if ( addOrRemove == NwConstants.ADD_FLOW ) {
             ElanToPseudoPortData newValue =
-                    new ElanToPseudoPortDataBuilder().setKey(key).setElanInstanceName(elanInstanceName)
-                                                     .setElanLportTag((long) lportTag).setScfTag(scfTag).build();
+                    new ElanToPseudoPortDataBuilder().setKey(key).setElanLportTag(new Long(lportTag))
+                                                     .setScfTag(scfTag).build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, path, newValue);
         } else {
             MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, path);
@@ -280,21 +280,18 @@ public class ElanServiceChainUtils {
      * @return the ElanToPseudoPortData object or Optional.absent() if it
      *     cannot be found
      */
-    public static Optional<ElanToPseudoPortData> getElanToLportTagList(final DataBroker broker, final String elanInstanceName) {
-        ElanToPseudoPortDataKey key = new ElanToPseudoPortDataKey(elanInstanceName);
-        InstanceIdentifier<ElanToPseudoPortData> path = InstanceIdentifier.builder(ElanInstances.class)
+    public static Optional<ElanServiceChainState> getElanServiceChainState(final DataBroker broker, final String elanInstanceName) {
+        InstanceIdentifier<ElanServiceChainState> path = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName))
-                .augmentation(ElanServiceChainState.class)
-                .child(ElanToPseudoPortData.class, key).build();
-
-        Optional<ElanToPseudoPortData> elanLPortListOpc =
-                MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, path);
-        if (!elanLPortListOpc.isPresent()) {
-            logger.warn("Could not find and LPort for elan {}", elanInstanceName);
+                .augmentation(ElanServiceChainState.class).build();
+        Optional<ElanServiceChainState> elanServiceChainStateOpc =
+                MDSALUtil.read(broker,LogicalDatastoreType.OPERATIONAL,path);
+        if (!elanServiceChainStateOpc.isPresent()) {
+            logger.warn("Could not find ServiceChainState for elan {}", elanInstanceName);
             return Optional.absent();
         }
 
-        return elanLPortListOpc;
+        return elanServiceChainStateOpc;
 
     }
 }
