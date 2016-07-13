@@ -26,17 +26,17 @@ public class CloudServiceChainProvider implements ICloudServiceChain {
     }
 
     @Override
-    public void programVpnToScfPipeline(String vpnId, short tableId, int scfTag, int lportTag, int addOrRemove) {
+    public void programVpnToScfPipeline(String vpnId, short tableId, long scfTag, int lportTag, int addOrRemove) {
         LOG.info("L3VPN Service chaining :programVpnToScfPipeline [Started] {} {} {} {} {}",
                  vpnId, tableId,scfTag, lportTag, addOrRemove);
         vpnServiceChainHandler.programVpnToScfPipeline(vpnId, tableId, scfTag, lportTag, addOrRemove);
     }
 
     @Override
-    public void programScfToVpnPipeline(String vpnId, int scfTag, int scsTag, long dpnId, int lportTag,
+    public void programScfToVpnPipeline(String vpnId, long scfTag, int scsTag, long dpnId, int lportTag,
                                         boolean isLastServiceChain, int addOrRemove) {
         LOG.info("L3VPN Service chaining :programScfToVpnPipeline [Started] {} {} {} {}", vpnId, scfTag,
-                dpnId, lportTag);
+                 dpnId, lportTag);
         vpnServiceChainHandler.programScfToVpnPipeline(vpnId, scfTag, scsTag, dpnId, lportTag, isLastServiceChain,
                                                        addOrRemove);
     }
@@ -51,7 +51,7 @@ public class CloudServiceChainProvider implements ICloudServiceChain {
     }
 
     @Override
-    public void programElanScfPipeline(String elanName, short tableId, int scfTag, int elanLportTag,
+    public void programElanScfPipeline(String elanName, short tableId, long scfTag, int elanLportTag,
                                        boolean isLastServiceChain, int addOrRemove) {
         LOG.info("ELAN Service chaining :programElanScfPipeline [Started] {} {} {} {} {}",
                  elanName, tableId, scfTag, elanLportTag, addOrRemove);

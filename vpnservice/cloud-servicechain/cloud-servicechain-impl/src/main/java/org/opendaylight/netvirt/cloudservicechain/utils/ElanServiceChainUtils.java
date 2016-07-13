@@ -95,10 +95,10 @@ public class ElanServiceChainUtils {
      * @param elanTag the Elan Id in the Dataplane
      * @param addOrRemove States if the flow must be added or removed
      */
-    public static void programLPortDispatcherToScf(IMdsalApiManager mdsalManager, BigInteger dpnId, int elanTag,
-            int elanLportTag, short tableId, int scfTag, int addOrRemove) {
+    public static void programLPortDispatcherToScf(IMdsalApiManager mdsalManager, BigInteger dpnId, long elanTag,
+            int elanLportTag, short tableId, long scfTag, int addOrRemove) {
         logger.info("L2-ServiceChaining: programLPortDispatcherToScf dpId={} elanLportTag={} scfTag={} addOrRemove={} ",
-                dpnId, elanLportTag, scfTag, addOrRemove);
+                    dpnId, elanLportTag, scfTag, addOrRemove);
         String flowRef = buildLportDispToScfFlowRef(elanLportTag, scfTag);
         if (addOrRemove == NwConstants.ADD_FLOW) {
             List<MatchInfo> matches = Arrays.asList(
@@ -138,7 +138,7 @@ public class ElanServiceChainUtils {
      * @param addOrRemove States if the flow must be added or removed
      */
     public static void programLPortDispatcherFromScf(IMdsalApiManager mdsalManager, BigInteger dpnId,
-                                                     int elanLportTag, int elanTag, int addOrRemove) {
+                                                     int elanLportTag, long elanTag, int addOrRemove) {
         logger.info("L2-ServiceChaining: programLPortDispatcherFromScf dpId={} elanLportTag={} elanTag={} addOrRemove={} ",
                 dpnId, elanLportTag, elanTag, addOrRemove);
         String flowRef = buildLportDispFromScfFlowRef(elanTag, elanLportTag );
@@ -191,7 +191,7 @@ public class ElanServiceChainUtils {
      * @param addOrRemove States if the flow must be added or removed
      */
     public static void programExternalTunnelTable(IMdsalApiManager mdsalManager, BigInteger dpnId, int elanLportTag,
-            Long vni, int elanTag, int addOrRemove) {
+            long vni, int elanTag, int addOrRemove) {
         logger.info("L2-ServiceChaining: programExternalTunnelTable dpId={} vni={} elanLportTag={} addOrRemove={} ",
                 dpnId, vni, elanLportTag, addOrRemove);
         String flowRef = buildExtTunnelTblToLportDispFlowRef(vni, elanLportTag);
@@ -218,7 +218,7 @@ public class ElanServiceChainUtils {
      *
      * @return the List of Instructions
      */
-    public static List<Instruction> buildSetLportTagAndGotoLportDispInstructions(long lportTag) {
+    public static List<Instruction> buildSetLportTagAndGotoLportDispInstructions(int lportTag) {
         int instructionKey = 0;
         BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher((int) lportTag,
                 ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME, NwConstants.SCF_SERVICE_INDEX));
@@ -230,23 +230,23 @@ public class ElanServiceChainUtils {
         return result;
     }
 
-    private static String buildExtTunnelTblToLportDispFlowRef(Long vni, int elanLportTag) {
+    private static String buildExtTunnelTblToLportDispFlowRef(long vni, int elanLportTag) {
         return CloudServiceChainConstants.L2_FLOWID_PREFIX + vni
                 + NwConstants.FLOWID_SEPARATOR + elanLportTag;
     }
 
-    private static String buildLportDispToScfFlowRef(int elanLportTag, int scfTag) {
+    private static String buildLportDispToScfFlowRef(int elanLportTag, long scfTag) {
         return CloudServiceChainConstants.ELAN_TO_SCF_L2_FLOWID_PREFIX + elanLportTag
                 + NwConstants.FLOWID_SEPARATOR + scfTag;
     }
 
-    private static String buildLportDispFromScfFlowRef(int elanTag, int elanLportTag) {
+    private static String buildLportDispFromScfFlowRef(long elanTag, int elanLportTag) {
         return CloudServiceChainConstants.SCF_TO_ELAN_L2_FLOWID_PREFIX + elanTag
                 + NwConstants.FLOWID_SEPARATOR + elanLportTag;
     }
 
     /**
-     * Stores the relation between elanInstanceName and ElanLport and scfTag.
+     * Stores the relation between ElanLport and scfTag.
      *
      * @param broker dataBroker service reference
      * @param elanInstanceName Name of the ELAN. Typically its UUID
@@ -255,17 +255,17 @@ public class ElanServiceChainUtils {
      * @param addOrRemove States if flows must be added or removed
      */
     public static void updateElanToLportTagMap(final DataBroker broker, final String elanInstanceName,
-                                                final int lportTag, final int scfTag, final int addOrRemove) {
-        ElanToPseudoPortDataKey key = new ElanToPseudoPortDataKey(elanInstanceName);
+                                               final int lportTag, final long scfTag, final int addOrRemove) {
+        ElanToPseudoPortDataKey key = new ElanToPseudoPortDataKey(new Long(lportTag), scfTag);
         InstanceIdentifier<ElanToPseudoPortData> path = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName))
                 .augmentation(ElanServiceChainState.class)
-                .child(ElanToPseudoPortData.class, new ElanToPseudoPortDataKey(elanInstanceName)).build();
+                .child(ElanToPseudoPortData.class, new ElanToPseudoPortDataKey(key)).build();
 
         if ( addOrRemove == NwConstants.ADD_FLOW ) {
             ElanToPseudoPortData newValue =
-                    new ElanToPseudoPortDataBuilder().setKey(key).setElanInstanceName(elanInstanceName)
-                                                     .setElanLportTag((long) lportTag).setScfTag(scfTag).build();
+                    new ElanToPseudoPortDataBuilder().setKey(key).setElanLportTag(new Long(lportTag))
+                                                     .setScfTag(scfTag).build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, path, newValue);
         } else {
             MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, path);
@@ -280,21 +280,18 @@ public class ElanServiceChainUtils {
      * @return the ElanToPseudoPortData object or Optional.absent() if it
      *     cannot be found
      */
-    public static Optional<ElanToPseudoPortData> getElanToLportTagList(final DataBroker broker, final String elanInstanceName) {
-        ElanToPseudoPortDataKey key = new ElanToPseudoPortDataKey(elanInstanceName);
-        InstanceIdentifier<ElanToPseudoPortData> path = InstanceIdentifier.builder(ElanInstances.class)
+    public static Optional<ElanServiceChainState> getElanServiceChainState(final DataBroker broker, final String elanInstanceName) {
+        InstanceIdentifier<ElanServiceChainState> path = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName))
-                .augmentation(ElanServiceChainState.class)
-                .child(ElanToPseudoPortData.class, key).build();
-
-        Optional<ElanToPseudoPortData> elanLPortListOpc =
-                MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, path);
-        if (!elanLPortListOpc.isPresent()) {
-            logger.warn("Could not find and LPort for elan {}", elanInstanceName);
+                .augmentation(ElanServiceChainState.class).build();
+        Optional<ElanServiceChainState> elanServiceChainStateOpc =
+                MDSALUtil.read(broker,LogicalDatastoreType.OPERATIONAL,path);
+        if (!elanServiceChainStateOpc.isPresent()) {
+            logger.warn("Could not find ServiceChainState for elan {}", elanInstanceName);
             return Optional.absent();
         }
 
-        return elanLPortListOpc;
+        return elanServiceChainStateOpc;
 
     }
 }

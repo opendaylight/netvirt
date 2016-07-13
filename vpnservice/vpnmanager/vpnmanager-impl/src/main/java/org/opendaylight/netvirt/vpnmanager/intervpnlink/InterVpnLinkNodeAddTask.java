@@ -117,10 +117,10 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
             // Note that in the DPN of the firstEndpoint we install the lportTag of the secondEndpoint and viceversa
             InterVpnLinkUtil.installLPortDispatcherTableFlow(broker, mdsalManager, vpnLink.get(), firstDpnList,
                                                     secondEndpointVpnUuid,
-                                                    interVpnLinkState.getSecondEndpointState().getLportTag());
+                                                    interVpnLinkState.getSecondEndpointState().getLportTag().intValue());
             InterVpnLinkUtil.installLPortDispatcherTableFlow(broker, mdsalManager, vpnLink.get(), secondDpnList,
                                                     firstEndpointVpnUuid,
-                                                    interVpnLinkState.getFirstEndpointState().getLportTag());
+                                                    interVpnLinkState.getFirstEndpointState().getLportTag().intValue());
             // Update the VPN -> DPNs Map.
             // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
             // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach

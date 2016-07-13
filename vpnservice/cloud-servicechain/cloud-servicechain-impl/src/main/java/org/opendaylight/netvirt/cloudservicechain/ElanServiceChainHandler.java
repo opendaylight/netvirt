@@ -66,7 +66,7 @@ public class ElanServiceChainHandler {
      *        the ServiceChain
      * @param addOrRemove States if the flows must be created or removed
      */
-    public void programElanScfPipeline(String elanName, short tableId, int scfTag, int elanLportTag, int addOrRemove) {
+    public void programElanScfPipeline(String elanName, short tableId, long scfTag, int elanLportTag, int addOrRemove) {
         logger.info("programElanScfPipeline:  elanName={}   scfTag={}   elanLportTag={}    addOrRemove={}",
                     elanName, scfTag, elanLportTag, addOrRemove);
         // There are 3 rules to be considered:
