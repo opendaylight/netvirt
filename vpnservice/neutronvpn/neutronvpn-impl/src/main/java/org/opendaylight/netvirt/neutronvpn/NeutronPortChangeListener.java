@@ -482,22 +482,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
 
     private String createOfPortInterface(Port port) {
         Interface inf = createInterface(port);
-        String infName = inf.getName();
-
-        LOG.debug("Creating OFPort Interface {}", infName);
-        InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(infName);
-        try {
-            Optional<Interface> optionalInf = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
-                    interfaceIdentifier);
-            if (!optionalInf.isPresent()) {
-                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
-            } else {
-                LOG.error("Interface {} is already present", infName);
-            }
-        } catch (Exception e) {
-            LOG.error("failed to create interface {} due to the exception {} ", infName, e.getMessage());
-        }
-        return infName;
+        return NeutronvpnUtils.createOfPortInterface(inf, broker);
     }
 
     private Interface createInterface(Port port) {
@@ -591,13 +576,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         String elanInstanceName = port.getNetworkId().getValue();
         List<PhysAddress> physAddresses = new ArrayList<>();
         physAddresses.add(new PhysAddress(port.getMacAddress().getValue()));
-
-        InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
-                .class, new ElanInterfaceKey(name)).build();
-        ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
-                .setName(name).setStaticMacEntries(physAddresses).setKey(new ElanInterfaceKey(name)).build();
-        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, elanInterface);
-        LOG.debug("Creating new ELan Interface {}", elanInterface);
+        NeutronvpnUtils.createElanInterface(name, elanInstanceName, physAddresses, broker);
     }
 
     // adds port to subnet list and creates vpnInterface
