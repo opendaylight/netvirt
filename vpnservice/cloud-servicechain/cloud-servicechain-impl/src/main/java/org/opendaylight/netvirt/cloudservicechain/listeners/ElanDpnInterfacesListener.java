@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.cloudservicechain.listeners;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.ElanServiceChainState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.elan.to.pseudo.port.data.list.ElanToPseudoPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -24,6 +25,8 @@ import org.opendaylight.netvirt.cloudservicechain.utils.ElanServiceChainUtils;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import java.math.BigInteger;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,34 +70,43 @@ public class ElanDpnInterfacesListener extends AbstractDataChangeListener<DpnInt
     protected void add(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
         final String elanName = getElanName(identifier);
         BigInteger addDpnId = dpnInterfaces.getDpId();
-        Optional<ElanToPseudoPortData> elanLPortListOpc = ElanServiceChainUtils.getElanToLportTagList(broker, elanName);
-        if (elanLPortListOpc.isPresent()) {
-            int scfTag = elanLPortListOpc.get().getScfTag();
-            Long elanLportTag = elanLPortListOpc.get().getElanLportTag();
-            if ( elanLportTag != null ) {
-                short tableId = NwConstants.SCF_DOWN_SUB_FILTER_TCP_BASED_TABLE;
-                handleUpdate(addDpnId, elanName, tableId, elanLportTag.intValue(), scfTag, NwConstants.ADD_FLOW);
-            } else {
-                logger.debug("Could not find lportTag for elan={}", elanName);
+        Optional<ElanServiceChainState> elanServiceChainState = ElanServiceChainUtils
+                .getElanServiceChainState(broker, elanName);
+        if (elanServiceChainState.isPresent()) {
+            List<ElanToPseudoPortData> elanToPseudoPortDataList = elanServiceChainState.get().getElanToPseudoPortData();
+            for (ElanToPseudoPortData elanToPseudoPortData : elanToPseudoPortDataList) {
+                Long scfTag = elanToPseudoPortData.getScfTag();
+                Long elanLportTag = elanToPseudoPortData.getElanLportTag();
+                if (elanLportTag != null && scfTag != null) {
+                    short tableId = NwConstants.SCF_DOWN_SUB_FILTER_TCP_BASED_TABLE;
+                    handleUpdate(addDpnId, elanName, tableId, elanLportTag.intValue() /*21 bit*/ ,
+                                 scfTag, NwConstants.ADD_FLOW);
+                } else {
+                    logger.debug("Could not find lportTag for elan={}", elanName);
+                }
             }
         }
-
     }
 
     @Override
     protected void remove(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
         final String elanName = getElanName(identifier);
         BigInteger removeDpnId = dpnInterfaces.getDpId();
-        Optional<ElanToPseudoPortData> elanLPortListOpc = ElanServiceChainUtils.getElanToLportTagList(broker, elanName);
-        if (elanLPortListOpc.isPresent()) {
-            Integer scfTag = elanLPortListOpc.get().getScfTag();
-            Long elanLportTag = elanLPortListOpc.get().getElanLportTag();
-            if ( scfTag != null && elanLportTag != null ) {
-                handleUpdate(removeDpnId, elanName,  (short) 0 /* tableId, ignored in removals */,
-                             elanLportTag.intValue(), 0 /* scfTag, ignored in removals */, NwConstants.DEL_FLOW);
-            } else {
-                logger.debug("One of scfTag or lPortTag is null for elan={}:  scfTag={}  lportTag={}",
-                             elanName, scfTag, elanLportTag);
+        Optional<ElanServiceChainState> elanServiceChainState = ElanServiceChainUtils
+                .getElanServiceChainState(broker, elanName);
+        if (elanServiceChainState.isPresent()) {
+            List<ElanToPseudoPortData> elanToPseudoPortDataList = elanServiceChainState.get().getElanToPseudoPortData();
+            for (ElanToPseudoPortData elanToPseudoPortData : elanToPseudoPortDataList) {
+                Long scfTag = elanToPseudoPortData.getScfTag();
+                Long elanLportTag = elanToPseudoPortData.getElanLportTag();
+                if (scfTag != null && elanLportTag != null) {
+                    handleUpdate(removeDpnId, elanName, (short) 0 /* tableId, ignored in removals */,
+                                 elanLportTag.intValue() /*21 bit*/ , 0 /* scfTag, ignored in removals */,
+                                 NwConstants.DEL_FLOW);
+                } else {
+                    logger.debug("One of scfTag or lPortTag is null for elan={}:  scfTag={}  lportTag={}",
+                                 elanName, scfTag, elanLportTag);
+                }
             }
         }
     }
@@ -122,7 +134,8 @@ public class ElanDpnInterfacesListener extends AbstractDataChangeListener<DpnInt
         return identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
     }
 
-    private void handleUpdate(BigInteger dpnId, String elanName,  short tableId, int elanLportTag, int scfTag, int addOrRemove) {
+    private void handleUpdate(BigInteger dpnId, String elanName,  short tableId, int elanLportTag, long scfTag,
+                              int addOrRemove) {
         Optional<ElanInstance> elanInstance = ElanServiceChainUtils.getElanInstanceByName(broker, elanName);
         if ( !elanInstance.isPresent() ) {
             logger.debug("Could not find an Elan Instance with name={}", elanName);

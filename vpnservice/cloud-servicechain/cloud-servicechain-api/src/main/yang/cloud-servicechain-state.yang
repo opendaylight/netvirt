@@ -16,15 +16,10 @@ module cloud-service-chain-state {
 
     grouping elan-to-pseudo-port-data-list {
         list elan-to-pseudo-port-data {
-            key "elan-instance-name";
-            description "Relates elan-logical-port and scfTag with elan-instance-name";
+            key "elan-lport-tag scf-tag";
+            description "Relates elan-logical-port and scfTag";
             max-elements "unbounded";
             min-elements "0";
-
-            leaf elan-instance-name {
-                type string;
-                description "The name of the elan-instance.";
-            }
 
             leaf elan-lport-tag {
                 description "Elan Pseudo Logical Port Tag";
@@ -33,7 +28,7 @@ module cloud-service-chain-state {
 
             leaf scf-tag {
                 description "SCF tag associated to Elan Pseudo Logical Port Tag";
-                type uint16;
+                type uint32;
             }
         }
     }

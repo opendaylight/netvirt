@@ -177,12 +177,12 @@ public class InterVpnLinkUtil {
      */
     public static void installLPortDispatcherTableFlow(DataBroker broker, IMdsalApiManager mdsalManager,
                                                        InterVpnLink interVpnLink, List<BigInteger> dpnList,
-                                                       Uuid vpnUuidOtherEndpoint, Long lPortTagOfOtherEndpoint) {
+                                                       Uuid vpnUuidOtherEndpoint, Integer lPortTagOfOtherEndpoint) {
         long vpnId = VpnUtil.getVpnId(broker, vpnUuidOtherEndpoint.getValue());
         for ( BigInteger dpnId : dpnList ) {
             // insert into LPortDispatcher table
             Flow lPortDispatcherFlow = buildLPortDispatcherFlow(interVpnLink.getName(), vpnId,
-                    lPortTagOfOtherEndpoint.intValue());
+                                                                lPortTagOfOtherEndpoint.intValue());
             mdsalManager.installFlow(dpnId, lPortDispatcherFlow);
         }
     }

@@ -56,7 +56,7 @@ public class ElanServiceChainHandler {
      *        ElanPseudoPort is not used in any other ServiceChain
      * @param addOrRemove States if the flows must be created or removed
      */
-    public void programElanScfPipeline(String elanName, short tableId, int scfTag, int elanLportTag,
+    public void programElanScfPipeline(String elanName, short tableId, long scfTag, int elanLportTag,
                                        boolean isLastServiceChain, int addOrRemove) {
         logger.info("programElanScfPipeline:  elanName={}   scfTag={}   elanLportTag={}   lastSc={}   addOrRemove={}",
                     elanName, scfTag, elanLportTag, isLastServiceChain, addOrRemove);

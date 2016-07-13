@@ -57,12 +57,12 @@ public class VpnPseudoPortListener
     @Override
     protected void update(InstanceIdentifier<VpnToPseudoPortTag> identifier, VpnToPseudoPortTag original,
                           VpnToPseudoPortTag update) {
-        VpnPseudoPortCache.addVpnPseudoPortToCache(update.getVrfId(), update.getLportTag());
+        VpnPseudoPortCache.addVpnPseudoPortToCache(update.getVrfId(), update.getLportTag().intValue());
     }
 
     @Override
     protected void add(InstanceIdentifier<VpnToPseudoPortTag> identifier, VpnToPseudoPortTag add) {
-        VpnPseudoPortCache.addVpnPseudoPortToCache(add.getVrfId(), add.getLportTag());
+        VpnPseudoPortCache.addVpnPseudoPortToCache(add.getVrfId(), add.getLportTag().intValue());
     }
 
     @Override

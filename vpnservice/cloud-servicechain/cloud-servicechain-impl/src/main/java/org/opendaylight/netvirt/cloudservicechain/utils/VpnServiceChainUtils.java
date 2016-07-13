@@ -81,7 +81,7 @@ public class VpnServiceChainUtils {
      * @param scfTag
      * @return
      */
-    public static BigInteger getMetadataSCF(int scfTag) { // TODO: Move to a common place
+    public static BigInteger getMetadataSCF(long scfTag) { // TODO: Move to a common place
         return (new BigInteger("FF", 16).and(BigInteger.valueOf(scfTag))).shiftLeft(32);
     }
 
@@ -297,7 +297,7 @@ public class VpnServiceChainUtils {
      * @param lportTag Pseudo Logical Port tag
      * @return the FlowEntity
      */
-    public static FlowEntity buildLFibVpnPseudoPortFlow(BigInteger dpId, Long label, String nextHop, Integer lportTag) {
+    public static FlowEntity buildLFibVpnPseudoPortFlow(BigInteger dpId, Long label, String nextHop, int lportTag) {
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_MPLS_UC }));
@@ -333,7 +333,7 @@ public class VpnServiceChainUtils {
      * @param lportTag
      */
     public static void programLFibEntriesForSCF(IMdsalApiManager mdsalMgr, BigInteger dpId, List<VrfEntry> vrfEntries,
-                                                Integer lportTag, int addOrRemove) {
+                                                int lportTag, int addOrRemove) {
         for (VrfEntry vrfEntry : vrfEntries) {
             Long label = vrfEntry.getLabel();
             for (String nexthop : vrfEntry.getNextHopAddressList()) {
@@ -362,7 +362,7 @@ public class VpnServiceChainUtils {
      * @param addOrRemove
      */
     public static void programLPortDispatcherFlowForVpnToScf(IMdsalApiManager mdsalManager, BigInteger dpId,
-                                                             Integer lportTag, int scfTag, short gotoTableId,
+                                                             int lportTag, long scfTag, short gotoTableId,
                                                              int addOrRemove) {
         FlowEntity flowEntity = VpnServiceChainUtils.buildLportFlowDispForVpnToScf(dpId, lportTag, scfTag, gotoTableId);
         if (addOrRemove == NwConstants.ADD_FLOW) {
@@ -385,7 +385,7 @@ public class VpnServiceChainUtils {
      * @param gotoTableId
      * @return the FlowEntity
      */
-    public static FlowEntity buildLportFlowDispForVpnToScf(BigInteger dpId, Integer lportTag, int scfTag,
+    public static FlowEntity buildLportFlowDispForVpnToScf(BigInteger dpId, int lportTag, long scfTag,
                                                            short gotoTableId) {
         List<MatchInfo> matches = buildMatchOnLportTagAndSI(lportTag, ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME, NwConstants.SCF_SERVICE_INDEX));
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
@@ -570,7 +570,7 @@ public class VpnServiceChainUtils {
 
 
 
-    private static BigInteger getCookieSCHop(int scfInstanceTag) {
+    private static BigInteger getCookieSCHop(long scfInstanceTag) {
         return CloudServiceChainConstants.COOKIE_SCF_BASE.add(new BigInteger("0610000", 16))
                 .add(BigInteger.valueOf(scfInstanceTag));
     }
