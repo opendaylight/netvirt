@@ -159,6 +159,7 @@ module odl-l3vpn {
 
 
     container subnet-op-data {
+        config false;
         list subnet-op-data-entry {
             key subnet-id;
             leaf subnet-id {
@@ -204,6 +205,7 @@ module odl-l3vpn {
     }
 
     container port-op-data {
+        config false;
         list port-op-data-entry {
             key port-id;
             leaf port-id {
@@ -216,27 +218,6 @@ module odl-l3vpn {
             }
             leaf dpnId {
                 type uint64;
-            }
-        }
-    }
-
-    container rd-to-elan-op{
-        list rd-to-elan-op-entry{
-            key "rd subnet-ip";
-            leaf rd {
-                type string;
-            }
-            leaf subnet-ip {
-                type string;
-            }
-            leaf next-hop-ip {
-                type string;
-            }
-            leaf vpn-name {
-                type string;
-            }
-            leaf elan-tag{
-                type uint32;
             }
         }
     }
