@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -31,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 public class IfMgr {
     static final Logger logger = LoggerFactory.getLogger(IfMgr.class);
-    public static final String NETWORK_ROUTER_INTERFACE = "network:router_interface";
 
     private HashMap<Uuid, VirtualRouter> vrouters;
     private HashMap<Uuid, VirtualSubnet> vsubnets;
@@ -404,7 +404,7 @@ public class IfMgr {
         VirtualPort intf = vintfs.get(portId);
         if (intf != null) {
             intf.removeSelf();
-            if (intf.getDeviceOwner().equalsIgnoreCase(NETWORK_ROUTER_INTERFACE)) {
+            if (intf.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
                 MacAddress ifaceMac = MacAddress.getDefaultInstance(intf.getMacAddress());
                 Ipv6Address llAddr = ipv6Utils.getIpv6LinkLocalAddressFromMac(ifaceMac);
                 vrouterv6IntfMap.remove(intf.getNetworkID(), intf);
@@ -412,7 +412,7 @@ public class IfMgr {
             }
             for (IpAddress ipAddr : intf.getIpAddresses()) {
                 if (ipAddr.getIpv6Address() != null) {
-                    if (intf.getDeviceOwner().equalsIgnoreCase(NETWORK_ROUTER_INTERFACE)) {
+                    if (intf.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
                         programNSFlowForAddress(intf, ipAddr.getIpv6Address(), false);
                     }
                 }

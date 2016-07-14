@@ -14,6 +14,7 @@ import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
@@ -59,7 +60,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         List<FixedIps> ipList = port.getFixedIps();
 
         for (FixedIps fixedip : ipList) {
-            if (port.getDeviceOwner().equalsIgnoreCase(ifMgr.NETWORK_ROUTER_INTERFACE)) {
+            if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
 
                 // Add router interface
                 ifMgr.addRouterIntf(port.getUuid(),
@@ -90,7 +91,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
         LOG.info("update port notification handler is invoked...");
-        if (update.getDeviceOwner().equalsIgnoreCase(ifMgr.NETWORK_ROUTER_INTERFACE)) {
+        if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
             ifMgr.updateRouterIntf(update.getUuid(), new Uuid(update.getDeviceId()), update.getFixedIps());
         } else {
             ifMgr.updateHostIntf(update.getUuid(), update.getFixedIps());

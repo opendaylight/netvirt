@@ -31,6 +31,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.EthernetHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.Ipv6Header;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.NeighborAdvertisePacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.NeighborAdvertisePacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.NeighborSolicitationPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.NeighborSolicitationPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterAdvertisementPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterAdvertisementPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterSolicitationPacket;
@@ -123,10 +127,174 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
         public void run() {
             if (type == Ipv6Constants.ICMPv6_NS_CODE) {
                 LOG.info("Received Neighbor Solicitation request");
+                processNeighborSolicitationRequest();
             } else if (type == Ipv6Constants.ICMPv6_RS_CODE) {
                 LOG.info("Received Router Solicitation request");
                 processRouterSolicitationRequest();
             }
+        }
+
+        private void processNeighborSolicitationRequest() {
+            byte[] data = packet.getPayload();
+            NeighborSolicitationPacket nsPdu = deserializeNSPacket(data);
+            Ipv6Header ipv6Header = (Ipv6Header) nsPdu;
+            if (ipv6Utils.validateChecksum(data, ipv6Header, nsPdu.getIcmp6Chksum()) == false) {
+                pktProccessedCounter++;
+                LOG.warn("Received Neighbor Solicitation with invalid checksum on {}. Ignoring the packet.",
+                        packet.getIngress());
+                return;
+            }
+
+            BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
+            long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
+            String interfaceName = ifMgr.getInterfaceNameFromTag(portTag);
+            VirtualPort port = ifMgr.obtainV6Interface(new Uuid(interfaceName));
+            if (port == null) {
+                pktProccessedCounter++;
+                LOG.warn("Port {} not found, skipping.", port);
+                return;
+            }
+
+            VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
+            if (routerPort == null) {
+                pktProccessedCounter++;
+                LOG.warn("Port {} is not associated to a Router, skipping NS request.", routerPort);
+                return;
+            }
+
+            if (!routerPort.getIpv6Addresses().contains(nsPdu.getTargetIpAddress())) {
+                pktProccessedCounter++;
+                LOG.warn("No Router interface with address {} on the network {}, skipping NS request.",
+                        nsPdu.getTargetIpAddress(), port.getNetworkID());
+                return;
+            }
+
+            //formulate the NA response
+            NeighborAdvertisePacketBuilder naPacket = new NeighborAdvertisePacketBuilder();
+            updateNAResponse(nsPdu, routerPort, naPacket);
+            // serialize the response packet
+            byte[] txPayload = fillNeighborAdvertisementPacket(naPacket.build());
+            InstanceIdentifier<Node> outNode = packet.getIngress().getValue().firstIdentifierOf(Node.class);
+            TransmitPacketInput input = new TransmitPacketInputBuilder().setPayload(txPayload)
+                    .setNode(new NodeRef(outNode))
+                    .setEgress(packet.getIngress()).build();
+            // Tx the packet out of the controller.
+            if (pktService != null) {
+                LOG.debug("Transmitting the Neighbor Advt packet out on {}", packet.getIngress());
+                pktService.transmitPacket(input);
+                pktProccessedCounter++;
+            }
+        }
+
+        private NeighborSolicitationPacket deserializeNSPacket(byte[] data) {
+            NeighborSolicitationPacketBuilder nsPdu = new NeighborSolicitationPacketBuilder();
+            int bitOffset = 0;
+
+            try {
+                nsPdu.setDestinationMac(new MacAddress(
+                        ipv6Utils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
+                bitOffset = bitOffset + 48;
+                nsPdu.setSourceMac(new MacAddress(
+                        ipv6Utils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
+                bitOffset = bitOffset + 48;
+                nsPdu.setEthertype(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+
+                bitOffset = Ipv6Constants.IPv6_HDR_START;
+                nsPdu.setVersion(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 4)));
+                bitOffset = bitOffset + 4;
+                nsPdu.setFlowLabel(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, 28)));
+                bitOffset = bitOffset + 28;
+                nsPdu.setIpv6Length(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+                bitOffset = bitOffset + 16;
+                nsPdu.setNextHeader(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+                bitOffset = bitOffset + 8;
+                nsPdu.setHopLimit(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+                bitOffset = bitOffset + 8;
+                nsPdu.setSourceIpv6(Ipv6Address.getDefaultInstance(
+                        InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset, 128)).getHostAddress()));
+                bitOffset = bitOffset + 128;
+                nsPdu.setDestinationIpv6(Ipv6Address.getDefaultInstance(
+                        InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset, 128)).getHostAddress()));
+                bitOffset = bitOffset + 128;
+
+                nsPdu.setIcmp6Type(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+                bitOffset = bitOffset + 8;
+                nsPdu.setIcmp6Code(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+                bitOffset = bitOffset + 8;
+                nsPdu.setIcmp6Chksum(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+                bitOffset = bitOffset + 16;
+                nsPdu.setReserved(Long.valueOf(0));
+                bitOffset = bitOffset + 32;
+                nsPdu.setTargetIpAddress(Ipv6Address.getDefaultInstance(
+                        InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset, 128)).getHostAddress()));
+            } catch (BufferException | UnknownHostException  e) {
+                LOG.warn("Exception obtained when deserializing NS packet", e.toString());
+            }
+            return nsPdu.build();
+        }
+
+        private void updateNAResponse(NeighborSolicitationPacket pdu,
+                                      VirtualPort port, NeighborAdvertisePacketBuilder naPacket) {
+            long flag = 0;
+            if (!pdu.getSourceIpv6().equals(ipv6Utils.UNSPECIFIED_ADDR)) {
+                naPacket.setDestinationIpv6(pdu.getSourceIpv6());
+                flag = 0xE0; // Set Router, Solicited and Override Flag.
+            } else {
+                naPacket.setDestinationIpv6(ipv6Utils.ALL_NODES_MCAST_ADDR);
+                flag = 0xA0; // Set Router and Override Flag.
+            }
+            naPacket.setDestinationMac(pdu.getSourceMac());
+            naPacket.setEthertype(pdu.getEthertype());
+            naPacket.setSourceIpv6(pdu.getTargetIpAddress());
+            naPacket.setSourceMac(new MacAddress(port.getMacAddress()));
+            naPacket.setHopLimit(Ipv6Constants.ICMPv6_MAX_HOP_LIMIT);
+            naPacket.setIcmp6Type(Ipv6Constants.ICMPv6_NA_CODE);
+            naPacket.setIcmp6Code(pdu.getIcmp6Code());
+            flag = flag << 24;
+            naPacket.setFlags(flag);
+            naPacket.setFlowLabel(pdu.getFlowLabel());
+            naPacket.setIpv6Length(32);
+            naPacket.setNextHeader(pdu.getNextHeader());
+            naPacket.setOptionType((short)2);
+            naPacket.setTargetAddrLength((short)1);
+            naPacket.setTargetAddress(pdu.getTargetIpAddress());
+            naPacket.setTargetLlAddress(new MacAddress(port.getMacAddress()));
+            naPacket.setVersion(pdu.getVersion());
+            naPacket.setIcmp6Chksum(0);
+            return;
+        }
+
+        private byte[] icmp6NAPayloadtoByte(NeighborAdvertisePacket pdu) {
+            byte[] data = new byte[36];
+            Arrays.fill(data, (byte)0);
+
+            ByteBuffer buf = ByteBuffer.wrap(data);
+            buf.put((byte)pdu.getIcmp6Type().shortValue());
+            buf.put((byte)pdu.getIcmp6Code().shortValue());
+            buf.putShort((short)pdu.getIcmp6Chksum().intValue());
+            buf.putInt((int)pdu.getFlags().longValue());
+            try {
+                byte[] address = null;
+                address = InetAddress.getByName(pdu.getTargetAddress().getValue()).getAddress();
+                buf.put(address);
+            } catch (UnknownHostException e) {
+                LOG.error("Serializing NA target address failed", e);
+            }
+            buf.put((byte)pdu.getOptionType().shortValue());
+            buf.put((byte)pdu.getTargetAddrLength().shortValue());
+            buf.put(ipv6Utils.bytesFromHexString(pdu.getTargetLlAddress().getValue().toString()));
+            return data;
+        }
+
+        private byte[] fillNeighborAdvertisementPacket(NeighborAdvertisePacket pdu) {
+            ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length());
+
+            buf.put(ipv6Utils.convertEthernetHeaderToByte((EthernetHeader)pdu), 0, 14);
+            buf.put(ipv6Utils.convertIpv6HeaderToByte((Ipv6Header)pdu), 0, 40);
+            buf.put(icmp6NAPayloadtoByte(pdu), 0, pdu.getIpv6Length());
+            int checksum = ipv6Utils.calcIcmpv6Checksum(buf.array(), (Ipv6Header) pdu);
+            buf.putShort((Ipv6Constants.ICMPV6_OFFSET + 2), (short)checksum);
+            return (buf.array());
         }
 
         private void processRouterSolicitationRequest() {
