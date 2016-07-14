@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.aclservice;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -328,4 +329,25 @@ public class AclServiceUtils {
                 .setServicePriority(servicePriority).setServiceType(ServiceTypeFlowBased.class)
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
+
+    public static List<Uuid> getUpdatedAclList(Interface updatedPort, Interface currentPort) {
+        if (updatedPort == null) {
+            return null;
+        }
+        List<Uuid> updatedAclList = new ArrayList<>(AclServiceUtils.getPortSecurityGroups(updatedPort));
+        if (currentPort == null) {
+            return updatedAclList;
+        }
+        List<Uuid> currentAclList = new ArrayList<>(AclServiceUtils.getPortSecurityGroups(currentPort));
+        for (Iterator<Uuid> iterator = updatedAclList.iterator(); iterator.hasNext();) {
+            Uuid updatedAclUuid = iterator.next();
+            for (Uuid currentAclUuid :currentAclList) {
+                if (updatedAclUuid.getValue().equals(currentAclUuid.getValue())) {
+                    iterator.remove();
+                }
+            }
+        }
+        return updatedAclList;
+    }
+
 }
