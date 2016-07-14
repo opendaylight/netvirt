@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.openstack.netvirt.sfc.it.utils;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessListsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntriesBuilder;
@@ -80,6 +81,7 @@ public class AclUtils extends AbstractUtils {
                                  AccessListEntriesBuilder accessListEntriesBuilder) {
         return aclBuilder
                 .setAclName(aclName)
+                .setAclType(Ipv4Acl.class)
                 .setAccessListEntries(accessListEntriesBuilder.build());
     }
 
