@@ -88,8 +88,42 @@ public class EgressAclServiceImpl implements AclServiceListener {
     }
 
     @Override
-    public boolean updateAcl(Interface port) {
-        return false;
+    public boolean updateAcl(Interface portBefore, Interface portAfter) {
+        boolean result = false;
+        boolean isPortSecurityEnable = AclServiceUtils.isPortSecurityEnabled(portAfter);
+        boolean isPortSecurityEnableBefore = AclServiceUtils.isPortSecurityEnabled(portBefore);
+        // if port security is changed, apply/remove Acls
+        if (isPortSecurityEnableBefore != isPortSecurityEnable) {
+            if (isPortSecurityEnable) {
+                result = applyAcl(portAfter);
+            } else {
+                result = removeAcl(portAfter);
+            }
+        } else if (isPortSecurityEnable) {
+            // Acls has been updated, find added/removed Acls and act accordingly.
+            this.processInterfaceUpdate(portBefore, portAfter);
+        }
+
+        return result;
+    }
+
+    private void processInterfaceUpdate(Interface portBefore, Interface portAfter) {
+        List<Uuid> addedGroup = AclServiceUtils.getUpdatedAclList(portAfter, portBefore);
+        List<Uuid> deletedGroup = AclServiceUtils.getUpdatedAclList(portBefore, portAfter);
+        if (addedGroup != null && !addedGroup.isEmpty()) {
+            updateCustomRules(portAfter, deletedGroup, NwConstants.ADD_FLOW);
+        }
+        if (deletedGroup != null && !deletedGroup.isEmpty()) {
+            updateCustomRules(portAfter, deletedGroup, NwConstants.DEL_FLOW);
+        }
+    }
+
+    private void updateCustomRules(Interface portAfter, List<Uuid> deletedGroup, int action) {
+        BigInteger dpId = AclServiceUtils.getDpnForInterface(interfaceManager, portAfter.getName());
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
+                interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, portAfter.getName());
+        String attachMac = interfaceState.getPhysAddress().getValue();
+        programCustomRules(portAfter, deletedGroup, dpId, attachMac, action);
     }
 
     @Override
@@ -109,6 +143,16 @@ public class EgressAclServiceImpl implements AclServiceListener {
         // implemented
         // unbindService(port.getName());
         return true;
+    }
+
+    @Override
+    public boolean applyAce(Interface port, Ace ace) {
+        return false;
+    }
+
+    @Override
+    public boolean removeAce(Interface port, Ace ace) {
+        return false;
     }
 
     /**

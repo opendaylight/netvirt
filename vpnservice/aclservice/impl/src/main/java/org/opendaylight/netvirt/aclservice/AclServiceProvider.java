@@ -15,6 +15,8 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
+import org.opendaylight.netvirt.aclservice.listeners.AclEventListener;
+import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclNodeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.slf4j.Logger;
@@ -31,9 +33,12 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
     private AclServiceManager aclServiceManager;
     private AclInterfaceEventListener aclInterfaceEventListener;
     private AclNodeListener aclNodeListener;
+    private AclInterfaceListener aclInterfaceListener;
+    private AclEventListener aclEventListener;
 
     /**
      * Set the rpc registery.
+     *
      * @param rpcProviderRegistry the rpc registery instance.
      */
     public void setRpcProviderRegistry(RpcProviderRegistry rpcProviderRegistry) {
@@ -42,6 +47,7 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
 
     /**
      * Set the mdsal manager.
+     *
      * @param mdsalManager the mdsal manager instance.
      */
     public void setMdsalManager(IMdsalApiManager mdsalManager) {
@@ -59,6 +65,10 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
         aclInterfaceEventListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
         aclNodeListener = new AclNodeListener(mdsalManager);
         aclNodeListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        aclInterfaceListener = new AclInterfaceListener(aclServiceManager, broker);
+        aclInterfaceListener.registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        aclEventListener = new AclEventListener(aclServiceManager);
+        aclEventListener.registerListener(LogicalDatastoreType.CONFIGURATION, broker);
 
         LOG.info("ACL Service Initiated");
     }
@@ -67,6 +77,8 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
     public void close() throws Exception {
         aclInterfaceEventListener.close();
         aclNodeListener.close();
+        aclInterfaceListener.close();
+        aclEventListener.close();
 
         LOG.info("ACL Service closed");
     }
