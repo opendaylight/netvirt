@@ -11,10 +11,12 @@ package org.opendaylight.netvirt.ipv6service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,6 +108,21 @@ public class VirtualPort  {
             ipAddrList.add(subnetInfo.getIpAddr());
         }
         return ipAddrList;
+    }
+
+    public List<Ipv6Address> getIpv6Addresses() {
+        List<Ipv6Address> ipv6AddrList = new ArrayList<>();
+        for (SubnetInfo subnetInfo : snetInfo.values()) {
+            if (subnetInfo.getIpAddr().getIpv6Address() instanceof Ipv6Address) {
+                ipv6AddrList.add(subnetInfo.getIpAddr().getIpv6Address());
+            }
+        }
+        if (deviceOwner.equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
+            Ipv6ServiceUtils ipv6Utils = Ipv6ServiceUtils.getInstance();
+            Ipv6Address llAddr = ipv6Utils.getIpv6LinkLocalAddressFromMac(new MacAddress(macAddress));
+            ipv6AddrList.add(llAddr);
+        }
+        return ipv6AddrList;
     }
 
     public String getMacAddress() {

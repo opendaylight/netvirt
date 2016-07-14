@@ -36,9 +36,18 @@ public class Ipv6ServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceUtils.class);
     private ConcurrentMap<String, InstanceIdentifier<Flow>> icmpv6FlowMap;
     public static final Ipv6ServiceUtils instance = new Ipv6ServiceUtils();
+    public static Ipv6Address ALL_NODES_MCAST_ADDR;
+    public static Ipv6Address UNSPECIFIED_ADDR;
 
     public Ipv6ServiceUtils() {
         icmpv6FlowMap = new ConcurrentHashMap<>();
+        try {
+            UNSPECIFIED_ADDR = Ipv6Address.getDefaultInstance(
+                    InetAddress.getByName("0:0:0:0:0:0:0:0").getHostAddress());
+            ALL_NODES_MCAST_ADDR = Ipv6Address.getDefaultInstance(InetAddress.getByName("FF02::1").getHostAddress());
+        } catch (UnknownHostException e) {
+            LOG.error("Ipv6ServiceUtils: Failed to instantiate the ipv6 address", e);
+        }
     }
 
     public static Ipv6ServiceUtils getInstance() {
@@ -246,14 +255,14 @@ public class Ipv6ServiceUtils {
         StringBuffer interfaceID = new StringBuffer();
         short u8byte = (short) (octets[0] & 0xff);
         u8byte ^= 1 << 1;
-        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & u8byte), 2, "0"));
+        interfaceID.append(Integer.toHexString(0xFF & u8byte));
         interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[1]), 2, "0"));
         interfaceID.append(":");
-        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[2]), 2, "0"));
+        interfaceID.append(Integer.toHexString(0xFF & octets[2]));
         interfaceID.append("ff:fe");
         interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[3]), 2, "0"));
         interfaceID.append(":");
-        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[4]), 2, "0"));
+        interfaceID.append(Integer.toHexString(0xFF & octets[4]));
         interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[5]), 2, "0"));
 
         Ipv6Address ipv6LLA = new Ipv6Address("fe80:0:0:0:" + interfaceID.toString());
