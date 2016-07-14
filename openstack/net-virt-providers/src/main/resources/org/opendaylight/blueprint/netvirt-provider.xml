@@ -12,10 +12,6 @@
   <reference id="rpcRegistry"
     interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry" />
 
-  <odl:clustered-app-config id="netvirtProviderConfig"
-    binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.providers.config.rev160109.NetvirtProvidersConfig">
-  </odl:clustered-app-config>
-
   <odl:rpc-service id="salFlowService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService" />
   <odl:rpc-service id="packetProcessingService"
@@ -29,9 +25,7 @@
     <argument ref="notificationService" />
     <argument ref="packetProcessingService" />
     <argument ref="salFlowService" />
-    <argument>
-      <bean factory-ref="netvirtProviderConfig" factory-method="getTableOffset" />
-    </argument>
+    <argument value="0" />
   </bean>
 
 </blueprint>
