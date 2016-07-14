@@ -44,4 +44,5 @@ public class Ipv6Constants {
 
     public static final String IP_VERSION_V4 = "IPv4";
     public static final String IP_VERSION_V6 = "IPv6";
+    public static final String NETWORK_ROUTER_INTERFACE = "network:router_interface";
 }
