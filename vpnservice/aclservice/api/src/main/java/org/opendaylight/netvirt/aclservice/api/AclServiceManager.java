@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice.api;
 
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 
 public interface AclServiceManager {
@@ -21,5 +22,7 @@ public interface AclServiceManager {
 
     void removeAclServiceListner(AclServiceListener aclServiceListner);
 
-    void notify(Interface port, Action action);
+    void notify(Interface port, Action action, Interface oldPort);
+
+    void notifyAce(Interface port, Action action, Ace ace);
 }
