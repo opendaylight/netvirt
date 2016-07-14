@@ -86,21 +86,21 @@ public class SouthboundHandler extends AbstractHandler
 
     @Override
     public void ovsdbUpdate(Node node, DataObject resourceAugmentationData, OvsdbType ovsdbType, Action action) {
-        LOG.info("ovsdbUpdate: {} - {} - <<{}>> <<{}>>", ovsdbType, action, node, resourceAugmentationData);
+        LOG.info("Received ovsdbUpdate for : {} with action : {} for the OVS node : {}"
+                +"Resource Data  : {}", ovsdbType, action, node, resourceAugmentationData);
         enqueueEvent(new SouthboundEvent(node, resourceAugmentationData,
                 ovsdbTypeToSouthboundEventType(ovsdbType), action));
     }
 
     private void handleInterfaceUpdate (Node node, OvsdbTerminationPointAugmentation tp) {
-        LOG.debug("handleInterfaceUpdate <{}> <{}>", node, tp);
         NeutronNetwork network = tenantNetworkManager.getTenantNetwork(tp);
         if (network != null && !network.getRouterExternal()) {
-            LOG.trace("handleInterfaceUpdate <{}> <{}> network: {}", node, tp, network.getNetworkUUID());
+            LOG.trace("InterfaceUpdate for OVS Node :{} OvsdbTerminationPointAugmentation :"        + " {} for the network : {}", node, tp, network.getNetworkUUID());
             if (bridgeConfigurationManager.createLocalNetwork(node, network)) {
                 networkingProviderManager.getProvider(node).handleInterfaceUpdate(network, node, tp);
             }
         } else {
-            LOG.debug("No tenant network found on node: <{}> for interface: <{}>", node, tp);
+            LOG.debug("No tenant network found on node : {} for interface: {}", node, tp);
         }
         distributedArpService.processInterfaceEvent(node, tp, network, Action.UPDATE);
         neutronL3Adapter.handleInterfaceEvent(node, tp, network, Action.UPDATE);
@@ -132,7 +132,6 @@ public class SouthboundHandler extends AbstractHandler
 
     @Override
     public void triggerUpdates() {
-        LOG.info("triggerUpdates");
         List<Node> ovsdbNodes = southbound.readOvsdbTopologyNodes();
         for (Node node : ovsdbNodes) {
             ovsdbUpdate(node, node.getAugmentation(OvsdbNodeAugmentation.class),
@@ -142,7 +141,8 @@ public class SouthboundHandler extends AbstractHandler
 
     private void processPortDelete(Node node, OvsdbTerminationPointAugmentation ovsdbTerminationPointAugmentation,
                                    Object context) {
-        LOG.debug("processPortDelete <{}> <{}>", node, ovsdbTerminationPointAugmentation);
+        LOG.debug("processPortDelete for Node : {} ovsdbTerminationPointAugmentation : {}",
+                node, ovsdbTerminationPointAugmentation);
         NeutronNetwork network;
         if (context == null) {
             network = tenantNetworkManager.getTenantNetwork(ovsdbTerminationPointAugmentation);
@@ -215,7 +215,6 @@ public class SouthboundHandler extends AbstractHandler
 
         if(terminationPoint.getInterfaceType() == null){
             // This is OK since eth ports don't have an interface type
-            LOG.info("No type found for the interface : {}", terminationPoint);
             return false;
         }
         return MdsalHelper.createOvsdbInterfaceType(
@@ -236,7 +235,7 @@ public class SouthboundHandler extends AbstractHandler
      */
     @Override
     public void notifyNode (Node node, Action action) {
-        LOG.info("notifyNode: action: {}, Node <{}>", action, node);
+        LOG.info("notifyNode : action: {}, Node  : {} ", action, node);
 
         if ((action.equals(Action.ADD)) && (southbound.getBridge(node) != null)) {
             networkingProviderManager.getProvider(node).initializeOFFlowRules(node);
@@ -252,11 +251,11 @@ public class SouthboundHandler extends AbstractHandler
     @Override
     public void processEvent(AbstractEvent abstractEvent) {
         if (!(abstractEvent instanceof SouthboundEvent)) {
-            LOG.error("processEvent: Unable to process abstract event {}", abstractEvent);
+            LOG.error("processEvent Unable to process abstract event : {}", abstractEvent);
             return;
         }
         SouthboundEvent ev = (SouthboundEvent) abstractEvent;
-        LOG.trace("processEvent ({}): {}", ev, ev.getTransactionId());
+        LOG.trace("processEvent : {} for TransactionId : {}", ev, ev.getTransactionId());
         switch (ev.getType()) {
             case NODE:
                 processOvsdbNodeEvent(ev);
@@ -275,10 +274,10 @@ public class SouthboundHandler extends AbstractHandler
                 break;
 
             default:
-                LOG.warn("Unable to process type {} action {} for node {}", ev.getType(), ev.getAction(), ev.getNode());
+                LOG.warn("Unable to process type : {} action : {} for node : {}", ev.getType(), ev.getAction(), ev.getNode());
                 break;
         }
-        LOG.trace("processEvent exit ({}): {}", ev, ev.getTransactionId());
+        LOG.trace("processEvent exit : {} for TransactionId : {}", ev, ev.getTransactionId());
     }
 
     private void processOvsdbNodeEvent(SouthboundEvent ev) {
@@ -296,18 +295,18 @@ public class SouthboundHandler extends AbstractHandler
     }
 
     private void processOvsdbNodeCreate(Node node, OvsdbNodeAugmentation ovsdbNode) {
-        LOG.info("processOvsdbNodeCreate <{}> <{}>", node, ovsdbNode);
+        LOG.info("processOvsdb Node Create : {} ", ovsdbNode);
         nodeCacheManager.nodeAdded(node);
         bridgeConfigurationManager.prepareNode(node);
     }
 
     private void processOvsdbNodeUpdate(Node node, OvsdbNodeAugmentation ovsdbNode) {
-        LOG.info("processOvsdbNodeUpdate <{}> <{}>", node, ovsdbNode);
+        LOG.info("processOvsdb Node Update : {} ", ovsdbNode);
         nodeCacheManager.nodeAdded(node);
     }
 
     private void processOvsdbNodeDelete(Node node, OvsdbNodeAugmentation ovsdbNode) {
-        LOG.info("processOvsdbNodeDelete <{}> <{}>", node, ovsdbNode);
+        LOG.info("processOvsdb Node Delete : {} ", ovsdbNode);
         nodeCacheManager.nodeRemoved(node);
         /* TODO SB_MIGRATION
         * I don't think we want to do this yet
@@ -331,7 +330,7 @@ public class SouthboundHandler extends AbstractHandler
     }
 
     private void processPortUpdate(Node node, OvsdbTerminationPointAugmentation port) {
-        LOG.debug("processPortUpdate <{}> <{}>", node, port);
+        LOG.debug("processPortUpdate : {} for the Node: {}", port, node);
         NeutronNetwork network = tenantNetworkManager.getTenantNetwork(port);
         if (network != null && !network.getRouterExternal()) {
             this.handleInterfaceUpdate(node, port);
@@ -350,7 +349,7 @@ public class SouthboundHandler extends AbstractHandler
     }
 
     private void processOpenVSwitchUpdate(Node node) {
-        LOG.debug("processOpenVSwitchUpdate {}", node);
+        LOG.debug("processOpenVSwitchUpdate : {}", node);
         // TODO this node might be the OvsdbNode and not have termination points
         // Would need to change listener or grab tp nodes in here.
         List<TerminationPoint> terminationPoints = southbound.extractTerminationPoints(node);
@@ -374,30 +373,30 @@ public class SouthboundHandler extends AbstractHandler
     }
 
     private void processBridgeCreate(Node node, OvsdbBridgeAugmentation bridge) {
-        LOG.debug("processBridgeCreate <{}> <{}>", node, bridge);
+        LOG.debug("BridgeCreate : {} for the Node : {}", bridge, node);
         String datapathId = southbound.getDatapathId(bridge);
         // Having a datapathId means the ovsdb node has connected to ODL
         if (datapathId != null) {
             nodeCacheManager.nodeAdded(node);
         } else {
-            LOG.info("processBridgeCreate datapathId not found");
+            LOG.debug("processBridgeCreate datapathId not found");
         }
     }
 
     private void processBridgeUpdate(Node node, OvsdbBridgeAugmentation bridge) {
-        LOG.debug("processBridgeUpdate <{}> <{}>", node, bridge);
+        LOG.debug("BridgeUpdate : {} for the node : {}", bridge, node);
         String datapathId = southbound.getDatapathId(bridge);
         // Having a datapathId means the ovsdb node has connected to ODL
         if (datapathId != null) {
             nodeCacheManager.nodeAdded(node);
         } else {
-            LOG.info("processBridgeUpdate datapathId not found");
+            LOG.debug("processBridgeUpdate datapathId not found");
         }
     }
 
     private void processBridgeDelete(Node node, OvsdbBridgeAugmentation bridge) {
-        LOG.debug("processBridgeDelete: Delete bridge from config data store: <{}> <{}>",
-                node, bridge);
+        LOG.debug("BridgeDelete: Delete bridge from config data store : {}"
+                +"Node : {}", bridge, node);
         nodeCacheManager.nodeRemoved(node);
         // TODO SB_MIGRATION
         // Not sure if we want to do this yet
