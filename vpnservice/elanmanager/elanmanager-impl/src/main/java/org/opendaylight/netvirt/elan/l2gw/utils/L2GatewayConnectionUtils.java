@@ -8,7 +8,9 @@
 
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -93,6 +95,31 @@ public class L2GatewayConnectionUtils {
             return l2GwConns.get().getL2gatewayConnection();
         }
         return null;
+    }
+
+    /**
+     * Gets the associated l2 gw connections.
+     *
+     * @param broker
+     *            the broker
+     * @param l2GatewayIds
+     *            the l2 gateway ids
+     * @return the associated l2 gw connections
+     */
+    public static List<L2gatewayConnection> getAssociatedL2GwConnections(DataBroker broker, Set<Uuid> l2GatewayIds) {
+        List<L2gatewayConnection> l2GwConnections = null;
+        List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
+        if (allL2GwConns != null) {
+            l2GwConnections = new ArrayList<L2gatewayConnection>();
+            for (Uuid l2GatewayId : l2GatewayIds) {
+                for (L2gatewayConnection l2GwConn : allL2GwConns) {
+                    if (l2GwConn.getL2gatewayId().equals(l2GatewayId)) {
+                        l2GwConnections.add(l2GwConn);
+                    }
+                }
+            }
+        }
+        return l2GwConnections;
     }
 
     public static void addL2GatewayConnection(L2gatewayConnection input) {
