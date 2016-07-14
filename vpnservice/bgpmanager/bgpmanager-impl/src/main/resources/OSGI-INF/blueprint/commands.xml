@@ -2,14 +2,14 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.bgpmanager.ConfigureBgpCli">
+            <action class="org.opendaylight.netvirt.bgpmanager.ConfigureBgpCli">
             </action>
         </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.bgpmanager.DisplayBgpConfigCli">
+            <action class="org.opendaylight.netvirt.bgpmanager.DisplayBgpConfigCli">
             </action>
         </command>
     </command-bundle>
@@ -17,54 +17,54 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.bgpmanager.VtyshCli"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.VtyshCli"/>
         </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.bgpmanager.commands.ClearBgpCli"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli"/>
         </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.bgpmanager.commands.Connect"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Connect"/>
         </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.bgpmanager.commands.Neighbor"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Neighbor"/>
         </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.bgpmanager.commands.Router"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Router"/>
         </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.bgpmanager.commands.Vrf"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Vrf"/>
         </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.bgpmanager.commands.Network"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Network"/>
         </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.bgpmanager.commands.Misc"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Misc"/>
         </command>
     </command-bundle>
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.bgpmanager.commands.Cache"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Cache"/>
         </command>
     </command-bundle>
 
