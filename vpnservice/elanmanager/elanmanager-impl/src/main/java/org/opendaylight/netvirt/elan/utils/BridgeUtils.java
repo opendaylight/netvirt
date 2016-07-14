@@ -19,36 +19,33 @@ import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeNetdev;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeDpdk;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeDpdkr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeDpdkvhost;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeDpdkvhostuser;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeGeneve;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeGre64;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeInternal;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeIpsecGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeIpsecGre64;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeLisp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypePatch;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeSystem;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeTap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeProtocolBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbFailModeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbFailModeSecure;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbFailModeStandalone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.ControllerEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.ControllerEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.ProtocolEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.ProtocolEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ConnectionInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.InterfaceTypeEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ManagedNodeEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.OpenvswitchOtherConfigs;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -64,18 +61,12 @@ public class BridgeUtils {
     private static final Logger LOG = LoggerFactory.getLogger(BridgeUtils.class);
 
     public static final String PROVIDER_MAPPINGS_KEY = "provider_mappings";
-    private static final ImmutableBiMap<Class<? extends OvsdbFailModeBase>,String> OVSDB_FAIL_MODE_MAP
-            = new ImmutableBiMap.Builder<Class<? extends OvsdbFailModeBase>,String>()
-            .put(OvsdbFailModeStandalone.class,"standalone")
-            .put(OvsdbFailModeSecure.class,"secure")
-            .build();
-
-    private static final String DISABLE_IN_BAND = "disable-in-band";
     private static final String INTEGRATION_BRIDGE = "br-int";
     private static final String EXTERNAL_BRIDGE = "br-ex";
 
     private final MdsalUtils mdsalUtils;
     private final SouthboundUtils southboundUtils;
+    private final OvsdbSouthboundUtils ovsdbSouthboundUtils;
     private Random random;
 
 
@@ -86,6 +77,7 @@ public class BridgeUtils {
     public BridgeUtils(DataBroker dataBroker) {
         //TODO: ClusterAware!!!??
         this.mdsalUtils = new MdsalUtils(dataBroker);
+        this.ovsdbSouthboundUtils = new OvsdbSouthboundUtils(dataBroker);
         this.southboundUtils = new SouthboundUtils(mdsalUtils);
         this.random = new Random(System.currentTimeMillis());
     }
@@ -164,77 +156,15 @@ public class BridgeUtils {
      */
     public boolean addBridge(Node ovsdbNode, String bridgeName, String mac) {
         boolean rv = true;
-        if ((!isBridgeOnOvsdbNode(ovsdbNode, bridgeName)) ||
-                (getBridgeFromConfig(ovsdbNode, bridgeName) == null)) {
+        if ((!ovsdbSouthboundUtils.isBridgeOnOvsdbNode(ovsdbNode, bridgeName)) ||
+                (ovsdbSouthboundUtils.getBridgeFromConfig(ovsdbNode, bridgeName) == null)) {
             Class<? extends DatapathTypeBase> dpType = null;
             if (isUserSpaceEnabled()) {
                 dpType = DatapathTypeNetdev.class;
             }
-            rv = addBridge(ovsdbNode, bridgeName, southboundUtils.getControllersFromOvsdbNode(ovsdbNode), dpType, mac);
+            rv = ovsdbSouthboundUtils.addBridge(ovsdbNode, bridgeName, southboundUtils.getControllersFromOvsdbNode(ovsdbNode), dpType, mac);
         }
         return rv;
-    }
-
-    /**
-     * Add a bridge to the OVSDB node
-     * @param ovsdbNode Which OVSDB node
-     * @param bridgeName Name of the bridge
-     * @param controllersStr OVSDB's controller
-     * @param dpType datapath type
-     * @param mac mac address to set on the bridge or null
-     * @return true if the write to md-sal was successful
-     */
-    public boolean addBridge(Node ovsdbNode, String bridgeName, List<String> controllersStr,
-                             final Class<? extends DatapathTypeBase> dpType, String mac) {
-        boolean result = false;
-
-        LOG.debug("addBridge: node: {}, bridgeName: {}, controller(s): {}", ovsdbNode, bridgeName, controllersStr);
-        ConnectionInfo connectionInfo = southboundUtils.getConnectionInfo(ovsdbNode);
-        if (connectionInfo == null) {
-            throw new InvalidParameterException("Could not find ConnectionInfo");
-        }
-
-        NodeBuilder bridgeNodeBuilder = new NodeBuilder();
-        InstanceIdentifier<Node> bridgeIid = southboundUtils.createInstanceIdentifier(ovsdbNode.getKey(), bridgeName);
-        NodeId bridgeNodeId = southboundUtils.createManagedNodeId(bridgeIid);
-        bridgeNodeBuilder.setNodeId(bridgeNodeId);
-
-        OvsdbBridgeAugmentationBuilder ovsdbBridgeAugmentationBuilder = new OvsdbBridgeAugmentationBuilder();
-        ovsdbBridgeAugmentationBuilder.setControllerEntry(createControllerEntries(controllersStr));
-        ovsdbBridgeAugmentationBuilder.setBridgeName(new OvsdbBridgeName(bridgeName));
-        ovsdbBridgeAugmentationBuilder.setProtocolEntry(createMdsalProtocols());
-        ovsdbBridgeAugmentationBuilder.setFailMode( OVSDB_FAIL_MODE_MAP.inverse().get("secure"));
-
-        BridgeOtherConfigsBuilder bridgeOtherConfigsBuilder = new BridgeOtherConfigsBuilder();
-        bridgeOtherConfigsBuilder.setBridgeOtherConfigKey(DISABLE_IN_BAND);
-        bridgeOtherConfigsBuilder.setBridgeOtherConfigValue("true");
-
-        List<BridgeOtherConfigs> bridgeOtherConfigsList = new ArrayList<>();
-        bridgeOtherConfigsList.add(bridgeOtherConfigsBuilder.build());
-        if (mac != null) {
-            BridgeOtherConfigsBuilder macOtherConfigBuilder = new BridgeOtherConfigsBuilder();
-            macOtherConfigBuilder.setBridgeOtherConfigKey("hwaddr");
-            macOtherConfigBuilder.setBridgeOtherConfigValue(mac);
-            bridgeOtherConfigsList.add(macOtherConfigBuilder.build());
-        }
-
-        ovsdbBridgeAugmentationBuilder.setBridgeOtherConfigs(bridgeOtherConfigsList);
-        setManagedByForBridge(ovsdbBridgeAugmentationBuilder, ovsdbNode.getKey());
-        if (dpType != null) {
-            ovsdbBridgeAugmentationBuilder.setDatapathType(dpType);
-        }
-
-        if (isOvsdbNodeDpdk(ovsdbNode)) {
-            ovsdbBridgeAugmentationBuilder.setDatapathType(DatapathTypeNetdev.class);
-        }
-
-        bridgeNodeBuilder.addAugmentation(OvsdbBridgeAugmentation.class, ovsdbBridgeAugmentationBuilder.build());
-
-        Node node = bridgeNodeBuilder.build();
-        result = mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, bridgeIid, node);
-        LOG.debug("addBridge: result: {}", result);
-
-        return result;
     }
 
     /**
@@ -284,78 +214,65 @@ public class BridgeUtils {
         return bridgeAugmentation.getDatapathId().getValue();
     }
 
-    private List<ControllerEntry> createControllerEntries(List<String> controllersStr) {
-        List<ControllerEntry> controllerEntries = new ArrayList<>();
-        if (controllersStr != null) {
-            for (String controllerStr : controllersStr) {
-                ControllerEntryBuilder controllerEntryBuilder = new ControllerEntryBuilder();
-                controllerEntryBuilder.setTarget(new Uri(controllerStr));
-                controllerEntries.add(controllerEntryBuilder.build());
+    /*
+    public boolean addPhysicalInterface(Node ovsdbNode, String externalInterfaceName) {
+        boolean res = true;
+        String bridgeName = "br-" + externalInterfaceName;
+
+
+        if(!addBridge(ovsdbNode, bridgeName, null)) {
+            return false;
+        }
+
+        addPatchPort()
+
+    }
+    */
+
+    public String getIntBridgeSidePatchName(String physicalInterfaceName) {
+        return "patch-br-" + physicalInterfaceName;
+    }
+
+    public boolean addPortToBridge (Node node, String bridgeName, String portName) {
+        boolean rv = true;
+
+        if (ovsdbSouthboundUtils.extractTerminationPointAugmentation(node, portName) == null) {
+            rv = ovsdbSouthboundUtils.addTerminationPoint(node, bridgeName, portName, null);
+
+            if (rv) {
+                LOG.debug("addPortToBridge: node: {}, bridge: {}, portname: {} status: success",
+                        node.getNodeId().getValue(), bridgeName, portName);
+            } else {
+                LOG.error("addPortToBridge: node: {}, bridge: {}, portname: {} status: FAILED",
+                        node.getNodeId().getValue(), bridgeName, portName);
             }
+        } else {
+            LOG.trace("addPortToBridge: node: {}, bridge: {}, portname: {} status: not_needed",
+                    node.getNodeId().getValue(), bridgeName, portName);
         }
-        return controllerEntries;
+
+        return rv;
     }
 
-    private List<ProtocolEntry> createMdsalProtocols() {
-        List<ProtocolEntry> protocolList = new ArrayList<>();
-        ImmutableBiMap<String, Class<? extends OvsdbBridgeProtocolBase>> mapper =
-                southboundUtils.OVSDB_PROTOCOL_MAP.inverse();
-        protocolList.add(new ProtocolEntryBuilder().
-                setProtocol(mapper.get("OpenFlow13")).build());
-        return protocolList;
-    }
+    public boolean addPatchPort (Node node, String bridgeName, String portName, String peerPortName) {
+        boolean rv = true;
 
-    private void setManagedByForBridge(OvsdbBridgeAugmentationBuilder ovsdbBridgeAugmentationBuilder,
-                                       NodeKey ovsdbNodeKey) {
-        InstanceIdentifier<Node> connectionNodePath = southboundUtils.createInstanceIdentifier(ovsdbNodeKey.getNodeId());
-        ovsdbBridgeAugmentationBuilder.setManagedBy(new OvsdbNodeRef(connectionNodePath));
-    }
+        if (ovsdbSouthboundUtils.extractTerminationPointAugmentation(node, portName) == null) {
+            rv = ovsdbSouthboundUtils.addPatchTerminationPoint(node, bridgeName, portName, peerPortName);
 
-    private boolean isOvsdbNodeDpdk(Node ovsdbNode) {
-        boolean found = false;
-        OvsdbNodeAugmentation ovsdbNodeAugmentation = southboundUtils.extractNodeAugmentation(ovsdbNode);
-        if (ovsdbNodeAugmentation != null) {
-            List<InterfaceTypeEntry> ifTypes = ovsdbNodeAugmentation.getInterfaceTypeEntry();
-            if (ifTypes != null) {
-                for (InterfaceTypeEntry ifType : ifTypes) {
-                    if (ifType.getInterfaceType().equals(InterfaceTypeDpdk.class)) {
-                        found = true;
-                        break;
-                    }
-                }
+            if (rv) {
+                LOG.info("addPatchPort: node: {}, bridge: {}, portname: {} peer: {} status: success",
+                        node.getNodeId().getValue(), bridgeName, portName, peerPortName);
+            } else {
+                LOG.error("addPatchPort: node: {}, bridge: {}, portname: {} peer: {} status: FAILED",
+                        node.getNodeId().getValue(), bridgeName, portName, peerPortName);
             }
+        } else {
+            LOG.trace("addPatchPort: node: {}, bridge: {}, portname: {} peer: {} status: not_needed",
+                    node.getNodeId().getValue(), bridgeName, portName, peerPortName);
         }
-        return found;
-    }
 
-    private boolean isBridgeOnOvsdbNode(Node ovsdbNode, String bridgeName) {
-        boolean found = false;
-        //TODO: MAKE SURE extract function is right
-        OvsdbNodeAugmentation ovsdbNodeAugmentation = southboundUtils.extractNodeAugmentation(ovsdbNode);
-        if (ovsdbNodeAugmentation != null) {
-            List<ManagedNodeEntry> managedNodes = ovsdbNodeAugmentation.getManagedNodeEntry();
-            if (managedNodes != null) {
-                for (ManagedNodeEntry managedNode : managedNodes) {
-                    InstanceIdentifier<?> bridgeIid = managedNode.getBridgeRef().getValue();
-                    if (bridgeIid.toString().contains(bridgeName)) {
-                        found = true;
-                        break;
-                    }
-                }
-            }
-        }
-        return found;
-    }
-
-    private OvsdbBridgeAugmentation getBridgeFromConfig(Node node, String bridge) {
-        OvsdbBridgeAugmentation ovsdbBridgeAugmentation = null;
-        InstanceIdentifier<Node> bridgeIid =
-                southboundUtils.createInstanceIdentifier(node.getKey(), bridge);
-        Node bridgeNode = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, bridgeIid);
-        if (bridgeNode != null) {
-            ovsdbBridgeAugmentation = bridgeNode.getAugmentation(OvsdbBridgeAugmentation.class);
-        }
-        return ovsdbBridgeAugmentation;
+        return rv;
     }
 
     @SuppressWarnings("unchecked")
