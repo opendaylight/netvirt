@@ -66,7 +66,7 @@ public class Neighbor extends OsgiCommandSupport {
         }
         BgpManager bm = Commands.getBgpManager();
         switch (action) {
-            case "add" :  
+            case "add" :
                 if (nbrIp == null) {
                     System.err.println("error: "+IP+" needed");
                     return null;
@@ -75,7 +75,7 @@ public class Neighbor extends OsgiCommandSupport {
                     System.err.println("error: Bgp config is not present");
                     return null;
                 }
-                int asn = bm.getConfig().getAsId().getLocalAs().intValue(); 
+                int asn = bm.getConfig().getAsId().getLocalAs().intValue();
                 int hops = 0;
                 if (!Commands.isValid(nbrIp, Commands.IPADDR, IP)) {
                     return null;
