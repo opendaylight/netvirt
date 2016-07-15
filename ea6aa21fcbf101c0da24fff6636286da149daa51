@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_f395d940",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-07-15T06:05:22Z",
+      "side": 0,
+      "message": "@Sridhar,\nPreviously you had faced some issue in LLA address calculation and had added this left padding right. Why is this now removed.",
+      "revId": "ea6aa21fcbf101c0da24fff6636286da149daa51",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
