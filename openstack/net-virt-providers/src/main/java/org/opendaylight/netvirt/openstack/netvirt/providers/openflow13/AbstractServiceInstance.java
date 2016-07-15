@@ -161,9 +161,9 @@ public abstract class AbstractServiceInstance {
             CheckedFuture<Void, TransactionCommitFailedException> commitFuture = modification.submit();
             try {
                 commitFuture.checkedGet();  // TODO: Make it async (See bug 1362)
-                LOG.debug("Transaction success for write of Flow {}", flowBuilder.getFlowName());
+                LOG.debug("Transaction success for write of Flow : {}", flowBuilder.getFlowName());
             } catch (Exception e) {
-                LOG.error("Failed to write flow {}", flowBuilder.getFlowName(), e);
+                LOG.error("Failed to write flow : {}", flowBuilder.getFlowName(), e);
                 modification.cancel();
             }
         }
@@ -177,9 +177,9 @@ public abstract class AbstractServiceInstance {
             CheckedFuture<Void, TransactionCommitFailedException> commitFuture = modification.submit();
             try {
                 commitFuture.get();  // TODO: Make it async (See bug 1362)
-                LOG.debug("Transaction success for deletion of Flow {}", flowBuilder.getFlowName());
+                LOG.debug("Transaction success for deletion of Flow : {}", flowBuilder.getFlowName());
             } catch (Exception e) {
-                LOG.error("Failed to remove flow {}", flowBuilder.getFlowName(), e);
+                LOG.error("Failed to remove flow : {}", flowBuilder.getFlowName(), e);
                 modification.cancel();
             }
         }
@@ -194,10 +194,10 @@ public abstract class AbstractServiceInstance {
                 return data.get();
             }
         } catch (InterruptedException|ExecutionException e) {
-            LOG.error("Failed to get flow {}", flowBuilder.getFlowName(), e);
+            LOG.error("Failed to get flow : {}", flowBuilder.getFlowName(), e);
         }
 
-        LOG.debug("Cannot find data for Flow {}", flowBuilder.getFlowName());
+        LOG.debug("Cannot find data for Flow : {}", flowBuilder.getFlowName());
         return null;
     }
 
@@ -212,17 +212,17 @@ public abstract class AbstractServiceInstance {
                 return data.get();
             }
         } catch (InterruptedException|ExecutionException e) {
-            LOG.error("Failed to get openflow node {}", nodeId, e);
+            LOG.error("Failed to get openflow node : {}", nodeId, e);
         }
 
-        LOG.debug("Cannot find data for Node {}", nodeId);
+        LOG.debug("Cannot find data for Node : {}", nodeId);
         return null;
     }
 
     private long getDpid(Node node) {
         long dpid = southbound.getDataPathId(node);
         if (dpid == 0) {
-            LOG.warn("getDpid: dpid not found: {}", node);
+            LOG.warn("getDpid: dpid not found for the Node: {}", node);
         }
         return dpid;
     }
@@ -241,7 +241,7 @@ public abstract class AbstractServiceInstance {
         FlowBuilder flowBuilder = new FlowBuilder();
         long dpid = getDpid(node);
         if (dpid == 0L) {
-            LOG.info("could not find dpid: {}", node.getNodeId());
+            LOG.trace("could not find dpid for the Node: {}", node.getNodeId());
             return;
         }
         String nodeName = OPENFLOW + getDpid(node);
