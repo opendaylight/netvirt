@@ -141,7 +141,7 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
                 try {
                     while (true) {
                         Node node = queue.take();
-                        LOG.info(">>>>> dequeue: {}", node);
+                        LOG.debug("dequeue Node : {}", node);
                         if (southbound.getBridge(node) != null) {
                             for (Service service : staticPipeline) {
                                 AbstractServiceInstance serviceInstance = getServiceInstance(service);
@@ -171,7 +171,7 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
 
     @Override
     public void enqueue(Node node) {
-        LOG.info(">>>>> enqueue: {}", node);
+        LOG.debug("enqueue Node : {}", node);
         try {
             queue.put(node);
         } catch (InterruptedException e) {

@@ -60,14 +60,14 @@ public class OvsdbDataChangeListener implements ClusteredDataChangeListener, Aut
                 .child(Node.class);
         registration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, path, this,
                 DataChangeScope.SUBTREE);
-        LOG.info("netvirt OvsdbDataChangeListener: dataBroker= {}, registration= {}",
-                dataBroker, registration);
+        LOG.info("OVSDB topology listener has been registered.");
         triggerUpdates();
     }
 
     @Override
     public void close () throws Exception {
         registration.close();
+        LOG.info("OVSDB topology listener has been closed.");
         executorService.shutdown();
     }
 
@@ -78,7 +78,7 @@ public class OvsdbDataChangeListener implements ClusteredDataChangeListener, Aut
 
             @Override
             public void run() {
-                LOG.trace(">>>>> onDataChanged: {}", changes);
+                LOG.trace("onDataChanged : {}", changes);
                 processOvsdbConnections(changes);
                 processOvsdbConnectionAttributeUpdates(changes);
                 processBridgeCreation(changes);
