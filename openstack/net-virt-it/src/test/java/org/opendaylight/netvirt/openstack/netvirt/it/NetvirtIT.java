@@ -83,7 +83,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
-import org.ops4j.pax.exam.karaf.options.LogLevelOption;
+import org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel;
 import org.ops4j.pax.exam.options.MavenUrlReference;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -174,22 +174,25 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         return composite(
                 //editConfigurationFilePut(NetvirtITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
                 //        "log4j.logger.org.opendaylight.controller",
-                //        LogLevelOption.LogLevel.TRACE.name()),
-                editConfigurationFilePut(NetvirtITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
-                        "log4j.logger.org.opendaylight.ovsdb",
-                        LogLevelOption.LogLevel.TRACE.name()),
+                //        LogLevel.TRACE.name()),
+                //editConfigurationFilePut(NetvirtITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
+                //        "log4j.logger.org.opendaylight.ovsdb",
+                //        LogLevel.TRACE.name()),
+                //editConfigurationFilePut(NetvirtITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
+                //        "log4j.logger.org.opendaylight.ovsdb.lib",
+                //        LogLevel.INFO.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         logConfiguration(NetvirtIT.class),
-                        LogLevelOption.LogLevel.INFO.name()),
+                        LogLevel.INFO.name()),
                 editConfigurationFilePut(NetvirtITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
-                        "log4j.logger.org.opendaylight.ovsdb.lib",
-                        LogLevelOption.LogLevel.INFO.name()),
-                editConfigurationFilePut(NetvirtITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
-                        "log4j.logger.org.opendaylight.openflowjava",
-                        LogLevelOption.LogLevel.INFO.name()),
-                editConfigurationFilePut(NetvirtITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
-                        "log4j.logger.org.opendaylight.openflowplugin",
-                        LogLevelOption.LogLevel.INFO.name()),
+                        "log4j.logger.org.opendaylight.netvirt",
+                        LogLevel.DEBUG.name()),
+                editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.opendaylight.openflowjava.protocol.impl.util.ListDeserializer",
+                        LogLevel.ERROR.name()),
+                editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.opendaylight.controller.configpusherfeature.internal.FeatureConfigPusher",
+                        LogLevel.ERROR.name()),
                 super.getLoggingOption());
     }
 
