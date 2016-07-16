@@ -626,9 +626,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
     }
 
-    public void processArpRequest(IpAddress srcIP, PhysAddress srcMac, IpAddress targetIP, String srcInterface){
+    public void processArpRequest(IpAddress srcIP, PhysAddress srcMac, IpAddress targetIP, PhysAddress targetMac,String srcInterface){
+        //Build ARP response with ARP requests TargetIp TargetMac as the Arp Response SrcIp and SrcMac
         SendArpResponseInput input = new SendArpResponseInputBuilder().setInterface(srcInterface)
-                                                                    .setIpaddress(srcIP).setSrcIpAddress(targetIP).setMacaddress(srcMac).build();
+                .setDstIpaddress(srcIP).setDstMacaddress(srcMac).setSrcIpaddress(targetIP).setSrcMacaddress(targetMac).build();
         final String msgFormat = String.format("Send ARP Response on interface %s to destination %s", srcInterface, srcIP);
         Future<RpcResult<Void>> future = arpManager.sendArpResponse(input);
         Futures.addCallback(JdkFutureAdapters.listenInPoolThread(future), new FutureCallback<RpcResult<Void>>() {

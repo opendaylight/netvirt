@@ -42,7 +42,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
         // Respond to ARP request only if vpnservice is configured on the interface
         if(VpnUtil.isVpnInterfaceConfigured(broker, srcInterface)) {
             LOG.info("Received ARP Request for interface {} ", srcInterface);
-            vpnIfManager.processArpRequest(srcIP, srcMac, targetIP, srcInterface);
+            vpnIfManager.processArpRequest(srcIP, srcMac, targetIP, null, srcInterface);
         }
     }
      
