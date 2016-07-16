@@ -133,6 +133,18 @@ public class VpnUtil {
                  new ExtrarouteKey(ipPrefix)).build();
     }
 
+    static List<Adjacency> getAdjacenciesForVpnInterfaceFromConfig(DataBroker broker, String intfName) {
+        final InstanceIdentifier<VpnInterface> identifier = getVpnInterfaceIdentifier(intfName);
+        InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
+        Optional<Adjacencies> adjacencies = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
+
+        if (adjacencies.isPresent()) {
+            List<Adjacency> nextHops = adjacencies.get().getAdjacency();
+            return nextHops;
+        }
+        return null;
+    }
+
     static Extraroute getVpnToExtraroute(String ipPrefix, String nextHop) {
         return new ExtrarouteBuilder().setPrefix(ipPrefix).setNexthopIp(nextHop).build();
     }
