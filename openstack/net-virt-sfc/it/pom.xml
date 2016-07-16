@@ -15,7 +15,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>it</artifactId>
     <version>1.3.0-SNAPSHOT</version>
-    <relativePath>../../../commons/it</relativePath>
+    <relativePath>../../commons/it</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
