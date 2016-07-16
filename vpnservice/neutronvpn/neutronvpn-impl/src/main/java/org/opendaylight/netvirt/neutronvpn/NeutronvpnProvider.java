@@ -23,7 +23,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +50,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private NotificationPublishService notificationPublishService;
     private NotificationService notificationService;
     private EntityOwnershipService entityOwnershipService;
+    private IdManagerService idManager;
 
     public NeutronvpnProvider(RpcProviderRegistry rpcRegistry,NotificationPublishService notificationPublishService,
                               NotificationService notificationService) {
@@ -80,6 +83,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     public void onSessionInitiated(ProviderContext session) {
         try {
             final DataBroker dbx = session.getSALService(DataBroker.class);
+            idManager = getRpcProviderRegistry().getRpcService(IdManagerService.class);
             nvNatManager = new NeutronvpnNatManager(dbx, mdsalManager);
             floatingIpMapListener = new NeutronFloatingToFixedIpMappingChangeListener(dbx);
             nvManager = new NeutronvpnManager(dbx, mdsalManager,notificationPublishService,notificationService,
@@ -100,6 +104,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
             l2GatewayProvider = new L2GatewayProvider(dbx, rpcProviderRegistry, entityOwnershipService);
             securityRuleListener = new NeutronSecurityRuleListener(dbx);
             securityRuleListener.registerListener();
+            bgpvpnListener.setIdManager(idManager);
             LOG.info("NeutronvpnProvider Session Initiated");
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
