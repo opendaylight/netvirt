@@ -491,11 +491,11 @@ public class Ipv6PktHandlerTest {
 
     private void waitForPacketProcessing() throws InterruptedException {
         int timeOut = 1;
-        while (timeOut < 5) {
+        while (timeOut < 20) {
+            Thread.sleep(THREAD_WAIT_TIME);
             if (pktHandler.getPacketProcessedCounter() > counter) {
                 break;
             }
-            Thread.sleep(THREAD_WAIT_TIME);
             timeOut++;
         }
     }
