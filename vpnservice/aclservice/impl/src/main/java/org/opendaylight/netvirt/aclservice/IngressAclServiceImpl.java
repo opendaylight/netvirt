@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(IngressAclServiceImpl.class);
-    private final DataBroker dataBroker;
 
     /**
      * Intilaze the member variables.
@@ -61,7 +60,6 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     public IngressAclServiceImpl(DataBroker dataBroker, OdlInterfaceRpcService interfaceManager,
                                  IMdsalApiManager mdsalManager) {
         super(dataBroker,interfaceManager,mdsalManager);
-        this.dataBroker = dataBroker;
     }
 
 
@@ -126,8 +124,14 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param attachMac the attached mac
      * @param addOrRemove whether to delete or add flow
      */
-    protected void programAclRules(List<Uuid> aclUuidList, BigInteger dpId, String attachMac,
+    protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, String attachMac,
                                    IpPrefixOrAddress attachIp, int addOrRemove) {
+        if (aclUuidList == null || dpId == null || attachMac == null) {
+            LOG.warn("one of the ingress acl parameters can not be null. sg {}, dpId {}, attachMac {}",
+                    aclUuidList, dpId, attachMac);
+            return false;
+        }
+
         for (Uuid sgUuid :aclUuidList ) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
             if (null == acl) {
@@ -140,7 +144,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                 programAceRule(dpId, attachMac, attachIp, addOrRemove, ace);
             }
         }
-
+        return true;
     }
 
     protected void programAceRule(BigInteger dpId, String attachMac, IpPrefixOrAddress attachIp, int addOrRemove,
@@ -159,25 +163,28 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             LOG.error("Failed to apply ACL {} vmMacAddress {}", ace.getKey(), attachMac);
             return;
         }
-        for ( String  flowName : flowMap.keySet()) {
-            List<MatchInfoBase> flows = flowMap.get(flowName);
-            flowName += "Ingress" + attachMac + String.valueOf(attachIp.getValue()) + ace.getKey().getRuleName();
-            flows.add(new MatchInfo(MatchFieldType.eth_dst,
+        for ( Map.Entry<String, List<MatchInfoBase>> flow : flowMap.entrySet()) {
+            List<MatchInfoBase> flowMatches = flow.getValue();
+            flowMatches.add(new MatchInfo(MatchFieldType.eth_dst,
                 new String[] { attachMac }));
-            flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-                new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
-            flows.addAll(AclServiceUtils.getAllowedIpMatches(attachIp, MatchFieldType.ipv4_destination));
+            appendExtendingMatches(flowMatches);
+            flowMatches.addAll(AclServiceUtils.getAllowedIpMatches(attachIp, MatchFieldType.ipv4_destination));
             List<InstructionInfo> instructions = new ArrayList<>();
-            List<ActionInfo> actionsInfos = new ArrayList<>();
-            actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                new String[] {"1", "0", "0", "255"}, 2));
-            instructions.add(new InstructionInfo(InstructionType.apply_actions,
-                actionsInfos));
+            appendExtendingInstructions(instructions);
+
             instructions.add(new InstructionInfo(InstructionType.goto_table,
                 new long[] { AclConstants.INGRESS_ACL_NEXT_TABLE_ID }));
+            String flowName = flow.getKey() + "Ingress" + attachMac + String.valueOf(attachIp.getValue())
+                + ace.getKey().getRuleName();
             syncFlow(dpId, AclConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY,
-                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+            appendExtendingRules(dpId, flowName, flowMatches, addOrRemove);
         }
+    }
+
+    protected void appendExtendingRules(BigInteger dpId, String flowName, List<MatchInfoBase> flowMatches,
+            int addOrRemove) {
+
     }
 
     /**
@@ -189,7 +196,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param addOrRemove is write or delete
      * @param protoPortMatchPriority the priority
      */
-    private void ingressAclDhcpAllowServerTraffic(BigInteger dpId, String dhcpMacAddress,
+    protected void ingressAclDhcpAllowServerTraffic(BigInteger dpId, String dhcpMacAddress,
                                                   String attachMac, int addOrRemove, int protoPortMatchPriority) {
         final List<MatchInfoBase> matches =
                 AclServiceUtils.buildDhcpDestinationMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
@@ -197,14 +204,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
-        actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-            new String[] {"1", "0", "0", "255"}, 2));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions,
-            actionsInfos));
-
-
+        appendExtendingInstructions(instructions);
         instructions.add(new InstructionInfo(InstructionType.goto_table,
             new long[] { AclConstants.INGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Ingress_DHCP_Server_v4" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Permit_";
@@ -223,7 +223,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param addOrRemove is write or delete
      * @param protoPortMatchPriority the priority
      */
-    private void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress,
+    protected void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress,
                                                     String attachMac, int addOrRemove, Integer protoPortMatchPriority) {
         final List<MatchInfoBase> matches =
                 AclServiceUtils.buildDhcpDestinationMatches(AclConstants.DHCP_SERVER_PORT_IPV6,
@@ -231,12 +231,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
-        actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-            new String[] {"1", "0", "0", "255"}, 2));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions,
-            actionsInfos));
+        appendExtendingInstructions(instructions);
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
             new long[] { AclConstants.INGRESS_ACL_NEXT_TABLE_ID }));
@@ -348,7 +343,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param attachMac the attached mac address
      * @param addOrRemove whether to add or remove the flow
      */
-    private void programArpRule(BigInteger dpId, String attachMac, int addOrRemove) {
+    protected void programArpRule(BigInteger dpId, String attachMac, int addOrRemove) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { NwConstants.ETHTYPE_ARP }));

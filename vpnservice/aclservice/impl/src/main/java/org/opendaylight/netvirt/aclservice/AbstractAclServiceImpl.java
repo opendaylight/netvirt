@@ -8,16 +8,23 @@
 package org.opendaylight.netvirt.aclservice;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
+import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
+import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -32,9 +39,9 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAclServiceImpl.class);
 
-    private final IMdsalApiManager mdsalManager;
-    private final OdlInterfaceRpcService interfaceManager;
-    private final DataBroker dataBroker;
+    protected final IMdsalApiManager mdsalManager;
+    protected final OdlInterfaceRpcService interfaceManager;
+    protected final DataBroker dataBroker;
 
     /**
      * Initialize the member variables.
@@ -58,19 +65,22 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
             interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
+        if (interfaceState == null) {
+            LOG.warn("Unable to find interface state for port {}", port.getName());
+            return false;
+        }
         BigInteger dpId = AclServiceUtils.getDpIdFromIterfaceState(interfaceState);
         if (dpId == null) {
             LOG.error("Unable to find DP Id from interface state {}", interfaceState.getName());
             return false;
         }
 
-        programAclWithAllowedAddress(dpId, AclServiceUtils.getPortAllowedAddresses(port),
+        return programAclWithAllowedAddress(dpId, AclServiceUtils.getPortAllowedAddresses(port),
                 AclServiceUtils.getInterfaceAcls(port), NwConstants.ADD_FLOW);
 
         // TODO: uncomment bindservice() when the acl flow programming is
         // implemented
         // bindService(port.getName());
-        return true;
     }
 
     @Override
@@ -118,22 +128,29 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
     }
 
-    private void updateCustomRules(Interface portAfter, BigInteger dpId, List<Uuid> aclUuidList, int action) {
+    protected boolean updateCustomRules(Interface portAfter, BigInteger dpId, List<Uuid> aclUuidList, int action) {
         for (AllowedAddressPairs portAllowedAddress : AclServiceUtils.getPortAllowedAddresses(portAfter)) {
             IpPrefixOrAddress attachIp = portAllowedAddress.getIpAddress();
             String attachMac = portAllowedAddress.getMacAddress().getValue();
             programAclRules(aclUuidList, dpId, attachMac, attachIp, action);
         }
+        return true;
     }
 
-    private void programAclWithAllowedAddress(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
+    private boolean programAclWithAllowedAddress(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
             List<Uuid> aclUuidList, int addOrRemove) {
-        for (AllowedAddressPairs allowedAddress : allowedAddresses) {
-            IpPrefixOrAddress attachIp = allowedAddress.getIpAddress();
-            String attachMac = allowedAddress.getMacAddress().getValue();
-            programFixedRules(dpId, "", attachMac, addOrRemove);
-            programAclRules(aclUuidList, dpId, attachMac, attachIp, addOrRemove);
+        if (allowedAddresses != null) {
+            for (AllowedAddressPairs allowedAddress : allowedAddresses) {
+                IpPrefixOrAddress attachIp = allowedAddress.getIpAddress();
+                String attachMac = allowedAddress.getMacAddress().getValue();
+                programFixedRules(dpId, "", attachMac, addOrRemove);
+                if (!programAclRules(aclUuidList, dpId, attachMac, attachIp, addOrRemove)) {
+                    LOG.warn("failed programing acl rules of allowedSource {}", allowedAddress);
+                    return false;
+                }
+            }
         }
+        return true;
     }
 
     @Override
@@ -142,15 +159,12 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return false;
         }
         BigInteger dpId = AclServiceUtils.getDpnForInterface(interfaceManager, port.getName());
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
-            interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
-        programAclWithAllowedAddress(dpId, AclServiceUtils.getPortAllowedAddresses(port),
+        return programAclWithAllowedAddress(dpId, AclServiceUtils.getPortAllowedAddresses(port),
                 AclServiceUtils.getInterfaceAcls(port), NwConstants.DEL_FLOW);
 
         // TODO: uncomment unbindService() when the acl flow programming is
         // implemented
         // unbindService(port.getName());
-        return true;
     }
 
     @Override
@@ -159,8 +173,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return false;
         }
         BigInteger dpId = AclServiceUtils.getDpnForInterface(interfaceManager, port.getName());
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
-                interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
         for (AllowedAddressPairs portAllowedAddress : AclServiceUtils.getPortAllowedAddresses(port)) {
             IpPrefixOrAddress attachIp = portAllowedAddress.getIpAddress();
             String attachMac = portAllowedAddress.getMacAddress().getValue();
@@ -217,9 +229,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param aclUuidList the list of acl uuid to be applied
      * @param dpId the dpId
      * @param attachMac the attached mac
+     * @param attachIp the attached ip
      * @param addOrRemove whether to delete or add flow
+     * @return true if acl rules applied
      */
-    protected abstract void programAclRules(List<Uuid> aclUuidList, BigInteger dpId, String attachMac,
+    protected abstract boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, String attachMac,
                                             IpPrefixOrAddress attachIp, int addOrRemove);
 
     /**
@@ -227,6 +241,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      *
      * @param dpId the dpId
      * @param attachMac the attached mac
+     * @param attachIp the attached ip
      * @param addOrRemove whether to delete or add flow
      * @param ace rule to be program
      */
@@ -261,5 +276,18 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.trace("Installing DpnId {}, flowId {}", dpId, flowId);
             mdsalManager.installFlow(flowEntity);
         }
+    }
+
+    protected void appendExtendingInstructions(List<InstructionInfo> instructions) {
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+
+        actionsInfos.add(new ActionInfo(ActionType.nx_conntrack, new String[] { "1", "0", "0", "255" }, 2));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+
+    }
+
+    protected void appendExtendingMatches(List<MatchInfoBase> flows) {
+        flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
+                new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK }));
     }
 }

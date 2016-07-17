@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 public class EgressAclServiceImpl extends AbstractAclServiceImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(EgressAclServiceImpl.class);
-    private final DataBroker dataBroker;
 
     /**
      * Initialize the member variables.
@@ -61,7 +60,6 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     public EgressAclServiceImpl(DataBroker dataBroker, OdlInterfaceRpcService interfaceManager,
                                 IMdsalApiManager mdsalManager) {
         super(dataBroker,interfaceManager,mdsalManager);
-        this.dataBroker = dataBroker;
     }
 
     /**
@@ -102,6 +100,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param attachMac The vm mac address
      * @param addOrRemove addorRemove
      */
+    @Override
     protected void programFixedRules(BigInteger dpid, String dhcpMacAddress,
                                              String attachMac, int addOrRemove) {
         LOG.info("programFixedRules :  adding default rules.");
@@ -124,7 +123,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param attachMac the attached mac
      * @param addOrRemove whether to delete or add flow
      */
-    protected void programAclRules(List<Uuid> aclUuidList, BigInteger dpId, String attachMac,
+    @Override
+    protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, String attachMac,
                                    IpPrefixOrAddress attachIp, int addOrRemove) {
         LOG.trace("Applying custom rules DpId {}, vmMacAddress {}", dpId, attachMac );
         for (Uuid sgUuid :aclUuidList ) {
@@ -139,9 +139,10 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
                 programAceRule(dpId, attachMac, attachIp, addOrRemove, ace);
             }
         }
-
+        return true;
     }
 
+    @Override
     protected void programAceRule(BigInteger dpId, String attachMac, IpPrefixOrAddress attachIp, int addOrRemove,
                                   Ace ace) {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
@@ -160,24 +161,26 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         }
         //The flow map contains list of flows if port range is selected.
         for ( String  flowName : flowMap.keySet()) {
-            List<MatchInfoBase> flows = flowMap.get(flowName);
+            List<MatchInfoBase> flowMatches = flowMap.get(flowName);
             flowName += "Egress" + attachMac + String.valueOf(attachIp.getValue()) + ace.getKey().getRuleName();
-            flows .add(new MatchInfo(MatchFieldType.eth_src,
+            flowMatches.add(new MatchInfo(MatchFieldType.eth_src,
                 new String[] { attachMac }));
-            flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-                new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
-            flows.addAll(AclServiceUtils.getAllowedIpMatches(attachIp, MatchFieldType.ipv4_source));
+            appendExtendingMatches(flowMatches);
+            flowMatches.addAll(AclServiceUtils.getAllowedIpMatches(attachIp, MatchFieldType.ipv4_source));
             List<InstructionInfo> instructions = new ArrayList<>();
-            List<ActionInfo> actionsInfos = new ArrayList<>();
-            actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                new String[] {"1", "0", "0", "255"}, 2));
-            instructions.add(new InstructionInfo(InstructionType.apply_actions,
-                actionsInfos));
+            appendExtendingInstructions(instructions);
+
             instructions.add(new InstructionInfo(InstructionType.goto_table,
                 new long[] { AclConstants.EGRESS_ACL_NEXT_TABLE_ID }));
             syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY,
-                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+            appendExtendingRules(dpId, flowName, flowMatches, addOrRemove);
         }
+    }
+
+    protected void appendExtendingRules(BigInteger dpId, String flowName, List<MatchInfoBase> flowMatches,
+            int addOrRemove) {
+
     }
 
     /**
@@ -187,7 +190,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param attachMac the attached mac address
      * @param addOrRemove add/remove the flow.
      */
-    private void egressAclDhcpDropServerTraffic(BigInteger dpId, String dhcpMacAddress,
+    protected void egressAclDhcpDropServerTraffic(BigInteger dpId, String dhcpMacAddress,
             String attachMac, int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceUtils.buildDhcpSourceMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
                 AclConstants.DHCP_CLIENT_PORT_IPV4, attachMac);
@@ -198,6 +201,9 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
 
         actionsInfos.add(new ActionInfo(ActionType.drop_action,
             new String[] {}));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions,
+                actionsInfos));
+
         String flowName = "Egress_DHCP_Server_v4" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Drop_";
         syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
@@ -210,7 +216,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param attachMac the attached mac address
      * @param addOrRemove add/remove the flow.
      */
-    private void egressAclDhcpv6DropServerTraffic(BigInteger dpId, String dhcpMacAddress,
+    protected void egressAclDhcpv6DropServerTraffic(BigInteger dpId, String dhcpMacAddress,
                                                   String attachMac, int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceUtils.buildDhcpSourceMatches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, attachMac);
@@ -221,6 +227,9 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
 
         actionsInfos.add(new ActionInfo(ActionType.drop_action,
             new String[] {}));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions,
+                actionsInfos));
+
         String flowName = "Egress_DHCP_Server_v6" + "_" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Drop_";
         syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
@@ -234,22 +243,14 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param attachMac the mac address of the port
      * @param addOrRemove whether to add or remove the flow
      */
-    private void egressAclDhcpAllowClientTraffic(BigInteger dpId, String dhcpMacAddress,
+    protected void egressAclDhcpAllowClientTraffic(BigInteger dpId, String dhcpMacAddress,
                                                  String attachMac, int addOrRemove) {
         final List<MatchInfoBase> matches =
                 AclServiceUtils.buildDhcpSourceMatches(AclConstants.DHCP_CLIENT_PORT_IPV4,
                         AclConstants.DHCP_SERVER_PORT_IPV4, attachMac);
 
         List<InstructionInfo> instructions = new ArrayList<>();
-
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
-        actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-            new String[] {"1", "0", "0", "255"}, 2));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions,
-            actionsInfos));
-
-
+        appendExtendingInstructions(instructions);
         instructions.add(new InstructionInfo(InstructionType.goto_table,
             new long[] { AclConstants.EGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Egress_DHCP_Client_v4" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Permit_";
@@ -265,7 +266,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param attachMac the mac address of  the port
      * @param addOrRemove whether to add or remove the flow
      */
-    private void egressAclDhcpv6AllowClientTraffic(BigInteger dpId, String dhcpMacAddress,
+    protected void egressAclDhcpv6AllowClientTraffic(BigInteger dpId, String dhcpMacAddress,
                                                    String attachMac, int addOrRemove) {
         final List<MatchInfoBase> matches =
                 AclServiceUtils.buildDhcpSourceMatches(AclConstants.DHCP_CLIENT_PORT_IPV6,
@@ -273,13 +274,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
-        actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-            new String[] {"1", "0", "0", "255"}, 2));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions,
-            actionsInfos));
-
+        appendExtendingInstructions(instructions);
         instructions.add(new InstructionInfo(InstructionType.goto_table,
             new long[] { AclConstants.EGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Egress_DHCP_Client_v6" + "_" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Permit_";
@@ -388,7 +383,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param attachMac the attached mac address
      * @param addOrRemove whether to add or remove the flow
      */
-    private void programArpRule(BigInteger dpId, String attachMac, int addOrRemove) {
+    protected void programArpRule(BigInteger dpId, String attachMac, int addOrRemove) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
             new long[] { NwConstants.ETHTYPE_ARP }));

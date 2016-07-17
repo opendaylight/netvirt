@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import java.math.BigInteger;
+import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 
 /**
  * The class to have ACL related constants.
@@ -28,6 +29,7 @@ public final class AclConstants {
     public static final short INGRESS_ACL_DEFAULT_FLOW_PRIORITY = 1;
 
     public static final Integer PROTO_MATCH_PRIORITY = 61010;
+    public static final Integer PROTO_MATCH_SYN_PRIORITY = 61011;
     public static final Integer PREFIX_MATCH_PRIORITY = 61009;
     public static final Integer PROTO_PREFIX_MATCH_PRIORITY = 61008;
     public static final Integer PROTO_PORT_MATCH_PRIORITY = 61007;
@@ -54,5 +56,10 @@ public final class AclConstants {
     public static final int TRACKED_NEW_CT_STATE_MASK = 0x21;
 
     private AclConstants() {
+    }
+
+    public static boolean isStatelessAcl() {
+        final String enabledPropertyStr = ConfigProperties.getProperty(AclConstants.class, "stateless.sg.enabled");
+        return enabledPropertyStr != null && enabledPropertyStr.equalsIgnoreCase("yes");
     }
 }

@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import static com.google.common.collect.Iterables.filter;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Iterables;
@@ -17,10 +18,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -71,9 +75,27 @@ public class AclServiceTestUtils {
 
     public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, MatchFieldType matchType, String... params) {
         Iterable<MatchInfoBase> matches = filter(flowMatches,
-                (item -> ((MatchInfo) item).getMatchField().equals(matchType)));
+                (item -> (item instanceof MatchInfo) && ((MatchInfo) item).getMatchField().equals(matchType)
+                || (item instanceof NxMatchInfo) && ((NxMatchInfo) item).getMatchField().equals(matchType)));
+        assertFalse(Iterables.isEmpty(matches));
         for (MatchInfoBase baseMatch : matches) {
-            verifyMatchValues((MatchInfo) baseMatch, params);
+            if (baseMatch instanceof MatchInfo) {
+                verifyMatchValues((MatchInfo)baseMatch, params);
+            } else {
+                verifyMatchValues((NxMatchInfo)baseMatch, params);
+            }
+        }
+    }
+
+    public static void verifyMatchValues(NxMatchInfo match, String... params) {
+        switch (match.getMatchField()) {
+            case ct_state:
+                long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
+                Assert.assertArrayEquals(values, match.getMatchValues());
+                break;
+            default:
+                assertTrue("match type is not supported", false);
+                break;
         }
     }
 
@@ -85,15 +107,21 @@ public class AclServiceTestUtils {
             case udp_src:
             case udp_dst:
             case eth_type:
+            case tcp_flags:
+            case icmp_v4:
                 long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
                 Assert.assertArrayEquals(values, match.getMatchValues());
                 break;
             case ipv4_source:
             case ipv4_destination:
+            case eth_src:
+            case eth_dst:
+            case arp_sha:
+            case arp_tha:
                 Assert.assertArrayEquals(params, match.getStringMatchValues());
                 break;
             default:
-                assertTrue("match type is not supported", true);
+                assertTrue("match type is not supported", false);
                 break;
         }
     }
@@ -103,4 +131,28 @@ public class AclServiceTestUtils {
                 (item -> ((MatchInfo) item).getMatchField().equals(matchType)));
         Assert.assertTrue("unexpected match type " + matchType.name(), Iterables.isEmpty(matches));
     }
+
+    public static void verifyActionInfo(List<ActionInfo> flowActions, ActionType actionType, String... params) {
+        Iterable<ActionInfo> actions = filter(flowActions,
+                (item -> ((ActionInfo) item).getActionType().equals(actionType)));
+        assertFalse(Iterables.isEmpty(actions));
+        for (ActionInfo action : actions) {
+            verifyActionValues(action, params);
+        }
+    }
+
+    private static void verifyActionValues(ActionInfo action, String[] params) {
+        switch (action.getActionType()) {
+            case drop_action:
+                break;
+            case goto_table:
+                Assert.assertArrayEquals(params, action.getActionValues());
+                break;
+            default:
+                assertTrue("match type is not supported", false);
+                break;
+        }
+    }
+
+
 }
