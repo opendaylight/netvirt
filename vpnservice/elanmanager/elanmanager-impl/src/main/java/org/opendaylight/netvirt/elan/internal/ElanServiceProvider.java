@@ -67,6 +67,8 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
     private OdlInterfaceRpcService interfaceManagerRpcService;
     private ElanInstanceManager elanInstanceManager;
     private ElanForwardingEntriesHandler elanForwardingEntriesHandler;
+    private ElanBridgeManager bridgeMgr;
+
     public IdManagerService getIdManager() {
         return idManager;
     }
@@ -178,7 +180,8 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             getDataStoreJobCoordinator();
             broker = session.getSALService(DataBroker.class);
 
-            elanOvsdbNodeListener = new ElanOvsdbNodeListener(broker, generateIntBridgeMac);
+            bridgeMgr = new ElanBridgeManager(broker);
+            elanOvsdbNodeListener = new ElanOvsdbNodeListener(broker, generateIntBridgeMac, bridgeMgr, this);
             ElanUtils.setElanServiceProvider(this);
             elanForwardingEntriesHandler = ElanForwardingEntriesHandler.getElanForwardingEntriesHandler(this);
             elanInterfaceManager = ElanInterfaceManager.getElanInterfaceManager(this);
