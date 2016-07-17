@@ -28,7 +28,6 @@ import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.elan.l2gw.internal.ElanL2GatewayProvider;
 import org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
-import org.opendaylight.netvirt.elan.utils.BridgeUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -65,8 +64,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
 
-import jline.internal.Log;
-
 public class ElanServiceProvider implements BindingAwareProvider, IElanService, AutoCloseable {
 
     private IdManagerService idManager;
@@ -75,7 +72,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
     private OdlInterfaceRpcService interfaceManagerRpcService;
     private ElanInstanceManager elanInstanceManager;
     private ElanForwardingEntriesHandler elanForwardingEntriesHandler;
-    private BridgeUtils bridgeUtils;
+    private ElanBridgeManager bridgeMgr;
 
     public IdManagerService getIdManager() {
         return idManager;
@@ -188,8 +185,8 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             getDataStoreJobCoordinator();
             broker = session.getSALService(DataBroker.class);
 
-            bridgeUtils = new BridgeUtils(broker);
-            elanOvsdbNodeListener = new ElanOvsdbNodeListener(broker, generateIntBridgeMac, bridgeUtils, this);
+            bridgeMgr = new ElanBridgeManager(broker);
+            elanOvsdbNodeListener = new ElanOvsdbNodeListener(broker, generateIntBridgeMac, bridgeMgr, this);
             ElanUtils.setElanServiceProvider(this);
             elanForwardingEntriesHandler = ElanForwardingEntriesHandler.getElanForwardingEntriesHandler(this);
             elanInterfaceManager = ElanInterfaceManager.getElanInterfaceManager(this);
@@ -572,8 +569,8 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     @Override
     public void createExternalElanNetworks(Node node) {
-        Optional<Map<String, String>> providerMappingsOpt = bridgeUtils.getOpenvswitchOtherConfigMap(node,
-                BridgeUtils.PROVIDER_MAPPINGS_KEY);
+        Optional<Map<String, String>> providerMappingsOpt = bridgeMgr.getOpenvswitchOtherConfigMap(node,
+                ElanBridgeManager.PROVIDER_MAPPINGS_KEY);
         if (!providerMappingsOpt.isPresent()) {
             logger.trace("No provider mappings was found for node {}", node.getNodeId().getValue());
             return;
@@ -602,7 +599,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             return;
         }
 
-        List<Node> nodes = bridgeUtils.getOvsNodes();
+        List<Node> nodes = bridgeMgr.getOvsNodes();
         if (nodes == null || nodes.isEmpty()) {
             logger.trace("No OVS nodes found while creating external network for ELAN {}",
                     elanInstance.getElanInstanceName());
@@ -610,7 +607,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         }
 
         for (Node node : nodes) {
-            String interfaceName = bridgeUtils.getPhysicalInterfaceName(node, elanInstance.getPhysicalNetworkName());
+            String interfaceName = bridgeMgr.getPhysicalInterfaceName(node, elanInstance.getPhysicalNetworkName());
             createExternalElanNetwork(elanInstance, node, interfaceName);
         }
     }
@@ -621,7 +618,7 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
                     node.getNodeId().getValue());
         }
 
-        String patchPortName = BridgeUtils.getPatchPortName(interfaceName);
+        String patchPortName = ElanBridgeManager.getIntSidePatchPortName(interfaceName);
         String elanInterfaceName = createIetfInterfaces(elanInstance, patchPortName);
         addElanInterface(elanInstance.getElanInstanceName(), elanInterfaceName, null, null);
     }
