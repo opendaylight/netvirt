@@ -53,7 +53,7 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> {
     private void registerListener(final DataBroker db) {
         try {
             listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getWildCardPath(), ElanOvsdbNodeListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
+                    getWildCardPath(), ElanOvsdbNodeListener.this, AsyncDataBroker.DataChangeScope.BASE);
         } catch (final Exception e) {
             logger.error("ElanOvsdbNodeListener: DataChange listener registration fail!", e);
             throw new IllegalStateException("ElanOvsdbNodeListener: registration Listener failed.", e);
@@ -77,7 +77,7 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> {
 
     @Override
     protected void add(InstanceIdentifier<Node> identifier, Node node) {
-        logger.debug("ElanOvsdbNodeListener.add, new bridge detected{}", node);
+        logger.warn("ElanOvsdbNodeListener.add, new bridge detected{}", node);
         bridgeUtils.prepareNode(node, generateIntBridgeMac);
         elanProvider.createExternalElanNetworks(node);
     }
