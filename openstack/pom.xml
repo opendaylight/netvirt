@@ -48,9 +48,15 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <maven>3.1.1</maven>
   </prerequisites>
   <modules>
+    <module>commons</module>
+    <module>features</module>
+    <module>karaf</module>
+    <module>netvirt-artifacts</module>
+    <module>ovsdb-ui</module>
+    <module>utils</module>
     <module>net-virt</module>
-    <module>net-virt-providers</module>
     <module>net-virt-it</module>
+    <module>net-virt-providers</module>
     <module>net-virt-sfc</module>
   </modules>
 
