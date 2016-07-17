@@ -11,8 +11,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.elan.utils.BridgeUtils;
-import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -32,7 +31,8 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> {
     private static final Logger logger = LoggerFactory.getLogger(ElanOvsdbNodeListener.class);
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private BridgeUtils bridgeUtils;
+    private ElanBridgeManager bridgeMgr;
+    private IElanService elanProvider;
     private boolean generateIntBridgeMac;
 
     /**
@@ -40,9 +40,10 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> {
      * @param db the DataBroker
      * @param generateIntBridgeMac true if the integration bridge should be given a fixed, random MAC address
      */
-    public ElanOvsdbNodeListener(final DataBroker db, boolean generateIntBridgeMac) {
+    public ElanOvsdbNodeListener(final DataBroker db, boolean generateIntBridgeMac, ElanBridgeManager bridgeMgr, IElanService elanProvider) {
         super(Node.class);
-        this.bridgeUtils = new BridgeUtils(db);
+        this.bridgeMgr = bridgeMgr;
+        this.elanProvider = elanProvider;
         this.generateIntBridgeMac = generateIntBridgeMac;
         registerListener(db);
     }
@@ -70,12 +71,18 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> {
 
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
+        logger.debug("ElanOvsdbNodeListener.update, updated node detected. original: {} new: {}", original, update);
+        doNodeUpdate(update);
     }
 
     @Override
-    protected void add(InstanceIdentifier<Node> identifier, Node add) {
-        logger.debug("ElanOvsdbNodeListener.add, new bridge detected{}", add);
-        bridgeUtils.prepareNode(add, generateIntBridgeMac);
+    protected void add(InstanceIdentifier<Node> identifier, Node node) {
+        logger.debug("ElanOvsdbNodeListener.add, new node detected {}", node);
+        doNodeUpdate(node);
+    }
+
+    private void doNodeUpdate(Node node) {
+        bridgeMgr.processNodePrep(node, generateIntBridgeMac);
     }
 
 }
