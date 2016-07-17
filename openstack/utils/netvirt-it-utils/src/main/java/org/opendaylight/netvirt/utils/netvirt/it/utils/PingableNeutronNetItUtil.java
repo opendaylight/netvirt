@@ -49,6 +49,10 @@ public class PingableNeutronNetItUtil extends NeutronNetItUtil {
      */
     public void createPort(Node bridge, String portName, String owner, NeutronSecurityGroup... secGroups)
             throws InterruptedException, IOException {
+        if (dockerOvs.usingExternalDocker()) {
+            super.createPort(bridge, portName, owner, secGroups);
+            return;
+        }
 
         PortInfo portInfo = buildPortInfo(portName);
 
@@ -65,6 +69,10 @@ public class PingableNeutronNetItUtil extends NeutronNetItUtil {
      * @throws InterruptedException because we sleep
      */
     public void preparePortForPing(String portName) throws IOException, InterruptedException {
+        if (dockerOvs.usingExternalDocker()) {
+            return;
+        }
+
         String nsName = "ns-" + portName;
 
         PortInfo portInfo = portInfoByName.get(portName);
@@ -87,6 +95,10 @@ public class PingableNeutronNetItUtil extends NeutronNetItUtil {
      * @throws InterruptedException because we sleep
      */
     public void ping(String fromPort, String toPort) throws IOException, InterruptedException {
+        if (dockerOvs.usingExternalDocker()) {
+            return;
+        }
+
         PortInfo portInfo = portInfoByName.get(toPort);
         Assert.assertNotNull(portInfo);
         pingIp(fromPort, portInfo.ip);
@@ -100,6 +112,10 @@ public class PingableNeutronNetItUtil extends NeutronNetItUtil {
      * @throws InterruptedException because we sleep
      */
     public void pingIp(String fromPort, String ip) throws IOException, InterruptedException {
+        if (dockerOvs.usingExternalDocker()) {
+            return;
+        }
+
         String fromNs = "ns-" + fromPort;
         dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "exec", fromNs, "ping", "-c", "4", ip);
     }
