@@ -450,6 +450,10 @@ public class ElanBridgeManager {
         return ovsdbNode;
     }
 
+    public long getDatapathId(Node node) {
+        return southboundUtils.getDataPathId(node);
+    }
+
     private String generateRandomMac() {
         byte[] macBytes = new byte[6];
         random.nextBytes(macBytes);
