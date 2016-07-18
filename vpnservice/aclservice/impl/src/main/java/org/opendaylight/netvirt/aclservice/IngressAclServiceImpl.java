@@ -112,7 +112,7 @@ public class IngressAclServiceImpl implements AclServiceListener {
         List<Uuid> addedGroup = AclServiceUtils.getUpdatedAclList(portAfter, portBefore);
         List<Uuid> deletedGroup = AclServiceUtils.getUpdatedAclList(portBefore, portAfter);
         if (addedGroup != null && !addedGroup.isEmpty()) {
-            updateCustomRules(portAfter, deletedGroup, NwConstants.ADD_FLOW);
+            updateCustomRules(portAfter, addedGroup, NwConstants.ADD_FLOW);
         }
         if (deletedGroup != null && !deletedGroup.isEmpty()) {
             updateCustomRules(portAfter, deletedGroup, NwConstants.DEL_FLOW);
@@ -147,12 +147,28 @@ public class IngressAclServiceImpl implements AclServiceListener {
 
     @Override
     public boolean applyAce(Interface port, Ace ace) {
-        return false;
+        if (!AclServiceUtils.isPortSecurityEnabled(port)) {
+            return false;
+        }
+        BigInteger dpId = AclServiceUtils.getDpnForInterface(interfaceManager, port.getName());
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
+                interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
+        String attachMac = interfaceState.getPhysAddress().getValue();
+        programAceRule(dpId, attachMac, NwConstants.ADD_FLOW, ace);
+        return true;
     }
 
     @Override
     public boolean removeAce(Interface port, Ace ace) {
-        return false;
+        if (!AclServiceUtils.isPortSecurityEnabled(port)) {
+            return false;
+        }
+        BigInteger dpId = AclServiceUtils.getDpnForInterface(interfaceManager, port.getName());
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
+                interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
+        String attachMac = interfaceState.getPhysAddress().getValue();
+        programAceRule(dpId, attachMac, NwConstants.DEL_FLOW, ace);
+        return true;
     }
 
     /**
@@ -224,42 +240,46 @@ public class IngressAclServiceImpl implements AclServiceListener {
             AccessListEntries accessListEntries = acl.getAccessListEntries();
             List<Ace> aceList = accessListEntries.getAce();
             for (Ace ace: aceList) {
-                SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
-                if (!aceAttr.getDirection().equals(DirectionIngress.class)) {
-                    continue;
-                }
-                Matches matches = ace.getMatches();
-
-                AceType aceType = matches.getAceType();
-                Map<String,List<MatchInfoBase>>  flowMap = null;
-                if (aceType instanceof AceIp) {
-                    flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
-                }
-                if (null == flowMap) {
-                    return;
-                }
-                for ( String  flowName : flowMap.keySet()) {
-                    List<MatchInfoBase> flows = flowMap.get(flowName);
-                    flowName = flowName + "Ingress" + attachMac;
-                    flows .add(new MatchInfo(MatchFieldType.eth_dst,
-                        new String[] { attachMac }));
-                    /*flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-                        new long[] { AclServiceUtils.TRACKED_NEW_CT_STATE,
-                                     AclServiceUtils.TRACKED_NEW_CT_STATE_MASK}));*/
-                    List<InstructionInfo> instructions = new ArrayList<>();
-                    List<ActionInfo> actionsInfos = new ArrayList<>();
-                    actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                        new String[] {"1", "0", "0", "255"}, 2));
-                    instructions.add(new InstructionInfo(InstructionType.apply_actions,
-                        actionsInfos));
-                    instructions.add(new InstructionInfo(InstructionType.goto_table,
-                        new long[] { AclConstants.INGRESS_ACL_NEXT_TABLE_ID }));
-                    syncFlow(dpId, AclConstants.INGRESS_ACL_TABLE_ID, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY,
-                        "ACL", 0, 0, AclServiceUtils.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
-                }
+                programAceRule(dpId, attachMac, addOrRemove, ace);
             }
         }
 
+    }
+
+    private void programAceRule(BigInteger dpId, String attachMac, int addOrRemove, Ace ace) {
+        SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
+        if (!aceAttr.getDirection().equals(DirectionIngress.class)) {
+            return;
+        }
+        Matches matches = ace.getMatches();
+        AceType aceType = matches.getAceType();
+        Map<String,List<MatchInfoBase>> flowMap = null;
+        if (aceType instanceof AceIp) {
+            flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
+        }
+        if (null == flowMap) {
+            LOG.error("Failed to apply ACL {} vmMacAddress {}", ace.getKey(), attachMac);
+            return;
+        }
+        for ( String  flowName : flowMap.keySet()) {
+            List<MatchInfoBase> flows = flowMap.get(flowName);
+            flowName = flowName + "Ingress" + attachMac;
+            flows .add(new MatchInfo(MatchFieldType.eth_dst,
+                new String[] { attachMac }));
+            /*flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
+                new long[] { AclServiceUtils.TRACKED_NEW_CT_STATE,
+                             AclServiceUtils.TRACKED_NEW_CT_STATE_MASK}));*/
+            List<InstructionInfo> instructions = new ArrayList<>();
+            List<ActionInfo> actionsInfos = new ArrayList<>();
+            actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
+                new String[] {"1", "0", "0", "255"}, 2));
+            instructions.add(new InstructionInfo(InstructionType.apply_actions,
+                actionsInfos));
+            instructions.add(new InstructionInfo(InstructionType.goto_table,
+                new long[] { AclConstants.INGRESS_ACL_NEXT_TABLE_ID }));
+            syncFlow(dpId, AclConstants.INGRESS_ACL_TABLE_ID, flowName, AclServiceUtils.PROTO_MATCH_PRIORITY,
+                "ACL", 0, 0, AclServiceUtils.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
+        }
     }
 
     /**
