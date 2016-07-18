@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
@@ -982,7 +983,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     //Inform BGP
                     String rd = NatUtil.getVpnRd(dataBroker, vpnName);
                     String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
-                    NatUtil.addPrefixToBGP(bgpManager, rd, externalIp, nextHopIp, label, log);
+                    NatUtil.addPrefixToBGP(bgpManager, rd, externalIp, Arrays.asList(nextHopIp), label, log, RouteOrigin.STATIC);
 
                     //Install custom FIB routes
                     List<Instruction> customInstructions = new ArrayList<>();

@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.Future;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -105,7 +107,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     String rd = NatUtil.getVpnRd(dataBroker, vpnName);
                     String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
                     LOG.debug("Nexthop ip for prefix {} is {}", externalIp, nextHopIp);
-                    NatUtil.addPrefixToBGP(bgpManager, rd, externalIp + "/32", nextHopIp, label, LOG);
+                    NatUtil.addPrefixToBGP(bgpManager, rd, externalIp + "/32", Arrays.asList(nextHopIp),label, LOG, RouteOrigin.STATIC);
 
                     List<Instruction> instructions = new ArrayList<>();
                     List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -205,9 +207,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
     private void removePrefixFromBGP(String rd, String prefix) {
         try {
-            LOG.info("VPN REMOVE: Removing Fib Entry rd {} prefix {}", rd, prefix);
+            LOG.info("REMOVE: Removing Fib Entry rd {} prefix {}", rd, prefix);
             bgpManager.deletePrefix(rd, prefix);
-            LOG.info("VPN REMOVE: Removed Fib Entry rd {} prefix {}", rd, prefix);
+            LOG.info("REMOVE: Removed Fib Entry rd {} prefix {}", rd, prefix);
         } catch(Exception e) {
             LOG.error("Delete prefix failed", e);
         }

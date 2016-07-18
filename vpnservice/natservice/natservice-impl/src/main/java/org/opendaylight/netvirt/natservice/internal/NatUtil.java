@@ -22,6 +22,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -648,12 +649,12 @@ public class NatUtil {
         return vpnUuid.getValue();
     }
 
-    public static void addPrefixToBGP(IBgpManager bgpManager, String rd, String prefix, String nextHopIp, long label, Logger log) {
+    public static void addPrefixToBGP(IBgpManager bgpManager, String rd, String prefix, List<String> nextHopIpList,
+	                                  long label, Logger log, RouteOrigin origin) {
         try {
-            LOG.info("VPN ADD: Adding Fib Entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHopIp, label);
-            //FIXME: To be refactored once odl-fib.yang is updated to have nexthoplist
-            //bgpManager.addPrefix(rd, prefix, nextHopIp, (int)label);
-            LOG.info("VPN ADD: Added Fib Entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHopIp, label);
+            LOG.info("ADD: Adding Fib Entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHopIpList, label);
+            bgpManager.addPrefix(rd, prefix, nextHopIpList, (int)label, origin);
+            LOG.info("ADD: Added Fib Entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHopIpList, label);
         } catch(Exception e) {
             log.error("Add prefix failed", e);
         }
@@ -762,9 +763,9 @@ public class NatUtil {
 
     public static void removePrefixFromBGP(IBgpManager bgpManager, String rd, String prefix, Logger log) {
         try {
-            LOG.info("VPN REMOVE: Removing Fib Entry rd {} prefix {}", rd, prefix);
+            LOG.info("REMOVE: Removing Fib Entry rd {} prefix {}", rd, prefix);
             bgpManager.deletePrefix(rd, prefix);
-            LOG.info("VPN REMOVE: Removed Fib Entry rd {} prefix {}", rd, prefix);
+            LOG.info("REMOVE: Removed Fib Entry rd {} prefix {}", rd, prefix);
         } catch(Exception e) {
             log.error("Delete prefix failed", e);
         }

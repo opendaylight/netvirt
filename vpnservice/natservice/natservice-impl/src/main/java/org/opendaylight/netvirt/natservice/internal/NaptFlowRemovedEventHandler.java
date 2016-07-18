@@ -123,7 +123,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
             //Get the external IP address and the port from the model
             IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId, internalIpv4HostAddress, internalPortNumber.toString(), protocol);
             if (ipPortExternal == null) {
-                LOG.debug("NaptFlowRemovedEventHandler : IpPortExternal not found, BGP vpn might be associated with router");
+                LOG.error("NaptFlowRemovedEventHandler : IpPortExternal not found, BGP vpn might be associated with router");
                 //router must be associated with BGP vpn ID
                 long bgpVpnId = routerId;
                 LOG.debug("NaptFlowRemovedEventHandler : BGP VPN ID {}", bgpVpnId);
