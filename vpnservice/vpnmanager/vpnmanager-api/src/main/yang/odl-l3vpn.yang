@@ -102,6 +102,9 @@ module odl-l3vpn {
         list vpn-instance-op-data-entry {
            key vrf-id;
            leaf vpn-id { type uint32;}
+           leaf vpn-instance-name {
+              type string;
+           }
            leaf vrf-id {
               description
                  "The vrf-id command configures a route distinguisher (RD)
@@ -130,6 +133,7 @@ module odl-l3vpn {
                   }
                }
            }
+           leaf cleanup_complete { type boolean;}
         }
     }
 

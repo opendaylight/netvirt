@@ -13,13 +13,20 @@ import java.util.List;
 
 public interface IFibManager {
     void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd);
+    void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd, String nextHopIp);
+    void populateFibOnDpn(BigInteger localDpnId, BigInteger destDpnId, long vpnId, String rd, String nextHopIp);
     void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd);
     List<String> printFibEntries();
+
+    // TODO Feels like this method is not used anywhere
     void addStaticRoute(String prefix, String nextHop, String rd, int label);
-    void deleteStaticRoute(String prefix, String rd);
+    void deleteStaticRoute(String prefix, String nextHop, String rd);
     void setConfTransType(String service, String transportType);
     String getConfTransType();
     boolean isVPNConfigured();
     void writeConfTransTypeConfigDS();
     String getReqTransType();
+    String getTransportTypeStr(String tunType);
+    void handleRemoteRoute(boolean action, BigInteger localDpnId, BigInteger remoteDpnId,
+                           long vpnId, String rd, String destPrefix, String nextHopIp);
 }
