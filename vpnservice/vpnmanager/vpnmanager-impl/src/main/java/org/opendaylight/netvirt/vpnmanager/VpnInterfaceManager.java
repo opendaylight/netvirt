@@ -57,10 +57,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.concurrent.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import com.google.common.base.Optional;
 
@@ -741,7 +746,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             String nexthop, int label) {
 
         VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).
-                    setNextHopAddress(nexthop).setLabel((long)label).build();
+                    setNextHopAddressList(Arrays.asList(nexthop)).setLabel((long)label).build();
         LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nexthop, label);
 
         List<VrfEntry> vrfEntryList = new ArrayList<>();
@@ -763,7 +768,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
 
         VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).
-                setNextHopAddress(nexthop).setLabel((long)label).addAugmentation(SubnetRoute.class,route).build();
+                setNextHopAddressList(Arrays.asList(nexthop)).setLabel((long)label).addAugmentation(SubnetRoute
+                .class,route).build();
         LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nexthop, label, elantag);
 
         List<VrfEntry> vrfEntryList = new ArrayList<VrfEntry>();
