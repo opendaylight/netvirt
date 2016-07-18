@@ -39,4 +39,8 @@ public interface IElanService {
 
     void createExternalElanNetworks(Node node);
 
+    void deleteExternalElanNetwork(ElanInstance elanInstance);
+
+    void deleteExternalElanNetworks(Node node);
+
 }
