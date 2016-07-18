@@ -635,7 +635,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
 
         Map<String, String> externalIds = Maps.newHashMap();
         externalIds.put("attached-mac", "f6:00:00:0f:00:01");
-        southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, SF1DPLPORTNAME, "internal", null, externalIds);
+        southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, SF1DPLPORTNAME, "internal", (Map<String, String>) null, externalIds);
         externalIds.clear();
         externalIds.put("attached-mac", "f6:00:00:0c:00:01");
         southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, "vm1", "internal");
