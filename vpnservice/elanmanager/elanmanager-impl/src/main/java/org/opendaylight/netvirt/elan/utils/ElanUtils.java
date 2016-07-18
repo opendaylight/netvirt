@@ -37,6 +37,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
@@ -90,6 +91,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.IfIndexesInterfaceMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
@@ -890,7 +892,7 @@ public class ElanUtils {
 
         //List of Action for the provided Source and Destination DPIDs
         try {
-            List<Action> actions = getInternalItmEgressAction(srcDpId, destDpId, lportTag);
+            List<Action> actions = getInternalTunnelItmEgressAction(srcDpId, destDpId, lportTag);
             mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         } catch (Exception e) {
             logger.error("Interface Not Found exception");
@@ -1071,26 +1073,42 @@ public class ElanUtils {
      *            the tunnel key
      * @return the list
      */
-    public static List<Action> buildItmEgressActions(String tunnelIfaceName, Long tunnelKey) {
-        List<Action> result = Collections.emptyList();
+    public static List<Action> buildTunnelItmEgressActions(String tunnelIfaceName, Long tunnelKey) {
         if (tunnelIfaceName != null && !tunnelIfaceName.isEmpty()) {
-            GetEgressActionsForInterfaceInput getEgressActInput = new GetEgressActionsForInterfaceInputBuilder()
-                .setIntfName(tunnelIfaceName).setTunnelKey(tunnelKey).build();
+            return buildItmEgressActions(tunnelIfaceName, tunnelKey);
+        }
 
-            Future<RpcResult<GetEgressActionsForInterfaceOutput>> egressActionsOutputFuture =
-                elanServiceProvider.getInterfaceManagerRpcService().getEgressActionsForInterface(getEgressActInput);
-            try {
-                if (egressActionsOutputFuture.get().isSuccessful()) {
-                    GetEgressActionsForInterfaceOutput egressActionsOutput = egressActionsOutputFuture.get().getResult();
-                    result = egressActionsOutput.getAction();
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                logger.error("Error in RPC call getEgressActionsForInterface {}", e);
+        return Collections.emptyList();
+    }
+
+    /**
+     * Builds the list of actions to be taken when sending the packet over external
+     * port such as tunnel, physical port etc.
+     *
+     * @param interfaceName
+     *            the interface name
+     * @param tunnelKey
+     *            can be VNI for VxLAN tunnel interfaces, Gre Key for GRE tunnels, etc.
+     * @return the list
+     */
+    public static List<Action> buildItmEgressActions(String interfaceName, Long tunnelKey) {
+        List<Action> result = Collections.emptyList();
+        GetEgressActionsForInterfaceInput getEgressActInput = new GetEgressActionsForInterfaceInputBuilder()
+                .setIntfName(interfaceName).setTunnelKey(tunnelKey).build();
+
+        Future<RpcResult<GetEgressActionsForInterfaceOutput>> egressActionsOutputFuture = elanServiceProvider
+                .getInterfaceManagerRpcService().getEgressActionsForInterface(getEgressActInput);
+        try {
+            if (egressActionsOutputFuture.get().isSuccessful()) {
+                GetEgressActionsForInterfaceOutput egressActionsOutput = egressActionsOutputFuture.get().getResult();
+                result = egressActionsOutput.getAction();
             }
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Error in RPC call getEgressActionsForInterface {}", e);
         }
 
         if ( result == null || result.size() == 0 ) {
-            logger.warn("Could not build Egress actions for interface {} and tunnelId {}", tunnelIfaceName, tunnelKey);
+            logger.warn("Could not build Egress actions for interface {} and tunnelId {}", interfaceName, tunnelKey);
         }
         return result;
     }
@@ -1109,7 +1127,7 @@ public class ElanUtils {
      *            Vni to be stamped on the VxLAN Header.
      * @return the external itm egress action
      */
-    public static List<Action> getExternalItmEgressAction(BigInteger srcDpnId, NodeId torNode, long vni ) {
+    public static List<Action> getExternalTunnelItmEgressAction(BigInteger srcDpnId, NodeId torNode, long vni ) {
         List<Action> result = Collections.emptyList();
 
         GetExternalTunnelInterfaceNameInput input = new GetExternalTunnelInterfaceNameInputBuilder()
@@ -1123,7 +1141,7 @@ public class ElanUtils {
                 if ( logger.isDebugEnabled() )
                     logger.debug("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelIfaceName);
 
-                result = buildItmEgressActions(tunnelIfaceName, vni);
+                result = buildTunnelItmEgressActions(tunnelIfaceName, vni);
             }
 
         } catch (InterruptedException | ExecutionException e) {
@@ -1148,7 +1166,7 @@ public class ElanUtils {
      *            serviceId to be sent on the VxLAN header.
      * @return the internal itm egress action
      */
-    public static List<Action> getInternalItmEgressAction(BigInteger sourceDpnId, BigInteger destinationDpnId,
+    public static List<Action> getInternalTunnelItmEgressAction(BigInteger sourceDpnId, BigInteger destinationDpnId,
                                                           long serviceTag) {
         List<Action> result = Collections.emptyList();
 
@@ -1164,13 +1182,25 @@ public class ElanUtils {
                 String tunnelIfaceName = tunnelInterfaceNameOutput.getInterfaceName();
                 logger.debug("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelIfaceName);
 
-                result = buildItmEgressActions(tunnelIfaceName, serviceTag);
+                result = buildTunnelItmEgressActions(tunnelIfaceName, serviceTag);
             }
         } catch (InterruptedException | ExecutionException e) {
             logger.error("Error in RPC call getTunnelInterfaceName {}", e);
         }
 
         return result;
+    }
+
+    /**
+     * Build the list of actions to be taken when sending the packet to
+     * external (physical) port
+     *
+     * @param interfaceName
+     *            Interface name
+     * @return the external port itm egress actions
+     */
+    public static List<Action> getExternalPortItmEgressAction(String interfaceName) {
+        return buildItmEgressActions(interfaceName, null);
     }
 
     public static List<MatchInfo> getTunnelMatchesForServiceId(int elanTag) {
@@ -1367,7 +1397,7 @@ public class ElanUtils {
         List<MatchInfo> mkMatches = buildMatchesForElanTagShFlagAndDstMac(elanTag, /*shFlag*/ false, dstMacAddress);
         List<Instruction> mkInstructions = new ArrayList<Instruction>();
         try {
-            List<Action> actions = getExternalItmEgressAction(dpId, new NodeId(extDeviceNodeId), vni);
+            List<Action> actions = getExternalTunnelItmEgressAction(dpId, new NodeId(extDeviceNodeId), vni);
             mkInstructions.add( MDSALUtil.buildApplyActionsInstruction(actions) );
         } catch (Exception e) {
             logger.error("Could not get Egress Actions for DpId={}  externalNode={}", dpId, extDeviceNodeId );
@@ -1442,7 +1472,7 @@ public class ElanUtils {
 
         try {
             //List of Action for the provided Source and Destination DPIDs
-            List<Action> actions = getInternalItmEgressAction(localDpId, remoteDpId, lportTag);
+            List<Action> actions = getInternalTunnelItmEgressAction(localDpId, remoteDpId, lportTag);
             mkInstructions.add( MDSALUtil.buildApplyActionsInstruction(actions) );
         } catch (Exception e) {
             logger.error("Could not get Egress Actions for localDpId={}  remoteDpId={}   lportTag={}",
@@ -1588,6 +1618,26 @@ public class ElanUtils {
     }
 
     /**
+     * Gets the interface state from config ds.
+     *
+     * @param interfaceName
+     *            the interface name
+     * @param dataBroker
+     *            the data broker
+     * @return the interface state from config ds
+     */
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface getInterfaceInfoFromConfigDS(
+        String interfaceName, DataBroker dataBroker) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> ifaceId = createInterfaceInstanceIdentifier(
+            interfaceName);
+        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> iface = MDSALUtil
+            .read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifaceId);
+        if (iface.isPresent()) {
+            return iface.get();
+        }
+        return null;
+    }
+    /**
      * Creates the interface state instance identifier.
      *
      * @param interfaceName
@@ -1600,6 +1650,23 @@ public class ElanUtils {
             .builder(InterfacesState.class)
             .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class,
                 new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(
+                    interfaceName));
+        return idBuilder.build();
+    }
+
+    /**
+     * Creates the interface instance identifier.
+     *
+     * @param interfaceName
+     *            the interface name
+     * @return the instance identifier
+     */
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> createInterfaceInstanceIdentifier(
+        String interfaceName) {
+        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> idBuilder = InstanceIdentifier
+            .builder(Interfaces.class)
+            .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class,
+                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey(
                     interfaceName));
         return idBuilder.build();
     }
@@ -1625,6 +1692,20 @@ public class ElanUtils {
 
     public static boolean isFlat(ElanInstance elanInstance) {
         return ElanInstance.SegmentType.Flat.equals(elanInstance.getSegmentType());
+    }
+
+    public static boolean isExternal(String interfaceName, DataBroker dataBroker) {
+        return isExternal(getInterfaceInfoFromConfigDS(interfaceName, dataBroker));
+    }
+
+    public static boolean isExternal(
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface) {
+        if (iface == null) {
+            return false;
+        }
+
+        IfExternal ifExternal = iface.getAugmentation(IfExternal.class);
+        return ifExternal != null && Boolean.TRUE.equals(ifExternal.isExternal());
     }
 }
 
