@@ -108,13 +108,15 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         }
         //Delete ELAN instance for this network
         String elanInstanceName = input.getUuid().getValue();
-        deleteElanInstance(elanInstanceName);
+        ElanInstance elanInstance = NeutronvpnServiceAccessor.getElanProvider().getElanInstance(elanInstanceName);
+        if (elanInstance != null) {
+            NeutronvpnServiceAccessor.getElanProvider().deleteExternalElanNetwork(elanInstance);
+            deleteElanInstance(elanInstanceName);
+        }
         if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
             nvpnNatManager.removeExternalNetwork(input);
             NeutronvpnUtils.removeFromNetworkCache(input);
         }
-
-        // TODO: delete elan-interfaces for physnet port
     }
 
     @Override
