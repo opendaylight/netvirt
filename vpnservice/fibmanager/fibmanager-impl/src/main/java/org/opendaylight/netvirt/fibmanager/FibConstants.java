@@ -17,4 +17,5 @@ public class FibConstants {
     static final String FLOWID_PREFIX = "L3.";
     static final String VPN_IDPOOL_NAME = "vpnservices";
     static final String SEPARATOR = ".";
+    public static final short L3VPN_SERVICE_IDENTIFIER = 2; // TODO : This should be in just on place
 }

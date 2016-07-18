@@ -14,7 +14,7 @@ import org.opendaylight.netvirt.fibmanager.L3VPNTransportTypes;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 
 @Command(scope = "vpnservice", name = "configureTransportType", description = "Configure Preferred Transport Type for L3VPN service")
-public class confTransportL3VPNCommand  extends OsgiCommandSupport {
+public class confTransportL3VPNCommand extends OsgiCommandSupport {
     private IFibManager fibManager;
 
     @Option(name = "-s", aliases = {"--service"}, description = "Service", required = false, multiValued = false)
@@ -42,7 +42,7 @@ public class confTransportL3VPNCommand  extends OsgiCommandSupport {
             return null;
         }
 
-        String cachedTransType = fibManager.getReqTransType();
+        String cachedTransType = fibManager.getConfTransType();
         if (cachedTransType.equals(transportType.toUpperCase())) {
             System.out.println("Transport type already configured as " + cachedTransType);
             return null;
@@ -51,7 +51,6 @@ public class confTransportL3VPNCommand  extends OsgiCommandSupport {
         if ((cachedTransType.equals(L3VPNTransportTypes.Invalid.getTransportType())) ||
                 (!fibManager.isVPNConfigured())) {
             fibManager.setConfTransType(service, transportType.toUpperCase());
-            System.out.println("Setting it to " + transportType.toUpperCase() + "writing into the config DS as well.");
             fibManager.writeConfTransTypeConfigDS();
         } else {
             System.out.println( "VPN service already configured with " + cachedTransType +
@@ -60,4 +59,6 @@ public class confTransportL3VPNCommand  extends OsgiCommandSupport {
         }
         return null;
     }
+
+
 }
