@@ -27,8 +27,13 @@ module odl-fib {
                 type uint32;
                 mandatory true;
             }
-            leaf nextHopAddress {
+            leaf-list nextHopAddressList {
                 type string;
+                min-elements "1";
+            }
+            leaf origin {
+                type string;
+                mandatory true;
             }
         }
     }
