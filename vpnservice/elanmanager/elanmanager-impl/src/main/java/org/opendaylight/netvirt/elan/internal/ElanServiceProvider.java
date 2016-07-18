@@ -10,8 +10,11 @@ package org.opendaylight.netvirt.elan.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
+import java.util.function.BiFunction;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationService;
@@ -36,6 +39,9 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.api.IITMProvider;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
@@ -569,7 +575,57 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
     @Override
     public void createExternalElanNetworks(Node node) {
-        if (!bridgeMgr.isIntegrationBridge(node)) {
+        handleExternalElanNetworks(node, new BiFunction<ElanInstance, String, Void>() {
+
+            @Override
+            public Void apply(ElanInstance elanInstance, String interfaceName) {
+                createExternalElanNetwork(elanInstance, interfaceName);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void createExternalElanNetwork(ElanInstance elanInstance) {
+        handleExternalElanNetwork(elanInstance, new BiFunction<ElanInstance, String, Void>() {
+
+            @Override
+            public Void apply(ElanInstance elanInstance, String interfaceName) {
+                createExternalElanNetwork(elanInstance, interfaceName);
+                return null;
+            }
+
+        });
+    }
+
+    @Override
+    public void deleteExternalElanNetworks(Node node) {
+        handleExternalElanNetworks(node, new BiFunction<ElanInstance, String, Void>() {
+
+            @Override
+            public Void apply(ElanInstance elanInstance, String interfaceName) {
+                deleteExternalElanNetwork(elanInstance, interfaceName);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void deleteExternalElanNetwork(ElanInstance elanInstance) {
+        handleExternalElanNetwork(elanInstance, new BiFunction<ElanInstance, String, Void>() {
+
+            @Override
+            public Void apply(ElanInstance elanInstance, String interfaceName) {
+                deleteExternalElanNetwork(elanInstance, interfaceName);
+                return null;
+            }
+
+        });
+    }
+
+    @Override
+    public void updateExternalElanNetworks(Node origNode, Node updatedNode) {
+        if (!bridgeMgr.isIntegrationBridge(updatedNode)) {
             return;
         }
 
@@ -579,42 +635,58 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             return;
         }
 
+        Optional<Map<String, String>> origProviderMapOpt = bridgeMgr.getOpenvswitchOtherConfigMap(origNode,
+                ElanBridgeManager.PROVIDER_MAPPINGS_KEY);
+        Optional<Map<String, String>> updatedProviderMapOpt = bridgeMgr.getOpenvswitchOtherConfigMap(updatedNode,
+                ElanBridgeManager.PROVIDER_MAPPINGS_KEY);
+        Map<String, String> origProviderMappping = origProviderMapOpt.or(Collections.emptyMap());
+        Map<String, String> updatedProviderMappping = updatedProviderMapOpt.or(Collections.emptyMap());
+
         for (ElanInstance elanInstance : elanInstances) {
-            String interfaceName = getExtInterfaceName(node, elanInstance.getPhysicalNetworkName());
-            createExternalElanNetwork(elanInstance, node, interfaceName);
-        }
-    }
-
-    @Override
-    public void createExternalElanNetwork(ElanInstance elanInstance) {
-        if (elanInstance.getPhysicalNetworkName() == null) {
-            logger.trace("No physical network attached to {}", elanInstance.getElanInstanceName());
-            return;
-        }
-
-        List<Node> nodes = bridgeMgr.southboundUtils.getOvsNodes();
-        if (nodes == null || nodes.isEmpty()) {
-            logger.trace("No OVS nodes found while creating external network for ELAN {}",
-                    elanInstance.getElanInstanceName());
-            return;
-        }
-
-        for (Node node : nodes) {
-            if (bridgeMgr.isIntegrationBridge(node)) {
-                String interfaceName = getExtInterfaceName(node, elanInstance.getPhysicalNetworkName());
-                createExternalElanNetwork(elanInstance, node, interfaceName);
+            String physicalNetworkName = elanInstance.getPhysicalNetworkName();
+            if (physicalNetworkName != null) {
+                String origPortName = origProviderMappping.get(physicalNetworkName);
+                String updatedPortName = updatedProviderMappping.get(physicalNetworkName);
+                if (origPortName != null && !origPortName.equals(updatedPortName)) {
+                    deleteExternalElanNetwork(elanInstance, getExtInterfaceName(origNode, physicalNetworkName));
+                }
+                if (updatedPortName != null && !updatedPortName.equals(origPortName)) {
+                    createExternalElanNetwork(elanInstance, getExtInterfaceName(updatedNode, updatedPortName));
+                }
             }
         }
     }
 
-    private void createExternalElanNetwork(ElanInstance elanInstance, Node node, String interfaceName) {
+    private void createExternalElanNetwork(ElanInstance elanInstance, String interfaceName) {
         if (interfaceName == null) {
-            logger.trace("No physial interface is attached to {} node {}", elanInstance.getPhysicalNetworkName(),
-                    node.getNodeId().getValue());
+            logger.trace("No physial interface is attached to {}", elanInstance.getPhysicalNetworkName());
+            return;
         }
 
         String elanInterfaceName = createIetfInterfaces(elanInstance, interfaceName);
         addElanInterface(elanInstance.getElanInstanceName(), elanInterfaceName, null, null);
+    }
+
+    private void deleteExternalElanNetwork(ElanInstance elanInstance, String interfaceName) {
+        if (interfaceName == null) {
+            logger.trace("No physial interface is attached to {}", elanInstance.getPhysicalNetworkName());
+            return;
+        }
+
+        String elanInstanceName = elanInstance.getElanInstanceName();
+        List<String> elanInterfaces = getElanInterfaces(elanInstanceName);
+        if (elanInterfaces == null || elanInterfaces.isEmpty()) {
+            logger.trace("No ELAN interfaces defined for {}", elanInstanceName);
+            return;
+        }
+
+        for (String elanInterface : elanInterfaces) {
+            if (ElanUtils.isExternal(elanInterface) && elanInterface.startsWith(interfaceName)) {
+                deleteIetfInterface(elanInterface);
+                deleteElanInterface(elanInstanceName, elanInterface);
+                return;
+            }
+        }
     }
 
     /**
@@ -640,21 +712,29 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             if (ElanUtils.isFlat(elanInstance)) {
                 interfaceName = parentRef + IfmConstants.OF_URI_PREFIX + "flat";
                 interfaceManager.createVLANInterface(interfaceName, parentRef, null, null, null,
-                        IfL2vlan.L2vlanMode.Transparent);
+                        IfL2vlan.L2vlanMode.Transparent, true);
             } else if (ElanUtils.isVlan(elanInstance)) {
                 String trunkName = parentRef + IfmConstants.OF_URI_PREFIX + "trunk";
                 interfaceManager.createVLANInterface(interfaceName, parentRef, null, null, null,
-                        IfL2vlan.L2vlanMode.Trunk);
+                        IfL2vlan.L2vlanMode.Trunk, true);
                 Long segmentationId = elanInstance.getSegmentationId();
                 interfaceName = parentRef + IfmConstants.OF_URI_PREFIX + segmentationId;
                 interfaceManager.createVLANInterface(interfaceName, trunkName, null, segmentationId.intValue(), null,
-                        IfL2vlan.L2vlanMode.TrunkMember);
+                        IfL2vlan.L2vlanMode.TrunkMember, true);
             }
         } catch (InterfaceAlreadyExistsException e) {
             logger.trace("Interface {} was already created", interfaceName);
         }
 
         return interfaceName;
+    }
+
+    private void deleteIetfInterface(String interfaceName) {
+        InterfaceKey interfaceKey = new InterfaceKey(interfaceName);
+        InstanceIdentifier<Interface> interfaceInstanceIdentifier = InstanceIdentifier
+                .builder(Interfaces.class).child(Interface.class, interfaceKey).build();
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, interfaceInstanceIdentifier);
+        logger.debug("Deleting IETF interface {}", interfaceName);
     }
 
     private String getExtInterfaceName(Node node, String physicalNetworkName) {
@@ -671,6 +751,47 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
         return bridgeMgr.southboundUtils.getDataPathId(node) + IfmConstants.OF_URI_SEPARATOR
                 + bridgeMgr.getIntBridgePortNameFor(node, providerMappingValue);
+    }
+
+    private void handleExternalElanNetworks(Node node, BiFunction<ElanInstance, String, Void> function) {
+        if (!bridgeMgr.isIntegrationBridge(node)) {
+            return;
+        }
+
+        List<ElanInstance> elanInstances = getElanInstances();
+        if (elanInstances == null || elanInstances.isEmpty()) {
+            logger.trace("No ELAN instances found");
+            return;
+        }
+
+        for (ElanInstance elanInstance : elanInstances) {
+            String interfaceName = getExtInterfaceName(node, elanInstance.getPhysicalNetworkName());
+            if (interfaceName != null) {
+                function.apply(elanInstance, interfaceName);
+            }
+        }
+    }
+
+    private void handleExternalElanNetwork(ElanInstance elanInstance, BiFunction<ElanInstance, String, Void> function) {
+        String elanInstanceName = elanInstance.getElanInstanceName();
+        if (elanInstance.getPhysicalNetworkName() == null) {
+            logger.trace("No physical network attached to {}", elanInstanceName);
+            return;
+        }
+
+        List<Node> nodes = bridgeMgr.southboundUtils.getOvsNodes();
+        if (nodes == null || nodes.isEmpty()) {
+            logger.trace("No OVS nodes found while creating external network for ELAN {}",
+                    elanInstance.getElanInstanceName());
+            return;
+        }
+
+        for (Node node : nodes) {
+            if (bridgeMgr.isIntegrationBridge(node)) {
+                String interfaceName = getExtInterfaceName(node, elanInstance.getPhysicalNetworkName());
+                function.apply(elanInstance, interfaceName);
+            }
+        }
     }
 
 }
