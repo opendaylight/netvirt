@@ -16,6 +16,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.runner.RunWith;
@@ -27,6 +28,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.fibmanager.FibManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -72,18 +74,21 @@ public class FibManagerTest {
   VrfEntry vrfEntry;
   InstanceIdentifier<VrfEntry> identifier;
   VrfEntryBuilder vrfbuilder;
+  private static final String testVpnInstanceName = "95486250-4ad7-418f-9030-2df37f98ad24";
   private static final String testRd = "100:1";
   private static final String prefix = "1.1.2.3";
   private static final String nexthop = "1.1.1.1";
   private static final int label = 10;
+  RouteOrigin origin = RouteOrigin.STATIC;
   BigInteger Dpn;
   private static final long vpnId = 101L;
   private static final long vpnIntfCnt = 2;
+  private static final Boolean isCleanupComplete = Boolean.FALSE;
 
   private void SetupMocks() {
     Dpn = BigInteger.valueOf(100000L);
     identifier = buildVrfEntryId(testRd, prefix);
-    vrfEntry = buildVrfEntry(testRd, prefix, nexthop, label);
+    vrfEntry = buildVrfEntry(testRd, prefix, Arrays.asList(nexthop), label, origin);
     fibmgr.setMdsalManager(mdsalManager);
     fibmgr.setVpnmanager(vpnmanager);
     when(vrfTableKey.getRouteDistinguisher()).thenReturn(testRd);
@@ -92,13 +97,14 @@ public class FibManagerTest {
   @Before
   public void setUp() throws Exception {
     when(
-        dataBroker.registerDataChangeListener(any(LogicalDatastoreType.class),
-            any(InstanceIdentifier.class), any(DataChangeListener.class),
-            any(DataChangeScope.class))).thenReturn(dataChangeListenerRegistration);
+            dataBroker.registerDataChangeListener(any(LogicalDatastoreType.class),
+                    any(InstanceIdentifier.class), any(DataChangeListener.class),
+                    any(DataChangeScope.class))).thenReturn(dataChangeListenerRegistration);
     dataChangeEvent = new MockDataChangedEvent();
     vrfbuilder = new VrfEntryBuilder();
     fibmgr = new FibManager(dataBroker) {
 
+      @Override
       protected VpnInstanceOpDataEntry getVpnInstance(String rd) {
         return new VpnInstanceOpDataEntry() {
 
@@ -118,7 +124,15 @@ public class FibManagerTest {
           }
 
           @Override
+          public String getVpnInstanceName() {
+            return testVpnInstanceName;
+          }
+
+          @Override
           public Long getVpnInterfaceCount() { return vpnIntfCnt; }
+
+          @Override
+          public Boolean isCleanupComplete(){return isCleanupComplete;}
 
           @Override
           public List<VpnToDpnList> getVpnToDpnList() {
@@ -144,7 +158,7 @@ public class FibManagerTest {
 
               @Override
               public <E extends Augmentation<VpnToDpnList>> E getAugmentation(
-                  Class<E> augmentationType) {
+                      Class<E> augmentationType) {
                 return null;
               }
 
@@ -183,22 +197,23 @@ public class FibManagerTest {
     //Mockito.verify(mdsalManager, Mockito.times(2)).installFlow(any(FlowEntity.class));
   }
 
-  private VrfEntry buildVrfEntry(String rd, String prefix, String nexthop, int label) {
-    return new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddress(nexthop)
-        .setLabel((long) label).build();
+  private VrfEntry buildVrfEntry(String rd, String prefix, List<String> nextHopList, int label, RouteOrigin origin) {
+
+    return new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
+            .setLabel((long) label).setOrigin(origin.getValue()).build();
   }
 
   public static InstanceIdentifier<VrfTables> buildVrfTableId(String rd) {
     InstanceIdentifierBuilder<VrfTables> idBuilder =
-        InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
     InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
     return vrfTableId;
   }
 
   public static InstanceIdentifier<VrfEntry> buildVrfEntryId(String rd, String prefix) {
     InstanceIdentifierBuilder<VrfEntry> idBuilder =
-        InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
-            .child(VrfEntry.class, new VrfEntryKey(prefix));
+            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
+                    .child(VrfEntry.class, new VrfEntryKey(prefix));
     InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
     return vrfEntryId;
   }

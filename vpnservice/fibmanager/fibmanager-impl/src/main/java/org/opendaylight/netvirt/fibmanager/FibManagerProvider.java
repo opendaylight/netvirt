@@ -108,15 +108,15 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
     return fibManager.printFibEntries();
   }
 
-  //Temp
   @Override
   public void addStaticRoute(String prefix, String nextHop, String rd, int label) {
     this.vpnmanager.addExtraRoute(prefix, nextHop, rd, null, label);
   }
 
+  //FIXME: Once SF131 changes are done from vpnmanager
   @Override
-  public void deleteStaticRoute(String prefix, String rd) {
-    this.vpnmanager.delExtraRoute(prefix, rd, null);
+  public void deleteStaticRoute(String prefix, String nextHop, String rd) {
+  //  this.vpnmanager.delExtraRoute(prefix, nextHop, rd, null);
   }
 
   public void setRpcProviderRegistry(RpcProviderRegistry rpcProviderRegistry) {
@@ -152,6 +152,24 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
   @Override
   public boolean isVPNConfigured() {
     return this.vpnmanager.isVPNConfigured();
+  }
+  @Override
+  public String getTransportTypeStr(String tunType) {
+    return this.nexthopManager.getTransportTypeStr(tunType);
+  }
+
+  @Override
+  public void handleRemoteRoute(boolean action, BigInteger localDpnId, BigInteger remoteDpnId, long vpnId, String  rd, String destPrefix , String nextHopIp) {
+    fibManager.handleRemoteRoute(action, localDpnId, remoteDpnId, vpnId,rd, destPrefix, nextHopIp);
+  }
+  @Override
+  public void populateFibOnDpn(BigInteger localDpnId, BigInteger remoteDpnId, long vpnId, String rd, String nextHopIp) {
+    fibManager.populateFibOnDpn(localDpnId, remoteDpnId, vpnId, rd, nextHopIp);
+  }
+
+  @Override
+  public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd, String nextHopIp) {
+    fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd, nextHopIp);
   }
 
 }
