@@ -66,13 +66,15 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> {
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Node> identifier, Node del) {
+    protected void remove(InstanceIdentifier<Node> identifier, Node node) {
+        elanProvider.deleteExternalElanNetworks(node);
     }
 
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
         logger.debug("ElanOvsdbNodeListener.update, updated node detected. original: {} new: {}", original, update);
         doNodeUpdate(update);
+        elanProvider.updateExternalElanNetworks(original, update);
     }
 
     @Override
@@ -85,5 +87,4 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> {
     private void doNodeUpdate(Node node) {
         bridgeMgr.processNodePrep(node, generateIntBridgeMac);
     }
-
 }
