@@ -60,6 +60,10 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         List<FixedIps> ipList = port.getFixedIps();
 
         for (FixedIps fixedip : ipList) {
+            if (fixedip.getIpAddress().getIpv4Address() != null) {
+                continue;
+            }
+
             if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
 
                 // Add router interface
