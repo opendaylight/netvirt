@@ -133,6 +133,12 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
             logger.trace("Interface operstatus {} is same", update.getOperStatus());
             return;
         }
+
+        if (original.getOperStatus().equals(OperStatus.Unknown) || update.getOperStatus().equals(OperStatus.Unknown)) {
+            logger.trace("New/old interface state is unknown not handling");
+            return;
+        }
+
         List<String> ofportIds = update.getLowerLayerIf();
         if (ofportIds == null || ofportIds.isEmpty()) {
             return;

@@ -137,6 +137,7 @@ public class DhcpUCastMacListener extends AsyncClusteredDataChangeListenerBase<L
         BigInteger designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, elanInstanceName);
         if (designatedDpnId == null || designatedDpnId.equals(DHCPMConstants.INVALID_DPID)) {
             logger.trace("Unable to install flows for macAddress {}. TunnelIp {}, elanInstanceName {}, designatedDpn {} ", macAddress, tunnelIp, elanInstanceName, designatedDpnId);
+            dhcpExternalTunnelManager.updateLocalCache(tunnelIp, elanInstanceName, macAddress);
             return;
         }
         dhcpExternalTunnelManager.installDhcpFlowsForVms(tunnelIp, elanInstanceName, DhcpServiceUtils.getListOfDpns(broker), designatedDpnId, macAddress);

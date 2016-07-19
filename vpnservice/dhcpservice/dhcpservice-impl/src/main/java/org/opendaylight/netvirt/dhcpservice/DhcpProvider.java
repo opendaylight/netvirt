@@ -43,9 +43,9 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
     private DhcpInterfaceConfigListener dhcpInterfaceConfigListener;
     private EntityOwnershipService entityOwnershipService;
     private DhcpDesignatedDpnListener dhcpDesignatedDpnListener;
-    private DhcpL2GatewayConnectionListener dhcpL2GatewayConnectionListener;
     private boolean controllerDhcpEnabled = true;
     private DhcpSubnetListener dhcpSubnetListener;
+    private DhcpHwvtepListener dhcpHwvtepListener;
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -63,6 +63,8 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
             packetListener = notificationService.registerNotificationListener(dhcpPktHandler);
             dhcpNodeListener = new NodeListener(dataBroker, dhcpManager, dhcpExternalTunnelManager);
             dhcpConfigListener = new DhcpConfigListener(dataBroker, dhcpManager);
+            dhcpInterfaceEventListener = new DhcpInterfaceEventListener(dhcpManager, dataBroker, dhcpExternalTunnelManager);
+            dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(dataBroker, dhcpExternalTunnelManager);
             dhcpLogicalSwitchListener = new DhcpLogicalSwitchListener(dhcpExternalTunnelManager, dataBroker);
             dhcpUCastMacListener = new DhcpUCastMacListener(dhcpManager,dhcpExternalTunnelManager, dataBroker);
             dhcpUCastMacListener.registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
@@ -70,16 +72,13 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
             dhcpNeutronPortListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
             dhcpDesignatedDpnListener = new DhcpDesignatedDpnListener(dhcpExternalTunnelManager, dataBroker);
             dhcpDesignatedDpnListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-            dhcpL2GatewayConnectionListener = new DhcpL2GatewayConnectionListener(dataBroker, dhcpExternalTunnelManager);
-            dhcpL2GatewayConnectionListener.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-
             if (controllerDhcpEnabled) {
                 dhcpInterfaceEventListener = new DhcpInterfaceEventListener(dhcpManager, dataBroker, dhcpExternalTunnelManager);
                 dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(dataBroker, dhcpExternalTunnelManager);
             }
             dhcpSubnetListener = new DhcpSubnetListener(dhcpManager,dhcpExternalTunnelManager,dataBroker);
             dhcpSubnetListener.registerListener(LogicalDatastoreType.CONFIGURATION,dataBroker);
-
+            dhcpHwvtepListener = new DhcpHwvtepListener(dataBroker, dhcpExternalTunnelManager);
         } catch (Exception e) {
             LOG.error("Error initializing services {}", e);
         }
