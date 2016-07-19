@@ -29,23 +29,25 @@ public class AclServiceOFFlowBuilder {
 
     /**
      * Converts IP matches into flows.
-     * @param matches the matches
+     * @param matches
+     *            the matches
      * @return the map containing the flows and the respective flow id
      */
-    public static Map<String,List<MatchInfoBase>>  programIpFlow(Matches matches) {
-        new HashMap<>();
-        AceIp acl = (AceIp)matches.getAceType();
-        if (acl.getProtocol() == NwConstants.IP_PROT_TCP) {
-            return programTcpFlow(acl);
-        } else if (acl.getProtocol() == NwConstants.IP_PROT_UDP) {
-            return programUdpFlow(acl);
-        } else if (acl.getProtocol() == NwConstants.IP_PROT_ICMP) {
-            return programIcmpFlow(acl);
-        } else if (acl.getProtocol() != -1) {
-            return programOtherProtocolFlow(acl);
+    public static Map<String, List<MatchInfoBase>> programIpFlow(Matches matches) {
+        if (matches != null) {
+            new HashMap<>();
+            AceIp acl = (AceIp) matches.getAceType();
+            if (acl.getProtocol() == NwConstants.IP_PROT_TCP) {
+                return programTcpFlow(acl);
+            } else if (acl.getProtocol() == NwConstants.IP_PROT_UDP) {
+                return programUdpFlow(acl);
+            } else if (acl.getProtocol() == NwConstants.IP_PROT_ICMP) {
+                return programIcmpFlow(acl);
+            } else if (acl.getProtocol() != -1) {
+                return programOtherProtocolFlow(acl);
+            }
         }
         return null;
-
     }
 
     /** Converts generic protocol matches to flows.
@@ -297,12 +299,18 @@ public class AclServiceOFFlowBuilder {
         int[] mask = {0x8000,0xC000,0xE000,0xF000,0xF800,0xFC00,0xFE00,0xFF00,
                       0xFF80,0xFFC0,0xFFE0,0xFFF0,0xFFF8,0xFFFC,0xFFFE,0xFFFF};
         int noOfPorts = portMax - portMin + 1;
-        Map<Integer,Integer> portMap = new HashMap<>();
+        Map<Integer, Integer> portMap = new HashMap<>();
         if (noOfPorts == 1) {
             portMap.put(portMin, mask[15]);
             return portMap;
         }
+        if (noOfPorts < 0) {
+            return portMap;
+        }
         String binaryNoOfPorts = Integer.toBinaryString(noOfPorts);
+        if (binaryNoOfPorts.length() > 16) {
+            return portMap;
+        }
         int medianOffset = 16 - binaryNoOfPorts.length();
         int medianLength = offset[medianOffset];
         int median = 0;
