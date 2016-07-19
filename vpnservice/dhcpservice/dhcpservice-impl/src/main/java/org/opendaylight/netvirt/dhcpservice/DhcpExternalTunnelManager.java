@@ -26,6 +26,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -147,13 +148,16 @@ public class DhcpExternalTunnelManager {
     }
 
     public void installDhcpFlowsForVms(IpAddress tunnelIp, String elanInstanceName, List<BigInteger> dpns,
-            BigInteger designatedDpnId, String vmMacAddress) {
-        installDhcpEntries(designatedDpnId, vmMacAddress, entityOwnershipService);
-        dpns.remove(designatedDpnId);
-        for (BigInteger dpn : dpns) {
-            installDhcpDropAction(dpn, vmMacAddress, entityOwnershipService);
+            BigInteger designatedDpnId, String vmMacAddress ) {
+        logger.trace("In installDhcpFlowsForVms ipAddress {}, elanInstanceName {}, dpn {}, vmMacAddress {}", tunnelIp, elanInstanceName, designatedDpnId, vmMacAddress);
+        synchronized (getTunnelIpDpnKey(tunnelIp, designatedDpnId)) {
+            installDhcpEntries(designatedDpnId, vmMacAddress, entityOwnershipService);
+            dpns.remove(designatedDpnId);
+            for (BigInteger dpn : dpns) {
+                installDhcpDropAction(dpn, vmMacAddress, entityOwnershipService);
+            }
+            updateLocalCache(tunnelIp, elanInstanceName, vmMacAddress);
         }
-        updateLocalCache(tunnelIp, elanInstanceName, vmMacAddress);
     }
 
     public void installDhcpFlowsForVms(BigInteger designatedDpnId, Set<String> listVmMacAddress) {
@@ -225,7 +229,7 @@ public class DhcpExternalTunnelManager {
         designatedDpnsToTunnelIpElanNameCache.put(designatedDpnId, tunnelIpElanNameSet);
     }
 
-    private void updateLocalCache(IpAddress tunnelIp, String elanInstanceName, String vmMacAddress) {
+    public void updateLocalCache(IpAddress tunnelIp, String elanInstanceName, String vmMacAddress) {
         Pair<IpAddress, String> tunnelIpElanName = new ImmutablePair<>(tunnelIp, elanInstanceName);
         Set<String> setOfExistingVmMacAddress;
         setOfExistingVmMacAddress = tunnelIpElanNameToVmMacCache.get(tunnelIpElanName);
@@ -452,6 +456,10 @@ public class DhcpExternalTunnelManager {
                 for (Pair<IpAddress, String> tunnelElanPair : tunnelElanPairSet) {
                     IpAddress tunnelIpInDpn = tunnelElanPair.getLeft();
                     if (tunnelIpInDpn.equals(tunnelIp)) {
+                        if (!checkL2GatewayConnection(tunnelElanPair)) {
+                            logger.trace("Couldn't find device for given tunnelIpElanPair {} in L2GwConnCache", tunnelElanPair);
+                            return;
+                        }
                         List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(broker);
                         dpns.remove(interfaceDpn);
                         changeExistingFlowToDrop(tunnelElanPair, interfaceDpn);
@@ -463,6 +471,16 @@ public class DhcpExternalTunnelManager {
             logger.error("Error in handleTunnelStateDown {}", e.getMessage());
             logger.trace("Exception details {}", e);
         }
+    }
+
+    private boolean checkL2GatewayConnection(Pair<IpAddress, String> tunnelElanPair) {
+        ConcurrentMap<String, L2GatewayDevice> l2GwDevices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(tunnelElanPair.getRight());
+        for (L2GatewayDevice device : l2GwDevices.values()) {
+            if (device.getTunnelIp().equals(tunnelElanPair.getLeft())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String getTunnelIpDpnKey(IpAddress tunnelIp, BigInteger interfaceDpn) {
@@ -748,5 +766,4 @@ public class DhcpExternalTunnelManager {
         }
         return tunnelIp;
     }
-
 }
