@@ -71,9 +71,9 @@ public class NotifyingDataChangeListener implements AutoCloseable, DataChangeLis
     @Override
     public void onDataChanged(
             AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> asyncDataChangeEvent) {
-        LOG.info("{} DataChanged: created {}", type, asyncDataChangeEvent.getCreatedData().keySet());
-        LOG.info("{} DataChanged: updated {}", type, asyncDataChangeEvent.getUpdatedData().keySet());
-        LOG.info("{} DataChanged: removed {}", type, asyncDataChangeEvent.getRemovedPaths());
+        LOG.info("{} DataChanged: created {} for {}", type, asyncDataChangeEvent.getCreatedData().keySet(), iid);
+        LOG.info("{} DataChanged: updated {} for {}", type, asyncDataChangeEvent.getUpdatedData().keySet(), iid);
+        LOG.info("{} DataChanged: removed {} for {}", type, asyncDataChangeEvent.getRemovedPaths(), iid);
         createdIids.addAll(asyncDataChangeEvent.getCreatedData().keySet());
         removedIids.addAll(asyncDataChangeEvent.getRemovedPaths());
         updatedIids.addAll(asyncDataChangeEvent.getUpdatedData().keySet());
