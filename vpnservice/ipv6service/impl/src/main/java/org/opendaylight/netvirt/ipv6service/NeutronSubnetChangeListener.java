@@ -75,17 +75,19 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
     @Override
     protected void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
         LOG.info("Add Subnet notification handler is invoked...");
-        String ipv6AddrMode = "";
-        if (input.getIpv6AddressMode() != null) {
-            ipv6AddrMode = DHCPV6_MAP.get(input.getIpv6AddressMode());
+        if (IPV_MAP.get(input.getIpVersion()).equals(Ipv6Constants.IP_VERSION_V6)) {
+            String ipv6AddrMode = "";
+            if (input.getIpv6AddressMode() != null) {
+                ipv6AddrMode = DHCPV6_MAP.get(input.getIpv6AddressMode());
+            }
+            String ipv6RaMode = "";
+            if (input.getIpv6RaMode() != null) {
+                ipv6RaMode = DHCPV6_MAP.get(input.getIpv6RaMode());
+            }
+            ifMgr.addSubnet(input.getUuid(), input.getName(), input.getNetworkId(),
+                    input.getTenantId(), input.getGatewayIp(), IPV_MAP.get(input.getIpVersion()),
+                    input.getCidr(), ipv6AddrMode, ipv6RaMode);
         }
-        String ipv6RaMode = "";
-        if (input.getIpv6RaMode() != null) {
-            ipv6RaMode = DHCPV6_MAP.get(input.getIpv6RaMode());
-        }
-        ifMgr.addSubnet(input.getUuid(), input.getName(), input.getNetworkId(),
-                input.getTenantId(), input.getGatewayIp(), IPV_MAP.get(input.getIpVersion()),
-                input.getCidr(), ipv6AddrMode, ipv6RaMode);
     }
 
     @Override
