@@ -205,8 +205,6 @@ public class IfMgr {
             vsubnets.remove(snetId);
             removeUnprocessed(unprocessedSubnetIntfs, snetId);
             snet = null;
-        } else {
-            logger.error("Delete subnet failed for :{}", snetId);
         }
         return;
     }
@@ -217,11 +215,10 @@ public class IfMgr {
         logger.debug("addRouterIntf portId {}, rtrId {}, snetId {}, networkId {}, ip {}, mac {}",
             portId, rtrId, snetId, networkId, fixedIp, macAddress);
         //Save the interface ipv6 address in its fully expanded format
-        if (fixedIp.getIpv6Address() != null) {
-            Ipv6Address addr = new Ipv6Address(InetAddresses
-                    .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
-            fixedIp = new IpAddress(addr);
-        }
+        Ipv6Address addr = new Ipv6Address(InetAddresses
+                .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
+        fixedIp = new IpAddress(addr);
+
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
             intf = new VirtualPort();
@@ -258,10 +255,9 @@ public class IfMgr {
             addUnprocessed(unprocessedRouterIntfs, rtrId, intf);
             addUnprocessed(unprocessedSubnetIntfs, snetId, intf);
         }
-        if (fixedIp.getIpv6Address() != null) {
-            vrouterv6IntfMap.put(networkId, intf);
-            programNSFlowForAddress(intf, fixedIp.getIpv6Address(), true);
-        }
+
+        vrouterv6IntfMap.put(networkId, intf);
+        programNSFlowForAddress(intf, fixedIp.getIpv6Address(), true);
         return;
     }
 
@@ -277,12 +273,14 @@ public class IfMgr {
         for (FixedIps fip : fixedIpsList) {
             IpAddress fixedIp = fip.getIpAddress();
 
-            //Save the interface ipv6 address in its fully expanded format
-            if (fixedIp.getIpv6Address() != null) {
-                Ipv6Address addr = new Ipv6Address(InetAddresses
-                        .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
-                fixedIp = new IpAddress(addr);
+            if (fixedIp.getIpv4Address() != null) {
+                continue;
             }
+
+            //Save the interface ipv6 address in its fully expanded format
+            Ipv6Address addr = new Ipv6Address(InetAddresses
+                    .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
+            fixedIp = new IpAddress(addr);
             intf.setSubnetInfo(fip.getSubnetId(), fixedIp);
 
             VirtualRouter rtr = vrouters.get(rtrId);
@@ -299,9 +297,7 @@ public class IfMgr {
                 addUnprocessed(unprocessedRouterIntfs, rtrId, intf);
                 addUnprocessed(unprocessedSubnetIntfs, fip.getSubnetId(), intf);
             }
-            if (fixedIp.getIpv6Address() != null) {
-                vrouterv6IntfMap.put(intf.getNetworkID(), intf);
-            }
+            vrouterv6IntfMap.put(intf.getNetworkID(), intf);
         }
         return;
     }
@@ -312,11 +308,9 @@ public class IfMgr {
             portId, snetId, networkId, fixedIp, macAddress);
 
         //Save the interface ipv6 address in its fully expanded format
-        if (fixedIp.getIpv6Address() != null) {
-            Ipv6Address addr = new Ipv6Address(InetAddresses
-                    .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
-            fixedIp = new IpAddress(addr);
-        }
+        Ipv6Address addr = new Ipv6Address(InetAddresses
+                .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
+        fixedIp = new IpAddress(addr);
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
             intf = new VirtualPort();
@@ -358,13 +352,14 @@ public class IfMgr {
         intf.clearSubnetInfo();
         for (FixedIps fip : fixedIpsList) {
             IpAddress fixedIp = fip.getIpAddress();
-
-            //Save the interface ipv6 address in its fully expanded format
-            if (fixedIp.getIpv6Address() != null) {
-                Ipv6Address addr = new Ipv6Address(InetAddresses
-                        .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
-                fixedIp = new IpAddress(addr);
+            if (fixedIp.getIpv4Address() != null) {
+                continue;
             }
+            //Save the interface ipv6 address in its fully expanded format
+            Ipv6Address addr = new Ipv6Address(InetAddresses
+                    .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
+            fixedIp = new IpAddress(addr);
+
             intf.setSubnetInfo(fip.getSubnetId(), fixedIp);
 
             VirtualSubnet snet = vsubnets.get(fip.getSubnetId());
@@ -419,8 +414,6 @@ public class IfMgr {
             }
             vintfs.remove(portId);
             intf = null;
-        } else {
-            logger.error("Delete intf failed for :{}", portId);
         }
         return;
     }
