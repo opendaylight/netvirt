@@ -1,0 +1,166 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_78c6b44a",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-19T13:56:34Z",
+      "side": 1,
+      "message": "I have upstreamed this. This is not written by me for later fixes.Will do it later after discussion with original committers.",
+      "parentUuid": "9a561d44_18d2185c",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_b8c04c2b",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-19T13:56:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_f8d48448",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_b8d7acec",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibConstants.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-19T13:56:34Z",
+      "side": 1,
+      "message": "I have upstreamed this. This is not written by me for later fixes.Will do it later after discussion with original committers.",
+      "parentUuid": "9a561d44_58cc90bc",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_f8080493",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-19T13:56:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_38cf1cb2",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_18069886",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-19T13:56:34Z",
+      "side": 1,
+      "message": "I have upstreamed this. This is not written by me for later fixes.Will do it later after discussion with original committers.",
+      "parentUuid": "9a561d44_78c0747c",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_f81644a6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-19T13:56:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_d8bf00fa",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_d8e6e0b3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-19T13:56:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_f83be499",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_98b10892",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/inter-vpn-link.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-19T13:56:34Z",
+      "side": 1,
+      "message": "Will do it in next patch, when I will remove all FIXMEs.",
+      "parentUuid": "9a561d44_7847d41d",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_18be9865",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-07-19T13:56:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_d856e0d1",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
