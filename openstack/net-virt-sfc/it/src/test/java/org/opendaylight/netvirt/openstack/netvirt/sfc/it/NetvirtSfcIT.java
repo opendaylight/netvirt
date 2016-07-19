@@ -269,10 +269,13 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
                                 LogLevelOption.LogLevel.TRACE.name())),
                 //editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                 //        "log4j.logger.org.opendaylight.ovsdb",
-                //        LogLevelOption.LogLevel.TRACE.name()),
+                //        LogLevel.TRACE.name()),
                 //editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
-                //        "log4j.logger.org.opendaylight.ovsdb.library",
+                //        "log4j.logger.org.opendaylight.ovsdb.lib",
                 //        LogLevel.INFO.name()),
+                editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.opendaylight.netvirt.openstack.netvirt.sfc",
+                        LogLevel.TRACE.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         logConfiguration(NetvirtSfcIT.class),
                         LogLevel.INFO.name()),
@@ -285,6 +288,12 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.sfc",
                         LogLevel.TRACE.name()),
+                editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.opendaylight.openflowjava.protocol.impl.util.ListDeserializer",
+                        LogLevel.ERROR.name()),
+                editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.opendaylight.controller.configpusherfeature.internal.FeatureConfigPusher",
+                        LogLevel.ERROR.name()),
                 super.getLoggingOption());
     }
 
