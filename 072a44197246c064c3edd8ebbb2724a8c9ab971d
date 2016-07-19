@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_ee8cbe37",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/AclServiceOFFlowBuilderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-07-19T16:39:23Z",
+      "side": 1,
+      "message": "While I\u0027m sure this tests tests the current implementation of this AclServiceOFFlowBuilder, personally I would throw an IllegalArgumentException instead of returning null for a null input argument.   So if you cannot change AclServiceOFFlowBuilder, then this is a good test for how it works today - but it\u0027s bad that it works like that today IMHO.",
+      "revId": "072a44197246c064c3edd8ebbb2724a8c9ab971d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_aec4865f",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/AclServiceOFFlowBuilderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-07-19T16:39:23Z",
+      "side": 1,
+      "message": "remove trailing whitespace .. FYI the https://github.com/vorburger/opendaylight-eclipse-setup does this clean-up automatically, through AnyEdit. (BTW: https://git.opendaylight.org/gerrit/#/c/40957/ will auto detect this soon, hopefully; for now this is manual.)",
+      "revId": "072a44197246c064c3edd8ebbb2724a8c9ab971d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_0ea3f2b2",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/AclServiceOFFlowBuilderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-07-19T16:39:23Z",
+      "side": 1,
+      "message": "dito (see above)",
+      "revId": "072a44197246c064c3edd8ebbb2724a8c9ab971d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_6e78ae2b",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/AclServiceOFFlowBuilderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-07-19T16:39:23Z",
+      "side": 1,
+      "message": "Guava\u0027s Iterables.getFirst() is nicer than iterator().next().getValue()",
+      "revId": "072a44197246c064c3edd8ebbb2724a8c9ab971d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_cef3ba9c",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/AclServiceOFFlowBuilderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-07-19T16:39:23Z",
+      "side": 1,
+      "message": "personally I like using Guava\u0027s Iterables filter better than standard Java 8 stream() and then collection(...) because it reads more naturally functional.  If you import static com.google.common.collect.Iterables.filter; and if you don\u0027t mind using Iterable\u003cMatchInfoBase\u003e then instead of above you can write:\n\nfilter(flowMatches, (item -\u003e ((MatchInfo) item).getMatchField().equals(MatchFieldType.icmp_v4)))",
+      "revId": "072a44197246c064c3edd8ebbb2724a8c9ab971d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_2e3a3636",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/AclServiceOFFlowBuilderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-07-19T16:39:23Z",
+      "side": 1,
+      "message": "as above",
+      "revId": "072a44197246c064c3edd8ebbb2724a8c9ab971d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
