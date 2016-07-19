@@ -51,6 +51,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private NotificationService notificationService;
     private EntityOwnershipService entityOwnershipService;
     private IdManagerService idManager;
+    private NeutronHostConfigChangeListener hostConfigListener;
 
     public NeutronvpnProvider(RpcProviderRegistry rpcRegistry,NotificationPublishService notificationPublishService,
                               NotificationService notificationService) {
@@ -105,6 +106,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
             securityRuleListener = new NeutronSecurityRuleListener(dbx);
             securityRuleListener.registerListener();
             bgpvpnListener.setIdManager(idManager);
+            hostConfigListener = new NeutronHostConfigChangeListener(dbx);
             LOG.info("NeutronvpnProvider Session Initiated");
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
