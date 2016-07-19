@@ -54,4 +54,35 @@ module fib-rpc {
             }
         }
     }
+
+    rpc populate-fib-on-dpn {
+        description "Populates FIB table in specified DPN";
+        input {
+            leaf dpid {
+                type uint64;
+            }
+            leaf vpn-id {
+                type uint32;
+            }
+            leaf rd {
+                type string;
+            }
+        }
+    }
+
+    rpc cleanup-dpn-for-vpn {
+        description "Removes the VPN Fib entries in a given DPN";
+        input {
+            leaf dpid {
+                type uint64;
+            }
+            leaf vpn-id {
+                type uint32;
+            }
+            leaf rd {
+                type string;
+            }
+
+        }
+    }
 }
