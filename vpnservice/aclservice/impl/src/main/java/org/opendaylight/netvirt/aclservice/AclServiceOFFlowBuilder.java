@@ -5,6 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.netvirt.aclservice;
 
 import java.util.ArrayList;
@@ -24,28 +25,34 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRange;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AclServiceOFFlowBuilder {
 
+    private static final Logger LOG =
+            LoggerFactory.getLogger(AclServiceOFFlowBuilder.class);
+
     /**
      * Converts IP matches into flows.
-     * @param matches the matches
+     * @param matches
+     *            the matches
      * @return the map containing the flows and the respective flow id
      */
-    public static Map<String,List<MatchInfoBase>>  programIpFlow(Matches matches) {
-        new HashMap<>();
-        AceIp acl = (AceIp)matches.getAceType();
-        if (acl.getProtocol() == NwConstants.IP_PROT_TCP) {
-            return programTcpFlow(acl);
-        } else if (acl.getProtocol() == NwConstants.IP_PROT_UDP) {
-            return programUdpFlow(acl);
-        } else if (acl.getProtocol() == NwConstants.IP_PROT_ICMP) {
-            return programIcmpFlow(acl);
-        } else if (acl.getProtocol() != -1) {
-            return programOtherProtocolFlow(acl);
+    public static Map<String, List<MatchInfoBase>> programIpFlow(Matches matches) {
+        if (matches != null) {
+            AceIp acl = (AceIp) matches.getAceType();
+            if (acl.getProtocol() == NwConstants.IP_PROT_TCP) {
+                return programTcpFlow(acl);
+            } else if (acl.getProtocol() == NwConstants.IP_PROT_UDP) {
+                return programUdpFlow(acl);
+            } else if (acl.getProtocol() == NwConstants.IP_PROT_ICMP) {
+                return programIcmpFlow(acl);
+            } else if (acl.getProtocol() != -1) {
+                return programOtherProtocolFlow(acl);
+            }
         }
         return null;
-
     }
 
     /** Converts generic protocol matches to flows.
@@ -293,16 +300,26 @@ public class AclServiceOFFlowBuilder {
      *
      */
     public static Map<Integer,Integer>  getLayer4MaskForRange(int portMin, int portMax) {
-        int [] offset = {32768,16384,8192,4096,2048,1024,512,256,128,64,32,16,8,4,2,1};
-        int[] mask = {0x8000,0xC000,0xE000,0xF000,0xF800,0xFC00,0xFE00,0xFF00,
-                      0xFF80,0xFFC0,0xFFE0,0xFFF0,0xFFF8,0xFFFC,0xFFFE,0xFFFF};
+        final int[] offset = { 32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1 };
+        final int[] mask = { 0x8000, 0xC000, 0xE000, 0xF000, 0xF800, 0xFC00, 0xFE00, 0xFF00, 0xFF80, 0xFFC0, 0xFFE0,
+            0xFFF0, 0xFFF8, 0xFFFC, 0xFFFE, 0xFFFF };
         int noOfPorts = portMax - portMin + 1;
         Map<Integer,Integer> portMap = new HashMap<>();
         if (noOfPorts == 1) {
             portMap.put(portMin, mask[15]);
             return portMap;
         }
+        if (noOfPorts < 0) { // TODO: replace with infrautils.counter in case of high repetitive usage
+            LOG.warn("Cannot convert port range into a set of masked port ranges - Illegal port range {}-{}", portMin,
+                    portMax);
+            return portMap;
+        }
         String binaryNoOfPorts = Integer.toBinaryString(noOfPorts);
+        if (binaryNoOfPorts.length() > 16) { // TODO: replace with infrautils.counter in case of high repetitive usage
+            LOG.warn("Cannot convert port range into a set of masked port ranges - Illegal port range {}-{}", portMin,
+                    portMax);
+            return portMap;
+        }
         int medianOffset = 16 - binaryNoOfPorts.length();
         int medianLength = offset[medianOffset];
         int median = 0;
