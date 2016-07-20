@@ -589,7 +589,7 @@ public class NexthopManager implements AutoCloseable {
         } else if (tunType.equals(TunnelTypeGre.class.toString())) {
             return ITMConstants.TUNNEL_TYPE_GRE;
         } else if (tunType.equals(TunnelTypeMplsOverGre.class.toString())){
-            return ITMConstants.TUNNEL_TYPE_MPLS_OVER_GRE;
+            return ITMConstants.TUNNEL_TYPE_MPLSoGRE;
         } else {
             return ITMConstants.TUNNEL_TYPE_INVALID;
         }
