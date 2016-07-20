@@ -16,6 +16,7 @@ import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -24,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -36,13 +38,16 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
     private final DataBroker dataBroker;
     private final NeutronvpnNatManager nvpnNatManager;
     private final IElanService elanService;
+    private OdlInterfaceRpcService odlInterfaceRpcService;
 
     public NeutronNetworkChangeListener(final DataBroker dataBroker, final NeutronvpnNatManager nVpnNatMgr,
-                                        final IElanService elanService) {
+                                        final IElanService elanService,
+                                        OdlInterfaceRpcService odlInterfaceRpcService) {
         super(Network.class);
         this.dataBroker = dataBroker;
         nvpnNatManager = nVpnNatMgr;
         this.elanService = elanService;
+        this.odlInterfaceRpcService = odlInterfaceRpcService;
     }
 
     public void start() {
@@ -132,6 +137,27 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
                         updatePhysicalNetwork);
                 elanService.createExternalElanNetwork(elanInstance);
             }
+        }
+
+        QosNetworkExtension updateQos = update.getAugmentation(QosNetworkExtension.class);
+        QosNetworkExtension originalQos = original.getAugmentation(QosNetworkExtension.class);
+        if (originalQos == null && updateQos != null) {
+            // qos policy add
+            NeutronvpnUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
+            NeutronQosUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
+                    update, updateQos.getQosPolicyId());
+        } else if (originalQos != null && updateQos != null
+                && !originalQos.getQosPolicyId().equals(updateQos.getQosPolicyId())) {
+            // qos policy update
+            NeutronvpnUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
+            NeutronvpnUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
+            NeutronQosUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
+                    update, updateQos.getQosPolicyId());
+        } else if (originalQos != null && updateQos == null) {
+            // qos policy delete
+            NeutronQosUtils.handleNeutronNetworkQosRemove(dataBroker, odlInterfaceRpcService,
+                    original, originalQos.getQosPolicyId());
+            NeutronvpnUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
         }
     }
 
