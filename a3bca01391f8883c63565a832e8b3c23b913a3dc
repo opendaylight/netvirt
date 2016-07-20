@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_01462023",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-07-20T12:33:23Z",
+      "side": 1,
+      "message": "This can be just a invocation in programAclRules in the implemented Class, separate api may not be required .",
+      "range": {
+        "startLine": 176,
+        "startChar": 28,
+        "endLine": 176,
+        "endChar": 45
+      },
+      "revId": "a3bca01391f8883c63565a832e8b3c23b913a3dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_015f4073",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-07-20T12:33:23Z",
+      "side": 1,
+      "message": "Since this is an implementation with much of openstack relates stuffs like fixed rules ,conntrack rules, can we consider renaming the class to indicate that and may be move it to a different package?",
+      "range": {
+        "startLine": 49,
+        "startChar": 13,
+        "endLine": 49,
+        "endChar": 33
+      },
+      "revId": "a3bca01391f8883c63565a832e8b3c23b913a3dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_618a7cc0",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-07-20T12:33:23Z",
+      "side": 1,
+      "message": "With plan to use lport tag instead of attached mac most of the code remains identical for ingress and egress. We can consider using the if condition for specific thing like the table no and merge Ingress and Egress AclService class into one. Fixed rules can be two methods for ingress and egress in the new class. This can be considered in a different patch.",
+      "revId": "a3bca01391f8883c63565a832e8b3c23b913a3dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
