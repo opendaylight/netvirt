@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.aclservice;
+package org.opendaylight.netvirt.aclservice.listeners;
 
 import com.google.common.base.Optional;
 
@@ -17,6 +17,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -26,10 +27,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AclInterfaceEventListener extends AsyncDataTreeChangeListenerBase<Interface,
-        AclInterfaceEventListener> implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable {
+public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<Interface,
+        AclInterfaceStateListener> implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceEventListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceStateListener.class);
 
     /** Our registration. */
     public static final TopologyId OVSDB_TOPOLOGY_ID = new TopologyId(new Uri("ovsdb:1"));
@@ -42,8 +43,8 @@ public class AclInterfaceEventListener extends AsyncDataTreeChangeListenerBase<I
      * @param aclServiceManger the AclServiceManager instance.
      * @param broker the data broker instance.
      */
-    public AclInterfaceEventListener(AclServiceManager aclServiceManger, DataBroker broker) {
-        super(Interface.class, AclInterfaceEventListener.class);
+    public AclInterfaceStateListener(AclServiceManager aclServiceManger, DataBroker broker) {
+        super(Interface.class, AclInterfaceStateListener.class);
         this.aclServiceManger = aclServiceManger;
         this.broker = broker;
     }
@@ -61,7 +62,7 @@ public class AclInterfaceEventListener extends AsyncDataTreeChangeListenerBase<I
         if (optPort.isPresent()) {
             LOG.info("Port removed {}", optPort.get());
             if (AclServiceUtils.isPortSecurityEnabled(optPort.get())) {
-                List<Uuid> aclList = AclServiceUtils.getPortSecurityGroups(optPort.get());
+                List<Uuid> aclList = AclServiceUtils.getInterfaceAcls(optPort.get());
                 if (aclList != null) {
                     AclDataUtil.removeAclInterfaceMap(aclList, optPort.get());
                 }
@@ -84,7 +85,7 @@ public class AclInterfaceEventListener extends AsyncDataTreeChangeListenerBase<I
         if (optPort.isPresent()) {
             LOG.info("Port added {}", optPort.get());
             if (AclServiceUtils.isPortSecurityEnabled(optPort.get())) {
-                List<Uuid> aclList = AclServiceUtils.getPortSecurityGroups(optPort.get());
+                List<Uuid> aclList = AclServiceUtils.getInterfaceAcls(optPort.get());
                 if (aclList != null) {
                     AclDataUtil.addAclInterfaceMap(aclList, optPort.get());
                 }
@@ -94,7 +95,7 @@ public class AclInterfaceEventListener extends AsyncDataTreeChangeListenerBase<I
     }
 
     @Override
-    protected AclInterfaceEventListener getDataTreeChangeListener() {
-        return AclInterfaceEventListener.this;
+    protected AclInterfaceStateListener getDataTreeChangeListener() {
+        return AclInterfaceStateListener.this;
     }
 }
