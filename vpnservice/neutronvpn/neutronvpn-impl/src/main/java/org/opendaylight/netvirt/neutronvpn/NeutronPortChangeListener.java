@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
@@ -52,6 +53,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosPortExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -67,11 +70,13 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private final LockManagerService lockManager;
     private final NotificationPublishService notificationPublishService;
     private final NeutronSubnetGwMacResolver gwMacResolver;
+    private OdlInterfaceRpcService odlInterfaceRpcService;
 
     public NeutronPortChangeListener(final DataBroker dataBroker,
                                      final NeutronvpnManager nVpnMgr, final NeutronvpnNatManager nVpnNatMgr,
                                      final NotificationPublishService notiPublishService,
-                                     final LockManagerService lockManager, NeutronSubnetGwMacResolver gwMacResolver) {
+                                     final LockManagerService lockManager, NeutronSubnetGwMacResolver gwMacResolver,
+                                     final OdlInterfaceRpcService odlInterfaceRpcService) {
         super(Port.class);
         this.dataBroker = dataBroker;
         nvpnManager = nVpnMgr;
@@ -79,6 +84,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         notificationPublishService = notiPublishService;
         this.lockManager = lockManager;
         this.gwMacResolver = gwMacResolver;
+        this.odlInterfaceRpcService = odlInterfaceRpcService;
     }
 
     public void start() {
@@ -200,6 +206,28 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 }
             }
             handleNeutronPortUpdated(original, update);
+        }
+
+        // check for QoS updates
+        QosPortExtension updateQos = update.getAugmentation(QosPortExtension.class);
+        QosPortExtension originalQos = original.getAugmentation(QosPortExtension.class);
+        if (originalQos == null && updateQos != null) {
+            // qos policy add
+            NeutronvpnUtils.addToQosPortsCache(updateQos.getQosPolicyId(), update);
+            NeutronQosUtils.handleNeutronPortQosUpdate(dataBroker, odlInterfaceRpcService,
+                    update, updateQos.getQosPolicyId());
+        } else if (originalQos != null && updateQos != null
+                && !originalQos.getQosPolicyId().equals(updateQos.getQosPolicyId())) {
+            // qos policy update
+            NeutronvpnUtils.removeFromQosPortsCache(originalQos.getQosPolicyId(), original);
+            NeutronvpnUtils.addToQosPortsCache(updateQos.getQosPolicyId(), update);
+            NeutronQosUtils.handleNeutronPortQosUpdate(dataBroker, odlInterfaceRpcService,
+                    update, updateQos.getQosPolicyId());
+        } else if (originalQos != null && updateQos == null) {
+            // qos policy delete
+            NeutronQosUtils.handleNeutronPortQosRemove(dataBroker, odlInterfaceRpcService,
+                    original, originalQos.getQosPolicyId());
+            NeutronvpnUtils.removeFromQosPortsCache(originalQos.getQosPolicyId(), original);
         }
     }
 
@@ -537,7 +565,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private Uuid addPortToSubnets(Port port) {
         Uuid subnetId = null;
         Uuid vpnId = null;
-        String infName = port.getUuid().getValue();
+        port.getUuid().getValue();
         Subnetmap subnetmap = null;
         boolean isLockAcquired = false;
         String lockName = port.getUuid().getValue();
