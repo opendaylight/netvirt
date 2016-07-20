@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.neutronvpn;
 import com.google.common.base.Optional;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,6 +67,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -113,10 +115,13 @@ public class NeutronvpnUtils {
             .put(NetworkTypeVxlan.class, SegmentTypeVxlan.class)
             .build();
 
-    public static ConcurrentHashMap<Uuid, Network> networkMap = new ConcurrentHashMap<Uuid, Network>();
-    public static ConcurrentHashMap<Uuid, Router> routerMap = new ConcurrentHashMap<Uuid, Router>();
-    public static ConcurrentHashMap<Uuid, Port> portMap = new ConcurrentHashMap<Uuid, Port>();
-    public static ConcurrentHashMap<Uuid, Subnet> subnetMap = new ConcurrentHashMap<Uuid, Subnet>();
+    public static ConcurrentHashMap<Uuid, Network> networkMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Uuid, Router> routerMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Uuid, Port> portMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Uuid, Subnet> subnetMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Uuid, QosPolicy> qosPolicyMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Uuid, HashMap<Uuid, Port>> qosPortsMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Uuid, HashMap<Uuid, Network>> qosNetworksMap = new ConcurrentHashMap<>();
     private static final Set<Class<? extends NetworkTypeBase>> supportedNetworkTypes = Sets.newConcurrentHashSet();
 
     private static long LOCK_WAIT_TIME = 10L;
@@ -247,6 +252,15 @@ public class NeutronvpnUtils {
         Optional<NetworkMap> optionalNetworkMap = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (optionalNetworkMap.isPresent()) {
             return optionalNetworkMap.get().getSubnetIdList();
+        }
+        return null;
+    }
+
+    protected static List<Uuid> getPortIdsFromSubnetId(DataBroker broker, Uuid subnetId) {
+        InstanceIdentifier id = buildSubnetMapIdentifier(subnetId);
+        Optional<Subnetmap> optionalSubnetmap = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (optionalSubnetmap.isPresent()) {
+            return optionalSubnetmap.get().getPortList();
         }
         return null;
     }
@@ -815,6 +829,50 @@ public class NeutronvpnUtils {
         InstanceIdentifier<VpnPortipToPort> id = InstanceIdentifier.builder(NeutronVpnPortipPortData.class).child
                 (VpnPortipToPort.class, new VpnPortipToPortKey(fixedIp, vpnName)).build();
         return id;
+    }
+
+    public static void addToQosPolicyCache(QosPolicy qosPolicy) {
+        qosPolicyMap.put(qosPolicy.getUuid(),qosPolicy);
+    }
+
+    public static void removeFromQosPolicyCache(QosPolicy qosPolicy) {
+        qosPolicyMap.remove(qosPolicy.getUuid());
+    }
+
+    public static void addToQosPortsCache(Uuid qosUuid, Port port) {
+        if (qosPortsMap.containsKey(qosUuid)) {
+            if (!qosPortsMap.get(qosUuid).containsKey(port.getUuid())) {
+                qosPortsMap.get(qosUuid).put(port.getUuid(), port);
+            }
+        } else {
+            HashMap<Uuid, Port> portMap = new HashMap<>();
+            portMap.put(port.getUuid(), port);
+            qosPortsMap.put(qosUuid, portMap);
+        }
+    }
+
+    public static void removeFromQosPortsCache(Uuid qosUuid, Port port) {
+        if (qosPortsMap.containsKey(qosUuid) && qosPortsMap.get(qosUuid).containsKey(port.getUuid())) {
+            qosPortsMap.get(qosUuid).remove(port.getUuid(), port);
+        }
+    }
+
+    public static void addToQosNetworksCache(Uuid qosUuid, Network network) {
+        if (qosNetworksMap.containsKey(qosUuid)) {
+            if (!qosNetworksMap.get(qosUuid).containsKey(network.getUuid())) {
+                qosNetworksMap.get(qosUuid).put(network.getUuid(), network);
+            }
+        } else {
+            HashMap<Uuid, Network> networkMap = new HashMap<>();
+            networkMap.put(network.getUuid(), network);
+            qosNetworksMap.put(qosUuid, networkMap);
+        }
+    }
+
+    public static void removeFromQosNetworksCache(Uuid qosUuid, Network network) {
+        if (qosNetworksMap.containsKey(qosUuid) && qosNetworksMap.get(qosUuid).containsKey(network.getUuid())) {
+            qosNetworksMap.get(qosUuid).remove(network.getUuid(), network);
+        }
     }
 
     static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {
