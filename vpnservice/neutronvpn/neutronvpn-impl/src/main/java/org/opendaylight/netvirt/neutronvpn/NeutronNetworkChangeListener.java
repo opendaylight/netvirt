@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -146,6 +147,24 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
                         updatePhysicalNetwork);
                 NeutronvpnServiceAccessor.getElanProvider().createExternalElanNetwork(elanInstance);
             }
+        }
+
+        QosNetworkExtension updateQos = update.getAugmentation(QosNetworkExtension.class);
+        QosNetworkExtension originalQos = original.getAugmentation(QosNetworkExtension.class);
+        if (originalQos == null && updateQos != null) {
+            /* qos policy add */
+            NeutronvpnUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
+            NeutronQosUtils.handleNeutronNetworkQosUpdate(update, updateQos.getQosPolicyId());
+        } else if (originalQos != null && updateQos != null
+                && !originalQos.getQosPolicyId().equals(updateQos.getQosPolicyId())) {
+            /* qos policy update */
+            NeutronvpnUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
+            NeutronvpnUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
+            NeutronQosUtils.handleNeutronNetworkQosUpdate(update, updateQos.getQosPolicyId());
+        } else if (originalQos != null && updateQos == null) {
+            /* qos policy delete */
+            NeutronvpnUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
+            NeutronQosUtils.handleNeutronNetworkQosRemove(original, originalQos.getQosPolicyId());
         }
     }
 
