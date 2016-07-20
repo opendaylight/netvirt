@@ -52,7 +52,7 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
     private EntityOwnershipService entityOwnershipService;
 
     public L2GatewayListener(final DataBroker db, RpcProviderRegistry rpcRegistry,
-            EntityOwnershipService entityOwnershipService) {
+                             EntityOwnershipService entityOwnershipService) {
         super(L2gateway.class, L2GatewayListener.class);
         broker = db;
         this.entityOwnershipService = entityOwnershipService;
@@ -171,7 +171,7 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
             // Delete ITM tunnels if it's last Gateway deleted and device is connected
             // Also, do not delete device from cache if it's connected
             if (L2GatewayUtils.isLastL2GatewayBeingDeleted(l2GwDevice)) {
-                if (l2GwDevice.isConnected()) {
+                if(l2GwDevice.isConnected()){
                     l2GwDevice.removeL2GatewayId(input.getUuid());
                     // Delete ITM tunnels
                     final String hwvtepId = l2GwDevice.getHwvtepNodeId();

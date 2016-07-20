@@ -24,7 +24,7 @@ public class L2GatewayProvider {
     private L2GwTransportZoneListener l2GwTZoneListener;
 
     public L2GatewayProvider(DataBroker broker, RpcProviderRegistry rpcRegistry,
-            EntityOwnershipService entityOwnershipService) {
+                             EntityOwnershipService entityOwnershipService) {
         ItmRpcService itmRpcService = rpcRegistry.getRpcService(ItmRpcService.class);
 
         L2GatewayCacheUtils.createL2DeviceCache();

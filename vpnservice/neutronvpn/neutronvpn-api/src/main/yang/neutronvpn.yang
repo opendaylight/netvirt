@@ -38,6 +38,21 @@ module neutronvpn {
               description "router to which this subnet belongs";
             }
 
+            leaf router-interface-name {
+              type    yang:uuid;
+              description "router interface on this subnet";
+            }
+
+            leaf router-intf-mac-address {
+              type    string;
+              description "router interface mac address on this subnet";
+            }
+
+            leaf-list router-interface-fixed-ips {
+              type    string;
+              description "fixed ip of the router interface on this subnet";
+            }
+
             leaf vpn-id {
               type    yang:uuid;
               description "VPN to which this subnet belongs";
@@ -147,11 +162,16 @@ module neutronvpn {
     }
 
     /* Data models to adhere to restart requirements */
-    container neutron-port-data {
-        list port-fixedip-to-port-name {
-            key port-fixedip;
-            leaf port-name { type string;}
+    container neutron-vpn-portip-port-data {
+        list vpn-portip-to-port {
+            key "vpn-name port-fixedip";
+            leaf vpn-name { type string;}
             leaf port-fixedip { type string;}
+            leaf port-name { type string;}
+            leaf mac-address { type string;}
+            leaf subnet-ip { type boolean;}
+            leaf config { type boolean;}
+            leaf learnt { type boolean; }
         }
     }
 
@@ -374,7 +394,7 @@ module neutronvpn {
     }
 
     notification port-added-to-subnet{
-            description "new port added to subnet";
+            description "port added to subnet";
             leaf subnet-id{
                 type yang:uuid;
             }

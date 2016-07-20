@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.neutronvpn;
+package org.opendaylight.netvirt.neutronvpn.api.utils;
 
 public class NeutronConstants {
 
@@ -25,6 +25,6 @@ public class NeutronConstants {
     public static final String RD_IDPOOL_NAME = "RouteDistinguisherPool";
     public static final long RD_IDPOOL_START = 1L;
     public static final String RD_IDPOOL_SIZE = "65535";// 16 bit AS specific part of RD
-    public static final String RD_PROPERTY_KEY = "vpnservice.admin.rdvalue";//stored in etc/custom.propertie
+    public static final String RD_PROPERTY_KEY = "vpnservice.admin.rdvalue";//stored in etc/custom.properties
 
 }

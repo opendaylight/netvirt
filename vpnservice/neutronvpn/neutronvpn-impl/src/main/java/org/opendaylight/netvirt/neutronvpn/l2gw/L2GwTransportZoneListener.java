@@ -82,7 +82,7 @@ public class L2GwTransportZoneListener extends AsyncDataTreeChangeListenerBase<T
      */
     @Override
     protected void update(InstanceIdentifier<TransportZone> key, TransportZone dataObjectModificationBefore,
-            TransportZone dataObjectModificationAfter) {
+                          TransportZone dataObjectModificationAfter) {
         // do nothing
     }
 
