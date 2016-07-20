@@ -55,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosPortExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -208,6 +209,25 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             handleNeutronPortUpdated(original, update);
         }
         handlePortSecurityUpdated(original, update);
+
+        /* check for QoS updates */
+        QosPortExtension updateQos = update.getAugmentation(QosPortExtension.class);
+        QosPortExtension originalQos = original.getAugmentation(QosPortExtension.class);
+        if (originalQos == null && updateQos != null) {
+            /* qos policy add */
+            NeutronvpnUtils.addToQosPortsCache(updateQos.getQosPolicyId(), update);
+            NeutronQosUtils.handleNeutronPortQosUpdate(update, updateQos.getQosPolicyId());
+        } else if (originalQos != null && updateQos != null
+                && !originalQos.getQosPolicyId().equals(updateQos.getQosPolicyId())) {
+            /* qos policy update */
+            NeutronvpnUtils.removeFromQosPortsCache(originalQos.getQosPolicyId(), original);
+            NeutronvpnUtils.addToQosPortsCache(updateQos.getQosPolicyId(), update);
+            NeutronQosUtils.handleNeutronPortQosUpdate(update, updateQos.getQosPolicyId());
+        } else if (originalQos != null && updateQos == null) {
+            /* qos policy delete */
+            NeutronvpnUtils.removeFromQosPortsCache(originalQos.getQosPolicyId(), original);
+            NeutronQosUtils.handleNeutronPortQosRemove(original, originalQos.getQosPolicyId());
+        }
     }
 
     private void handleRouterInterfaceAdded(Port routerPort) {
@@ -227,7 +247,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                         nvpnManager.updateSubnetNodeWithFixedIps(portIP.getSubnetId(), routerId,
                                 routerPort.getUuid(), ipValue, routerPort.getMacAddress().getValue());
                         nvpnNatManager.handleSubnetsForExternalRouter(routerId, broker);
-                        PhysAddress mac = new PhysAddress(routerPort.getMacAddress().getValue());
+                        new PhysAddress(routerPort.getMacAddress().getValue());
                         LOG.trace("NeutronPortChangeListener Add Subnet Gateway IP {} MAC {} Interface {} VPN {}",
                                 portIP.getIpAddress().getIpv4Address(),routerPort.getMacAddress(),
                                 routerPort.getUuid().getValue(), vpnId.getValue());
@@ -546,7 +566,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
         IfL2vlanBuilder ifL2vlanBuilder = new IfL2vlanBuilder();
 
-        Network network = NeutronvpnUtils.getNeutronNetwork(broker, port.getNetworkId());
+        NeutronvpnUtils.getNeutronNetwork(broker, port.getNetworkId());
         ifL2vlanBuilder.setL2vlanMode(l2VlanMode);
 
         if(parentRefName != null) {
@@ -645,7 +665,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private Uuid addPortToSubnets(Port port) {
         Uuid subnetId = null;
         Uuid vpnId = null;
-        String infName = port.getUuid().getValue();
+        port.getUuid().getValue();
         Subnetmap subnetmap = null;
         boolean isLockAcquired = false;
         String lockName = port.getUuid().getValue();

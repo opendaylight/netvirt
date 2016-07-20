@@ -45,6 +45,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private NeutronRouterChangeListener routerListener;
     private NeutronPortChangeListener portListener;
     private NeutronSecurityRuleListener securityRuleListener;
+    private NeutronQosPolicyChangeListener qosPolicyListener;
     private NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
     private RpcProviderRegistry rpcProviderRegistry;
     private L2GatewayProvider l2GatewayProvider;
@@ -99,8 +100,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
             nvNatManager = new NeutronvpnNatManager(dbx, mdsalManager);
             nvManager = new NeutronvpnManager(dbx, mdsalManager, nvNatManager, notificationPublishService,
                     notificationService, vpnRpcService, floatingIpMapListener);
-            final BindingAwareBroker.RpcRegistration<NeutronvpnService> rpcRegistration =
-                    getRpcProviderRegistry().addRpcImplementation(NeutronvpnService.class, nvManager);
+            getRpcProviderRegistry().addRpcImplementation(NeutronvpnService.class, nvManager);
             bgpvpnListener = new NeutronBgpvpnChangeListener(dbx, nvManager);
             networkListener = new NeutronNetworkChangeListener(dbx, nvManager, nvNatManager);
             subnetListener = new NeutronSubnetChangeListener(dbx, nvManager);
@@ -112,6 +112,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
             portListener.setLockManager(lockManager);
             floatingIpMapListener.setLockManager(lockManager);
             l2GatewayProvider = new L2GatewayProvider(dbx, rpcProviderRegistry, entityOwnershipService);
+            qosPolicyListener = new NeutronQosPolicyChangeListener(dbx);
             bgpvpnListener.setIdManager(idManager);
             hostConfigListener = new NeutronHostConfigChangeListener(dbx);
             securityRuleListener = new NeutronSecurityRuleListener(dbx);
@@ -133,6 +134,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
         nvManager.close();
         l2GatewayProvider.close();
         securityRuleListener.close();
+        qosPolicyListener.close();
         LOG.info("NeutronvpnProvider Closed");
     }
 
