@@ -17,6 +17,8 @@
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
+  <odl:rpc-service id="odlInterfaceRpcService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
   <odl:rpc-service id="itmRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService" />
   <odl:rpc-service id="lockManagerService"
@@ -71,6 +73,14 @@
     <argument ref="dataBroker" />
     <argument ref="neutronvpnNatManager" />
     <argument ref="elanService" />
+    <argument ref="odlInterfaceRpcService" />
+  </bean>
+
+  <bean id="neutronQosPolicyChangeListener"
+        class="org.opendaylight.netvirt.neutronvpn.NeutronQosPolicyChangeListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="odlInterfaceRpcService" />
   </bean>
 
   <bean id="neutronSubnetChangeListener"
@@ -96,6 +106,7 @@
     <argument ref="neutronvpnNatManager" />
     <argument ref="notificationPublishService" />
     <argument ref="lockManagerService" />
+    <argument ref="odlInterfaceRpcService" />
   </bean>
 
   <bean id="l2GatewayListener"
