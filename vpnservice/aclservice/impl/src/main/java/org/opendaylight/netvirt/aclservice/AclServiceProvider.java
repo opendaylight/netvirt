@@ -17,6 +17,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.listeners.AclEventListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener;
+import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceStateListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclNodeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
     private OdlInterfaceRpcService interfaceService;
     private RpcProviderRegistry rpcProviderRegistry;
     private AclServiceManager aclServiceManager;
-    private AclInterfaceEventListener aclInterfaceEventListener;
+    private AclInterfaceStateListener aclInterfaceStateListener;
     private AclNodeListener aclNodeListener;
     private AclInterfaceListener aclInterfaceListener;
     private AclEventListener aclEventListener;
@@ -61,8 +62,8 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
         aclServiceManager = new AclServiceManagerImpl();
         aclServiceManager.addAclServiceListner(new IngressAclServiceImpl(broker, interfaceService, mdsalManager));
         aclServiceManager.addAclServiceListner(new EgressAclServiceImpl(broker, interfaceService, mdsalManager));
-        aclInterfaceEventListener = new AclInterfaceEventListener(aclServiceManager, broker);
-        aclInterfaceEventListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        aclInterfaceStateListener = new AclInterfaceStateListener(aclServiceManager, broker);
+        aclInterfaceStateListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
         aclNodeListener = new AclNodeListener(mdsalManager);
         aclNodeListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
         aclInterfaceListener = new AclInterfaceListener(aclServiceManager, broker);
@@ -75,7 +76,7 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        aclInterfaceEventListener.close();
+        aclInterfaceStateListener.close();
         aclNodeListener.close();
         aclInterfaceListener.close();
         aclEventListener.close();
