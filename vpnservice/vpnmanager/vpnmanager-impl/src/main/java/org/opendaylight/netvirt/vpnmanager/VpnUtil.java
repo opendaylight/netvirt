@@ -83,9 +83,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronPortData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.port.data.PortFixedipToPortName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.port.data.PortFixedipToPortNameKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanTagNameMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagNameKey;
@@ -470,7 +467,8 @@ public class VpnUtil {
                 new IfIndexInterfaceKey((int) interfaceTag)).build();
     }
 
-    public static String getNeutronPortNamefromPortFixedIp(DataBroker broker, String fixedIp) {
+    // FIXME 1: To be fixed with VPNManager patch
+    /*public static String getNeutronPortNamefromPortFixedIp(DataBroker broker, String fixedIp) {
         InstanceIdentifier id = buildFixedIpToPortNameIdentifier(fixedIp);
         Optional<PortFixedipToPortName> portFixedipToPortNameData = read(broker, LogicalDatastoreType.CONFIGURATION,
                 id);
@@ -484,7 +482,7 @@ public class VpnUtil {
         InstanceIdentifier<PortFixedipToPortName> id = InstanceIdentifier.builder(NeutronPortData.class).child
                 (PortFixedipToPortName.class, new PortFixedipToPortNameKey(fixedIp)).build();
         return id;
-    }
+    }*/
 
     public static ElanTagName getElanInfoByElanTag(DataBroker broker,long elanTag) {
         InstanceIdentifier<ElanTagName> elanId = getElanInfoEntriesOperationalDataPath(elanTag);

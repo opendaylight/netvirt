@@ -81,11 +81,12 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
         Network network = NeutronvpnUtils.getNeutronNetwork(broker, networkId);
         if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
             //FIXME: This should be removed when support for VLAN and GRE network types is added
-            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}.",
-                    input.getName(), network);
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}."
+                    + " Skipping the processing of Subnet add DCN", input.getName(), network);
             return;
         }
-        handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), input.getNetworkId(), input.getTenantId());
+        handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), networkId,
+                input.getTenantId());
         NeutronvpnUtils.addToSubnetCache(input);
     }
 
@@ -98,8 +99,8 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
         Network network = NeutronvpnUtils.getNeutronNetwork(broker, networkId);
         if (network == null || NeutronvpnUtils.isNetworkTypeVlanOrGre(network)) {
             //FIXME: This should be removed when support for VLAN and GRE network types is added
-            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}.",
-                    input.getName(), network);
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of network {}."
+                    + " Skipping the processing of Subnet remove DCN", input.getName(), network);
             return;
         }
         handleNeutronSubnetDeleted(input.getUuid(), networkId, null);
@@ -211,3 +212,4 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
         }
     }
 }
+

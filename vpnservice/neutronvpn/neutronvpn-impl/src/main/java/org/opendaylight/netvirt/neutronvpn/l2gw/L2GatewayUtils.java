@@ -39,7 +39,7 @@ public class L2GatewayUtils {
     }
 
     protected static void createItmTunnels(ItmRpcService itmRpcService, String hwvtepId, String psName,
-            IpAddress tunnelIp) {
+                                           IpAddress tunnelIp) {
         AddL2GwDeviceInputBuilder builder = new AddL2GwDeviceInputBuilder();
         builder.setTopologyId(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID.getValue());
         builder.setNodeId(HwvtepSouthboundUtils.createManagedNodeId(new NodeId(hwvtepId), psName).getValue());
@@ -58,7 +58,7 @@ public class L2GatewayUtils {
     }
 
     protected static void deleteItmTunnels(ItmRpcService itmRpcService, String hwvtepId, String psName,
-            IpAddress tunnelIp) {
+                                           IpAddress tunnelIp) {
         DeleteL2GwDeviceInputBuilder builder = new DeleteL2GwDeviceInputBuilder();
         builder.setTopologyId(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID.getValue());
         builder.setNodeId(HwvtepSouthboundUtils.createManagedNodeId(new NodeId(hwvtepId), psName).getValue());

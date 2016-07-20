@@ -293,8 +293,6 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
                                 try {
                                     // remove entire routerPorts node
                                     isLockAcquired = NeutronvpnUtils.lock(lockManager, routerName);
-                                    //Fixme :planning to use synchronized blocks for entire NeutronVPN module instead
-                                    // of using this lockmanager timed API.
                                     LOG.debug("removing routerPorts node: {} ", routerName);
                                     MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifierBuilder.build());
 
@@ -343,4 +341,5 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
             LOG.error("Failed to dissociate fixedIP from FloatingIpInfo DS for neutron port {}", fixedNeutronPortName);
         }
     }
+
 }
