@@ -1,6 +1,7 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -25,6 +26,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIpsBuilder;
@@ -61,6 +65,8 @@ public class NeutronPortChangeListenerTest {
     ReadOnlyTransaction mockReadTx;
     @Mock
     Network mockNetwork;
+    @Mock
+    ElanInstance elanInstance;
 
     @Before
     public void setUp() {
@@ -74,9 +80,13 @@ public class NeutronPortChangeListenerTest {
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
             thenReturn(Futures.immediateCheckedFuture(Optional.of(mockNetwork)));
-
         neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, nVpnMgr, nVpnNatMgr,
                 notiPublishService, notiService);
+        InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
+                .child(ElanInstance.class,
+                        new ElanInstanceKey(new Uuid("12345678-1234-1234-1234-123456789012").getValue())).build();
+        when(mockReadTx.read(any(LogicalDatastoreType.class), eq(elanIdentifierId))).
+                thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInstance)));
     }
 
     @Test

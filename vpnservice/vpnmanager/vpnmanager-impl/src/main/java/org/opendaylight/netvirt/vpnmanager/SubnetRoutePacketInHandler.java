@@ -98,11 +98,12 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     byte[] dstIp = Ints.toByteArray(ipv4.getDestinationAddress());
                     String dstIpStr = toStringIpAddress(dstIp);
                     String srcIpStr = toStringIpAddress(srcIp);
-                    if (VpnUtil.getNeutronPortNamefromPortFixedIp(broker, dstIpStr) != null) {
+                    // FIXME 7: To be fixed with VPNManager patch
+                    /*if (VpnUtil.getNeutronPortNamefromPortFixedIp(broker, dstIpStr) != null) {
                         s_logger.debug("SubnetRoutePacketInHandler: IPv4 Packet received with "
                                 + "Target IP {} is a valid Neutron port, ignoring subnet route processing", dstIpStr);
                         return;
-                    }
+                    }*/
                     long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
                     if (elanTag == 0) {
                         s_logger.error("SubnetRoutePacketInHandler: elanTag value from metadata found to be 0, for IPv4 " +
@@ -149,11 +150,12 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                         byte[] respDst = arpPacket.getTargetProtocolAddress();
                         String respIp = toStringIpAddress(respSrc);
                         String check = toStringIpAddress(respDst) + respIp;
-                        if (VpnUtil.getNeutronPortNamefromPortFixedIp(broker, respIp) != null) {
+                        // FIXME 8: To be fixed with VPNManager patch
+                        /*if (VpnUtil.getNeutronPortNamefromPortFixedIp(broker, respIp) != null) {
                             s_logger.debug("SubnetRoutePacketInHandler: ARP reply Packet received with "
                                     + "Source IP {} which is a valid Neutron port, ignoring subnet route processing", respIp);
                             return;
-                        }
+                        }*/
                         String destination = VpnUtil.getIpPrefix(respIp);
                         long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
                         s_logger.info("SubnetRoutePacketInHandler: ARP reply received for target IP {} from LPort {}" + respIp, portTag);
@@ -183,9 +185,10 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                                             VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                                                     VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnInterface.getVpnInstanceName(), destination));
                                     String nextHopIp = nextHopIpAddr.split("/")[0];
-                                    Adjacency newAdj = new AdjacencyBuilder().setIpAddress(destination).setKey
+                                    // FIXME 9: To be fixed with VPNManager patch
+                                    /*Adjacency newAdj = new AdjacencyBuilder().setIpAddress(destination).setKey
                                             (new AdjacencyKey(destination)).setNextHopIp(nextHopIp).build();
-                                    adjacencyList.add(newAdj);
+                                    adjacencyList.add(newAdj);*/
                                     Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
                                     VpnInterface newVpnIntf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(vpnInterface.getName())).
                                             setName(vpnInterface.getName()).setVpnInstanceName(vpnInterface.getVpnInstanceName()).

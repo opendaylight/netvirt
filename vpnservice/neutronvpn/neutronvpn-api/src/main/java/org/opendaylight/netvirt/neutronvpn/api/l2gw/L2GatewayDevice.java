@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.neutronvpn.api.l2gw;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -275,10 +278,19 @@ public class L2GatewayDevice {
      */
     @Override
     public String toString() {
-        List<String> lstTunnelIps = tunnelIps.stream().map(ip -> String.valueOf(ip.getValue()))
-                .collect(Collectors.toList());
-        List<String> lstMacs = ucastLocalMacs.stream().map(mac -> mac.getMacEntryKey().getValue())
-                .collect(Collectors.toList());
+        List<String> lstTunnelIps = new ArrayList<>();
+        if (this.tunnelIps != null) {
+            for (IpAddress ip : this.tunnelIps) {
+                lstTunnelIps.add(String.valueOf(ip.getValue()));
+            }
+        }
+
+        List<String> lstMacs = Lists.transform(this.ucastLocalMacs, new Function<LocalUcastMacs, String>() {
+            @Override
+            public String apply(LocalUcastMacs localUcastMac) {
+                return localUcastMac.getMacEntryKey().getValue();
+            }
+        });
 
         StringBuilder builder = new StringBuilder();
         builder.append("L2GatewayDevice [deviceName=").append(deviceName).append(", hwvtepNodeId=").append(hwvtepNodeId)

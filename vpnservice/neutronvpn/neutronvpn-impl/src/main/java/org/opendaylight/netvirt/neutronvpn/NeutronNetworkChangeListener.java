@@ -39,8 +39,8 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
     private NeutronvpnNatManager nvpnNatManager;
 
 
-    public NeutronNetworkChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr, NeutronvpnNatManager
-            nVpnNatMgr) {
+    public NeutronNetworkChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,
+                                        NeutronvpnNatManager nVpnNatMgr) {
         super(Network.class);
         broker = db;
         nvpnManager = nVpnMgr;
@@ -82,12 +82,13 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         }
         if (NeutronvpnUtils.isNetworkTypeVlanOrGre(input)) {
             //FIXME: This should be removed when support for VLAN and GRE network types is added
-            LOG.error("Neutronvpn doesn't support vlan/gre network provider type for this network {}.", input);
+            LOG.error("neutron vpn doesn't support vlan/gre network provider type for this network {}.", input);
             return;
         }
         //Create ELAN instance for this network
         createElanInstance(input);
-        if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
+        if ( input.getAugmentation(NetworkL3Extension.class) != null &&
+                input.getAugmentation(NetworkL3Extension.class).isExternal()) {
             nvpnNatManager.addExternalNetwork(input);
             NeutronvpnUtils.addToNetworkCache(input);
         }

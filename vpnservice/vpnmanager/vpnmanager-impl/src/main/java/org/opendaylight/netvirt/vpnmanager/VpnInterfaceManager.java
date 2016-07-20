@@ -264,7 +264,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     numAdjs = adjs.size();
                     for (Adjacency adj : adjs) {
                         if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
-                            primaryInterfaceIp = adj.getNextHopIp();
+                            // FIXME 2: To be fixed with VPNManager patch
+                            //primaryInterfaceIp = adj.getNextHopIp();
                             break;
                         }
                     }
@@ -386,9 +387,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
                     long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, VpnUtil
                             .getNextHopLabelKey((rd == null) ? intf.getVpnInstanceName() : rd, prefix));
-                    String adjNextHop = nextHop.getNextHopIp();
+                    // FIXME 3: To be fixed with VPNManager patch
+                    /*String adjNextHop = nextHop.getNextHopIp();
                     value.add(new AdjacencyBuilder(nextHop).setLabel(label).setNextHopIp((adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop : nextHopIp)
-                            .setIpAddress(prefix).setKey(new AdjacencyKey(prefix)).build());
+                            .setIpAddress(prefix).setKey(new AdjacencyKey(prefix)).build());*/
                     if(nextHop.getMacAddress() != null && !nextHop.getMacAddress().isEmpty()) {
                         VpnUtil.syncUpdate(
                                 broker,
@@ -398,12 +400,13 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                                 VpnUtil.getPrefixToInterface(dpnId, intf.getName(), prefix));
                     } else {
                         //Extra route adjacency
-                        VpnUtil.syncUpdate(
+                        // FIXME 4: To be fixed with VPNManager patch
+                        /*VpnUtil.syncUpdate(
                                 broker,
                                 LogicalDatastoreType.OPERATIONAL,
                                 VpnUtil.getVpnToExtrarouteIdentifier(
                                         (rd != null) ? rd : intf.getVpnInstanceName(), nextHop.getIpAddress()),
-                                VpnUtil.getVpnToExtraroute(nextHop.getIpAddress(), nextHop.getNextHopIp()));
+                                VpnUtil.getVpnToExtraroute(nextHop.getIpAddress(), nextHop.getNextHopIp()));*/
 
                     }
                 }
@@ -829,14 +832,15 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 adjacencies = new ArrayList<>();
             }
 
-            adjacencies.add(new AdjacencyBuilder(adj).setLabel(label).setNextHopIp(adj.getNextHopIp())
+            // FIXME 4: To be fixed with VPNManager patch
+            /*adjacencies.add(new AdjacencyBuilder(adj).setLabel(label).setNextHopIp(adj.getNextHopIp())
                     .setIpAddress(prefix).setKey(new AdjacencyKey(prefix)).build());
 
             Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencies);
             VpnInterface newVpnIntf = VpnUtil.getVpnInterface(currVpnIntf.getName(), currVpnIntf.getVpnInstanceName(), aug);
 
             VpnUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf);
-            addExtraRoute(adj.getIpAddress(), adj.getNextHopIp(), rd, currVpnIntf.getVpnInstanceName(), (int) label, currVpnIntf.getName());
+            addExtraRoute(adj.getIpAddress(), adj.getNextHopIp(), rd, currVpnIntf.getVpnInstanceName(), (int) label, currVpnIntf.getName());*/
 
         }
 
@@ -955,9 +959,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                             VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
                                     VpnUtil.getIpPrefix(adjacency.getIpAddress())));
                     if (!prefixToInterface.isPresent()) {
-                        prefixToInterface = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                        // FIXME 5: To be fixed with VPNManager patch
+                        /*prefixToInterface = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
                                 VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                        VpnUtil.getIpPrefix(adjacency.getNextHopIp())));
+                                        VpnUtil.getIpPrefix(adjacency.getNextHopIp())));*/
                     }
                     if (prefixToInterface.isPresent()) {
                         VpnUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
@@ -1052,9 +1057,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                             VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
                                     VpnUtil.getIpPrefix(adjacency.getIpAddress())));
                     if (!prefixToInterface.isPresent()) {
-                        prefixToInterface = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                        // FIXME 6: To be fixed with VPNManager patch
+                        /*prefixToInterface = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
                                 VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                        VpnUtil.getIpPrefix(adjacency.getNextHopIp())));
+                                        VpnUtil.getIpPrefix(adjacency.getNextHopIp())));*/
                     }
                     if (prefixToInterface.isPresent()) {
 //                        VpnUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,

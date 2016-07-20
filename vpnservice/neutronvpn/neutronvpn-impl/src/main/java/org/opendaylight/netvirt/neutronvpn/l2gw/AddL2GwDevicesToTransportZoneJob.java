@@ -46,7 +46,7 @@ public class AddL2GwDevicesToTransportZoneJob implements Callable<List<Listenabl
      * @param transportZone the transport zone
      */
     public AddL2GwDevicesToTransportZoneJob(DataBroker dataBroker, ItmRpcService itmRpcService,
-            TransportZone transportZone) {
+                                            TransportZone transportZone) {
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
         this.transportZone = transportZone;
