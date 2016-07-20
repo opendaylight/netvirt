@@ -11,7 +11,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
@@ -26,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +45,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private NeutronRouterChangeListener routerListener;
     private NeutronPortChangeListener portListener;
     private NeutronSecurityRuleListener securityRuleListener;
+    private NeutronQosPolicyChangeListener qosPolicyListener;
     private NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
     private RpcProviderRegistry rpcProviderRegistry;
     private L2GatewayProvider l2GatewayProvider;
@@ -54,16 +55,19 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private IdManagerService idManager;
     private NeutronHostConfigChangeListener hostConfigListener;
     private VpnRpcService vpnRpcService;
+    private OdlInterfaceRpcService odlInterfaceRpcService;
 
 
     public NeutronvpnProvider(RpcProviderRegistry rpcRegistry,
                               NotificationPublishService notificationPublishService,
                               NotificationService notificationService,
-                              VpnRpcService vpnRpcService) {
+                              VpnRpcService vpnRpcService,
+                              OdlInterfaceRpcService odlInterfaceRpcService) {
         this.rpcProviderRegistry = rpcRegistry;
         this.notificationPublishService = notificationPublishService;
         this.notificationService = notificationService;
         this.vpnRpcService = vpnRpcService;
+        this.odlInterfaceRpcService = odlInterfaceRpcService;
     }
 
     public RpcProviderRegistry getRpcProviderRegistry() {
@@ -76,6 +80,10 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
 
     public void setVpnRpcService(VpnRpcService vpnRpcSrv) {
         this.vpnRpcService = vpnRpcSrv;
+    }
+
+    public void setOdlInterfaceRpcService(OdlInterfaceRpcService odlInterfaceRpcSrv) {
+        this.odlInterfaceRpcService = odlInterfaceRpcSrv;
     }
 
     public void setMdsalManager(IMdsalApiManager mdsalManager) {
@@ -99,19 +107,19 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
             nvNatManager = new NeutronvpnNatManager(dbx, mdsalManager);
             nvManager = new NeutronvpnManager(dbx, mdsalManager, nvNatManager, notificationPublishService,
                     notificationService, vpnRpcService, floatingIpMapListener);
-            final BindingAwareBroker.RpcRegistration<NeutronvpnService> rpcRegistration =
-                    getRpcProviderRegistry().addRpcImplementation(NeutronvpnService.class, nvManager);
+            getRpcProviderRegistry().addRpcImplementation(NeutronvpnService.class, nvManager);
             bgpvpnListener = new NeutronBgpvpnChangeListener(dbx, nvManager);
-            networkListener = new NeutronNetworkChangeListener(dbx, nvManager, nvNatManager);
+            networkListener = new NeutronNetworkChangeListener(dbx, nvManager, nvNatManager, odlInterfaceRpcService);
             subnetListener = new NeutronSubnetChangeListener(dbx, nvManager);
             routerListener = new NeutronRouterChangeListener(dbx, nvManager, nvNatManager);
             portListener = new NeutronPortChangeListener(dbx, nvManager, nvNatManager, notificationPublishService,
-                    notificationService);
+                    notificationService, odlInterfaceRpcService);
             portListener.setLockManager(lockManager);
             nvManager.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
             floatingIpMapListener.setLockManager(lockManager);
             l2GatewayProvider = new L2GatewayProvider(dbx, rpcProviderRegistry, entityOwnershipService);
+            qosPolicyListener = new NeutronQosPolicyChangeListener(dbx, odlInterfaceRpcService);
             bgpvpnListener.setIdManager(idManager);
             hostConfigListener = new NeutronHostConfigChangeListener(dbx);
             securityRuleListener = new NeutronSecurityRuleListener(dbx);
@@ -133,6 +141,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
         nvManager.close();
         l2GatewayProvider.close();
         securityRuleListener.close();
+        qosPolicyListener.close();
         LOG.info("NeutronvpnProvider Closed");
     }
 

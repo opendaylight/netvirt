@@ -9,6 +9,7 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.neutronvpn.impl.rev150325;
 
 import org.opendaylight.netvirt.neutronvpn.NeutronvpnProvider;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 
@@ -36,10 +37,12 @@ public class NeutronvpnImplModule extends org.opendaylight.yang.gen.v1.urn.opend
         // TODO:implement
         LockManagerService lockManagerService = getRpcRegistryDependency().getRpcService(LockManagerService.class);
         VpnRpcService vpnRpcService = getRpcRegistryDependency().getRpcService(VpnRpcService.class);
+        OdlInterfaceRpcService odlInterfaceRpcService = getRpcRegistryDependency().getRpcService(OdlInterfaceRpcService.class);
         NeutronvpnProvider provider = new NeutronvpnProvider(getRpcRegistryDependency(),
                 getNotificationPublishServiceDependency(),
                 getNotificationServiceDependency(),
-                vpnRpcService);
+                vpnRpcService,
+                odlInterfaceRpcService);
         provider.setMdsalManager(getMdsalutilDependency());
         provider.setLockManager(lockManagerService);
         provider.setEntityOwnershipService(getEntityOwnershipServiceDependency());
