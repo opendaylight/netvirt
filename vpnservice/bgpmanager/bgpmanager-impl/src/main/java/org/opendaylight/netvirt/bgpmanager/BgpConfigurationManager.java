@@ -1928,11 +1928,9 @@ public class BgpConfigurationManager {
                         }
                         totalStaledCount++;
                         //Create MAP from stale_vrfTables.
-                        //FIXME: Once odl-fib.yang is updated with latest yang to contain nexthopaddresslist
-//                        for (String nextHop : vrfEntry.getNextHopAddressList()) {
-//                            stale_fib_ent_map.put(vrfEntry.getDestPrefix(), nextHop + "/" + vrfEntry.getLabel());
-//                        }
-
+                        for (String nextHop : vrfEntry.getNextHopAddressList()) {
+                            stale_fib_ent_map.put(vrfEntry.getDestPrefix(), nextHop + "/" + vrfEntry.getLabel());
+                        }
                     }
                     staledFibEntriesMap.put(vrfTable.getRouteDistinguisher(), stale_fib_ent_map);
                 }
