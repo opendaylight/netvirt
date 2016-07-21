@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_0c9bf067",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceOFFlowBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-07-21T07:55:05Z",
+      "side": 1,
+      "message": "what is it for? probably a leftover that should be remove",
+      "revId": "819ed5a87afda706237386c77023840ac0898bf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_ec02fc6d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceOFFlowBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-07-21T07:55:05Z",
+      "side": 1,
+      "message": "this behavior is misleading. the caller provided an illegal values and we \"hide\" it. i think that we should at least add a warn to log",
+      "revId": "819ed5a87afda706237386c77023840ac0898bf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_2cf4f485",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceOFFlowBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-07-21T07:55:05Z",
+      "side": 1,
+      "message": "same",
+      "revId": "819ed5a87afda706237386c77023840ac0898bf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_2cc6b449",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/AclServiceOFFlowBuilderTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-07-21T07:55:05Z",
+      "side": 1,
+      "message": "why each one of the test has a \"test\" prefix to its name? all the tests are marked with @Test annotation and i think it will be easier to search the method without it.",
+      "revId": "819ed5a87afda706237386c77023840ac0898bf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_8cc5403e",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/AclServiceOFFlowBuilderTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-07-21T07:55:05Z",
+      "side": 1,
+      "message": "all the verify methods should be in a separate class so they should be reused by other tests",
+      "revId": "819ed5a87afda706237386c77023840ac0898bf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_ccde1811",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/AclServiceOFFlowBuilderTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-07-21T07:55:05Z",
+      "side": 1,
+      "message": "is it safe to cast item to MatchInfo? did you figure out when the other implementation is used?",
+      "revId": "819ed5a87afda706237386c77023840ac0898bf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
