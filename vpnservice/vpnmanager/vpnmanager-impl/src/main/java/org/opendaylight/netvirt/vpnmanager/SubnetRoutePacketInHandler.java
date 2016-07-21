@@ -15,27 +15,22 @@ import org.opendaylight.controller.liblldp.EtherTypes;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.genius.mdsalutil.packet.ARP;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
@@ -98,16 +93,34 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     byte[] dstIp = Ints.toByteArray(ipv4.getDestinationAddress());
                     String dstIpStr = toStringIpAddress(dstIp);
                     String srcIpStr = toStringIpAddress(srcIp);
-                    // FIXME 7: To be fixed with VPNManager patch
                     /*if (VpnUtil.getNeutronPortNamefromPortFixedIp(broker, dstIpStr) != null) {
                         s_logger.debug("SubnetRoutePacketInHandler: IPv4 Packet received with "
                                 + "Target IP {} is a valid Neutron port, ignoring subnet route processing", dstIpStr);
                         return;
                     }*/
-                    long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
+                    long vpnId = MetaDataUtil.getVpnIdFromMetadata(metadata);
+                    s_logger.info("SubnetRoutePacketInHandler: Processing IPv4 Packet received with Source IP {} "
+                            + "and Target IP {} and vpnId {}", srcIpStr, dstIpStr, vpnId);
+
+                    InstanceIdentifier<VpnIds> vpnIdsInstanceIdentifier = getVpnIdToVpnInstanceIdentifier(vpnId);
+                    Optional<VpnIds> vpnIdsOptional = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
+                    if(!vpnIdsOptional.isPresent()) {
+                        // Donot trigger subnetroute logic for packets from unknown VPNs
+                        s_logger.info("Ignoring IPv4 packet with destination Ip {} and source Ip {} as it came on unknown VPN with ID {}", dstIpStr, srcIpStr, vpnId);
+                        return;
+                    }
+                    // It is an ARP request on a configured VPN.  So we must attempt to respond.
+                    VpnIds vpnIds = vpnIdsOptional.get();
+                    if (VpnUtil.getNeutronPortFromVpnPortFixedIp(broker, vpnIds.getVpnInstanceName(), dstIpStr) !=
+                            null) {
+                        s_logger.debug("SubnetRoutePacketInHandler: IPv4 Packet received with "
+                                + "Target IP {} is a valid Neutron port, ignoring subnet route processing", dstIpStr);
+                        return;
+                    }
+                    long elanTag = getElanTagFromSubnetRouteMetadata(metadata);
                     if (elanTag == 0) {
                         s_logger.error("SubnetRoutePacketInHandler: elanTag value from metadata found to be 0, for IPv4 " +
-                                "Packet received with Target IP {}", dstIpStr);
+                                " Packet received with Target IP {}", dstIpStr);
                         return;
                     }
                     s_logger.info("SubnetRoutePacketInHandler: Processing IPv4 Packet received with Source IP {} "
@@ -127,8 +140,9 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             }
             return;
         }
+        //All Arp responses learning for invisble IPs will now be handled by VpnManager
 
-        if (tableId == NwConstants.L3_INTERFACE_TABLE) {
+        /*if (tableId == NwConstants.L3_INTERFACE_TABLE) {
             s_logger.trace("SubnetRoutePacketInHandler: Packet from Table {} received as {}",
                     NwConstants.L3_INTERFACE_TABLE, notification);
             try {
@@ -142,7 +156,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 if (pkt instanceof ARP) {
                     s_logger.debug("SubnetRoutePacketInHandler: ARP packet received");
                     ARP arpPacket = (ARP) pkt;
-                    boolean arpReply = (arpPacket.getOpCode() == 2);
+                    boolean arpReply = (arpPacket.getOpCode() == 2) ? true : false;
                     if (arpReply) {
                         //Handle subnet routes arp responses
                         s_logger.debug("SubnetRoutePacketInHandler: ARP reply received");
@@ -150,15 +164,34 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                         byte[] respDst = arpPacket.getTargetProtocolAddress();
                         String respIp = toStringIpAddress(respSrc);
                         String check = toStringIpAddress(respDst) + respIp;
-                        // FIXME 8: To be fixed with VPNManager patch
-                        /*if (VpnUtil.getNeutronPortNamefromPortFixedIp(broker, respIp) != null) {
+                        if (VpnUtil.getNeutronPortNamefromPortFixedIp(broker, respIp) != null) {
                             s_logger.debug("SubnetRoutePacketInHandler: ARP reply Packet received with "
                                     + "Source IP {} which is a valid Neutron port, ignoring subnet route processing", respIp);
                             return;
-                        }*/
+                        }
                         String destination = VpnUtil.getIpPrefix(respIp);
+                        String srcIp = toStringIpAddress(respSrc);
+                        String destIp = toStringIpAddress(respDst);
+                        long vpnId = MetaDataUtil.getVpnIdFromMetadata(metadata);
+                        s_logger.info("SubnetRoutePacketInHandler: Processing ARP response Packet received with Source IP {} "
+                                + "and Target IP {} and vpnId {}", srcIp, destIp, vpnId);
+                        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds> vpnIdsInstanceIdentifier = getVpnIdToVpnInstanceIdentifier(vpnId);
+                        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds> vpnIdsOptional = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
+                        if(!vpnIdsOptional.isPresent()) {
+                            // Donot trigger subnetroute logic for packets from unknown VPNs
+                            s_logger.info("Ignoring ARP response packet with destination Ip {} and source Ip {} as it came on with VPN ID {}", destIp, srcIp, vpnId);
+                            return;
+                        }
+                        // It is an ARP request on a configured VPN.  So we must attempt to respond.
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds vpnIds = vpnIdsOptional.get();
+                        if (VpnUtil.getNeutronPortFromVpnPortFixedIp(broker, vpnIds.getVpnInstanceName(), srcIp) != null) {
+                            s_logger.debug("SubnetRoutePacketInHandler: ARP response Packet received with "
+                                    + "Target IP {} is a valid Neutron port, ignoring subnet route processing", destIp);
+                            return;
+                        }
+                        String destination = VpnUtil.getIpPrefix(srcIp);
                         long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
-                        s_logger.info("SubnetRoutePacketInHandler: ARP reply received for target IP {} from LPort {}" + respIp, portTag);
+                        s_logger.info("SubnetRoutePacketInHandler: ARP reply received for target IP {} from LPort {}" + srcIp, portTag);
                         IfIndexInterface interfaceInfo = VpnUtil.getInterfaceInfoByInterfaceTag(broker, portTag);
                         String ifName = interfaceInfo.getInterfaceName();
                         InstanceIdentifier<VpnInterface> vpnIfIdentifier = VpnUtil.getVpnInterfaceIdentifier(ifName);
@@ -186,9 +219,12 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                                                     VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnInterface.getVpnInstanceName(), destination));
                                     String nextHopIp = nextHopIpAddr.split("/")[0];
                                     // FIXME 9: To be fixed with VPNManager patch
-                                    /*Adjacency newAdj = new AdjacencyBuilder().setIpAddress(destination).setKey
+                                    // Adjacency newAdj = new AdjacencyBuilder().setIpAddress(destination).setKey
                                             (new AdjacencyKey(destination)).setNextHopIp(nextHopIp).build();
-                                    adjacencyList.add(newAdj);*/
+                                    adjacencyList.add(newAdj);
+                                    Adjacency newAdj = new AdjacencyBuilder().setIpAddress(destination).setKey
+                                            (new AdjacencyKey(destination)).setNextHopIpList(Arrays.asList(nextHopIp)).build();
+                                    adjacencyList.add(newAdj);
                                     Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
                                     VpnInterface newVpnIntf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(vpnInterface.getName())).
                                             setName(vpnInterface.getName()).setVpnInstanceName(vpnInterface.getVpnInstanceName()).
@@ -205,7 +241,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 s_logger.error("SubnetRoutePacketInHandler: Failed to handle subnetroute Table " + NwConstants.L3_INTERFACE_TABLE +
                         " packets ", ex);
             }
-        }
+        }*/
     }
 
     private static BigInteger getTargetDpnForPacketOut(DataBroker broker, long elanTag, int ipAddress) {
@@ -276,6 +312,10 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         return Long.parseLong(dpId);
     }
 
+    public static long getElanTagFromSubnetRouteMetadata(BigInteger metadata) {
+        return ((metadata.and(MetaDataUtil.METADATA_MASK_ELAN_SUBNET_ROUTE)).shiftRight(32)).longValue();
+    }
+
     private void sendArpRequest(BigInteger dpnId, long groupId, byte[] abySenderMAC, byte[] abySenderIpAddress,
                                 byte[] abyTargetIpAddress) {
 
@@ -291,7 +331,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             arpPacket = createARPPacket(ARP.REQUEST, abySenderMAC, abySenderIpAddress, VpnConstants.MAC_Broadcast,
                     abyTargetIpAddress);
             ethPacket = createEthernetPacket(abySenderMAC, VpnConstants.EthernetDestination_Broadcast, arpPacket);
-            lstActionInfo = new ArrayList<>();
+            lstActionInfo = new ArrayList<ActionInfo>();
             lstActionInfo.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));
             transmitPacketInput = MDSALUtil.getPacketOutDefault(lstActionInfo, ethPacket, dpnId);
             packetService.transmitPacket(transmitPacketInput);
@@ -301,7 +341,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     }
 
     private static byte[] createARPPacket(short opCode, byte[] senderMacAddress, byte[] senderIP, byte[] targetMacAddress,
-                                          byte[] targetIP) {
+                                         byte[] targetIP) {
         ARP arp = new ARP();
         byte[] rawArpPkt = null;
         try {
@@ -337,5 +377,12 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     sourceMAC, targetMAC, ex);
         }
         return rawEthPkt;
+    }
+
+    static InstanceIdentifier<VpnIds>
+    getVpnIdToVpnInstanceIdentifier(long vpnId) {
+        return InstanceIdentifier.builder(VpnIdToVpnInstance.class)
+                .child(VpnIds.class,
+                        new VpnIdsKey(Long.valueOf(vpnId))).build();
     }
 }

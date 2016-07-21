@@ -18,6 +18,7 @@ public enum RouteOrigin {
     CONNECTED("directly connected", "c"),
     STATIC(   "static",             "s"),
     INTERVPN( "inter-vpn link",     "l"),
+    SELF_IMPORTED( "self imported route","selfimp"),
     BGP(      "bgp",                "b"),
     IGP(      "igp",                "i");
 
@@ -42,6 +43,9 @@ public enum RouteOrigin {
                 break;
             case "l":
                 origin = INTERVPN;
+                break;
+            case "selfimp":
+                origin = SELF_IMPORTED;
                 break;
             case "b":
                 origin = BGP;

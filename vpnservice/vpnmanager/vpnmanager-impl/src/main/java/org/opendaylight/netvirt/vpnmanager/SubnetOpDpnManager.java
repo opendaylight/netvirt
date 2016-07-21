@@ -60,7 +60,7 @@ public class SubnetOpDpnManager {
                 return null;
             }
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder().setKey(new SubnetToDpnKey(dpnId));
-            List<VpnInterfaces> vpnIntfList = new ArrayList<>();
+            List<VpnInterfaces> vpnIntfList = new ArrayList<VpnInterfaces>();
             subDpnBuilder.setVpnInterfaces(vpnIntfList);
             subDpn = subDpnBuilder.build();
             logger.trace("Creating SubnetToDpn entry for subnet  " + subnetId.getValue() + " with DPNId "+ dpnId);
@@ -151,8 +151,8 @@ public class SubnetOpDpnManager {
             logger.trace("Creating PortOpData entry for port " + intfName + " with DPNId "+ dpnId);
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOpEntry);
         } catch (Exception ex) {
-            logger.error("Addition of Interface " + intfName + " for SubnetToDpn on subnet " +
-                    subnetId.getValue() + " with DPN " + dpnId + " failed {}" + ex);
+          logger.error("Addition of Interface " + intfName + " for SubnetToDpn on subnet " +
+                  subnetId.getValue() + " with DPN " + dpnId + " failed {}" + ex);
         } finally {
         }
     }
@@ -210,7 +210,7 @@ public class SubnetOpDpnManager {
     }
 
     public PortOpDataEntry getPortOpDataEntry(String intfName) {
-        // Remove PortOpData and return out
+     // Remove PortOpData and return out
         InstanceIdentifier<PortOpDataEntry> portOpIdentifier = InstanceIdentifier.builder(PortOpData.class).
                 child(PortOpDataEntry.class, new PortOpDataEntryKey(intfName)).build();
         Optional<PortOpDataEntry> optionalPortOp = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);

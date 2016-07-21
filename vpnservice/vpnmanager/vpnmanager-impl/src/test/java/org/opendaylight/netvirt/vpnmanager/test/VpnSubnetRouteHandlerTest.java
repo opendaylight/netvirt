@@ -374,7 +374,7 @@ public class VpnSubnetRouteHandlerTest {
 
         vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetUpdatedInVpn);
 
-        verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, instPortOp);
+        verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
 
     }
@@ -384,7 +384,7 @@ public class VpnSubnetRouteHandlerTest {
 
         vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetDeletedFromVpn);
 
-        verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, instPortOp);
+        verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
 
     }
