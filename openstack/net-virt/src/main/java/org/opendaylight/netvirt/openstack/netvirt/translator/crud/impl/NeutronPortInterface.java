@@ -51,7 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NeutronPortInterface extends AbstractNeutronInterface<Port, NeutronPort> implements INeutronPortCRUD {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NeutronPortInterface.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronPortInterface.class);
 
     NeutronPortInterface(final DataBroker dataBroker) {
         super(dataBroker);
@@ -83,7 +83,7 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
                 allPorts.add(fromMd(port));
             }
         }
-        LOGGER.debug("Exiting getAllPorts, Found {} OpenStackPorts", allPorts.size());
+        LOG.debug("Exiting getAllPorts, Found {} OpenStackPorts", allPorts.size());
         List<NeutronPort> ans = new ArrayList<>();
         ans.addAll(allPorts);
         return ans;
@@ -320,7 +320,7 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
         if (neutronPort.getPortUUID() != null) {
             portBuilder.setUuid(toUuid(neutronPort.getPortUUID()));
         } else {
-            LOGGER.warn("Attempting to write neutron port without UUID");
+            LOG.warn("Attempting to write neutron port without UUID");
         }
         return portBuilder.build();
     }

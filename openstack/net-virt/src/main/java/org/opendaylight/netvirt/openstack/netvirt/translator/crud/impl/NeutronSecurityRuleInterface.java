@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<SecurityRule, NeutronSecurityRule> implements INeutronSecurityRuleCRUD {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NeutronSecurityRuleInterface.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronSecurityRuleInterface.class);
 
     private static final ImmutableBiMap<Class<? extends DirectionBase>, String> DIRECTION_MAP = ImmutableBiMap.of(
             DirectionEgress.class, NeutronSecurityRule.DIRECTION_EGRESS,
@@ -88,7 +88,7 @@ public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<Secur
                 allSecurityRules.add(fromMd(rule));
             }
         }
-        LOGGER.debug("Exiting getSecurityRule, Found {} OpenStackSecurityRule", allSecurityRules.size());
+        LOG.debug("Exiting getSecurityRule, Found {} OpenStackSecurityRule", allSecurityRules.size());
         return new ArrayList<>(allSecurityRules);
     }
 
@@ -207,7 +207,7 @@ public class NeutronSecurityRuleInterface extends AbstractNeutronInterface<Secur
         if (securityRule.getID() != null) {
             securityRuleBuilder.setUuid(toUuid(securityRule.getID()));
         } else {
-            LOGGER.warn("Attempting to write neutron securityRule without UUID");
+            LOG.warn("Attempting to write neutron securityRule without UUID");
         }
         return securityRuleBuilder.build();
     }
