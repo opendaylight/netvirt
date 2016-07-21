@@ -43,13 +43,13 @@ public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheMa
 
     @Override
     public void nodeAdded(Node node) {
-        LOG.debug("nodeAdded: {}", node);
+        LOG.trace("nodeAdded: {}", node);
         enqueueEvent(new NodeCacheManagerEvent(node, Action.UPDATE));
     }
 
     @Override
     public void nodeRemoved(Node node) {
-        LOG.debug("nodeRemoved: {}", node);
+        LOG.trace("nodeRemoved: {}", node);
         enqueueEvent(new NodeCacheManagerEvent(node, Action.DELETE));
     }
 
@@ -79,7 +79,7 @@ public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheMa
                 LOG.error("Failed notifying node add event", e);
             }
         }
-        LOG.debug("processNodeUpdate returns");
+        LOG.trace("processNodeUpdate: Done processing");
     }
 
     private void processNodeRemoved(Node node) {
@@ -91,7 +91,7 @@ public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheMa
                 LOG.error("Failed notifying node remove event", e);
             }
         }
-        LOG.warn("processNodeRemoved returns");
+        LOG.trace("processNodeRemoved: Done processing");
     }
 
     /**
@@ -107,7 +107,7 @@ public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheMa
             return;
         }
         NodeCacheManagerEvent ev = (NodeCacheManagerEvent) abstractEvent;
-        LOG.debug("NodeCacheManagerImpl: dequeue: {}", ev);
+        LOG.trace("NodeCacheManagerImpl: dequeue Event: {}", ev.getAction());
         switch (ev.getAction()) {
             case DELETE:
                 processNodeRemoved(ev.getNode());
@@ -124,7 +124,8 @@ public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheMa
     public void cacheListenerAdded(final ServiceReference ref, NodeCacheListener handler){
         Long pid = (Long) ref.getProperty(org.osgi.framework.Constants.SERVICE_ID);
         handlers.put(pid, handler);
-        LOG.info("Node cache listener registered, pid {} {}", pid, handler.getClass().getName());
+        LOG.info("Node cache listener registered, pid : {} handler : {}", pid,
+                handler.getClass().getName());
     }
 
     public void cacheListenerRemoved(final ServiceReference ref){

@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 public class NeutronSecurityGroupInterface extends AbstractNeutronInterface<SecurityGroup,NeutronSecurityGroup> implements INeutronSecurityGroupCRUD {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NeutronSecurityGroupInterface.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronSecurityGroupInterface.class);
 
     NeutronSecurityGroupInterface(ProviderContext providerContext) {
         super(providerContext);
@@ -66,7 +66,7 @@ public class NeutronSecurityGroupInterface extends AbstractNeutronInterface<Secu
                 allSecurityGroups.add(fromMd(group));
             }
         }
-        LOGGER.debug("Exiting getSecurityGroups, Found {} OpenStackSecurityGroup", allSecurityGroups.size());
+        LOG.debug("Exiting getSecurityGroups, Found {} OpenStackSecurityGroup", allSecurityGroups.size());
         List<NeutronSecurityGroup> ans = new ArrayList<>();
         ans.addAll(allSecurityGroups);
         return ans;
@@ -160,7 +160,7 @@ public class NeutronSecurityGroupInterface extends AbstractNeutronInterface<Secu
         if (securityGroup.getID() != null) {
             securityGroupBuilder.setUuid(toUuid(securityGroup.getID()));
         } else {
-            LOGGER.warn("Attempting to write neutron securityGroup without UUID");
+            LOG.warn("Attempting to write neutron securityGroup without UUID");
         }
 
         return securityGroupBuilder.build();

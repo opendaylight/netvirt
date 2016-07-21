@@ -1208,7 +1208,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     }
 
     private void triggerInterfaceUpdates(Node node) {
-        LOG.debug("enter triggerInterfaceUpdates for {}", node.getNodeId());
+        LOG.debug("enter triggerInterfaceUpdates for : {}", node.getNodeId());
         List<OvsdbTerminationPointAugmentation> ports = southbound.extractTerminationPointAugmentations(node);
         if (ports != null && !ports.isEmpty()) {
             for (OvsdbTerminationPointAugmentation port : ports) {
@@ -1304,8 +1304,8 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     private void initializeFlowRules(Node node, String bridgeName) {
         Long dpid = southbound.getDataPathId(node);
         String datapathId = southbound.getDatapathId(node);
-        LOG.info("initializeFlowRules: bridgeName: {}, dpid: {} - {}",
-                bridgeName, dpid, datapathId);
+        LOG.trace("initializeFlowRules: bridgeName: {}, datapathId: {} ",
+                bridgeName, datapathId);
 
         if (dpid == 0L) {
             LOG.debug("Openflow Datapath-ID not set for the integration bridge in {}", node);
@@ -1973,10 +1973,8 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             initializeFlowRules(openflowNode, configurationService.getIntegrationBridgeName());
             triggerInterfaceUpdates(openflowNode);
         } else if (bridgeName.equals(configurationService.getExternalBridgeName())) {
-            initializeFlowRules(openflowNode, configurationService.getExternalBridgeName());
-            LOG.info("initializeOFFlowRules after writeFlow: bridgeName: {}", bridgeName);
+            initializeFlowRules(openflowNode, configurationService.getExternalBridgeName());            
             triggerInterfaceUpdates(openflowNode);
-            LOG.info("initializeOFFlowRules after triggerUpdates: bridgeName: {}", bridgeName);
         }
     }
 

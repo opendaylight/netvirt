@@ -31,7 +31,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 
 
 public abstract class AbstractNeutronInterface<T extends DataObject, S extends INeutronObject> implements AutoCloseable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractNeutronInterface.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractNeutronInterface.class);
     private static final int DEDASHED_UUID_LENGTH = 32;
     private static final int DEDASHED_UUID_START = 0;
     private static final int DEDASHED_UUID_DIV1 = 8;
@@ -63,7 +63,7 @@ public abstract class AbstractNeutronInterface<T extends DataObject, S extends I
             try {
                 result = future.checkedGet().orNull();
             } catch (ReadFailedException e) {
-                LOGGER.warn("Failed to read {}", path, e);
+                LOG.warn("Failed to read {}", path, e);
             }
         }
         transaction.close();
@@ -84,7 +84,7 @@ public abstract class AbstractNeutronInterface<T extends DataObject, S extends I
         try {
             future.get();
         } catch (InterruptedException | ExecutionException e) {
-            LOGGER.warn("Transation failed ",e);
+            LOG.warn("Transation failed ",e);
             return false;
         }
         return true;
@@ -98,7 +98,7 @@ public abstract class AbstractNeutronInterface<T extends DataObject, S extends I
         try {
             future.get();
         } catch (InterruptedException | ExecutionException e) {
-            LOGGER.warn("Transation failed ",e);
+            LOG.warn("Transation failed ",e);
             return false;
         }
         return true;
@@ -149,7 +149,7 @@ public abstract class AbstractNeutronInterface<T extends DataObject, S extends I
                         toMethod.invoke(target, value);
                     }
                 } catch (Exception e) {
-                    LOGGER.error("Error in overwrite", e);
+                    LOG.error("Error in overwrite", e);
                     return false;
                 }
             }

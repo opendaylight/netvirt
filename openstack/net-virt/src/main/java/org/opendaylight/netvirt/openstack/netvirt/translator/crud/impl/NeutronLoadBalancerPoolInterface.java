@@ -46,7 +46,7 @@ import com.google.common.collect.ImmutableBiMap;
  */
 
 public class NeutronLoadBalancerPoolInterface extends AbstractNeutronInterface<Pool, NeutronLoadBalancerPool> implements INeutronLoadBalancerPoolCRUD {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NeutronLoadBalancerPoolInterface.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronLoadBalancerPoolInterface.class);
     private ConcurrentMap<String, NeutronLoadBalancerPool> loadBalancerPoolDB = new ConcurrentHashMap<>();
 
     private static final ImmutableBiMap<Class<? extends ProtocolBase>,String> PROTOCOL_MAP
@@ -68,7 +68,7 @@ public class NeutronLoadBalancerPoolInterface extends AbstractNeutronInterface<P
     @Override
     public NeutronLoadBalancerPool getNeutronLoadBalancerPool(String uuid) {
         if (!neutronLoadBalancerPoolExists(uuid)) {
-            LOGGER.debug("No LoadBalancerPool has Been Defined");
+            LOG.debug("No LoadBalancerPool has Been Defined");
             return null;
         }
         return loadBalancerPoolDB.get(uuid);
@@ -81,7 +81,7 @@ public class NeutronLoadBalancerPoolInterface extends AbstractNeutronInterface<P
             NeutronLoadBalancerPool loadBalancerPool = entry.getValue();
             allLoadBalancerPools.add(loadBalancerPool);
         }
-        LOGGER.debug("Exiting getLoadBalancerPools, Found {} OpenStackLoadBalancerPool", allLoadBalancerPools.size());
+        LOG.debug("Exiting getLoadBalancerPools, Found {} OpenStackLoadBalancerPool", allLoadBalancerPools.size());
         List<NeutronLoadBalancerPool> ans = new ArrayList<>();
         ans.addAll(allLoadBalancerPools);
         return ans;
@@ -178,7 +178,7 @@ public class NeutronLoadBalancerPoolInterface extends AbstractNeutronInterface<P
         if (pool.getID() != null) {
             poolBuilder.setUuid(toUuid(pool.getID()));
         } else {
-            LOGGER.warn("Attempting to write neutron load balancer pool without UUID");
+            LOG.warn("Attempting to write neutron load balancer pool without UUID");
         }
         return poolBuilder.build();
     }

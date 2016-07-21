@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NeutronRouterInterface extends  AbstractNeutronInterface<Router, NeutronRouter> implements INeutronRouterCRUD {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NeutronRouterInterface.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronRouterInterface.class);
     // methods needed for creating caches
 
 
@@ -75,7 +75,7 @@ public class NeutronRouterInterface extends  AbstractNeutronInterface<Router, Ne
                 allRouters.add(fromMd(router));
             }
         }
-        LOGGER.debug("Exiting getAllRouters, Found {} Routers", allRouters.size());
+        LOG.debug("Exiting getAllRouters, Found {} Routers", allRouters.size());
         List<NeutronRouter> ans = new ArrayList<>();
         ans.addAll(allRouters);
         return ans;
@@ -178,7 +178,7 @@ public class NeutronRouterInterface extends  AbstractNeutronInterface<Router, Ne
         if (router.getID() != null) {
             routerBuilder.setUuid(toUuid(router.getID()));
         } else {
-            LOGGER.warn("Attempting to write neutron router without UUID");
+            LOG.warn("Attempting to write neutron router without UUID");
         }
         return routerBuilder.build();
     }
@@ -252,7 +252,7 @@ public class NeutronRouterInterface extends  AbstractNeutronInterface<Router, Ne
         }
         return result;
     }
-    
+
     public static void registerNewInterface(BundleContext context,
             ProviderContext providerContext,
             List<ServiceRegistration<?>> registrations) {
