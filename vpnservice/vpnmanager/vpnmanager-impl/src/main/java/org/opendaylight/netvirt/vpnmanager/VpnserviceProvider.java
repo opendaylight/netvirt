@@ -12,12 +12,20 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.NotificationService;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkListener;
+import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkNodeListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
@@ -26,7 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,40 +43,58 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
     private static final Logger LOG = LoggerFactory.getLogger(VpnserviceProvider.class);
     private VpnInterfaceManager vpnInterfaceManager;
     private VpnManager vpnManager;
+    private ArpScheduler arpscheduler;
     private IBgpManager bgpManager;
+    private FibRpcService fibService;
     private IFibManager fibManager;
     private IMdsalApiManager mdsalManager;
-    private OdlInterfaceRpcService interfaceManager;
+    private OdlInterfaceRpcService odlInterfaceRpcService;
     private ItmRpcService itmProvider;
     private IdManagerService idManager;
     private OdlArputilService arpManager;
     private NeutronvpnService neuService;
+    private NotificationService notificationService;
+    private RpcProviderRegistry rpcProviderRegistry;
+    private BindingAwareBroker.RpcRegistration<VpnRpcService> rpcRegistration;
+    private NotificationPublishService notificationPublishService;
     private PacketProcessingService m_packetProcessingService;
     private SubnetRoutePacketInHandler subnetRoutePacketInHandler;
-    private NotificationService notificationService;
+    private InterVpnLinkListener interVpnLinkListener;
+    private DataBroker dataBroker;
+    private InterVpnLinkNodeListener interVpnLinkNodeListener;
+
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
         LOG.info("VpnserviceProvider Session Initiated");
         try {
-            final  DataBroker dataBroker = session.getSALService(DataBroker.class);
+            dataBroker = session.getSALService(DataBroker.class);
             vpnManager = new VpnManager(dataBroker, bgpManager);
             vpnManager.setIdManager(idManager);
             vpnInterfaceManager = new VpnInterfaceManager(dataBroker, bgpManager, notificationService);
             vpnInterfaceManager.setMdsalManager(mdsalManager);
-            vpnInterfaceManager.setInterfaceManager(interfaceManager);
+            vpnInterfaceManager.setIfaceMgrRpcService(odlInterfaceRpcService);
             vpnInterfaceManager.setITMProvider(itmProvider);
             vpnInterfaceManager.setIdManager(idManager);
             vpnInterfaceManager.setArpManager(arpManager);
             vpnInterfaceManager.setNeutronvpnManager(neuService);
+            vpnInterfaceManager.setNotificationPublishService(notificationPublishService);
+            vpnManager.setVpnInterfaceManager(vpnInterfaceManager);
+            fibService = rpcProviderRegistry.getRpcService(FibRpcService.class);
+            vpnInterfaceManager.setFibRpcService(fibService);
+            VpnRpcService vpnRpcService = new VpnRpcServiceImpl(idManager, vpnInterfaceManager, dataBroker);
+            rpcRegistration = getRpcProviderRegistry().addRpcImplementation(VpnRpcService.class, vpnRpcService);
             //Handles subnet route entries
             subnetRoutePacketInHandler = new SubnetRoutePacketInHandler(dataBroker, idManager);
             m_packetProcessingService = session.getRpcService(PacketProcessingService.class);
             subnetRoutePacketInHandler.setPacketProcessingService(m_packetProcessingService);
             notificationService.registerNotificationListener(subnetRoutePacketInHandler);
-            vpnManager.setVpnInterfaceManager(vpnInterfaceManager);
+            interVpnLinkListener = new InterVpnLinkListener(dataBroker, idManager, mdsalManager, bgpManager,
+                                                            notificationPublishService);
+            interVpnLinkNodeListener = new InterVpnLinkNodeListener(dataBroker, mdsalManager);
             createIdPool();
             RouterInterfaceListener routerListener = new RouterInterfaceListener(dataBroker);
+            arpscheduler = new ArpScheduler(odlInterfaceRpcService, dataBroker);
             routerListener.setVpnInterfaceManager(vpnInterfaceManager);
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
@@ -89,8 +114,8 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
         this.mdsalManager = mdsalManager;
     }
 
-    public void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
-        this.interfaceManager = interfaceManager;
+    public void setOdlInterfaceRpcService(OdlInterfaceRpcService odlInterfaceRpcService) {
+        this.odlInterfaceRpcService = odlInterfaceRpcService;
     }
 
     public void setITMProvider(ItmRpcService itmProvider) {
@@ -103,6 +128,18 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
 
     public void setArpManager(OdlArputilService arpManager) {
         this.arpManager = arpManager;
+    }
+
+    public void setRpcProviderRegistry(RpcProviderRegistry rpcProviderRegistry) {
+        this.rpcProviderRegistry = rpcProviderRegistry;
+    }
+
+    private RpcProviderRegistry getRpcProviderRegistry() {
+        return rpcProviderRegistry;
+    }
+
+    public void setNotificationPublishService(NotificationPublishService notificationPublishService) {
+        this.notificationPublishService = notificationPublishService;
     }
 
     private void createIdPool() {
@@ -125,6 +162,8 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
     public void close() throws Exception {
         vpnManager.close();
         vpnInterfaceManager.close();
+        interVpnLinkListener.close();
+        interVpnLinkNodeListener.close();
 
     }
 
@@ -137,14 +176,14 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
 
     @Override
     public void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label) {
-        LOG.info("Adding extra route with destination {} and nexthop {}", destination, nextHop);
-        vpnInterfaceManager.addExtraRoute(destination, nextHop, rd, routerID, label, null);
+        LOG.info("Adding extra route with destination {}, nextHop {} and label{}", destination, nextHop, label);
+        vpnInterfaceManager.addExtraRoute(destination, nextHop, rd, routerID, label, /*intfName*/ null);
     }
 
     @Override
-    public void delExtraRoute(String destination, String rd, String routerID) {
-        LOG.info("Deleting extra route with destination {}", destination);
-        vpnInterfaceManager.delExtraRoute(destination, rd, routerID);
+    public void delExtraRoute(String destination, String nextHop, String rd, String routerID) {
+        LOG.info("Deleting extra route with destination {} and nextHop {}", destination, nextHop);
+        vpnInterfaceManager.delExtraRoute(destination, nextHop, rd, routerID, null);
     }
 
     @Override

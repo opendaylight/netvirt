@@ -4,7 +4,7 @@ module odl-l3vpn {
 
     import yang-ext {prefix ext; revision-date "2013-07-09";}
     import l3vpn { prefix l3vpn; revision-date "2014-08-15"; }
-    import ietf-yang-types { prefix "yang"; }
+    import ietf-yang-types { prefix "yang"; revision-date "2013-07-15"; }
     import odl-interface { prefix odlif; revision-date "2016-04-06"; }
 
     revision "2013-09-11" {
@@ -70,7 +70,7 @@ module odl-l3vpn {
            list extraroute {
               key prefix;
               leaf prefix {type string;}
-              leaf nexthop-ip {
+              leaf-list nexthop-ip-list {
                   type string;
               }
            }
@@ -97,20 +97,59 @@ module odl-l3vpn {
        }
     }
 
+    container vpn-id-to-vpn-instance {
+           list vpn-ids {
+              key vpn-id;
+              leaf vpn-id {
+                 type uint32;
+              }
+              leaf vpn-instance-name {
+                 type string;
+              }
+              leaf vrf-id {
+                  description
+                     "The vrf-id command configures a route distinguisher (RD)
+                      for the IPv4 or IPv6 address family of a VPN instance or
+                      vpn instance name for internal vpn case.";
+                  type string;
+              }
+              leaf external-vpn {
+                  type boolean;
+                  description "The VPN is external?";
+              }
+           }
+    }
+
+    container vpn-to-pseudo-port-tag-data {
+        description "Makes a correspondence between VRFs and their corresponding VpnPseudoPort";
+        list vpn-to-pseudo-port-tag {
+            key vrf-id;
+            leaf vrf-id {
+                type string;
+            }
+            leaf lport-tag {
+                description "Vpn Pseudo Logical Port Tag";
+                type uint32;
+            }
+        }
+    }
+
     container vpn-instance-op-data {
         config false;
         list vpn-instance-op-data-entry {
            key vrf-id;
            leaf vpn-id { type uint32;}
-           leaf vpn-instance-name {
-              type string;
-           }
            leaf vrf-id {
               description
                  "The vrf-id command configures a route distinguisher (RD)
                   for the IPv4 or IPv6 address family of a VPN instance or
                   vpn instance name for internal vpn case.";
               type string;
+           }
+
+           leaf vpn-instance-name {
+               description "Typical the VPN Uuid";
+               type string;
            }
 
            leaf vpn-interface-count { type uint32; }
@@ -127,15 +166,13 @@ module odl-l3vpn {
                   }
                }
                list ip-addresses {
-                  key ip-address;
-                  leaf ip-address {
-                      type string;
-                  }
+                   key ip-address;
+                   leaf ip-address { type string; }
                }
            }
-           leaf cleanup_complete { type boolean;}
         }
     }
+
 
     typedef task-state {
          type enumeration {
@@ -159,7 +196,7 @@ module odl-l3vpn {
           "This value the status of any task.
            The possible values are NA, PENDING or DONE.
            ";
-    }
+           }
 
 
     container subnet-op-data {
@@ -226,24 +263,39 @@ module odl-l3vpn {
         }
     }
 
+
     grouping dpn-in-vpn-event {
-            leaf dpn-id { type uint64; }
-            leaf vpn-name { type string; }
-            leaf rd { type string; }
-        }
+        leaf dpn-id { type uint64; }
+        leaf vpn-name { type string; }
+        leaf rd { type string; }
+    }
 
-        notification add-dpn-event {
-            container add-event-data {
-               uses dpn-in-vpn-event;
+    notification add-dpn-event {
+        container add-event-data {
+           uses dpn-in-vpn-event;
+        }
+    }
+
+    notification remove-dpn-event {
+        container remove-event-data {
+           uses dpn-in-vpn-event;
+        }
+    }
+
+    /*
+     * Configured Transport Type for l3vpn service.
+     */
+    container conf-transport-type-l3vpn {
+        leaf transport-type {
+            mandatory "true";
+            type identityref {
+                base odlif:tunnel-type-base;
             }
+            description
+                "L3VPN service will use this config to setup
+                the transport type for tunnels between DPNs.";
         }
-
-        notification remove-dpn-event {
-            container remove-event-data {
-               uses dpn-in-vpn-event;
-            }
-        }
-
+    }
 
     /* container to maintain mapping between neutron router and DPN(s) on which vpn-interfaces for router are present */
     container neutron-router-dpns {
@@ -262,26 +314,12 @@ module odl-l3vpn {
         }
     }
 
+
     container router-interfaces {
         list router-interface {
             key interface-name;
             leaf interface-name { type string; }
             leaf router-name { type string; }
-        }
-    }
-
-    /*
-     * Configured Transport Type for l3vpn service.
-     */
-    container conf-transport-type-l3vpn {
-        leaf transport-type {
-            mandatory "true";
-            type identityref {
-                base odlif:tunnel-type-base;
-            }
-            description
-                "L3VPN service will use this config to setup
-                the transport type for tunnels between DPNs.";
         }
     }
 }

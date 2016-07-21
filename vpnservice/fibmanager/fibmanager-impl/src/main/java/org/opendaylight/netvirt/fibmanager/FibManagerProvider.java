@@ -113,10 +113,9 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
     this.vpnmanager.addExtraRoute(prefix, nextHop, rd, null, label);
   }
 
-  //FIXME: Once changes are upstreamed from vpnmanager
   @Override
   public void deleteStaticRoute(String prefix, String nextHop, String rd) {
-  //  this.vpnmanager.delExtraRoute(prefix, nextHop, rd, null);
+    this.vpnmanager.delExtraRoute(prefix, nextHop, rd, null);
   }
 
   public void setRpcProviderRegistry(RpcProviderRegistry rpcProviderRegistry) {
@@ -159,17 +158,29 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
   }
 
   @Override
-  public void handleRemoteRoute(boolean action, BigInteger localDpnId, BigInteger remoteDpnId, long vpnId, String  rd, String destPrefix , String nextHopIp) {
-    fibManager.handleRemoteRoute(action, localDpnId, remoteDpnId, vpnId,rd, destPrefix, nextHopIp);
+  public void handleRemoteRoute(boolean action, BigInteger localDpnId,
+                                BigInteger remoteDpnId, long vpnId,
+                                String  rd, String destPrefix ,
+                                String localNextHopIP,
+                                String remoteNextHopIp) {
+    fibManager.handleRemoteRoute( action, localDpnId, remoteDpnId,
+                                  vpnId,rd, destPrefix,
+                                  localNextHopIP, remoteNextHopIp);
   }
   @Override
-  public void populateFibOnDpn(BigInteger localDpnId, BigInteger remoteDpnId, long vpnId, String rd, String nextHopIp) {
-    fibManager.populateFibOnDpn(localDpnId, remoteDpnId, vpnId, rd, nextHopIp);
+  public void populateFibOnDpn(BigInteger localDpnId, long vpnId,
+                               String rd, String localNextHopIp,
+                               String remoteNextHopIp) {
+    fibManager.populateFibOnDpn(localDpnId, vpnId, rd,
+                                localNextHopIp, remoteNextHopIp);
   }
 
   @Override
-  public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd, String nextHopIp) {
-    fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd, nextHopIp);
+  public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId,
+                               String rd, String localNextHopIp,
+                               String remoteNextHopIp) {
+    fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd,
+                                localNextHopIp, remoteNextHopIp);
   }
 
 }
