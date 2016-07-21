@@ -37,7 +37,7 @@ public class VirtualSubnet  {
     /**
      * Logger instance.
      */
-    static final Logger logger = LoggerFactory.getLogger(VirtualSubnet.class);
+    static final Logger LOG = LoggerFactory.getLogger(VirtualSubnet.class);
 
     void init() {
         this.interfaces  = new HashMap<>();

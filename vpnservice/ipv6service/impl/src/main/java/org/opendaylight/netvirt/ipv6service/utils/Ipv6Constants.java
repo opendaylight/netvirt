@@ -9,14 +9,14 @@
 package org.opendaylight.netvirt.ipv6service.utils;
 
 public class Ipv6Constants {
-    public static final int IPv6_ETHTYPE = 34525;
-    public static final int ICMP_v6 = 1;
+    public static final int IP_V6_ETHTYPE = 34525;
+    public static final int ICMP_V6 = 1;
 
     public static final int ETHTYPE_START = 96;
     public static final int ONE_BYTE  = 8;
     public static final int TWO_BYTES = 16;
-    public static final int IPv6_HDR_START = 112;
-    public static final int IPv6_NEXT_HDR = 48;
+    public static final int IP_V6_HDR_START = 112;
+    public static final int IP_V6_NEXT_HDR = 48;
     public static final int ICMPV6_HDR_START = 432;
 
     public static final int ICMPV6_RA_LENGTH_WO_OPTIONS = 16;
@@ -28,12 +28,12 @@ public class Ipv6Constants {
     public static final int IPV6_RA_VALID_LIFETIME = 2592000;
     public static final int IPV6_RA_PREFERRED_LIFETIME = 604800;
 
-    public static final int ICMPv6_TYPE = 58;
-    public static final short ICMPv6_RS_CODE = 133;
-    public static final short ICMPv6_RA_CODE = 134;
-    public static final short ICMPv6_NS_CODE = 135;
-    public static final short ICMPv6_NA_CODE = 136;
-    public static final short ICMPv6_MAX_HOP_LIMIT = 255;
+    public static final int ICMP_V6_TYPE = 58;
+    public static final short ICMP_V6_RS_CODE = 133;
+    public static final short ICMP_V6_RA_CODE = 134;
+    public static final short ICMP_V6_NS_CODE = 135;
+    public static final short ICMP_V6_NA_CODE = 136;
+    public static final short ICMP_V6_MAX_HOP_LIMIT = 255;
     public static final int ICMPV6_OFFSET = 54;
 
     public static final String DHCPV6_OFF = "DHCPV6_OFF";

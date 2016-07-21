@@ -88,13 +88,14 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
         try {
             ethType = BitBufferHelper.getInt(BitBufferHelper.getBits(data, Ipv6Constants.ETHTYPE_START,
                     Ipv6Constants.TWO_BYTES));
-            if (ethType == Ipv6Constants.IPv6_ETHTYPE) {
+            if (ethType == Ipv6Constants.IP_V6_ETHTYPE) {
                 v6NxtHdr = BitBufferHelper.getByte(BitBufferHelper.getBits(data,
-                        (Ipv6Constants.IPv6_HDR_START + Ipv6Constants.IPv6_NEXT_HDR), Ipv6Constants.ONE_BYTE));
-                if (v6NxtHdr == Ipv6Constants.ICMPv6_TYPE) {
+                        (Ipv6Constants.IP_V6_HDR_START + Ipv6Constants.IP_V6_NEXT_HDR), Ipv6Constants.ONE_BYTE));
+                if (v6NxtHdr == Ipv6Constants.ICMP_V6_TYPE) {
                     int icmpv6Type = BitBufferHelper.getInt(BitBufferHelper.getBits(data,
                             Ipv6Constants.ICMPV6_HDR_START, Ipv6Constants.ONE_BYTE));
-                    if ((icmpv6Type == Ipv6Constants.ICMPv6_RS_CODE) || (icmpv6Type == Ipv6Constants.ICMPv6_NS_CODE)) {
+                    if ((icmpv6Type == Ipv6Constants.ICMP_V6_RS_CODE)
+                            || (icmpv6Type == Ipv6Constants.ICMP_V6_NS_CODE)) {
                         packetProcessor.submit(new PacketHandler(icmpv6Type, packetReceived));
                     }
                 } else {
@@ -125,10 +126,10 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
 
         @Override
         public void run() {
-            if (type == Ipv6Constants.ICMPv6_NS_CODE) {
+            if (type == Ipv6Constants.ICMP_V6_NS_CODE) {
                 LOG.info("Received Neighbor Solicitation request");
                 processNeighborSolicitationRequest();
-            } else if (type == Ipv6Constants.ICMPv6_RS_CODE) {
+            } else if (type == Ipv6Constants.ICMP_V6_RS_CODE) {
                 LOG.info("Received Router Solicitation request");
                 processRouterSolicitationRequest();
             }
@@ -199,7 +200,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                 bitOffset = bitOffset + 48;
                 nsPdu.setEthertype(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
 
-                bitOffset = Ipv6Constants.IPv6_HDR_START;
+                bitOffset = Ipv6Constants.IP_V6_HDR_START;
                 nsPdu.setVersion(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 4)));
                 bitOffset = bitOffset + 4;
                 nsPdu.setFlowLabel(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, 28)));
@@ -247,8 +248,8 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             naPacket.setEthertype(pdu.getEthertype());
             naPacket.setSourceIpv6(pdu.getTargetIpAddress());
             naPacket.setSourceMac(new MacAddress(port.getMacAddress()));
-            naPacket.setHopLimit(Ipv6Constants.ICMPv6_MAX_HOP_LIMIT);
-            naPacket.setIcmp6Type(Ipv6Constants.ICMPv6_NA_CODE);
+            naPacket.setHopLimit(Ipv6Constants.ICMP_V6_MAX_HOP_LIMIT);
+            naPacket.setIcmp6Type(Ipv6Constants.ICMP_V6_NA_CODE);
             naPacket.setIcmp6Code(pdu.getIcmp6Code());
             flag = flag << 24;
             naPacket.setFlags(flag);
@@ -299,7 +300,6 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
 
         private void processRouterSolicitationRequest() {
             byte[] data = packet.getPayload();
-            List<String> prefixList;
             RouterSolicitationPacket rsPdu = deserializeRSPacket(data);
             Ipv6Header ipv6Header = (Ipv6Header) rsPdu;
             if (ipv6Utils.validateChecksum(data, ipv6Header, rsPdu.getIcmp6Chksum()) == false) {
@@ -354,7 +354,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                 bitOffset = bitOffset + 48;
                 rsPdu.setEthertype(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
 
-                bitOffset = Ipv6Constants.IPv6_HDR_START;
+                bitOffset = Ipv6Constants.IP_V6_HDR_START;
                 rsPdu.setVersion(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 4)));
                 bitOffset = bitOffset + 4;
                 rsPdu.setFlowLabel(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, 28)));
@@ -404,8 +404,8 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             short icmpv6RaFlags = 0;
             String gatewayMac = null;
             IpAddress gatewayIp;
-            List<String> autoConfigPrefixList = new ArrayList<String>();
-            List<String> statefulConfigPrefixList = new ArrayList<String>();
+            List<String> autoConfigPrefixList = new ArrayList<>();
+            List<String> statefulConfigPrefixList = new ArrayList<>();
 
             for (VirtualSubnet subnet : routerPort.getSubnets()) {
                 gatewayIp = subnet.getGatewayIp();
@@ -445,11 +445,11 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                     + Ipv6Constants.ICMPV6_OPTION_SOURCE_LLA_LENGTH
                     + prefixListLength * Ipv6Constants.ICMPV6_OPTION_PREFIX_LENGTH);
             raPacket.setNextHeader(pdu.getNextHeader());
-            raPacket.setHopLimit(Ipv6Constants.ICMPv6_MAX_HOP_LIMIT);
+            raPacket.setHopLimit(Ipv6Constants.ICMP_V6_MAX_HOP_LIMIT);
             raPacket.setSourceIpv6(ipv6Utils.getIpv6LinkLocalAddressFromMac(sourceMac));
             raPacket.setDestinationIpv6(pdu.getSourceIpv6());
 
-            raPacket.setIcmp6Type(Ipv6Constants.ICMPv6_RA_CODE);
+            raPacket.setIcmp6Type(Ipv6Constants.ICMP_V6_RA_CODE);
             raPacket.setIcmp6Code((short)0);
             raPacket.setIcmp6Chksum(0);
 
@@ -463,7 +463,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             raPacket.setSourceAddrLength((short)1);
             raPacket.setSourceLlAddress(MacAddress.getDefaultInstance(gatewayMac));
 
-            List<PrefixList> prefixList = new ArrayList<PrefixList>();
+            List<PrefixList> prefixList = new ArrayList<>();
             PrefixListBuilder prefix = new PrefixListBuilder();
             prefix.setOptionType((short)3);
             prefix.setOptionLength((short)4);

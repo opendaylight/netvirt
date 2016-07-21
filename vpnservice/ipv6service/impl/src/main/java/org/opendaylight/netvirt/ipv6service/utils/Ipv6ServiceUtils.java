@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class Ipv6ServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceUtils.class);
     private ConcurrentMap<String, InstanceIdentifier<Flow>> icmpv6FlowMap;
-    public static final Ipv6ServiceUtils instance = new Ipv6ServiceUtils();
+    public static final Ipv6ServiceUtils INSTANCE = new Ipv6ServiceUtils();
     public static Ipv6Address ALL_NODES_MCAST_ADDR;
     public static Ipv6Address UNSPECIFIED_ADDR;
 
@@ -51,7 +51,7 @@ public class Ipv6ServiceUtils {
     }
 
     public static Ipv6ServiceUtils getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     /**
