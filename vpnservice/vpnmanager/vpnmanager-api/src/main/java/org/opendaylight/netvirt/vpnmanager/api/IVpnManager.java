@@ -13,7 +13,7 @@ import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 public interface IVpnManager {
     void setFibService(IFibManager fibManager);
     void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label);
-    void delExtraRoute(String destination, String rd, String routerID);
+    void delExtraRoute(String destination, String nextHop, String rd, String routerID);
 
     /**
      * Returns true if the specified VPN exists

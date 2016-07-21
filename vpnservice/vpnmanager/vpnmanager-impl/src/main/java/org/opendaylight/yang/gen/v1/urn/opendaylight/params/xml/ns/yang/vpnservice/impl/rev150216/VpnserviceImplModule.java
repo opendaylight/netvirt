@@ -11,6 +11,7 @@ import org.opendaylight.netvirt.vpnmanager.VpnserviceProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 
 public class VpnserviceImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpnservice.impl.rev150216.AbstractVpnserviceImplModule {
     public VpnserviceImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -30,14 +31,19 @@ public class VpnserviceImplModule extends org.opendaylight.yang.gen.v1.urn.opend
     public java.lang.AutoCloseable createInstance() {
         IdManagerService idManager = getRpcregistryDependency().getRpcService(IdManagerService.class);
         OdlArputilService arpManager =  getRpcregistryDependency().getRpcService(OdlArputilService.class);
-        OdlInterfaceRpcService interfaceManager = getRpcregistryDependency().getRpcService(OdlInterfaceRpcService.class);
+        OdlInterfaceRpcService odlInterfaceRpcService = getRpcregistryDependency().getRpcService(OdlInterfaceRpcService.class);
+        ItmRpcService itmRpcService = getRpcregistryDependency().getRpcService(ItmRpcService.class);
+
         VpnserviceProvider provider = new VpnserviceProvider();
         provider.setNotificationService(getNotificationServiceDependency());
         provider.setBgpManager(getBgpmanagerDependency());
         provider.setMdsalManager(getMdsalutilDependency());
-        provider.setInterfaceManager(interfaceManager);
+        provider.setOdlInterfaceRpcService(odlInterfaceRpcService);
         provider.setIdManager(idManager);
         provider.setArpManager(arpManager);
+        provider.setITMProvider(itmRpcService);
+        provider.setRpcProviderRegistry(getRpcregistryDependency());
+        provider.setNotificationPublishService(getNotificationPublishServiceDependency());
         getBrokerDependency().registerProvider(provider);
         return provider;
     }

@@ -13,8 +13,10 @@ import java.util.List;
 
 public interface IFibManager {
     void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd);
-    void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd, String nextHopIp);
-    void populateFibOnDpn(BigInteger localDpnId, BigInteger destDpnId, long vpnId, String rd, String nextHopIp);
+    void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
+                          String localNextHopIp, String remoteNextHopIp);
+    void populateFibOnDpn(BigInteger localDpnId, long vpnId, String rd,
+                          String localNextHopIp, String remoteNextHopIp);
     void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd);
     List<String> printFibEntries();
 
@@ -27,6 +29,9 @@ public interface IFibManager {
     void writeConfTransTypeConfigDS();
     String getReqTransType();
     String getTransportTypeStr(String tunType);
-    void handleRemoteRoute(boolean action, BigInteger localDpnId, BigInteger remoteDpnId,
-                           long vpnId, String rd, String destPrefix, String nextHopIp);
+    void handleRemoteRoute(boolean action, BigInteger localDpnId,
+                           BigInteger remoteDpnId, long vpnId,
+                           String rd, String destPrefix,
+                           String localNextHopIp,
+                           String remoteNextHopIP);
 }

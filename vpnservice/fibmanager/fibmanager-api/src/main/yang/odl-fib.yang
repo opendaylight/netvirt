@@ -52,7 +52,24 @@ module odl-fib {
         }
 
         container ipv4Table{
-            uses  ipv4Entries;
+            uses ipv4Entries;
         }
+    }
+
+    container label-route-map {
+         config false;
+         list label-route-info {
+            key label;
+            leaf label { type uint32; }
+            leaf dpn-id { type uint64; }
+            leaf prefix { type string; }
+            leaf-list next-hop-ip-list { type string; }
+            leaf-list vpn-instance-list { type string; }
+            leaf parent-vpnid { type uint32; }
+            leaf vpn-interface-name { type string; }
+            leaf elan-tag { type uint32; }
+            leaf is-subnet-route { type boolean; }
+            leaf parent-vpn-rd { type string; }
+         }
     }
 }
