@@ -45,4 +45,10 @@ public class Ipv6Constants {
     public static final String IP_VERSION_V4 = "IPv4";
     public static final String IP_VERSION_V6 = "IPv6";
     public static final String NETWORK_ROUTER_INTERFACE = "network:router_interface";
+    public static final String OPENFLOW_NODE_PREFIX = "openflow:";
+    public static final int IPV6_ETH_TYPE = 0x86dd;
+    public static final short IPV6_VERSION = 6;
+    public static final short ICMP6_NHEADER = 58;
+    public static final long DEF_FLOWLABEL = 0;
+    public static final String DEF_MCAST_MAC = "33:33:00:00:00:01";
 }
