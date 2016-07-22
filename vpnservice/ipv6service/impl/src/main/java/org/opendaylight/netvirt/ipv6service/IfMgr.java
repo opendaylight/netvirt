@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class IfMgr {
-    static final Logger logger = LoggerFactory.getLogger(IfMgr.class);
+    static final Logger LOG = LoggerFactory.getLogger(IfMgr.class);
 
     private HashMap<Uuid, VirtualRouter> vrouters;
     private HashMap<Uuid, VirtualSubnet> vsubnets;
@@ -54,7 +54,7 @@ public class IfMgr {
         this.vrouterv6IntfMap = new HashMap<>();
         this.unprocessedRouterIntfs = new HashMap<>();
         this.unprocessedSubnetIntfs = new HashMap<>();
-        logger.info("IfMgr is enabled");
+        LOG.info("IfMgr is enabled");
     }
 
     public static IfMgr getIfMgrInstance() {
@@ -62,7 +62,7 @@ public class IfMgr {
     }
 
     public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {
-        logger.trace("Registered interfaceManager successfully");
+        LOG.trace("Registered interfaceManager successfully");
         this.interfaceManagerRpc = interfaceManagerRpc;
     }
 
@@ -86,7 +86,7 @@ public class IfMgr {
             List<VirtualPort> intfList = unprocessedRouterIntfs.get(rtrUuid);
 
             if (intfList == null) {
-                logger.info("intfList is null for {}", rtrUuid);
+                LOG.info("intfList is null for {}", rtrUuid);
                 return;
             }
 
@@ -104,7 +104,7 @@ public class IfMgr {
             removeUnprocessed(unprocessedRouterIntfs, rtrUuid);
 
         } else {
-            logger.error("Create router failed for :{}", rtrUuid);
+            LOG.error("Create router failed for :{}", rtrUuid);
         }
 
         return;
@@ -124,7 +124,7 @@ public class IfMgr {
             removeUnprocessed(unprocessedRouterIntfs, rtrUuid);
             rtr = null;
         } else {
-            logger.error("Delete router failed for :{}", rtrUuid);
+            LOG.error("Delete router failed for :{}", rtrUuid);
         }
         return;
     }
@@ -169,7 +169,7 @@ public class IfMgr {
 
             List<VirtualPort> intfList = unprocessedSubnetIntfs.get(snetId);
             if (intfList == null) {
-                logger.info("interfaces are not available for the subnet {}", snetId);
+                LOG.info("interfaces are not available for the subnet {}", snetId);
                 return;
             }
             for (VirtualPort intf : intfList) {
@@ -187,7 +187,7 @@ public class IfMgr {
             removeUnprocessed(unprocessedSubnetIntfs, snetId);
 
         } else {
-            logger.error("Create subnet failed for :{}", snetId);
+            LOG.error("Create subnet failed for :{}", snetId);
         }
         return;
     }
@@ -212,7 +212,7 @@ public class IfMgr {
     public void addRouterIntf(Uuid portId, Uuid rtrId, Uuid snetId,
                               Uuid networkId, IpAddress fixedIp, String macAddress,
                               String deviceOwner) {
-        logger.debug("addRouterIntf portId {}, rtrId {}, snetId {}, networkId {}, ip {}, mac {}",
+        LOG.debug("addRouterIntf portId {}, rtrId {}, snetId {}, networkId {}, ip {}, mac {}",
             portId, rtrId, snetId, networkId, fixedIp, macAddress);
         //Save the interface ipv6 address in its fully expanded format
         Ipv6Address addr = new Ipv6Address(InetAddresses
@@ -225,7 +225,7 @@ public class IfMgr {
             if (intf != null) {
                 vintfs.put(portId, intf);
             } else {
-                logger.error("Create rtr intf failed for :{}", portId);
+                LOG.error("Create rtr intf failed for :{}", portId);
                 return;
             }
             intf.setIntfUUID(portId)
@@ -262,10 +262,10 @@ public class IfMgr {
     }
 
     public void updateRouterIntf(Uuid portId, Uuid rtrId, List<FixedIps> fixedIpsList) {
-        logger.debug("updateRouterIntf portId {}, fixedIpsList {} ", portId, fixedIpsList);
+        LOG.debug("updateRouterIntf portId {}, fixedIpsList {} ", portId, fixedIpsList);
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
-            logger.error("Update Router interface failed. Could not get router interface details {}", portId);
+            LOG.error("Update Router interface failed. Could not get router interface details {}", portId);
             return;
         }
 
@@ -304,7 +304,7 @@ public class IfMgr {
 
     public void addHostIntf(Uuid portId, Uuid snetId, Uuid networkId,
                             IpAddress fixedIp, String macAddress, String deviceOwner) {
-        logger.debug("addHostIntf portId {}, snetId {}, networkId {}, ip {}, mac {}",
+        LOG.debug("addHostIntf portId {}, snetId {}, networkId {}, ip {}, mac {}",
             portId, snetId, networkId, fixedIp, macAddress);
 
         //Save the interface ipv6 address in its fully expanded format
@@ -317,7 +317,7 @@ public class IfMgr {
             if (intf != null) {
                 vintfs.put(portId, intf);
             } else {
-                logger.error("Create host intf failed for :{}", portId);
+                LOG.error("Create host intf failed for :{}", portId);
                 return;
             }
             intf.setIntfUUID(portId)
@@ -341,11 +341,11 @@ public class IfMgr {
     }
 
     public void updateHostIntf(Uuid portId, List<FixedIps> fixedIpsList) {
-        logger.debug("updateHostIntf portId {}, fixedIpsList {} ", portId, fixedIpsList);
+        LOG.debug("updateHostIntf portId {}, fixedIpsList {} ", portId, fixedIpsList);
 
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
-            logger.error("Update Host interface failed. Could not get Host interface details {}", portId);
+            LOG.error("Update Host interface failed. Could not get Host interface details {}", portId);
             return;
         }
 
@@ -374,7 +374,7 @@ public class IfMgr {
     }
 
     public void updateInterface(Uuid portId, String dpId, Long ofPort) {
-        logger.debug("in updateInterface portId {}, dpId {}, ofPort {}",
+        LOG.debug("in updateInterface portId {}, dpId {}, ofPort {}",
             portId, dpId, ofPort);
         VirtualPort intf = vintfs.get(portId);
 
@@ -384,7 +384,7 @@ public class IfMgr {
             if (intf != null) {
                 vintfs.put(portId, intf);
             } else {
-                logger.error("updateInterface failed for :{}", portId);
+                LOG.error("updateInterface failed for :{}", portId);
             }
         }
 
@@ -445,7 +445,7 @@ public class IfMgr {
     }
 
     public VirtualPort getRouterV6InterfaceForNetwork(Uuid networkId) {
-        logger.debug("obtaining the virtual interface for {}", networkId);
+        LOG.debug("obtaining the virtual interface for {}", networkId);
         return (vrouterv6IntfMap.get(networkId));
     }
 
@@ -476,9 +476,9 @@ public class IfMgr {
             GetInterfaceFromIfIndexOutput output = futureOutput.get().getResult();
             interfaceName = output.getInterfaceName();
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Error while retrieving the interfaceName from tag using getInterfaceFromIfIndex RPC");
+            LOG.error("Error while retrieving the interfaceName from tag using getInterfaceFromIfIndex RPC");
         }
-        logger.trace("Returning interfaceName {} for tag {} form getInterfaceNameFromTag", interfaceName, portTag);
+        LOG.trace("Returning interfaceName {} for tag {} form getInterfaceNameFromTag", interfaceName, portTag);
         return interfaceName;
     }
 }

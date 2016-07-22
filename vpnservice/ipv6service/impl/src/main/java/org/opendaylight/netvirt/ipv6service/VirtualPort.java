@@ -39,7 +39,7 @@ public class VirtualPort  {
     /**
      * Logger instance.
      */
-    static final Logger logger = LoggerFactory.getLogger(VirtualPort.class);
+    static final Logger LOG = LoggerFactory.getLogger(VirtualPort.class);
 
     public VirtualPort() {
         snetInfo = new HashMap<Uuid, SubnetInfo>();
@@ -85,7 +85,7 @@ public class VirtualPort  {
     public void setSubnet(Uuid snetID, VirtualSubnet subnet) {
         SubnetInfo subnetInfo = snetInfo.get(snetID);
         if (subnetInfo == null) {
-            logger.info("Subnet {} not associated with the virtual port {}",
+            LOG.info("Subnet {} not associated with the virtual port {}",
                 snetID, intfUUID);
             return;
         }

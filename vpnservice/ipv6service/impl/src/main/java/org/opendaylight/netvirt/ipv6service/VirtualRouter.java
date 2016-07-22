@@ -26,7 +26,7 @@ public class VirtualRouter  {
     /**
      * Logger instance.
      */
-    static final Logger logger = LoggerFactory.getLogger(VirtualRouter.class);
+    static final Logger LOG = LoggerFactory.getLogger(VirtualRouter.class);
 
     void init() {
         this.subnets    = new HashMap<>();
