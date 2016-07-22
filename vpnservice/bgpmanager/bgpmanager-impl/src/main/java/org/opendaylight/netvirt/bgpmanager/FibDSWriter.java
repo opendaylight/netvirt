@@ -70,9 +70,10 @@ public class FibDSWriter {
                             .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
             Optional<VrfEntry> entry = BgpUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
-            //FIXME: TO be refactored once odl-fib.yang is updated to have nextHopAddressList
-            /*if (! entry.isPresent()) {
-                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList).setLabel((long)label).setOrigin(origin.getValue()).build();
+            if (! entry.isPresent()) {
+                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
+                        .setLabel((long)label).setOrigin(origin.getValue()).build();
+
                 BgpUtil.write(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
 
             } else { // Found in MDSAL database
@@ -82,10 +83,10 @@ public class FibDSWriter {
                         nh.add(nextHop);
                 }
                 VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
-                                                         .setLabel((long) label).setOrigin(origin.getValue()).build();
+                        .setLabel((long) label).setOrigin(origin.getValue()).build();
 
                 BgpUtil.update(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
-            }*/
+            }
         } catch (Exception e) {
             logger.error("addFibEntryToDS: error ", e);
         }

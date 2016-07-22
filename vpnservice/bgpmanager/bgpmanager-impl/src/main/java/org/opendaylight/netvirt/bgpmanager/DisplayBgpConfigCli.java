@@ -59,13 +59,13 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
 
             ps.printf("Total stale entries created %d \n", BgpConfigurationManager.getTotalStaledCount());
             ps.printf("Total stale entries cleared %d \n", BgpConfigurationManager.getTotalCleared());
-            //FIXME: To be refactored once entity event sub class becomes available in genius utils/clustering/
-//            ArrayList<EntityOwnerUtils.EntityEvent> eventsHistory = EntityOwnerUtils.getEventsHistory();
+
+            ArrayList<EntityOwnerUtils.EntityEvent> eventsHistory = EntityOwnerUtils.getEventsHistory();
             try {
-//                for (EntityOwnerUtils.EntityEvent event : eventsHistory) {
-//                    ps.printf("%s entity : %s amIOwner:%s hasOwner:%s \n", new Date(event.getTime()).toString(),
-//                            event.getEntityName(),  event.hasOwner(), event.isOwner());
-//                }
+                for (EntityOwnerUtils.EntityEvent event : eventsHistory) {
+                    ps.printf("%s entity : %s amIOwner:%s hasOwner:%s \n", new Date(event.getTime()).toString(),
+                            event.getEntityName(),  event.hasOwner(), event.isOwner());
+                }
             } catch (Exception e) {
             }
         }
