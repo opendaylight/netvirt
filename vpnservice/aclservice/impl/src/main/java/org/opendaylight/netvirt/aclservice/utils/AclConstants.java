@@ -24,4 +24,7 @@ public final class AclConstants {
     public static final short INGRESS_ACL_NEXT_TABLE_ID = 252;
     public static final short INGRESS_ACL_SERVICE_PRIORITY = 10;
     public static final short INGRESS_ACL_DEFAULT_FLOW_PRIORITY = 1;
+
+    private AclConstants() {
+    }
 }

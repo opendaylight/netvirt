@@ -27,6 +27,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fiel
 
 public class AclServiceOFFlowBuilder {
 
+    private AclServiceOFFlowBuilder() {
+    }
+
     /**
      * Converts IP matches into flows.
      * @param matches the matches
