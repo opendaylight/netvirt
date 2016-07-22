@@ -380,7 +380,7 @@ public class OF13ProviderTest {
 
         assertTrue("Error, did not update the interface correclty", of13Provider.handleInterfaceUpdate(neutronNetwork, mock(Node.class), mock(OvsdbTerminationPointAugmentation.class)));
         PowerMockito.verifyPrivate(of13Provider, times(2)).invoke("addTunnelPort", any(Node.class), anyString(), any(InetAddress.class), any(InetAddress.class));
-        PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("programTunnelRules", anyString(), anyString(), any(InetAddress.class), any(Node.class), any(OvsdbTerminationPointAugmentation.class), anyBoolean());
+        PowerMockito.verifyPrivate(of13Provider, times(3)).invoke("programTunnelRules", anyString(), anyString(), any(InetAddress.class), any(Node.class), any(OvsdbTerminationPointAugmentation.class), anyBoolean());
     }
 
     private static final String INTF = "interface";
