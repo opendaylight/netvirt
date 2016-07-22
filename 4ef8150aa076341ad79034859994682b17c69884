@@ -34,6 +34,24 @@
       "revId": "4ef8150aa076341ad79034859994682b17c69884",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_cd7f2d65",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6RtrAdvertType.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-07-22T09:43:27Z",
+      "side": 1,
+      "message": "@Sridhar, \nignore the previous comment.\nWill update it",
+      "parentUuid": "9a561d44_6a91a7f0",
+      "revId": "4ef8150aa076341ad79034859994682b17c69884",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
