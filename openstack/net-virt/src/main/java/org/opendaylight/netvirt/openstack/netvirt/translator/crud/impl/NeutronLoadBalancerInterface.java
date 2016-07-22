@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * only for reading. We will cleanup these interface/methods later.
  */
 public class NeutronLoadBalancerInterface extends AbstractNeutronInterface<Loadbalancer, NeutronLoadBalancer> implements INeutronLoadBalancerCRUD {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NeutronLoadBalancerInterface.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronLoadBalancerInterface.class);
     private ConcurrentMap<String, NeutronLoadBalancer> loadBalancerDB  = new ConcurrentHashMap<>();
 
 
@@ -51,7 +51,7 @@ public class NeutronLoadBalancerInterface extends AbstractNeutronInterface<Loadb
     @Override
     public NeutronLoadBalancer getNeutronLoadBalancer(String uuid) {
         if (!neutronLoadBalancerExists(uuid)) {
-            LOGGER.debug("No LoadBalancer Have Been Defined");
+            LOG.debug("No LoadBalancer Have Been Defined");
             return null;
         }
         return loadBalancerDB.get(uuid);
@@ -64,7 +64,7 @@ public class NeutronLoadBalancerInterface extends AbstractNeutronInterface<Loadb
             NeutronLoadBalancer loadBalancer = entry.getValue();
             allLoadBalancers.add(loadBalancer);
         }
-        LOGGER.debug("Exiting getLoadBalancers, Found {} OpenStackLoadBalancer", allLoadBalancers.size());
+        LOG.debug("Exiting getLoadBalancers, Found {} OpenStackLoadBalancer", allLoadBalancers.size());
         List<NeutronLoadBalancer> ans = new ArrayList<>();
         ans.addAll(allLoadBalancers);
         return ans;
@@ -141,7 +141,7 @@ public class NeutronLoadBalancerInterface extends AbstractNeutronInterface<Loadb
         if (loadBalancer.getID() != null) {
             loadBalancersBuilder.setUuid(toUuid(loadBalancer.getID()));
         } else {
-            LOGGER.warn("Attempting to write neutron load balancer without UUID");
+            LOG.warn("Attempting to write neutron load balancer without UUID");
         }
         return loadBalancersBuilder.build();
     }

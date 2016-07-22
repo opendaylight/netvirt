@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NeutronSubnetInterface extends AbstractNeutronInterface<Subnet, NeutronSubnet> implements INeutronSubnetCRUD {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NeutronSubnetInterface.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetInterface.class);
 
     private static final ImmutableBiMap<Class<? extends IpVersionBase>,Integer> IPV_MAP
             = new ImmutableBiMap.Builder<Class<? extends IpVersionBase>,Integer>()
@@ -93,7 +93,7 @@ public class NeutronSubnetInterface extends AbstractNeutronInterface<Subnet, Neu
                 allSubnets.add(fromMd(subnet));
             }
         }
-        LOGGER.debug("Exiting getAllSubnets, Found {} OpenStackSubnets", allSubnets.size());
+        LOG.debug("Exiting getAllSubnets, Found {} OpenStackSubnets", allSubnets.size());
         List<NeutronSubnet> ans = new ArrayList<>();
         ans.addAll(allSubnets);
         return ans;
@@ -251,7 +251,7 @@ public class NeutronSubnetInterface extends AbstractNeutronInterface<Subnet, Neu
         if (subnet.getID() != null) {
             subnetBuilder.setUuid(toUuid(subnet.getID()));
         } else {
-            LOGGER.warn("Attempting to write neutron subnet without UUID");
+            LOG.warn("Attempting to write neutron subnet without UUID");
         }
         return subnetBuilder.build();
     }

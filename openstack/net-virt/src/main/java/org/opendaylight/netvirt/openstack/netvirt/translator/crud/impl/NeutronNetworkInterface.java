@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableBiMap;
 
 public class NeutronNetworkInterface extends AbstractNeutronInterface<Network,NeutronNetwork> implements INeutronNetworkCRUD {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NeutronNetworkInterface.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronNetworkInterface.class);
 
     private static final ImmutableBiMap<Class<? extends NetworkTypeBase>,String> NETWORK_MAP
             = new ImmutableBiMap.Builder<Class<? extends NetworkTypeBase>,String>()
@@ -84,7 +84,7 @@ public class NeutronNetworkInterface extends AbstractNeutronInterface<Network,Ne
                 allNetworks.add(fromMd(network));
             }
         }
-        LOGGER.debug("Exiting getAllNetworks, Found {} OpenStackNetworks", allNetworks.size());
+        LOG.debug("Exiting getAllNetworks, Found {} OpenStackNetworks", allNetworks.size());
         List<NeutronNetwork> ans = new ArrayList<>();
         ans.addAll(allNetworks);
         return ans;
@@ -229,7 +229,7 @@ public class NeutronNetworkInterface extends AbstractNeutronInterface<Network,Ne
         if (network.getNetworkUUID() != null) {
             networkBuilder.setUuid(toUuid(network.getNetworkUUID()));
         } else {
-            LOGGER.warn("Attempting to write neutron network without UUID");
+            LOG.warn("Attempting to write neutron network without UUID");
         }
         return networkBuilder.build();
     }
