@@ -60,6 +60,20 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>neutronvpn-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
+
+    <!-- Dependencies used only by code under src/test (<scope>test) -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>sal-binding-broker-impl</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
