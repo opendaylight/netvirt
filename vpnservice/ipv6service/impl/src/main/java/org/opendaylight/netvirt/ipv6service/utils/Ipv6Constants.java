@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.ipv6service.utils;
 
 public class Ipv6Constants {
+
     public static final int IP_V6_ETHTYPE = 34525;
     public static final int ICMP_V6 = 1;
 
@@ -45,4 +46,8 @@ public class Ipv6Constants {
     public static final String IP_VERSION_V4 = "IPv4";
     public static final String IP_VERSION_V6 = "IPv6";
     public static final String NETWORK_ROUTER_INTERFACE = "network:router_interface";
+
+    private Ipv6Constants() {
+    }
+
 }

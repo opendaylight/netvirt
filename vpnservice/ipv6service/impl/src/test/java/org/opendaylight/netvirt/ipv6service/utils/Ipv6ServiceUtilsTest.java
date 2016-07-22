@@ -16,14 +16,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 
 /**
- * Unit test fort {@link Ipv6ServiceUtilsTest}
+ * Unit test fort {@link Ipv6ServiceUtilsTest}.
  */
 public class Ipv6ServiceUtilsTest {
     private Ipv6ServiceUtils instance;
 
     @Before
     public void initTest() {
-         instance = Ipv6ServiceUtils.getInstance();
+        instance = Ipv6ServiceUtils.getInstance();
     }
 
     /**

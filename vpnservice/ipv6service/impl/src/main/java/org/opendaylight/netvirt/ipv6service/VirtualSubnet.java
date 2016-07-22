@@ -84,6 +84,7 @@ public class VirtualSubnet  {
         return gatewayIp;
     }
 
+    @SuppressWarnings("checkstyle:HiddenField")
     public VirtualSubnet setIPVersion(String ipVersion) {
         this.ipVersion = ipVersion;
         return this;

@@ -9,7 +9,10 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -62,7 +65,7 @@ public class Ipv6PktHandlerTest {
     public void testOnPacketReceivedWithInvalidPacket() throws Exception {
         pktHandler.onPacketReceived(null);
         verify(pktProcessService, times(0)).transmitPacket(any(TransmitPacketInput.class));
-        byte pktArray[] = {};
+        byte[] pktArray = {};
         PacketReceived packet = new PacketReceivedBuilder().setPayload(pktArray).build();
         pktHandler.onPacketReceived(packet);
         verify(pktProcessService, times(0)).transmitPacket(any(TransmitPacketInput.class));
@@ -231,26 +234,6 @@ public class Ipv6PktHandlerTest {
                 .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
         NodeConnectorRef ncRef = new NodeConnectorRef(ncId);
 
-        byte[] expected_payload = buildPacket(
-                "08 00 27 D4 10 BB",                               // Destination MAC
-                "08 00 27 FE 8F 95",                               // Source MAC
-                "86 DD",                                           // Ethertype - IPv6
-                "60 00 00 00",                                     // Version 6, traffic class 0, no flowlabel
-                "00 20",                                           // Payload length
-                "3A",                                              // Next header is ICMPv6
-                "FF",                                              // Hop limit
-                "FE 80 00 00 00 00 00 00 0A 00 27 FF FE FE 8F 95", // Source IP
-                "FE 80 00 00 00 00 00 00 0A 00 27 FF FE D4 10 BB", // Destination IP
-                "88",                                              // ICMPv6 neighbor advertisement.
-                "00",                                              // Code
-                "17 D6",                                           // Checksum (valid)
-                "E0 00 00 00",                                     // Flags
-                "FE 80 00 00 00 00 00 00 0A 00 27 FF FE FE 8F 95", // Target Address
-                "02",                                              // Type: Target Link-Layer Option
-                "01",                                              // Option length
-                "08 00 27 FE 8F 95"                                // Target Link layer address
-        );
-
         BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
         Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
         MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
@@ -276,9 +259,28 @@ public class Ipv6PktHandlerTest {
         //wait on this thread until the async job is completed in the packet handler.
         waitForPacketProcessing();
         verify(pktProcessService, times(1)).transmitPacket(any(TransmitPacketInput.class));
-        verify(pktProcessService).transmitPacket(new TransmitPacketInputBuilder().setPayload(expected_payload).
-                setNode(new NodeRef(ncId)).
-                setEgress(ncRef).build());
+
+        byte[] expectedPayload = buildPacket(
+                "08 00 27 D4 10 BB",                               // Destination MAC
+                "08 00 27 FE 8F 95",                               // Source MAC
+                "86 DD",                                           // Ethertype - IPv6
+                "60 00 00 00",                                     // Version 6, traffic class 0, no flowlabel
+                "00 20",                                           // Payload length
+                "3A",                                              // Next header is ICMPv6
+                "FF",                                              // Hop limit
+                "FE 80 00 00 00 00 00 00 0A 00 27 FF FE FE 8F 95", // Source IP
+                "FE 80 00 00 00 00 00 00 0A 00 27 FF FE D4 10 BB", // Destination IP
+                "88",                                              // ICMPv6 neighbor advertisement.
+                "00",                                              // Code
+                "17 D6",                                           // Checksum (valid)
+                "E0 00 00 00",                                     // Flags
+                "FE 80 00 00 00 00 00 00 0A 00 27 FF FE FE 8F 95", // Target Address
+                "02",                                              // Type: Target Link-Layer Option
+                "01",                                              // Option length
+                "08 00 27 FE 8F 95"                                // Target Link layer address
+        );
+        verify(pktProcessService).transmitPacket(new TransmitPacketInputBuilder().setPayload(expectedPayload)
+                .setNode(new NodeRef(ncId)).setEgress(ncRef).build());
     }
 
     @Test
@@ -294,8 +296,8 @@ public class Ipv6PktHandlerTest {
         when(gwIpAddress.getIpv6Address()).thenReturn(new Ipv6Address("2001:db8::1"));
 
         VirtualSubnet v6Subnet = new VirtualSubnet();
-        VirtualRouter vRouter = new VirtualRouter();
-        v6Subnet.setRouter(vRouter);
+        VirtualRouter virtualRouter = new VirtualRouter();
+        v6Subnet.setRouter(virtualRouter);
         v6Subnet.setGatewayIp(gwIpAddress);
         v6Subnet.setIpv6AddressMode(Ipv6Constants.IPV6_SLAAC);
         v6Subnet.setIpv6RAMode(Ipv6Constants.IPV6_SLAAC);
@@ -308,7 +310,33 @@ public class Ipv6PktHandlerTest {
         InstanceIdentifier<Node> ncId = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
         NodeConnectorRef ncRef = new NodeConnectorRef(ncId);
-        byte[] expected_payload = buildPacket(
+        BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
+        Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
+        MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
+                "33 33 00 00 00 02",                               // Destination MAC
+                "FA 16 3E 69 2C F3",                               // Source MAC
+                "86 DD",                                           // IPv6
+                "60 00 00 00",                                     // Version 6, traffic class E0, no flowlabel
+                "00 10",                                           // Payload length
+                "3A",                                              // Next header is ICMPv6
+                "FF",                                              // Hop limit
+                "FE 80 00 00 00 00 00 00 F8 16 3E FF FE 69 2C F3", // Source IP
+                "FF 02 00 00 00 00 00 00 00 00 00 00 00 00 00 02", // Destination IP
+                "85",                                              // ICMPv6 router solicitation
+                "00",                                              // Code
+                "B4 47",                                           // Checksum (valid)
+                "00 00 00 00",                                     // ICMPv6 message body
+                "01",                                              // ICMPv6 Option: Source Link Layer Address
+                "01",                                              // Length
+                "FA 16 3E 69 2C F3"                                // Link Layer Address
+        )).setIngress(ncRef).setMatch(matchbuilder.build()).build());
+
+        //wait on this thread until the async job is completed in the packet handler.
+        waitForPacketProcessing();
+        verify(pktProcessService, times(1)).transmitPacket(any(TransmitPacketInput.class));
+
+        byte[] expectedPayload = buildPacket(
                 "FA 16 3E 69 2C F3",                               // Destination MAC
                 "FA 16 3E 4E 18 0C",                               // Source MAC
                 "86 DD",                                           // IPv6
@@ -338,7 +366,53 @@ public class Ipv6PktHandlerTest {
                 "00 00 00 00",                                     // Reserved
                 "20 01 0D B8 00 00 00 00 00 00 00 00 00 00 00 00"  // Prefix
         );
+        verify(pktProcessService).transmitPacket(new TransmitPacketInputBuilder().setPayload(expectedPayload)
+                .setNode(new NodeRef(ncId)).setEgress(ncRef).build());
+    }
 
+    @Test
+    public void testonPacketReceivedRouterSolicitationWithMultipleSubnets() throws Exception {
+        VirtualPort intf = Mockito.mock(VirtualPort.class);
+        when(intf.getMacAddress()).thenReturn("50:7B:9D:78:54:F3");
+        when(ifMgrInstance.obtainV6Interface(any())).thenReturn(intf);
+        when(ifMgrInstance.getInterfaceNameFromTag(anyLong())).thenReturn("ddec9dba-d831-4ad7-84b9-00d7f65f052f");
+        when(ifMgrInstance.getRouterV6InterfaceForNetwork(any())).thenReturn(intf);
+
+        IpAddress gwIpAddress = Mockito.mock(IpAddress.class);
+        when(gwIpAddress.getIpv4Address()).thenReturn(null);
+        when(gwIpAddress.getIpv6Address()).thenReturn(new Ipv6Address("2001:db8:1111::1"));
+
+        VirtualSubnet v6Subnet1 = new VirtualSubnet();
+        VirtualRouter virtualRouter = new VirtualRouter();
+        v6Subnet1.setRouter(virtualRouter);
+        v6Subnet1.setGatewayIp(gwIpAddress);
+        v6Subnet1.setIpv6AddressMode(Ipv6Constants.IPV6_SLAAC);
+        v6Subnet1.setIpv6RAMode(Ipv6Constants.IPV6_SLAAC);
+        v6Subnet1.setSubnetCidr(new IpPrefix("2001:db8:1111::/64".toCharArray()));
+
+        VirtualSubnet v6Subnet2 = new VirtualSubnet();
+        v6Subnet2.setRouter(virtualRouter);
+        v6Subnet2.setGatewayIp(gwIpAddress);
+        v6Subnet2.setIpv6AddressMode(Ipv6Constants.IPV6_DHCPV6_STATELESS);
+        v6Subnet2.setIpv6RAMode(Ipv6Constants.IPV6_DHCPV6_STATELESS);
+        v6Subnet2.setSubnetCidr(new IpPrefix("2001:db8:2222::/64".toCharArray()));
+
+        VirtualSubnet v6Subnet3 = new VirtualSubnet();
+        v6Subnet3.setRouter(virtualRouter);
+        v6Subnet3.setGatewayIp(gwIpAddress);
+        v6Subnet3.setIpv6AddressMode(Ipv6Constants.IPV6_DHCPV6_STATEFUL);
+        v6Subnet3.setIpv6RAMode(Ipv6Constants.IPV6_DHCPV6_STATEFUL);
+        v6Subnet3.setSubnetCidr(new IpPrefix("2001:db8:3333::/64".toCharArray()));
+
+        List<VirtualSubnet> subnetList = new ArrayList<>();
+        subnetList.add(v6Subnet1);
+        subnetList.add(v6Subnet2);
+        subnetList.add(v6Subnet3);
+        when(intf.getSubnets()).thenReturn(subnetList);
+
+        InstanceIdentifier<Node> ncId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
+        NodeConnectorRef ncRef = new NodeConnectorRef(ncId);
         BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
         Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
         MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
@@ -364,55 +438,8 @@ public class Ipv6PktHandlerTest {
         //wait on this thread until the async job is completed in the packet handler.
         waitForPacketProcessing();
         verify(pktProcessService, times(1)).transmitPacket(any(TransmitPacketInput.class));
-        verify(pktProcessService).transmitPacket(new TransmitPacketInputBuilder().setPayload(expected_payload).
-                setNode(new NodeRef(ncId)).
-                setEgress(ncRef).build());
-    }
 
-    @Test
-    public void testonPacketReceivedRouterSolicitationWithMultipleSubnets() throws Exception {
-        VirtualPort intf = Mockito.mock(VirtualPort.class);
-        when(intf.getMacAddress()).thenReturn("50:7B:9D:78:54:F3");
-        when(ifMgrInstance.obtainV6Interface(any())).thenReturn(intf);
-        when(ifMgrInstance.getInterfaceNameFromTag(anyLong())).thenReturn("ddec9dba-d831-4ad7-84b9-00d7f65f052f");
-        when(ifMgrInstance.getRouterV6InterfaceForNetwork(any())).thenReturn(intf);
-
-        IpAddress gwIpAddress = Mockito.mock(IpAddress.class);
-        when(gwIpAddress.getIpv4Address()).thenReturn(null);
-        when(gwIpAddress.getIpv6Address()).thenReturn(new Ipv6Address("2001:db8:1111::1"));
-
-        VirtualSubnet v6Subnet1 = new VirtualSubnet();
-        VirtualRouter vRouter = new VirtualRouter();
-        v6Subnet1.setRouter(vRouter);
-        v6Subnet1.setGatewayIp(gwIpAddress);
-        v6Subnet1.setIpv6AddressMode(Ipv6Constants.IPV6_SLAAC);
-        v6Subnet1.setIpv6RAMode(Ipv6Constants.IPV6_SLAAC);
-        v6Subnet1.setSubnetCidr(new IpPrefix("2001:db8:1111::/64".toCharArray()));
-
-        VirtualSubnet v6Subnet2 = new VirtualSubnet();
-        v6Subnet2.setRouter(vRouter);
-        v6Subnet2.setGatewayIp(gwIpAddress);
-        v6Subnet2.setIpv6AddressMode(Ipv6Constants.IPV6_DHCPV6_STATELESS);
-        v6Subnet2.setIpv6RAMode(Ipv6Constants.IPV6_DHCPV6_STATELESS);
-        v6Subnet2.setSubnetCidr(new IpPrefix("2001:db8:2222::/64".toCharArray()));
-
-        VirtualSubnet v6Subnet3 = new VirtualSubnet();
-        v6Subnet3.setRouter(vRouter);
-        v6Subnet3.setGatewayIp(gwIpAddress);
-        v6Subnet3.setIpv6AddressMode(Ipv6Constants.IPV6_DHCPV6_STATEFUL);
-        v6Subnet3.setIpv6RAMode(Ipv6Constants.IPV6_DHCPV6_STATEFUL);
-        v6Subnet3.setSubnetCidr(new IpPrefix("2001:db8:3333::/64".toCharArray()));
-
-        List<VirtualSubnet> subnetList = new ArrayList<>();
-        subnetList.add(v6Subnet1);
-        subnetList.add(v6Subnet2);
-        subnetList.add(v6Subnet3);
-        when(intf.getSubnets()).thenReturn(subnetList);
-
-        InstanceIdentifier<Node> ncId = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
-        NodeConnectorRef ncRef = new NodeConnectorRef(ncId);
-        byte[] expected_payload = buildPacket(
+        byte[] expectedPayload = buildPacket(
                 "FA 16 3E 69 2C F3",                               // Destination MAC
                 "50 7B 9D 78 54 F3",                               // Source MAC
                 "86 DD",                                           // IPv6
@@ -459,34 +486,9 @@ public class Ipv6PktHandlerTest {
                 "20 01 0D B8 33 33 00 00 00 00 00 00 00 00 00 00"  // Prefix
         );
 
-        BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
-        Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
-        MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
-        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
-                "33 33 00 00 00 02",                               // Destination MAC
-                "FA 16 3E 69 2C F3",                               // Source MAC
-                "86 DD",                                           // IPv6
-                "60 00 00 00",                                     // Version 6, traffic class E0, no flowlabel
-                "00 10",                                           // Payload length
-                "3A",                                              // Next header is ICMPv6
-                "FF",                                              // Hop limit
-                "FE 80 00 00 00 00 00 00 F8 16 3E FF FE 69 2C F3", // Source IP
-                "FF 02 00 00 00 00 00 00 00 00 00 00 00 00 00 02", // Destination IP
-                "85",                                              // ICMPv6 router solicitation
-                "00",                                              // Code
-                "B4 47",                                           // Checksum (valid)
-                "00 00 00 00",                                     // ICMPv6 message body
-                "01",                                              // ICMPv6 Option: Source Link Layer Address
-                "01",                                              // Length
-                "FA 16 3E 69 2C F3"                                // Link Layer Address
-        )).setIngress(ncRef).setMatch(matchbuilder.build()).build());
-
-        //wait on this thread until the async job is completed in the packet handler.
-        waitForPacketProcessing();
-        verify(pktProcessService, times(1)).transmitPacket(any(TransmitPacketInput.class));
-        verify(pktProcessService).transmitPacket(new TransmitPacketInputBuilder().setPayload(expected_payload).
-                setNode(new NodeRef(ncId)).
-                setEgress(ncRef).build());
+        verify(pktProcessService).transmitPacket(new TransmitPacketInputBuilder().setPayload(expectedPayload)
+                .setNode(new NodeRef(ncId))
+                .setEgress(ncRef).build());
     }
 
     private void waitForPacketProcessing() throws InterruptedException {
