@@ -31,6 +31,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>mdsalutil-api</artifactId>
+      <version>${genius.version}</version>
+    </dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>model-bgp</artifactId>
       <version>${model.bgp.version}</version>

@@ -468,21 +468,19 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         }
     }
 
-    public void onInterfaceUp(Interface intfState) {
-
-        logger.info("onInterfaceUp: Port " + intfState.getName());
+    public void onInterfaceUp(BigInteger dpnId, String intfName) {
+        logger.info("onInterfaceUp: Port " + intfName);
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         synchronized (this) {
             SubnetToDpn subDpn = null;
-            String intfName = intfState.getName();
             PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(intfName);
             if (portOpEntry == null) {
-                logger.info("onInterfaceUp: Port " + intfState.getName()  + "is part of a subnet not in VPN, ignoring");
+                logger.info("onInterfaceUp: Port " + intfName  + "is part of a subnet not in VPN, ignoring");
                 return;
             }
-            BigInteger dpnId = portOpEntry.getDpnId();
-            if (dpnId  == null) {
-                dpnId = InterfaceUtils.getDpIdFromInterface(intfState);
+
+            if ((dpnId == null) || (dpnId == BigInteger.ZERO)) {
+                dpnId = portOpEntry.getDpnId();
                 if (dpnId == null) {
                     logger.error("onInterfaceUp: Unable to determine the DPNID for port " + intfName);
                     return;
@@ -542,28 +540,23 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         }
     }
 
-    public void onInterfaceDown(Interface intfState) {
-        logger.info("onInterfaceDown: Port " + intfState.getName());
+    public void onInterfaceDown(final BigInteger dpnId, final String interfaceName) {
+        logger.info("onInterfaceDown: Port " + interfaceName);
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         synchronized (this) {
-            String intfName = intfState.getName();
-            PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(intfName);
+            PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(interfaceName);
             if (portOpEntry == null) {
-                logger.info("onInterfaceDown: Port " + intfState.getName()  + "is part of a subnet not in VPN, ignoring");
+                logger.info("onInterfaceDown: Port " + interfaceName  + "is part of a subnet not in VPN, ignoring");
                 return;
             }
-            BigInteger dpnId = portOpEntry.getDpnId();
-            if (dpnId  == null) {
-                dpnId = InterfaceUtils.getDpIdFromInterface(intfState);
-                if (dpnId == null) {
-                    logger.error("onInterfaceDown: Unable to determine the DPNID for port " + intfName);
-                    return;
-                }
+            if ((dpnId  == null) ||(dpnId == BigInteger.ZERO)) {
+                logger.error("onInterfaceDown: Unable to determine the DPNID for port " + interfaceName);
+                return;
             }
             Uuid subnetId = portOpEntry.getSubnetId();
             try {
                 logger.debug("onInterfaceDown: Updating the SubnetOpDataEntry node for subnet: " +  subnetId.getValue());
-                boolean last = subOpDpnManager.removeInterfaceFromDpn(subnetId, dpnId, intfName);
+                boolean last = subOpDpnManager.removeInterfaceFromDpn(subnetId, dpnId, interfaceName);
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
                         child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
                 Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(broker,
@@ -585,7 +578,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 if ((nhDpnId != null) && (nhDpnId.equals(dpnId))) {
                     // select another NhDpnId
                     if (last) {
-                        logger.debug("onInterfaceDown: Last active port " + intfState.getName() + " on the subnet: " +  subnetId.getValue());
+                        logger.debug("onInterfaceDown: Last active port " + interfaceName + " on the subnet: " +  subnetId.getValue());
                         // last port on this DPN, so we need to swap the NHDpnId
                         subDpnList = subOpBuilder.getSubnetToDpn();
                         if (subDpnList.isEmpty()) {
@@ -621,7 +614,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 }
                 subOpEntry = subOpBuilder.build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
-                logger.info("onInterfaceDown: Updated subnetopdataentry to OP Datastore port down " + intfName);
+                logger.info("onInterfaceDown: Updated subnetopdataentry to OP Datastore port down " + interfaceName);
             } catch (Exception ex) {
                 logger.error("Creation of SubnetOpDataEntry for subnet " +
                         subnetId.getValue() + " failed {}" + ex);
@@ -646,7 +639,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         Preconditions.checkNotNull(elanTag, "elanTag cannot be null or empty!");
         String nexthopIp = InterfaceUtils.getEndpointIpAddressForDPN(broker, nhDpnId);
         if(nexthopIp != null)
-            vpnInterfaceManager.addSubnetRouteFibEntryToDS(rd, vpnName, subnetIp, nexthopIp, label, elanTag, nhDpnId);
+            vpnInterfaceManager.addSubnetRouteFibEntryToDS(rd, vpnName, subnetIp, nexthopIp, label, elanTag, nhDpnId , null);
         else
             logger.info("Unable to get nextHop ip address for nextHop DPN {}. Abort adding subnet route to FIB table.", nhDpnId);
     }

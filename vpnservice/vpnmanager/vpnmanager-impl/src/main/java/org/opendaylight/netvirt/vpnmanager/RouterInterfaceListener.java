@@ -7,10 +7,13 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
@@ -20,6 +23,10 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 public class RouterInterfaceListener extends AbstractDataChangeListener<Interfaces> {
     private static final Logger LOG = LoggerFactory.getLogger(RouterInterfaceListener.class);
@@ -54,16 +61,26 @@ public class RouterInterfaceListener extends AbstractDataChangeListener<Interfac
     protected void add(InstanceIdentifier<Interfaces> identifier, Interfaces interfaceInfo) {
         LOG.trace("Add event - key: {}, value: {}", identifier, interfaceInfo);
         final String routerId = identifier.firstKeyOf(RouterInterfaces.class).getRouterId().getValue();
-        String interfaceName = interfaceInfo.getInterfaceId();
-
-        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, 
-                VpnUtil.getRouterInterfaceId(interfaceName), VpnUtil.getRouterInterface(interfaceName, routerId));
-
+        final String interfaceName = interfaceInfo.getInterfaceId();
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState =
                 InterfaceUtils.getInterfaceStateFromOperDS(broker, interfaceName);
         if (interfaceState != null) {
-            LOG.debug("Handling interface {} in router {} add scenario", interfaceName, routerId);
-            vpnInterfaceManager.addToNeutronRouterDpnsMap(routerId, interfaceName);
+            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+            dataStoreCoordinator.enqueueJob(interfaceName,
+                    new Callable<List<ListenableFuture<Void>>>() {
+                        @Override
+                        public List<ListenableFuture<Void>> call() throws Exception {
+                            WriteTransaction writeTxn = broker.newWriteOnlyTransaction();
+                            LOG.debug("Handling interface {} in router {} add scenario", interfaceName, routerId);
+                            writeTxn.put(LogicalDatastoreType.CONFIGURATION,
+                                    VpnUtil.getRouterInterfaceId(interfaceName),
+                                    VpnUtil.getRouterInterface(interfaceName, routerId), true);
+                            vpnInterfaceManager.addToNeutronRouterDpnsMap(routerId, interfaceName, writeTxn);
+                            List<ListenableFuture<Void>> futures = new ArrayList<>();
+                            futures.add(writeTxn.submit());
+                            return futures;
+                        }
+                    });
         } else {
             LOG.warn("Interface {} not yet operational to handle router interface add event in router {}", interfaceName, routerId);
         }
@@ -73,8 +90,19 @@ public class RouterInterfaceListener extends AbstractDataChangeListener<Interfac
     protected void remove(InstanceIdentifier<Interfaces> identifier, Interfaces interfaceInfo) {
         LOG.trace("Remove event - key: {}, value: {}", identifier, interfaceInfo);
         final String routerId = identifier.firstKeyOf(RouterInterfaces.class).getRouterId().getValue();
-        String interfaceName = interfaceInfo.getInterfaceId();
-        vpnInterfaceManager.removeFromNeutronRouterDpnsMap(routerId, interfaceName);
+        final String interfaceName = interfaceInfo.getInterfaceId();
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(interfaceName,
+                new Callable<List<ListenableFuture<Void>>>() {
+                    @Override
+                    public List<ListenableFuture<Void>> call() throws Exception {
+                        WriteTransaction writeTxn = broker.newWriteOnlyTransaction();
+                        vpnInterfaceManager.removeFromNeutronRouterDpnsMap(routerId, interfaceName, writeTxn);
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        futures.add(writeTxn.submit());
+                        return futures;
+                    }
+                });
     }
 
     @Override

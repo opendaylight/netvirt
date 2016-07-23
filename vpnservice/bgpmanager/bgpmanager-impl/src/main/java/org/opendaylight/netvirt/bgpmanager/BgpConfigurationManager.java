@@ -230,6 +230,15 @@ public class BgpConfigurationManager {
         initer.countDown();
 
         bgpConfigurationManager = this;
+        BgpUtil.batchSize = BgpUtil.BATCH_SIZE;
+        if (Integer.getInteger("batch.size") != null) {
+            BgpUtil.batchSize = Integer.getInteger("batch.size");
+        }
+        BgpUtil.batchInterval = BgpUtil.PERIODICITY;
+        if (Integer.getInteger("batch.wait.time") != null) {
+            BgpUtil.batchInterval = Integer.getInteger("batch.wait.time");
+        }
+        BgpUtil.registerWithBatchManager(new BgpVrfBatchHandler());
     }
 
     boolean ignoreClusterDcnEventForFollower() {
@@ -365,7 +374,7 @@ public class BgpConfigurationManager {
 
         protected synchronized void
         add(InstanceIdentifier<AsId> iid, AsId val) {
-            LOG.error("received bgp add asid");
+            LOG.error("received bgp add asid {}",val);
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }

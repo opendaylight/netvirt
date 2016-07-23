@@ -73,6 +73,7 @@ public class BgpRouter {
         public int[] ints;
         public List<String> irts;
         public List<String> erts;
+        public long asNumber;
         public static final int ignore = 0;
         public BgpOp() {
             strs = new String[3];
@@ -140,8 +141,10 @@ public class BgpRouter {
         switch (op.type) {
             case START:
                 setStartTS(System.currentTimeMillis());
+                LOGGER.debug("startBgp thrift call for AsId {}",op.asNumber);
                 result = bgpClient.startBgp(op.ints[0], op.strs[0],
                         op.ignore, op.ignore, op.ignore, op.ints[1], op.add);
+                LOGGER.debug("Result of startBgp thrift call for AsId {} : {}",op.asNumber,result);
                 startBGPresult = result;
                 break;
             case STOP:

@@ -15,12 +15,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.concurrent.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -30,6 +28,10 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.utils.batching.ActionableResource;
+import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
+import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.genius.utils.batching.ResourceHandler;
 import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
@@ -113,7 +115,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FibManager extends AbstractDataChangeListener<VrfEntry> implements AutoCloseable{
+public class FibManager extends AbstractDataChangeListener<VrfEntry> implements AutoCloseable, ResourceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(FibManager.class);
   private static final String FLOWID_PREFIX = "L3.";
   private ListenerRegistration<DataChangeListener> listenerRegistration;
@@ -133,11 +135,30 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   private static final BigInteger CLEAR_METADATA = BigInteger.valueOf(0);
   public static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
 
+    private static final int PERIODICITY = 500;
+    private static Integer batchSize;
+    private static Integer batchInterval;
+
+    private static final int BATCH_SIZE = 1000;
+
+    private static BlockingQueue<ActionableResource> vrfEntryBufferQ = new LinkedBlockingQueue<>();
+    private ResourceBatchingManager resourceBatchingManager;
+
 
   public FibManager(final DataBroker db) {
-    super(VrfEntry.class);
-    broker = db;
-    registerListener(db);
+      super(VrfEntry.class);
+      broker = db;
+      registerListener(db);
+      batchSize = Integer.getInteger("batch.size");
+      if (batchSize == null) {
+          batchSize = BATCH_SIZE;
+      }
+      batchInterval = Integer.getInteger("batch.wait.time");
+      if (batchInterval == null) {
+          batchInterval = PERIODICITY;
+      }
+      resourceBatchingManager = ResourceBatchingManager.getInstance();
+      resourceBatchingManager.registerBatchableResource("FIB-VRFENTRY",vrfEntryBufferQ, this);
   }
 
   @Override
@@ -195,6 +216,9 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class);
   }
 
+  public DataBroker getResourceBroker() {
+      return broker;
+  }
 
   @Override
   protected void add(final InstanceIdentifier<VrfEntry> identifier, final VrfEntry vrfEntry) {
@@ -202,10 +226,18 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
       LOG.info("ADD: Adding Fib Entry rd {} prefix {} nexthop {} label {}",
                rd, vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(), vrfEntry.getLabel());
-      createFibEntries(identifier, vrfEntry);
+      if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
+          createFibEntries(identifier, vrfEntry);
+      } else {
+          ActionableResource actResource = new ActionableResourceImpl(rd.toString() + vrfEntry.getDestPrefix());
+          actResource.setAction(ActionableResource.CREATE);
+          actResource.setInstanceIdentifier(identifier);
+          actResource.setInstance(vrfEntry);
+          vrfEntryBufferQ.add(actResource);
+          leakRouteIfNeeded(identifier, vrfEntry, NwConstants.ADD_FLOW);
+      }
       LOG.info("ADD: Added Fib Entry rd {} prefix {} nexthop {} label {}",
                rd, vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(), vrfEntry.getLabel());
-      leakRouteIfNeeded(identifier, vrfEntry, NwConstants.ADD_FLOW);
   }
 
   @Override
@@ -214,7 +246,16 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
     LOG.info("REMOVE: Removing Fib Entry rd {} prefix {} nexthop {} label {}",
              rd, vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(), vrfEntry.getLabel());
-    deleteFibEntries(identifier, vrfEntry);
+    if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
+        deleteFibEntries(identifier, vrfEntry);
+    } else {
+        ActionableResource actResource = new ActionableResourceImpl(rd.toString() + vrfEntry.getDestPrefix());
+        actResource.setAction(ActionableResource.DELETE);
+        actResource.setInstanceIdentifier(identifier);
+        actResource.setInstance(vrfEntry);
+        vrfEntryBufferQ.add(actResource);
+        leakRouteIfNeeded(identifier, vrfEntry, NwConstants.DEL_FLOW);
+    }
     LOG.info("REMOVE: Removed Fib Entry rd {} prefix {} nexthop {} label {}",
              rd, vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(), vrfEntry.getLabel());
     leakRouteIfNeeded(identifier, vrfEntry, NwConstants.DEL_FLOW);
@@ -223,14 +264,52 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   @Override
   protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
     Preconditions.checkNotNull(update, "VrfEntry should not be null or empty.");
-    if (original.getAugmentation(SubnetRoute.class) != null && update.getAugmentation(SubnetRoute.class) == null)
-        return;
     String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
     LOG.info("UPDATE: Updating Fib Entries to rd {} prefix {} nexthop {} label {}",
              rd, update.getDestPrefix(), update.getNextHopAddressList(), update.getLabel());
-    createFibEntries(identifier, update);
+    if (RouteOrigin.value(update.getOrigin()) != RouteOrigin.BGP) {
+        createFibEntries(identifier, update);
+    } else {
+        ActionableResource actResource = new ActionableResourceImpl(rd.toString() + update.getDestPrefix());
+        actResource.setAction(ActionableResource.UPDATE);
+        actResource.setInstanceIdentifier(identifier);
+        actResource.setInstance(update);
+        actResource.setOldInstance(original);
+        vrfEntryBufferQ.add(actResource);
+    }
     LOG.info("UPDATE: Updated Fib Entries to rd {} prefix {} nexthop {} label {}",
              rd, update.getDestPrefix(), update.getNextHopAddressList(), update.getLabel());
+  }
+
+  public void create(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier, Object vrfEntry) {
+      if (vrfEntry instanceof VrfEntry) {
+          createFibEntries(tx, identifier, (VrfEntry)vrfEntry);
+      }
+  }
+
+  public void delete(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier, Object vrfEntry) {
+      if (vrfEntry instanceof VrfEntry) {
+          deleteFibEntries(tx, identifier, (VrfEntry) vrfEntry);
+      }
+  }
+
+  public void update(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier, Object original,
+                     Object update) {
+      if ((original instanceof VrfEntry) && (update instanceof VrfEntry)) {
+          createFibEntries(tx, identifier, (VrfEntry)update);
+      }
+  }
+
+  public int getBatchSize() {
+      return batchSize;
+  }
+
+  public int getBatchInterval() {
+      return batchInterval;
+  }
+
+  public LogicalDatastoreType getDatastoreType() {
+      return LogicalDatastoreType.CONFIGURATION;
   }
 
   private void createFibEntries(final InstanceIdentifier<VrfEntry> vrfEntryIid, final VrfEntry vrfEntry) {
@@ -256,7 +335,9 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                           public List<ListenableFuture<Void>> call() throws Exception {
                               WriteTransaction tx = broker.newWriteOnlyTransaction();
                               for (final VpnToDpnList curDpn : vpnToDpnList) {
-                                  installSubnetRouteInFib(curDpn.getDpnId(),elanTag, rd, vpnId.longValue(), vrfEntry, tx);
+                                  if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                      installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd, vpnId.longValue(), vrfEntry, tx);
+                                  }
                               }
                               List<ListenableFuture<Void>> futures = new ArrayList<>();
                               futures.add(tx.submit());
@@ -284,7 +365,9 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                           WriteTransaction tx = broker.newWriteOnlyTransaction();
                           for (VpnToDpnList vpnDpn : vpnToDpnList) {
                               if ( !localDpnIdList.contains(vpnDpn.getDpnId())) {
-                                  createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                  if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                      createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                  }
                               }
                           }
                           List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -303,6 +386,30 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                   // This is an static route that points to the other endpoint of an InterVpnLink
                   // In that case, we should add another entry in FIB table pointing to LPortDispatcher table.
                   installRouteInInterVpnLink(interVpnLink.get(), rd, vrfEntry, vpnId);
+              }
+          }
+      }
+  }
+
+
+  /*
+    Please note that the following createFibEntries will be invoked only for BGP Imported Routes.
+    The invocation of the following method is via create() callback from the MDSAL Batching Infrastructure
+    provided by ResourceBatchingManager
+   */
+  private void createFibEntries(WriteTransaction writeTx, final InstanceIdentifier<VrfEntry> vrfEntryIid, final VrfEntry vrfEntry) {
+      final VrfTablesKey vrfTableKey = vrfEntryIid.firstKeyOf(VrfTables.class);
+
+      final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(vrfTableKey.getRouteDistinguisher());
+      Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
+      Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId() + " has null vpnId!");
+
+      final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+      final String rd = vrfTableKey.getRouteDistinguisher();
+      if (vpnToDpnList != null) {
+          for (VpnToDpnList vpnDpn : vpnToDpnList) {
+              if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                  createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry, writeTx);
               }
           }
       }
@@ -663,15 +770,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         }
     }
 
-    private Collection<BigInteger> getDpnsForVpn(VpnInstanceOpDataEntry vpnInstance) {
-        Collection<BigInteger> dpns = new HashSet<>();
-        for(VpnToDpnList dpn : vpnInstance.getVpnToDpnList()) {
-            dpns.add(dpn.getDpnId());
-        }
-
-      return dpns;
-  }
-
   private List<BigInteger> createLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry) {
     List<BigInteger> returnLocalDpnId = new ArrayList<BigInteger>();
     Prefixes localNextHopInfo = getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
@@ -881,7 +979,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
      */
   public List<BigInteger> deleteLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry) {
       List<BigInteger> returnLocalDpnId = new ArrayList<>();
-      BigInteger localDpnId = BigInteger.ZERO;
       VpnNexthop localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, vrfEntry.getDestPrefix());
       String localNextHopIP = vrfEntry.getDestPrefix();
 
@@ -1267,13 +1364,25 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
                         if (localDpnIdList.size() <= 0) {
                             for (VpnToDpnList curDpn : vpnToDpnList) {
-                                deleteRemoteRoute(BigInteger.ZERO, curDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
+                                    if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                        deleteRemoteRoute(BigInteger.ZERO, curDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                    }
+                                } else {
+                                    deleteRemoteRoute(BigInteger.ZERO, curDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                }
                             }
                         } else {
                             for (BigInteger localDpnId : localDpnIdList) {
                                 for (VpnToDpnList curDpn : vpnToDpnList) {
                                     if (!curDpn.getDpnId().equals(localDpnId)) {
-                                        deleteRemoteRoute(localDpnId, curDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
+                                            if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                                deleteRemoteRoute(localDpnId, curDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                            }
+                                        } else {
+                                            deleteRemoteRoute(localDpnId, curDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                        }
                                     }
                                 }
                             }
@@ -1307,6 +1416,30 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
         }
     }
 
+  }
+
+  /*
+    Please note that the following deleteFibEntries will be invoked only for BGP Imported Routes.
+    The invocation of the following method is via delete() callback from the MDSAL Batching Infrastructure
+    provided by ResourceBatchingManager
+   */
+  private void deleteFibEntries(WriteTransaction writeTx, final InstanceIdentifier<VrfEntry> identifier, final VrfEntry vrfEntry) {
+      final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
+
+      final String rd  = vrfTableKey.getRouteDistinguisher();
+      final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(vrfTableKey.getRouteDistinguisher());
+      if (vpnInstance == null) {
+          LOG.debug("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
+          return;
+      }
+      final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+      if (vpnToDpnList != null) {
+          for (VpnToDpnList curDpn : vpnToDpnList) {
+              if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                  deleteRemoteRoute(BigInteger.ZERO, curDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry, writeTx);
+              }
+          }
+      }
   }
 
   public void deleteRemoteRoute(final BigInteger localDpnId, final BigInteger remoteDpnId,
@@ -1779,17 +1912,21 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
   protected List<String> resolveAdjacency(final BigInteger remoteDpnId, final long vpnId, final VrfEntry vrfEntry,
                                           String rd) {
     List<String> adjacencyList = new ArrayList<>();
+    List<String> prefixIpList = new ArrayList<>();
     LOG.trace("resolveAdjacency called with remotedpid {}, vpnId{}, VrfEntry {}", remoteDpnId, vpnId, vrfEntry);
     try {
-        Extraroute extra_route = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
-        List<String> prefixIpList;
-        if (extra_route == null) {
-            prefixIpList = Arrays.asList(vrfEntry.getDestPrefix());
-        } else {
-            prefixIpList = new ArrayList<>();
-            for (String extraRouteIp : extra_route.getNexthopIpList()) {
-                prefixIpList.add(extraRouteIp + "/32");
+        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
+            Extraroute extra_route = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
+            if (extra_route == null) {
+                prefixIpList = Arrays.asList(vrfEntry.getDestPrefix());
+            } else {
+                prefixIpList = new ArrayList<>();
+                for (String extraRouteIp : extra_route.getNexthopIpList()) {
+                    prefixIpList.add(extraRouteIp + "/32");
+                }
             }
+        } else {
+            prefixIpList = Arrays.asList(vrfEntry.getDestPrefix());
         }
 
         for (String prefixIp : prefixIpList) {

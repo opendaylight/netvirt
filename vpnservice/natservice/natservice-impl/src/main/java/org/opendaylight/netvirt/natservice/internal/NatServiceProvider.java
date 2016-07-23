@@ -174,9 +174,6 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             interfaceStateEventListener.setNaptManager(naptManager);
 
             SNATDefaultRouteProgrammer defaultRouteProgrammer = new SNATDefaultRouteProgrammer(mdsalManager);
-            DpnInVpnListener dpnInVpnListener = new DpnInVpnListener(dataBroker);
-            dpnInVpnListener.setDefaultProgrammer(defaultRouteProgrammer);
-            notificationService.registerNotificationListener(dpnInVpnListener);
 
             externalRouterListener.setDefaultProgrammer(defaultRouteProgrammer);
 
@@ -191,10 +188,6 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             naptSwitchHA.setExternalRoutersListener(externalRouterListener);
 
             natNodeEventListener = new NatNodeEventListener(dataBroker,naptSwitchHA);
-
-            dpnInVpnListener.setNaptSwitchHA(naptSwitchHA);
-            dpnInVpnListener.setMdsalManager(mdsalManager);
-            dpnInVpnListener.setIdManager(idManager);
 
             routerPortsListener = new RouterPortsListener(dataBroker);
 

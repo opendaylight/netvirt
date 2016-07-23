@@ -116,6 +116,7 @@ public class BgpThriftService {
 
         public void onUpdatePushRoute(String rd, String prefix, int plen, String nexthop, int label) {
             try {
+                LOGGER.debug("Update on push route : rd {} prefix {} plen {}",rd,prefix,plen);
                 BgpConfigurationManager.onUpdatePushRoute(rd, prefix, plen, nexthop, label);
             } catch (Throwable e) {
                 LOGGER.error("failed to handle update route ", e);

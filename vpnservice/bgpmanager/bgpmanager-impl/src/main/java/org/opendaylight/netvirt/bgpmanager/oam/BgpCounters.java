@@ -157,7 +157,7 @@ public class BgpCounters extends TimerTask {
                 socket.close();
                 return;
             }
-            if (ip == (int)gt) {
+            if (ip == (int)gt || ip == (int)hash) {
                 break;
             } else if (ip == -1) {
                 LOGGER.error(sb.toString());
