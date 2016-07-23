@@ -169,7 +169,28 @@ module odl-l3vpn {
                    key ip-address;
                    leaf ip-address { type string; }
                }
+               leaf dpn-state {
+           	        description
+           	        "This flag indicates the state of the DPN.
+           	        Active state indicates atleast one vpn interface present on that DPN for the vpn.
+           	        Inactive state indicates no vpn interface present on that DPN for this vpn.";
+
+                    type enumeration {
+                         enum active {
+                            value "0";
+                            description
+           	                "Active state";
+           	             }
+           	             enum inactive {
+           	                 value "1";
+           	                 description
+           	                 "Inactive state";
+           	             }
+           	        }
+           	        default "active";
+           	   }
            }
+           leaf active-dpn-count { type uint32;}
         }
     }
 

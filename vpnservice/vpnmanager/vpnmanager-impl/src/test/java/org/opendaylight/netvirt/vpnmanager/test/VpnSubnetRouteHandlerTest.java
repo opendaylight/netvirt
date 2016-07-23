@@ -338,7 +338,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnInterfaceUp() {
 
-        vpnSubnetRouteHandler.onInterfaceUp(stateInterface);
+        vpnSubnetRouteHandler.onInterfaceUp(dpId, interfaceName);
 
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, instPortOp, portOp, true);
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn, true);
@@ -348,7 +348,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnInterfaceDown() {
 
-        vpnSubnetRouteHandler.onInterfaceDown(stateInterface);
+        vpnSubnetRouteHandler.onInterfaceDown(dpId, interfaceName);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, dpnOpId);
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOp, true);

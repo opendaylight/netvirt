@@ -83,6 +83,7 @@ public class FibManagerTest {
   BigInteger Dpn;
   private static final long vpnId = 101L;
   private static final long vpnIntfCnt = 2;
+  private static final Boolean isCleanupComplete = Boolean.FALSE;
 
   private void SetupMocks() {
     Dpn = BigInteger.valueOf(100000L);
@@ -131,6 +132,9 @@ public class FibManagerTest {
           public Long getVpnInterfaceCount() { return vpnIntfCnt; }
 
           @Override
+          public Long getActiveDpnCount () {return 0L;}
+
+          @Override
           public List<VpnToDpnList> getVpnToDpnList() {
             List <VpnToDpnList> vpnToDpnLists =  new ArrayList<>();
             vpnToDpnLists.add(new VpnToDpnList() {
@@ -151,6 +155,9 @@ public class FibManagerTest {
               public VpnToDpnListKey getKey() {
                 return new VpnToDpnListKey(Dpn);
               }
+
+              @Override
+              public VpnToDpnList.DpnState getDpnState () { return VpnToDpnList.DpnState.Active;}
 
               @Override
               public <E extends Augmentation<VpnToDpnList>> E getAugmentation(

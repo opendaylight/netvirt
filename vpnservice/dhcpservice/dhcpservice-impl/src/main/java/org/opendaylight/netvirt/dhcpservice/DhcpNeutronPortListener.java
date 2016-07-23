@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataCh
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
@@ -61,24 +62,23 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataChangeListenerBas
     @Override
     protected void remove(InstanceIdentifier<Port> identifier, Port del) {
         LOG.trace("Port removed: {}", del);
-        if(NeutronUtils.isPortVnicTypeNormal(del)) {
-            return;
+        if(isVnicTypeDirectOrMacVtap(del)) {
+            removePort(del);
         }
-        removePort(del);
     }
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
         LOG.trace("Port changed to {}", update);
-        if (NeutronUtils.isPortVnicTypeNormal(update)) {
+        if (!isVnicTypeDirectOrMacVtap(update)) {
             LOG.trace("Port updated is normal {}", update.getUuid());
-            if (!NeutronUtils.isPortVnicTypeNormal(original)) {
-                LOG.trace("Original Port was direct {} so removing flows and cache entry if any", update.getUuid());
+            if (isVnicTypeDirectOrMacVtap(original)) {
+                LOG.trace("Original Port was direct/macvtap {} so removing flows and cache entry if any", update.getUuid());
                 removePort(original);
             }
             return;
         }
-        if (NeutronUtils.isPortVnicTypeNormal(original)) {
+        if (!isVnicTypeDirectOrMacVtap((original))) {
             LOG.trace("Original port was normal and updated is direct. Calling addPort()");
             addPort(update);
             return;
@@ -98,7 +98,7 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataChangeListenerBas
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port add) {
         LOG.trace("Port added {}", add);
-        if(NeutronUtils.isPortVnicTypeNormal(add)) {
+        if(!isVnicTypeDirectOrMacVtap(add)) {
             LOG.trace("Port is normal {}", add.getUuid());
             return;
         }
@@ -141,5 +141,15 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataChangeListenerBas
     private String getMacAddress(Port port) {
         String macAddress = port.getMacAddress().getValue();
         return macAddress;
+    }
+
+    private boolean isVnicTypeDirectOrMacVtap(Port port) {
+        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        if(portBinding == null || portBinding.getVnicType() == null) {
+            // By default, VNIC_TYPE is NORMAL
+            return false;
+        }
+        String vnicType = portBinding.getVnicType().trim().toLowerCase();
+        return (vnicType.equals("direct") || vnicType.equals("macvtap"));
     }
 }

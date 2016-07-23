@@ -16,6 +16,10 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.opendaylight.controller.md.sal.binding.api.*;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.*;
+import org.opendaylight.genius.utils.batching.ActionableResource;
+import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
+import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.genius.utils.batching.ResourceHandler;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -34,8 +38,14 @@ public class BgpUtil {
     private static final Logger LOG = LoggerFactory.getLogger(BgpUtil.class);
     private static DataBroker  dataBroker;
     private static BindingTransactionChain fibTransact;
+    public static final int PERIODICITY = 500;
     private static AtomicInteger pendingWrTransaction = new AtomicInteger(0);
+    public static final int BATCH_SIZE = 1000;
+    public static Integer batchSize;
+    public static Integer batchInterval;
     private static int txChainAttempts = 0;
+
+    private static BlockingQueue<ActionableResource> bgpRoutesBufferQ = new LinkedBlockingQueue<>();
 
     // return number of pending Write Transactions with BGP-Util (no read)
     public static int getGetPendingWrTransaction() {
@@ -52,83 +62,36 @@ public class BgpUtil {
         return fibTransact;
     }
 
-    static <T extends DataObject> void update(DataBroker broker, final LogicalDatastoreType datastoreType,
-                                              final InstanceIdentifier<T> path, final T data) {
-        threadPool.submit(new MdsalDsTask<>(datastoreType, path, data, TransactionType.UPDATE));
+    static void registerWithBatchManager(ResourceHandler resourceHandler) {
+        ResourceBatchingManager resBatchingManager = ResourceBatchingManager.getInstance();
+        resBatchingManager.registerBatchableResource("BGP-VRFENTRY", bgpRoutesBufferQ, resourceHandler);
     }
 
+    static <T extends DataObject> void update(DataBroker broker, final LogicalDatastoreType datastoreType,
+                                              final InstanceIdentifier<T> path, final T data) {
+        ActionableResource actResource = new ActionableResourceImpl(path.toString());
+        actResource.setAction(ActionableResource.UPDATE);
+        actResource.setInstanceIdentifier(path);
+        actResource.setInstance(data);
+        bgpRoutesBufferQ.add(actResource);
+    }
 
     public static <T extends DataObject> void write(DataBroker broker, final LogicalDatastoreType datastoreType,
                                                     final InstanceIdentifier<T> path, final T data) {
-        threadPool.submit(new MdsalDsTask<>(datastoreType, path, data, TransactionType.WRITE));
+        ActionableResource actResource = new ActionableResourceImpl(path.toString());
+        actResource.setAction(ActionableResource.CREATE);
+        actResource.setInstanceIdentifier(path);
+        actResource.setInstance(data);
+        bgpRoutesBufferQ.add(actResource);
     }
 
     static <T extends DataObject> void delete(DataBroker broker, final LogicalDatastoreType datastoreType,
                                               final InstanceIdentifier<T> path) {
-        threadPool.submit(new MdsalDsTask<>(datastoreType, path, null, TransactionType.DELETE));
-    }
-
-    static enum TransactionType {
-        WRITE, UPDATE, DELETE;
-    }
-
-    static  class MdsalDsTask<T extends DataObject> implements Runnable {
-        LogicalDatastoreType datastoreType;
-        InstanceIdentifier<T> path;
-        T data;
-        TransactionType type;
-
-        public MdsalDsTask(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path, T data, TransactionType type) {
-            this.datastoreType = datastoreType;
-            this.path = path;
-            this.data = data;
-            this.type = type;
-        }
-
-        @Override
-        public void run() {
-            try {
-                LOG.trace("BgpUtil MDSAL task started ");
-                WriteTransaction tx = getTransactionChain().newWriteOnlyTransaction();
-                switch (type) {
-                    case WRITE:
-                        tx.put(datastoreType, path, data, true);
-                        break;
-                    case UPDATE:
-                        tx.merge(datastoreType, path, data, true);
-                        break;
-                    case DELETE:
-                        tx.delete(datastoreType, path);
-                        break;
-                    default:
-                        LOG.error("Invalid Transaction type: {}", type);
-                }
-                pendingWrTransaction.incrementAndGet();
-                addFutureCallback(tx, path, data);
-                LOG.trace("Transaction type: {} submitted", type);
-            } catch (final Exception e) {
-                LOG.error("TxChain transaction submission failed, re-init TxChain", e);
-                initTransactionChain();
-            }
-        }
-    }
-
-
-    static  <T extends DataObject> void addFutureCallback(WriteTransaction tx, final InstanceIdentifier<T> path,
-                                                          final T data) {
-        Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                pendingWrTransaction.decrementAndGet();
-                LOG.trace("DataStore entry success data:{} path:{} ", path);
-            }
-
-            @Override
-            public void onFailure(final Throwable t) {
-                pendingWrTransaction.decrementAndGet();
-                LOG.error("DataStore  entry failed data:{} path:{} cause:{} , retry initTransactionChain", data, path, t.getCause());
-           }
-        });
+        ActionableResource actResource = new ActionableResourceImpl(path.toString());
+        actResource.setAction(ActionableResource.DELETE);
+        actResource.setInstanceIdentifier(path);
+        actResource.setInstance(null);
+        bgpRoutesBufferQ.add(actResource);
     }
 
 

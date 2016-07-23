@@ -478,21 +478,30 @@ public class VpnUtil {
      * @param nextHop Nexthop of the route
      * @param label Label of the route
      */
-    public static void addFibEntryToDS(DataBroker broker, String rd, String prefix, String nextHop, int label, RouteOrigin origin) {
+    public static void addFibEntryToDS(DataBroker broker, String rd, String prefix, String nextHop, int label,
+                                       RouteOrigin origin,
+                                       WriteTransaction writeTxn) {
         Preconditions.checkNotNull(rd, "RD cannot be null");
+        VrfEntry vrfEntry = null;
+
         LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHop, label);
         synchronized (rd.intern()) {
             InstanceIdentifier<VrfTables> vrfTableId =
                     InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
-            VrfEntry vrfEntry = getVrfEntry(broker, rd, prefix);
+            vrfEntry = getVrfEntry(broker, rd, prefix);
             if (vrfEntry != null) {
                 List<String> nextHopList = vrfEntry.getNextHopAddressList();
                 nextHopList.add(nextHop);
                 VrfEntryBuilder builder = new VrfEntryBuilder(vrfEntry).setNextHopAddressList(nextHopList);
                 VrfEntry newVrfEntry = builder.build();
                 // Just update the VrfEntry
-                VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION,
-                        vrfTableId.child(VrfEntry.class, new VrfEntryKey(prefix)), newVrfEntry);
+                if (writeTxn != null) {
+                    writeTxn.merge(LogicalDatastoreType.CONFIGURATION,
+                            vrfTableId.child(VrfEntry.class, new VrfEntryKey(prefix)), newVrfEntry, true);
+                } else {
+                    VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION,
+                            vrfTableId.child(VrfEntry.class, new VrfEntryKey(prefix)), newVrfEntry);
+                }
             } else {
                 List<VrfEntry> currentVrfEntries = new ArrayList<VrfEntry>();
                 VrfEntryBuilder builder = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(Arrays.asList(nextHop))
@@ -501,7 +510,11 @@ public class VpnUtil {
                 currentVrfEntries.add(vrfEntry);
                 VrfTables vrfTableNew = new VrfTablesBuilder().setRouteDistinguisher(rd).setVrfEntry(
                         currentVrfEntries).build();
-                VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
+                if (writeTxn != null) {
+                    writeTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew, true);
+                } else {
+                    VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
+                }
             }
             LOG.info("ADD: Added Fib Entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHop, label);
         }
@@ -518,7 +531,8 @@ public class VpnUtil {
      * @param nextHopToRemove Specific nexthop within the Route to be removed.
      *           If null or empty, then the whole VrfEntry is removed
      */
-    public static void removeFibEntryFromDS(DataBroker broker, String rd, String prefix, String nextHopToRemove) {
+    public static void removeFibEntryFromDS(DataBroker broker, String rd, String prefix, String nextHopToRemove,
+                                            WriteTransaction writeTxn) {
 
         LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {}", prefix, rd);
 
@@ -540,15 +554,24 @@ public class VpnUtil {
 
                 if (nhListRead.isEmpty()) {
                     // Remove the whole entry
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                    if (writeTxn != null) {
+                        writeTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                    } else {
+                        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                    }
                     LOG.info("Removed Fib Entry rd {} prefix {}", rd, prefix);
                 } else {
                     // An update must be done, not including the current next hop
                     VrfEntry vrfEntry =
-                        new VrfEntryBuilder(entry.get()).setDestPrefix(prefix).setNextHopAddressList(nhListRead)
-                                                        .setKey(new VrfEntryKey(prefix)).build();
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                            new VrfEntryBuilder(entry.get()).setDestPrefix(prefix).setNextHopAddressList(nhListRead)
+                                    .setKey(new VrfEntryKey(prefix)).build();
+                    if (writeTxn != null) {
+                        writeTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                        writeTxn.put(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                    } else {
+                        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                    }
                     LOG.info("Removed Nexthop {} from Fib Entry rd {} prefix {}", nextHopToRemove, rd, prefix);
                 }
             }
@@ -610,6 +633,14 @@ public class VpnUtil {
         return InstanceIdentifier.builder(VpnInstanceToVpnId.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance.class,
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceKey(vpnName)).build();
+    }
+
+    static RouterInterface getConfiguredRouterInterface(DataBroker broker, String interfaceName) {
+        Optional<RouterInterface> optRouterInterface = read(broker, LogicalDatastoreType.CONFIGURATION, VpnUtil.getRouterInterfaceId(interfaceName));
+        if(optRouterInterface.isPresent()) {
+            return optRouterInterface.get();
+        }
+        return null;
     }
 
     static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds
@@ -974,73 +1005,106 @@ public class VpnUtil {
         // DPN has gone down (and the VpnToDpnMap has been removed in a different Thread)
     }
 
-    public static void removePrefixToInterfaceForVpnId(DataBroker broker, long vpnId) {
+    public static void removePrefixToInterfaceForVpnId(DataBroker broker, long vpnId, WriteTransaction writeTxn) {
         try {
             // Clean up PrefixToInterface Operational DS
-            delete(broker, LogicalDatastoreType.OPERATIONAL,
-                    InstanceIdentifier.builder(PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId)).build(),
-                    DEFAULT_CALLBACK);
+            if (writeTxn != null) {
+                writeTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                        InstanceIdentifier.builder(PrefixToInterface.class).child(
+                                VpnIds.class, new VpnIdsKey(vpnId)).build());
+            } else {
+                delete(broker, LogicalDatastoreType.OPERATIONAL,
+                        InstanceIdentifier.builder(PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId)).build(),
+                        DEFAULT_CALLBACK);
+            }
         } catch (Exception e) {
             LOG.error("Exception during cleanup of PrefixToInterface for VPN ID {}", vpnId, e);
         }
     }
 
-    public static void removeVpnExtraRouteForVpn(DataBroker broker, String vpnName) {
+    public static void removeVpnExtraRouteForVpn(DataBroker broker, String vpnName, WriteTransaction writeTxn) {
         try {
             // Clean up VPNExtraRoutes Operational DS
-            delete(broker, LogicalDatastoreType.OPERATIONAL,
-                    InstanceIdentifier.builder(VpnToExtraroute.class).child(Vpn.class, new VpnKey(vpnName)).build(),
-                    DEFAULT_CALLBACK);
+            if (writeTxn != null) {
+                writeTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                        InstanceIdentifier.builder(VpnToExtraroute.class).child(Vpn.class, new VpnKey(vpnName)).build());
+            } else {
+                delete(broker, LogicalDatastoreType.OPERATIONAL,
+                        InstanceIdentifier.builder(VpnToExtraroute.class).child(Vpn.class, new VpnKey(vpnName)).build(),
+                        DEFAULT_CALLBACK);
+            }
         } catch (Exception e) {
             LOG.error("Exception during cleanup of VPNToExtraRoute for VPN {}", vpnName, e);
         }
     }
 
-    public static void removeVpnOpInstance(DataBroker broker, String vpnName) {
+    public static void removeVpnOpInstance(DataBroker broker, String vpnName, WriteTransaction writeTxn) {
         try {
             // Clean up VPNInstanceOpDataEntry
-            delete(broker, LogicalDatastoreType.OPERATIONAL, getVpnInstanceOpDataIdentifier(vpnName),
-                    DEFAULT_CALLBACK);
+            if (writeTxn != null) {
+                writeTxn.delete(LogicalDatastoreType.OPERATIONAL, getVpnInstanceOpDataIdentifier(vpnName));
+            } else {
+                delete(broker, LogicalDatastoreType.OPERATIONAL, getVpnInstanceOpDataIdentifier(vpnName),
+                        DEFAULT_CALLBACK);
+            }
         } catch (Exception e) {
             LOG.error("Exception during cleanup of VPNInstanceOpDataEntry for VPN {}", vpnName, e);
         }
     }
 
-    public static void removeVpnInstanceToVpnId(DataBroker broker, String vpnName) {
+    public static void removeVpnInstanceToVpnId(DataBroker broker, String vpnName, WriteTransaction writeTxn) {
         try {
-            delete(broker, LogicalDatastoreType.CONFIGURATION, getVpnInstanceToVpnIdIdentifier(vpnName),
-                    DEFAULT_CALLBACK);
+            if (writeTxn != null) {
+                writeTxn.delete(LogicalDatastoreType.CONFIGURATION, getVpnInstanceToVpnIdIdentifier(vpnName));
+            } else {
+                delete(broker, LogicalDatastoreType.CONFIGURATION, getVpnInstanceToVpnIdIdentifier(vpnName),
+                        DEFAULT_CALLBACK);
+            }
         } catch (Exception e) {
             LOG.error("Exception during clean up of VpnInstanceToVpnId for VPN {}", vpnName, e);
         }
     }
 
-    public static void removeVpnIdToVpnInstance(DataBroker broker, long vpnId) {
+    public static void removeVpnIdToVpnInstance(DataBroker broker, long vpnId, WriteTransaction writeTxn) {
         try {
-            delete(broker, LogicalDatastoreType.CONFIGURATION, getVpnIdToVpnInstanceIdentifier(vpnId),
-                    DEFAULT_CALLBACK);
+            if (writeTxn != null) {
+                writeTxn.delete(LogicalDatastoreType.CONFIGURATION, getVpnIdToVpnInstanceIdentifier(vpnId));
+            } else {
+                delete(broker, LogicalDatastoreType.CONFIGURATION, getVpnIdToVpnInstanceIdentifier(vpnId),
+                        DEFAULT_CALLBACK);
+            }
         } catch (Exception e) {
             LOG.error("Exception during clean up of VpnIdToVpnInstance for VPNID {}", vpnId, e);
         }
     }
 
-    public static void removeVrfTableForVpn(DataBroker broker, String vpnName) {
+    public static void removeVrfTableForVpn(DataBroker broker, String vpnName, WriteTransaction writeTxn) {
         // Clean up FIB Entries Config DS
         try {
-            delete(broker, LogicalDatastoreType.CONFIGURATION,
-                    InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(vpnName)).build(),
-                    DEFAULT_CALLBACK);
+            if (writeTxn != null) {
+                writeTxn.delete(LogicalDatastoreType.CONFIGURATION,
+                        InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(vpnName)).build());
+            } else {
+                delete(broker, LogicalDatastoreType.CONFIGURATION,
+                        InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(vpnName)).build(),
+                        DEFAULT_CALLBACK);
+            }
         } catch (Exception e) {
             LOG.error("Exception during clean up of VrfTable from FIB for VPN {}", vpnName, e);
         }
     }
 
-    public static void removeL3nexthopForVpnId(DataBroker broker, long vpnId) {
+    public static void removeL3nexthopForVpnId(DataBroker broker, long vpnId, WriteTransaction writeTxn) {
         try {
             // Clean up L3NextHop Operational DS
-            delete(broker, LogicalDatastoreType.OPERATIONAL,
-                    InstanceIdentifier.builder(L3nexthop.class).child(VpnNexthops.class, new VpnNexthopsKey(vpnId)).build(),
-                    DEFAULT_CALLBACK);
+            if (writeTxn != null) {
+                writeTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                        InstanceIdentifier.builder(L3nexthop.class).child(VpnNexthops.class, new VpnNexthopsKey(vpnId)).build());
+            } else {
+                delete(broker, LogicalDatastoreType.OPERATIONAL,
+                        InstanceIdentifier.builder(L3nexthop.class).child(VpnNexthops.class, new VpnNexthopsKey(vpnId)).build(),
+                        DEFAULT_CALLBACK);
+            }
         } catch (Exception e) {
             LOG.error("Exception during cleanup of L3NextHop for VPN ID {}", vpnId, e);
         }
@@ -1268,11 +1332,14 @@ public class VpnUtil {
         return result;
     }
 
-    public static void updateVpnInterface(DataBroker broker,String interfaceName, BigInteger dpnId, String vpnInstanceName, Boolean isScheduledToRemove){
+    public static void updateVpnInterface(DataBroker broker,String interfaceName, BigInteger dpnId,
+                                          String vpnInstanceName, Boolean isScheduledToRemove,
+                                          WriteTransaction writeTxn){
         InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         VpnInterface interfaceToUpdate = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName)).setName(interfaceName)
                 .setDpnId(dpnId).setVpnInstanceName(vpnInstanceName).setScheduledForRemove(isScheduledToRemove).build();
-        VpnUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate);
+        writeTxn.merge(LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate, true);
+        //VpnUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate);
     }
 
     protected static void createVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp,

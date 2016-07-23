@@ -126,7 +126,7 @@ public class VtyshCli extends OsgiCommandSupport {
         StringBuilder sb = new StringBuilder();
         int ip = 0, ret;
         StringBuilder temp, temp2;
-        char ch, gt = '>';
+        char ch, gt = '>', hashChar = '#';
 
         inputBgpCmd.append("show " + cmd);
 
@@ -187,8 +187,12 @@ public class VtyshCli extends OsgiCommandSupport {
                 socket.close();
                 return;
             }
-            if (ip == (int) gt) {
-                sb.append(gt);
+            if ((ip == (int) gt) || (ip == (int) hashChar)) {
+                if (ip == (int) gt) {
+                    sb.append(gt);
+                } else {
+                    sb.append(hashChar);
+                }
                 break;
             } else if (ip == -1) {
                 System.out.println(sb.toString());
@@ -215,7 +219,7 @@ public class VtyshCli extends OsgiCommandSupport {
                 socket.close();
                 return;
             }
-            if (ip == (int) gt) {
+            if ((ip == (int) gt) || (ip == (int) hashChar)) {
                 break;
             } else if (ip == -1) {
                 System.out.println(sb.toString());

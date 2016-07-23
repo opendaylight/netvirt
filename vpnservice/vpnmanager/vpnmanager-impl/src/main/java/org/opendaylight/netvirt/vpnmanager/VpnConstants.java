@@ -39,4 +39,11 @@ public class VpnConstants {
         ITMTunnelLocType(int id) { this.type = id; }
         public int getValue() { return type; }
     }
+    public enum DCGWPresentStatus {
+        Invalid(0), Present(1), Absent(2);
+
+        private final int status;
+        DCGWPresentStatus(int id) { this.status = id; }
+        public int getValue() { return status; }
+    }
 }

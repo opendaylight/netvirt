@@ -136,7 +136,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         InterVpnLink interVpnLink = VpnUtil.getInterVpnLinkByEndpointIp(dataBroker, nexthop);
         if ( interVpnLink != null ) {
             // A static route pointing to an InterVpnLink endpoint: just write the VrfEntry
-            VpnUtil.addFibEntryToDS(dataBroker, vpnRd, destination, nexthop, label.intValue(), RouteOrigin.STATIC);
+            VpnUtil.addFibEntryToDS(dataBroker, vpnRd, destination, nexthop, label.intValue(), RouteOrigin.STATIC , null);
         } else {
             vpnInterfaceMgr.addExtraRoute(destination, nexthop, vpnRd, null /*routerId */, label.intValue(),
                                           null /* intfName */);
@@ -193,7 +193,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         InterVpnLink interVpnLink = VpnUtil.getInterVpnLinkByEndpointIp(dataBroker, nexthop);
         if ( interVpnLink != null ) {
             // A static route pointing to an InterVpnLink endpoint: just remove the VrfEntry from DS
-            VpnUtil.removeFibEntryFromDS(dataBroker,  vpnRd, destination, nexthop);
+            VpnUtil.removeFibEntryFromDS(dataBroker,  vpnRd, destination, nexthop, null);
         } else {
             vpnInterfaceMgr.delExtraRoute(destination, nexthop, vpnRd, null /*routerId*/, null /*intfName*/);
         }
