@@ -1,0 +1,45 @@
+module cloud-service-chain-state {
+    namespace "urn:opendaylight:netvirt:cloud-servicechain:state";
+    prefix "cloud-service-chain-state";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import yang-ext {prefix ext; revision-date "2013-07-09";}
+    import elan {prefix elan; revision-date "2015-06-02";}
+
+    description
+        "Holds all cloud-servicechain state data";
+
+    revision "2016-17-11" {
+        description
+            "Initial revision";
+    }
+
+    grouping elan-to-pseudo-port-data-list {
+        list elan-to-pseudo-port-data {
+            key "elan-instance-name";
+            description "Relates elan-logical-port and scfTag with elan-instance-name";
+            max-elements "unbounded";
+            min-elements "0";
+
+            leaf elan-instance-name {
+                type string;
+                description "The name of the elan-instance.";
+            }
+
+            leaf elan-lport-tag {
+                description "Elan Pseudo Logical Port Tag";
+                type uint32;
+            }
+
+            leaf scf-tag {
+                description "SCF tag associated to Elan Pseudo Logical Port Tag";
+                type uint16;
+            }
+        }
+    }
+
+    augment "/elan:elan-instances/elan:elan-instance" {
+        ext:augment-identifier "elan-service-chain-state";
+        uses elan-to-pseudo-port-data-list;
+    }
+}

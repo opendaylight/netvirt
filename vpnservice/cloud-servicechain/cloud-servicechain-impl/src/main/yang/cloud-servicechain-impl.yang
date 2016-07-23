@@ -1,0 +1,55 @@
+module cloud-servicechain-impl {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:cloud-servicechain:impl";
+    prefix "cloud-servicechain-impl";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+    import opendaylight-sal-binding-broker-impl { prefix md-sal-binding-impl; revision-date 2013-10-28;}
+    import cloud-servicechain-api { prefix cloud-servicechain-api; revision-date 2015-12-11;}
+    import odl-mdsalutil { prefix odl-mdsal; revision-date 2016-04-06;}
+
+    description
+        "Service definition for cloud service chain project";
+
+    revision "2015-12-11" {
+        description
+            "Initial revision";
+    }
+
+    identity cloud-servicechain-impl {
+        base config:module-type;
+        config:provided-service cloud-servicechain-api:cloud-servicechain-api;
+        config:java-name-prefix CloudServiceChainImpl;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case cloud-servicechain-impl {
+            when "/config:modules/config:module/config:type = 'cloud-servicechain-impl'";
+            container broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-broker-osgi-registry;
+                    }
+                }
+            }
+            container rpcregistry {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-rpc-registry;
+                    }
+                }
+            }
+            container mdsalutil {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity odl-mdsal:odl-mdsalutil;
+                    }
+                }
+            }
+        }
+    }
+}

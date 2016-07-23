@@ -39,6 +39,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.netvirt/natservice-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/aclservice-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/ipv6service-api/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/cloud-servicechain-api/{{VERSION}}</bundle>
   </feature>
 
   <feature name='odl-netvirt-impl' version='${project.version}' description='OpenDaylight :: NetVirt :: impl'>
@@ -65,6 +66,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.netvirt/aclservice-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/ipv6service-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/ipv6service-api/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/cloud-servicechain-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.ovsdb/utils.mdsal-utils/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.ovsdb/utils.southbound-utils/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.ovsdb/utils.mdsal-utils/{{VERSION}}</bundle>
@@ -81,6 +83,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <configfile finalname="${configfile.directory}/natservice-impl-default-config.xml">mvn:org.opendaylight.netvirt/natservice-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/aclservice-impl-default-config.xml">mvn:org.opendaylight.netvirt/aclservice-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/ipv6service-impl-default-config.xml">mvn:org.opendaylight.netvirt/ipv6service-impl/{{VERSION}}/xml/config</configfile>
+    <configfile finalname="${configfile.directory}/cloud-servicechain-impl-default-config.xml">mvn:org.opendaylight.netvirt/cloud-servicechain-impl/{{VERSION}}/xml/config</configfile>
   </feature>
 
   <feature name='odl-netvirt-openstack' version='${project.version}' description='OpenDaylight :: NetVirt :: OpenStack'>
