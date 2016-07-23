@@ -29,6 +29,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module>bgpmanager</module>
     <module>neutronvpn</module>
     <module>dhcpservice</module>
+    <module>cloud-servicechain</module>
     <module>natservice</module>
     <module>aclservice</module>
     <module>ipv6service</module>
