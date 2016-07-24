@@ -1617,5 +1617,14 @@ public class ElanUtils {
         return ElanInstance.SegmentType.Vxlan.equals(elanInstance.getSegmentType())
                 && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().longValue() != 0;
     }
+
+    public static boolean isVlan(ElanInstance elanInstance) {
+        return ElanInstance.SegmentType.Vlan.equals(elanInstance.getSegmentType())
+                && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().longValue() != 0;
+    }
+
+    public static boolean isFlat(ElanInstance elanInstance) {
+        return ElanInstance.SegmentType.Flat.equals(elanInstance.getSegmentType());
+    }
 }
 
