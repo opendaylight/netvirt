@@ -35,6 +35,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module>distribution/karaf</module>
     <module>features</module>
     <module>vpnservice-artifacts</module>
+    <module>vpnservice-it</module>
   </modules>
 
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
