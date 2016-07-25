@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_468bf7c2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-25T09:01:47Z",
+      "side": 1,
+      "message": "That\u0027s cool. I didn\u0027t realize equals* was null safe. Right now there\u0027s an architecture issue and we\u0027re not sure which patch set we\u0027ll be sticking with. Once that is cleared up and if I wind up back in this file, I\u0027ll change it for the sake of coolness.",
+      "parentUuid": "9a561d44_a6dad349",
+      "revId": "b973b6d226ce732256dcd9d3ffbd8f9fc81d4fae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_e6e04bfc",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
         "patchSetId": 12
@@ -30,6 +48,24 @@
       "writtenOn": "2016-07-25T08:10:07Z",
       "side": 1,
       "message": "also it is more elegant to make\nreturn INTEGRATION_BRIDGE.equals(bridgeName);\ninstead of checking null",
+      "revId": "b973b6d226ce732256dcd9d3ffbd8f9fc81d4fae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_86918ff3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-25T09:01:47Z",
+      "side": 1,
+      "message": "same as above.",
+      "parentUuid": "9a561d44_e6e04bfc",
       "revId": "b973b6d226ce732256dcd9d3ffbd8f9fc81d4fae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_e6384b3f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-25T09:01:47Z",
+      "side": 1,
+      "message": "I think you may have misread the comment. It says, \"check that it does not exist in the CONFIGURATION or OPERATIONAL md-sals first\", \"or\". If the bridge exists in either, we do nothing. That is how I understand the comment and the code.",
+      "parentUuid": "9a561d44_46d0171f",
+      "revId": "b973b6d226ce732256dcd9d3ffbd8f9fc81d4fae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_0681fffa",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
         "patchSetId": 12
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_263ec328",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-25T09:01:47Z",
+      "side": 1,
+      "message": "sizeof(mac) \u003d\u003d 6 and sizeof(dpid) \u003d\u003d 8 so you\u0027re right that the format\u0027s are not interchangeable. However, OVS generates a dpid from the mac of the bridge (I think it just adds to zero\u0027ed bytes at the left-hand side). This function has been tested with a null mac. In fact specifying the mac is a relatively recent addition.",
+      "parentUuid": "9a561d44_0681fffa",
+      "revId": "b973b6d226ce732256dcd9d3ffbd8f9fc81d4fae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_86c22f32",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
         "patchSetId": 12
@@ -81,6 +153,24 @@
       "writtenOn": "2016-07-25T08:10:07Z",
       "side": 1,
       "message": "I think it more clear to use for loop here.\nAnd to extract \u00276\u0027 to constant value.\n(I think it should be 8 for dpid)",
+      "revId": "b973b6d226ce732256dcd9d3ffbd8f9fc81d4fae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_a6f5b358",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-25T09:01:47Z",
+      "side": 1,
+      "message": "1) I disagree that 6 should be made into a constant. It\u0027s not re-used and the meaning of \"6\" is clear enough. \n2) The reason this is not written as a for-loop is because with a for loop the break test is done after the loop which would mean that either (a) you would have a trailing \u0027:\u0027 or (b) you\u0027d have to check the loop count before appending the \u0027:\u0027. This way it\u0027s simpler.",
+      "parentUuid": "9a561d44_86c22f32",
       "revId": "b973b6d226ce732256dcd9d3ffbd8f9fc81d4fae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
