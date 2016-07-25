@@ -11,8 +11,10 @@ package org.opendaylight.netvirt.elan.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 
@@ -650,17 +652,9 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
             return;
         }
 
-        List<String> elanInterfaces = getElanInterfaces(elanInstanceName);
-        if (elanInterfaces == null || elanInterfaces.isEmpty()) {
-            logger.trace("No ELAN interfaces defined for {}", elanInstanceName);
-            return;
-        }
-
-        for (String elanInterface : elanInterfaces) {
-            if (ElanUtils.isExternal(elanInterface, broker)) {
-                deleteIetfInterface(elanInterface);
-                deleteElanInterface(elanInstanceName, elanInterface);
-            }
+        for (String elanInterface : getExternalElanInterfaces(elanInstanceName)) {
+            deleteIetfInterface(elanInterface);
+            deleteElanInterface(elanInstanceName, elanInterface);
         }
     }
 
@@ -693,18 +687,30 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         }
 
         String elanInstanceName = elanInstance.getElanInstanceName();
-        List<String> elanInterfaces = getElanInterfaces(elanInstanceName);
-        if (elanInterfaces == null || elanInterfaces.isEmpty()) {
-            logger.trace("No ELAN interfaces defined for {}", elanInstanceName);
-            return;
-        }
-
-        for (String elanInterface : elanInterfaces) {
-            if (ElanUtils.isExternal(elanInterface, broker) && elanInterface.startsWith(interfaceName)) {
+        for (String elanInterface : getExternalElanInterfaces(elanInstanceName)) {
+            if (elanInterface.startsWith(interfaceName)) {
                 deleteIetfInterface(elanInterface);
                 deleteElanInterface(elanInstanceName, elanInterface);
             }
         }
+    }
+
+    @Override
+    public Iterable<String> getExternalElanInterfaces(String elanInstanceName) {
+        List<String> elanInterfaces = getElanInterfaces(elanInstanceName);
+        if (elanInterfaces == null || elanInterfaces.isEmpty()) {
+            logger.trace("No ELAN interfaces defined for {}", elanInstanceName);
+            return Collections.emptySet();
+        }
+
+        Set<String> externalElanInterfaces = new HashSet<>();
+        for (String elanInterface : elanInterfaces) {
+            if (ElanUtils.isExternal(elanInterface, broker)) {
+                externalElanInterfaces.add(elanInterface);
+            }
+        }
+
+        return externalElanInterfaces;
     }
 
     /**
