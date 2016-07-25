@@ -60,9 +60,13 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
     private PacketProcessingService m_packetProcessingService;
     private SubnetRoutePacketInHandler subnetRoutePacketInHandler;
     private InterVpnLinkListener interVpnLinkListener;
-    private DataBroker dataBroker;
+    private static DataBroker dataBroker;
     private InterVpnLinkNodeListener interVpnLinkNodeListener;
 
+
+    public static DataBroker getDataBroker() {
+        return dataBroker;
+    }
 
     @Override
     public void onSessionInitiated(ProviderContext session) {

@@ -1,6 +1,7 @@
 package org.opendaylight.netvirt.vpnservice.it;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.maven;
@@ -19,13 +20,23 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.mdsal.it.base.AbstractMdsalTestBase;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
+import org.opendaylight.netvirt.utils.netvirt.it.utils.NetvirtItUtils;
+import org.opendaylight.netvirt.vpnmanager.VpnserviceProvider;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.NodeInfo;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.OvsdbItUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ConnectionInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpnservice.impl.rev150216.VpnserviceImpl;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -60,6 +71,13 @@ public class VpnserviceIT extends AbstractMdsalTestBase {
     @Inject @Filter(timeout=60000)
     private static DataBroker dataBroker = null;
 
+    /*@Override
+    public String getModuleName() {
+        return "vpnservice-impl";
+    }
+
+    @Override
+    public String getInstanceName() { return "vpnservice-default"; }*/
 
     @Override
     public MavenUrlReference getFeatureRepo() {
@@ -121,6 +139,9 @@ public class VpnserviceIT extends AbstractMdsalTestBase {
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.controller.configpusherfeature.internal.FeatureConfigPusher",
                         LogLevel.ERROR.name()),
+                editConfigurationFilePut(VpnserviceITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.opendaylight.ovsdb",
+                        LogLevel.TRACE.name()),
                 super.getLoggingOption());
     }
 
@@ -139,12 +160,18 @@ public class VpnserviceIT extends AbstractMdsalTestBase {
             fail("Failed to setup test: " + e);
         }
 
+        //Thread.sleep(20000);
         getProperties();
+
+        //dataBroker = getDatabroker(getProviderContext());
+        //dataBroker = VpnserviceProvider.getDataBroker();
         assertNotNull("dataBroker should not be null", dataBroker);
         itUtils = new OvsdbItUtils(dataBroker);
         mdsalUtils = new MdsalUtils(dataBroker);
         assertNotNull("mdsalUtils should not be null", mdsalUtils);
         southboundUtils = new SouthboundUtils(mdsalUtils);
+
+        //assertTrue("Did not find " + SouthboundUtils.OVSDB_TOPOLOGY_ID.getValue(), getOvsdbTopology());
 
 //      TODO: "netvirt:1" was not implemented yet on new vpnservice project
 
@@ -165,6 +192,59 @@ public class VpnserviceIT extends AbstractMdsalTestBase {
                 connectionType, addressStr, portStr, controllerStr, userSpaceEnabled);
     }
 
+    public static DataBroker getDatabroker(BindingAwareBroker.ProviderContext providerContext) {
+        DataBroker dataBroker = providerContext.getSALService(DataBroker.class);
+        assertNotNull("dataBroker should not be null", dataBroker);
+        return dataBroker;
+    }
+
+    private BindingAwareBroker.ProviderContext getProviderContext() {
+        BindingAwareBroker.ProviderContext providerContext = null;
+        for (int i=0; i < 60; i++) {
+            providerContext = getSession();
+            if (providerContext != null) {
+                break;
+            } else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    LOG.warn("Interrupted while waiting for provider context", e);
+                }
+            }
+        }
+        assertNotNull("providercontext should not be null", providerContext);
+        /* One more second to let the provider finish initialization */
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            LOG.warn("Interrupted while waiting for other provider", e);
+        }
+        return providerContext;
+    }
+
+    private Boolean getOvsdbTopology() {
+        LOG.info("getOvsdbTopology: looking for {}...", SouthboundUtils.OVSDB_TOPOLOGY_ID.getValue());
+        Boolean found = false;
+        final TopologyId topologyId = SouthboundUtils.OVSDB_TOPOLOGY_ID;
+        InstanceIdentifier<Topology> path =
+                InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, new TopologyKey(topologyId));
+        for (int i = 0; i < 60; i++) {
+            Topology topology = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, path);
+            if (topology != null) {
+                LOG.info("getOvsdbTopology: found {}...", SouthboundUtils.OVSDB_TOPOLOGY_ID.getValue());
+                found = true;
+                break;
+            } else {
+                LOG.info("getOvsdbTopology: still looking ({})...", i);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    LOG.warn("Interrupted while waiting for {}", SouthboundUtils.OVSDB_TOPOLOGY_ID.getValue(), e);
+                }
+            }
+        }
+        return found;
+    }
 
     /**
      * Test for basic southbound events to netvirt.
@@ -186,8 +266,8 @@ public class VpnserviceIT extends AbstractMdsalTestBase {
 
             LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
 
-            southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, VpnserviceITConstants.PORT_NAME,
-                    "internal", null, null, 0L);
+            //southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, VpnserviceITConstants.PORT_NAME,
+            //        "internal", null, null, 0L);
             Thread.sleep(1000);
 
 //          TODO: Need to find getTerminationPointOfBridge on vpnservice project
