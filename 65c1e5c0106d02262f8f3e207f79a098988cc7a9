@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_3a39b0d7",
+        "filename": "vpnservice/aclservice/api/src/test/java/org/opendaylight/netvirt/aclservice/api/tests/FlowEntryObjects.xtend",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-07-25T15:58:24Z",
+      "side": 1,
+      "message": "This needs a license header.",
+      "revId": "65c1e5c0106d02262f8f3e207f79a098988cc7a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_9a327cf0",
+        "filename": "vpnservice/aclservice/api/src/test/java/org/opendaylight/netvirt/aclservice/api/tests/InterfaceBuilderHelper.xtend",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-07-25T15:58:24Z",
+      "side": 1,
+      "message": "This needs a license header too.",
+      "revId": "65c1e5c0106d02262f8f3e207f79a098988cc7a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
