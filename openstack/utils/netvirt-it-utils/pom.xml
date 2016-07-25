@@ -44,11 +44,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           <artifactId>utils.mdsal-utils</artifactId>
           <version>${project.version}</version>
       </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>openstack.net-virt</artifactId>
-        <version>${project.version}</version>
-      </dependency>
+      <!--<dependency>-->
+        <!--<groupId>${project.groupId}</groupId>-->
+        <!--<artifactId>openstack.net-virt</artifactId>-->
+        <!--<version>${project.version}</version>-->
+      <!--</dependency>-->
       <dependency>
           <groupId>${project.groupId}</groupId>
           <artifactId>utils.neutron-utils</artifactId>
