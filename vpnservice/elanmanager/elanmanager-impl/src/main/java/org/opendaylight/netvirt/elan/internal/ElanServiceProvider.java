@@ -11,8 +11,10 @@ package org.opendaylight.netvirt.elan.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 
@@ -674,19 +676,30 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         }
 
         String elanInstanceName = elanInstance.getElanInstanceName();
+        for (String elanInterface : getExternalElanInterfaces(elanInstanceName)) {
+            if (elanInterface.startsWith(interfaceName)) {
+                deleteIetfInterface(elanInterface);
+                deleteElanInterface(elanInstanceName, elanInterface);
+            }
+        }
+    }
+
+    @Override
+    public Collection<String> getExternalElanInterfaces(String elanInstanceName) {
         List<String> elanInterfaces = getElanInterfaces(elanInstanceName);
         if (elanInterfaces == null || elanInterfaces.isEmpty()) {
             logger.trace("No ELAN interfaces defined for {}", elanInstanceName);
-            return;
+            return Collections.emptySet();
         }
 
+        Set<String> externalElanInterfaces = new HashSet<>();
         for (String elanInterface : elanInterfaces) {
-            if (ElanUtils.isExternal(elanInterface) && elanInterface.startsWith(interfaceName)) {
-                deleteIetfInterface(elanInterface);
-                deleteElanInterface(elanInstanceName, elanInterface);
-                return;
+            if (ElanUtils.isExternal(elanInterface)) {
+                externalElanInterfaces.add(elanInterface);
             }
         }
+
+        return externalElanInterfaces;
     }
 
     /**
@@ -710,15 +723,15 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
 
         try {
             if (ElanUtils.isFlat(elanInstance)) {
-                interfaceName = parentRef + IfmConstants.OF_URI_PREFIX + "flat";
+                interfaceName = parentRef + IfmConstants.OF_URI_SEPARATOR + "flat";
                 interfaceManager.createVLANInterface(interfaceName, parentRef, null, null, null,
                         IfL2vlan.L2vlanMode.Transparent, true);
             } else if (ElanUtils.isVlan(elanInstance)) {
-                String trunkName = parentRef + IfmConstants.OF_URI_PREFIX + "trunk";
+                String trunkName = parentRef + IfmConstants.OF_URI_SEPARATOR + "trunk";
                 interfaceManager.createVLANInterface(interfaceName, parentRef, null, null, null,
                         IfL2vlan.L2vlanMode.Trunk, true);
                 Long segmentationId = elanInstance.getSegmentationId();
-                interfaceName = parentRef + IfmConstants.OF_URI_PREFIX + segmentationId;
+                interfaceName = parentRef + IfmConstants.OF_URI_SEPARATOR + segmentationId;
                 interfaceManager.createVLANInterface(interfaceName, trunkName, null, segmentationId.intValue(), null,
                         IfL2vlan.L2vlanMode.TrunkMember, true);
             }

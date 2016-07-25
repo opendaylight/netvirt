@@ -45,4 +45,6 @@ public interface IElanService {
 
     void deleteExternalElanNetworks(Node node);
 
+    Collection<String> getExternalElanInterfaces(String elanInstanceName);
+
 }
