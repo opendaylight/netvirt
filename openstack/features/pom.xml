@@ -241,23 +241,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <classifier>features</classifier>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>netvirt-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>hwgw</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.ovsdb</groupId>
-      <artifactId>hwvtepsouthbound-features</artifactId>
-      <version>${ovsdb.version}</version>
-      <type>xml</type>
-      <classifier>features</classifier>
-    </dependency>
-    <dependency>
       <groupId>org.opendaylight.dlux</groupId>
       <artifactId>features-dlux</artifactId>
       <version>${dlux.version}</version>
