@@ -61,10 +61,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -327,7 +323,7 @@ public class VpnUtil {
         return new RouterInterfaceBuilder().setKey(new RouterInterfaceKey(interfaceName))
                 .setInterfaceName(interfaceName).setRouterName(routerName).build();
     }
-	
+
     static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
@@ -447,6 +443,19 @@ public class VpnUtil {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public static <T extends DataObject> void syncDelete(DataBroker broker, LogicalDatastoreType datastoreType,
+            InstanceIdentifier<T> path) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.delete(datastoreType, path);
+        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        try {
+            futures.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error deleting from datastore (path) : ({}, {})", path);
             throw new RuntimeException(e.getMessage());
         }
     }

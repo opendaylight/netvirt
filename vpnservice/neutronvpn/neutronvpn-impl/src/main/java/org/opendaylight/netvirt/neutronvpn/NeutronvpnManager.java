@@ -650,7 +650,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     public void createL3InternalVpn(Uuid vpn, String name, Uuid tenant, List<String> rd, List<String> irt, List<String> ert,
                                     Uuid router, List<Uuid> networks) {
-
         // Update VPN Instance node
         updateVpnInstanceNode(vpn.getValue(), rd, irt, ert);
 
@@ -1054,7 +1053,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId, builder.setInterfaces(interfaces).build());
         }
     }
-    
+
     void removeFromNeutronRouterInterfacesMap(Uuid routerId, String interfaceName) {
         InstanceIdentifier<RouterInterfaces> routerInterfacesId =  getRouterInterfacesId(routerId);
         Optional<RouterInterfaces> optRouterInterfaces = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId);
