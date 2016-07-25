@@ -2180,5 +2180,4 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             }
         }
     }
-
 }
