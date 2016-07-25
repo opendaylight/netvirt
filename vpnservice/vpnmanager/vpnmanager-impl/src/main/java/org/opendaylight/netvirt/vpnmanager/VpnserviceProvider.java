@@ -62,7 +62,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
     private PacketProcessingService m_packetProcessingService;
     private SubnetRoutePacketInHandler subnetRoutePacketInHandler;
     private InterVpnLinkListener interVpnLinkListener;
-    private DataBroker dataBroker;
+    private static DataBroker dataBroker;
     private InterVpnLinkNodeListener interVpnLinkNodeListener;
     private TunnelInterfaceStateListener tunIntfStateListener;
     private BundleContext bundleContext;
@@ -70,6 +70,11 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
     public VpnserviceProvider(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
+
+    public static DataBroker getDataBroker() {
+        return dataBroker;
+    }
+
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
