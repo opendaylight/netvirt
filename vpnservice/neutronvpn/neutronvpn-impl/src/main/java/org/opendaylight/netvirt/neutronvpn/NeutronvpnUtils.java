@@ -74,6 +74,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.OpenvswitchOtherConfigs;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -610,6 +614,54 @@ public class NeutronvpnUtils {
         } catch (InterruptedException | ExecutionException e) {
             logger.debug("Exception when trying to release ID into the pool", idKey, e);
         }
+    }
+    
+    /// This code was copied from ElanBridgeManager.java, which was not commited yet.
+    // see https://git.opendaylight.org/gerrit/#/c/41925/7/vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java
+    // should be extracted into utility in the future
+    /**
+     * Extract OpenvSwitch other-config to String.
+     * @param node OVSDB node
+     * @param key key to extract from other-config
+     * @param broker - data broker
+     * @return Optional of key-value Map
+     */
+    public static String getOpenvswitchOtherConfig(Node node, String key,  DataBroker broker) {
+        OvsdbNodeAugmentation ovsdbNode = node.getAugmentation(OvsdbNodeAugmentation.class);
+        if (ovsdbNode == null) {
+            Node nodeFromReadOvsdbNode = getOvsdbNodeFromOperational(node, broker);
+            if (nodeFromReadOvsdbNode != null) {
+                ovsdbNode = nodeFromReadOvsdbNode.getAugmentation(OvsdbNodeAugmentation.class);
+            }
+        }
+
+        if (ovsdbNode != null && ovsdbNode.getOpenvswitchOtherConfigs() != null) {
+            for (OpenvswitchOtherConfigs openvswitchOtherConfigs : ovsdbNode.getOpenvswitchOtherConfigs()) {
+                if (openvswitchOtherConfigs.getOtherConfigKey().equals(key)) {
+                    return openvswitchOtherConfigs.getOtherConfigValue();
+                }
+            }
+        }
+      
+        return null;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private static Node getOvsdbNodeFromOperational(Node bridgeNode, DataBroker broker) {
+        Node ovsdbNode = null;
+        OvsdbBridgeAugmentation bridgeAugmentation = bridgeNode.getAugmentation(OvsdbBridgeAugmentation.class);
+        if (bridgeAugmentation != null) {
+            InstanceIdentifier<Node> ovsdbNodeIid =
+                    (InstanceIdentifier<Node>) bridgeAugmentation.getManagedBy().getValue();
+            ;
+            Optional<Node> ovsdbNodeOptinal = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, ovsdbNodeIid);
+            if(ovsdbNodeOptinal.isPresent()){
+                ovsdbNode = ovsdbNodeOptinal.get();
+            }
+        }else{
+            logger.debug("Provided node is not a bridge node : {}",bridgeNode);
+        }
+        return ovsdbNode;
     }
 
 }
