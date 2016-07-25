@@ -33,6 +33,57 @@
       "revId": "65c1e5c0106d02262f8f3e207f79a098988cc7a9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_1aa4ac06",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/learning/LearnMockitoTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-07-25T16:26:09Z",
+      "side": 1,
+      "message": "Did you mean to commit this?",
+      "revId": "65c1e5c0106d02262f8f3e207f79a098988cc7a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_3aaed0e6",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/utils/XtendBeanGenerator.xtend",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-07-25T16:26:09Z",
+      "side": 1,
+      "message": "This is very cool, but it\u0027s not magic (grumbling from a guy who\u0027s spent years fighting computer users\u0027 tendencies to consider they work using magic). You don\u0027t need to sell your code here ;-).",
+      "revId": "65c1e5c0106d02262f8f3e207f79a098988cc7a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_9ab71c3a",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/utils/XtendBeanGenerator.xtend",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-07-25T16:26:09Z",
+      "side": 1,
+      "message": "This should really go in the documentation somewhere, not the code (or perhaps in odlparent, alongside the xtend dependency/plugin management).",
+      "revId": "65c1e5c0106d02262f8f3e207f79a098988cc7a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
