@@ -17,6 +17,7 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.neutronvpn.l2gw.L2GatewayProvider;
+import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -33,7 +34,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnManager, AutoCloseable {
-
+    
+    private static final String AUTO_TUNNELS_CONFIG_PROPERY = "netvirt.autotunnelconfig.enable";
     private static final Logger LOG = LoggerFactory.getLogger(NeutronvpnProvider.class);
     private NeutronvpnManager nvManager;
     private NeutronvpnNatManager nvNatManager;
@@ -54,6 +56,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private IdManagerService idManager;
     private NeutronHostConfigChangeListener hostConfigListener;
     private VpnRpcService vpnRpcService;
+    private InterfaceStateToTransportZoneListener interfaceStateToTransportZoneListener;
 
 
     public NeutronvpnProvider(RpcProviderRegistry rpcRegistry,
@@ -107,7 +110,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
             routerListener = new NeutronRouterChangeListener(dbx, nvManager, nvNatManager);
             portListener = new NeutronPortChangeListener(dbx, nvManager, nvNatManager, notificationPublishService,
                     notificationService);
-            portListener.setLockManager(lockManager);
+            interfaceStateToTransportZoneListener = new InterfaceStateToTransportZoneListener(dbx, nvManager, getConfigProperty(AUTO_TUNNELS_CONFIG_PROPERY));
             nvManager.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
             floatingIpMapListener.setLockManager(lockManager);
@@ -133,6 +136,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
         nvManager.close();
         l2GatewayProvider.close();
         securityRuleListener.close();
+        interfaceStateToTransportZoneListener.close();
         LOG.info("NeutronvpnProvider Closed");
     }
 
@@ -190,6 +194,8 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     public IpAddress getNeutronSubnetGateway(Uuid subnetId) {
         return nvManager.getNeutronSubnetGateway(subnetId);
     }
-
-
+    
+    private String getConfigProperty(String prop) {
+        return ConfigProperties.getProperty(this.getClass(), prop);
+    }
 }
