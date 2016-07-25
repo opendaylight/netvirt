@@ -54,6 +54,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
     private IdManagerService idManager;
     private NeutronHostConfigChangeListener hostConfigListener;
     private VpnRpcService vpnRpcService;
+    private InterfaceStateToTransportZoneListener interfaceStateToTransportZoneListener;
 
 
     public NeutronvpnProvider(RpcProviderRegistry rpcRegistry,
@@ -107,7 +108,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
             routerListener = new NeutronRouterChangeListener(dbx, nvManager, nvNatManager);
             portListener = new NeutronPortChangeListener(dbx, nvManager, nvNatManager, notificationPublishService,
                     notificationService);
-            portListener.setLockManager(lockManager);
+            interfaceStateToTransportZoneListener = new InterfaceStateToTransportZoneListener(dbx, nvManager);
             nvManager.setLockManager(lockManager);
             portListener.setLockManager(lockManager);
             floatingIpMapListener.setLockManager(lockManager);
@@ -133,6 +134,7 @@ public class NeutronvpnProvider implements BindingAwareProvider, INeutronVpnMana
         nvManager.close();
         l2GatewayProvider.close();
         securityRuleListener.close();
+        interfaceStateToTransportZoneListener.close();
         LOG.info("NeutronvpnProvider Closed");
     }
 
