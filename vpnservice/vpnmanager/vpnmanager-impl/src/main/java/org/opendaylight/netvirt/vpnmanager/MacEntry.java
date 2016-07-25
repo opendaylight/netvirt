@@ -63,9 +63,9 @@ public class MacEntry implements Delayed {
 
     @Override
     public int compareTo(Delayed obj) {
-        if (this.expiryTime > ((MacEntry) obj).expiryTime) {
+        if (this.expiryTime < ((MacEntry) obj).expiryTime) {
             return -1;
-        } else if (this.expiryTime < ((MacEntry) obj).expiryTime) {
+        } else if (this.expiryTime > ((MacEntry) obj).expiryTime) {
             return 1;
         } else {
             return 0;
@@ -75,7 +75,7 @@ public class MacEntry implements Delayed {
     @Override
     public long getDelay(TimeUnit arg0) {
         long diff = expiryTime - System.currentTimeMillis();
-        return diff;
+        return arg0.convert(diff, TimeUnit.MILLISECONDS);
     }
 
     @Override

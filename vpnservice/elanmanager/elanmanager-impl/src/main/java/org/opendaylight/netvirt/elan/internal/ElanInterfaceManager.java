@@ -179,7 +179,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             }
         }
         ElanUtils.waitForTransactionToComplete(tx);
-        deleteFlowGroupTx.submit();
+        ElanUtils.waitForTransactionToComplete(deleteFlowGroupTx);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElanInterface removeInterfaceWorker = new InterfaceRemoveWorkerOnElanInterface(interfaceName, elanInfo,
             interfaceInfo, isInterfaceStateRemoved, this, isLastElanInterface);
@@ -261,7 +261,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
         deleteElanInterfaceFromConfigDS(interfaceName, tx);
         ElanUtils.waitForTransactionToComplete(tx);
-        deleteFlowGroupTx.submit();
+        ElanUtils.waitForTransactionToComplete(deleteFlowGroupTx);
     }
 
     private DpnInterfaces removeElanDpnInterfaceFromOperationalDataStore(String elanName, BigInteger dpId, String interfaceName,
@@ -519,7 +519,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             }
         }
         ElanUtils.waitForTransactionToComplete(tx);
-        writeFlowGroupTx.submit();
+        ElanUtils.waitForTransactionToComplete(writeFlowGroupTx);
     }
 
     protected void removeInterfaceStaticMacEntires(String elanInstanceName, String interfaceName, PhysAddress physAddress) {

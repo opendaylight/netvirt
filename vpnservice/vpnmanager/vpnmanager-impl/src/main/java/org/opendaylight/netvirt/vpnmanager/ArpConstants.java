@@ -20,5 +20,6 @@ public class ArpConstants {
         public static final String FAILED_TO_GET_SRC_IP_FOR_INTERFACE = "Failed to get src ip for %s";
         public static final String FAILED_TO_GET_SRC_MAC_FOR_INTERFACE = "Failed to get src mac for interface %s iid %s ";
         public static final int PERIOD = 10000;
+        public static final String ARPJOB = "Arpcache";
 
 }

@@ -17,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -51,7 +52,6 @@ import java.util.concurrent.*;
 
 public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPort,ArpScheduler> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArpScheduler.class);
     private ScheduledExecutorService executorService;
     private OdlInterfaceRpcService interfaceRpc;
     private DataBroker dataBroker;
@@ -72,18 +72,6 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
         registerListener(this.dataBroker);
         executorService = Executors.newScheduledThreadPool(ArpConstants.THREAD_POOL_SIZE, getThreadFactory("Arp Cache Timer Tasks"));
         scheduleExpiredEntryDrainerTask();
-    }
-
-    public void addOrUpdateMacEntryToQueue(String vpnName, MacAddress macAddress, InetAddress InetAddress, String interfaceName) {
-        MacEntry newMacEntry = new MacEntry(ArpConstants.arpCacheTimeout,vpnName,macAddress, InetAddress,interfaceName );
-        if (!macEntryQueue.contains(newMacEntry)) {
-            LOG.info("Adding ARP cache");
-            macEntryQueue.offer(newMacEntry);
-        }
-        else{
-            LOG.info("Updating ARP cache");
-            macEntryQueue.remove(newMacEntry);
-            macEntryQueue.offer(newMacEntry);        }
     }
 
 
@@ -107,86 +95,29 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
      }
 
 
-     private class ExpiredEntryDrainerTask implements Runnable {
-        @Override
-        public void run() {
-            WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-            Collection<MacEntry> expiredMacEntries = new ArrayList<>();
-            macEntryQueue.drainTo(expiredMacEntries);
-            for (MacEntry macEntry: expiredMacEntries) {
-                LOG.info("Removing the ARP cache for"+macEntry);
-                InstanceIdentifier<VpnPortipToPort> id = getVpnPortipToPortInstanceOpDataIdentifier(macEntry.getIpAddress().getHostAddress(),macEntry.getVpnName());
-                Optional<VpnPortipToPort> vpnPortipToPort = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-                if (vpnPortipToPort.isPresent()) {
-                    VpnPortipToPort vpnPortipToPortold = vpnPortipToPort.get();
-                    String fixedip = vpnPortipToPortold.getPortFixedip();
-                    String vpnName =  vpnPortipToPortold.getVpnName();
-                    String interfaceName =  vpnPortipToPortold.getPortName();
-                    String rd = getRouteDistinguisher(vpnName);
-                    deleteVrfEntries(rd,fixedip,tx);
-                    deleteAdjacencies(fixedip,vpnName,interfaceName,tx);
-                    tx.delete(LogicalDatastoreType.CONFIGURATION, id);
-                    waitForTransactionToComplete(tx);
-                 }
+    private class ExpiredEntryDrainerTask implements Runnable {
+       @Override
+       public void run() {
+           Collection<MacEntry> expiredMacEntries = new ArrayList<>();
+           macEntryQueue.drainTo(expiredMacEntries);
+           for (MacEntry macEntry: expiredMacEntries) {
+               LOG.info("Removing the ARP cache for"+macEntry);
+               InstanceIdentifier<VpnPortipToPort> id = getVpnPortipToPortInstanceOpDataIdentifier(macEntry.getIpAddress().getHostAddress(),macEntry.getVpnName());
+               Optional<VpnPortipToPort> vpnPortipToPort = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+               if (vpnPortipToPort.isPresent()) {
+                   VpnPortipToPort vpnPortipToPortold = vpnPortipToPort.get();
+                   String fixedip = vpnPortipToPortold.getPortFixedip();
+                   String vpnName =  vpnPortipToPortold.getVpnName();
+                   String interfaceName =  vpnPortipToPortold.getPortName();
+                   String rd = getRouteDistinguisher(vpnName);
+                   DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+                   coordinator.enqueueJob(buildJobKey(fixedip,vpnName), new ArpremovechacheTask(dataBroker,fixedip, vpnName,interfaceName, rd,id));
+               }
 
-              }
-        }
-     }
-        private void deleteVrfEntries(String rd, String fixedip, WriteTransaction tx) {
-            InstanceIdentifier<VrfEntry> vrfid= InstanceIdentifier.builder(FibEntries.class).
-                    child(VrfTables.class, new VrfTablesKey(rd)).
-                    child(VrfEntry.class,new VrfEntryKey(iptoprefix(fixedip))).
-                    build();
-
-            tx.delete(LogicalDatastoreType.CONFIGURATION, vrfid);
-            LOG.info("deleting the vrf entries");
-
-
-        }
-
-
-    public void deleteAdjacencies(String fixedip, String vpnName, String interfaceName, WriteTransaction tx) {
-          InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-          InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
-          Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
-          if (adjacencies.isPresent()) {
-              List<Adjacency> adjacencyList = adjacencies.get().getAdjacency();
-              InstanceIdentifier <Adjacency> adid = vpnIfId.augmentation(Adjacencies.class).child(Adjacency.class, new AdjacencyKey(iptoprefix(fixedip)));
-              Optional<Adjacency> newAdj = VpnUtil.read(dataBroker,  LogicalDatastoreType.CONFIGURATION, adid);
-              if(adjacencyList.contains(newAdj.get()))
-              adjacencyList.remove(newAdj.get());
-              Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
-              VpnInterface newVpnIntf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName)).
-                    setName(interfaceName).setVpnInstanceName(vpnName).addAugmentation(Adjacencies.class, aug).build();
-              tx.put(LogicalDatastoreType.CONFIGURATION, vpnIfId, newVpnIntf,true);
-              LOG.info("deleting the adjacencies ");
            }
+       }
     }
-    public static void waitForTransactionToComplete(WriteTransaction tx) {
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
-        try {
-            futures.get();
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Error writing to datastore {}", e);
-        }
-    }
-    private String iptoprefix(String ip){
-        return new StringBuilder(ip).append(ArpConstants.PREFIX).toString();
 
-     }
-
-    private static final FutureCallback<Void> DEFAULT_CALLBACK =
-        new FutureCallback<Void>() {
-        @Override
-        public synchronized void onSuccess(Void result) {
-             LOG.debug("Success in Datastore operation");
-        }
-
-        @Override
-        public void onFailure(Throwable error) {
-            LOG.error("Error in Datastore operation", error);
-        };
-    };
     private String getRouteDistinguisher(String vpnName) {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
                  .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
@@ -228,12 +159,17 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
             MacAddress srcMacAddress = MacAddress.getDefaultInstance(value.getMacAddress());
             String vpnName =  value.getVpnName();
             String interfaceName =  value.getPortName();
-            addOrUpdateMacEntryToQueue(vpnName,srcMacAddress, srcInetAddr, interfaceName);
-           } catch (Exception e) {
+            Boolean islearnt = value.isLearnt();
+            if(islearnt)
+            {
+                DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+                coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(),vpnName), new ArpaddchacheTask(srcInetAddr, srcMacAddress, vpnName,interfaceName, macEntryQueue));
+            }
+        } catch (Exception e) {
             LOG.error("Error in deserializing packet {} with exception {}", value, e);
-           e.printStackTrace();
-        }
+            e.printStackTrace();
 
+        }
     }
 
 
@@ -248,7 +184,11 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
             Boolean islearnt = value.isLearnt();
             if(islearnt)
             {
-               addOrUpdateMacEntryToQueue(vpnName,srcMacAddress, srcInetAddr, interfaceName);
+                DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+                if(islearnt)
+                {
+                    coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(),vpnName), new ArpaddchacheTask(srcInetAddr, srcMacAddress, vpnName,interfaceName, macEntryQueue));
+                }
             }
         }
         catch (Exception e) {
@@ -267,4 +207,9 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
        // TODO Auto-generated method stub
 
      }
+
+    private String buildJobKey(String ip, String vpnName){
+        return new StringBuilder(ArpConstants.ARPJOB).append(ip).append(vpnName).toString();
+
+    }
 }
