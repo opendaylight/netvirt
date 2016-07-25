@@ -9,6 +9,17 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -38,7 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
@@ -55,11 +65,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TimeUnits;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
@@ -80,12 +85,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 public class NeutronvpnUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(NeutronvpnUtils.class);
@@ -94,9 +93,14 @@ public class NeutronvpnUtils {
     public static ConcurrentHashMap<Uuid, Port> portMap = new ConcurrentHashMap<Uuid, Port>();
     public static ConcurrentHashMap<Uuid, Subnet> subnetMap = new ConcurrentHashMap<Uuid, Subnet>();
 
+    private static long LOCK_WAIT_TIME = 10L;
+    private static TimeUnit secUnit = TimeUnit.SECONDS;
+
     private NeutronvpnUtils() {
         throw new UnsupportedOperationException("Utility class should not be instantiated");
     }
+
+    static ConcurrentHashMap<String, ImmutablePair<ReadWriteLock,AtomicInteger>> locks = new ConcurrentHashMap<>();
 
     protected static Subnetmap getSubnetmap(DataBroker broker, Uuid subnetId) {
         InstanceIdentifier id = buildSubnetMapIdentifier(subnetId);
@@ -356,8 +360,32 @@ public class NeutronvpnUtils {
     }
 
     protected static boolean lock(LockManagerService lockManager, String lockName) {
-        TryLockInput input = new TryLockInputBuilder().setLockName(lockName).setTime(5L).setTimeUnit(TimeUnits
-                .Milliseconds).build();
+        synchronized (NeutronvpnUtils.class) {
+            if (locks.get(lockName) != null) {
+                locks.get(lockName).getRight().incrementAndGet();
+                try {
+                    locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
+                } catch (InterruptedException e) {
+                    locks.get(lockName).getRight().decrementAndGet();
+                    logger.error("Unable to acquire lock for  {}", lockName);
+                    throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
+                }
+            } else {
+                locks.putIfAbsent(lockName, new ImmutablePair<ReadWriteLock, AtomicInteger>(new ReentrantReadWriteLock(), new AtomicInteger(0)));
+                locks.get(lockName).getRight().incrementAndGet();
+                try {
+                    locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
+                } catch (Exception e) {
+                    locks.get(lockName).getRight().decrementAndGet();
+                    logger.error("Unable to acquire lock for  {}", lockName);
+                    throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
+                }
+            }
+        }
+        return true;
+        /*
+        TryLockInput input = new TryLockInputBuilder().setLockName(lockName).setTime(5L).setTimeUnit
+                        (TimeUnits.Milliseconds).build();
         boolean islockAcquired = false;
         try {
             Future<RpcResult<Void>> result = lockManager.tryLock(input);
@@ -372,9 +400,25 @@ public class NeutronvpnUtils {
             throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
         }
         return islockAcquired;
+        */
     }
 
     protected static boolean unlock(LockManagerService lockManager, String lockName) {
+        synchronized (NeutronvpnUtils.class) {
+            if (locks.get(lockName) != null) {
+                try {
+                    locks.get(lockName).getLeft().writeLock().unlock();
+                } catch (Exception e) {
+                    logger.error("Unable to un-lock for  {}", lockName);
+                    throw new RuntimeException(String.format("Unable to un-lock for %s", lockName), e.getCause());
+                }
+                if (0 == locks.get(lockName).getRight().decrementAndGet()) {
+                    locks.remove(lockName);
+                }
+            }
+        }
+        return true;
+        /*
         UnlockInput input = new UnlockInputBuilder().setLockName(lockName).build();
         boolean islockAcquired = false;
         try {
@@ -390,6 +434,7 @@ public class NeutronvpnUtils {
             throw new RuntimeException(String.format("Unable to unlock %s", lockName), e.getCause());
         }
         return islockAcquired;
+        */
     }
 
     protected static Short getIPPrefixFromPort(DataBroker broker, Port port) {
@@ -611,5 +656,4 @@ public class NeutronvpnUtils {
             logger.debug("Exception when trying to release ID into the pool", idKey, e);
         }
     }
-
 }
