@@ -27,10 +27,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -114,6 +119,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                             " already detected to be present");
                     return;
                 }
+
                 logger.debug("onSubnetAddedToVpn: Creating new SubnetOpDataEntry node for subnet: " +  subnetId.getValue());
                 Map<BigInteger, SubnetToDpn> subDpnMap = new HashMap<BigInteger, SubnetToDpn>();
                 SubnetOpDataEntry subOpEntry = null;
@@ -690,6 +696,35 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             logger.error("Subnet route not advertised for rd " + rd + " failed ", e);
             throw e;
         }
+    }
+
+    private void addExternalPortsToVpn(String vpnName, Subnetmap subMap, InstanceIdentifier<Subnetmap> submapId) {
+        Uuid routerId = subMap.getRouterId();
+        Uuid subnetId = subMap.getId();
+        if (routerId == null) {
+            logger.trace("No router attached to subnet {}", subnetId);
+            return;
+        }
+
+        InstanceIdentifier<Routers> routersIdentifier = vpnInterfaceManager.getExtRoutersId(routerId);
+        Optional<Routers> optRouters = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, routersIdentifier);
+        if (!optRouters.isPresent() || optRouters.get().getNetworkId() == null) {
+            logger.trace("No external network attached to router {} subnet {}", routerId, subnetId);
+            return;
+        }
+
+        List<Uuid> extPorts = new ArrayList<>();
+        Uuid extNetId = optRouters.get().getNetworkId();
+        Iterable<String> externalElanInterfaces = VpnmanagerServiceAccessor.getElanProvider().getExternalElanInterfaces(extNetId.getValue());
+        for (String elanInterface : externalElanInterfaces) {
+            vpnInterfaceManager.createVpnInterface(vpnName, elanInterface);
+            //FIXME ?? vpnInterfaceManager.addToNeutronRouterInterfacesMap(routerId, elanInterface);
+            extPorts.add(new Uuid(elanInterface));
+        }
+
+        subMap.getPortList().addAll(extPorts);
+        Subnetmap updatedSubmap = new SubnetmapBuilder().setId(subnetId).setPortList(extPorts).build();
+        VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, submapId, updatedSubmap);
     }
 }
 
