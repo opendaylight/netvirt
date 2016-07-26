@@ -63,8 +63,6 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
             packetListener = notificationService.registerNotificationListener(dhcpPktHandler);
             dhcpNodeListener = new NodeListener(dataBroker, dhcpManager, dhcpExternalTunnelManager);
             dhcpConfigListener = new DhcpConfigListener(dataBroker, dhcpManager);
-            dhcpInterfaceEventListener = new DhcpInterfaceEventListener(dhcpManager, dataBroker, dhcpExternalTunnelManager);
-            dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(dataBroker, dhcpExternalTunnelManager);
             dhcpLogicalSwitchListener = new DhcpLogicalSwitchListener(dhcpExternalTunnelManager, dataBroker);
             dhcpUCastMacListener = new DhcpUCastMacListener(dhcpManager,dhcpExternalTunnelManager, dataBroker);
             dhcpUCastMacListener.registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
