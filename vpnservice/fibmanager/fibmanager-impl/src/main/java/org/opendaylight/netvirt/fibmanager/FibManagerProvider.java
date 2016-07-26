@@ -11,11 +11,13 @@ import java.math.BigInteger;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -181,6 +183,19 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
                                String remoteNextHopIp) {
     fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd,
                                 localNextHopIp, remoteNextHopIp);
+  }
+
+  public void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
+                                  int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
+    FibUtil.addOrUpdateFibEntry(broker, rd, prefix , nextHopList, label, origin, writeConfigTxn);
+  }
+
+  public void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn) {
+    FibUtil.removeFibEntry(broker, rd, prefix, writeConfigTxn);
+  }
+
+  public void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopToRemove, WriteTransaction writeConfigTxn) {
+    FibUtil.removeOrUpdateFibEntry(broker, rd, prefix, nextHopToRemove, writeConfigTxn);
   }
 
 }

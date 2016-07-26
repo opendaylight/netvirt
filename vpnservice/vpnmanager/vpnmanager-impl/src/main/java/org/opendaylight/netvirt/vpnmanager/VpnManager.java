@@ -168,33 +168,31 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
                             }
                         }
                     }
-                    //currentIntfCount = vpnOpEntry.getVpnInterfaceCount();
                     if ((currentIntfCount == 0) || (currentIntfCount >= intfCount)) {
                         // Either the FibManager completed its job to cleanup all vpnInterfaces in VPN
                         // OR
                         // There is no progress by FibManager in removing all the interfaces even after good time!
                         // In either case, let us quit and take our chances.
                         //TODO(vpnteam): L3VPN refactoring to take care of this case.
-                        if (retryCount > 0) {
-                            retryCount--;
-                            LOG.info("Retrying clearing vpn with vpnname {} rd {} since currentIntfCount {} ", vpnName, rd, currentIntfCount);
-                            if (currentIntfCount > 0L){
-                                LOG.info("Current interface count for vpn {} and rd {} is not zero and so retrying ...", vpnName, rd);
-                                intfCount = currentIntfCount;
-                            } else {
-                                LOG.info("Current interface count is zero but instance Op for vpn {} and rd {} not cleared yet. Waiting for 5 more seconds.", vpnName, rd);
-                                intfCount = 1L;
-                            }
-                        } else {
-                            LOG.info("VPNInstance bailing out of wait loop as currentIntfCount is {} and max retries exceeded for for rd {}, vpnname {}",
-                                    currentIntfCount, rd, vpnName);
+                        if ((dpnToVpns == null) || dpnToVpns.size() <= 0) {
+                            LOG.info("VPN Instance vpn {} rd {} ready for removal, exiting wait loop", vpnName, rd);
                             break;
+                        } else {
+                            if (retryCount > 0) {
+                                retryCount--;
+                                LOG.info("Retrying clearing vpn with vpnname {} rd {} since current interface count {} ", vpnName, rd, currentIntfCount);
+                                if (currentIntfCount > 0) {
+                                    intfCount = currentIntfCount;
+                                } else {
+                                    LOG.info("Current interface count is zero, but instance Op for vpn {} and rd {} not cleared yet. Waiting for 5 more seconds.", vpnName, rd);
+                                    intfCount = 1L;
+                                }
+                            } else {
+                                LOG.info("VPNInstance bailing out of wait loop as current interface count is {} and max retries exceeded for for vpnName {}, rd {}",
+                                        currentIntfCount, vpnName, rd);
+                                break;
+                            }
                         }
-                    } else {
-                        // There is some progress by FibManager, so let us give it some more time!
-                        intfCount = currentIntfCount;
-                        retryCount = 1;
-                        LOG.info("current interface count {} for vpn {} and rd {} showing progress, waiting for it to drive to 0.", currentIntfCount, vpnName, rd);
                     }
                 } else {
                     // There is no VPNOPEntry.  Something else happened on the system !

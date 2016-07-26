@@ -665,7 +665,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         return null;
     }
 
-    void updateOperationalDS(String routerId, String interfaceName, int label, String internalIp, String externalIp) {
+    void updateOperationalDS(String routerId, String interfaceName, long label, String internalIp, String externalIp) {
 
         LOG.info("Updating operational DS for floating ip config : {} with label {}", internalIp, label);
         InstanceIdentifier<Ports> portsId = NatUtil.getPortsIdentifier(routerId, interfaceName);

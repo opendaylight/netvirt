@@ -14,6 +14,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl?module=opendaylight-sal-binding-broker-impl&amp;revision=2013-10-28</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:bgpmanager:api?module=bgpmanager-api&amp;revision=2015-04-20</capability>
+      <capability>urn:opendaylight:params:xml:ns:yang:fibmanager:api?module=fibmanager-api&amp;revision=2015-05-08</capability>
       <capability>urn:opendaylight:genius:interfacemanager?module=odl-interface&amp;revision=2016-04-06</capability>
   </required-capabilities>
   <configuration>
@@ -35,6 +36,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <type xmlns:bgpmanager="urn:opendaylight:params:xml:ns:yang:bgpmanager:api">bgpmanager:bgpmanager-api</type>
             <name>bgpmanager</name>
           </bgpmanager>
+          <fibmanager>
+            <type xmlns:fibmanager="urn:opendaylight:params:xml:ns:yang:fibmanager:api">fibmanager:fibmanager-api</type>
+            <name>fibmanager</name>
+          </fibmanager>
           <notification-service>
             <type xmlns:bindingimpl="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">bindingimpl:binding-new-notification-service</type>
             <name>binding-notification-adapter</name>

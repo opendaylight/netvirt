@@ -11,8 +11,8 @@ package org.opendaylight.netvirt.bgpmanager.commands;
 import org.apache.karaf.shell.commands.*;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
-import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

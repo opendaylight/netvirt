@@ -45,7 +45,7 @@ public class BgpUtil {
     public static Integer batchInterval;
     private static int txChainAttempts = 0;
 
-    private static BlockingQueue<ActionableResource> bgpRoutesBufferQ = new LinkedBlockingQueue<>();
+    private static BlockingQueue<ActionableResource> bgpResourcesBufferQ = new LinkedBlockingQueue<>();
 
     // return number of pending Write Transactions with BGP-Util (no read)
     public static int getGetPendingWrTransaction() {
@@ -64,7 +64,7 @@ public class BgpUtil {
 
     static void registerWithBatchManager(ResourceHandler resourceHandler) {
         ResourceBatchingManager resBatchingManager = ResourceBatchingManager.getInstance();
-        resBatchingManager.registerBatchableResource("BGP-VRFENTRY", bgpRoutesBufferQ, resourceHandler);
+        resBatchingManager.registerBatchableResource("BGP-RESOURCES", bgpResourcesBufferQ, resourceHandler);
     }
 
     static <T extends DataObject> void update(DataBroker broker, final LogicalDatastoreType datastoreType,
@@ -73,7 +73,7 @@ public class BgpUtil {
         actResource.setAction(ActionableResource.UPDATE);
         actResource.setInstanceIdentifier(path);
         actResource.setInstance(data);
-        bgpRoutesBufferQ.add(actResource);
+        bgpResourcesBufferQ.add(actResource);
     }
 
     public static <T extends DataObject> void write(DataBroker broker, final LogicalDatastoreType datastoreType,
@@ -82,7 +82,7 @@ public class BgpUtil {
         actResource.setAction(ActionableResource.CREATE);
         actResource.setInstanceIdentifier(path);
         actResource.setInstance(data);
-        bgpRoutesBufferQ.add(actResource);
+        bgpResourcesBufferQ.add(actResource);
     }
 
     static <T extends DataObject> void delete(DataBroker broker, final LogicalDatastoreType datastoreType,
@@ -91,7 +91,7 @@ public class BgpUtil {
         actResource.setAction(ActionableResource.DELETE);
         actResource.setInstanceIdentifier(path);
         actResource.setInstance(null);
-        bgpRoutesBufferQ.add(actResource);
+        bgpResourcesBufferQ.add(actResource);
     }
 
 

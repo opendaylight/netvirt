@@ -19,7 +19,6 @@ import com.google.common.base.*;
 import com.google.common.base.Optional;
 import org.apache.thrift.TException;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.bgpmanager.commands.Commands;
 import org.opendaylight.netvirt.bgpmanager.oam.*;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
@@ -29,6 +28,7 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipS
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;

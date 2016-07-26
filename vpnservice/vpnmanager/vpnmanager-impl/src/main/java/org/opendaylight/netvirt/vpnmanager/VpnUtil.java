@@ -29,7 +29,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -468,125 +468,11 @@ public class VpnUtil {
     }
 
     /**
-     * Writes in MDSAL a new VrfEntry for a VPN specified by its Route-Distinguisher. It performs a merge,
-     * that is, if the VrfEntry exists the nexthop is added the VrfEntry nexthop list. If the entry does not
-     * exist, it is created.
-     *
-     * @param broker dataBroker service reference
-     * @param rd Route-distinguisher of the VPN
-     * @param prefix Destination of the route. This, together with the RD, identifies the VrfEntry
-     * @param nextHop Nexthop of the route
-     * @param label Label of the route
-     */
-    public static void addFibEntryToDS(DataBroker broker, String rd, String prefix, String nextHop, int label,
-                                       RouteOrigin origin,
-                                       WriteTransaction writeTxn) {
-        Preconditions.checkNotNull(rd, "RD cannot be null");
-        VrfEntry vrfEntry = null;
-
-        LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHop, label);
-        synchronized (rd.intern()) {
-            InstanceIdentifier<VrfTables> vrfTableId =
-                    InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
-            vrfEntry = getVrfEntry(broker, rd, prefix);
-            if (vrfEntry != null) {
-                List<String> nextHopList = vrfEntry.getNextHopAddressList();
-                nextHopList.add(nextHop);
-                VrfEntryBuilder builder = new VrfEntryBuilder(vrfEntry).setNextHopAddressList(nextHopList);
-                VrfEntry newVrfEntry = builder.build();
-                // Just update the VrfEntry
-                if (writeTxn != null) {
-                    writeTxn.merge(LogicalDatastoreType.CONFIGURATION,
-                            vrfTableId.child(VrfEntry.class, new VrfEntryKey(prefix)), newVrfEntry, true);
-                } else {
-                    VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION,
-                            vrfTableId.child(VrfEntry.class, new VrfEntryKey(prefix)), newVrfEntry);
-                }
-            } else {
-                List<VrfEntry> currentVrfEntries = new ArrayList<VrfEntry>();
-                VrfEntryBuilder builder = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(Arrays.asList(nextHop))
-                        .setLabel((long) label).setOrigin(origin.getValue());
-                vrfEntry = builder.build();
-                currentVrfEntries.add(vrfEntry);
-                VrfTables vrfTableNew = new VrfTablesBuilder().setRouteDistinguisher(rd).setVrfEntry(
-                        currentVrfEntries).build();
-                if (writeTxn != null) {
-                    writeTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew, true);
-                } else {
-                    VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
-                }
-            }
-            LOG.info("ADD: Added Fib Entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHop, label);
-        }
-
-    }
-
-    /**
-     * Removes a specific Nexthop from a VrfEntry. If Nexthop to remove is the
-     * last one in the VrfEntry, then the VrfEntry is removed too.
-     *
-     * @param broker dataBroker service reference
-     * @param rd Route-Distinguisher to which the VrfEntry belongs to
-     * @param prefix Destination of the route
-     * @param nextHopToRemove Specific nexthop within the Route to be removed.
-     *           If null or empty, then the whole VrfEntry is removed
-     */
-    public static void removeFibEntryFromDS(DataBroker broker, String rd, String prefix, String nextHopToRemove,
-                                            WriteTransaction writeTxn) {
-
-        LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {}", prefix, rd);
-
-        // Looking for existing prefix in MDSAL database
-        InstanceIdentifier<VrfEntry> vrfEntryId =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
-                                                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
-        Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-
-        if ( entry.isPresent() ) {
-            synchronized (rd.intern()) {
-                List<String> nhListRead = new ArrayList<>();
-                if ( nextHopToRemove != null && !nextHopToRemove.isEmpty()) {
-                    nhListRead = entry.get().getNextHopAddressList();
-                    if (nhListRead.contains(nextHopToRemove)) {
-                        nhListRead.remove(nextHopToRemove);
-                    }
-                }
-
-                if (nhListRead.isEmpty()) {
-                    // Remove the whole entry
-                    if (writeTxn != null) {
-                        writeTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-                    } else {
-                        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-                    }
-                    LOG.info("Removed Fib Entry rd {} prefix {}", rd, prefix);
-                } else {
-                    // An update must be done, not including the current next hop
-                    VrfEntry vrfEntry =
-                            new VrfEntryBuilder(entry.get()).setDestPrefix(prefix).setNextHopAddressList(nhListRead)
-                                    .setKey(new VrfEntryKey(prefix)).build();
-                    if (writeTxn != null) {
-                        writeTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-                        writeTxn.put(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
-                    } else {
-                        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-                        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
-                    }
-                    LOG.info("Removed Nexthop {} from Fib Entry rd {} prefix {}", nextHopToRemove, rd, prefix);
-                }
-            }
-        } else {
-            LOG.warn("Could not find VrfEntry for Route-Distinguisher={} and prefix={}", rd, prefix);
-        }
-    }
-
-
-    /**
      * Remove from MDSAL all those VrfEntries in a VPN that have an specific RouteOrigin
      *
      * @param broker dataBroker service reference
      * @param rd     Route Distinguisher
-     * @param origin Origin of the Routes to be removed (see {@link org.opendaylight.netvirt.bgpmanager.api.RouteOrigin})
+     * @param origin Origin of the Routes to be removed (see {@link RouteOrigin})
      */
     public static void removeVrfEntriesByOrigin(DataBroker broker, String rd, RouteOrigin origin) {
         InstanceIdentifier<VrfTables> vpnVrfTableIid =
@@ -1332,14 +1218,17 @@ public class VpnUtil {
         return result;
     }
 
-    public static void updateVpnInterface(DataBroker broker,String interfaceName, BigInteger dpnId,
-                                          String vpnInstanceName, Boolean isScheduledToRemove,
-                                          WriteTransaction writeTxn){
+    public static void scheduleVpnInterfaceForRemoval(DataBroker broker,String interfaceName, BigInteger dpnId,
+                                                      String vpnInstanceName, Boolean isScheduledToRemove,
+                                                      WriteTransaction writeOperTxn){
         InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         VpnInterface interfaceToUpdate = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName)).setName(interfaceName)
                 .setDpnId(dpnId).setVpnInstanceName(vpnInstanceName).setScheduledForRemove(isScheduledToRemove).build();
-        writeTxn.merge(LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate, true);
-        //VpnUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate);
+        if (writeOperTxn != null) {
+            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate, true);
+        } else {
+            VpnUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate);
+        }
     }
 
     protected static void createVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp,

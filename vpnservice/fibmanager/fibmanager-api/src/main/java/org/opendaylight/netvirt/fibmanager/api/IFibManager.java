@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.fibmanager.api;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+
 import java.math.BigInteger;
 import java.util.List;
 
@@ -34,4 +37,10 @@ public interface IFibManager {
                            String rd, String destPrefix,
                            String localNextHopIp,
                            String remoteNextHopIP);
+
+
+    void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
+                             int label, RouteOrigin origin, WriteTransaction writeConfigTxn);
+    void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopToRemove, WriteTransaction writeConfigTxn);
+    void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn);
 }

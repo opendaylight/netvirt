@@ -9,7 +9,8 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.util.concurrent.SettableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Future;
 
@@ -30,11 +32,13 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     private IdManagerService idManager;
     private VpnInterfaceManager vpnInterfaceMgr;
     private DataBroker dataBroker;
+    private IFibManager fibManager;
 
     public VpnRpcServiceImpl(IdManagerService idManager, VpnInterfaceManager vpnIfaceMgr, DataBroker dataBroker) {
         this.idManager = idManager;
         this.vpnInterfaceMgr = vpnIfaceMgr;
         this.dataBroker = dataBroker;
+        this.fibManager = fibManager;
     }
 
     /**
@@ -136,7 +140,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         InterVpnLink interVpnLink = VpnUtil.getInterVpnLinkByEndpointIp(dataBroker, nexthop);
         if ( interVpnLink != null ) {
             // A static route pointing to an InterVpnLink endpoint: just write the VrfEntry
-            VpnUtil.addFibEntryToDS(dataBroker, vpnRd, destination, nexthop, label.intValue(), RouteOrigin.STATIC , null);
+            fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, destination, Arrays.asList(nexthop), label.intValue(), RouteOrigin.STATIC, null);
         } else {
             vpnInterfaceMgr.addExtraRoute(destination, nexthop, vpnRd, null /*routerId */, label.intValue(),
                                           null /* intfName */);
@@ -193,7 +197,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         InterVpnLink interVpnLink = VpnUtil.getInterVpnLinkByEndpointIp(dataBroker, nexthop);
         if ( interVpnLink != null ) {
             // A static route pointing to an InterVpnLink endpoint: just remove the VrfEntry from DS
-            VpnUtil.removeFibEntryFromDS(dataBroker,  vpnRd, destination, nexthop, null);
+            fibManager.removeOrUpdateFibEntry(dataBroker,  vpnRd, destination, nexthop, null);
         } else {
             vpnInterfaceMgr.delExtraRoute(destination, nexthop, vpnRd, null /*routerId*/, null /*intfName*/);
         }
