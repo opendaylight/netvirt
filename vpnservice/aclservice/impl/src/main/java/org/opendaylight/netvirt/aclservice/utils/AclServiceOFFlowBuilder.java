@@ -36,7 +36,6 @@ public class AclServiceOFFlowBuilder {
      * @return the map containing the flows and the respective flow id
      */
     public static Map<String,List<MatchInfoBase>>  programIpFlow(Matches matches) {
-        new HashMap<>();
         AceIp acl = (AceIp)matches.getAceType();
         if (acl.getProtocol() == NwConstants.IP_PROT_TCP) {
             return programTcpFlow(acl);
@@ -341,5 +340,4 @@ public class AclServiceOFFlowBuilder {
         }
         return portMap;
     }
-
 }
