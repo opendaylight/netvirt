@@ -20,6 +20,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.neutron/features-neutron/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.ovsdb/hwvtepsouthbound-features/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.genius/genius-features/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.infrautils/infrautils-features/{{VERSION}}/xml/features</repository>
 
   <feature name='odl-netvirt-api' version='${project.version}' description='OpenDaylight :: NetVirt :: api'>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
@@ -29,6 +30,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version="${ovsdb.version}">odl-ovsdb-southbound-api</feature>
     <feature version='${ovsdb.version}'>odl-ovsdb-hwvtepsouthbound-api</feature>
     <feature version='${genius.version}'>odl-genius-api</feature>
+    <feature version='${infrautils.version}'>odl-infrautils-counters</feature>
     <bundle>mvn:org.opendaylight.controller/liblldp/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.neutron/model/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/model-bgp/{{VERSION}}</bundle>
@@ -51,6 +53,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version="${openflowplugin.version}">odl-openflowplugin-southbound</feature>
     <feature version="${openflowplugin.version}">odl-openflowplugin-flow-services</feature>
     <feature version='${genius.version}'>odl-genius</feature>
+    <feature version='${infrautils.version}'>odl-infrautils-counters</feature>
     <bundle>mvn:commons-net/commons-net/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/bgpmanager-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/bgpmanager-impl/{{VERSION}}</bundle>
