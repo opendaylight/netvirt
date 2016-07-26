@@ -35,6 +35,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <karaf.shell.console.version>3.0.3</karaf.shell.console.version>
     <neutron.version>0.7.0-SNAPSHOT</neutron.version>
     <genius.version>0.1.0-SNAPSHOT</genius.version>
+    <infrautils.version>1.0.0-SNAPSHOT</infrautils.version>
   </properties>
 
   <dependencyManagement>

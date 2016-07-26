@@ -120,6 +120,7 @@ public class SNATDefaultRouteProgrammer {
             LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
             return;
         }
+        NatServiceCounters.install_default_nat_flow.inc();
         mdsalManager.installFlow(flowEntity);
     }
 
@@ -129,6 +130,7 @@ public class SNATDefaultRouteProgrammer {
             LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
             return;
         }
+        NatServiceCounters.install_default_nat_flow.inc();
         mdsalManager.installFlow(flowEntity);
     }
 
@@ -138,6 +140,7 @@ public class SNATDefaultRouteProgrammer {
             LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
             return;
         }
+        NatServiceCounters.remove_default_nat_flow.inc();
         mdsalManager.removeFlow(flowEntity);
     }
 
@@ -147,7 +150,7 @@ public class SNATDefaultRouteProgrammer {
             LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
             return;
         }
+        NatServiceCounters.remove_default_nat_flow.inc();
         mdsalManager.removeFlow(flowEntity);
     }
-
 }
