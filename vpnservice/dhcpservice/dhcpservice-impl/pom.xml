@@ -79,6 +79,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>hwvtepsouthbound-api</artifactId>
       <version>${vpns.ovsdb.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>counters-impl</artifactId>
+      <version>${infrautils.version}</version>
+    </dependency>
    </dependencies>
 
   <!--
