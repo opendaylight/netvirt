@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice.utils;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,15 +16,19 @@ import java.util.Map;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRange;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRange;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 
 public class AclServiceOFFlowBuilder {
 
@@ -36,7 +41,6 @@ public class AclServiceOFFlowBuilder {
      * @return the map containing the flows and the respective flow id
      */
     public static Map<String,List<MatchInfoBase>>  programIpFlow(Matches matches) {
-        new HashMap<>();
         AceIp acl = (AceIp)matches.getAceType();
         if (acl.getProtocol() == NwConstants.IP_PROT_TCP) {
             return programTcpFlow(acl);
@@ -342,4 +346,36 @@ public class AclServiceOFFlowBuilder {
         return portMap;
     }
 
+    public static List<MatchInfoBase> getAllowedIpMatches(IpPrefixOrAddress allowedIp, MatchFieldType ipv4MatchType) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_IPV4 }));
+        IpPrefix ipPrefix = allowedIp.getIpPrefix();
+        if (ipPrefix != null) {
+            if (ipPrefix.getIpv4Prefix().getValue() != null) {
+                String[] ipaddressValues = ipPrefix.getIpv4Prefix().getValue().split("/");
+                flowMatches.add(new MatchInfo(ipv4MatchType, new String[] {ipaddressValues[0], ipaddressValues[1]}));
+            } else {
+                // Handle IPv6
+            }
+        } else {
+            IpAddress ipAddress = allowedIp.getIpAddress();
+            if (ipAddress.getIpv4Address() != null) {
+                flowMatches.add(new MatchInfo(ipv4MatchType,
+                        new String[] {ipAddress.getIpv4Address().getValue(), "32"}));
+            } else {
+                // Handle IPv6
+            }
+        }
+        return flowMatches;
+    }
+
+    public static List<MatchInfo> getLPortTagMatches(int lportTag) {
+        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        // Matching metadata
+        mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
+            MetaDataUtil.getLportTagMetaData(lportTag),
+            MetaDataUtil.METADATA_MASK_LPORT_TAG }));
+        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(lportTag)}));
+        return mkMatches;
+    }
 }
