@@ -27,6 +27,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.infrautils.counters.impl.OccurenceCounter;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -92,12 +93,14 @@ public class DhcpServiceUtils {
                     DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, null);
             logger.trace("Removing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            DhcpServiceUtilsCounters.remove_dhcp_flow.inc();
             mdsalUtil.removeFlow(flowEntity);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
             logger.trace("Installing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            DhcpServiceUtilsCounters.install_dhcp_flow.inc();
             mdsalUtil.installFlow(flowEntity);
         }
     }
@@ -127,12 +130,14 @@ public class DhcpServiceUtils {
                     DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, null);
             logger.trace("Removing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            DhcpServiceUtilsCounters.remove_dhcp_drop_flow.inc();
             mdsalUtil.removeFlow(flowEntity);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
             logger.trace("Installing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            DhcpServiceUtilsCounters.install_dhcp_drop_flow.inc();
             mdsalUtil.installFlow(flowEntity);
         }
     }
@@ -221,5 +226,22 @@ public class DhcpServiceUtils {
             return null;
         }
         return trunkPort.get().getMacAddress().getValue();
+    }
+    
+    enum DhcpServiceUtilsCounters {
+    	install_dhcp_drop_flow, //
+    	install_dhcp_flow, //
+    	remove_dhcp_drop_flow, //
+    	remove_dhcp_flow;
+
+        private OccurenceCounter counter;
+
+        private DhcpServiceUtilsCounters() {
+            counter = new OccurenceCounter(getClass().getEnclosingClass().getSimpleName(), name(), name());
+        }
+
+        public void inc() {
+            counter.inc();
+        }
     }
 }

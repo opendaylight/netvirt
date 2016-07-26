@@ -21,6 +21,7 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.counters.impl.OccurenceCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,6 +121,7 @@ public class SNATDefaultRouteProgrammer {
             LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
             return;
         }
+        SNATDefaultRouteProgrammerCounters.install_default_nat_flow.inc();
         mdsalManager.installFlow(flowEntity);
     }
 
@@ -129,6 +131,7 @@ public class SNATDefaultRouteProgrammer {
             LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
             return;
         }
+        SNATDefaultRouteProgrammerCounters.install_default_nat_flow.inc();
         mdsalManager.installFlow(flowEntity);
     }
 
@@ -138,6 +141,7 @@ public class SNATDefaultRouteProgrammer {
             LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
             return;
         }
+        SNATDefaultRouteProgrammerCounters.remove_default_nat_flow.inc();
         mdsalManager.removeFlow(flowEntity);
     }
 
@@ -147,7 +151,22 @@ public class SNATDefaultRouteProgrammer {
             LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
             return;
         }
+        SNATDefaultRouteProgrammerCounters.remove_default_nat_flow.inc();
         mdsalManager.removeFlow(flowEntity);
     }
+    
+    enum SNATDefaultRouteProgrammerCounters {
+    	install_default_nat_flow, //
+    	remove_default_nat_flow;
 
+        private OccurenceCounter counter;
+
+        private SNATDefaultRouteProgrammerCounters() {
+            counter = new OccurenceCounter(getClass().getEnclosingClass().getSimpleName(), name(), name());
+        }
+
+        public void inc() {
+            counter.inc();
+        }
+    }
 }

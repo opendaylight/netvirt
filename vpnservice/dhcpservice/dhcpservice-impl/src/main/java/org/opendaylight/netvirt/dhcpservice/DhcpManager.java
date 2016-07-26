@@ -24,16 +24,17 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.counters.impl.OccurenceCounter;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
@@ -156,6 +157,7 @@ public class DhcpManager implements AutoCloseable {
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, DHCPMConstants.DHCP_TABLE, "DHCPTableMissFlow",
                 0, "DHCP Table Miss Flow", 0, 0,
                 DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
+        DhcpManagerCounters.install_dhcp_table_miss_flow.inc();
         mdsalUtil.installFlow(flowEntity);
         setupTableMissForHandlingExternalTunnel(dpId);
     }
@@ -168,6 +170,7 @@ public class DhcpManager implements AutoCloseable {
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL, "DHCPTableMissFlowForExternalTunnel",
                 0, "DHCP Table Miss Flow For External Tunnel", 0, 0,
                 DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
+        DhcpManagerCounters.install_dhcp_table_miss_flow_for_external_table.inc();
         mdsalUtil.installFlow(flowEntity);
     }
 
@@ -213,5 +216,20 @@ public class DhcpManager implements AutoCloseable {
     public void unbindDhcpService(String interfaceName) {
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION,
                 buildServiceId(interfaceName, DHCPMConstants.DHCP_SERVICE_PRIORITY));
+    }
+    
+    enum DhcpManagerCounters {
+    	install_dhcp_table_miss_flow, //
+    	install_dhcp_table_miss_flow_for_external_table;
+
+        private OccurenceCounter counter;
+
+        private DhcpManagerCounters() {
+            counter = new OccurenceCounter(getClass().getEnclosingClass().getSimpleName(), name(), name());
+        }
+
+        public void inc() {
+            counter.inc();
+        }
     }
 }
