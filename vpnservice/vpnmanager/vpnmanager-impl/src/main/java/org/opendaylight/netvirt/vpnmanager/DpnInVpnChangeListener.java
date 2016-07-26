@@ -8,10 +8,12 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.*;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -32,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 public class DpnInVpnChangeListener implements OdlL3vpnListener {
     private static final Logger LOG = LoggerFactory.getLogger(DpnInVpnChangeListener.class);
@@ -51,7 +54,7 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
 
         RemoveEventData eventData = notification.getRemoveEventData();
         final String rd = eventData.getRd();
-        String vpnName = eventData.getVpnName();
+        final String vpnName = eventData.getVpnName();
         BigInteger dpnId = eventData.getDpnId();
 
         LOG.trace("Remove Dpn Event notification received for rd {} VpnName {} DpnId {}", rd , vpnName, dpnId);
@@ -66,15 +69,20 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                     final Collection<VpnToDpnList> vpnToDpnList = vpnOpValue.get().getVpnToDpnList();
 
                     DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                    dataStoreCoordinator.enqueueJob("VPN-" + vpnName,
+                    dataStoreCoordinator.enqueueJob("VPN-" + vpnName + "-DPN-" + dpnId.toString() ,
                             new Callable<List<ListenableFuture<Void>>>() {
                                 @Override
                                 public List<ListenableFuture<Void>> call() throws Exception {
                                     WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                                     deleteDpn(vpnToDpnList , rd , writeTxn);
-                                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                                    futures.add(writeTxn.submit());
-                                    return futures;
+                                    CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
+                                    try {
+                                        futures.get();
+                                    } catch (InterruptedException | ExecutionException e) {
+                                        LOG.error("Error removing dpnToVpnList for vpn {} ", vpnName);
+                                        throw new RuntimeException(e.getMessage());
+                                    }
+                                    return null;
                                 }
                             });
 

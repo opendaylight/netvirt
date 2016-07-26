@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 
+import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -27,12 +27,13 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.utils.batching.ActionableResource;
 import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceHandler;
-import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -92,7 +93,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.overlay.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.Vpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.VpnKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
@@ -1222,8 +1222,8 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       }
   }
 
-  private void checkCleanUpOpDataForFib(Prefixes prefixInfo, Long vpnId, String rd,
-                                        final VrfEntry vrfEntry, Extraroute extraRoute) {
+  private void checkCleanUpOpDataForFib(final Prefixes prefixInfo, final Long vpnId, final String rd,
+                                        final VrfEntry vrfEntry, final Extraroute extraRoute) {
 
       if (prefixInfo == null) {
           LOG.debug("Cleanup VPN Data Failed as unable to find prefix Info for prefix {}", vrfEntry.getDestPrefix());
@@ -1231,9 +1231,35 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
       }
 
       String ifName = prefixInfo.getVpnInterfaceName();
-      synchronized (ifName.intern()) {
+      DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+      dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + ifName,
+              new CleanupVpnInterfaceWorker(prefixInfo, vpnId, rd, vrfEntry, extraRoute));
+  }
+
+  private class CleanupVpnInterfaceWorker implements Callable<List<ListenableFuture<Void>>> {
+      Prefixes prefixInfo;
+      Long vpnId;
+      String rd;
+      VrfEntry vrfEntry;
+      Extraroute extraRoute;
+
+      public CleanupVpnInterfaceWorker(final Prefixes prefixInfo, final Long vpnId, final String rd,
+                                       final VrfEntry vrfEntry, final Extraroute extraRoute) {
+          this.prefixInfo = prefixInfo;
+          this.vpnId = vpnId;
+          this.rd= rd;
+          this.vrfEntry= vrfEntry;
+          this.extraRoute = extraRoute;
+      }
+
+      @Override
+      public List<ListenableFuture<Void>> call() throws Exception {
+          // If another renderer(for eg : CSS) needs to be supported, check can be performed here
+          // to call the respective helpers.
+          String ifName = prefixInfo.getVpnInterfaceName();
+          WriteTransaction writeTxn = broker.newWriteOnlyTransaction();
           Optional<VpnInterface> optvpnInterface = FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                                                                FibUtil.getVpnInterfaceIdentifier(ifName));
+                  FibUtil.getVpnInterfaceIdentifier(ifName));
           if (optvpnInterface.isPresent()) {
               long associatedVpnId = FibUtil.getVpnId(broker, optvpnInterface.get().getVpnInstanceName());
               if (vpnId != associatedVpnId) {
@@ -1243,18 +1269,18 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                   FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
                           FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
                   LOG.warn("Not proceeding with Cleanup op data for prefix {}", vrfEntry.getDestPrefix());
-                  return;
+                  return null;
               } else {
                   LOG.debug("Processing cleanup of prefix {} associated with vpn {}",
-                            vrfEntry.getDestPrefix(), associatedVpnId);
+                          vrfEntry.getDestPrefix(), associatedVpnId);
               }
           }
           if (extraRoute != null) {
               FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                             FibUtil.getVpnToExtrarouteIdentifier(rd, vrfEntry.getDestPrefix()));
+                      FibUtil.getVpnToExtrarouteIdentifier(rd, vrfEntry.getDestPrefix()));
           }
           Optional<Adjacencies> optAdjacencies = FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                                                              FibUtil.getAdjListPath(ifName));
+                  FibUtil.getAdjListPath(ifName));
           int numAdj = 0;
           if (optAdjacencies.isPresent()) {
               numAdj = optAdjacencies.get().getAdjacency().size();
@@ -1263,13 +1289,13 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
           if (numAdj > 1) {
               LOG.trace("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId, vrfEntry.getDestPrefix());
               FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                             FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
+                      FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
           }
           if ((numAdj - 1) == 0) { //there are no adjacencies left for this vpn interface, clean up
               //clean up the vpn interface from DpnToVpn list
               LOG.trace("Clean up vpn interface {} from dpn {} to vpn {} list.", ifName, prefixInfo.getDpnId(), rd);
               FibUtil.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                             FibUtil.getVpnInterfaceIdentifier(ifName));
+                      FibUtil.getVpnInterfaceIdentifier(ifName));
           }
 
           synchronized (vrfEntry.getLabel().toString().intern()) {
@@ -1281,7 +1307,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                   if (vpnInstanceOpDataEntryOptional.isPresent()) {
                       vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
                   }
-                  boolean lriRemoved = this.deleteLabelRouteInfo(lri, vpnInstanceName);
+                  boolean lriRemoved = deleteLabelRouteInfo(lri, vpnInstanceName);
                   if (lriRemoved) {
                       String parentRd = lri.getParentVpnRd();
                       FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
@@ -1289,6 +1315,14 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                   }
               }
           }
+          CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
+          try {
+              futures.get();
+          } catch (InterruptedException | ExecutionException e) {
+              LOG.error("Error cleaning up interface {} on vpn {}", ifName, vpnId);
+              throw new RuntimeException(e.getMessage());
+          }
+          return null;
       }
   }
 

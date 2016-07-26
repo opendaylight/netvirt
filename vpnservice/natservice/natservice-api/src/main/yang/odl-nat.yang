@@ -38,7 +38,7 @@ module odl-nat {
     grouping external-interface-info {
         leaf internal-ip { type string; }
         leaf external-ip { type string; }
-        leaf label { type uint16; config false; }
+        leaf label { type uint32; config false; }
     }
 
     container floating-ip-info {

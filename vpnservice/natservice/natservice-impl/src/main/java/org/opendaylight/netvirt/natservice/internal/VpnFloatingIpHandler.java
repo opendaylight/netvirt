@@ -24,7 +24,8 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -57,6 +58,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private DataBroker dataBroker;
     private IMdsalApiManager mdsalManager;
     private FloatingIPListener listener;
+    private IFibManager fibManager;
 
     static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final String FLOWID_PREFIX = "NAT.";
@@ -80,6 +82,10 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         this.mdsalManager = mdsalManager;
     }
 
+    void setFibManager(IFibManager fibManager) {
+        this.fibManager = fibManager;
+    }
+
     @Override
     public void onAddFloatingIp(final BigInteger dpnId, final String routerId,
                                 Uuid networkId, final String interfaceName, final String externalIp, final String internalIp) {
@@ -101,13 +107,14 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     GenerateVpnLabelOutput output = result.getResult();
                     long label = output.getLabel();
                     LOG.debug("Generated label {} for prefix {}", label, externalIp);
-                    listener.updateOperationalDS(routerId, interfaceName, (int)label, internalIp, externalIp);
+                    listener.updateOperationalDS(routerId, interfaceName, label, internalIp, externalIp);
 
                     //Inform BGP
                     String rd = NatUtil.getVpnRd(dataBroker, vpnName);
                     String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
                     LOG.debug("Nexthop ip for prefix {} is {}", externalIp, nextHopIp);
-                    NatUtil.addPrefixToBGP(bgpManager, rd, externalIp + "/32", Arrays.asList(nextHopIp),label, LOG, RouteOrigin.STATIC);
+                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", nextHopIp,
+                            label, LOG, RouteOrigin.STATIC);
 
                     List<Instruction> instructions = new ArrayList<>();
                     List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -161,7 +168,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         }
         //Remove Prefix from BGP
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-        removePrefixFromBGP(rd, externalIp + "/32");
+        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", LOG);
 
         //Remove custom FIB routes
         //Future<RpcResult<java.lang.Void>> removeFibEntry(RemoveFibEntryInput input);
@@ -205,20 +212,10 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         });
     }
 
-    private void removePrefixFromBGP(String rd, String prefix) {
-        try {
-            LOG.info("REMOVE: Removing Fib Entry rd {} prefix {}", rd, prefix);
-            bgpManager.deletePrefix(rd, prefix);
-            LOG.info("REMOVE: Removed Fib Entry rd {} prefix {}", rd, prefix);
-        } catch(Exception e) {
-            LOG.error("Delete prefix failed", e);
-        }
-    }
-
     void cleanupFibEntries(final BigInteger dpnId, final String vpnName, final String externalIp, final long label ) {
         //Remove Prefix from BGP
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-        removePrefixFromBGP(rd, externalIp + "/32");
+        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", LOG);
 
         //Remove custom FIB routes
 

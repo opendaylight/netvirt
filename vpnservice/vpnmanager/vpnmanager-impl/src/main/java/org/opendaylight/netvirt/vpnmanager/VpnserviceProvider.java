@@ -62,6 +62,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
     private InterVpnLinkListener interVpnLinkListener;
     private DataBroker dataBroker;
     private InterVpnLinkNodeListener interVpnLinkNodeListener;
+    private TunnelInterfaceStateListener tunIntfStateListener;
 
 
     @Override
@@ -72,9 +73,10 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
             vpnManager = new VpnManager(dataBroker, bgpManager);
             vpnManager.setIdManager(idManager);
             vpnInterfaceManager = new VpnInterfaceManager(dataBroker, bgpManager, notificationService);
+            tunIntfStateListener = new TunnelInterfaceStateListener(dataBroker, bgpManager, fibManager);
             vpnInterfaceManager.setMdsalManager(mdsalManager);
             vpnInterfaceManager.setIfaceMgrRpcService(odlInterfaceRpcService);
-            vpnInterfaceManager.setITMProvider(itmProvider);
+            tunIntfStateListener.setITMProvider(itmProvider);
             vpnInterfaceManager.setIdManager(idManager);
             vpnInterfaceManager.setArpManager(arpManager);
             vpnInterfaceManager.setNeutronvpnManager(neuService);

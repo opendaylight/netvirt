@@ -9,10 +9,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -22,7 +19,8 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
-import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -103,7 +101,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -649,12 +646,20 @@ public class NatUtil {
         return vpnUuid.getValue();
     }
 
-    public static void addPrefixToBGP(IBgpManager bgpManager, String rd, String prefix, List<String> nextHopIpList,
-	                                  long label, Logger log, RouteOrigin origin) {
+    public static void addPrefixToBGP(DataBroker broker,
+                                      IBgpManager bgpManager,
+                                      IFibManager fibManager,
+                                      String rd,
+                                      String prefix,
+                                      String nextHopIp,
+                                      long label,
+                                      Logger log,
+                                      RouteOrigin origin) {
         try {
-            LOG.info("ADD: Adding Fib Entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHopIpList, label);
-            bgpManager.addPrefix(rd, prefix, nextHopIpList, (int)label, origin);
-            LOG.info("ADD: Added Fib Entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHopIpList, label);
+            LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
+            fibManager.addOrUpdateFibEntry(broker, rd, prefix, Arrays.asList(nextHopIp), (int)label, origin, null);
+            bgpManager.advertisePrefix(rd, prefix, Arrays.asList(nextHopIp), (int)label);
+            LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
         } catch(Exception e) {
             log.error("Add prefix failed", e);
         }
@@ -761,11 +766,12 @@ public class NatUtil {
         return 0;
     }
 
-    public static void removePrefixFromBGP(IBgpManager bgpManager, String rd, String prefix, Logger log) {
+    public static void removePrefixFromBGP(DataBroker broker , IBgpManager bgpManager, IFibManager fibManager, String rd, String prefix, Logger log) {
         try {
-            LOG.info("REMOVE: Removing Fib Entry rd {} prefix {}", rd, prefix);
-            bgpManager.deletePrefix(rd, prefix);
-            LOG.info("REMOVE: Removed Fib Entry rd {} prefix {}", rd, prefix);
+            LOG.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, prefix);
+            fibManager.removeFibEntry(broker, rd, prefix, null);
+            bgpManager.withdrawPrefix(rd, prefix);
+            LOG.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, prefix);
         } catch(Exception e) {
             log.error("Delete prefix failed", e);
         }

@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.bgpmanager.api;
 
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import java.util.Collection;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public interface IBgpManager {
      *
      * @param rd
      * @param prefix
-     * @param nextHopList
+     * @param nextHop
      * @param vpnLabel
      */
     public void addPrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel, RouteOrigin origin) throws Exception;

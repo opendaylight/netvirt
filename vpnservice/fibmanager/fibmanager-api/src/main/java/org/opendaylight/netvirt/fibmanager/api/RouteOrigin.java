@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.netvirt.bgpmanager.api;
+package org.opendaylight.netvirt.fibmanager.api;
 
   /* Usage:
    * RouteOrigin origin = RouteOrigin.value("b");

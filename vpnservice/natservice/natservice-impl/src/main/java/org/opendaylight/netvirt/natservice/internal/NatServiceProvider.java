@@ -14,6 +14,7 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderCo
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.controller.md.sal.binding.api.NotificationService;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -51,6 +52,7 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
     private NAPTSwitchSelector naptSwitchSelector;
     private RouterPortsListener routerPortsListener;
     private IInterfaceManager interfaceManager;
+    private IFibManager fibManager;
 
     public NatServiceProvider(RpcProviderRegistry rpcProviderRegistry) {
         this.rpcProviderRegistry = rpcProviderRegistry;
@@ -67,6 +69,11 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
     public void setBgpManager(IBgpManager bgpManager) {
         LOG.debug("BGP Manager reference initialized");
         this.bgpManager = bgpManager;
+    }
+
+    public void setFibManager(IFibManager fibManager) {
+        LOG.debug("FIB Manager reference initialized");
+        this.fibManager = fibManager;
     }
 
     public void setInterfaceManager(IInterfaceManager interfaceManager) {
@@ -128,6 +135,7 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             VpnFloatingIpHandler handler = new VpnFloatingIpHandler(vpnService, bgpManager, fibService);
             handler.setBroker(dataBroker);
             handler.setMdsalManager(mdsalManager);
+            handler.setFibManager(fibManager);
             handler.setListener(floatingIpListener);
             floatingIpListener.setFloatingIpHandler(handler);
 
@@ -148,6 +156,7 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             externalRouterListener.setNaptSwitchSelector(naptSwitchSelector);
             externalRouterListener.setNaptEventHandler(naptEventHandler);
             externalRouterListener.setNaptPacketInHandler(naptPacketInHandler);
+            externalRouterListener.setFibManager(fibManager);
 
             //Instantiate ExternalNetworksChangeListener and set the dataBroker in it.
             externalNetworksChangeListener = new ExternalNetworksChangeListener( dataBroker );

@@ -101,7 +101,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <artifactId>powermock-module-junit4</artifactId>
         <version>${powermock.version}</version>
         <scope>test</scope>
-        </dependency>
+    </dependency>
     </dependencies>
 
     <!--

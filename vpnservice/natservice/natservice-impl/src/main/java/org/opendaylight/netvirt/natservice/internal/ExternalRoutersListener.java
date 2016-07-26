@@ -14,7 +14,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
@@ -28,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.IntextIpProtocolType;
@@ -68,7 +68,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.acti
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -96,7 +95,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -137,6 +135,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000022", 16);
     private NaptEventHandler naptEventHandler;
     private NaptPacketInHandler naptPacketInHandler;
+    private IFibManager fibManager;
 
     public void setNaptEventHandler(NaptEventHandler naptEventHandler) {
         this.naptEventHandler = naptEventHandler;
@@ -186,6 +185,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     public void setFibService(FibRpcService fibService) {
         this.fibService = fibService;
+    }
+
+    public void setFibManager(IFibManager fibManager) {
+        this.fibManager = fibManager;
     }
 
     public ExternalRoutersListener(DataBroker dataBroker )
@@ -983,7 +986,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     //Inform BGP
                     String rd = NatUtil.getVpnRd(dataBroker, vpnName);
                     String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
-                    NatUtil.addPrefixToBGP(bgpManager, rd, externalIp, Arrays.asList(nextHopIp), label, log, RouteOrigin.STATIC);
+                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp, nextHopIp, label, log, RouteOrigin.STATIC);
 
                     //Install custom FIB routes
                     List<Instruction> customInstructions = new ArrayList<>();
@@ -1933,7 +1936,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         //Inform BGP about the route removal
         LOG.info("Informing BGP to remove route for externalIP {} of vpn {}",externalIp,vpnName);
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-        NatUtil.removePrefixFromBGP(bgpManager, rd, externalIp, LOG);
+        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp, LOG);
     }
 
     private void removeTunnelTableEntry(BigInteger dpnId, long serviceId) {

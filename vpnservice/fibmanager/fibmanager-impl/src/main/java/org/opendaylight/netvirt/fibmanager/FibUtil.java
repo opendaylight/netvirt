@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -19,8 +20,15 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
@@ -449,5 +457,135 @@ public class FibUtil {
             throw new RuntimeException(e.getMessage());
         }
     }
+    public static void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
+                                           int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
+        if (rd == null || rd.isEmpty() ) {
+            LOG.error("Prefix {} not associated with vpn", prefix);
+            return;
+        }
+
+        Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
+
+        for ( String nextHop: nextHopList){
+            if (nextHop == null || nextHop.isEmpty()){
+                LOG.error("nextHop list contains null element");
+                return;
+            }
+        }
+
+        LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
+        try{
+            InstanceIdentifier<VrfEntry> vrfEntryId =
+                    InstanceIdentifier.builder(FibEntries.class)
+                            .child(VrfTables.class, new VrfTablesKey(rd))
+                            .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+            Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+
+            if (! entry.isPresent()) {
+                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
+                        .setLabel((long)label).setOrigin(origin.getValue()).build();
+
+                if (writeConfigTxn != null) {
+                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                } else {
+                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                }
+            } else { // Found in MDSAL database
+                List<String> nh = entry.get().getNextHopAddressList();
+                for (String nextHop : nextHopList) {
+                    if (!nh.contains(nextHop))
+                        nh.add(nextHop);
+                }
+                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
+                        .setLabel((long) label).setOrigin(origin.getValue()).build();
+
+                if (writeConfigTxn != null) {
+                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                } else {
+                    MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("addFibEntryToDS: error ", e);
+        }
+    }
+
+    public static void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn) {
+
+        if (rd == null || rd.isEmpty()) {
+            LOG.error("Prefix {} not associated with vpn", prefix);
+            return;
+        }
+        LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {}", prefix, rd);
+
+        InstanceIdentifier.InstanceIdentifierBuilder<VrfEntry> idBuilder =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class, new VrfEntryKey(prefix));
+        InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
+        if (writeConfigTxn != null) {
+            writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        } else {
+            MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        }
+    }
+
+    /**
+     * Removes a specific Nexthop from a VrfEntry. If Nexthop to remove is the
+     * last one in the VrfEntry, then the VrfEntry is removed too.
+     *
+     * @param broker dataBroker service reference
+     * @param rd Route-Distinguisher to which the VrfEntry belongs to
+     * @param prefix Destination of the route
+     * @param nextHopToRemove Specific nexthop within the Route to be removed.
+     *           If null or empty, then the whole VrfEntry is removed
+     */
+    public static void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopToRemove,
+                                              WriteTransaction writeConfigTxn) {
+
+        LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {}", prefix, rd);
+
+        // Looking for existing prefix in MDSAL database
+        InstanceIdentifier<VrfEntry> vrfEntryId =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+        Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+
+        if ( entry.isPresent() ) {
+            List<String> nhListRead = new ArrayList<>();
+            if ( nextHopToRemove != null && !nextHopToRemove.isEmpty()) {
+                nhListRead = entry.get().getNextHopAddressList();
+                if (nhListRead.contains(nextHopToRemove)) {
+                    nhListRead.remove(nextHopToRemove);
+                }
+            }
+
+            if (nhListRead.isEmpty()) {
+                // Remove the whole entry
+                if (writeConfigTxn != null) {
+                    writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                } else {
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                }
+                LOG.info("Removed Fib Entry rd {} prefix {}", rd, prefix);
+            } else {
+                // An update must be done, not including the current next hop
+                VrfEntry vrfEntry =
+                        new VrfEntryBuilder(entry.get()).setDestPrefix(prefix).setNextHopAddressList(nhListRead)
+                                .setKey(new VrfEntryKey(prefix)).build();
+                if (writeConfigTxn != null) {
+                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                } else {
+                    MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                }
+                LOG.info("Removed Nexthop {} from Fib Entry rd {} prefix {}", nextHopToRemove, rd, prefix);
+            }
+        } else {
+            LOG.warn("Could not find VrfEntry for Route-Distinguisher={} and prefix={}", rd, prefix);
+        }
+    }
+
+
+
+
+
 
 }

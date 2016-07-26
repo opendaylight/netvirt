@@ -16,9 +16,9 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.netvirt.bgpmanager.BgpUtil;
 import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
-import org.opendaylight.netvirt.bgpmanager.api.RouteOrigin;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 
 import static org.junit.Assert.assertEquals;
 
