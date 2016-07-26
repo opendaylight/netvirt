@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,19 +127,20 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param addOrRemove whether to delete or add flow
      */
     protected void programAclRules(List<Uuid> aclUuidList, BigInteger dpId, String attachMac,
-                                   int addOrRemove) {
+                                   IpPrefixOrAddress attachIp, int addOrRemove) {
         for (Uuid sgUuid :aclUuidList ) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
             AccessListEntries accessListEntries = acl.getAccessListEntries();
             List<Ace> aceList = accessListEntries.getAce();
             for (Ace ace: aceList) {
-                programAceRule(dpId, attachMac, addOrRemove, ace);
+                programAceRule(dpId, attachMac, attachIp, addOrRemove, ace);
             }
         }
 
     }
 
-    protected void programAceRule(BigInteger dpId, String attachMac, int addOrRemove, Ace ace) {
+    protected void programAceRule(BigInteger dpId, String attachMac, IpPrefixOrAddress attachIp, int addOrRemove,
+                                  Ace ace) {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
         if (!aceAttr.getDirection().equals(DirectionIngress.class)) {
             return;
@@ -155,12 +157,10 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         }
         for ( String  flowName : flowMap.keySet()) {
             List<MatchInfoBase> flows = flowMap.get(flowName);
-            flowName = flowName + "Ingress" + attachMac;
-            flows .add(new MatchInfo(MatchFieldType.eth_dst,
+            flowName += "Ingress" + attachMac + String.valueOf(attachIp.getValue()) + ace.getKey().getRuleName();
+            flows.add(new MatchInfo(MatchFieldType.eth_dst,
                 new String[] { attachMac }));
-            /*flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-                new long[] { AclServiceUtils.TRACKED_NEW_CT_STATE,
-                             AclServiceUtils.TRACKED_NEW_CT_STATE_MASK}));*/
+            flows.addAll(AclServiceOFFlowBuilder.getAllowedIpMatches(attachIp, MatchFieldType.ipv4_destination));
             List<InstructionInfo> instructions = new ArrayList<>();
             List<ActionInfo> actionsInfos = new ArrayList<>();
             actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,

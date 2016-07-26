@@ -50,8 +50,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -328,4 +330,52 @@ public class AclServiceUtils {
         return updatedAclList;
     }
 
+    public static List<AllowedAddressPairs> getUpdatedAllowedAddressPairs(Interface updatedPort,
+            Interface currentPort) {
+        if (updatedPort == null) {
+            return null;
+        }
+        List<AllowedAddressPairs> updatedAllowedAddressPairs =
+                new ArrayList<>(AclServiceUtils.getPortAllowedAddresses(updatedPort));
+        if (currentPort == null) {
+            return updatedAllowedAddressPairs;
+        }
+        List<AllowedAddressPairs> currentAllowedAddressPairs =
+                new ArrayList<>(AclServiceUtils.getPortAllowedAddresses(currentPort));
+        for (Iterator<AllowedAddressPairs> iterator = updatedAllowedAddressPairs.iterator(); iterator.hasNext();) {
+            AllowedAddressPairs updatedAllowedAddressPair = iterator.next();
+            for (AllowedAddressPairs currentAllowedAddressPair : currentAllowedAddressPairs) {
+                if (updatedAllowedAddressPair.getKey().equals(currentAllowedAddressPair.getKey())) {
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+        return updatedAllowedAddressPairs;
+    }
+
+    public static List<AllowedAddressPairs> getPortAllowedAddresses(Interface port) {
+        if (port == null) {
+            LOG.error("Port is Null");
+            return null;
+        }
+        InterfaceAcl aclInPort = port.getAugmentation(InterfaceAcl.class);
+        if (aclInPort == null) {
+            LOG.error("getSecurityGroupInPortList: no security group associated to Interface port: {}", port.getName());
+            return null;
+        }
+        return aclInPort.getAllowedAddressPairs();
+    }
+
+    public static BigInteger getDpIdFromIterfaceState(
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState) {
+        BigInteger dpId = null;
+        String interfaceName = interfaceState.getName();
+        List<String> ofportIds = interfaceState.getLowerLayerIf();
+        if (ofportIds != null && !ofportIds.isEmpty()) {
+            NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
+            dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        }
+        return dpId;
+    }
 }
