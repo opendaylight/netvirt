@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
+import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
@@ -79,6 +81,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairsBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -258,17 +265,196 @@ public class NeutronvpnUtils {
         return prt;
     }
 
-    public static boolean isPortSecurityEnabled(Port port) {
+    protected static boolean isPortSecurityEnabled(Port port) {
         PortSecurityExtension portSecurity = port.getAugmentation(PortSecurityExtension.class);
         return (portSecurity != null && portSecurity.isPortSecurityEnabled() != null);
     }
 
-    public static Boolean getPortSecurityEnabled(Port port) {
+    protected static Boolean getPortSecurityEnabled(Port port) {
         PortSecurityExtension portSecurity = port.getAugmentation(PortSecurityExtension.class);
         if (portSecurity != null) {
             return portSecurity.isPortSecurityEnabled();
         }
         return null;
+    }
+
+    protected static List<Uuid> getsecurityGroupChanged(List<Uuid> port1SecurityGroups,
+            List<Uuid> port2SecurityGroups) {
+        if (port1SecurityGroups == null) {
+            return null;
+        }
+
+        if (port2SecurityGroups == null) {
+            return port1SecurityGroups;
+        }
+
+        List<Uuid> list1 = new ArrayList<>(port1SecurityGroups);
+        List<Uuid> list2 = new ArrayList<>(port2SecurityGroups);
+        for (Iterator<Uuid> iterator = list1.iterator(); iterator.hasNext();) {
+            Uuid securityGroup1 = iterator.next();
+            for (Uuid securityGroup2 : list2) {
+                if (securityGroup1.getValue().equals(securityGroup2.getValue())) {
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+        return list1;
+    }
+
+    protected static List<FixedIps> getFixedIpsChanged(List<FixedIps> port1FixedIps, List<FixedIps> port2FixedIps) {
+        if (port1FixedIps == null) {
+            return null;
+        }
+
+        if (port2FixedIps == null) {
+            return port1FixedIps;
+        }
+
+        List<FixedIps> list1 = new ArrayList<>(port1FixedIps);
+        List<FixedIps> list2 = new ArrayList<>(port2FixedIps);
+        for (Iterator<FixedIps> iterator = list1.iterator(); iterator.hasNext();) {
+            FixedIps fixedIps1 = iterator.next();
+            for (FixedIps fixedIps2 : list2) {
+                if (fixedIps1.getIpAddress().equals(fixedIps2.getIpAddress())) {
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+        return list1;
+    }
+
+    protected static List<AllowedAddressPairs> getAllowedAddressPairsChanged(
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> port1AllowedAddressPairs,
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> port2AllowedAddressPairs) {
+        if (port1AllowedAddressPairs == null) {
+            return null;
+        }
+
+        if (port2AllowedAddressPairs == null) {
+            return getAllowedAddressPairsForAclService(port1AllowedAddressPairs);
+        }
+
+        List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> list1 =
+                new ArrayList<>(port1AllowedAddressPairs);
+        List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> list2 =
+                new ArrayList<>(port2AllowedAddressPairs);
+        for (Iterator<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> iterator =
+             list1.iterator(); iterator.hasNext();) {
+            org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs allowedAddressPair1 =
+                    iterator.next();
+            for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs allowedAddressPair2 : list2) {
+                if (allowedAddressPair1.getKey().equals(allowedAddressPair2.getKey())) {
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+        return getAllowedAddressPairsForAclService(list1);
+    }
+
+    protected static AllowedAddressPairs getAclAllowedAddressPairs(MacAddress macAddress,
+            org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress ipAddress) {
+        AllowedAddressPairsBuilder aclAllowedAdressPairBuilder = new AllowedAddressPairsBuilder();
+        aclAllowedAdressPairBuilder.setMacAddress(macAddress);
+        if (ipAddress != null && ipAddress.getValue() != null) {
+            if (ipAddress.getIpPrefix() != null) {
+                aclAllowedAdressPairBuilder.setIpAddress(new IpPrefixOrAddress(ipAddress.getIpPrefix()));
+            } else {
+                aclAllowedAdressPairBuilder.setIpAddress(new IpPrefixOrAddress(ipAddress.getIpAddress()));
+            }
+        }
+        return aclAllowedAdressPairBuilder.build();
+    }
+
+    protected static List<AllowedAddressPairs> getAllowedAddressPairsForAclService(MacAddress macAddress,
+            List<FixedIps> fixedIps) {
+        List<AllowedAddressPairs> aclAllowedAddressPairs = new ArrayList<>();
+        for (FixedIps fixedIp : fixedIps) {
+            aclAllowedAddressPairs.add(getAclAllowedAddressPairs(macAddress,
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress(
+                            fixedIp.getIpAddress().getValue())));
+        }
+        return aclAllowedAddressPairs;
+    }
+
+    protected static List<AllowedAddressPairs> getAllowedAddressPairsForAclService(
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes
+                .AllowedAddressPairs> portAllowedAddressPairs) {
+        List<AllowedAddressPairs> aclAllowedAddressPairs = new ArrayList<>();
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs
+                portAllowedAddressPair : portAllowedAddressPairs) {
+            aclAllowedAddressPairs.add(getAclAllowedAddressPairs(portAllowedAddressPair.getMacAddress(),
+                    portAllowedAddressPair.getIpAddress()));
+        }
+        return aclAllowedAddressPairs;
+    }
+
+    protected static List<Uuid> getUpdatedSecurityGroups(List<Uuid> aclInterfaceSecurityGroups,
+            List<Uuid> origSecurityGroups, List<Uuid> newSecurityGroups) {
+        List<Uuid> addedGroups = getsecurityGroupChanged(newSecurityGroups, origSecurityGroups);
+        List<Uuid> deletedGroups = getsecurityGroupChanged(origSecurityGroups, newSecurityGroups);
+        List<Uuid> updatedSecurityGroups =
+                (aclInterfaceSecurityGroups != null) ? new ArrayList<>(aclInterfaceSecurityGroups) : new ArrayList<>();
+        if (addedGroups != null) {
+            updatedSecurityGroups.addAll(addedGroups);
+        }
+        if (deletedGroups != null) {
+            updatedSecurityGroups.removeAll(deletedGroups);
+        }
+        return updatedSecurityGroups;
+    }
+
+    protected static List<AllowedAddressPairs> getAllowedAddressPairsForFixedIps(
+            List<AllowedAddressPairs> aclInterfaceAllowedAddressPairs, MacAddress portMacAddress,
+            List<FixedIps> origFixedIps, List<FixedIps> newFixedIps) {
+        List<FixedIps> addedFixedIps = getFixedIpsChanged(newFixedIps, origFixedIps);
+        List<FixedIps> deletedFixedIps = getFixedIpsChanged(origFixedIps, newFixedIps);
+        List<AllowedAddressPairs> updatedAllowedAddressPairs = (aclInterfaceAllowedAddressPairs != null) ? 
+                new ArrayList<>(aclInterfaceAllowedAddressPairs) : new ArrayList<>();
+        if (deletedFixedIps != null) {
+            updatedAllowedAddressPairs.removeAll(getAllowedAddressPairsForAclService(portMacAddress, deletedFixedIps));
+        }
+        if (addedFixedIps != null) {
+            updatedAllowedAddressPairs.addAll(getAllowedAddressPairsForAclService(portMacAddress, addedFixedIps));
+        }
+        return updatedAllowedAddressPairs;
+    }
+
+    protected static List<AllowedAddressPairs> getUpdatedAllowedAddressPairs(
+            List<AllowedAddressPairs> aclInterfaceAllowedAddressPairs,
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> origAllowedAddressPairs, 
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> newAllowedAddressPairs) {
+        List<AllowedAddressPairs> addedAllowedAddressPairs = getAllowedAddressPairsChanged(newAllowedAddressPairs,
+                origAllowedAddressPairs);
+        List<AllowedAddressPairs> deletedAllowedAddressPairs = getAllowedAddressPairsChanged(origAllowedAddressPairs,
+                newAllowedAddressPairs);
+        List<AllowedAddressPairs> updatedAllowedAddressPairs = (aclInterfaceAllowedAddressPairs != null) ? 
+                new ArrayList<>(aclInterfaceAllowedAddressPairs) : new ArrayList<>();
+        if (addedAllowedAddressPairs != null) {
+            updatedAllowedAddressPairs.addAll(addedAllowedAddressPairs);
+        }
+        if (deletedAllowedAddressPairs != null) {
+            updatedAllowedAddressPairs.removeAll(deletedAllowedAddressPairs);
+        }
+        return updatedAllowedAddressPairs;
+    }
+
+    protected static void populateInterfaceAclBuilder(InterfaceAclBuilder interfaceAclBuilder, Port port) {
+        // Handle security group enabled
+        List<Uuid> securityGroups = port.getSecurityGroups();
+        if (securityGroups != null) {
+                interfaceAclBuilder.setSecurityGroups(securityGroups);
+        }
+        List<AllowedAddressPairs> aclAllowedAddressPairs = NeutronvpnUtils.getAllowedAddressPairsForAclService(
+                port.getMacAddress(), port.getFixedIps());
+        List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs>
+            portAllowedAddressPairs = port.getAllowedAddressPairs();
+        if (portAllowedAddressPairs != null) {
+            aclAllowedAddressPairs.addAll(NeutronvpnUtils.getAllowedAddressPairsForAclService(portAllowedAddressPairs));
+        }
+        interfaceAclBuilder.setAllowedAddressPairs(aclAllowedAddressPairs);
     }
 
     protected static Interface getOfPortInterface(DataBroker broker, Port port) {
