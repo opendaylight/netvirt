@@ -42,6 +42,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <idmanager.version>${genius.version}</idmanager.version>
     <itm.version>${genius.version}</itm.version>
     <neutronvpn.version>${vpnservices.version}</neutronvpn.version>
+    <cloud-servicechain.version>${vpnservices.version}</cloud-servicechain.version>
     <configfile.directory>etc/opendaylight/karaf</configfile.directory>
   </properties>
   <dependencyManagement>
@@ -347,6 +348,23 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>cloud-servicechain-api</artifactId>
+      <version>${cloud-servicechain.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>cloud-servicechain-impl</artifactId>
+      <version>${cloud-servicechain.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>cloud-servicechain-impl</artifactId>
+      <version>${cloud-servicechain.version}</version>
+      <classifier>config</classifier>
+      <type>xml</type>
     </dependency>
   </dependencies>
 
