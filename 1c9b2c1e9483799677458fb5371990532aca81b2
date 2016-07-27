@@ -106,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_ec3e588b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-07-27T20:53:48Z",
+      "side": 1,
+      "message": "If I don\u0027t break up this line I get to 130 chars",
+      "parentUuid": "9a561d44_7b94c042",
+      "revId": "1c9b2c1e9483799677458fb5371990532aca81b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_1b078483",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
         "patchSetId": 17
