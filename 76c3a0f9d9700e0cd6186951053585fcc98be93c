@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_2c869013",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-27T21:43:15Z",
+      "side": 1,
+      "message": "can the AsyncDataTreeChangeListenerBase be used so we can get the use of the DataTree rather than DataChange? We need to migrate the existing code to DataTree so new files woudl be good to use DataTree. AclInterfaceEventListener is an example in netvirt using it.",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_eca8188f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-27T21:43:15Z",
+      "side": 1,
+      "message": "nitpick trailing spaces",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_ac710046",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-27T21:43:15Z",
+      "side": 1,
+      "message": "It would be good to move the rest of the code into a different file and leave just the listener pieces here. Don\u0027t let that block this review if the change can;\u0027t be made now. Would be nice to look something like what is in netvirtsfc with a delegating listener and corresponding dataprocessor class to cleanly separate functionality.",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_4caae485",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 663,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-27T21:43:15Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_8c97dc47",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-27T21:43:15Z",
+      "side": 1,
+      "message": "any reason not to move this to a SouthboundUtils now?",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_ec96583e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-27T21:43:15Z",
+      "side": 1,
+      "message": "checkstyle will complain on the ordering, statics at top and everything else alphabetical",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_0c92ac4b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-27T21:43:15Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
