@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_f8545600",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-07-27T11:08:47Z",
+      "side": 1,
+      "message": "The first macaddress in the list is assumed to be the vm mac address, just a thought does this always hold true? Is it possible to update the vm macaddress?",
+      "range": {
+        "startLine": 422,
+        "startChar": 47,
+        "endLine": 422,
+        "endChar": 50
+      },
+      "revId": "5dced58c5a0864a0b449077991c18683ed84d200",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_656c2309",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-07-27T11:08:47Z",
+      "side": 1,
+      "message": "nitpick remove whitespaces",
+      "revId": "5dced58c5a0864a0b449077991c18683ed84d200",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
