@@ -31,6 +31,7 @@ public class Ipv6ServiceImplModule extends org.opendaylight.yang.gen.v1.urn.open
         Ipv6ServiceProvider provider = new Ipv6ServiceProvider();
         provider.setInterfaceManager(getOdlinterfaceDependency());
         provider.setNotificationProviderService(getNotificationServiceDependency());
+        provider.setMdsalManager(getMdsalutilDependency());
         provider.setInterfaceManagerRpc(rpcregistryDependency.getRpcService(OdlInterfaceRpcService.class));
         getBrokerDependency().registerProvider(provider);
         return provider;
