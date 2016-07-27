@@ -21,7 +21,7 @@ public class ElanConstants {
     public static final short ELAN_SMAC_TABLE = 50;
     public static final short ELAN_DMAC_TABLE = 51;
     public static final short ELAN_UNKNOWN_DMAC_TABLE = 52;
-    public static final short ELAN_SERVICE_INDEX = 4;
+    public static final short ELAN_SERVICE_INDEX = 5;
     public static final int ELAN_SERVICE_PRIORITY = 5;
     public static final int STATIC_MAC_TIMEOUT = 0;
     public static final long DELAY_TIME_IN_MILLISECOND = 5000;

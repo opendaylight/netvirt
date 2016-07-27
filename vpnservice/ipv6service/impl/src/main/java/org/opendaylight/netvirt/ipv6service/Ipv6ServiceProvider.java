@@ -34,6 +34,7 @@ public class Ipv6ServiceProvider implements BindingAwareProvider, AutoCloseable 
     private NeutronRouterChangeListener routerListener;
     private IfMgr ifMgr;
     private Ipv6ServiceInterfaceEventListener ipv6ServiceInterfaceEventListener;
+    private Ipv6NodeListener ipv6NodeListener;
 
     private DataBroker broker;
 
@@ -50,8 +51,12 @@ public class Ipv6ServiceProvider implements BindingAwareProvider, AutoCloseable 
 
         ifMgr = IfMgr.getIfMgrInstance();
         ifMgr.setInterfaceManagerRpc(interfaceManagerRpc);
-        ipv6ServiceInterfaceEventListener = new Ipv6ServiceInterfaceEventListener(broker);
+        ipv6ServiceInterfaceEventListener = new Ipv6ServiceInterfaceEventListener(broker, mdsalManager);
         ipv6ServiceInterfaceEventListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        ipv6ServiceInterfaceEventListener.setIfMgrInstance(ifMgr);
+        ipv6NodeListener = new Ipv6NodeListener(broker, mdsalManager);
+        ipv6NodeListener.setIfMgrInstance(ifMgr);
+
         ipv6PktHandler = new Ipv6PktHandler();
         ipv6PktHandler.setIfMgrInstance(ifMgr);
         ipv6PktHandler.setPacketProcessingService(pktProcessingService);

@@ -16,7 +16,7 @@ public class VpnConstants {
     public static final String VPN_IDPOOL_SIZE = "100000";
     public static final short DEFAULT_FLOW_PRIORITY = 10;
     public static final int DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY = 1;
-    public static final short L3VPN_SERVICE_IDENTIFIER = 2;
+    public static final short L3VPN_SERVICE_IDENTIFIER = 4;
     public static final long INVALID_ID = -1;
     public static final String SEPARATOR = ".";
     public static final BigInteger COOKIE_VM_INGRESS_TABLE = new BigInteger("8000001", 16);

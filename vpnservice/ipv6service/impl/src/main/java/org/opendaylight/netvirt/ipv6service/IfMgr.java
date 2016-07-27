@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -39,6 +40,7 @@ public class IfMgr {
     private HashMap<Uuid, VirtualPort> vrouterv6IntfMap;
     private HashMap<Uuid, List<VirtualPort>> unprocessedRouterIntfs;
     private HashMap<Uuid, List<VirtualPort>> unprocessedSubnetIntfs;
+    private HashMap<String, ImmutablePair<String, VirtualPort>> ifaceFlowCache;
     private OdlInterfaceRpcService interfaceManagerRpc;
     private static final IfMgr IFMGR_INSTANCE = new IfMgr();
     private Ipv6ServiceUtils ipv6Utils = Ipv6ServiceUtils.getInstance();
@@ -54,6 +56,7 @@ public class IfMgr {
         this.vrouterv6IntfMap = new HashMap<>();
         this.unprocessedRouterIntfs = new HashMap<>();
         this.unprocessedSubnetIntfs = new HashMap<>();
+        this.ifaceFlowCache = new HashMap<>();
         LOG.info("IfMgr is enabled");
     }
 
@@ -480,5 +483,17 @@ public class IfMgr {
         }
         LOG.trace("Returning interfaceName {} for tag {} form getInterfaceNameFromTag", interfaceName, portTag);
         return interfaceName;
+    }
+
+    public void updateInterfaceCache(String interfaceName, ImmutablePair<String, VirtualPort> pair) {
+        ifaceFlowCache.put(interfaceName, pair);
+    }
+
+    public ImmutablePair<String, VirtualPort> getInterfaceCache(String interfaceName) {
+        return ifaceFlowCache.get(interfaceName);
+    }
+
+    public void removeInterfaceCache(String interfaceName) {
+        ifaceFlowCache.remove(interfaceName);
     }
 }
