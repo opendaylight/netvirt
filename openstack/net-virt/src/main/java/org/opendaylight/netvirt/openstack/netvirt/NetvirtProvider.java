@@ -35,7 +35,7 @@ public class NetvirtProvider implements BindingAwareProvider, AutoCloseable {
     private boolean intBridgeGenMac;
 
     public NetvirtProvider(BundleContext bundleContext, EntityOwnershipService eos) {
-        LOG.info("NetvirtProvider: bundleContext: {}", bundleContext);
+        LOG.info("NetvirtProvider: bundleContext : {}", bundleContext);
         this.bundleContext = bundleContext;
         entityOwnershipService = eos;
     }
@@ -58,15 +58,14 @@ public class NetvirtProvider implements BindingAwareProvider, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        LOG.info("NetvirtProvider closed");
+        LOG.info("NetvirtProvider has been closed.");
         activator.stop(bundleContext);
     }
 
     @Override
     public void onSessionInitiated(ProviderContext providerContext) {
         dataBroker = providerContext.getSALService(DataBroker.class);
-        LOG.info("NetvirtProvider: onSessionInitiated dataBroker: {}", dataBroker);
-        LOG.info("NetvirtProvider: onSessionInitiated isConntrackEnabled: {}", this.conntrackEnabled);
+        LOG.info("Netvirt Provider Session Initiated");
         this.activator = new ConfigActivator(providerContext);
         activator.setConntrackEnabled(this.conntrackEnabled);
         activator.setIntBridgeGenMac(this.intBridgeGenMac);

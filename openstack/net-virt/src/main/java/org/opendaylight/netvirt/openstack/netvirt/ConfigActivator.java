@@ -228,6 +228,7 @@ public class ConfigActivator implements BundleActivator {
                 new String[] {OvsdbInventoryService.class.getName()}, null, ovsdbInventoryService);
 
         // Call .setDependencies() starting with the last service registered
+        LOG.info("The below service Dependencies are set into configInterface service");
         for (int i = servicesAndRegistrations.size() - 1; i >= 0; i--) {
             Pair<Object, ServiceRegistration> serviceAndRegistration = servicesAndRegistrations.get(i);
             Object service = serviceAndRegistration.getLeft();
@@ -237,7 +238,6 @@ public class ConfigActivator implements BundleActivator {
             if (service instanceof ConfigInterface) {
                 ((ConfigInterface) service).setDependencies(
                         serviceRegistration != null ? serviceRegistration.getReference() : null);
-                LOG.info("Dependencies set");
             } else {
                 LOG.warn("Service isn't a ConfigInterface");
             }
