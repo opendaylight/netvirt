@@ -129,6 +129,10 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         LOG.trace("Applying custom rules DpId {}, vmMacAddress {}", dpId, attachMac );
         for (Uuid sgUuid :aclUuidList ) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
+            if (null == acl) {
+                LOG.warn("The ACL is empty");
+                continue;
+            }
             AccessListEntries accessListEntries = acl.getAccessListEntries();
             List<Ace> aceList = accessListEntries.getAce();
             for (Ace ace: aceList) {

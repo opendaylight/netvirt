@@ -42,17 +42,32 @@ public class AclServiceOFFlowBuilder {
      */
     public static Map<String,List<MatchInfoBase>>  programIpFlow(Matches matches) {
         AceIp acl = (AceIp)matches.getAceType();
-        if (acl.getProtocol() == NwConstants.IP_PROT_TCP) {
+        Short protocol = acl.getProtocol();
+        if (protocol == null) {
+            return programEtherFlow(acl);
+        } else if (acl.getProtocol() == NwConstants.IP_PROT_TCP) {
             return programTcpFlow(acl);
         } else if (acl.getProtocol() == NwConstants.IP_PROT_UDP) {
             return programUdpFlow(acl);
         } else if (acl.getProtocol() == NwConstants.IP_PROT_ICMP) {
             return programIcmpFlow(acl);
-        } else if (acl.getProtocol() != -1) {
+        } else {
             return programOtherProtocolFlow(acl);
         }
-        return null;
+    }
 
+    /** Converts ether  matches to flows.
+     * @param acl the access control list
+     * @return the map containing the flows and the respective flow id
+     */
+    public static Map<String,List<MatchInfoBase>> programEtherFlow(AceIp acl) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        flowMatches.addAll(addSrcIpMatches(acl));
+        flowMatches.addAll(addDstIpMatches(acl));
+        String flowId = "ETHER" + acl.getProtocol();
+        Map<String,List<MatchInfoBase>> flowMatchesMap = new HashMap<>();
+        flowMatchesMap.put(flowId,flowMatches);
+        return flowMatchesMap;
     }
 
     /** Converts generic protocol matches to flows.
@@ -370,7 +385,7 @@ public class AclServiceOFFlowBuilder {
     }
 
     public static List<MatchInfo> getLPortTagMatches(int lportTag) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
             MetaDataUtil.getLportTagMetaData(lportTag),
