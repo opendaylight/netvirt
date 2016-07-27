@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_7b24c0c4",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-07-27T14:40:55Z",
+      "side": 1,
+      "message": "Will need to fix this.\nCurrently there\u0027s no counters-api in infrautils.\nI\u0027ll work on changing that in infrautils.",
+      "parentUuid": "9a561d44_bb8e58ce",
+      "range": {
+        "startLine": 82,
+        "startChar": 4,
+        "endLine": 86,
+        "endChar": 17
+      },
+      "revId": "aca9059925bd79cb831bfe2a4f73cdefa5cae631",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_3ba36850",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpManager.java",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_5b3a9ce7",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-07-27T14:40:55Z",
+      "side": 1,
+      "message": "We need to think more about that - it could be nice to add it to Mdsalutil.\n\nHowever, the counters will be used for much more than flows installation/removal and adding counters for every flow in Mdsalutil might be too much.\nIn addition, from what I think it might be very complicated to do so with the current infrautils counters.\n\nWe\u0027ll talk about it with Guy and Ravit.\nI suggest will consider this later on when will have some more use of flows counters in Netvirt.",
+      "parentUuid": "9a561d44_3ba36850",
+      "range": {
+        "startLine": 169,
+        "startChar": 8,
+        "endLine": 172,
+        "endChar": 82
+      },
+      "revId": "aca9059925bd79cb831bfe2a4f73cdefa5cae631",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_db750cfb",
         "filename": "vpnservice/features/src/main/features/features.xml",
         "patchSetId": 4
@@ -59,6 +107,30 @@
       "writtenOn": "2016-07-27T14:19:45Z",
       "side": 1,
       "message": "we already defined it in netvirt-api which is required feature for netvirt-impl, so we don\u0027t need this here.",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 78
+      },
+      "revId": "aca9059925bd79cb831bfe2a4f73cdefa5cae631",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_5b43bc6b",
+        "filename": "vpnservice/features/src/main/features/features.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-07-27T14:40:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_db750cfb",
       "range": {
         "startLine": 56,
         "startChar": 4,
