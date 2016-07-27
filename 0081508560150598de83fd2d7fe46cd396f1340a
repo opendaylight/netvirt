@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_d8f07293",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-07-27T12:32:55Z",
+      "side": 1,
+      "message": "why do want to keep VLAN interface creation (on top of patch port) to reside in ELAN module? It should be outside of this module so that any service bound to this interface. right now it is only ELAN service. Later, it can be L3VPN, SFC etc.",
+      "revId": "0081508560150598de83fd2d7fe46cd396f1340a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_b8edbeb9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-07-27T12:32:55Z",
+      "side": 1,
+      "message": "use StringBuilder to construct interfaceName",
+      "revId": "0081508560150598de83fd2d7fe46cd396f1340a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_b8e01e97",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/OSGI-INF/blueprint/blueprint.xml",
+        "patchSetId": 20
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-07-27T12:32:55Z",
+      "side": 1,
+      "message": "Nit: remove tabs",
+      "revId": "0081508560150598de83fd2d7fe46cd396f1340a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
