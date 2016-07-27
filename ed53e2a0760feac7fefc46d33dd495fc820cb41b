@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_b6b94f17",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceListenerImplTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-07-27T15:25:49Z",
+      "side": 1,
+      "message": "I see why this is interesting, but it makes the test harder to read...",
+      "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_16611ba9",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceListenerImplTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-07-27T15:25:49Z",
+      "side": 1,
+      "message": "I don\u0027t really get the point of using Mikito here. I\u0027d just do\n\n    mdsalApiManager \u003d mock(IMdsalApiManager.class, EXCEPTION_ANSWER);\n    doNothing().when(mdsalApiManager).installFlow(any(FlowEntity.class));\n\nand then use in-order verification in the actual test:\n\n    InOrder inOrder \u003d inOrder(mdsalApiManager);\n    for (FlowEntity flowEntity : FlowEntryObjects.expectedFlows(\"0D:AA:D8:42:30:F3\")) {\n        inOrder.verify(mdsalApiManager).installFlow(flowEntity);\n    }\n    inOrder.verifyNoMoreInteractions();\n\nI don\u0027t like having to add extra features to class specialisations in order to make them testable (getFlows() in this case). If the extra feature is really useful, then it should go in the main class; otherwise the test should be performed differently.",
+      "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_f66587b5",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/idea/Mikito.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-07-27T15:25:49Z",
+      "side": 1,
+      "message": "You can ask Mockito to use constructors; it requires some care, but it works:\n\n    public static \u003cT\u003e T stub(Class\u003cT\u003e abstractClass) {\n        MockSettings mockSettings \u003d withSettings();\n        for (Constructor constructor : abstractClass.getConstructors()) {\n            if (constructor.getParameterCount() \u003d\u003d 0) {\n                mockSettings \u003d mockSettings.useConstructor();\n                break;\n            }\n        }\n        T stub \u003d mock(abstractClass, mockSettings.defaultAnswer(invocation -\u003e {\n            if (Modifier.isAbstract(invocation.getMethod().getModifiers())) {\n                throw new NotImplementedException(\n                        invocation.getMethod().getName() + \" is not stubbed in \" + abstractClass.getName());\n            } else {\n                return invocation.callRealMethod();\n            }\n        }));\n        return stub;\n    }\n\n(actually I came up with the first part to fix a breakage I saw in the tests, but I\u0027m not sure it\u0027s the right way to go about things; but hopefully you get the idea).",
+      "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
