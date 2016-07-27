@@ -183,12 +183,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void egressAclDhcpDropServerTraffic(BigInteger dpId, String dhcpMacAddress,
             String attachMac, int addOrRemove) {
-        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
-                AclConstants.DHCP_CLIENT_PORT_IPV4);
-        matches.add(new MatchInfo(MatchFieldType.eth_src,
-            new String[] { attachMac }));
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-            new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
+        List<MatchInfoBase> matches = AclServiceUtils.buildDhcpSourceMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
+                AclConstants.DHCP_CLIENT_PORT_IPV4, attachMac);
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
@@ -210,12 +206,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void egressAclDhcpv6DropServerTraffic(BigInteger dpId, String dhcpMacAddress,
                                                   String attachMac, int addOrRemove) {
-        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV6,
-                AclConstants.DHCP_CLIENT_PORT_IPV6);
-        matches.add(new MatchInfo(MatchFieldType.eth_src,
-            new String[] { attachMac }));
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-            new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
+        List<MatchInfoBase> matches = AclServiceUtils.buildDhcpSourceMatches(AclConstants.DHCP_SERVER_PORT_IPV6,
+                AclConstants.DHCP_CLIENT_PORT_IPV6, attachMac);
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
@@ -231,21 +223,16 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     /**
      * Add rule to ensure only DHCP server traffic from the specified mac is allowed.
      *
-     * @param dpidLong the dpid
-     * @param segmentationId the segmentation id
+     * @param dpId the dpid
      * @param dhcpMacAddress the DHCP server mac address
      * @param attachMac the mac address of the port
-     * @param write is write or delete
-     * @param protoPortMatchPriority the priority
+     * @param addOrRemove whether to add or remove the flow
      */
     private void egressAclDhcpAllowClientTraffic(BigInteger dpId, String dhcpMacAddress,
                                                  String attachMac, int addOrRemove) {
-        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclConstants.DHCP_CLIENT_PORT_IPV4,
-                AclConstants.DHCP_SERVER_PORT_IPV4);
-        matches.add(new MatchInfo(MatchFieldType.eth_src,
-            new String[] { attachMac }));
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-            new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
+        final List<MatchInfoBase> matches =
+                AclServiceUtils.buildDhcpSourceMatches(AclConstants.DHCP_CLIENT_PORT_IPV4,
+                        AclConstants.DHCP_SERVER_PORT_IPV4, attachMac);
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
@@ -267,21 +254,16 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     /**
      * Add rule to ensure only DHCPv6 server traffic from the specified mac is allowed.
      *
-     * @param dpidLong the dpid
-     * @param segmentationId the segmentation id
+     * @param dpId the dpid
      * @param dhcpMacAddress the DHCP server mac address
      * @param attachMac the mac address of  the port
-     * @param write is write or delete
-     * @param protoPortMatchPriority the priority
+     * @param addOrRemove whether to add or remove the flow
      */
     private void egressAclDhcpv6AllowClientTraffic(BigInteger dpId, String dhcpMacAddress,
                                                    String attachMac, int addOrRemove) {
-        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclConstants.DHCP_CLIENT_PORT_IPV6,
-                AclConstants.DHCP_SERVER_PORT_IPV6);
-        matches.add(new MatchInfo(MatchFieldType.eth_src,
-            new String[] { attachMac }));
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-            new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
+        final List<MatchInfoBase> matches =
+                AclServiceUtils.buildDhcpSourceMatches(AclConstants.DHCP_CLIENT_PORT_IPV6,
+                        AclConstants.DHCP_SERVER_PORT_IPV6, attachMac);
 
         List<InstructionInfo> instructions = new ArrayList<>();
 

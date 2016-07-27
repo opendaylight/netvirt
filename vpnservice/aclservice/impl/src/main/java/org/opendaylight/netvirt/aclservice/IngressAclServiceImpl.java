@@ -177,8 +177,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     /**
      * Add rule to ensure only DHCP server traffic from the specified mac is allowed.
      *
-     * @param dpidLong the dpid
-     * @param segmentationId the segmentation id
+     * @param dpId the dpid
      * @param dhcpMacAddress the DHCP server mac address
      * @param attachMac the mac address of  the port
      * @param addOrRemove is write or delete
@@ -186,12 +185,9 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void ingressAclDhcpAllowServerTraffic(BigInteger dpId, String dhcpMacAddress,
                                                   String attachMac, int addOrRemove, int protoPortMatchPriority) {
-        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
-                AclConstants.DHCP_CLIENT_PORT_IPV4);
-        matches.add(new MatchInfo(MatchFieldType.eth_dst,
-                new String[] { attachMac }));
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-            new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
+        final List<MatchInfoBase> matches =
+                AclServiceUtils.buildDhcpDestinationMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
+                        AclConstants.DHCP_CLIENT_PORT_IPV4, attachMac);
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
@@ -215,8 +211,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     /**
      * Add rule to ensure only DHCPv6 server traffic from the specified mac is allowed.
      *
-     * @param dpidLong the dpid
-     * @param segmentationId the segmentation id
+     * @param dpId the dpid
      * @param dhcpMacAddress the DHCP server mac address
      * @param attachMac the mac address of  the port
      * @param addOrRemove is write or delete
@@ -224,11 +219,9 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress,
                                                     String attachMac, int addOrRemove, Integer protoPortMatchPriority) {
-        List<MatchInfoBase> matches = AclServiceUtils.programDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV6,
-                AclConstants.DHCP_CLIENT_PORT_IPV6);
-        matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { attachMac }));
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-            new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
+        final List<MatchInfoBase> matches =
+                AclServiceUtils.buildDhcpDestinationMatches(AclConstants.DHCP_SERVER_PORT_IPV6,
+                        AclConstants.DHCP_CLIENT_PORT_IPV6, attachMac);
 
         List<InstructionInfo> instructions = new ArrayList<>();
 

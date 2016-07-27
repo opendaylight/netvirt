@@ -24,6 +24,8 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
+import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
@@ -258,11 +260,11 @@ public class AclServiceUtils {
     /**
      * Returns the DHCP match.
      * @param srcPort the source port.
-     * @param dscPort the destination port.
+     * @param dstPort the destination port.
      * @return list of matches.
      */
-    public static List<MatchInfoBase> programDhcpMatches(int srcPort, int dscPort) {
-        List<MatchInfoBase> matches = new ArrayList<>();
+    private static List<MatchInfoBase> buildDhcpMatches(int srcPort, int dstPort, MatchInfo portMatch) {
+        List<MatchInfoBase> matches = new ArrayList<>(6);
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { NwConstants.ETHTYPE_IPV4 }));
         matches.add(new MatchInfo(MatchFieldType.ip_proto,
@@ -270,8 +272,37 @@ public class AclServiceUtils {
         matches.add(new MatchInfo(MatchFieldType.udp_dst,
                 new long[] { srcPort }));
         matches.add(new MatchInfo(MatchFieldType.udp_src,
-                new long[] { dscPort}));
+                new long[] { dstPort}));
+        matches.add(portMatch);
+        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
+                new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
         return matches;
+    }
+
+    /**
+     * Builds a list of matches for DHCP filtering on the source's MAC address.
+     *
+     * @param srcPort The source port.
+     * @param dstPort The destination port.
+     * @param attachMac The attached port's MAC address.
+     *
+     * @return The matches.
+     */
+    public static List<MatchInfoBase> buildDhcpSourceMatches(int srcPort, int dstPort, String attachMac) {
+        return buildDhcpMatches(srcPort, dstPort, new MatchInfo(MatchFieldType.eth_src, new String[] { attachMac }));
+    }
+
+    /**
+     * Builds a list of matches for DHCP filtering on the destination's MAC address.
+     *
+     * @param srcPort The source port.
+     * @param dstPort The destination port.
+     * @param attachMac The attached port's MAC address.
+     *
+     * @return The matches.
+     */
+    public static List<MatchInfoBase> buildDhcpDestinationMatches(int srcPort, int dstPort, String attachMac) {
+        return buildDhcpMatches(srcPort, dstPort, new MatchInfo(MatchFieldType.eth_dst, new String[] { attachMac }));
     }
 
     /**
