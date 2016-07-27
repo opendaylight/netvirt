@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_db56ac29",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-07-27T14:40:37Z",
+      "side": 1,
+      "message": "get*Changed(abc1, abc2) is not very descriptive. It is not sure if checking for resources that were added in 2, presnet in btoh and upadte in two, or both. Better would be to use get*Added(original, updated) or get*Updated(original, updated) to make these more intiutive.",
+      "revId": "a747df6c918721dbdb8b5b9c4ce3bd40fcfa9311",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_bb53f837",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-07-27T14:40:37Z",
+      "side": 1,
+      "message": "getSecurityGroup",
+      "range": {
+        "startLine": 281,
+        "startChar": 32,
+        "endLine": 281,
+        "endChar": 48
+      },
+      "revId": "a747df6c918721dbdb8b5b9c4ce3bd40fcfa9311",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_1b34a4fa",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-07-27T14:40:37Z",
+      "side": 1,
+      "message": "nitpick: whitespace",
+      "range": {
+        "startLine": 414,
+        "startChar": 106,
+        "endLine": 414,
+        "endChar": 107
+      },
+      "revId": "a747df6c918721dbdb8b5b9c4ce3bd40fcfa9311",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_fb38d0f0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-07-27T14:40:37Z",
+      "side": 1,
+      "message": "nitpick: whitespace",
+      "range": {
+        "startLine": 433,
+        "startChar": 106,
+        "endLine": 433,
+        "endChar": 107
+      },
+      "revId": "a747df6c918721dbdb8b5b9c4ce3bd40fcfa9311",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
