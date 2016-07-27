@@ -50,6 +50,91 @@
       "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_d6ab2373",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/utils/TestDataBroker.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-07-27T16:05:17Z",
+      "side": 1,
+      "message": "Using Mockito spies works here just as well AFAICS:\n\n    TestDataBroker newTestDataBroker \u003d spy(TestDataBroker.class);\n\nI haven\u0027t checked, but it might avoid having to call getMap() too...",
+      "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_b6a82f78",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/utils/TestDataBroker.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-07-27T16:05:17Z",
+      "side": 1,
+      "message": "Likewise, this can be replaced by a Mockito spy:\n\n    return spy(TestReadOnlyReadWriteTransaction.class).parent(this);",
+      "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_16b91bcc",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/utils/TestDataBroker.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-07-27T16:05:17Z",
+      "side": 1,
+      "message": "As above.",
+      "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_f6bd87b8",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/utils/TestDataBroker.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-07-27T16:05:17Z",
+      "side": 1,
+      "message": "As above.",
+      "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_56af137d",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/utils/tests/TestDataBrokerTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-07-27T16:05:17Z",
+      "side": 1,
+      "message": "This works too:\n\n    return mock(TestDataObject.class, withSettings().defaultAnswer(EXCEPTION_ANSWER));",
+      "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
