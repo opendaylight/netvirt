@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_1b2f8440",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 17
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-27T13:55:45Z",
+      "side": 1,
+      "message": "Should the model be able to enforce the mandatory condition?",
+      "revId": "1c9b2c1e9483799677458fb5371990532aca81b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_3b2a482c",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 17
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-27T13:55:45Z",
+      "side": 1,
+      "message": "Would a string be better or more flexible?",
+      "revId": "1c9b2c1e9483799677458fb5371990532aca81b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_3be1a8fe",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 1617,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-27T13:55:45Z",
+      "side": 1,
+      "message": "is elaninstance guaranteed not to be null?",
+      "revId": "1c9b2c1e9483799677458fb5371990532aca81b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_7b94c042",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-27T13:55:45Z",
+      "side": 1,
+      "message": "not a problem for this commit, but checkstyle is fine with lines up to 120 chars so no need to break up this line",
+      "revId": "1c9b2c1e9483799677458fb5371990532aca81b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_1b078483",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-27T13:55:45Z",
+      "side": 1,
+      "message": "do know that gre would be the only other type that needs to be supported? Curious is a better method would be isNetworkTypeSupported() and in there the method could be easily adapted to include unsupported types and remove supported types. If this is the only other type then no need to fix.",
+      "revId": "1c9b2c1e9483799677458fb5371990532aca81b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
