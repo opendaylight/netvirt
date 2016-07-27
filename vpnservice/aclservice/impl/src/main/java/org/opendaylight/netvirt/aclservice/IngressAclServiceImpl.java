@@ -130,6 +130,10 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                                    IpPrefixOrAddress attachIp, int addOrRemove) {
         for (Uuid sgUuid :aclUuidList ) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
+            if (null == acl) {
+                LOG.warn("The ACL is empty");
+                continue;
+            }
             AccessListEntries accessListEntries = acl.getAccessListEntries();
             List<Ace> aceList = accessListEntries.getAce();
             for (Ace ace: aceList) {
@@ -160,6 +164,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             flowName += "Ingress" + attachMac + String.valueOf(attachIp.getValue()) + ace.getKey().getRuleName();
             flows.add(new MatchInfo(MatchFieldType.eth_dst,
                 new String[] { attachMac }));
+            flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
+                new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
             flows.addAll(AclServiceUtils.getAllowedIpMatches(attachIp, MatchFieldType.ipv4_destination));
             List<InstructionInfo> instructions = new ArrayList<>();
             List<ActionInfo> actionsInfos = new ArrayList<>();
