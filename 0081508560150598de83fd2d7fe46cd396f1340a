@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_a7e0fb96",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-07-28T05:04:55Z",
+      "side": 1,
+      "message": "Interface manager may not be appropriate place for it. Because it is not about only creating logical interface and also binding services to it.\nLet us have new bundle inside vpnservice to handle all l2 ports. We can make this bundle is responsible for creating interface and associating it with ELAN service etc. (by invoking appropriate rpc/API from relevant modules. Later it can extended for other services.",
+      "parentUuid": "9a561d44_16bf5b62",
+      "revId": "0081508560150598de83fd2d7fe46cd396f1340a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_b8edbeb9",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
         "patchSetId": 20
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "Why? String concatenation is translated into StringBuilder by the compiler",
       "parentUuid": "9a561d44_b8edbeb9",
+      "revId": "0081508560150598de83fd2d7fe46cd396f1340a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_07f1e76a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-07-28T05:04:55Z",
+      "side": 1,
+      "message": "You are correct.\nPls ignore this comment.",
+      "parentUuid": "9a561d44_d69163f2",
       "revId": "0081508560150598de83fd2d7fe46cd396f1340a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
