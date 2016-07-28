@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_5ba45c07",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceListenerImplTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-07-28T11:43:25Z",
+      "side": 1,
+      "message": "overall this patch should be smaller, be based on the prior utilities infrastructure patches and contain the tests alone.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 78
+      },
+      "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_16611ba9",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceListenerImplTest.java",
         "patchSetId": 6
@@ -36,6 +59,29 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_1b02e409",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/idea/Mikito.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-07-28T11:43:25Z",
+      "side": 1,
+      "message": "please consider moving the mikito to a more general package for others to use",
+      "range": {
+        "startLine": 8,
+        "startChar": 1,
+        "endLine": 8,
+        "endChar": 55
+      },
+      "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_f66587b5",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/idea/Mikito.java",
         "patchSetId": 6
@@ -47,6 +93,29 @@
       "writtenOn": "2016-07-27T15:25:49Z",
       "side": 1,
       "message": "You can ask Mockito to use constructors; it requires some care, but it works:\n\n    public static \u003cT\u003e T stub(Class\u003cT\u003e abstractClass) {\n        MockSettings mockSettings \u003d withSettings();\n        for (Constructor constructor : abstractClass.getConstructors()) {\n            if (constructor.getParameterCount() \u003d\u003d 0) {\n                mockSettings \u003d mockSettings.useConstructor();\n                break;\n            }\n        }\n        T stub \u003d mock(abstractClass, mockSettings.defaultAnswer(invocation -\u003e {\n            if (Modifier.isAbstract(invocation.getMethod().getModifiers())) {\n                throw new NotImplementedException(\n                        invocation.getMethod().getName() + \" is not stubbed in \" + abstractClass.getName());\n            } else {\n                return invocation.callRealMethod();\n            }\n        }));\n        return stub;\n    }\n\n(actually I came up with the first part to fix a breakage I saw in the tests, but I\u0027m not sure it\u0027s the right way to go about things; but hopefully you get the idea).",
+      "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_3b5b682f",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/utils/TestDataBroker.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-07-28T11:43:25Z",
+      "side": 1,
+      "message": "please consider moving this to a more general package for others to use",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 85
+      },
       "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -115,6 +184,29 @@
       "writtenOn": "2016-07-27T16:05:17Z",
       "side": 1,
       "message": "As above.",
+      "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_1b7784a1",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/utils/XtendBeanGenerator.xtend",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-07-28T11:43:25Z",
+      "side": 1,
+      "message": "please consider moving this to a more general package for others to use - consider infrautils project: https://wiki.opendaylight.org/view/Infrastructure_Utilities:Main",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 26
+      },
       "revId": "ed53e2a0760feac7fefc46d33dd495fc820cb41b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
