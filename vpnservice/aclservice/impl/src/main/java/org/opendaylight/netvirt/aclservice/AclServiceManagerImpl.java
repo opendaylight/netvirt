@@ -14,8 +14,12 @@ import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AclServiceManagerImpl implements AclServiceManager {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AclServiceManagerImpl.class);
 
     private List<AclServiceListener> aclServiceListenerList;
 
@@ -39,12 +43,16 @@ public class AclServiceManagerImpl implements AclServiceManager {
     @Override
     public void notify(Interface port, Action action, Interface oldPort) {
         for (AclServiceListener aclServiceListener : aclServiceListenerList) {
-            if (action == Action.ADD) {
-                aclServiceListener.applyAcl(port);
-            } else if (action == Action.UPDATE) {
-                aclServiceListener.updateAcl(oldPort, port);
-            } else if (action == Action.REMOVE) {
-                aclServiceListener.removeAcl(port);
+            try {
+                if (action == Action.ADD) {
+                    aclServiceListener.applyAcl(port);
+                } else if (action == Action.UPDATE) {
+                    aclServiceListener.updateAcl(oldPort, port);
+                } else if (action == Action.REMOVE) {
+                    aclServiceListener.removeAcl(port);
+                }
+            } catch (Exception e) {
+                LOG.error("Failed to notify ", e);
             }
         }
     }
