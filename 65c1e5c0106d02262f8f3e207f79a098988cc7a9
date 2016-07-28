@@ -53,6 +53,29 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_70b99114",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/utils/TestDataBroker.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-07-28T11:43:25Z",
+      "side": 1,
+      "message": "why is this class located here? Shouldn\u0027t it be placed in a more general/low level bundle?",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 83
+      },
+      "revId": "65c1e5c0106d02262f8f3e207f79a098988cc7a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_3aaed0e6",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/utils/XtendBeanGenerator.xtend",
         "patchSetId": 5
