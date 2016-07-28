@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_23f05efd",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 17
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-07-28T06:58:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_3b2a482c",
+      "revId": "1c9b2c1e9483799677458fb5371990532aca81b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_3be1a8fe",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 17
@@ -83,6 +101,24 @@
       "writtenOn": "2016-07-27T13:55:45Z",
       "side": 1,
       "message": "is elaninstance guaranteed not to be null?",
+      "revId": "1c9b2c1e9483799677458fb5371990532aca81b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_a3dbce7a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 1617,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-07-28T06:58:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_3be1a8fe",
       "revId": "1c9b2c1e9483799677458fb5371990532aca81b2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -152,6 +188,24 @@
       "writtenOn": "2016-07-27T17:57:10Z",
       "side": 1,
       "message": "For neutron networks it seems to be the only one not supported but neutron yang model allows to extend the segment type so if elan model would align (based on segment-type comment) than it would make sense to change this method.",
+      "parentUuid": "9a561d44_1b078483",
+      "revId": "1c9b2c1e9483799677458fb5371990532aca81b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_83f16a03",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-07-28T06:58:42Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "9a561d44_1b078483",
       "revId": "1c9b2c1e9483799677458fb5371990532aca81b2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
