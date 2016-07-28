@@ -151,7 +151,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
     <dependency>
       <groupId>org.opendaylight.genius</groupId>
-      <artifactId>interfacemgr-shell</artifactId>
+      <artifactId>interfacemanager-shell</artifactId>
       <version>${interfacemgr.version}</version>
     </dependency>
     <dependency>
