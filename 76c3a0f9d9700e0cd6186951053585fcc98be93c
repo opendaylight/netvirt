@@ -87,6 +87,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_86cfb828",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-28T10:34:24Z",
+      "side": 1,
+      "message": "I just added a function to SouthboundUtils. I\u0027ll add these to there as well. https://git.opendaylight.org/gerrit/#/c/42693/",
+      "parentUuid": "9a561d44_8c97dc47",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_ec96583e",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneTest.java",
         "patchSetId": 2
