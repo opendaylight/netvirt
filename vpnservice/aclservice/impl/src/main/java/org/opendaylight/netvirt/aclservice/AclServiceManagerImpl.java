@@ -14,8 +14,12 @@ import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AclServiceManagerImpl implements AclServiceManager {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AclServiceManagerImpl.class);
 
     private List<AclServiceListener> aclServiceListenerList;
 
