@@ -150,11 +150,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <type>xml</type>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.genius</groupId>
-      <artifactId>interfacemanager-shell</artifactId>
-      <version>${interfacemgr.version}</version>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>elanmanager-impl</artifactId>
       <version>${elanmgr.version}</version>

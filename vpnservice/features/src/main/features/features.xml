@@ -55,7 +55,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.netvirt/bgpmanager-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/bgpmanager-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/vpnmanager-impl/{{VERSION}}</bundle>
-    <bundle>mvn:org.opendaylight.genius/interfacemanager-shell/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/fibmanager-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/fibmanager-shell/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/neutronvpn-impl/{{VERSION}}</bundle>
