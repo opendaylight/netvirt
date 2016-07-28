@@ -23,6 +23,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
@@ -32,6 +33,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -52,8 +55,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -359,4 +365,85 @@ public class AclServiceUtils {
         return updatedAclList;
     }
 
+    public static List<AllowedAddressPairs> getUpdatedAllowedAddressPairs(Interface updatedPort,
+            Interface currentPort) {
+        if (updatedPort == null) {
+            return null;
+        }
+        List<AllowedAddressPairs> updatedAllowedAddressPairs =
+                new ArrayList<>(AclServiceUtils.getPortAllowedAddresses(updatedPort));
+        if (currentPort == null) {
+            return updatedAllowedAddressPairs;
+        }
+        List<AllowedAddressPairs> currentAllowedAddressPairs =
+                new ArrayList<>(AclServiceUtils.getPortAllowedAddresses(currentPort));
+        for (Iterator<AllowedAddressPairs> iterator = updatedAllowedAddressPairs.iterator(); iterator.hasNext();) {
+            AllowedAddressPairs updatedAllowedAddressPair = iterator.next();
+            for (AllowedAddressPairs currentAllowedAddressPair : currentAllowedAddressPairs) {
+                if (updatedAllowedAddressPair.getKey().equals(currentAllowedAddressPair.getKey())) {
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+        return updatedAllowedAddressPairs;
+    }
+
+    public static List<AllowedAddressPairs> getPortAllowedAddresses(Interface port) {
+        if (port == null) {
+            LOG.error("Port is Null");
+            return null;
+        }
+        InterfaceAcl aclInPort = port.getAugmentation(InterfaceAcl.class);
+        if (aclInPort == null) {
+            LOG.error("getSecurityGroupInPortList: no security group associated to Interface port: {}", port.getName());
+            return null;
+        }
+        return aclInPort.getAllowedAddressPairs();
+    }
+
+    public static BigInteger getDpIdFromIterfaceState(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
+            .interfaces.rev140508.interfaces.state.Interface interfaceState) {
+        BigInteger dpId = null;
+        String interfaceName = interfaceState.getName();
+        List<String> ofportIds = interfaceState.getLowerLayerIf();
+        if (ofportIds != null && !ofportIds.isEmpty()) {
+            NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
+            dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        }
+        return dpId;
+    }
+
+    public static List<MatchInfoBase> getAllowedIpMatches(IpPrefixOrAddress allowedIp, MatchFieldType ipv4MatchType) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_IPV4 }));
+        IpPrefix ipPrefix = allowedIp.getIpPrefix();
+        if (ipPrefix != null) {
+            if (ipPrefix.getIpv4Prefix().getValue() != null) {
+                String[] ipaddressValues = ipPrefix.getIpv4Prefix().getValue().split("/");
+                flowMatches.add(new MatchInfo(ipv4MatchType, new String[] {ipaddressValues[0], ipaddressValues[1]}));
+            } else {
+                // Handle IPv6
+            }
+        } else {
+            IpAddress ipAddress = allowedIp.getIpAddress();
+            if (ipAddress.getIpv4Address() != null) {
+                flowMatches.add(new MatchInfo(ipv4MatchType,
+                        new String[] {ipAddress.getIpv4Address().getValue(), "32"}));
+            } else {
+                // Handle IPv6
+            }
+        }
+        return flowMatches;
+    }
+
+    public static List<MatchInfo> getLPortTagMatches(int lportTag) {
+        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        // Matching metadata
+        mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
+            MetaDataUtil.getLportTagMetaData(lportTag),
+            MetaDataUtil.METADATA_MASK_LPORT_TAG }));
+        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(lportTag)}));
+        return mkMatches;
+    }
 }
