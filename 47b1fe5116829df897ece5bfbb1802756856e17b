@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_a772bb0e",
+        "filename": "vpnservice/features/src/main/features/features.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2016-07-28T04:24:03Z",
+      "side": 1,
+      "message": "any idea why this bundle is explicitly specified here?",
+      "revId": "47b1fe5116829df897ece5bfbb1802756856e17b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
