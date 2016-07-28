@@ -140,6 +140,24 @@
       "revId": "0081508560150598de83fd2d7fe46cd396f1340a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_06e56837",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/OSGI-INF/blueprint/blueprint.xml",
+        "patchSetId": 20
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-07-28T09:05:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_b8e01e97",
+      "revId": "0081508560150598de83fd2d7fe46cd396f1340a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
