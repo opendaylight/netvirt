@@ -18,14 +18,17 @@ public final class AclConstants {
     // TODO: Move all service related constants across all modules to a common
     // place
     public static final short EGRESS_ACL_TABLE_ID = 40;
-    public static final short EGRESS_ACL_NEXT_TABLE_ID = 41;
+    public static final short EGRESS_ACL_FILTER_TABLE_ID = 41;
     public static final short EGRESS_ACL_SERVICE_PRIORITY = 2;
     public static final short EGRESS_ACL_DEFAULT_FLOW_PRIORITY = 11;
 
     public static final short INGRESS_ACL_TABLE_ID = 251;
-    public static final short INGRESS_ACL_NEXT_TABLE_ID = 252;
-    public static final short INGRESS_ACL_SERVICE_PRIORITY = 10;
+    public static final short INGRESS_ACL_FILTER_TABLE_ID = 252;
+    public static final short INGRESS_ACL_SERVICE_PRIORITY = 6;
     public static final short INGRESS_ACL_DEFAULT_FLOW_PRIORITY = 1;
+
+    // TODO: To be deleted once it is available in genius
+    public static final short EGRESS_LPORT_DISPATCHER_TABLE = 220;
 
     public static final Integer PROTO_MATCH_PRIORITY = 61010;
     public static final Integer PREFIX_MATCH_PRIORITY = 61009;

@@ -67,7 +67,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AclServiceUtils {
+public final class AclServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceUtils.class);
 
@@ -437,13 +437,17 @@ public class AclServiceUtils {
         return flowMatches;
     }
 
+    /**
+     * Gets the lport tag matches.
+     *
+     * @param lportTag the lport tag
+     * @return the lport tag matches
+     */
     public static List<MatchInfo> getLPortTagMatches(int lportTag) {
         List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
         // Matching metadata
-        mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-            MetaDataUtil.getLportTagMetaData(lportTag),
-            MetaDataUtil.METADATA_MASK_LPORT_TAG }));
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(lportTag)}));
+        mkMatches.add(new MatchInfo(MatchFieldType.metadata,
+                new BigInteger[] {MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG}));
         return mkMatches;
     }
 }
