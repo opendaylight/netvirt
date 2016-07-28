@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_434f526b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-28T06:40:02Z",
+      "side": 1,
+      "message": "This makes a lot of sense in principle and Sam Hague made a similar comment. However, at this point there are like 6 reviews for this feature waiting in gerrit and I am not convinced that this is the time to start a new design session. IMHO, the current functionality is reasonably (but not perfectly) encapsulated from a design perspective and we can easily rip it out into its own component afterwards. As Periyasamy points out, currently none of this is required outside this module. We\u0027re a few moments before code freeze and I\u0027d like to propose we postpone this change.",
+      "parentUuid": "9a561d44_a7e0fb96",
+      "revId": "0081508560150598de83fd2d7fe46cd396f1340a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_b8edbeb9",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
         "patchSetId": 20
