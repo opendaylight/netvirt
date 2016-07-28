@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_6947d577",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-28T12:16:38Z",
+      "side": 1,
+      "message": "What does the name containing a \":\" mean? Perhaps a comment would be helpful here. Or a constant where the name was helpful. Not trying to nitpick, actually curious.",
+      "revId": "9651cdec5c710cccd7f426c096deae88fce8cbaf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
