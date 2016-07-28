@@ -15,6 +15,7 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6PeriodicTrQueue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.concepts.Registration;
@@ -34,6 +35,7 @@ public class Ipv6ServiceProvider implements BindingAwareProvider, AutoCloseable 
     private NeutronRouterChangeListener routerListener;
     private IfMgr ifMgr;
     private Ipv6ServiceInterfaceEventListener ipv6ServiceInterfaceEventListener;
+    private Ipv6NodeListener ipv6NodeListener;
 
     private DataBroker broker;
 
@@ -50,8 +52,12 @@ public class Ipv6ServiceProvider implements BindingAwareProvider, AutoCloseable 
 
         ifMgr = IfMgr.getIfMgrInstance();
         ifMgr.setInterfaceManagerRpc(interfaceManagerRpc);
+        Ipv6PeriodicRAThread ipv6Thread = Ipv6PeriodicRAThread.getInstance();
         ipv6ServiceInterfaceEventListener = new Ipv6ServiceInterfaceEventListener(broker);
         ipv6ServiceInterfaceEventListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        Ipv6RouterAdvt.setPacketProcessingService(pktProcessingService);
+        ipv6NodeListener = new Ipv6NodeListener(broker, mdsalManager);
+        ipv6NodeListener.setIfMgrInstance(ifMgr);
         ipv6PktHandler = new Ipv6PktHandler();
         ipv6PktHandler.setIfMgrInstance(ifMgr);
         ipv6PktHandler.setPacketProcessingService(pktProcessingService);
@@ -64,7 +70,12 @@ public class Ipv6ServiceProvider implements BindingAwareProvider, AutoCloseable 
         portListener.close();
         subnetListener.close();
         routerListener.close();
+        ipv6NodeListener.close();
         ipv6ServiceInterfaceEventListener.close();
+        Ipv6PeriodicTrQueue queue = Ipv6PeriodicTrQueue.getInstance();
+        queue.clearTimerQueue();
+        Ipv6PeriodicRAThread ipv6Thread = Ipv6PeriodicRAThread.getInstance();
+        ipv6Thread.stopIpv6PeriodicRAThread();
         LOG.info("IPv6 Service closed");
     }
 

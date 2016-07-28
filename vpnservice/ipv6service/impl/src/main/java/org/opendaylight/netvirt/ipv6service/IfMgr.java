@@ -9,13 +9,17 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import com.google.common.net.InetAddresses;
+import io.netty.util.Timeout;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants.Ipv6RtrAdvertType;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6TimerWheel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -25,7 +29,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +89,7 @@ public class IfMgr {
      */
     public void addRouter(Uuid rtrUuid, String rtrName, Uuid tenantId, Boolean isAdminStateUp) {
 
+        LOG.debug("addRouter {}, name {}, tenantId {}, adminState {}", rtrUuid, rtrName, tenantId, isAdminStateUp);
         VirtualRouter rtr = new VirtualRouter();
         if (rtr != null) {
             rtr.setTenantID(tenantId)
@@ -148,6 +162,8 @@ public class IfMgr {
 
         // Save the gateway ipv6 address in its fully expanded format. We always store the v6Addresses
         // in expanded form and are used during Neighbor Discovery Support.
+        LOG.debug("addSubnet {}, network {}, tenant {}, gatewayIp {}, version {}, prefix {}, v6AddrMode{}, RAMode {}",
+                   snetId, networkId, tenantId, gatewayIp, ipVersion, subnetCidr, ipV6AddressMode, ipV6RaMode);
         if (gatewayIp.getIpv6Address() != null) {
             Ipv6Address addr = new Ipv6Address(InetAddresses
                     .forString(gatewayIp.getIpv6Address().getValue()).getHostAddress());
@@ -234,6 +250,10 @@ public class IfMgr {
                     .setMacAddress(macAddress)
                     .setRouterIntfFlag(true)
                     .setDeviceOwner(deviceOwner);
+            intf.setPeriodicTimer();
+            LOG.debug("start the periodic RA Timer for routerIntf {}, int {}", portId,
+                       Ipv6Constants.PERIODIC_RA_INTERVAL);
+            transmitUnsolicitedRA(intf);
             MacAddress ifaceMac = MacAddress.getDefaultInstance(macAddress);
             Ipv6Address llAddr = ipv6Utils.getIpv6LinkLocalAddressFromMac(ifaceMac);
             programNSFlowForAddress(intf, llAddr, true);
@@ -404,6 +424,11 @@ public class IfMgr {
                 Ipv6Address llAddr = ipv6Utils.getIpv6LinkLocalAddressFromMac(ifaceMac);
                 vrouterv6IntfMap.remove(intf.getNetworkID(), intf);
                 programNSFlowForAddress(intf, llAddr, false);
+                transmitRouterAdvertisement(intf, Ipv6RtrAdvertType.CEASE_ADVERTISEMENT);
+                Ipv6TimerWheel timer = Ipv6TimerWheel.getInstance();
+                timer.cancelPeriodicTransmissionTimeout(intf.getPeriodicTimeout());
+                intf.resetPeriodicTimeout();
+                LOG.debug("Reset the periodic RA Timer for intf {}", intf.getIntfUUID());
             }
             for (IpAddress ipAddr : intf.getIpAddresses()) {
                 if (ipAddr.getIpv6Address() != null) {
@@ -480,5 +505,46 @@ public class IfMgr {
         }
         LOG.trace("Returning interfaceName {} for tag {} form getInterfaceNameFromTag", interfaceName, portTag);
         return interfaceName;
+    }
+
+    private void transmitRouterAdvertisement(VirtualPort intf, Ipv6RtrAdvertType advType) {
+        Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt();
+
+        LOG.debug("in transmitRouterAdvertisement for {}", advType);
+        for (VirtualPort port : vintfs.values()) {
+            if ((port.getOfPort() != null) && (port.getNetworkID() != null)
+                && (port.getNetworkID().equals(intf.getNetworkID()))) {
+
+                String nodeName = Ipv6Constants.OPENFLOW_NODE_PREFIX + Ipv6ServiceUtils.getDataPathId(port.getDpId());
+                String outPort = nodeName + ":" + port.getOfPort();
+                LOG.debug("Transmitting RA {} for node {}, port {}", advType, nodeName, outPort);
+                InstanceIdentifier<NodeConnector> outPortId = InstanceIdentifier.builder(Nodes.class)
+                                                              .child(Node.class, new NodeKey(new NodeId(nodeName)))
+                                                              .child(NodeConnector.class,
+                                                                   new NodeConnectorKey(new NodeConnectorId(outPort)))
+                                                              .build();
+                ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, new NodeConnectorRef(outPortId), null);
+            }
+        }
+    }
+
+    public void transmitUnsolicitedRA(Uuid portId) {
+        VirtualPort port = vintfs.get(portId);
+        LOG.debug("in transmitUnsolicitedRA for {}, port", portId, port);
+        if (port != null) {
+            transmitUnsolicitedRA(port);
+        }
+    }
+
+    public void transmitUnsolicitedRA(VirtualPort port) {
+        transmitRouterAdvertisement(port, Ipv6RtrAdvertType.UNSOLICITED_ADVERTISEMENT);
+        Ipv6TimerWheel timer = Ipv6TimerWheel.getInstance();
+        Timeout portTimeout = timer.setPeriodicTransmissionTimeout(port.getPeriodicTimer(),
+                                                                   Ipv6Constants.PERIODIC_RA_INTERVAL,
+                                                                   TimeUnit.SECONDS);
+        port.setPeriodicTimeout(portTimeout);
+        LOG.debug("re-started periodic RA Timer for routerIntf {}, int {}", port.getIntfUUID(),
+                   Ipv6Constants.PERIODIC_RA_INTERVAL);
+
     }
 }
