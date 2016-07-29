@@ -353,13 +353,13 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 staticPipelineFound.add(service);
             }
             String flowId = "DEFAULT_PIPELINE_FLOW_" + pipelineOrchestrator.getTable(service);
-            nvItUtils.verifyFlow(datapathId, flowId, pipelineOrchestrator.getTable(service));
+            nvItUtils.verifyFlowByFields(datapathId, flowId, pipelineOrchestrator.getTable(service), 5000);
         }
         assertEquals("did not find all expected flows in static pipeline",
                 staticPipeline.size(), staticPipelineFound.size());
 
         String flowId = "TableOffset_" + pipelineOrchestrator.getTable(Service.CLASSIFIER);
-        nvItUtils.verifyFlow(datapathId, flowId, Service.CLASSIFIER.getTable());
+        nvItUtils.verifyFlowByFields(datapathId, flowId, Service.CLASSIFIER.getTable(), 5000);
 
         Assert.assertTrue(southboundUtils.deleteBridge(connectionInfo, NetvirtITConstants.INTEGRATION_BRIDGE_NAME));
         Thread.sleep(1000);
@@ -417,7 +417,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                     staticPipelineFound.add(service);
                 }
                 String flowId = "DEFAULT_PIPELINE_FLOW_" + pipelineOrchestrator.getTable(service);
-                nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(service));
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(service), 5000);
             }
             assertEquals("did not find all expected flows in static pipeline",
                     staticPipeline.size(), staticPipelineFound.size());
@@ -489,7 +489,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             Thread.sleep(1000);
 
             String flowId = "Egress_DHCP_Client"  + "_Permit_";
-            nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+            nvItUtils.verifyFlowByFields(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
 
             testDefaultSG(nport, nodeInfo.datapathId, nn, tenantId, portId);
             Thread.sleep(1000);
@@ -558,10 +558,10 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         LOG.info("Neutron ports have been added");
         Thread.sleep(10000);
         String flowId = "Egress_IP" + nn.getProviderSegmentationID() + "_" + nport.getMacAddress() + "_Permit_";
-        nvItUtils.verifyFlow(datapathId, flowId, pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+        nvItUtils.verifyFlowByFields(datapathId, flowId, pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
 
         flowId = "Ingress_IP" + nn.getProviderSegmentationID() + "_" + nport.getMacAddress() + "_Permit_";
-        nvItUtils.verifyFlow(datapathId, flowId, pipelineOrchestrator.getTable(Service.INGRESS_ACL));
+        nvItUtils.verifyFlowByFields(datapathId, flowId, pipelineOrchestrator.getTable(Service.INGRESS_ACL), 5000);
 
         ineutronSecurityGroupCRUD.removeNeutronSecurityGroup(neutronSG.getID());
         ineutronSecurityRuleCRUD.removeNeutronSecurityRule(nsrEG.getID());
@@ -588,18 +588,18 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             net.createPort(nodeInfo.bridgeNode, "vm1");
             net.createPort(nodeInfo.bridgeNode, "vm2");
 
-            Thread.sleep(3000);
+            //Thread.sleep(5000);
 
             // Check flows created for all ports
             for (NeutronNetItUtil.PortInfo portInfo : net.portInfoByName.values()) {
-                nvItUtils.verifyFlow(nodeInfo.datapathId, "DropFilter_" + portInfo.ofPort,
-                        pipelineOrchestrator.getTable(Service.CLASSIFIER));
-                nvItUtils.verifyFlow(nodeInfo.datapathId, "LocalMac_" + net.segId + "_" + portInfo.ofPort
-                                            + "_" + portInfo.mac, pipelineOrchestrator.getTable(Service.CLASSIFIER));
-                nvItUtils.verifyFlow(nodeInfo.datapathId, "ArpResponder_" + net.segId + "_" + portInfo.ip,
-                                            pipelineOrchestrator.getTable(Service.ARP_RESPONDER));
-                nvItUtils.verifyFlow(nodeInfo.datapathId, "UcastOut_" + net.segId + "_" + portInfo.ofPort
-                                            + "_" + portInfo.mac, pipelineOrchestrator.getTable(Service.L2_FORWARDING));
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "DropFilter_" + portInfo.ofPort,
+                        pipelineOrchestrator.getTable(Service.CLASSIFIER), 5000);
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "LocalMac_" + net.segId + "_" + portInfo.ofPort
+                                            + "_" + portInfo.mac, pipelineOrchestrator.getTable(Service.CLASSIFIER), 5000);
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "ArpResponder_" + net.segId + "_" + portInfo.ip,
+                                            pipelineOrchestrator.getTable(Service.ARP_RESPONDER), 5000);
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "UcastOut_" + net.segId + "_" + portInfo.ofPort
+                                            + "_" + portInfo.mac, pipelineOrchestrator.getTable(Service.L2_FORWARDING), 5000);
             }
 
             for (NeutronNetItUtil.PortInfo portInfo : net.portInfoByName.values()) {
@@ -607,37 +607,35 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 if (portInfo.name.equals("dhcp")) {
                     continue;
                 }
-                nvItUtils.verifyFlow(nodeInfo.datapathId, "Ingress_ARP_" + net.segId + "_" + portInfo.ofPort + "_",
-                        pipelineOrchestrator.getTable(Service.INGRESS_ACL));
-                nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_Allow_VM_IP_MAC_" + portInfo.ofPort
-                                + portInfo.mac + "_Permit_", pipelineOrchestrator.getTable(Service.EGRESS_ACL));
-                nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_ARP_" + net.segId + "_" + portInfo.ofPort + "_",
-                        pipelineOrchestrator.getTable(Service.EGRESS_ACL));
-                nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCP_Server_" + portInfo.ofPort + "_DROP_",
-                        pipelineOrchestrator.getTable(Service.EGRESS_ACL));
-                nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCPv6_Server_" + portInfo.ofPort + "_DROP_",
-                        pipelineOrchestrator.getTable(Service.EGRESS_ACL));
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Ingress_ARP_" + net.segId + "_" + portInfo.ofPort + "_",
+                        pipelineOrchestrator.getTable(Service.INGRESS_ACL), 5000);
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Egress_Allow_VM_IP_MAC_" + portInfo.ofPort
+                                + portInfo.mac + "_Permit_", pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Egress_ARP_" + net.segId + "_" + portInfo.ofPort + "_",
+                        pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Egress_DHCP_Server_" + portInfo.ofPort + "_DROP_",
+                        pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Egress_DHCPv6_Server_" + portInfo.ofPort + "_DROP_",
+                        pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
             }
 
             // Check ingress/egress acl flows for DHCP
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCP_Client_Permit_",
-                    pipelineOrchestrator.getTable(Service.EGRESS_ACL));
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "Egress_DHCPv6_Client_Permit_",
-                    pipelineOrchestrator.getTable(Service.EGRESS_ACL));
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "Ingress_DHCPv6_Server" + net.segId + "_"
-                    + net.macFor(1) + "_Permit_", pipelineOrchestrator.getTable(Service.INGRESS_ACL));
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "Ingress_DHCP_Server" + net.segId + "_"
-                    + net.macFor(1) + "_Permit_", pipelineOrchestrator.getTable(Service.INGRESS_ACL));
+            nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Egress_DHCP_Client_Permit_",
+                    pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
+            nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Egress_DHCPv6_Client_Permit_",
+                    pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
+            nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Ingress_DHCPv6_Server" + net.segId + "_"
+                    + net.macFor(1) + "_Permit_", pipelineOrchestrator.getTable(Service.INGRESS_ACL), 5000);
+            nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Ingress_DHCP_Server" + net.segId + "_"
+                    + net.macFor(1) + "_Permit_", pipelineOrchestrator.getTable(Service.INGRESS_ACL), 5000);
 
             // Check l2 broadcast flows
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "TunnelFloodOut_" + net.segId,
-                    pipelineOrchestrator.getTable(Service.L2_FORWARDING));
-            nvItUtils.verifyFlow(nodeInfo.datapathId, "BcastOut_" + net.segId,
-                    pipelineOrchestrator.getTable(Service.L2_FORWARDING));
-
-            //TBD Figure out why this does not work:
-            //nvItUtils.verifyFlow(nodeInfo.datapathId, "TunnelMiss_" + net.segId,
-            //        pipelineOrchestrator.getTable(Service.L2_FORWARDING));
+            nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "TunnelFloodOut_" + net.segId,
+                    pipelineOrchestrator.getTable(Service.L2_FORWARDING), 5000);
+            nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "BcastOut_" + net.segId,
+                    pipelineOrchestrator.getTable(Service.L2_FORWARDING), 5000);
+            nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "TunnelMiss_" + net.segId,
+                    pipelineOrchestrator.getTable(Service.L2_FORWARDING), 5000);
 
 
             net.preparePortForPing("vm1");
@@ -648,6 +646,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             nodeInfo.disconnect();
         } catch (Exception e) {
             LOG.warn("testNeutronNet: Exception thrown by OvsDocker.OvsDocker()", e);
+            Assert.fail("Exception thrown during testNeutronNet " + e.toString());
         }
     }
 
