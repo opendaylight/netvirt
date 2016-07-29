@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_5891f545",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6NodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-29T05:00:10Z",
+      "side": 1,
+      "message": "add and update seem to be identical (only diff I could see was logging). Should these be a single method?",
+      "revId": "7e6e3d05012ef25f87b0c465ce22f8f5c6e773d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_78b319e9",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PeriodicRAThread.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-29T05:00:10Z",
+      "side": 1,
+      "message": "probably worth calling periodicTransmitter.interrupt as well so that if it\u0027s currently sleeping the thread will wake up loop around to the beginning of the while loop and exit quicker.",
+      "revId": "7e6e3d05012ef25f87b0c465ce22f8f5c6e773d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_f870c941",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-29T05:00:10Z",
+      "side": 1,
+      "message": "++ is not thread safe",
+      "revId": "7e6e3d05012ef25f87b0c465ce22f8f5c6e773d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_7885d905",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-29T05:00:10Z",
+      "side": 1,
+      "message": "I know this is just a sanity check but wouldn\u0027t it make more sense to check it before building the packet?",
+      "revId": "7e6e3d05012ef25f87b0c465ce22f8f5c6e773d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
