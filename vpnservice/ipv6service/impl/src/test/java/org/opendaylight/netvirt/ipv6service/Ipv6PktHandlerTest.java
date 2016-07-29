@@ -57,6 +57,7 @@ public class Ipv6PktHandlerTest {
 
         pktHandler = new Ipv6PktHandler();
         pktHandler.setPacketProcessingService(pktProcessService);
+        Ipv6RouterAdvt.setPacketProcessingService(pktProcessService);
         pktHandler.setIfMgrInstance(ifMgrInstance);
         counter = pktHandler.getPacketProcessedCounter();
     }
