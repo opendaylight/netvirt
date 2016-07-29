@@ -127,6 +127,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_171bd073",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-29T17:40:48Z",
+      "side": 1,
+      "message": "When do we think that patch will merge?",
+      "parentUuid": "9a561d44_4c7bfff4",
+      "revId": "9651cdec5c710cccd7f426c096deae88fce8cbaf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_6947d577",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
         "patchSetId": 1
