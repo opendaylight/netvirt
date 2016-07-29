@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
+
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License v1.0 which accompanies this distribution,
 and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
---><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>odlparent-lite</artifactId>
     <version>1.7.0-SNAPSHOT</version>
+    <relativePath/>
   </parent>
+
   <groupId>org.opendaylight.netvirt</groupId>
-  <artifactId>vpnservice</artifactId>
+  <artifactId>statemanager</artifactId>
   <version>0.3.0-SNAPSHOT</version>
   <name>${project.artifactId}</name>
   <packaging>pom</packaging>
@@ -20,23 +26,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <maven>3.1.1</maven>
   </prerequisites>
   <modules>
-    <module>commons/binding-parent</module>
-    <module>commons/config-parent</module>
-    <module>model-bgp</module>
-    <module>vpnmanager</module>
-    <module>elanmanager</module>
-    <module>fibmanager</module>
-    <module>bgpmanager</module>
-    <module>neutronvpn</module>
-    <module>dhcpservice</module>
-    <module>cloud-servicechain</module>
-    <module>natservice</module>
-    <module>aclservice</module>
-    <module>ipv6service</module>
-    <module>distribution/karaf</module>
-    <module>features</module>
-    <module>vpnservice-artifacts</module>
-    <module>statemanager</module>
+    <module>impl</module>
   </modules>
 
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
@@ -58,19 +48,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       </plugin>
     </plugins>
   </build>
-  <scm>
-    <connection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</connection>
-    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</developerConnection>
-    <url>https://wiki.opendaylight.org/view/NetVirt</url>
-    <tag>HEAD</tag>
-  </scm>
 
   <!--
-      Maven Site Configuration
+    Maven Site Configuration
 
-      The following configuration is necessary for maven-site-plugin to
-      correctly identify the correct deployment path for OpenDaylight Maven
-      sites.
+    The following configuration is necessary for maven-site-plugin to
+    correctly identify the correct deployment path for OpenDaylight Maven
+    sites.
   -->
   <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
 

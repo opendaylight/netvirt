@@ -12,8 +12,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Od
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.osgi.framework.BundleContext;
 
 public class VpnserviceImplModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpnservice.impl.rev150216.AbstractVpnserviceImplModule {
+    private BundleContext bundleContext = null;
+
     public VpnserviceImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
@@ -34,7 +37,7 @@ public class VpnserviceImplModule extends org.opendaylight.yang.gen.v1.urn.opend
         OdlInterfaceRpcService odlInterfaceRpcService = getRpcregistryDependency().getRpcService(OdlInterfaceRpcService.class);
         ItmRpcService itmRpcService = getRpcregistryDependency().getRpcService(ItmRpcService.class);
 
-        VpnserviceProvider provider = new VpnserviceProvider();
+        VpnserviceProvider provider = new VpnserviceProvider(bundleContext);
         provider.setNotificationService(getNotificationServiceDependency());
         provider.setBgpManager(getBgpmanagerDependency());
         provider.setMdsalManager(getMdsalutilDependency());
@@ -46,5 +49,9 @@ public class VpnserviceImplModule extends org.opendaylight.yang.gen.v1.urn.opend
         provider.setNotificationPublishService(getNotificationPublishServiceDependency());
         getBrokerDependency().registerProvider(provider);
         return provider;
+    }
+
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 }
