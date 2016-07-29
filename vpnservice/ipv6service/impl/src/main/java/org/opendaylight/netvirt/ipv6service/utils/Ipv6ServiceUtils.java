@@ -9,10 +9,13 @@
 package org.opendaylight.netvirt.ipv6service.utils;
 
 import com.google.common.base.Optional;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -20,11 +23,33 @@ import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.InstructionType;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchFieldType;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.EthernetHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.Ipv6Header;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -267,5 +292,127 @@ public class Ipv6ServiceUtils {
 
         Ipv6Address ipv6LLA = new Ipv6Address("fe80:0:0:0:" + interfaceID.toString());
         return ipv6LLA;
+    }
+
+    private static List<MatchInfo> getIcmpv6RSMatch(String vmMacAddress) {
+        List<MatchInfo> matches = new ArrayList<>();
+        matches.add(new MatchInfo(MatchFieldType.eth_src,
+                new String[] { vmMacAddress }));
+        matches.add(new MatchInfo(MatchFieldType.eth_type,
+                new long[] { NwConstants.ETHTYPE_IPV6 }));
+        matches.add(new MatchInfo(MatchFieldType.ip_proto,
+                new long[] { IPProtocols.IPV6ICMP.intValue() }));
+        matches.add(new MatchInfo(MatchFieldType.icmp_v6,
+                new long[] { Ipv6Constants.ICMP_V6_RS_CODE, 0}));
+        return matches;
+    }
+
+    private static List<MatchInfo> getIcmpv6NSMatch(String vmMacAddress) {
+        List<MatchInfo> matches = new ArrayList<>();
+        matches.add(new MatchInfo(MatchFieldType.eth_src,
+                new String[] { vmMacAddress }));
+        matches.add(new MatchInfo(MatchFieldType.eth_type,
+                new long[] { NwConstants.ETHTYPE_IPV6 }));
+        matches.add(new MatchInfo(MatchFieldType.ip_proto,
+                new long[] { IPProtocols.IPV6ICMP.intValue() }));
+        matches.add(new MatchInfo(MatchFieldType.icmp_v6,
+                new long[] { Ipv6Constants.ICMP_V6_NS_CODE, 0}));
+        return matches;
+    }
+
+    private static String getIPv6FlowRef(BigInteger dpId, String vmMacAddress, String flowType) {
+        return new StringBuffer().append(Ipv6Constants.FLOWID_PREFIX)
+                .append(dpId).append(Ipv6Constants.FLOWID_SEPARATOR)
+                .append(vmMacAddress).append(flowType).toString();
+    }
+
+    private static void installRsPuntFlow(String interfaceName, short tableId, BigInteger dpId, String vmMacAddress,
+                                          IMdsalApiManager mdsalUtil, int addOrRemove) {
+        List<MatchInfo> routerSolicitationMatch = getIcmpv6RSMatch(vmMacAddress);
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        // Punt to controller
+        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
+                new String[] {}));
+        instructions.add(new InstructionInfo(InstructionType.write_actions,
+                actionsInfos));
+        FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
+                getIPv6FlowRef(dpId, vmMacAddress, "IPv6RS"),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6RS", 0, 0,
+                NwConstants.COOKIE_IPV6_TABLE, routerSolicitationMatch, instructions);
+        if (addOrRemove == Ipv6Constants.DEL_FLOW) {
+            LOG.trace("Removing IPv6 Router Solicitation Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            mdsalUtil.removeFlow(rsFlowEntity);
+        } else {
+            LOG.trace("Installing IPv6 Router Solicitation Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            mdsalUtil.installFlow(rsFlowEntity);
+        }
+    }
+
+    private static void installNsPuntFlows(String interfaceName, short tableId, BigInteger dpId, String vmMacAddress,
+                                          IMdsalApiManager mdsalUtil, int addOrRemove) {
+        List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(vmMacAddress);
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        // Punt to controller
+        // TODO:: Currently the punt rule is sending all icmpv6 NS packets to controller.
+        // This rule needs to be properly ammended once Matchutils (from genius) includes support for nd_target.
+        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
+                new String[] {}));
+        instructions.add(new InstructionInfo(InstructionType.write_actions,
+                actionsInfos));
+        FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
+                getIPv6FlowRef(dpId, vmMacAddress, "IPv6NS-GUA"),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6NS-GUA",
+                0, 0, NwConstants.COOKIE_IPV6_TABLE, neighborSolicitationMatch, instructions);
+        if (addOrRemove == Ipv6Constants.DEL_FLOW) {
+            LOG.trace("Removing IPv6 Neighbor Solicitation Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            mdsalUtil.removeFlow(rsFlowEntity);
+        } else {
+            LOG.trace("Installing IPv6 Neighbor Solicitation Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            mdsalUtil.installFlow(rsFlowEntity);
+        }
+    }
+
+    public static void installIcmpv6Flows(String interfaceName, short tableId, BigInteger dpId, String vmMacAddress,
+                                          IMdsalApiManager mdsalUtil, int addOrRemove) {
+        if (dpId == null || dpId.equals(Ipv6Constants.INVALID_DPID)) {
+            return;
+        }
+        installRsPuntFlow(interfaceName, tableId, dpId, vmMacAddress, mdsalUtil, addOrRemove);
+        installNsPuntFlows(interfaceName, tableId, dpId, vmMacAddress, mdsalUtil, addOrRemove);
+    }
+
+    public BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
+                                          BigInteger cookie, List<Instruction> instructions) {
+        StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie)
+                .setFlowPriority(flowPriority).setInstruction(instructions);
+        return new BoundServicesBuilder().setKey(new BoundServicesKey(servicePriority))
+                .setServiceName(serviceName).setServicePriority(servicePriority)
+                .setServiceType(ServiceTypeFlowBased.class)
+                .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
+    }
+
+    private InstanceIdentifier buildServiceId(String interfaceName,
+                                              short priority) {
+        return InstanceIdentifier.builder(ServiceBindings.class).child(ServicesInfo.class,
+                new ServicesInfoKey(interfaceName, ServiceModeIngress.class))
+                .child(BoundServices.class, new BoundServicesKey(priority)).build();
+    }
+
+    public void bindIpv6Service(DataBroker broker, String interfaceName, short tableId) {
+        int instructionKey = 0;
+        List<Instruction> instructions = new ArrayList<>();
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, ++instructionKey));
+        BoundServices
+                serviceInfo =
+                getBoundServices(String.format("%s.%s", "ipv6", interfaceName),
+                        NwConstants.IPV6_SERVICE_INDEX, Ipv6Constants.DEFAULT_FLOW_PRIORITY,
+                        NwConstants.COOKIE_IPV6_TABLE, instructions);
+        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
+                buildServiceId(interfaceName, NwConstants.IPV6_SERVICE_INDEX), serviceInfo);
+    }
+
+    public void unbindIpv6Service(DataBroker broker, String interfaceName) {
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION,
+                buildServiceId(interfaceName, NwConstants.IPV6_SERVICE_INDEX));
     }
 }

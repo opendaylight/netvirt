@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.ipv6service.utils;
 
+import java.math.BigInteger;
+
 public class Ipv6Constants {
 
     public static final int IP_V6_ETHTYPE = 34525;
@@ -46,6 +48,14 @@ public class Ipv6Constants {
     public static final String IP_VERSION_V4 = "IPv4";
     public static final String IP_VERSION_V6 = "IPv6";
     public static final String NETWORK_ROUTER_INTERFACE = "network:router_interface";
+
+    public static final BigInteger INVALID_DPID = new BigInteger("-1");
+    public static final short DEFAULT_FLOW_PRIORITY = 50;
+    public static final String FLOWID_PREFIX = "IPv6.";
+    public static final String FLOWID_SEPARATOR = ".";
+
+    public static final int ADD_FLOW = 0;
+    public static final int DEL_FLOW = 1;
 
     private Ipv6Constants() {
     }
