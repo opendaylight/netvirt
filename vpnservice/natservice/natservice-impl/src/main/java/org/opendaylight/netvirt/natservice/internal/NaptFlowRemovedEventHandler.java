@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowAdded;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowRemoved;
@@ -70,7 +71,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
         short tableId = switchFlowRemoved.getTableId();
         RemovedReasonFlags removedReasonFlag = switchFlowRemoved.getRemovedReason();
 
-        if (tableId == NatConstants.OUTBOUND_NAPT_TABLE && removedReasonFlag.isIDLETIMEOUT()) {
+        if (tableId == NwConstants.OUTBOUND_NAPT_TABLE && removedReasonFlag.isIDLETIMEOUT()) {
             LOG.info("NaptFlowRemovedEventHandler : onSwitchFlowRemoved() entry");
 
             //Get the internal internal IP address and the port number from the IPv4 match.

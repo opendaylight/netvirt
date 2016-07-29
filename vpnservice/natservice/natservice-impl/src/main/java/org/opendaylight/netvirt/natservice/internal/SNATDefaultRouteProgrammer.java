@@ -13,13 +13,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
-import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.*;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,13 +52,13 @@ public class SNATDefaultRouteProgrammer {
                 BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.PSNAT_TABLE }));
+        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.PSNAT_TABLE }));
 
-        String flowRef = getFlowRefFib(dpId, NatConstants.L3_FIB_TABLE, vpnId);
+        String flowRef = getFlowRefFib(dpId, NwConstants.L3_FIB_TABLE, vpnId);
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.L3_FIB_TABLE, flowRef,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_DNAT_TABLE, matches, instructions);
+                NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
 
         return flowEntity;
 
@@ -96,13 +90,13 @@ public class SNATDefaultRouteProgrammer {
                 BigInteger.valueOf(bgpVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.PSNAT_TABLE }));
+        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.PSNAT_TABLE }));
 
-        String flowRef = getFlowRefFib(dpId, NatConstants.L3_FIB_TABLE, routerId);
+        String flowRef = getFlowRefFib(dpId, NwConstants.L3_FIB_TABLE, routerId);
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.L3_FIB_TABLE, flowRef,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_DNAT_TABLE, matches, instructions);
+                NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
 
         return flowEntity;
 

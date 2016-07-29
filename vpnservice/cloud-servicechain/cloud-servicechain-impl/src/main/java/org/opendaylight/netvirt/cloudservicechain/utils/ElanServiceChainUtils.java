@@ -107,7 +107,7 @@ public class ElanServiceChainUtils {
             List<MatchInfo> matches = Arrays.asList(
                     new MatchInfo(MatchFieldType.metadata,
                             new BigInteger[] { MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
-                                    CloudServiceChainConstants.SCF_SERVICE_INDEX),
+                                    NwConstants.SCF_SERVICE_INDEX),
                                     MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
             int instructionKey = 0;
             List<Instruction> instructions = Arrays.asList(
@@ -148,7 +148,7 @@ public class ElanServiceChainUtils {
             List<MatchInfo> matches = Arrays.asList(
                     new MatchInfo(MatchFieldType.metadata,
                                   new BigInteger[] { MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
-                                                                             CloudServiceChainConstants.ELAN_SERVICE_INDEX)
+                                                                             NwConstants.ELAN_SERVICE_INDEX)
                                                                   .or(BigInteger.ONE),  // SH FLag
                                                      MetaDataUtil.getMetaDataMaskForLPortDispatcher()
                                                                  .or(BigInteger.ONE) })); // Bit mask for SH Flag
@@ -157,8 +157,7 @@ public class ElanServiceChainUtils {
                     MDSALUtil.buildAndGetWriteMetadaInstruction(ElanServiceChainUtils.getElanMetadataLabel(elanTag),
                             ElanServiceChainUtils.getElanMetadataMask(),
                             instructionKey++),
-                    MDSALUtil.buildAndGetGotoTableInstruction(CloudServiceChainConstants.ELAN_DMAC_TABLE,
-                            instructionKey++) );
+                    MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_DMAC_TABLE, instructionKey++) );
 
             Flow flow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                     CloudServiceChainConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY,

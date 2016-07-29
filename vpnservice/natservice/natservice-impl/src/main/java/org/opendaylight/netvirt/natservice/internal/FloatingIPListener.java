@@ -11,16 +11,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
-import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
-import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
-import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.*;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
@@ -180,13 +171,13 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf
                 (segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.DNAT_TABLE }));
+        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.DNAT_TABLE }));
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.PDNAT_TABLE, routerId, externalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.PDNAT_TABLE, routerId, externalIp);
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PDNAT_TABLE, flowRef,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PDNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_DNAT_TABLE, matches, instructions);
+                NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
 
         return flowEntity;
     }
@@ -221,15 +212,15 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         List<InstructionInfo> instructions = new ArrayList<>();
 //        instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf
 //                (routerId), MetaDataUtil.METADATA_MASK_VRFID }));
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NatConstants.L3_FIB_TABLE) }));
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         //instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.L3_FIB_TABLE }));
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.DNAT_TABLE, routerId, externalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.DNAT_TABLE, routerId, externalIp);
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.DNAT_TABLE, flowRef,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_DNAT_TABLE, matches, instructions);
+                NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
 
         return flowEntity;
 
@@ -263,13 +254,13 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.SNAT_TABLE }));
+        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.SNAT_TABLE }));
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.PSNAT_TABLE, routerId, internalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.PSNAT_TABLE, routerId, internalIp);
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PSNAT_TABLE, flowRef,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_DNAT_TABLE, matches, instructions);
+                NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
 
         return flowEntity;
     }
@@ -300,15 +291,15 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
         List<InstructionInfo> instructions = new ArrayList<>();
         //instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NatConstants.L3_FIB_TABLE) }));
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         //instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.L3_FIB_TABLE }));
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.SNAT_TABLE, vpnId, internalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.SNAT_TABLE, vpnId, internalIp);
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.SNAT_TABLE, flowRef,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.SNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_DNAT_TABLE, matches, instructions);
+                NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
 
         return flowEntity;
 
@@ -694,11 +685,11 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
         LOG.info("Bulding Delete DNAT Flow entity for ip {} ", externalIp);
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.PDNAT_TABLE, routerId, externalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.PDNAT_TABLE, routerId, externalIp);
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PDNAT_TABLE, flowRef,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PDNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_DNAT_TABLE, null, null);
+                NwConstants.COOKIE_DNAT_TABLE, null, null);
 
         return flowEntity;
     }
@@ -709,11 +700,11 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
         LOG.info("Bulding Delete DNAT Flow entity for ip {} ", externalIp);
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.DNAT_TABLE, routerId, externalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.DNAT_TABLE, routerId, externalIp);
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.DNAT_TABLE, flowRef,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_DNAT_TABLE, null, null);
+                NwConstants.COOKIE_DNAT_TABLE, null, null);
 
         return flowEntity;
 
@@ -723,11 +714,11 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
         LOG.info("Building Delete PSNAT Flow entity for ip {} ", internalIp);
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.PSNAT_TABLE, routerId, internalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.PSNAT_TABLE, routerId, internalIp);
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PSNAT_TABLE, flowRef,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_DNAT_TABLE, null, null);
+                NwConstants.COOKIE_DNAT_TABLE, null, null);
 
         return flowEntity;
     }
@@ -736,11 +727,11 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
         LOG.info("Building Delete SNAT Flow entity for ip {} ", internalIp);
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.SNAT_TABLE, routerId, internalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.SNAT_TABLE, routerId, internalIp);
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.SNAT_TABLE, flowRef,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.SNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_DNAT_TABLE, null, null);
+                NwConstants.COOKIE_DNAT_TABLE, null, null);
 
         return flowEntity;
 

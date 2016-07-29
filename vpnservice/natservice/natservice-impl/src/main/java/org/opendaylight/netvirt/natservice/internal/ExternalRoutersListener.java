@@ -582,9 +582,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
 
-        String flowRef = getFlowRefOutbound(dpId, NatConstants.OUTBOUND_NAPT_TABLE, routerId);
+        String flowRef = getFlowRefOutbound(dpId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
         BigInteger cookie = getCookieOutboundFlow(routerId);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.OUTBOUND_NAPT_TABLE, flowRef,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef,
                 5, flowRef, 0, 0,
                 cookie, matches, instructions);
         LOG.debug("NAT Service : returning flowEntity {}", flowEntity);
@@ -715,10 +715,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("NAT Service : Setting the tunnel to the list of action infos {}", actionsInfo);
         actionsInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
         instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfo));
-        String flowRef = getFlowRefSnat(dpId, NatConstants.PSNAT_TABLE, routerName);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PSNAT_TABLE, flowRef,
+        String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_SNAT_TABLE, matches, instructions);
+                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
 
         LOG.debug("NAT Service : Returning SNAT Flow Entity {}", flowEntity);
         return flowEntity;
@@ -737,12 +737,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]
-                { NatConstants.OUTBOUND_NAPT_TABLE }));
+                { NwConstants.OUTBOUND_NAPT_TABLE }));
 
-        String flowRef = getFlowRefSnat(dpId, NatConstants.PSNAT_TABLE, routerName);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PSNAT_TABLE, flowRef,
+        String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_SNAT_TABLE, matches, instructions);
+                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
 
         LOG.debug("NAT Service : Returning SNAT Flow Entity {}", flowEntity);
         return flowEntity;
@@ -768,9 +768,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[]
                 { routerId, MetaDataUtil.METADATA_MASK_VRFID }));
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]
-                { NatConstants.OUTBOUND_NAPT_TABLE }));
-        String flowRef = getFlowRefTs(dpId, NatConstants.TERMINATING_SERVICE_TABLE, routerId.longValue());
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.TERMINATING_SERVICE_TABLE, flowRef,
+                { NwConstants.OUTBOUND_NAPT_TABLE }));
+        String flowRef = getFlowRefTs(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef,
                 NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef, 0, 0,
                 NatConstants.COOKIE_TS_TABLE, matches, instructions);
         return flowEntity;
@@ -887,7 +887,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     List<BucketInfo> getBucketInfoForPrimaryNaptSwitch(){
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         List<ActionInfo> listActionInfoPrimary =  new ArrayList<>();
-        listActionInfoPrimary.add(new ActionInfo(ActionType.nx_resubmit, new String[]{String.valueOf(NatConstants.TERMINATING_SERVICE_TABLE)}));
+        listActionInfoPrimary.add(new ActionInfo(ActionType.nx_resubmit, new String[]{String.valueOf(NwConstants.INTERNAL_TUNNEL_TABLE)}));
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
         listBucketInfo.add(0, bucketPrimary);
         return listBucketInfo;
@@ -910,13 +910,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
-        listActionInfo.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NatConstants.L3_FIB_TABLE) }));
+        listActionInfo.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
         instructionInfo.add(new InstructionInfo(InstructionType.apply_actions, listActionInfo));
 
-        String flowRef = getFlowRefTs(dpId, NatConstants.NAPT_PFIB_TABLE, segmentId);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.NAPT_PFIB_TABLE, flowRef,
+        String flowRef = getFlowRefTs(dpId, NwConstants.NAPT_PFIB_TABLE, segmentId);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.NAPT_PFIB_TABLE, flowRef,
                 NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
+                NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
 
         LOG.debug("NAT Service : Returning NaptPFib Flow Entity {}", flowEntity);
         return flowEntity;
@@ -935,7 +935,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     networkId, externalIp, routerId);
             return;
         }
-        advToBgpAndInstallFibAndTsFlows(dpnId, NatConstants.INBOUND_NAPT_TABLE, vpnName, routerId, externalIp, vpnService, fibService, bgpManager, dataBroker, LOG);
+        advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId, externalIp, vpnService, fibService, bgpManager, dataBroker, LOG);
         LOG.debug("NAT Service : handleSnatReverseTraffic() exit for DPN ID, routerId, externalIp : {}", dpnId, routerId, externalIp);
     }
 
@@ -1257,7 +1257,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.debug("Remove the NAPT translation entries from Inbound NAPT tables for the removed external IP {}", externalIp);
                 for(Integer externalPort : externalPorts) {
                     //Remove the NAPT translation entries from Inbound NAPT table
-                    naptEventHandler.removeNatFlows(dpnId, NatConstants.INBOUND_NAPT_TABLE, routerId, externalIp, externalPort);
+                    naptEventHandler.removeNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId, externalIp, externalPort);
                 }
 
                 Set<Map.Entry<String, List<String>>> internalIpPorts = internalIpPortMap.entrySet();
@@ -1267,7 +1267,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     List<String> internalPorts = internalIpPort.getValue();
                     for(String internalPort : internalPorts){
                         //Remove the NAPT translation entries from Outbound NAPT table
-                        naptEventHandler.removeNatFlows(dpnId, NatConstants.OUTBOUND_NAPT_TABLE, routerId, internalIp, Integer.valueOf(internalPort));
+                        naptEventHandler.removeNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIp, Integer.valueOf(internalPort));
                     }
                 }
             }
@@ -1396,7 +1396,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     LOG.debug("Best effort for getting primary napt switch when router i/f are added after gateway-set");
                     dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker,routerId);
                 }
-                advToBgpAndInstallFibAndTsFlows(dpnId, NatConstants.INBOUND_NAPT_TABLE, vpnName, routerId,
+                advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId,
                         leastLoadedExtIp + "/" + leastLoadedExtIpPrefix, vpnService, fibService, bgpManager, dataBroker, LOG);
             }
         }
@@ -1539,32 +1539,32 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         //Remove the PSNAT entry which forwards the packet to Outbound NAPT Table (For the
         // traffic which comes from the  VMs of the NAPT switches)
-        String pSNatFlowRef = getFlowRefSnat(dpnId, NatConstants.PSNAT_TABLE, routerName);
-        FlowEntity pSNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NatConstants.PSNAT_TABLE, pSNatFlowRef);
+        String pSNatFlowRef = getFlowRefSnat(dpnId, NwConstants.PSNAT_TABLE, routerName);
+        FlowEntity pSNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.PSNAT_TABLE, pSNatFlowRef);
 
-        LOG.info("NAT Service : Remove the flow in the " + NatConstants.PSNAT_TABLE + " for the active switch with the DPN ID {} and router ID {}", dpnId, routerId);
+        LOG.info("NAT Service : Remove the flow in the " + NwConstants.PSNAT_TABLE + " for the active switch with the DPN ID {} and router ID {}", dpnId, routerId);
         mdsalManager.removeFlow(pSNatFlowEntity);
 
         //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table (For the
         // traffic which comes from the VMs of the non NAPT switches)
-        String tsFlowRef = getFlowRefTs(dpnId, NatConstants.TERMINATING_SERVICE_TABLE, routerId);
-        FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NatConstants.TERMINATING_SERVICE_TABLE, tsFlowRef);
+        String tsFlowRef = getFlowRefTs(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId);
+        FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, tsFlowRef);
 
-        LOG.info("NAT Service : Remove the flow in the " + NatConstants.TERMINATING_SERVICE_TABLE + " for the active switch with the DPN ID {} and router ID {}", dpnId, routerId);
+        LOG.info("NAT Service : Remove the flow in the " + NwConstants.INTERNAL_TUNNEL_TABLE + " for the active switch with the DPN ID {} and router ID {}", dpnId, routerId);
         mdsalManager.removeFlow(tsNatFlowEntity);
 
         //Remove the Outbound flow entry which forwards the packet to FIB Table
-        String outboundNatFlowRef = getFlowRefOutbound(dpnId, NatConstants.OUTBOUND_NAPT_TABLE, routerId);
-        FlowEntity outboundNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NatConstants.OUTBOUND_NAPT_TABLE, outboundNatFlowRef);
+        String outboundNatFlowRef = getFlowRefOutbound(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
+        FlowEntity outboundNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, outboundNatFlowRef);
 
-        LOG.info("NAT Service : Remove the flow in the " + NatConstants.OUTBOUND_NAPT_TABLE + " for the active switch with the DPN ID {} and router ID {}", dpnId, routerId);
+        LOG.info("NAT Service : Remove the flow in the " + NwConstants.OUTBOUND_NAPT_TABLE + " for the active switch with the DPN ID {} and router ID {}", dpnId, routerId);
         mdsalManager.removeFlow(outboundNatFlowEntity);
 
         //Remove the NAPT PFIB TABLE which forwards the incoming packet to FIB Table matching on the router ID.
-        String natPfibFlowRef = getFlowRefTs(dpnId, NatConstants.NAPT_PFIB_TABLE, routerId);
-        FlowEntity natPfibFlowEntity = NatUtil.buildFlowEntity(dpnId, NatConstants.NAPT_PFIB_TABLE, natPfibFlowRef);
+        String natPfibFlowRef = getFlowRefTs(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId);
+        FlowEntity natPfibFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, natPfibFlowRef);
 
-        LOG.info("NAT Service : Remove the flow in the " + NatConstants.NAPT_PFIB_TABLE + " for the active switch with the DPN ID {} and router ID {}", dpnId, routerId);
+        LOG.info("NAT Service : Remove the flow in the " + NwConstants.NAPT_PFIB_TABLE + " for the active switch with the DPN ID {} and router ID {}", dpnId, routerId);
         mdsalManager.removeFlow(natPfibFlowEntity);
 
         //Long vpnId = NatUtil.getVpnId(dataBroker, routerId); - This does not work since ext-routers is deleted already - no network info
@@ -1587,9 +1587,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         if(vpnId != NatConstants.INVALID_ID){
            //Remove the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the VPN ID.
-           String natPfibVpnFlowRef = getFlowRefTs(dpnId, NatConstants.NAPT_PFIB_TABLE, vpnId);
-           FlowEntity natPfibVpnFlowEntity = NatUtil.buildFlowEntity(dpnId, NatConstants.NAPT_PFIB_TABLE, natPfibVpnFlowRef);
-           LOG.info("NAT Service : Remove the flow in the " + NatConstants.NAPT_PFIB_TABLE + " for the active switch with the DPN ID {} and VPN ID {}", dpnId, vpnId);
+           String natPfibVpnFlowRef = getFlowRefTs(dpnId, NwConstants.NAPT_PFIB_TABLE, vpnId);
+           FlowEntity natPfibVpnFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, natPfibVpnFlowRef);
+           LOG.info("NAT Service : Remove the flow in the " + NwConstants.NAPT_PFIB_TABLE + " for the active switch with the DPN ID {} and VPN ID {}", dpnId, vpnId);
            mdsalManager.removeFlow(natPfibVpnFlowEntity);
         }
 
@@ -1614,10 +1614,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 String internalPort = ipPortParts[1];
 
                 //Build the flow for the outbound NAPT table
-                String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NatConstants.OUTBOUND_NAPT_TABLE, String.valueOf(routerId), internalIp, Integer.valueOf(internalPort));
-                FlowEntity outboundNaptFlowEntity = NatUtil.buildFlowEntity(dpnId, NatConstants.OUTBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
+                String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, String.valueOf(routerId), internalIp, Integer.valueOf(internalPort));
+                FlowEntity outboundNaptFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
 
-                LOG.info("NAT Service : Remove the flow in the " + NatConstants.OUTBOUND_NAPT_TABLE + " for the active switch with the DPN ID {} and router ID {}", dpnId, routerId);
+                LOG.info("NAT Service : Remove the flow in the " + NwConstants.OUTBOUND_NAPT_TABLE + " for the active switch with the DPN ID {} and router ID {}", dpnId, routerId);
                 mdsalManager.removeFlow(outboundNaptFlowEntity);
 
                 IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
@@ -1625,10 +1625,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 int externalPort = ipPortExternal.getPortNum();
 
                 //Build the flow for the inbound NAPT table
-                switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NatConstants.INBOUND_NAPT_TABLE, String.valueOf(routerId), externalIp, externalPort);
-                FlowEntity inboundNaptFlowEntity = NatUtil.buildFlowEntity(dpnId, NatConstants.INBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
+                switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE, String.valueOf(routerId), externalIp, externalPort);
+                FlowEntity inboundNaptFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.INBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
 
-                LOG.info("NAT Service : Remove the flow in the " + NatConstants.INBOUND_NAPT_TABLE + " for the active active switch with the DPN ID {} and router ID {}", dpnId, routerId);
+                LOG.info("NAT Service : Remove the flow in the " + NwConstants.INBOUND_NAPT_TABLE + " for the active active switch with the DPN ID {} and router ID {}", dpnId, routerId);
                 mdsalManager.removeFlow(inboundNaptFlowEntity);
             }
         }
@@ -1650,9 +1650,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
          if(vpnId != NatConstants.INVALID_ID){
             //Remove the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the VPN ID.
-            String natPfibVpnFlowRef = getFlowRefTs(dpnId, NatConstants.NAPT_PFIB_TABLE, vpnId);
-            FlowEntity natPfibVpnFlowEntity = NatUtil.buildFlowEntity(dpnId, NatConstants.NAPT_PFIB_TABLE, natPfibVpnFlowRef);
-            LOG.info("NAT Service : Remove the flow in the " + NatConstants.NAPT_PFIB_TABLE + " for the active switch with the DPN ID {} and VPN ID {}", dpnId, vpnId);
+            String natPfibVpnFlowRef = getFlowRefTs(dpnId, NwConstants.NAPT_PFIB_TABLE, vpnId);
+            FlowEntity natPfibVpnFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, natPfibVpnFlowRef);
+            LOG.info("NAT Service : Remove the flow in the " + NwConstants.NAPT_PFIB_TABLE + " for the active switch with the DPN ID {} and VPN ID {}", dpnId, vpnId);
             mdsalManager.removeFlow(natPfibVpnFlowEntity);
 
              // Remove IP-PORT active NAPT entries and release port from IdManager
@@ -1676,10 +1676,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                      String internalPort = ipPortParts[1];
 
                      //Build the flow for the outbound NAPT table
-                     String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NatConstants.OUTBOUND_NAPT_TABLE, String.valueOf(routerId), internalIp, Integer.valueOf(internalPort));
-                     FlowEntity outboundNaptFlowEntity = NatUtil.buildFlowEntity(dpnId, NatConstants.OUTBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
+                     String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, String.valueOf(routerId), internalIp, Integer.valueOf(internalPort));
+                     FlowEntity outboundNaptFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
 
-                     LOG.info("NAT Service : Remove the flow in the " + NatConstants.OUTBOUND_NAPT_TABLE + " for the active switch with the DPN ID {} and router ID {}", dpnId, routerId);
+                     LOG.info("NAT Service : Remove the flow in the " + NwConstants.OUTBOUND_NAPT_TABLE + " for the active switch with the DPN ID {} and router ID {}", dpnId, routerId);
                      mdsalManager.removeFlow(outboundNaptFlowEntity);
 
                      IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
@@ -1687,10 +1687,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                      int externalPort = ipPortExternal.getPortNum();
 
                      //Build the flow for the inbound NAPT table
-                     switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NatConstants.INBOUND_NAPT_TABLE, String.valueOf(routerId), externalIp, externalPort);
-                     FlowEntity inboundNaptFlowEntity = NatUtil.buildFlowEntity(dpnId, NatConstants.INBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
+                     switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE, String.valueOf(routerId), externalIp, externalPort);
+                     FlowEntity inboundNaptFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.INBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
 
-                     LOG.info("NAT Service : Remove the flow in the " + NatConstants.INBOUND_NAPT_TABLE + " for the active active switch with the DPN ID {} and router ID {}", dpnId, routerId);
+                     LOG.info("NAT Service : Remove the flow in the " + NwConstants.INBOUND_NAPT_TABLE + " for the active active switch with the DPN ID {} and router ID {}", dpnId, routerId);
                      mdsalManager.removeFlow(inboundNaptFlowEntity);
 
                      // Finally release port from idmanager
@@ -1722,10 +1722,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.info("NAT Service : Handle Ordinary switch");
 
                 //Remove the PSNAT entry which forwards the packet to Terminating Service table
-                String pSNatFlowRef = getFlowRefSnat(dpnId, NatConstants.PSNAT_TABLE, String.valueOf(routerName));
-                FlowEntity pSNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NatConstants.PSNAT_TABLE, pSNatFlowRef);
+                String pSNatFlowRef = getFlowRefSnat(dpnId, NwConstants.PSNAT_TABLE, String.valueOf(routerName));
+                FlowEntity pSNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.PSNAT_TABLE, pSNatFlowRef);
 
-                LOG.info("Remove the flow in the " + NatConstants.PSNAT_TABLE + " for the non active switch with the DPN ID {} and router ID {}", dpnId, routerId);
+                LOG.info("Remove the flow in the " + NwConstants.PSNAT_TABLE + " for the non active switch with the DPN ID {} and router ID {}", dpnId, routerId);
                 mdsalManager.removeFlow(pSNatFlowEntity);
 
                 //Remove the group entry which forwards the traffic to the out port (VXLAN tunnel).
@@ -2139,9 +2139,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 SessionAddress internalAddress = new SessionAddress(internalIp, Integer.valueOf(internalPort));
                 SessionAddress externalAddress = naptManager.getExternalAddressMapping(routerId, internalAddress, protocol);
                 long internetVpnid = NatUtil.getVpnId(dataBroker, routerId);
-                naptEventHandler.buildAndInstallNatFlows(dpnId, NatConstants.OUTBOUND_NAPT_TABLE, internetVpnid, routerId, bgpVpnId,
+                naptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, internetVpnid, routerId, bgpVpnId,
                         internalAddress, externalAddress, protocol);
-                naptEventHandler.buildAndInstallNatFlows(dpnId, NatConstants.INBOUND_NAPT_TABLE, internetVpnid, routerId, bgpVpnId,
+                naptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, internetVpnid, routerId, bgpVpnId,
                         externalAddress, internalAddress, protocol);
 
             }
@@ -2166,10 +2166,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("NAT Service : Setting the tunnel to the list of action infos {}", actionsInfo);
         actionsInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
         instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfo));
-        String flowRef = getFlowRefSnat(dpId, NatConstants.PSNAT_TABLE, routerName);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PSNAT_TABLE, flowRef,
+        String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_SNAT_TABLE, matches, instructions);
+                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
 
         LOG.debug("NAT Service : Returning SNAT Flow Entity {}", flowEntity);
         return flowEntity;
@@ -2186,12 +2186,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]
-                { NatConstants.OUTBOUND_NAPT_TABLE }));
+                { NwConstants.OUTBOUND_NAPT_TABLE }));
 
-        String flowRef = getFlowRefSnat(dpId, NatConstants.PSNAT_TABLE, routerName);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PSNAT_TABLE, flowRef,
+        String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_SNAT_TABLE, matches, instructions);
+                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
 
         LOG.debug("NAT Service : Returning SNAT Flow Entity {}", flowEntity);
         return flowEntity;
@@ -2218,9 +2218,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[]
                 { bgpVpnIdAsBigInt, MetaDataUtil.METADATA_MASK_VRFID }));
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]
-                { NatConstants.OUTBOUND_NAPT_TABLE }));
-        String flowRef = getFlowRefTs(dpId, NatConstants.TERMINATING_SERVICE_TABLE, routerId.longValue());
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.TERMINATING_SERVICE_TABLE, flowRef,
+                { NwConstants.OUTBOUND_NAPT_TABLE }));
+        String flowRef = getFlowRefTs(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef,
                 NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef, 0, 0,
                 NatConstants.COOKIE_TS_TABLE, matches, instructions);
         return flowEntity;
@@ -2247,10 +2247,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[]{BigInteger.valueOf(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID}));
 
-        String flowRef = getFlowRefOutbound(dpId, NatConstants.OUTBOUND_NAPT_TABLE, routerId);
+        String flowRef = getFlowRefOutbound(dpId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
         BigInteger cookie = getCookieOutboundFlow(routerId);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.OUTBOUND_NAPT_TABLE, flowRef,
-                5, flowRef, 0, 0,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef, 5, flowRef, 0, 0,
                 cookie, matches, instructions);
         LOG.debug("NAT Service : returning flowEntity {}", flowEntity);
         return flowEntity;
@@ -2273,13 +2272,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
-        listActionInfo.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NatConstants.L3_FIB_TABLE) }));
+        listActionInfo.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
         instructionInfo.add(new InstructionInfo(InstructionType.apply_actions, listActionInfo));
 
-        String flowRef = getFlowRefTs(dpId, NatConstants.NAPT_PFIB_TABLE, segmentId);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.NAPT_PFIB_TABLE, flowRef,
+        String flowRef = getFlowRefTs(dpId, NwConstants.NAPT_PFIB_TABLE, segmentId);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.NAPT_PFIB_TABLE, flowRef,
                 NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
+                NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
 
         LOG.debug("NAT Service : Returning NaptPFib Flow Entity {}", flowEntity);
         return flowEntity;
