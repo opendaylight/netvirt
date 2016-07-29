@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_4ce01afa",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-07-29T08:07:44Z",
+      "side": 1,
+      "message": "This is not thread safe either. This is: https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/atomic/AtomicLong.html",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
