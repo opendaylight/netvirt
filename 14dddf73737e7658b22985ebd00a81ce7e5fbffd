@@ -19,6 +19,75 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_6fe510db",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/CloudServiceChainConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2016-07-29T11:12:07Z",
+      "side": 1,
+      "message": "remove these too..",
+      "range": {
+        "startLine": 24,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 53
+      },
+      "revId": "14dddf73737e7658b22985ebd00a81ce7e5fbffd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_afd288fd",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/CloudServiceChainConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2016-07-29T11:12:07Z",
+      "side": 1,
+      "message": "these ones also need to be moved to nwConstants and revoved from here",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 55
+      },
+      "revId": "14dddf73737e7658b22985ebd00a81ce7e5fbffd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_efd80020",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/CloudServiceChainConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2016-07-29T11:12:07Z",
+      "side": 1,
+      "message": "remove this too.",
+      "range": {
+        "startLine": 40,
+        "startChar": 3,
+        "endLine": 40,
+        "endChar": 59
+      },
+      "revId": "14dddf73737e7658b22985ebd00a81ce7e5fbffd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_2fa318b3",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanConstants.java",
         "patchSetId": 1
