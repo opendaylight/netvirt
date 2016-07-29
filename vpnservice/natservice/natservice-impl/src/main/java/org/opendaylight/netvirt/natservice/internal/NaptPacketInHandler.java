@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.TCP;
@@ -46,7 +47,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
             LOG.trace("packet: {}, tableId {}", packetReceived, tableId);
         }
 
-        if (tableId == NatConstants.OUTBOUND_NAPT_TABLE) {
+        if (tableId == NwConstants.OUTBOUND_NAPT_TABLE) {
             LOG.debug("NAT Service : NAPTPacketInHandler Packet for Outbound NAPT Table");
             byte[] inPayload = packetReceived.getPayload();
             Ethernet ethPkt = new Ethernet();

@@ -118,14 +118,14 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
                     List<Instruction> instructions = new ArrayList<>();
                     List<ActionInfo> actionsInfos = new ArrayList<>();
-                    actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NatConstants.PDNAT_TABLE) }));
+                    actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.PDNAT_TABLE) }));
                     instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos).buildInstruction(0));
                     makeTunnelTableEntry(dpnId, label, instructions);
 
                     //Install custom FIB routes
                     List<Instruction> customInstructions = new ArrayList<>();
-                    customInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.PDNAT_TABLE }).buildInstruction(0));
-                    makeLFibTableEntry(dpnId, label, NatConstants.PDNAT_TABLE);
+                    customInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.PDNAT_TABLE }).buildInstruction(0));
+                    makeLFibTableEntry(dpnId, label, NwConstants.PDNAT_TABLE);
                     CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(dpnId).setInstruction(customInstructions)
                             .setIpAddress(externalIp + "/32").setServiceId(label).setInstruction(customInstructions).build();
                     //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);

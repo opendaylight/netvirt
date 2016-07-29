@@ -164,26 +164,26 @@ public class NaptSwitchHA {
         }
 
         //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table
-        String tsFlowRef = externalRouterListener.getFlowRefTs(naptSwitch, NatConstants.TERMINATING_SERVICE_TABLE, routerId);
-        FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NatConstants.TERMINATING_SERVICE_TABLE, tsFlowRef);
+        String tsFlowRef = externalRouterListener.getFlowRefTs(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, routerId);
+        FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, tsFlowRef);
 
         LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and router ID {}"
-                ,NatConstants.TERMINATING_SERVICE_TABLE, naptSwitch, routerId);
+                ,NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
         mdsalManager.removeFlow(tsNatFlowEntity);
 
         //Remove the Outbound flow entry which forwards the packet to Outbound NAPT Table
-        String outboundNatFlowRef = externalRouterListener.getFlowRefOutbound(naptSwitch, NatConstants.OUTBOUND_NAPT_TABLE, routerId);
+        String outboundNatFlowRef = externalRouterListener.getFlowRefOutbound(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
         FlowEntity outboundNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch,
-                NatConstants.OUTBOUND_NAPT_TABLE, outboundNatFlowRef);
+                NwConstants.OUTBOUND_NAPT_TABLE, outboundNatFlowRef);
         LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and router ID {}"
-                ,NatConstants.OUTBOUND_NAPT_TABLE, naptSwitch, routerId);
+                ,NwConstants.OUTBOUND_NAPT_TABLE, naptSwitch, routerId);
         mdsalManager.removeFlow(outboundNatFlowEntity);
 
         //Remove the NAPT_PFIB_TABLE(47) flow entry forwards the packet to Fib Table for inbound traffic matching on the router ID.
-        String naptPFibflowRef = externalRouterListener.getFlowRefTs(naptSwitch, NatConstants.NAPT_PFIB_TABLE, routerId);
-        FlowEntity naptPFibFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NatConstants.NAPT_PFIB_TABLE,naptPFibflowRef);
+        String naptPFibflowRef = externalRouterListener.getFlowRefTs(naptSwitch, NwConstants.NAPT_PFIB_TABLE, routerId);
+        FlowEntity naptPFibFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.NAPT_PFIB_TABLE, naptPFibflowRef);
         LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and router ID {}",
-                NatConstants.NAPT_PFIB_TABLE, naptSwitch, routerId);
+                NwConstants.NAPT_PFIB_TABLE, naptSwitch, routerId);
         mdsalManager.removeFlow(naptPFibFlowEntity);
 
         //Remove the NAPT_PFIB_TABLE(47) flow entry forwards the packet to Fib Table for outbound traffic matching on the vpn ID.
@@ -206,10 +206,10 @@ public class NaptSwitchHA {
                 if (!switchSharedByRouters) {
                     Long vpnId = getVpnIdForRouter(routerId);
                     if (vpnId != NatConstants.INVALID_ID) {
-                        String naptFibflowRef = externalRouterListener.getFlowRefTs(naptSwitch, NatConstants.NAPT_PFIB_TABLE, vpnId);
-                        FlowEntity naptFibFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NatConstants.NAPT_PFIB_TABLE,naptFibflowRef);
+                        String naptFibflowRef = externalRouterListener.getFlowRefTs(naptSwitch, NwConstants.NAPT_PFIB_TABLE, vpnId);
+                        FlowEntity naptFibFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.NAPT_PFIB_TABLE,naptFibflowRef);
                         LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and vpnId {}",
-                                NatConstants.NAPT_PFIB_TABLE, naptSwitch, vpnId);
+                                NwConstants.NAPT_PFIB_TABLE, naptSwitch, vpnId);
                         mdsalManager.removeFlow(naptFibFlowEntity);
                     } else {
                         LOG.error("Invalid vpnId retrieved for routerId {}",routerId);
@@ -275,13 +275,13 @@ public class NaptSwitchHA {
                 String internalPort = ipPortParts[1];
 
                 //Build and remove flow in outbound NAPT table
-                String switchFlowRef = NatUtil.getNaptFlowRef(naptSwitch, NatConstants.OUTBOUND_NAPT_TABLE, String.valueOf(routerId),
+                String switchFlowRef = NatUtil.getNaptFlowRef(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE, String.valueOf(routerId),
                         internalIp, Integer.valueOf(internalPort));
-                FlowEntity outboundNaptFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NatConstants.OUTBOUND_NAPT_TABLE,
+                FlowEntity outboundNaptFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
                         cookieSnatFlow, switchFlowRef);
 
                 LOG.info("Remove the flow in table {} for old napt switch with the DPN ID {} and router ID {}",
-                        NatConstants.OUTBOUND_NAPT_TABLE,naptSwitch, routerId);
+                        NwConstants.OUTBOUND_NAPT_TABLE,naptSwitch, routerId);
                 mdsalManager.removeFlow(outboundNaptFlowEntity);
 
                 IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
@@ -294,13 +294,13 @@ public class NaptSwitchHA {
                 int externalPort = ipPortExternal.getPortNum();
 
                 //Build and remove flow in  inbound NAPT table
-                switchFlowRef = NatUtil.getNaptFlowRef(naptSwitch, NatConstants.INBOUND_NAPT_TABLE, String.valueOf(routerId),
+                switchFlowRef = NatUtil.getNaptFlowRef(naptSwitch, NwConstants.INBOUND_NAPT_TABLE, String.valueOf(routerId),
                         externalIp, externalPort);
-                FlowEntity inboundNaptFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NatConstants.INBOUND_NAPT_TABLE,
+                FlowEntity inboundNaptFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
                         cookieSnatFlow, switchFlowRef);
 
                 LOG.info("Remove the flow in table {} for old napt switch with the DPN ID {} and router ID {}",
-                        NatConstants.INBOUND_NAPT_TABLE,naptSwitch, routerId);
+                        NwConstants.INBOUND_NAPT_TABLE,naptSwitch, routerId);
                 mdsalManager.removeFlow(inboundNaptFlowEntity);
             }
         }
@@ -499,7 +499,7 @@ public class NaptSwitchHA {
                 if(getSwitchStatus(newNaptSwitch)) {
                     //Install the flow in newNaptSwitch Outbound NAPT table.
                     try {
-                        NaptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NatConstants.OUTBOUND_NAPT_TABLE,
+                        NaptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
                                 vpnId,  routerId, bgpVpnId, sourceAddress, externalAddress, proto);
                     } catch (Exception ex) {
                         LOG.error("Failed to add flow in OUTBOUND_NAPT_TABLE for routerid {} dpnId {} ipport {}:{} proto {}" +
@@ -512,7 +512,7 @@ public class NaptSwitchHA {
                             , intportnum, proto, externalAddress, extportNumber,bgpVpnId);
                     //Install the flow in newNaptSwitch Inbound NAPT table.
                     try {
-                        NaptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NatConstants.INBOUND_NAPT_TABLE,
+                        NaptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.INBOUND_NAPT_TABLE,
                                 vpnId, routerId, bgpVpnId, externalAddress, sourceAddress, proto);
                     } catch (Exception ex) {
                         LOG.error("Failed to add flow in INBOUND_NAPT_TABLE for routerid {} dpnId {} extIpport{}:{} proto {} " +
@@ -578,7 +578,7 @@ public class NaptSwitchHA {
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
         listActionInfoPrimary.add(new ActionInfo(ActionType.nx_resubmit,
-                new String[]{String.valueOf(NatConstants.TERMINATING_SERVICE_TABLE)}));
+                new String[]{String.valueOf(NwConstants.INTERNAL_TUNNEL_TABLE)}));
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
         listBucketInfo.add(bucketPrimary);
         return listBucketInfo;
@@ -720,7 +720,7 @@ public class NaptSwitchHA {
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 BigInteger.valueOf(routerVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
-        String flowRef = getFlowRefSnat(dpId, NatConstants.PSNAT_TABLE, routerName);
+        String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
 
         if (addordel == NatConstants.ADD_FLOW) {
             List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
@@ -733,13 +733,13 @@ public class NaptSwitchHA {
             actionsInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
             instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfo));
 
-            flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PSNAT_TABLE, flowRef,
+            flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                     NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                    NatConstants.COOKIE_SNAT_TABLE, matches, instructions);
+                    NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
         } else {
-            flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PSNAT_TABLE, flowRef,
+            flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                     NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                    NatConstants.COOKIE_SNAT_TABLE, matches, null);
+                    NwConstants.COOKIE_SNAT_TABLE, matches, null);
         }
         return flowEntity;
     }
@@ -753,21 +753,21 @@ public class NaptSwitchHA {
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 BigInteger.valueOf(routerVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
-        String flowRef = getFlowRefSnat(dpId, NatConstants.PSNAT_TABLE, routerName);
+        String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
 
         if (addordel == NatConstants.ADD_FLOW) {
             List<InstructionInfo> instructions = new ArrayList<>();
 
             instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]
-                    { NatConstants.OUTBOUND_NAPT_TABLE }));
+                    { NwConstants.OUTBOUND_NAPT_TABLE }));
 
-            flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PSNAT_TABLE, flowRef,
+            flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                     NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                    NatConstants.COOKIE_SNAT_TABLE, matches, instructions);
+                    NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
         } else {
-            flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.PSNAT_TABLE, flowRef,
+            flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                     NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                    NatConstants.COOKIE_SNAT_TABLE, matches, null);
+                    NwConstants.COOKIE_SNAT_TABLE, matches, null);
         }
         return flowEntity;
     }
@@ -828,7 +828,7 @@ public class NaptSwitchHA {
                 for (String externalIp : externalIps) {
                     LOG.debug("advToBgpAndInstallFibAndTsFlows in naptswitch id {} with vpnName {} and externalIp {}",
                             naptSwitch, vpnName, externalIp);
-                    externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitch, NatConstants.INBOUND_NAPT_TABLE,
+                    externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
                             vpnName, routerId, externalIp, vpnService, fibService, bgpManager, dataBroker, LOG);
                     LOG.debug("Successfully added fib entries in naptswitch {} for router {} with external IP {}", naptSwitch,
                             routerId, externalIp);

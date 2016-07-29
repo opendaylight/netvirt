@@ -13,6 +13,7 @@ import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -72,7 +73,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     public void onPacketReceived(PacketReceived notification) {
         Class<? extends PacketInReason>  pktInReason =  notification.getPacketInReason();
         short tableId = notification.getTableId().getValue();
-        if (pktInReason == NoMatch.class && tableId == ElanConstants.ELAN_SMAC_TABLE) {
+        if (pktInReason == NoMatch.class && tableId == NwConstants.ELAN_SMAC_TABLE) {
             try {
                 byte[] data = notification.getPayload();
                 Ethernet res = new Ethernet();
