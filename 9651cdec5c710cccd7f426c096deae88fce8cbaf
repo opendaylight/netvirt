@@ -109,6 +109,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_45cd8db6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-29T14:45:00Z",
+      "side": 1,
+      "message": "I\u0027ll revert this change in this patch as the changes are handled in another patch - https://git.opendaylight.org/gerrit/#/c/42776/",
+      "parentUuid": "9a561d44_8c94f28b",
+      "revId": "9651cdec5c710cccd7f426c096deae88fce8cbaf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_6947d577",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
         "patchSetId": 1
@@ -138,6 +156,24 @@
       "side": 1,
       "message": "Actually when an interface is added, there are two notifications. \n1. where the interface name is dpnid:tapinterfaceName (f.e., 238412509713739:tapf662f5bf-9d)\n2. actual Neutron interface with name as UUID (f.e., f662f5bf-9d54-4dd7-8bcd-7a0a3a0bae4a)\n\nIn ipv6service, we are not interested in notification-1 and are only interested in notification-2.\nWhen we invoke the api (Ipv6ServiceUtils.getInterface(broker, add.getName())) with notification-1, it would return null.\nBut, I want to avoid calling the db for notification-1 (some kind of optimization). So, skipping it with this check.\nI can add a comment if required, let me know.\n\nThanks Josh for reviewing.",
       "parentUuid": "9a561d44_6947d577",
+      "revId": "9651cdec5c710cccd7f426c096deae88fce8cbaf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_a5c5898f",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-29T14:45:00Z",
+      "side": 1,
+      "message": "Will add a comment to clarify this.",
+      "parentUuid": "9a561d44_0cd90722",
       "revId": "9651cdec5c710cccd7f426c096deae88fce8cbaf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
