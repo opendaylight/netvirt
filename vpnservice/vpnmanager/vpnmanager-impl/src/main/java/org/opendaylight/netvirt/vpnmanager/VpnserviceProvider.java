@@ -35,6 +35,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +65,11 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
     private DataBroker dataBroker;
     private InterVpnLinkNodeListener interVpnLinkNodeListener;
     private TunnelInterfaceStateListener tunIntfStateListener;
+    private BundleContext bundleContext;
 
+    public VpnserviceProvider(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -98,6 +104,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
             RouterInterfaceListener routerListener = new RouterInterfaceListener(dataBroker);
             arpscheduler = new ArpScheduler(odlInterfaceRpcService, dataBroker);
             routerListener.setVpnInterfaceManager(vpnInterfaceManager);
+            //ServiceRegistration serviceRegistration = bundleContext.registerService(IVpnManager.)
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
         }
