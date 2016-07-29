@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_8f93445a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-29T10:45:10Z",
+      "side": 1,
+      "message": "Please update the patch to use the ServiceIndex from NWConstants and remove this value from this file.",
+      "revId": "14dddf73737e7658b22985ebd00a81ce7e5fbffd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_2fa318b3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-29T10:45:10Z",
+      "side": 1,
+      "message": "Please remove this constant from this file to avoid any confusion.",
+      "revId": "14dddf73737e7658b22985ebd00a81ce7e5fbffd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
