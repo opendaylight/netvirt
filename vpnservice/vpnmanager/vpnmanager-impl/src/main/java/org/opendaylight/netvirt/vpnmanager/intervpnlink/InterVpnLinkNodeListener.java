@@ -117,7 +117,7 @@ public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node>
 
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
-        logger.info("Node {} has changed", identifier.firstKeyOf(Node.class).toString());
+        logger.debug("Node {} has changed", identifier.firstKeyOf(Node.class).toString());
     }
 
     protected class InterVpnLinkNodeWorker implements Callable<List<ListenableFuture<Void>>> {
