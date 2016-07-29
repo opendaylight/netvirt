@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.statisitcs;
 import com.google.common.util.concurrent.Futures;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -115,7 +116,7 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
             matches = InterfaceServiceUtil.getMatchInfoForVlanLPort(dpId, interfaceInfo.getPortNo(),
                 InterfaceServiceUtil.getVlanId(interfaceName, elanServiceProvider.getBroker()), vlanInterfaceInfo.isVlanTransparent());
         } else {
-            matches = InterfaceServiceUtil.getLPortDispatcherMatches(ElanConstants.ELAN_SERVICE_INDEX, interfaceInfo.getInterfaceTag());
+            matches = InterfaceServiceUtil.getLPortDispatcherMatches(NwConstants.ELAN_SERVICE_INDEX, interfaceInfo.getInterfaceTag());
         }
         long groupId = interfaceInfo.getGroupId();
         Set<Object> statRequestKeys = InterfaceServiceUtil.getStatRequestKeys(dpId, tableId, matches, String.format("%s.%s", elanInstanceName, interfaceName), groupId);

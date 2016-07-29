@@ -157,8 +157,7 @@ public class ElanServiceChainUtils {
                     MDSALUtil.buildAndGetWriteMetadaInstruction(ElanServiceChainUtils.getElanMetadataLabel(elanTag),
                             ElanServiceChainUtils.getElanMetadataMask(),
                             instructionKey++),
-                    MDSALUtil.buildAndGetGotoTableInstruction(CloudServiceChainConstants.ELAN_DMAC_TABLE,
-                            instructionKey++) );
+                    MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_DMAC_TABLE, instructionKey++) );
 
             Flow flow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                     CloudServiceChainConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY,

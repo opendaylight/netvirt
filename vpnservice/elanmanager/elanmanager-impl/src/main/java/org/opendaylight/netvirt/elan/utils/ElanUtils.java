@@ -605,10 +605,10 @@ public class ElanUtils {
             ElanUtils.getElanMetadataMask() }));
         mkMatches.add(new MatchInfo(MatchFieldType.eth_src, new String[] { macAddress }));
         List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
-        mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { ElanConstants.ELAN_DMAC_TABLE }));
+        mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.ELAN_DMAC_TABLE }));
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, ElanConstants.ELAN_SMAC_TABLE,
-            getKnownDynamicmacFlowRef(ElanConstants.ELAN_SMAC_TABLE, dpId, lportTag, macAddress, elanTag),
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE,
+            getKnownDynamicmacFlowRef(NwConstants.ELAN_SMAC_TABLE, dpId, lportTag, macAddress, elanTag),
             20, elanInfo.getDescription(), (int)macTimeout, 0, ElanConstants.COOKIE_ELAN_KNOWN_SMAC.add(BigInteger.valueOf(elanTag)),
             mkMatches, mkInstructions);
         flowEntity.setStrictFlag(true);
@@ -840,8 +840,8 @@ public class ElanUtils {
         List<Instruction> mkInstructions = new ArrayList<Instruction>();
         List<Action> actions = getEgressActionsForInterface(ifName, /* tunnelKey */ null);
         mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
-        Flow flow = MDSALUtil.buildFlowNew(ElanConstants.ELAN_DMAC_TABLE,
-            getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, dpId, ifTag, macAddress, elanTag), 20,
+        Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
+            getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, ifTag, macAddress, elanTag), 20,
             displayName, 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)), mkMatches,
             mkInstructions);
 
@@ -897,8 +897,8 @@ public class ElanUtils {
         }
 
 
-        Flow flow = MDSALUtil.buildFlowNew(ElanConstants.ELAN_DMAC_TABLE,
-            getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, srcDpId, destDpId, macAddress, elanTag),
+        Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
+            getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcDpId, destDpId, macAddress, elanTag),
             20,  /* prio */
             displayName, 0,   /* idleTimeout */
             0,   /* hardTimeout */
@@ -931,8 +931,8 @@ public class ElanUtils {
                 isFlowsRemovedInSrcDpn = true;
                 deleteSmacAndDmacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, deleteFlowGroupTx);
             } else if (isDpnPresent(dstDpId)) {
-                elanServiceProvider.getMdsalManager().removeFlowToTx(dstDpId, MDSALUtil.buildFlow(ElanConstants.ELAN_DMAC_TABLE,
-                    getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, dstDpId, srcdpId, macAddress, elanTag)), deleteFlowGroupTx);
+                elanServiceProvider.getMdsalManager().removeFlowToTx(dstDpId, MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
+                    getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dstDpId, srcdpId, macAddress, elanTag)), deleteFlowGroupTx);
                 if (logger.isDebugEnabled()) {
                     logger.debug("Dmac flow entry deleted for elan:{}, logical interface port:{} and mac address:{} on dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, dstDpId);
                 }
@@ -950,11 +950,11 @@ public class ElanUtils {
         BigInteger srcdpId = interfaceInfo.getDpId();
         Long elanTag = elanInfo.getElanTag();
         if (deleteSmac) {
-            elanServiceProvider.getMdsalManager().removeFlowToTx(srcdpId, MDSALUtil.buildFlow(ElanConstants.ELAN_SMAC_TABLE,
-                getKnownDynamicmacFlowRef(ElanConstants.ELAN_SMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)), deleteFlowGroupTx);
+            elanServiceProvider.getMdsalManager().removeFlowToTx(srcdpId, MDSALUtil.buildFlow(NwConstants.ELAN_SMAC_TABLE,
+                getKnownDynamicmacFlowRef(NwConstants.ELAN_SMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)), deleteFlowGroupTx);
         }
-        elanServiceProvider.getMdsalManager().removeFlowToTx(srcdpId, MDSALUtil.buildFlow(ElanConstants.ELAN_DMAC_TABLE,
-            getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)), deleteFlowGroupTx);
+        elanServiceProvider.getMdsalManager().removeFlowToTx(srcdpId, MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
+            getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)), deleteFlowGroupTx);
         if (logger.isDebugEnabled()) {
             logger.debug("All the required flows deleted for elan:{}, logical Interface port:{} and mac address:{} on dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, srcdpId);
         }
@@ -1019,10 +1019,10 @@ public class ElanUtils {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<Instruction>();
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
-        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(ElanConstants.ELAN_SMAC_TABLE, ++instructionKey));
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_SMAC_TABLE, ++instructionKey));
 
-        ServicesInfo serviceInfo = InterfaceServiceUtil.buildServiceInfo(String.format("%s.%s", elanInstanceName, interfaceName), ElanConstants.ELAN_SERVICE_INDEX,
-            priority, ElanConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
+        ServicesInfo serviceInfo = InterfaceServiceUtil.buildServiceInfo(String.format("%s.%s", elanInstanceName, interfaceName), NwConstants.ELAN_SERVICE_INDEX,
+            priority, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
         return serviceInfo;
     }
 
@@ -1373,8 +1373,8 @@ public class ElanUtils {
             logger.error("Could not get Egress Actions for DpId={}  externalNode={}", dpId, extDeviceNodeId );
         }
 
-        Flow flow = MDSALUtil.buildFlowNew(ElanConstants.ELAN_DMAC_TABLE,
-            getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, dstMacAddress, elanTag,
+        Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
+            getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, dstMacAddress, elanTag,
                 false),
             20,  /* prio */
             displayName, 0,   /* idleTimeout */
@@ -1399,9 +1399,9 @@ public class ElanUtils {
                                                                   Long elanTag, String dstMacAddress) {
         List<MatchInfo> mkMatches = buildMatchesForElanTagShFlagAndDstMac(elanTag, /*shFlag*/ true, dstMacAddress);
         List<Instruction> mkInstructions = MDSALUtil.buildInstructionsDrop();
-        String flowId = getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, dpnId, extDeviceNodeId, dstMacAddress,
+        String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpnId, extDeviceNodeId, dstMacAddress,
             elanTag, true);
-        Flow flow = MDSALUtil.buildFlowNew(ElanConstants.ELAN_DMAC_TABLE, flowId, 20,  /* prio */
+        Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE, flowId, 20,  /* prio */
             "Drop", 0,   /* idleTimeout */
             0,   /* hardTimeout */
             ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)), mkMatches, mkInstructions);
@@ -1410,7 +1410,7 @@ public class ElanUtils {
     }
 
     private static String getDmacDropFlowId(Long elanTag, String dstMacAddress) {
-        return new StringBuilder(ElanConstants.ELAN_DMAC_TABLE).append(elanTag).append(dstMacAddress).append("Drop")
+        return new StringBuilder(NwConstants.ELAN_DMAC_TABLE).append(elanTag).append(dstMacAddress).append("Drop")
             .toString();
     }
 
@@ -1449,8 +1449,8 @@ public class ElanUtils {
                 localDpId, remoteDpId, lportTag);
         }
 
-        Flow flow = MDSALUtil.buildFlowNew(ElanConstants.ELAN_DMAC_TABLE,
-            getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, localDpId, remoteDpId, macAddress, elanTag),
+        Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
+            getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, localDpId, remoteDpId, macAddress, elanTag),
             20,  /* prio */
             displayName, 0,   /* idleTimeout */
             0,   /* hardTimeout */
@@ -1508,16 +1508,16 @@ public class ElanUtils {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         synchronized (macToRemove) {
             // Removing the flows that sends the packet on an external tunnel
-            String flowId = getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId,
+            String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId,
                 macToRemove, elanTag, false);
-            Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(ElanConstants.ELAN_DMAC_TABLE)
+            Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE)
                 .build();
             futures.add(elanServiceProvider.getMdsalManager().removeFlow(dpId, flowToRemove));
 
             // And now removing the drop flow
-            flowId = getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, macToRemove,
+            flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, macToRemove,
                 elanTag, true);
-            flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(ElanConstants.ELAN_DMAC_TABLE)
+            flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE)
                 .build();
             futures.add(elanServiceProvider.getMdsalManager().removeFlow(dpId, flowToRemove));
         }

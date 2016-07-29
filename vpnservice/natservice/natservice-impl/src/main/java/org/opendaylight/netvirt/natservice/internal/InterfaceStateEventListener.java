@@ -180,7 +180,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
                     for (Integer portnum : portList) {
                         //build and remove the flow in outbound table
                         try {
-                            removeNatFlow(naptSwitch, NatConstants.OUTBOUND_NAPT_TABLE, routerId, internalIp, portnum);
+                            removeNatFlow(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIp, portnum);
                         } catch (Exception ex) {
                             LOG.error("NAT Service : Failed to remove snat flow for internalIP {} with Port {} protocol {} for routerId {} " +
                                     "in OUTBOUNDTABLE of NaptSwitch {}: {}",internalIp,portnum,protocol,routerId,naptSwitch,ex);
@@ -198,7 +198,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
 
                         //build and remove the flow in inboundtable
                         try {
-                            removeNatFlow(naptSwitch, NatConstants.INBOUND_NAPT_TABLE,routerId, externalIpAddress, portNumber);
+                            removeNatFlow(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,routerId, externalIpAddress, portNumber);
                         } catch (Exception ex) {
                             LOG.error("NAT Service : Failed to remove snat flow internalIP {} with Port {} protocol {} for routerId {} " +
                                     "in INBOUNDTABLE of naptSwitch {} : {}",externalIpAddress,portNumber,protocol,routerId,naptSwitch,ex);
