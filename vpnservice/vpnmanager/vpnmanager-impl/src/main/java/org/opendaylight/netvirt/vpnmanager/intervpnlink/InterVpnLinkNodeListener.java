@@ -102,7 +102,7 @@ public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node>
 
     @Override
     protected void remove(InstanceIdentifier<Node> identifier, Node del) {
-        logger.info("Node {} has been deleted", identifier.firstKeyOf(Node.class).toString());
+        logger.trace("Node {} has been deleted", identifier.firstKeyOf(Node.class).toString());
         NodeId nodeId = del.getId();
         String[] node =  nodeId.getValue().split(":");
         if(node.length < 2) {
@@ -117,7 +117,7 @@ public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node>
 
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
-        logger.info("Node {} has changed", identifier.firstKeyOf(Node.class).toString());
+        logger.trace("Node {} has changed", identifier.firstKeyOf(Node.class).toString());
     }
 
     protected class InterVpnLinkNodeWorker implements Callable<List<ListenableFuture<Void>>> {
