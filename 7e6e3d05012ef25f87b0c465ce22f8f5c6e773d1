@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_5865751c",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6NodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-07-29T06:21:12Z",
+      "side": 1,
+      "message": "agree. wanted to keep it as separate functions to accomodate creation of table miss entries in node addition available in patch 42628",
+      "parentUuid": "9a561d44_5891f545",
+      "revId": "7e6e3d05012ef25f87b0c465ce22f8f5c6e773d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_78b319e9",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PeriodicRAThread.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-07-29T05:00:10Z",
       "side": 1,
       "message": "probably worth calling periodicTransmitter.interrupt as well so that if it\u0027s currently sleeping the thread will wake up loop around to the beginning of the while loop and exit quicker.",
+      "revId": "7e6e3d05012ef25f87b0c465ce22f8f5c6e773d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_386a41ee",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PeriodicRAThread.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-07-29T06:21:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_78b319e9",
       "revId": "7e6e3d05012ef25f87b0c465ce22f8f5c6e773d1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_787039dc",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-07-29T06:21:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_f870c941",
+      "revId": "7e6e3d05012ef25f87b0c465ce22f8f5c6e773d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_7885d905",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2016-07-29T05:00:10Z",
       "side": 1,
       "message": "I know this is just a sanity check but wouldn\u0027t it make more sense to check it before building the packet?",
+      "revId": "7e6e3d05012ef25f87b0c465ce22f8f5c6e773d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_d87865c6",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-07-29T06:21:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_7885d905",
       "revId": "7e6e3d05012ef25f87b0c465ce22f8f5c6e773d1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
