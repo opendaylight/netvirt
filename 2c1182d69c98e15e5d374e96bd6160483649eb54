@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_6539b1f1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-29T19:04:02Z",
+      "side": 1,
+      "message": "Please remove this constant and use the value from NWConstants. This value is used at couple of places like VpnInterfaceManager.java so you\u0027ll have to update them as well.\n\nFYI, I\u0027ve cherry-picked your patch on top of latest netvirt and see that L3VPN ServiceBinding is still using ServiceIndex of 2 and not the updated value of 5.",
+      "revId": "2c1182d69c98e15e5d374e96bd6160483649eb54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
