@@ -6,7 +6,7 @@ module fibmanager-api {
     import config { prefix config; revision-date 2013-04-05; }
 
     description
-        "Service definition for vpnmanager project";
+        "Service definition for fibmanager project";
 
     revision "2015-05-08" {
         description
