@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_0251cb35",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-07-29T14:09:07Z",
+      "side": 1,
+      "message": "wonder if trace would be better if this is every 8s. Or even just removing the log.",
+      "revId": "527592d61df8923bda6e90ab03548055d9a38877",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
