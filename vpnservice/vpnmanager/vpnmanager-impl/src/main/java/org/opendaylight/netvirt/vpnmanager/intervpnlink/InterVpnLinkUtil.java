@@ -146,7 +146,7 @@ public class InterVpnLinkUtil {
                                                                                 VpnConstants.L3VPN_SERVICE_IDENTIFIER),
                                                                   MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
        String flowRef = getLportDispatcherFlowRef(interVpnLinkName, lportTag);
-       Flow lPortDispatcherFlow = MDSALUtil.buildFlowNew(VpnConstants.LPORT_DISPATCHER_TABLE, flowRef,
+       Flow lPortDispatcherFlow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                                                          VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY, flowRef,
                                                          0, 0, VpnUtil.getCookieL3((int) vpnId), matches,
                                                          buildLportDispatcherTableInstructions(vpnId));
@@ -178,7 +178,7 @@ public class InterVpnLinkUtil {
        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(BigInteger.valueOf(vpnId),
                                                                     MetaDataUtil.METADATA_MASK_VRFID,
                                                                     ++instructionKey));
-       instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(VpnConstants.FIB_TABLE, ++instructionKey));
+       instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));
 
        return instructions;
    }

@@ -592,7 +592,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 serviceInfo =
                 InterfaceUtils.getBoundServices(String.format("%s.%s.%s", "vpn",vpnInstanceName, vpnInterfaceName),
                         VpnConstants.L3VPN_SERVICE_IDENTIFIER, priority,
-                        VpnConstants.COOKIE_VM_INGRESS_TABLE, instructions);
+                        NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
         writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION,
                 InterfaceUtils.buildServiceId(vpnInterfaceName, VpnConstants.L3VPN_SERVICE_IDENTIFIER), serviceInfo, true);
         makeArpFlow(dpId, VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName,

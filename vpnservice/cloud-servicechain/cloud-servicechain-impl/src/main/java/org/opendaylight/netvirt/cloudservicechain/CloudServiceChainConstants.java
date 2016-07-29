@@ -16,9 +16,6 @@ public class CloudServiceChainConstants {
     public static final BigInteger COOKIE_LPORT_DISPATCHER_BASE = new BigInteger("6000000", 16);
     public static final BigInteger METADATA_MASK_SCF_WRITE = new BigInteger("000000FF00000000", 16);
     public static final BigInteger COOKIE_L3_BASE = new BigInteger("8000000", 16);
-    public static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000002", 16);
-    public static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
-    public static final short L3_LFIB_TABLE = 20;
     public static final int DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY = 1;
     public static final int DEFAULT_SCF_FLOW_PRIORITY = 20;
     public static final String FLOWID_PREFIX_SCF = "SCF.";
@@ -26,9 +23,6 @@ public class CloudServiceChainConstants {
 
     public static final short SCF_SERVICE_INDEX = 1;
     public static final short ELAN_SERVICE_INDEX = 3;
-    public static final short LPORT_DISPATCHER_TABLE = 17;
-    public static final short ELAN_DMAC_TABLE = 51;
-    public static final short FIB_TABLE = 21;
     public static final short SCF_UP_SUB_FILTER_TCP_BASED_TABLE = 70;
     public static final short SCF_DOWN_SUB_FILTER_TCP_BASED_TABLE = 72;
     public static final short SCF_CHAIN_FWD_TABLE = 75;

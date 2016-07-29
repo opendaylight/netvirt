@@ -7,17 +7,10 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import org.opendaylight.genius.mdsalutil.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
-import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
-import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -195,13 +188,13 @@ public class ExternalNetworkListener extends AbstractDataChangeListener<Networks
                 BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.PSNAT_TABLE }));
+        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.PSNAT_TABLE }));
 
-        String flowRef = NatUtil.getFlowRef(dpId, NatConstants.L3_FIB_TABLE, defaultIP);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.L3_FIB_TABLE, defaultIP);
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NatConstants.L3_FIB_TABLE, flowRef,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_DNAT_TABLE, matches, instructions);
+                NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
 
         return flowEntity;
 

@@ -197,13 +197,13 @@ public class VpnServiceChainUtils {
 
         Flow result;
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            result = MDSALUtil.buildFlowNew(CloudServiceChainConstants.LPORT_DISPATCHER_TABLE, flowRef,
+            result = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                                             CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY, flowRef,
                                             0, 0, VpnServiceChainUtils.getCookieL3(vpnId.intValue()),
                                             matches, instructions);
 
         } else {
-            result = new FlowBuilder().setTableId(CloudServiceChainConstants.LPORT_DISPATCHER_TABLE)
+            result = new FlowBuilder().setTableId(NwConstants.LPORT_DISPATCHER_TABLE)
                                       .setId(new FlowId(flowRef))
                                       .build();
         }
@@ -272,9 +272,9 @@ public class VpnServiceChainUtils {
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {NwConstants.L3_INTERFACE_TABLE}));
         String flowRef = getLFibVpnPseudoPortFlowRef(lportTag, label, nextHop);
-        return MDSALUtil.buildFlowEntity(dpId, CloudServiceChainConstants.L3_LFIB_TABLE, flowRef,
+        return MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_LFIB_TABLE, flowRef,
                                          CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY, flowRef, 0, 0,
-                                         CloudServiceChainConstants.COOKIE_VM_LFIB_TABLE, matches, instructions);
+                                         NwConstants.COOKIE_VM_LFIB_TABLE, matches, instructions);
     }
 
 
@@ -352,7 +352,7 @@ public class VpnServiceChainUtils {
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { gotoTableId }));
         String flowRef = getL3VpnToScfLportDispatcherFlowRef(lportTag);
         FlowEntity flowEntity =
-            MDSALUtil.buildFlowEntity(dpId, CloudServiceChainConstants.LPORT_DISPATCHER_TABLE, flowRef,
+            MDSALUtil.buildFlowEntity(dpId, NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                                       CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY, flowRef, 0, 0,
                                       getCookieSCHop(scfTag), matches, instructions);
         return flowEntity;
@@ -402,7 +402,7 @@ public class VpnServiceChainUtils {
                                                                  CloudServiceChainConstants.L3VPN_SERVICE_IDENTIFIER);
         List<Instruction> instructions = buildSetVrfTagAndGotoFibInstructions(vpnTag);
         String flowRef = getL3VpnToL3VpnLportDispFlowRef(dstLportTag, vpnTag);
-        Flow result = MDSALUtil.buildFlowNew(CloudServiceChainConstants.LPORT_DISPATCHER_TABLE, flowRef,
+        Flow result = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                                              CloudServiceChainConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY, flowRef,
                                              0, 0, VpnServiceChainUtils.getCookieL3(vpnTag),
                                              matches, instructions);

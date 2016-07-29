@@ -18,9 +18,6 @@ public class ElanConstants {
     public static final long ELAN_ID_LOW_VALUE = 5000L;
     public static final long ELAN_ID_HIGH_VALUE = 10000L;
     public static final int ELAN_GID_MIN = 200000;
-    public static final short ELAN_SMAC_TABLE = 50;
-    public static final short ELAN_DMAC_TABLE = 51;
-    public static final short ELAN_UNKNOWN_DMAC_TABLE = 52;
     public static final short ELAN_SERVICE_INDEX = 4;
     public static final int ELAN_SERVICE_PRIORITY = 5;
     public static final int STATIC_MAC_TIMEOUT = 0;
@@ -29,9 +26,7 @@ public class ElanConstants {
     public static final BigInteger COOKIE_ELAN_UNKNOWN_DMAC = new BigInteger("8700000", 16);
     public static final BigInteger COOKIE_ELAN_KNOWN_SMAC = new BigInteger("8050000", 16);
     public static final BigInteger COOKIE_ELAN_KNOWN_DMAC = new BigInteger("8030000", 16);
-    public static final BigInteger COOKIE_ELAN_INGRESS_TABLE = new BigInteger("8040000", 16);
 	public static final long DEFAULT_MAC_TIME_OUT = 30;
-    public static final short ELAN_FILTER_EQUALS_TABLE = 55;
     public static final BigInteger COOKIE_ELAN_FILTER_EQUALS = new BigInteger("8800000", 16);
 
     public static final String L2GATEWAY_DS_JOB_NAME = "L2GW";

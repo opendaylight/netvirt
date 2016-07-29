@@ -74,7 +74,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
 
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
-        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(AclConstants.EGRESS_ACL_TABLE_ID, ++instructionKey));
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.EGRESS_ACL_TABLE_ID, ++instructionKey));
         BoundServices serviceInfo = AclServiceUtils.getBoundServices(
                 String.format("%s.%s.%s", "vpn", "egressacl", interfaceName), AclConstants.EGRESS_ACL_SERVICE_PRIORITY,
                 flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
@@ -174,8 +174,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             instructions.add(new InstructionInfo(InstructionType.apply_actions,
                 actionsInfos));
             instructions.add(new InstructionInfo(InstructionType.goto_table,
-                new long[] { AclConstants.EGRESS_ACL_NEXT_TABLE_ID }));
-            syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY,
+                new long[] { NwConstants.EGRESS_ACL_NEXT_TABLE_ID }));
+            syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY,
                 "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
         }
     }
@@ -199,7 +199,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         actionsInfos.add(new ActionInfo(ActionType.drop_action,
             new String[] {}));
         String flowName = "Egress_DHCP_Server_v4" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Drop_";
-        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -222,7 +222,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         actionsInfos.add(new ActionInfo(ActionType.drop_action,
             new String[] {}));
         String flowName = "Egress_DHCP_Server_v6" + "_" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Drop_";
-        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -251,9 +251,9 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
 
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
-            new long[] { AclConstants.EGRESS_ACL_NEXT_TABLE_ID }));
+            new long[] { NwConstants.EGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Egress_DHCP_Client_v4" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Permit_";
-        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -281,9 +281,9 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             actionsInfos));
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
-            new long[] { AclConstants.EGRESS_ACL_NEXT_TABLE_ID }));
+            new long[] { NwConstants.EGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Egress_DHCP_Client_v6" + "_" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Permit_";
-        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -311,11 +311,11 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         List<ActionInfo> actionsInfos = new ArrayList<>();
 
         actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-            new String[] {"0", "0", "0", Short.toString(AclConstants.EGRESS_ACL_TABLE_ID)}, 2));
+            new String[] {"0", "0", "0", Short.toString(NwConstants.EGRESS_ACL_TABLE_ID)}, 2));
         instructions.add(new InstructionInfo(InstructionType.apply_actions,
             actionsInfos));
         String flowName = "Egress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_" + flowId;
-        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -346,9 +346,9 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             new String[] {}));
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
-            new long[] { AclConstants.EGRESS_ACL_NEXT_TABLE_ID }));
+            new long[] { NwConstants.EGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Egress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_" + flowId;
-        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, priority, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE_ID, flowName, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -378,7 +378,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         actionsInfos.add(new ActionInfo(ActionType.drop_action,
             new String[] {}));
         String flowName = "Egress_Fixed_Conntrk_NewDrop_" + dpId + "_" + attachMac + "_" + flowId;
-        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, priority, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE_ID, flowName, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -403,9 +403,9 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
                 new String[] {}));
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
-            new long[] { AclConstants.EGRESS_ACL_NEXT_TABLE_ID }));
+            new long[] { NwConstants.EGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Egress_ARP_" + dpId + "_" + attachMac ;
-        syncFlow(dpId, AclConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 

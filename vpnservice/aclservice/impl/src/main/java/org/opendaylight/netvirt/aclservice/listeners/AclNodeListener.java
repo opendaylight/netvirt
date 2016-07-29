@@ -19,6 +19,7 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
@@ -133,13 +134,13 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
         mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, AclConstants.INGRESS_ACL_TABLE_ID,
-                getTableMissFlowId(AclConstants.INGRESS_ACL_TABLE_ID), 0, "Ingress ACL Table Miss Flow", 0, 0,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE_ID,
+                getTableMissFlowId(NwConstants.INGRESS_ACL_TABLE_ID), 0, "Ingress ACL Table Miss Flow", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
         mdsalManager.installFlow(flowEntity);
 
-        FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, AclConstants.INGRESS_ACL_NEXT_TABLE_ID,
-                getTableMissFlowId(AclConstants.INGRESS_ACL_NEXT_TABLE_ID), 0, "Ingress ACL Table Miss Flow", 0, 0,
+        FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_NEXT_TABLE_ID,
+                getTableMissFlowId(NwConstants.INGRESS_ACL_NEXT_TABLE_ID), 0, "Ingress ACL Table Miss Flow", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
         mdsalManager.installFlow(nextTblFlowEntity);
 
@@ -158,13 +159,13 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
         mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, AclConstants.EGRESS_ACL_TABLE_ID,
-                getTableMissFlowId(AclConstants.EGRESS_ACL_TABLE_ID), 0, "Egress ACL Table Miss Flow", 0, 0,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE_ID,
+                getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE_ID), 0, "Egress ACL Table Miss Flow", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
         mdsalManager.installFlow(flowEntity);
 
-        FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, AclConstants.EGRESS_ACL_NEXT_TABLE_ID,
-                getTableMissFlowId(AclConstants.EGRESS_ACL_NEXT_TABLE_ID), 0, "Egress ACL Table Miss Flow", 0, 0,
+        FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_NEXT_TABLE_ID,
+                getTableMissFlowId(NwConstants.EGRESS_ACL_NEXT_TABLE_ID), 0, "Egress ACL Table Miss Flow", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
         mdsalManager.installFlow(nextTblFlowEntity);
 

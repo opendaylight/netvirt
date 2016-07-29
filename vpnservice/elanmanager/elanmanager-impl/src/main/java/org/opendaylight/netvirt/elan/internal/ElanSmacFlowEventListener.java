@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -72,7 +73,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
     @Override
     public void onFlowRemoved(FlowRemoved flowRemoved) {
         short tableId = flowRemoved.getTableId();
-        if (tableId == ElanConstants.ELAN_SMAC_TABLE) {
+        if (tableId == NwConstants.ELAN_SMAC_TABLE) {
             BigInteger metadata = flowRemoved.getMatch().getMetadata().getMetadata();
             long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
             ElanTagName elanTagInfo = ElanUtils.getElanInfoByElanTag(elanTag);

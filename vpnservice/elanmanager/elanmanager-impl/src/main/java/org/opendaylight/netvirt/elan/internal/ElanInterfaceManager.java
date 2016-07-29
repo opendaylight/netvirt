@@ -292,8 +292,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         continue;
                     }
                     for (MacEntry mac : macs.getMacEntry())
-                        elanServiceProvider.getMdsalManager().removeFlow(dpId, MDSALUtil.buildFlow(ElanConstants.ELAN_DMAC_TABLE,
-                            ElanUtils.getKnownDynamicmacFlowRef(ElanConstants.ELAN_DMAC_TABLE, dpId, currentDpId, mac.getMacAddress().getValue(), elanTag)));
+                        elanServiceProvider.getMdsalManager().removeFlow(dpId, MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
+                            ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, currentDpId, mac.getMacAddress().getValue(), elanTag)));
                 }
             }
         }
@@ -596,12 +596,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     public void setupFilterEqualsTable(ElanInstance elanInfo, InterfaceInfo interfaceInfo, WriteTransaction writeFlowGroupTx) {
         int ifTag = interfaceInfo.getInterfaceTag();
-        Flow flow = MDSALUtil.buildFlowNew(ElanConstants.ELAN_FILTER_EQUALS_TABLE, getFlowRef(ElanConstants.ELAN_FILTER_EQUALS_TABLE, ifTag),
+        Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE, getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag),
             9, elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)), getTunnelIdMatchForFilterEqualsLPortTag(ifTag), ElanUtils.getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
 
         elanServiceProvider.getMdsalManager().addFlowToTx(interfaceInfo.getDpId(), flow, writeFlowGroupTx);
 
-        Flow flowEntry = MDSALUtil.buildFlowNew(ElanConstants.ELAN_FILTER_EQUALS_TABLE, getFlowRef(ElanConstants.ELAN_FILTER_EQUALS_TABLE, 1000+ifTag),
+        Flow flowEntry = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE, getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, 1000+ifTag),
             10, elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)), getMatchesForFilterEqualsLPortTag(ifTag),
             MDSALUtil.buildInstructionsDrop());
 
@@ -610,12 +610,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     public void removeFilterEqualsTable(ElanInstance elanInfo, InterfaceInfo interfaceInfo, WriteTransaction deleteFlowGroupTx) {
         int ifTag = interfaceInfo.getInterfaceTag();
-        Flow flow = MDSALUtil.buildFlowNew(ElanConstants.ELAN_FILTER_EQUALS_TABLE, getFlowRef(ElanConstants.ELAN_FILTER_EQUALS_TABLE, ifTag),
+        Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE, getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag),
             9, elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)), getTunnelIdMatchForFilterEqualsLPortTag(ifTag), ElanUtils.getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
 
         elanServiceProvider.getMdsalManager().removeFlowToTx(interfaceInfo.getDpId(), flow, deleteFlowGroupTx);
 
-        Flow flowEntity = MDSALUtil.buildFlowNew(ElanConstants.ELAN_FILTER_EQUALS_TABLE, getFlowRef(ElanConstants.ELAN_FILTER_EQUALS_TABLE, 1000+ifTag),
+        Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE, getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, 1000+ifTag),
             10, elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)), getMatchesForFilterEqualsLPortTag(ifTag),
             MDSALUtil.buildInstructionsDrop());
 
@@ -781,7 +781,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         // TODO: We should point to SMAC or DMAC depending on a configuration property to enable
         // mac learning
         mkInstructions.add(new InstructionInfo(InstructionType.goto_table,
-            new long[] { ElanConstants.ELAN_DMAC_TABLE }));
+            new long[] { NwConstants.ELAN_DMAC_TABLE }));
 
         return mkInstructions;
     }
@@ -929,7 +929,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     public void setupUnknownDMacTable(ElanInstance elanInfo, BigInteger dpId, WriteTransaction writeFlowGroupTx) {
         long elanTag = elanInfo.getElanTag();
-        Flow flowEntity = MDSALUtil.buildFlowNew(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE, getUnknownDmacFlowRef(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE, elanTag, /*SH flag*/false),
+        Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.ELAN_UNKNOWN_DMAC_TABLE, getUnknownDmacFlowRef(NwConstants.ELAN_UNKNOWN_DMAC_TABLE, elanTag, /*SH flag*/false),
             5, elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_UNKNOWN_DMAC.add(BigInteger.valueOf(elanTag)), getMatchesForElanTag(elanTag, /*SH flag*/false),
             getInstructionsForOutGroup(ElanUtils.getElanRemoteBCGID(elanTag)));
 
@@ -937,7 +937,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
         // only if vni is present in elanInfo, perform the following
         if (elanInfo.getVni() != null && elanInfo.getVni() != 0) {
-            Flow flowEntity2 = MDSALUtil.buildFlowNew(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE, getUnknownDmacFlowRef(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE, elanTag, /*SH flag*/true),
+            Flow flowEntity2 = MDSALUtil.buildFlowNew(NwConstants.ELAN_UNKNOWN_DMAC_TABLE, getUnknownDmacFlowRef(NwConstants.ELAN_UNKNOWN_DMAC_TABLE, elanTag, /*SH flag*/true),
                 5, elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_UNKNOWN_DMAC.add(BigInteger.valueOf(elanTag)), getMatchesForElanTag(elanTag, /*SH flag*/true),
                 getInstructionsForOutGroup(ElanUtils.getElanLocalBCGID(elanTag)));
             elanServiceProvider.getMdsalManager().addFlowToTx(dpId, flowEntity2, writeFlowGroupTx);
@@ -948,16 +948,16 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private void removeUnknownDmacFlow(BigInteger dpId, ElanInstance elanInfo, WriteTransaction deleteFlowGroupTx) {
         //        Flow flow = getUnknownDmacFlowEntity(dpId, elanInfo);
         //        mdsalManager.removeFlow(dpId, flow);
-        Flow flow = new FlowBuilder().setId(new FlowId(getUnknownDmacFlowRef(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE,
+        Flow flow = new FlowBuilder().setId(new FlowId(getUnknownDmacFlowRef(NwConstants.ELAN_UNKNOWN_DMAC_TABLE,
             elanInfo.getElanTag(), /*SH flag*/ false)))
-            .setTableId(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE)
+            .setTableId(NwConstants.ELAN_UNKNOWN_DMAC_TABLE)
             .build();
         elanServiceProvider.getMdsalManager().removeFlowToTx(dpId, flow, deleteFlowGroupTx);
 
         if ( elanInfo.getVni() != null && elanInfo.getVni() > 0 ) {
-            Flow flow2 = new FlowBuilder().setId(new FlowId(getUnknownDmacFlowRef(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE,
+            Flow flow2 = new FlowBuilder().setId(new FlowId(getUnknownDmacFlowRef(NwConstants.ELAN_UNKNOWN_DMAC_TABLE,
                 elanInfo.getElanTag(), /*SH flag*/ true)))
-                .setTableId(ElanConstants.ELAN_UNKNOWN_DMAC_TABLE)
+                .setTableId(NwConstants.ELAN_UNKNOWN_DMAC_TABLE)
                 .build();
             elanServiceProvider.getMdsalManager().removeFlowToTx(dpId, flow2, deleteFlowGroupTx);
         }
@@ -976,12 +976,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<Instruction>();
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanUtils.getElanMetadataLabel(elanInfo.getElanTag()), MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
-        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(ElanConstants.ELAN_SMAC_TABLE, ++instructionKey));
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_SMAC_TABLE, ++instructionKey));
         BoundServices
             serviceInfo =
             ElanUtils.getBoundServices(String.format("%s.%s.%s", "vpn",elanInfo.getElanInstanceName(), interfaceName),
                 ElanConstants.ELAN_SERVICE_INDEX, priority,
-                ElanConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
+                NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
         tx.put(LogicalDatastoreType.CONFIGURATION,
             ElanUtils.buildServiceId(interfaceName, ElanConstants.ELAN_SERVICE_INDEX), serviceInfo, true);
     }
@@ -1004,7 +1004,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         listAction.add((new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {BigInteger.valueOf(interfaceInfo.getInterfaceTag())}, actionKey)).buildAction());
         actionKey++;
         listAction.add((new ActionInfo(ActionType.nx_resubmit,
-            new String[] {String.valueOf(ElanConstants.ELAN_FILTER_EQUALS_TABLE)}, actionKey)).buildAction());
+            new String[] {String.valueOf(NwConstants.ELAN_FILTER_EQUALS_TABLE)}, actionKey)).buildAction());
         return listAction;
     }
 
