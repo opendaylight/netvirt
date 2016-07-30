@@ -58,6 +58,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthopKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoad;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -227,6 +230,17 @@ public class NexthopManager implements AutoCloseable {
                             listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
                                     new String[] { Long.toString(vlanVid) }));
                         }
+                    } else if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
+                        Short tableId = ((NxActionResubmitRpcAddGroupCase)actionClass).getNxResubmit().getTable();
+                        listActionInfo.add(new ActionInfo(ActionType.nx_resubmit,
+                            new String[] { tableId.toString() }));
+                    } else if (actionClass instanceof NxActionRegLoadNodesNodeTableFlowApplyActionsCase) {
+                        NxRegLoad nxRegLoad =
+                            ((NxActionRegLoadNodesNodeTableFlowApplyActionsCase)actionClass).getNxRegLoad();
+                        listActionInfo.add(new ActionInfo(ActionType.nx_load_reg_6,
+                            new String[] { nxRegLoad.getDst().getStart().toString(),
+                                nxRegLoad.getDst().getEnd().toString(),
+                                nxRegLoad.getValue().toString(10)}));
                     }
                 }
             }
@@ -294,7 +308,6 @@ public class NexthopManager implements AutoCloseable {
                 String macAddress = adjacencyData.isPresent() ? adjacencyData.get().getMacAddress() : null;
                 List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
                 List<ActionInfo> listActionInfo = getEgressActionsForInterface(ifName);
-                BucketInfo bucket = new BucketInfo(listActionInfo);
                 // MAC re-write
                 if (macAddress != null) {
                     listActionInfo.add(0, new ActionInfo(ActionType.set_field_eth_dest, new String[]{macAddress}));
@@ -303,6 +316,7 @@ public class NexthopManager implements AutoCloseable {
                     //FIXME: Log message here.
                     LOG.debug("mac address for new local nexthop is null");
                 }
+                BucketInfo bucket = new BucketInfo(listActionInfo);
                 listBucketInfo.add(bucket);
                 GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
                         dpnId, groupId, ipAddress, GroupTypes.GroupAll, listBucketInfo);

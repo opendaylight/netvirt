@@ -95,6 +95,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoad;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -661,6 +664,17 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
                                                               new String[] { Long.toString(vlanVid) }));
                         }
+                    } else if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
+                        Short tableId = ((NxActionResubmitRpcAddGroupCase)actionClass).getNxResubmit().getTable();
+                        listActionInfo.add(new ActionInfo(ActionType.nx_resubmit,
+                            new String[] { tableId.toString() }));
+                    } else if (actionClass instanceof NxActionRegLoadNodesNodeTableFlowApplyActionsCase) {
+                        NxRegLoad nxRegLoad =
+                            ((NxActionRegLoadNodesNodeTableFlowApplyActionsCase)actionClass).getNxRegLoad();
+                        listActionInfo.add(new ActionInfo(ActionType.nx_load_reg_6,
+                            new String[] { nxRegLoad.getDst().getStart().toString(),
+                                nxRegLoad.getDst().getEnd().toString(),
+                                nxRegLoad.getValue().toString(10)}));
                     }
                 }
             }
