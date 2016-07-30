@@ -126,7 +126,7 @@ public class ElanDpnInterfacesListener extends AbstractDataChangeListener<DpnInt
             return;
         }
 
-        Long vni = elanInstance.get().getVni();
+        Long vni = elanInstance.get().getSegmentationId();
         int elanTag = elanInstance.get().getElanTag().intValue();
 
         ElanServiceChainUtils.programLPortDispatcherToScf(mdsalManager, dpnId, elanTag, elanLportTag, tableId, scfTag,
