@@ -145,6 +145,24 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_7bdb0e4f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-30T11:15:26Z",
+      "side": 1,
+      "message": "@Sam, I had a look at Suraj\u0027s patch, it needs some additional changes. I shared my comments on the patch, will wait for Suraj to update it.",
+      "parentUuid": "9a561d44_171bd073",
+      "revId": "9651cdec5c710cccd7f426c096deae88fce8cbaf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_6947d577",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
         "patchSetId": 1
