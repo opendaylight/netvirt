@@ -591,13 +591,13 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         BoundServices
                 serviceInfo =
                 InterfaceUtils.getBoundServices(String.format("%s.%s.%s", "vpn",vpnInstanceName, vpnInterfaceName),
-                        VpnConstants.L3VPN_SERVICE_IDENTIFIER, priority,
-                        VpnConstants.COOKIE_VM_INGRESS_TABLE, instructions);
+                        NwConstants.L3VPN_SERVICE_INDEX, priority,
+                        NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
         writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION,
-                InterfaceUtils.buildServiceId(vpnInterfaceName, VpnConstants.L3VPN_SERVICE_IDENTIFIER), serviceInfo, true);
-        makeArpFlow(dpId, VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName,
+                InterfaceUtils.buildServiceId(vpnInterfaceName, NwConstants.L3VPN_SERVICE_INDEX), serviceInfo, true);
+        makeArpFlow(dpId, NwConstants.L3VPN_SERVICE_INDEX, lPortTag, vpnInterfaceName,
                 vpnId, ArpReplyOrRequest.REQUEST, NwConstants.ADD_FLOW, writeConfigTxn);
-        makeArpFlow(dpId, VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName,
+        makeArpFlow(dpId, NwConstants.L3VPN_SERVICE_INDEX, lPortTag, vpnInterfaceName,
                 vpnId, ArpReplyOrRequest.REPLY, NwConstants.ADD_FLOW, writeConfigTxn);
 
     }
@@ -1301,12 +1301,12 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         if (!isInterfaceStateDown && isConfigRemoval) {
             writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION,
                     InterfaceUtils.buildServiceId(vpnInterfaceName,
-                            VpnConstants.L3VPN_SERVICE_IDENTIFIER));
+                            NwConstants.L3VPN_SERVICE_INDEX));
         }
         long vpnId = VpnUtil.getVpnId(broker, vpnInstanceName);
-        makeArpFlow(dpId, VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName,
+        makeArpFlow(dpId, NwConstants.L3VPN_SERVICE_INDEX, lPortTag, vpnInterfaceName,
                 vpnId, ArpReplyOrRequest.REQUEST, NwConstants.DEL_FLOW, writeConfigTxn);
-        makeArpFlow(dpId, VpnConstants.L3VPN_SERVICE_IDENTIFIER, lPortTag, vpnInterfaceName,
+        makeArpFlow(dpId, NwConstants.L3VPN_SERVICE_INDEX, lPortTag, vpnInterfaceName,
                 vpnId, ArpReplyOrRequest.REPLY, NwConstants.DEL_FLOW, writeConfigTxn);
     }
 

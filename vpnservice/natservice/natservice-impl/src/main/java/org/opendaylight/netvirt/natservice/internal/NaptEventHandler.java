@@ -154,8 +154,8 @@ public class NaptEventHandler {
             }
             //Build and install the NAPT translation flows in the Outbound and Inbound NAPT tables
             if(!naptEntryEvent.isPktProcessed()) {
-                buildAndInstallNatFlows(dpnId, NatConstants.OUTBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId, internalAddress, externalAddress, protocol);
-                buildAndInstallNatFlows(dpnId, NatConstants.INBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId, externalAddress, internalAddress, protocol);
+                buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId, internalAddress, externalAddress, protocol);
+                buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId, externalAddress, internalAddress, protocol);
             }
 
             //Send Packetout - tcp or udp packets which got punted to controller.
@@ -228,7 +228,7 @@ public class NaptEventHandler {
 
         }else{
             LOG.debug("NAT Service : Inside delete Operation of NaptEventHandler");
-            removeNatFlows(dpnId, NatConstants.INBOUND_NAPT_TABLE, routerId, naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber());
+            removeNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId, naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber());
         }
 
         LOG.info("NAT Service : handleNaptEvent() exited for IP, port, routerID : {}", naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId);
@@ -243,7 +243,7 @@ public class NaptEventHandler {
         String translatedIp = translatedSourceAddress.getIpAddress();
         String translatedPort = String.valueOf(translatedSourceAddress.getPortNumber());
         int idleTimeout=0;
-        if(tableId == NatConstants.OUTBOUND_NAPT_TABLE) {
+        if(tableId == NwConstants.OUTBOUND_NAPT_TABLE) {
             idleTimeout = NatConstants.DEFAULT_NAPT_IDLE_TIMEOUT;
         }
         long metaDataValue = routerId;
@@ -284,7 +284,7 @@ public class NaptEventHandler {
         }
 
         MatchInfo metaDataMatchInfo = null;
-        if(tableId == NatConstants.OUTBOUND_NAPT_TABLE){
+        if(tableId == NwConstants.OUTBOUND_NAPT_TABLE){
             ipMatchInfo = new MatchInfo(MatchFieldType.ipv4_source, new String[] {ipAddressAsString, "32" });
             if(protocol == NAPTEntryEvent.Protocol.TCP) {
                 protocolMatchInfo = new MatchInfo(MatchFieldType.ip_proto, new long[] {IPProtocols.TCP.intValue()});
@@ -310,7 +310,7 @@ public class NaptEventHandler {
         matchInfo.add(ipMatchInfo);
         matchInfo.add(protocolMatchInfo);
         matchInfo.add(portMatchInfo);
-        if(tableId == NatConstants.OUTBOUND_NAPT_TABLE){
+        if(tableId == NwConstants.OUTBOUND_NAPT_TABLE){
             matchInfo.add(metaDataMatchInfo);
         }
         return matchInfo;
@@ -322,7 +322,7 @@ public class NaptEventHandler {
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
 
-        if(tableId == NatConstants.OUTBOUND_NAPT_TABLE){
+        if(tableId == NwConstants.OUTBOUND_NAPT_TABLE){
             ipActionInfo = new ActionInfo(ActionType.set_source_ip, new String[] {ipAddress});
             if(protocol == NAPTEntryEvent.Protocol.TCP) {
                portActionInfo = new ActionInfo( ActionType.set_tcp_source_port, new String[] {port});
@@ -344,7 +344,8 @@ public class NaptEventHandler {
         listActionInfo.add(portActionInfo);
 
         instructionInfo.add(new InstructionInfo(InstructionType.apply_actions, listActionInfo));
-        instructionInfo.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.NAPT_PFIB_TABLE }));
+        instructionInfo.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.NAPT_PFIB_TABLE
+        }));
 
         return instructionInfo;
     }
@@ -358,7 +359,7 @@ public class NaptEventHandler {
         //Build the flow with the port IP and port as the match info.
         String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(segmentId), ip, port);
         FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, tableId, switchFlowRef);
-        LOG.debug("NAT Service : Remove the flow in the table {} for the switch with the DPN ID {}", NatConstants.INBOUND_NAPT_TABLE, dpnId);
+        LOG.debug("NAT Service : Remove the flow in the table {} for the switch with the DPN ID {}", NwConstants.INBOUND_NAPT_TABLE, dpnId);
         mdsalManager.removeFlow(snatFlowEntity);
 
     }

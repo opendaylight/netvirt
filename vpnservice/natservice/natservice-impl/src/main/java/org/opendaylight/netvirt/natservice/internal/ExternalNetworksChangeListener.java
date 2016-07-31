@@ -15,6 +15,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
@@ -264,7 +265,7 @@ public class ExternalNetworksChangeListener extends AsyncDataTreeChangeListenerB
                       String externalIp = ipMap.getExternalIp();
                       LOG.debug("NAT Service : got externalIp as {}", externalIp);
                       LOG.debug("NAT Service : About to call advToBgpAndInstallFibAndTsFlows for dpnId {}, vpnName {} and externalIp {}", dpnId, vpnName, externalIp);
-                      externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NatConstants.INBOUND_NAPT_TABLE, vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), externalIp, vpnService, fibService, bgpManager, dataBroker, LOG);
+                      externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), externalIp, vpnService, fibService, bgpManager, dataBroker, LOG);
                   }
             } else {
                 LOG.warn("NAT Service : No ipMapping present fot the routerId {}", routerId);

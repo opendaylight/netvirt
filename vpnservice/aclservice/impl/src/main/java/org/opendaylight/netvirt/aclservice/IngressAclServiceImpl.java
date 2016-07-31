@@ -76,7 +76,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
         instructions
-                .add(MDSALUtil.buildAndGetGotoTableInstruction(AclConstants.INGRESS_ACL_TABLE_ID, ++instructionKey));
+                .add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.INGRESS_ACL_TABLE_ID, ++instructionKey));
         BoundServices serviceInfo = AclServiceUtils.getBoundServices(
                 String.format("%s.%s.%s", "vpn", "ingressacl", interfaceName),
                 AclConstants.INGRESS_ACL_SERVICE_PRIORITY, flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
@@ -174,8 +174,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             instructions.add(new InstructionInfo(InstructionType.apply_actions,
                 actionsInfos));
             instructions.add(new InstructionInfo(InstructionType.goto_table,
-                new long[] { AclConstants.INGRESS_ACL_NEXT_TABLE_ID }));
-            syncFlow(dpId, AclConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY,
+                new long[] { NwConstants.INGRESS_ACL_NEXT_TABLE_ID }));
+            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY,
                 "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
         }
     }
@@ -206,9 +206,9 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
-            new long[] { AclConstants.INGRESS_ACL_NEXT_TABLE_ID }));
+            new long[] { NwConstants.INGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Ingress_DHCP_Server_v4" + dpId + "_" + attachMac + "_" + dhcpMacAddress + "_Permit_";
-        syncFlow(dpId, AclConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -239,10 +239,10 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             actionsInfos));
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
-            new long[] { AclConstants.INGRESS_ACL_NEXT_TABLE_ID }));
+            new long[] { NwConstants.INGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Ingress_DHCP_Server_v6" + "_" + dpId + "_" + attachMac + "_" + "_"
                 + dhcpMacAddress + "_Permit_";
-        syncFlow(dpId, AclConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -270,11 +270,11 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         List<ActionInfo> actionsInfos = new ArrayList<>();
 
         actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-            new String[] {"0", "0", "0", Short.toString(AclConstants.INGRESS_ACL_TABLE_ID)}, 2));
+            new String[] {"0", "0", "0", Short.toString(NwConstants.INGRESS_ACL_TABLE_ID)}, 2));
         instructions.add(new InstructionInfo(InstructionType.apply_actions,
             actionsInfos));
         String flowName = "Ingress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_" + flowId;
-        syncFlow(dpId, AclConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -306,9 +306,9 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                 new String[] {}));
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
-            new long[] { AclConstants.INGRESS_ACL_NEXT_TABLE_ID }));
+            new long[] { NwConstants.INGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Ingress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_" + flowId;
-        syncFlow(dpId, AclConstants.INGRESS_ACL_TABLE_ID, flowName, priority, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -338,7 +338,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         actionsInfos.add(new ActionInfo(ActionType.drop_action,
                 new String[] {}));
         String flowName = "Ingress_Fixed_Conntrk_NewDrop_" + dpId + "_" + attachMac + "_" + flowId;
-        syncFlow(dpId, AclConstants.INGRESS_ACL_TABLE_ID, flowName, priority, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -363,9 +363,9 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                 new String[] {}));
 
         instructions.add(new InstructionInfo(InstructionType.goto_table,
-            new long[] { AclConstants.INGRESS_ACL_NEXT_TABLE_ID }));
+            new long[] { NwConstants.INGRESS_ACL_NEXT_TABLE_ID }));
         String flowName = "Ingress_ARP_" + dpId + "_" + attachMac;
-        syncFlow(dpId, AclConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 

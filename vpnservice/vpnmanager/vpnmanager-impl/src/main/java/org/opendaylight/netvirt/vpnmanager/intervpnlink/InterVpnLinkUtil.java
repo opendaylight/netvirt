@@ -143,10 +143,10 @@ public class InterVpnLinkUtil {
        List<MatchInfo> matches = Arrays.asList(new MatchInfo(MatchFieldType.metadata,
                                                               new BigInteger[] {
                                                                   MetaDataUtil.getMetaDataForLPortDispatcher(lportTag,
-                                                                                VpnConstants.L3VPN_SERVICE_IDENTIFIER),
+                                                                                NwConstants.L3VPN_SERVICE_INDEX),
                                                                   MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
        String flowRef = getLportDispatcherFlowRef(interVpnLinkName, lportTag);
-       Flow lPortDispatcherFlow = MDSALUtil.buildFlowNew(VpnConstants.LPORT_DISPATCHER_TABLE, flowRef,
+       Flow lPortDispatcherFlow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                                                          VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY, flowRef,
                                                          0, 0, VpnUtil.getCookieL3((int) vpnId), matches,
                                                          buildLportDispatcherTableInstructions(vpnId));
@@ -165,7 +165,7 @@ public class InterVpnLinkUtil {
        String flowRef = new StringBuffer().append(VpnConstants.FLOWID_PREFIX).append("INTERVPNLINK")
                      .append(NwConstants.FLOWID_SEPARATOR).append(interVpnLinkName)
                      .append(NwConstants.FLOWID_SEPARATOR).append(lportTag)
-                     .append(NwConstants.FLOWID_SEPARATOR).append(VpnConstants.L3VPN_SERVICE_IDENTIFIER)
+                     .append(NwConstants.FLOWID_SEPARATOR).append(NwConstants.L3VPN_SERVICE_INDEX)
                      .append(NwConstants.FLOWID_SEPARATOR).append(VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY)
                      .toString();
        return flowRef;
@@ -178,7 +178,7 @@ public class InterVpnLinkUtil {
        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(BigInteger.valueOf(vpnId),
                                                                     MetaDataUtil.METADATA_MASK_VRFID,
                                                                     ++instructionKey));
-       instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(VpnConstants.FIB_TABLE, ++instructionKey));
+       instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));
 
        return instructions;
    }

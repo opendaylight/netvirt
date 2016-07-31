@@ -69,7 +69,7 @@ public class ElanDpnInterfacesListener extends AbstractDataChangeListener<DpnInt
             int scfTag = elanLPortListOpc.get().getScfTag();
             Long elanLportTag = elanLPortListOpc.get().getElanLportTag();
             if ( elanLportTag != null ) {
-                short tableId = CloudServiceChainConstants.SCF_DOWN_SUB_FILTER_TCP_BASED_TABLE;
+                short tableId = NwConstants.SCF_DOWN_SUB_FILTER_TCP_BASED_TABLE;
                 handleUpdate(addDpnId, elanName, tableId, elanLportTag.intValue(), scfTag, NwConstants.ADD_FLOW);
             } else {
                 logger.debug("Could not find lportTag for elan={}", elanName);

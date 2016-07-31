@@ -298,11 +298,11 @@ public class VPNServiceChainHandler implements AutoCloseable {
             }
 
             String vpnToScfflowRef = VpnServiceChainUtils.getL3VpnToScfLportDispatcherFlowRef(vpnPseudoLportTag);
-            Flow vpnToScfFlow = new FlowBuilder().setTableId(CloudServiceChainConstants.LPORT_DISPATCHER_TABLE)
+            Flow vpnToScfFlow = new FlowBuilder().setTableId(NwConstants.LPORT_DISPATCHER_TABLE)
                     .setId(new FlowId(vpnToScfflowRef)).build();
             mdsalManager.removeFlow(dpnId, vpnToScfFlow);
             String scfToVpnFlowRef = VpnServiceChainUtils.getScfToL3VpnLportDispatcherFlowRef(vpnPseudoLportTag);
-            Flow scfToVpnFlow = new FlowBuilder().setTableId(CloudServiceChainConstants.LPORT_DISPATCHER_TABLE)
+            Flow scfToVpnFlow = new FlowBuilder().setTableId(NwConstants.LPORT_DISPATCHER_TABLE)
                     .setId(new FlowId(scfToVpnFlowRef)).build();
             mdsalManager.removeFlow(dpnId, scfToVpnFlow);
         }

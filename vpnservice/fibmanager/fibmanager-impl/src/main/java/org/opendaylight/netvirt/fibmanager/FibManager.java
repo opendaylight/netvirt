@@ -127,7 +127,6 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
   private OdlInterfaceRpcService interfaceManager;
   private IdManagerService idManager;
-  private static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000002", 16);
   private static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
   private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
   private static final int LFIB_INTERVPN_PRIORITY = 1;
@@ -1626,7 +1625,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
         FlowEntity flowEntity;
         flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_LFIB_TABLE, flowRef, priority, flowRef, 0, 0,
-                                               COOKIE_VM_LFIB_TABLE, matches, instructions);
+                                               NwConstants.COOKIE_VM_LFIB_TABLE, matches, instructions);
         Flow flow = flowEntity.getFlowBuilder().build();
         String flowId = flowEntity.getFlowId();
         FlowKey flowKey = new FlowKey( new FlowId(flowId));
