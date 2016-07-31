@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "9a561d44_75067a1e",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6NodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-31T18:11:06Z",
+      "side": 1,
+      "message": "I\u0027m afraid, this is not optimal as we are looping through all the existing ports on the bridge. Imagine a bridge with some 100 ports - when a new VM is spawned, we keep updating all the existing ports even thought there is no change.\n\nPlease see my comment below.",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_1598debe",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6NodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-31T18:11:06Z",
+      "side": 1,
+      "message": "I think the changes in this file are not required.\n\nAFAIU, according to the new Netvirt design, we should be listening to the genius interface manager notifications and obtain the corresponding port information using MDSALUtils.\n\nSo, you can do the following.\n1. AFAIU, no change is required in this file.\n2. Instead do the necessary additions to the file Ipv6ServiceInterfaceEventListener\n3. In the add method of the api we have \n   dpId corresponding to the port. We can obtain the ofPort using the api MDSALUtil.getOfPortNumberFromPortName().\n\nIMO, it would be more optimal taking this approach. Do you see any issues with this solution?",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_55b7f639",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PeriodicRAThread.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-31T18:11:06Z",
+      "side": 1,
+      "message": "Please add a comment saying that its 1000 ms.\ni.e., something like \nprivate static final int SLEEP_TIME \u003d 1000; // time in ms",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_4ce01afa",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
         "patchSetId": 2
@@ -13,6 +64,91 @@
       "writtenOn": "2016-07-29T08:07:44Z",
       "side": 1,
       "message": "This is not thread safe either. This is: https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/atomic/AtomicLong.html",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_3546c24f",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-31T18:11:06Z",
+      "side": 1,
+      "message": "Along with setting the router Lifetime to zero, shall we stop advertising the prefix info as well. What do you say?",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_d57ae675",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/VirtualPort.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-31T18:11:06Z",
+      "side": 1,
+      "message": "Shall we initialize the periodicTimer to null, as this is used only for routerPorts and calling getPeriodicTimer() on other ports should ideally be returning null.",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_dbeb3ada",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6Constants.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-31T18:11:06Z",
+      "side": 1,
+      "message": "This is redundant, we can use IP_V6_ETHTYPE @L13",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_3bbcf6db",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6Constants.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-31T18:11:06Z",
+      "side": 1,
+      "message": "Pls add a comment that its 300 seconds.",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_b57f7265",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6PeriodicTrQueue.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-07-31T18:11:06Z",
+      "side": 1,
+      "message": "I think you can use ipv6PeriodicQueue.clear()",
       "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
