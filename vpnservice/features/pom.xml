@@ -31,6 +31,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <liblldp.version>0.11.0-SNAPSHOT</liblldp.version>
     <neutron.version>0.7.0-SNAPSHOT</neutron.version>
     <genius.version>0.1.0-SNAPSHOT</genius.version>
+    <infrautils.version>1.0.0-SNAPSHOT</infrautils.version>
     <arputil.version>${genius.version}</arputil.version>
     <mdsalutil.version>${genius.version}</mdsalutil.version>
     <vpnmanager.version>${vpnservices.version}</vpnmanager.version>
@@ -365,6 +366,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>statemanager-impl</artifactId>
       <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>infrautils-features</artifactId>
+      <version>${infrautils.version}</version>
+      <classifier>features</classifier>
+      <type>xml</type>
     </dependency>
   </dependencies>
 
