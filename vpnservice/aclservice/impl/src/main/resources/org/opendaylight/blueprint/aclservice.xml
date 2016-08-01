@@ -7,51 +7,44 @@
     interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
   <reference id="mdsalManager"
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
-
+  <bean id="aclServiceFactory"
+    class="org.opendaylight.netvirt.aclservice.AclServiceImplFactory" init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalManager" />
+  </bean>
   <bean id="ingressAclService"
-    class="org.opendaylight.netvirt.aclservice.IngressAclServiceImpl">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalManager" />
+    class="org.opendaylight.netvirt.aclservice.AclServiceImplFactory" factory-ref="aclServiceFactory" factory-method="createIngressAclServiceImpl">
   </bean>
-
   <bean id="egressAclService"
-    class="org.opendaylight.netvirt.aclservice.EgressAclServiceImpl">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalManager" />
+    class="org.opendaylight.netvirt.aclservice.AclServiceImplFactory" factory-ref="aclServiceFactory" factory-method="createEgressAclServiceImpl">
   </bean>
-
   <bean id="aclServiceManager"
     class="org.opendaylight.netvirt.aclservice.AclServiceManagerImpl">
     <argument ref="ingressAclService" />
     <argument ref="egressAclService" />
   </bean>
-
   <bean id="aclInterfaceStateListener"
     class="org.opendaylight.netvirt.aclservice.listeners.AclInterfaceStateListener"
     init-method="start" destroy-method="close">
     <argument ref="aclServiceManager" />
     <argument ref="dataBroker" />
   </bean>
-
   <bean id="aclNodeListener"
     class="org.opendaylight.netvirt.aclservice.listeners.AclNodeListener"
     init-method="start" destroy-method="close">
     <argument ref="mdsalManager" />
     <argument ref="dataBroker" />
   </bean>
-
   <bean id="aclInterfaceListener"
     class="org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener"
     init-method="start" destroy-method="close">
     <argument ref="aclServiceManager" />
     <argument ref="dataBroker" />
   </bean>
-
   <bean id="aclEventListener"
     class="org.opendaylight.netvirt.aclservice.listeners.AclEventListener"
     init-method="start" destroy-method="close">
     <argument ref="aclServiceManager" />
     <argument ref="dataBroker" />
   </bean>
-
 </blueprint>
