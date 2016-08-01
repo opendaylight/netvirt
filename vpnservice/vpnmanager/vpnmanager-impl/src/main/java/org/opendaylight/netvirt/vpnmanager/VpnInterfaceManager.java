@@ -585,7 +585,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<Instruction>();
 
-        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
+                MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));
 
         BoundServices
@@ -830,7 +831,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                              long vpnId, ArpReplyOrRequest replyOrRequest, int addOrRemoveFlow,
                              WriteTransaction writeConfigTxn){
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher(lPortTag, ++sIndex, BigInteger.valueOf(vpnId));
+        BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher(lPortTag, ++sIndex, MetaDataUtil.getVpnIdMetadata(vpnId));
         BigInteger metadataMask = MetaDataUtil.getMetaDataMaskForLPortDispatcher(MetaDataUtil.METADATA_MASK_SERVICE_INDEX,
                 MetaDataUtil.METADATA_MASK_LPORT_TAG, MetaDataUtil.METADATA_MASK_VRFID);
 

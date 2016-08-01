@@ -175,7 +175,7 @@ public class InterVpnLinkUtil {
    public static List<Instruction> buildLportDispatcherTableInstructions (long vpnId) {
        int instructionKey = 0;
        List<Instruction> instructions = new ArrayList<Instruction>();
-       instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(BigInteger.valueOf(vpnId),
+       instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
                                                                     MetaDataUtil.METADATA_MASK_VRFID,
                                                                     ++instructionKey));
        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));

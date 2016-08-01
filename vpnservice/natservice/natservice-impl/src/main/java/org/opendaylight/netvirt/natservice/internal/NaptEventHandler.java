@@ -293,9 +293,10 @@ public class NaptEventHandler {
                 protocolMatchInfo = new MatchInfo(MatchFieldType.ip_proto, new long[] {IPProtocols.UDP.intValue()});
                 portMatchInfo = new MatchInfo(MatchFieldType.udp_src, new long[]{port});
             }
-            metaDataMatchInfo = new MatchInfo(MatchFieldType.metadata, new BigInteger[]{BigInteger.valueOf(segmentId), MetaDataUtil.METADATA_MASK_VRFID});
+            metaDataMatchInfo = new MatchInfo(MatchFieldType.metadata,
+                    new BigInteger[] { MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID });
         }else{
-            ipMatchInfo = new MatchInfo(MatchFieldType.ipv4_destination, new String[] {ipAddressAsString, "32" });         
+            ipMatchInfo = new MatchInfo(MatchFieldType.ipv4_destination, new String[] {ipAddressAsString, "32" });
             if(protocol == NAPTEntryEvent.Protocol.TCP) {
                 protocolMatchInfo = new MatchInfo(MatchFieldType.ip_proto, new long[] {IPProtocols.TCP.intValue()});
                 portMatchInfo = new MatchInfo(MatchFieldType.tcp_dst, new long[]{port});
@@ -329,7 +330,8 @@ public class NaptEventHandler {
             } else if(protocol == NAPTEntryEvent.Protocol.UDP) {
                portActionInfo = new ActionInfo( ActionType.set_udp_source_port, new String[] {port});
             }
-            instructionInfo.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[]{BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID}));
+            instructionInfo.add(new InstructionInfo(InstructionType.write_metadata,
+                    new BigInteger[] { MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
         }else{
             ipActionInfo = new ActionInfo(ActionType.set_destination_ip, new String[] {ipAddress});
             if(protocol == NAPTEntryEvent.Protocol.TCP) {
@@ -337,7 +339,8 @@ public class NaptEventHandler {
             } else if(protocol == NAPTEntryEvent.Protocol.UDP) {
                portActionInfo = new ActionInfo( ActionType.set_udp_destination_port, new String[] {port});
             }
-            instructionInfo.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[]{BigInteger.valueOf(segmentId), MetaDataUtil.METADATA_MASK_VRFID}));
+            instructionInfo.add(new InstructionInfo(InstructionType.write_metadata,
+                    new BigInteger[] { MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
         }
 
         listActionInfo.add(ipActionInfo);

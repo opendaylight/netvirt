@@ -718,7 +718,7 @@ public class NaptSwitchHA {
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[]{ 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(routerVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(routerVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
 
@@ -751,7 +751,7 @@ public class NaptSwitchHA {
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[]{ 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(routerVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(routerVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
 
