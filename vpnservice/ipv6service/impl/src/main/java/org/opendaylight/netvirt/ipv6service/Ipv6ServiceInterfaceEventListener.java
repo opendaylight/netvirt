@@ -58,6 +58,7 @@ public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListen
 
     @Override
     protected void remove(InstanceIdentifier<Interface> key, Interface del) {
+        LOG.info("Port removed {}, {}", key, del);
         List<String> ofportIds = del.getLowerLayerIf();
         if (ofportIds == null || ofportIds.isEmpty()) {
             return;
@@ -77,6 +78,7 @@ public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListen
                             pair.getLeft(), ipv6Address.getValue(), mdsalUtil, Ipv6Constants.DEL_FLOW);
                 }
                 ifMgr.removeInterfaceCache(interfaceName);
+                ifMgr.deleteInterface(new Uuid(del.getName()), dpId.toString());
             }
         }
     }
@@ -90,6 +92,7 @@ public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListen
 
     @Override
     protected void add(InstanceIdentifier<Interface> key, Interface add) {
+        LOG.info("Port added {}, {}", key, add);
         List<String> ofportIds = add.getLowerLayerIf();
         // When a port is created, we receive two notifications.
         // 1. where the interface name is dpnid:tapinterfaceName (f.e., 238412509713739:tapf662f5bf-9d)
@@ -106,11 +109,15 @@ public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListen
             BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
 
             if (!dpId.equals(Ipv6Constants.INVALID_DPID)) {
-                VirtualPort port = ifMgr.obtainV6Interface(new Uuid(iface.getName()));
+                Uuid portId = new Uuid(iface.getName());
+                VirtualPort port = ifMgr.obtainV6Interface(portId);
                 if (port == null) {
                     LOG.info("Port {} not found, skipping.", port);
                     return;
                 }
+
+                Long ofPort = MDSALUtil.getOfPortNumberFromPortName(nodeConnectorId);
+                ifMgr.updateInterface(portId, dpId.toString(), ofPort);
 
                 VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
                 if (routerPort == null) {
