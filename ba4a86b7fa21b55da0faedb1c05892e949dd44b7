@@ -2,6 +2,312 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a6b29fe_9f64bfe6",
+        "filename": "commons/it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "This pom should be in vpnservice/commons",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1fbf0fd2",
+        "filename": "commons/it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "call it it-parent",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ff6173d4",
+        "filename": "openstack/utils/netvirt-it-utils/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "same comment, wonder if this stuff should all be duplicated in vpnservice instead?",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_df5e3712",
+        "filename": "openstack/utils/netvirt-it-utils/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "related to above comment, but this will break the old netvritIt, right?",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1fa0aff3",
+        "filename": "vpnservice/vpnservice-it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "Just name this directory it rather than vpnservice-it. vpnservice will be dropped soon.",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7fa56303",
+        "filename": "vpnservice/vpnservice-it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "change the indent to 2 spaces rather than 4.",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5faa27d5",
+        "filename": "vpnservice/vpnservice-it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "just it",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9f92ff9d",
+        "filename": "vpnservice/vpnservice-it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "does everything work even though we don\u0027t have the build/plugins sections to include jacoco and failsafe?",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1f870f63",
+        "filename": "vpnservice/vpnservice-it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "this is missing the distributionManagement section",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_df8c7782",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "Can we name this NetvirtIT?",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_dfe3d731",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "shouldn\u0027t need the booleanValue",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bf4a5b25",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "use the constant",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9f479f1d",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "why not just use false?",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5f46a724",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "The constant can be used without the new URI()",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_df5117da",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "constant",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9f6e7f95",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "same thing, not sure why to use these as they just add complication to the code that isn\u0027t needed",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7f26036a",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "L isn\u0027t needed",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_df1637f1",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "would also be good to get a basic test merged so that we can also add the mvn target to the csit to see that running.",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_3c181984",
         "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
         "patchSetId": 4
@@ -13,6 +319,75 @@
       "writtenOn": "2016-08-01T12:32:56Z",
       "side": 1,
       "message": "This method in its current incarnation does not in fact test netvirt. It tests ovsdb stuff. I think it should be renamed or basic validation of the pipeline should be added.",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9f1cbf15",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "Maybe a basic test should be added to simple connect and see if the bridges and patch ports are created properly? We could also add the vxlan port creation when that is merged. These are new pieces of functionality that need to be verified.",
+      "parentUuid": "7a6b29fe_3c181984",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1fd8af52",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceITConstants.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "2016",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7fdd6342",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceITConstants.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "wrong comment",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bfe6db14",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceITConstants.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "Just name it Constants since we want to drop Vpnservice. And having IT probably doesn\u0027t add value",
       "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -47,6 +422,24 @@
       "writtenOn": "2016-08-01T12:32:56Z",
       "side": 1,
       "message": "So, this is a copy of PingableNeutronNetItUtil (or whatever it\u0027s called with the only difference being (1) that the neutron stuff uses vpnservice neutron models and (2) the base class (non-pingable) is flattened into the implementation. So, for (20)...why? If someone wants to build a test but wants to just check flows instead of doing ping tests I think not having all the tun/tap stuff will make the test more resilient and is unnecessary anyway.\n\nWe now have two copies of this class. Personally, that does not bother me immensely since the intention is to move away from the old netvirt I don\u0027t think it\u0027s worth the time to build an abstraction so that you can have two neutron implementations together with the network util...finally, that brings me to my last point. I don\u0027t like the name of this class becasue it doesn\u0027t describe what it does like the old name PingableNeutronNetItUtil. I\u0027d prefer that we use that name.",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_dfed97f1",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceNeutronITUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-01T13:13:55Z",
+      "side": 1,
+      "message": "somewhat same thinking - I think it is Ok to duplicate since we want to move away from old netvirt.\n\nI would see a NetvirtItUtils in the vpnservice dir. In there pingable is just one of many It utils classes.",
+      "parentUuid": "7a6b29fe_dc2be592",
       "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
