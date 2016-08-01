@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import java.math.BigInteger;
+import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 
 /**
  * The class to have ACL related constants.
@@ -27,6 +28,9 @@ public final class AclConstants {
     public static final Integer PROTO_PORT_MATCH_PRIORITY = 61007;
     public static final Integer PROTO_PORT_PREFIX_MATCH_PRIORITY = 61007;
     public static final Integer PROTO_DHCP_SERVER_MATCH_PRIORITY = 61006;
+    public static final Integer PROTO_MATCH_SYN_ALLOW_PRIORITY = 61005;
+    public static final Integer PROTO_MATCH_SYN_ACK_ALLOW_PRIORITY = 61004;
+    public static final Integer PROTO_MATCH_SYN_DROP_PRIORITY = 61003;
     public static final Integer PROTO_VM_IP_MAC_MATCH_PRIORITY = 36001;
     public static final Integer CT_STATE_UNTRACKED_PRIORITY = 62030;
     public static final Integer CT_STATE_TRACKED_EXIST_PRIORITY = 62020;
@@ -52,6 +56,15 @@ public final class AclConstants {
     public static final int TRACKED_NEW_CT_STATE_MASK = 0x21;
     public static final int TRACKED_INV_CT_STATE_MASK = 0x30;
 
+    public static final long TCP_FLAG_SYN = 1 << 1;
+    public static final long TCP_FLAG_ACK = 1 << 4;
+    public static final long TCP_FLAG_SYN_ACK = TCP_FLAG_SYN + TCP_FLAG_ACK;
+
     private AclConstants() {
+    }
+
+    public static boolean isStatelessAcl() {
+        final String enabledPropertyStr = ConfigProperties.getProperty(AclConstants.class, "stateless.sg.enabled");
+        return enabledPropertyStr != null && enabledPropertyStr.equalsIgnoreCase("yes");
     }
 }
