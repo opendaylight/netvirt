@@ -415,4 +415,12 @@ public class Ipv6ServiceUtils {
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION,
                 buildServiceId(interfaceName, NwConstants.IPV6_SERVICE_INDEX));
     }
+
+    public static long getDataPathId(String dpId) {
+        long dpid = 0L;
+        if (dpId != null) {
+            dpid = new BigInteger(dpId.replaceAll(":", ""), 16).longValue();
+        }
+        return dpid;
+    }
 }
