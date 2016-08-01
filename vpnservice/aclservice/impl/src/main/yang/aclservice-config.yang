@@ -1,0 +1,22 @@
+module aclservice-config {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:aclservice-config";
+    prefix "aclservice-config";
+
+    description
+        "Configuration for acl-serviceImpl.";
+
+    revision "2016-08-06" {
+        description
+                "Initial revision.";
+    }
+
+    container aclservice-config {
+        leaf security-group-mode {
+            type enumeration {
+                enum "stateless";
+                enum "statefull";
+            }
+        }
+    }
+}
