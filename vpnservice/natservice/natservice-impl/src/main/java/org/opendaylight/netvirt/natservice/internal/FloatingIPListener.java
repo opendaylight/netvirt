@@ -168,8 +168,8 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         actionsInfos.add(new ActionInfo(ActionType.set_destination_ip, new String[]{ internalIp, "32" }));
 
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf
-                (segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
+        instructions.add(new InstructionInfo(InstructionType.write_metadata,
+                new BigInteger[] { MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.DNAT_TABLE }));
 
@@ -197,7 +197,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
@@ -246,7 +246,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
                 internalIp, "32" }));
 
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.set_source_ip, new String[]{ externalIp, "32" }));
@@ -271,7 +271,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
@@ -418,7 +418,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         BigInteger dpnId = getDpnForInterface(interfaceManager, interfaceName);
 
         if(dpnId.equals(BigInteger.ZERO)) {
-             LOG.error("No DPN for interface {}. NAT flow entries for ip mapping {} will not be installed", 
+             LOG.error("No DPN for interface {}. NAT flow entries for ip mapping {} will not be installed",
                      interfaceName, mapping);
              return;
         }
@@ -449,7 +449,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         }
         long vpnId = getVpnId(extNwId);
         if(vpnId < 0) {
-            LOG.error("No VPN associated with Ext nw {}. Unable to create SNAT table entry for fixed ip {}", 
+            LOG.error("No VPN associated with Ext nw {}. Unable to create SNAT table entry for fixed ip {}",
                     extNwId, mapping.getInternalIp());
             return;
         }
@@ -479,7 +479,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
             LOG.debug("Router {} is associated with VPN Instance with Id {}", routerName, associatedVpnId);
             //routerId = associatedVpnId;
         }
-        
+
         long vpnId = getVpnId(externalNetworkId);
         if(vpnId < 0) {
             LOG.error("Unable to create SNAT table entry for fixed ip {}", internalIp);
@@ -573,7 +573,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         }
         long vpnId = getVpnId(extNwId);
         if(vpnId < 0) {
-            LOG.error("No VPN associated with ext nw {}. Unable to delete SNAT table entry for fixed ip {}", 
+            LOG.error("No VPN associated with ext nw {}. Unable to delete SNAT table entry for fixed ip {}",
                     extNwId, mapping.getInternalIp());
             return;
         }

@@ -146,7 +146,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
 
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
@@ -235,7 +235,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
 
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
