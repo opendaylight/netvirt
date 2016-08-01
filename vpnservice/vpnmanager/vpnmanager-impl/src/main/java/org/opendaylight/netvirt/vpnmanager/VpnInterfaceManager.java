@@ -585,7 +585,8 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<Instruction>();
 
-        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
+                MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));
 
         BoundServices

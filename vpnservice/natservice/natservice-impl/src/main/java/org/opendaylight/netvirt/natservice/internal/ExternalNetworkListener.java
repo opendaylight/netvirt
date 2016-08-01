@@ -185,7 +185,7 @@ public class ExternalNetworkListener extends AbstractDataChangeListener<Networks
 
         //add match for vrfid
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.PSNAT_TABLE }));

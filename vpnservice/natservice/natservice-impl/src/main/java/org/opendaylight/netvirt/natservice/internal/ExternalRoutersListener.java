@@ -251,7 +251,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         if (bgpVpnUuid != null) {
             bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
         }
-        if (bgpVpnId != NatConstants.INVALID_ID){           
+        if (bgpVpnId != NatConstants.INVALID_ID){
             installFlowsWithUpdatedVpnId(primarySwitchId, routerName, bgpVpnId, segmentId, false);
         } else {
             // write metadata and punt
@@ -529,6 +529,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return result;
     }
 
+    @Override
     public void close() throws Exception
     {
         if (listenerRegistration != null)
@@ -574,13 +575,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
+        instructions.add(new InstructionInfo(InstructionType.write_metadata,
+                new BigInteger[] { MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         String flowRef = getFlowRefOutbound(dpId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
         BigInteger cookie = getCookieOutboundFlow(routerId);
@@ -703,7 +705,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
 
 
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -733,7 +735,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]
@@ -766,7 +768,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[]
-                { routerId, MetaDataUtil.METADATA_MASK_VRFID }));
+                { MetaDataUtil.getVpnIdMetadata(routerId.longValue()), MetaDataUtil.METADATA_MASK_VRFID }));
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]
                 { NwConstants.OUTBOUND_NAPT_TABLE }));
         String flowRef = getFlowRefTs(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
@@ -906,7 +908,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
@@ -1336,7 +1338,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             LOG.debug("NAT Service : End processing of the Subnet IDs removal during the update operation");
         }
     }
-    
+
     private boolean isExternalIpAllocated(String externalIp) {
         InstanceIdentifier<ExternalIpsCounter> id = InstanceIdentifier.builder(ExternalIpsCounter.class).build();
         Optional <ExternalIpsCounter> externalCountersData = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
@@ -1971,6 +1973,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("NAT Service : LFIB Entry for dpID : {} label : {} removed successfully {}",dpnId, serviceId);
     }
 
+    @Override
     protected InstanceIdentifier<Routers> getWildCardPath()
     {
         return InstanceIdentifier.create(ExtRouters.class).child(Routers.class);
@@ -2155,7 +2158,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfo = new ArrayList<>();
@@ -2182,7 +2185,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]
@@ -2216,7 +2219,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[]
-                { bgpVpnIdAsBigInt, MetaDataUtil.METADATA_MASK_VRFID }));
+                { MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]
                 { NwConstants.OUTBOUND_NAPT_TABLE }));
         String flowRef = getFlowRefTs(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
@@ -2239,13 +2242,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[]{0x0800L}));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[]{
-                BigInteger.valueOf(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID}));
+                MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID}));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[]{BigInteger.valueOf(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID}));
+        instructions.add(new InstructionInfo(InstructionType.write_metadata,
+                new BigInteger[] { MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         String flowRef = getFlowRefOutbound(dpId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
         BigInteger cookie = getCookieOutboundFlow(routerId);
@@ -2268,7 +2272,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                BigInteger.valueOf(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+                MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
