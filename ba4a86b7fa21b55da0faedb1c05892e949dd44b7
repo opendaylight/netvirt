@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_3c181984",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-01T12:32:56Z",
+      "side": 1,
+      "message": "This method in its current incarnation does not in fact test netvirt. It tests ovsdb stuff. I think it should be renamed or basic validation of the pipeline should be added.",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_df19177b",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceNeutronITUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-01T12:32:56Z",
+      "side": 1,
+      "message": "Currently undecided if I like the location of this and the constants class. Somehow I feel like they do not belong with the IT test itself in case some other IT (not pure netvirt) wants to use it.",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_dc2be592",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceNeutronITUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-01T12:32:56Z",
+      "side": 1,
+      "message": "So, this is a copy of PingableNeutronNetItUtil (or whatever it\u0027s called with the only difference being (1) that the neutron stuff uses vpnservice neutron models and (2) the base class (non-pingable) is flattened into the implementation. So, for (20)...why? If someone wants to build a test but wants to just check flows instead of doing ping tests I think not having all the tun/tap stuff will make the test more resilient and is unnecessary anyway.\n\nWe now have two copies of this class. Personally, that does not bother me immensely since the intention is to move away from the old netvirt I don\u0027t think it\u0027s worth the time to build an abstraction so that you can have two neutron implementations together with the network util...finally, that brings me to my last point. I don\u0027t like the name of this class becasue it doesn\u0027t describe what it does like the old name PingableNeutronNetItUtil. I\u0027d prefer that we use that name.",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
