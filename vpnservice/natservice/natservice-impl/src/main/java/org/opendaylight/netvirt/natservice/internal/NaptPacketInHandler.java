@@ -98,7 +98,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                         incomingPacketMap.add(internalIPAddress + portNumber);
                         LOG.trace("NAT Service : Processing new Packet");
                         BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata();
-                        routerId = (metadata.and(MetaDataUtil.METADATA_MASK_VRFID)).longValue();
+                        routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
                         if( routerId <= 0) {
                             LOG.error("NAT Service : Router ID is invalid");
                             return;

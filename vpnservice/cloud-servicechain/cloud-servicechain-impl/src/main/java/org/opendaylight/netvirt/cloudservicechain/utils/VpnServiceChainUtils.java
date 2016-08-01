@@ -232,7 +232,7 @@ public class VpnServiceChainUtils {
     public static List<Instruction> buildSetVrfTagAndGotoFibInstructions(Integer vpnTag) {
         List<Instruction> result = new ArrayList<Instruction>();
         int instructionKey = 0;
-        result.add(MDSALUtil.buildAndGetWriteMetadaInstruction(BigInteger.valueOf(vpnTag),
+        result.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnTag),
                                                                MetaDataUtil.METADATA_MASK_VRFID,
                                                                ++instructionKey));
         result.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));

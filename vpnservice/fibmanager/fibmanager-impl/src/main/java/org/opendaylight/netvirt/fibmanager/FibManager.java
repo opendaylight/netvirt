@@ -215,7 +215,8 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class);
   }
 
-  public DataBroker getResourceBroker() {
+  @Override
+public DataBroker getResourceBroker() {
       return broker;
   }
 
@@ -280,34 +281,40 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
              rd, update.getDestPrefix(), update.getNextHopAddressList(), update.getLabel());
   }
 
-  public void create(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier, Object vrfEntry) {
+  @Override
+public void create(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier, Object vrfEntry) {
       if (vrfEntry instanceof VrfEntry) {
           createFibEntries(tx, identifier, (VrfEntry)vrfEntry);
       }
   }
 
-  public void delete(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier, Object vrfEntry) {
+  @Override
+public void delete(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier, Object vrfEntry) {
       if (vrfEntry instanceof VrfEntry) {
           deleteFibEntries(tx, identifier, (VrfEntry) vrfEntry);
       }
   }
 
-  public void update(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier, Object original,
+  @Override
+public void update(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier, Object original,
                      Object update) {
       if ((original instanceof VrfEntry) && (update instanceof VrfEntry)) {
           createFibEntries(tx, identifier, (VrfEntry)update);
       }
   }
 
-  public int getBatchSize() {
+  @Override
+public int getBatchSize() {
       return batchSize;
   }
 
-  public int getBatchInterval() {
+  @Override
+public int getBatchInterval() {
       return batchInterval;
   }
 
-  public LogicalDatastoreType getDatastoreType() {
+  @Override
+public LogicalDatastoreType getDatastoreType() {
       return LogicalDatastoreType.CONFIGURATION;
   }
 
@@ -547,7 +554,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
             }
         }
         final List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        BigInteger subnetRouteMeta =  ((BigInteger.valueOf(elanTag)).shiftLeft(32)).or((BigInteger.valueOf(vpnId)));
+        BigInteger subnetRouteMeta =  ((BigInteger.valueOf(elanTag)).shiftLeft(32)).or((BigInteger.valueOf(vpnId).shiftLeft(1)));
         instructions.add(new InstructionInfo(InstructionType.write_metadata,  new BigInteger[] { subnetRouteMeta, MetaDataUtil.METADATA_MASK_SUBNET_ROUTE }));
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_SUBNET_ROUTE_TABLE }));
         makeConnectedRoute(dpnId,vpnId,vrfEntry,rd,instructions,NwConstants.ADD_FLOW, tx);
@@ -681,7 +688,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata,
-                                  new BigInteger[] { BigInteger.valueOf(vpnTag),
+                                  new BigInteger[] { MetaDataUtil.getVpnIdMetadata(vpnTag),
                                                      MetaDataUtil.METADATA_MASK_VRFID }));
         matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_IPV4 }));
 
@@ -1566,7 +1573,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
     List<MatchInfo> matches = new ArrayList<>();
 
     matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-        BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+            MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
     matches.add(new MatchInfo(MatchFieldType.eth_type,
                               new long[] { NwConstants.ETHTYPE_IPV4 }));
