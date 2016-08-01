@@ -772,7 +772,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         String flowRef = getFlowRefTs(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef,
                 NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_TS_TABLE, matches, instructions);
+                NwConstants.COOKIE_TS_TABLE, matches, instructions);
         return flowEntity;
     }
 
@@ -2222,7 +2222,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         String flowRef = getFlowRefTs(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef,
                 NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef, 0, 0,
-                NatConstants.COOKIE_TS_TABLE, matches, instructions);
+                NwConstants.COOKIE_TS_TABLE, matches, instructions);
         return flowEntity;
     }
 

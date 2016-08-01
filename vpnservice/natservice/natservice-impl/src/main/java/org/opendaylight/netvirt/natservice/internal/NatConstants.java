@@ -32,7 +32,6 @@ public class NatConstants {
     public static final long SNAT_ID_LOW_VALUE = 200000L;
     public static final long SNAT_ID_HIGH_VALUE = 225000L;
     public static final int DEFAULT_TS_FLOW_PRIORITY = 10;
-    public static final BigInteger COOKIE_TS_TABLE = new BigInteger("8000002", 16);
     public static final short DEFAULT_PREFIX = 32;
 
     // Flow Actions
