@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import static com.google.common.collect.Iterables.filter;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -22,6 +23,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Assert;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -83,29 +88,29 @@ public class AclServiceTestUtils {
 
     public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, MatchFieldType matchType, String... params) {
         Iterable<MatchInfoBase> matches = filter(flowMatches,
-            (item -> item instanceof MatchInfo) );
-        matches = filter(matches,
-                (item -> ((MatchInfo) item).getMatchField().equals(matchType)));
+                (item -> (item instanceof MatchInfo) && ((MatchInfo) item).getMatchField().equals(matchType)
+                || (item instanceof NxMatchInfo) && ((NxMatchInfo) item).getMatchField().equals(matchType)));
+        assertFalse(Iterables.isEmpty(matches));
         for (MatchInfoBase baseMatch : matches) {
-            verifyMatchValues((MatchInfo) baseMatch, params);
+            if (baseMatch instanceof MatchInfo) {
+                verifyMatchValues((MatchInfo)baseMatch, params);
+            } else {
+                verifyMatchValues((NxMatchInfo)baseMatch, params);
+            }
         }
     }
 
-    public static void verifyMatchValues(MatchInfo match, String... params) {
-        switch (match.getMatchField()) {
-
-            case ip_proto:
-            case eth_type:
-                long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
-                Assert.assertArrayEquals(values, match.getMatchValues());
-                break;
-            case ipv4_source:
-            case ipv4_destination:
-                Assert.assertArrayEquals(params, match.getStringMatchValues());
-                break;
-            default:
-                assertTrue("match type is not supported", true);
-                break;
+    public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType, String... params) {
+        Iterable<MatchInfoBase> matches = filter(flowMatches,
+                (item -> (item instanceof MatchInfo) && ((MatchInfo) item).getMatchField().equals(matchType)
+                || (item instanceof NxMatchInfo) && ((NxMatchInfo) item).getMatchField().equals(matchType)));
+        assertFalse(Iterables.isEmpty(matches));
+        for (MatchInfoBase baseMatch : matches) {
+            if (baseMatch instanceof MatchInfo) {
+                verifyMatchValues((MatchInfo)baseMatch, params);
+            } else {
+                verifyMatchValues((NxMatchInfo)baseMatch, params);
+            }
         }
     }
 
@@ -115,11 +120,36 @@ public class AclServiceTestUtils {
             case nx_tcp_dst_with_mask:
             case nx_udp_src_with_mask:
             case nx_udp_dst_with_mask:
+            case ct_state:
                 long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
                 Assert.assertArrayEquals(values, match.getMatchValues());
                 break;
             default:
-                assertTrue("match type is not supported", true);
+                assertTrue("match type is not supported", false);
+                break;
+        }
+    }
+
+    public static void verifyMatchValues(MatchInfo match, String... params) {
+        switch (match.getMatchField()) {
+
+            case ip_proto:
+            case eth_type:
+            case tcp_flags:
+            case icmp_v4:
+                long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
+                Assert.assertArrayEquals(values, match.getMatchValues());
+                break;
+            case ipv4_source:
+            case ipv4_destination:
+            case eth_src:
+            case eth_dst:
+            case arp_sha:
+            case arp_tha:
+                Assert.assertArrayEquals(params, match.getStringMatchValues());
+                break;
+            default:
+                assertTrue("match type is not supported", false);
                 break;
         }
     }
@@ -167,5 +197,51 @@ public class AclServiceTestUtils {
 
     public static void clearStaticData(AclInterface inter, String... aclNames) {
         AclDataUtil.removeAclInterfaceMap(prapreaAclIds(aclNames), inter);
+    }
+
+    public static void verifyActionInfo(List<ActionInfo> flowActions, ActionType actionType, String... params) {
+        Iterable<ActionInfo> actions = filter(flowActions,
+                (item -> ((ActionInfo) item).getActionType().equals(actionType)));
+        assertFalse(Iterables.isEmpty(actions));
+        for (ActionInfo action : actions) {
+            verifyActionValues(action, params);
+        }
+    }
+
+    private static void verifyActionValues(ActionInfo action, String[] params) {
+        switch (action.getActionType()) {
+            case drop_action:
+                break;
+            case goto_table:
+            case nx_resubmit:
+                Assert.assertArrayEquals(params, action.getActionValues());
+                break;
+            default:
+                assertTrue("match type is not supported", false);
+                break;
+        }
+    }
+
+    public static void verifyInstructionInfo(List<InstructionInfo> instructionInfoList, InstructionType type,
+            String ... params) {
+        Iterable<InstructionInfo> matches = filter(instructionInfoList,
+                (item -> item.getInstructionType().equals(type)));
+        assertFalse(Iterables.isEmpty(matches));
+        for (InstructionInfo baseMatch : matches) {
+            verifyInstructionValues((InstructionInfo) baseMatch, params);
+        }
+
+    }
+
+    private static void verifyInstructionValues(InstructionInfo inst, String[] params) {
+        switch (inst.getInstructionType()) {
+            case goto_table:
+                long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
+                Assert.assertArrayEquals(values, inst.getInstructionValues());
+                break;
+            default:
+                assertTrue("match type is not supported", false);
+                break;
+        }
     }
 }
