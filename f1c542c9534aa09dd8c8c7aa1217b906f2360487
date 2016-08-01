@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_9c64cde6",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6NodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-08-01T11:32:24Z",
+      "side": 1,
+      "message": "Agree. moved changes to interface listener",
+      "parentUuid": "9a561d44_1598debe",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_55b7f639",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PeriodicRAThread.java",
         "patchSetId": 2
@@ -47,6 +65,24 @@
       "writtenOn": "2016-07-31T18:11:06Z",
       "side": 1,
       "message": "Please add a comment saying that its 1000 ms.\ni.e., something like \nprivate static final int SLEEP_TIME \u003d 1000; // time in ms",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_36baf8e1",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PeriodicRAThread.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-08-01T11:32:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_55b7f639",
       "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +123,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_5cb995e8",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-08-01T11:32:24Z",
+      "side": 1,
+      "message": "are you saying in the cease RA message prefix should not be advertised? \nIf yes, no. I think the Prefix will be advertised in the cease RA message",
+      "parentUuid": "9a561d44_3546c24f",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_d57ae675",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/VirtualPort.java",
         "patchSetId": 2
@@ -98,6 +152,24 @@
       "writtenOn": "2016-07-31T18:11:06Z",
       "side": 1,
       "message": "Shall we initialize the periodicTimer to null, as this is used only for routerPorts and calling getPeriodicTimer() on other ports should ideally be returning null.",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_96caec6c",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/VirtualPort.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-08-01T11:32:24Z",
+      "side": 1,
+      "message": "By default these class variables gets initialized to null. so in case of non-router ports the get only returns null",
+      "parentUuid": "9a561d44_d57ae675",
       "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +193,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_96e30c05",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6Constants.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-08-01T11:32:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_dbeb3ada",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_3bbcf6db",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6Constants.java",
         "patchSetId": 2
@@ -138,6 +228,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_399b0bcb",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6Constants.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-08-01T11:32:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_3bbcf6db",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_b57f7265",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6PeriodicTrQueue.java",
         "patchSetId": 2
@@ -149,6 +257,24 @@
       "writtenOn": "2016-07-31T18:11:06Z",
       "side": 1,
       "message": "I think you can use ipv6PeriodicQueue.clear()",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b6e60815",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6PeriodicTrQueue.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-08-01T11:32:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_b57f7265",
       "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
