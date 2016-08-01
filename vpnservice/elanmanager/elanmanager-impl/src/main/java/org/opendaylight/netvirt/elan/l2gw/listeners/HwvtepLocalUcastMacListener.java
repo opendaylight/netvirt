@@ -7,32 +7,33 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import com.google.common.collect.Lists;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
 /**
- * A listener for Ucast MAC entries that are added/removed to/from an External Device (e.g., TOR).
+ * A listener for Ucast MAC entries that are added/removed to/from an External
+ * Device (e.g., TOR).
  *
- * When a Ucast MAC addr appears in the hwvtep's operational DS, that MAC must be populated in DMAC tables in all
- * Elan participating DPNs. ELAN is selected according to field 'tunnel_key' of the Logical Switch to which the new
- * MAC belongs.
+ * When a Ucast MAC addr appears in the hwvtep's operational DS, that MAC must
+ * be populated in DMAC tables in all Elan participating DPNs. ELAN is selected
+ * according to field 'tunnel_key' of the Logical Switch to which the new MAC
+ * belongs.
  *
  */
 public class HwvtepLocalUcastMacListener extends

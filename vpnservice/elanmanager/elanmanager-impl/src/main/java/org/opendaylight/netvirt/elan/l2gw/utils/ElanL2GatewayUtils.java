@@ -7,6 +7,12 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,9 +27,18 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.interfacemanager.IfmUtil;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.utils.SystemPropertyReader;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteL2GwDeviceMacsFromElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteLogicalSwitchJob;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepTerminationPointListener;
@@ -31,20 +46,25 @@ import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.genius.interfacemanager.IfmUtil;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.genius.utils.SystemPropertyReader;
-import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
-import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
-import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.forwarding.tables.MacTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepLogicalSwitchRef;
@@ -58,41 +78,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.locator.set.attributes.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.port.attributes.VlanBindings;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.forwarding.tables.MacTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-
 /**
- * It gathers a set of utility methods that handle ELAN configuration in external Devices (where external means
- * "not-CSS". As of now: TORs).
+ * It gathers a set of utility methods that handle ELAN configuration in
+ * external Devices (where external means "not-CSS". As of now: TORs).
  *
- * It makes use of HwvtepUtils class located under ovsdb/hwvtepsouthbound project for low-level mdsal operations
+ * It makes use of HwvtepUtils class located under ovsdb/hwvtepsouthbound
+ * project for low-level mdsal operations
  *
  * @author eperefr
  *
@@ -103,8 +103,7 @@ public class ElanL2GatewayUtils {
     private static DataStoreJobCoordinator dataStoreJobCoordinator;
     private static Timer LogicalSwitchDeleteJobTimer = new Timer();
     private static final int LOGICAL_SWITCH_DELETE_DELAY = 120000;
-    private static ConcurrentMap<Pair<NodeId, String>, TimerTask> LogicalSwitchDeletedTasks =
-            new ConcurrentHashMap<>();
+    private static ConcurrentMap<Pair<NodeId, String>, TimerTask> LogicalSwitchDeletedTasks = new ConcurrentHashMap<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanL2GatewayUtils.class);
 
@@ -139,11 +138,12 @@ public class ElanL2GatewayUtils {
     }
 
     /**
-     * Installs dpn macs in external device.
-     * first it checks if the physical locator towards this dpn tep is present or not
-     * if the physical locator is present go ahead and add the ucast macs
-     * otherwise update the mcast mac entry to include this dpn tep ip
-     * and schedule the job to put ucast macs once the physical locator is programmed in device
+     * Installs dpn macs in external device. first it checks if the physical
+     * locator towards this dpn tep is present or not if the physical locator is
+     * present go ahead and add the ucast macs otherwise update the mcast mac
+     * entry to include this dpn tep ip and schedule the job to put ucast macs
+     * once the physical locator is programmed in device
+     *
      * @param elanName
      *            the elan name
      * @param lstElanInterfaceNames
@@ -153,8 +153,8 @@ public class ElanL2GatewayUtils {
      * @param externalNodeId
      *            the external node id
      */
-    public static void installDpnMacsInL2gwDevice(String elanName,  Set<String> lstElanInterfaceNames,
-                                                  BigInteger dpnId, NodeId externalNodeId) {
+    public static void installDpnMacsInL2gwDevice(String elanName, Set<String> lstElanInterfaceNames, BigInteger dpnId,
+            NodeId externalNodeId) {
         L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName,
                 externalNodeId.getValue());
         if (elanL2GwDevice == null) {
@@ -163,8 +163,8 @@ public class ElanL2GatewayUtils {
         }
         IpAddress dpnTepIp = getSourceDpnTepIp(dpnId, externalNodeId);
         if (dpnTepIp == null) {
-            LOG.warn("Could not install dpn macs in l2gw device , dpnTepIp not found dpn : {} , nodeid : {}",
-                    dpnId, externalNodeId);
+            LOG.warn("Could not install dpn macs in l2gw device , dpnTepIp not found dpn : {} , nodeid : {}", dpnId,
+                    externalNodeId);
             return;
         }
 
@@ -248,7 +248,7 @@ public class ElanL2GatewayUtils {
      * @return the remote mcast mac
      */
     public static RemoteMcastMacs readRemoteMcastMac(NodeId nodeId, String logicalSwitchName,
-                                                     LogicalDatastoreType datastoreType) {
+            LogicalDatastoreType datastoreType) {
         InstanceIdentifier<LogicalSwitches> logicalSwitch = HwvtepSouthboundUtils
                 .createLogicalSwitchesInstanceIdentifier(nodeId, new HwvtepNodeName(logicalSwitchName));
         RemoteMcastMacsKey remoteMcastMacsKey = new RemoteMcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch),
@@ -354,7 +354,7 @@ public class ElanL2GatewayUtils {
         List<LocalUcastMacs> l2gwDeviceLocalMacs = l2gwDevice.getUcastLocalMacs();
         if (l2gwDeviceLocalMacs != null && !l2gwDeviceLocalMacs.isEmpty()) {
             for (LocalUcastMacs localUcastMac : l2gwDeviceLocalMacs) {
-                //TODO batch these ops
+                // TODO batch these ops
                 ElanUtils.installDmacFlowsToExternalRemoteMac(dpnId, l2gwDevice.getHwvtepNodeId(), elan.getElanTag(),
                         elan.getSegmentationId(), localUcastMac.getMacEntryKey().getValue(), elanName);
             }
@@ -383,18 +383,19 @@ public class ElanL2GatewayUtils {
         }
     }
 
-    public static void installL2GwUcastMacInElan(final ElanInstance elan,
-            final L2GatewayDevice extL2GwDevice, final String macToBeAdded) {
+    public static void installL2GwUcastMacInElan(final ElanInstance elan, final L2GatewayDevice extL2GwDevice,
+            final String macToBeAdded) {
         final String extDeviceNodeId = extL2GwDevice.getHwvtepNodeId();
         final String elanInstanceName = elan.getElanInstanceName();
 
-        // Retrieve all participating DPNs in this Elan. Populate this MAC in DMAC table.
-        // Looping through all DPNs in order to add/remove mac flows in their DMAC table
+        // Retrieve all participating DPNs in this Elan. Populate this MAC in
+        // DMAC table.
+        // Looping through all DPNs in order to add/remove mac flows in their
+        // DMAC table
         final List<DpnInterfaces> elanDpns = ElanUtils.getInvolvedDpnsInElan(elanInstanceName);
         if (elanDpns != null && elanDpns.size() > 0) {
             String jobKey = elan.getElanInstanceName() + ":" + macToBeAdded;
-            ElanClusterUtils.runOnlyInLeaderNode(jobKey,
-                    "install l2gw macs in dmac table",
+            ElanClusterUtils.runOnlyInLeaderNode(jobKey, "install l2gw macs in dmac table",
                     new Callable<List<ListenableFuture<Void>>>() {
                         @Override
                         public List<ListenableFuture<Void>> call() throws Exception {
@@ -418,50 +419,51 @@ public class ElanL2GatewayUtils {
         final List<PhysAddress> macList = new ArrayList<>();
         macList.add(new PhysAddress(macToBeAdded));
 
-        String jobKey = "hwvtep:"+elan.getElanInstanceName() + ":" + macToBeAdded;
-        ElanClusterUtils.runOnlyInLeaderNode(jobKey,
-                "install remote ucast macs in l2gw device",
+        String jobKey = "hwvtep:" + elan.getElanInstanceName() + ":" + macToBeAdded;
+        ElanClusterUtils.runOnlyInLeaderNode(jobKey, "install remote ucast macs in l2gw device",
                 new Callable<List<ListenableFuture<Void>>>() {
                     @Override
                     public List<ListenableFuture<Void>> call() throws Exception {
-                        List<ListenableFuture<Void>>  fts = Lists.newArrayList();
+                        List<ListenableFuture<Void>> fts = Lists.newArrayList();
                         if (!doesLocalUcastMacExistsInCache(extL2GwDevice, macToBeAdded)) {
                             LOG.trace(
                                     "Skipping install of remote ucast macs {} in l2gw device as it is not found in cache",
                                     macToBeAdded);
                             return fts;
                         }
-                        ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices =
-                                ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanInstanceName);
+                        ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils
+                                .getInvolvedL2GwDevices(elanInstanceName);
                         for (L2GatewayDevice otherDevice : elanL2GwDevices.values()) {
                             if (!otherDevice.getHwvtepNodeId().equals(extDeviceNodeId)
                                     && !areMLAGDevices(extL2GwDevice, otherDevice)) {
                                 final String hwvtepId = otherDevice.getHwvtepNodeId();
-                                InstanceIdentifier<Node> iid = HwvtepSouthboundUtils.createInstanceIdentifier(
-                                        new NodeId(hwvtepId));
+                                InstanceIdentifier<Node> iid = HwvtepSouthboundUtils
+                                        .createInstanceIdentifier(new NodeId(hwvtepId));
                                 final String logicalSwitchName = elanInstanceName;
 
-                                ListenableFuture<Void> ft = HwvtepUtils.installUcastMacs(
-                                        broker, hwvtepId, macList, logicalSwitchName, extL2GwDeviceTepIp);
-                                //TODO batch the above call
+                                ListenableFuture<Void> ft = HwvtepUtils.installUcastMacs(broker, hwvtepId, macList,
+                                        logicalSwitchName, extL2GwDeviceTepIp);
+                                // TODO batch the above call
                                 Futures.addCallback(ft, new FutureCallback<Void>() {
                                     @Override
                                     public void onSuccess(Void noarg) {
-                                        LOG.trace("Successful in initiating ucast_remote_macs addition" +
-                                                "related to {} in {}", logicalSwitchName, hwvtepId);
+                                        LOG.trace("Successful in initiating ucast_remote_macs addition"
+                                                + "related to {} in {}", logicalSwitchName, hwvtepId);
                                     }
 
                                     @Override
                                     public void onFailure(Throwable error) {
-                                        LOG.error(String.format("Failed adding ucast_remote_macs related to " +
-                                                "%s in %s", logicalSwitchName, hwvtepId), error);
+                                        LOG.error(String.format(
+                                                "Failed adding ucast_remote_macs related to " + "%s in %s",
+                                                logicalSwitchName, hwvtepId), error);
                                     }
                                 });
                                 fts.add(ft);
                             }
                         }
                         return fts;
-                    }});
+                    }
+                });
     }
 
     /**
@@ -608,10 +610,10 @@ public class ElanL2GatewayUtils {
         String hwvtepNodeId = l2GatewayDevice.getHwvtepNodeId();
         String logicalSwitch = getLogicalSwitchFromElan(elanName);
 
-        List<MacAddress> lstElanMacs =
-                getRemoteUcastMacs(new NodeId(hwvtepNodeId), logicalSwitch, LogicalDatastoreType.CONFIGURATION);
-        ListenableFuture<Void> future =
-                HwvtepUtils.deleteRemoteUcastMacs(broker, new NodeId(hwvtepNodeId), logicalSwitch, lstElanMacs);
+        List<MacAddress> lstElanMacs = getRemoteUcastMacs(new NodeId(hwvtepNodeId), logicalSwitch,
+                LogicalDatastoreType.CONFIGURATION);
+        ListenableFuture<Void> future = HwvtepUtils.deleteRemoteUcastMacs(broker, new NodeId(hwvtepNodeId),
+                logicalSwitch, lstElanMacs);
 
         Futures.addCallback(future, new FutureCallback<Void>() {
             @Override
@@ -644,9 +646,12 @@ public class ElanL2GatewayUtils {
      * Gets the remote ucast macs from hwvtep node filtering based on logical
      * switch.
      *
-     * @param hwvtepNodeId the hwvtep node id
-     * @param logicalSwitch the logical switch
-     * @param datastoreType the datastore type
+     * @param hwvtepNodeId
+     *            the hwvtep node id
+     * @param logicalSwitch
+     *            the logical switch
+     * @param datastoreType
+     *            the datastore type
      * @return the remote ucast macs
      */
     public static List<MacAddress> getRemoteUcastMacs(NodeId hwvtepNodeId, String logicalSwitch,
@@ -654,8 +659,8 @@ public class ElanL2GatewayUtils {
         List<MacAddress> lstMacs = Collections.emptyList();
         Node hwvtepNode = HwvtepUtils.getHwVtepNode(broker, datastoreType, hwvtepNodeId);
         if (hwvtepNode != null) {
-            List<RemoteUcastMacs> remoteUcastMacs =
-                    hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class).getRemoteUcastMacs();
+            List<RemoteUcastMacs> remoteUcastMacs = hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class)
+                    .getRemoteUcastMacs();
             if (remoteUcastMacs != null && !remoteUcastMacs.isEmpty()) {
                 // Filtering remoteUcastMacs based on the logical switch and
                 // forming a list of MacAddress
@@ -684,10 +689,10 @@ public class ElanL2GatewayUtils {
         String logicalSwitchName = getLogicalSwitchFromElan(elanName);
         NodeId hwVtepNodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
 
-        List<RemoteUcastMacs> lstL2GatewayDevicesMacs = getOtherDevicesMacs(elanName,
-                l2GatewayDevice, hwVtepNodeId, logicalSwitchName);
-        List<RemoteUcastMacs> lstElanMacTableEntries = getElanMacTableEntriesMacs(elanName,
-                l2GatewayDevice, hwVtepNodeId, logicalSwitchName);
+        List<RemoteUcastMacs> lstL2GatewayDevicesMacs = getOtherDevicesMacs(elanName, l2GatewayDevice, hwVtepNodeId,
+                logicalSwitchName);
+        List<RemoteUcastMacs> lstElanMacTableEntries = getElanMacTableEntriesMacs(elanName, l2GatewayDevice,
+                hwVtepNodeId, logicalSwitchName);
 
         List<RemoteUcastMacs> lstRemoteUcastMacs = new ArrayList<>(lstL2GatewayDevicesMacs);
         lstRemoteUcastMacs.addAll(lstElanMacTableEntries);
@@ -713,8 +718,7 @@ public class ElanL2GatewayUtils {
      * @return the l2 gateway devices macs as remote ucast macs
      */
     public static List<RemoteUcastMacs> getOtherDevicesMacs(String elanName,
-                                                            L2GatewayDevice l2GatewayDeviceToBeConfigured,
-                                                            NodeId hwVtepNodeId, String logicalSwitchName) {
+            L2GatewayDevice l2GatewayDeviceToBeConfigured, NodeId hwVtepNodeId, String logicalSwitchName) {
         List<RemoteUcastMacs> lstRemoteUcastMacs = new ArrayList<>();
         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevicesFromCache = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(elanName);
@@ -774,8 +778,7 @@ public class ElanL2GatewayUtils {
      * @return the elan mac table entries as remote ucast macs
      */
     public static List<RemoteUcastMacs> getElanMacTableEntriesMacs(String elanName,
-                                                                   L2GatewayDevice l2GatewayDeviceToBeConfigured,
-                                                                   NodeId hwVtepNodeId, String logicalSwitchName) {
+            L2GatewayDevice l2GatewayDeviceToBeConfigured, NodeId hwVtepNodeId, String logicalSwitchName) {
         List<RemoteUcastMacs> lstRemoteUcastMacs = new ArrayList<>();
 
         MacTable macTable = ElanUtils.getElanMacTable(elanName);
@@ -832,8 +835,7 @@ public class ElanL2GatewayUtils {
                 LOG.debug("Tunnel interface name: {} for sourceNode: {} and dstNode: {}", tunnelInterfaceName,
                         sourceNode, dstNode);
             } else {
-                LOG.warn("RPC call to ITM.GetExternalTunnelInterfaceName failed with error: {}",
-                        rpcResult.getErrors());
+                LOG.warn("RPC call to ITM.GetExternalTunnelInterfaceName failed with error: {}", rpcResult.getErrors());
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
             LOG.error("Failed to get external tunnel interface name for sourceNode: {} and dstNode: {}: {} ",
@@ -898,7 +900,8 @@ public class ElanL2GatewayUtils {
             TerminationPoint portTerminationPoint = HwvtepUtils.getPhysicalPortTerminationPoint(broker,
                     LogicalDatastoreType.OPERATIONAL, physicalSwitchNodeId, deviceInterface.getInterfaceName());
             if (portTerminationPoint == null) {
-                // port is not present in Hwvtep; don't configure VLAN bindings on this port
+                // port is not present in Hwvtep; don't configure VLAN bindings
+                // on this port
                 continue;
             }
             List<VlanBindings> vlanBindings = new ArrayList<>();
@@ -931,7 +934,7 @@ public class ElanL2GatewayUtils {
      *            the interface in physical switch
      * @param vlanBindings
      *            the vlan bindings to be configured
-     * @return  the listenable future
+     * @return the listenable future
      */
     public static ListenableFuture<Void> updateVlanBindingsInL2GatewayDevice(NodeId nodeId, String psName,
             String interfaceName, List<VlanBindings> vlanBindings) {
@@ -1023,14 +1026,15 @@ public class ElanL2GatewayUtils {
     }
 
     public static InstanceIdentifier<Interface> getInterfaceIdentifier(InterfaceKey interfaceKey) {
-        InstanceIdentifier.InstanceIdentifierBuilder<Interface> interfaceInstanceIdentifierBuilder =
-                InstanceIdentifier.builder(Interfaces.class).child(Interface.class, interfaceKey);
+        InstanceIdentifier.InstanceIdentifierBuilder<Interface> interfaceInstanceIdentifierBuilder = InstanceIdentifier
+                .builder(Interfaces.class).child(Interface.class, interfaceKey);
         return interfaceInstanceIdentifierBuilder.build();
     }
 
     public static Interface getInterfaceFromConfigDS(InterfaceKey interfaceKey, DataBroker dataBroker) {
         InstanceIdentifier<Interface> interfaceId = getInterfaceIdentifier(interfaceKey);
-        Optional<Interface> interfaceOptional = IfmUtil.read(LogicalDatastoreType.CONFIGURATION, interfaceId, dataBroker);
+        Optional<Interface> interfaceOptional = IfmUtil.read(LogicalDatastoreType.CONFIGURATION, interfaceId,
+                dataBroker);
         if (!interfaceOptional.isPresent()) {
             return null;
         }
@@ -1052,7 +1056,8 @@ public class ElanL2GatewayUtils {
      */
     public static List<ListenableFuture<Void>> deleteL2GwDeviceUcastLocalMacsFromElan(L2GatewayDevice l2GatewayDevice,
             String elanName) {
-        LOG.info("Deleting L2GatewayDevice [{}] UcastLocalMacs from elan [{}]", l2GatewayDevice.getHwvtepNodeId(), elanName);
+        LOG.info("Deleting L2GatewayDevice [{}] UcastLocalMacs from elan [{}]", l2GatewayDevice.getHwvtepNodeId(),
+                elanName);
 
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         ElanInstance elan = ElanUtils.getElanInstanceByName(elanName);
@@ -1090,17 +1095,15 @@ public class ElanL2GatewayUtils {
     }
 
     public static void scheduleAddDpnMacInExtDevices(String elanName, BigInteger dpId,
-                                                     List<PhysAddress> staticMacAddresses) {
-        ConcurrentMap<String, L2GatewayDevice> elanDevices = ElanL2GwCacheUtils
-                .getInvolvedL2GwDevices(elanName);
+            List<PhysAddress> staticMacAddresses) {
+        ConcurrentMap<String, L2GatewayDevice> elanDevices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName);
         for (final L2GatewayDevice externalDevice : elanDevices.values()) {
             scheduleAddDpnMacsInExtDevice(elanName, dpId, staticMacAddresses, externalDevice);
         }
     }
 
     public static void scheduleAddDpnMacsInExtDevice(final String elanName, BigInteger dpId,
-                                                     final List<PhysAddress> staticMacAddresses,
-                                                     final L2GatewayDevice externalDevice) {
+            final List<PhysAddress> staticMacAddresses, final L2GatewayDevice externalDevice) {
         NodeId nodeId = new NodeId(externalDevice.getHwvtepNodeId());
         final IpAddress dpnTepIp = ElanL2GatewayUtils.getSourceDpnTepIp(dpId, nodeId);
         LOG.trace("Dpn Tep IP: {} for dpnId: {} and nodeId: {}", dpnTepIp, dpId, nodeId);
@@ -1108,17 +1111,14 @@ public class ElanL2GatewayUtils {
             LOG.error("could not install dpn mac in l2gw TEP IP not found for dpnId {} and nodeId {}", dpId, nodeId);
             return;
         }
-        TerminationPointKey tpKey = HwvtepSouthboundUtils.getTerminationPointKey(
-                dpnTepIp.getIpv4Address().getValue());
-        InstanceIdentifier<TerminationPoint> tpPath = HwvtepSouthboundUtils.createTerminationPointId
-                (nodeId, tpKey);
+        TerminationPointKey tpKey = HwvtepSouthboundUtils.getTerminationPointKey(dpnTepIp.getIpv4Address().getValue());
+        InstanceIdentifier<TerminationPoint> tpPath = HwvtepSouthboundUtils.createTerminationPointId(nodeId, tpKey);
 
         HwvtepTerminationPointListener.runJobAfterPhysicalLocatorIsAvialable(tpPath, new Runnable() {
             @Override
             public void run() {
-                HwvtepUtils.installUcastMacs(broker,
-                        externalDevice.getHwvtepNodeId(), staticMacAddresses,
-                        elanName, dpnTepIp);
+                HwvtepUtils.installUcastMacs(broker, externalDevice.getHwvtepNodeId(), staticMacAddresses, elanName,
+                        dpnTepIp);
             }
         });
     }
@@ -1127,8 +1127,8 @@ public class ElanL2GatewayUtils {
         TimerTask logicalSwitchDeleteTask = new TimerTask() {
             @Override
             public void run() {
-                Pair<NodeId, String> nodeIdLogicalSwitchNamePair =
-                        new ImmutablePair<NodeId, String>(hwvtepNodeId, lsName);
+                Pair<NodeId, String> nodeIdLogicalSwitchNamePair = new ImmutablePair<NodeId, String>(hwvtepNodeId,
+                        lsName);
                 LogicalSwitchDeletedTasks.remove(nodeIdLogicalSwitchNamePair);
 
                 DeleteLogicalSwitchJob deleteLsJob = new DeleteLogicalSwitchJob(broker, hwvtepNodeId, lsName);
