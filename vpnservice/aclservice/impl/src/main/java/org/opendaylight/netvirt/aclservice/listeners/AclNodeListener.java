@@ -18,6 +18,7 @@ import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -33,6 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Listener to handle flow capable node updates.
  */
+@SuppressWarnings("deprecation")
 public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, AclNodeListener>
         implements AutoCloseable {
 
@@ -118,8 +120,13 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
      * @param dpnId the dpn id
      */
     private void createTableMissEntries(BigInteger dpnId) {
-        addIngressAclTableMissFlow(dpnId);
-        addEgressAclTableMissFlow(dpnId);
+        if (AclConstants.isStatelessAcl()) {
+            addStatelessIngressAclTableMissFlow(dpnId);
+            addStatelessEgressAclTableMissFlow(dpnId);
+        } else {
+            addIngressAclTableMissFlow(dpnId);
+            addEgressAclTableMissFlow(dpnId);
+        }
     }
 
     /**
@@ -145,6 +152,104 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(nextTblFlowEntity);
 
         LOG.debug("Added Ingress ACL Table Miss Flows for dpn {}", dpId);
+    }
+
+    /**
+     * Adds the ingress acl table miss flow.
+     *
+     * @param dpId the dp id
+     */
+    private void addStatelessIngressAclTableMissFlow(BigInteger dpId) {
+        List<InstructionInfo> allowAllInstructions = new ArrayList<>();
+        allowAllInstructions.add(
+                new InstructionInfo(InstructionType.goto_table,
+                        new long[] { NwConstants.INGRESS_ACL_NEXT_TABLE_ID }));
+
+        List<InstructionInfo> synInstructions = new ArrayList<>();
+        List<MatchInfo> synMatches = new ArrayList<>();
+        synMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN }));
+
+        List<ActionInfo> synActionsInfos = new ArrayList<>();
+        synActionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
+        synInstructions.add(new InstructionInfo(InstructionType.apply_actions, synActionsInfos));
+
+        FlowEntity synFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE_ID,
+                "SYN-" + getTableMissFlowId(NwConstants.INGRESS_ACL_TABLE_ID),
+                AclConstants.PROTO_MATCH_SYN_DROP_PRIORITY, "Ingress Syn ACL Table Block", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, synMatches, synInstructions);
+        mdsalManager.installFlow(synFlowEntity);
+
+        synMatches = new ArrayList<>();
+        synMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN_ACK }));
+
+        FlowEntity synAckFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE_ID,
+                "SYN-ACK-ALLOW-" + getTableMissFlowId(NwConstants.INGRESS_ACL_TABLE_ID),
+                AclConstants.PROTO_MATCH_SYN_ALLOW_PRIORITY, "Ingress Syn Ack ACL Table Allow", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, synMatches, allowAllInstructions);
+        mdsalManager.installFlow(synAckFlowEntity);
+
+
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE_ID,
+                getTableMissFlowId(NwConstants.INGRESS_ACL_TABLE_ID), 0, "Ingress Stateless ACL Table Miss Flow",
+                0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, allowAllInstructions);
+        mdsalManager.installFlow(flowEntity);
+
+        FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_NEXT_TABLE_ID,
+                getTableMissFlowId(NwConstants.INGRESS_ACL_NEXT_TABLE_ID), 0,
+                "Ingress Stateless Next ACL Table Miss Flow", 0, 0, AclConstants.COOKIE_ACL_BASE,
+                mkMatches, allowAllInstructions);
+        mdsalManager.installFlow(nextTblFlowEntity);
+
+        LOG.debug("Added Stateless Ingress ACL Table Miss Flows for dpn {}", dpId);
+    }
+
+    /**
+     * Adds the stateless egress acl table miss flow.
+     *
+     * @param dpId the dp id
+     */
+    private void addStatelessEgressAclTableMissFlow(BigInteger dpId) {
+        List<InstructionInfo> allowAllInstructions = new ArrayList<>();
+        allowAllInstructions.add(
+                new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.EGRESS_ACL_NEXT_TABLE_ID }));
+
+        List<InstructionInfo> synInstructions = new ArrayList<>();
+        List<MatchInfo> synMatches = new ArrayList<>();
+        synMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN }));
+
+        List<ActionInfo> synActionsInfos = new ArrayList<>();
+        synActionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
+        synInstructions.add(new InstructionInfo(InstructionType.apply_actions, synActionsInfos));
+
+        FlowEntity synFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE_ID,
+                "SYN-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE_ID),
+                AclConstants.PROTO_MATCH_SYN_DROP_PRIORITY, "Egress Syn ACL Table Block", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, synMatches, synInstructions);
+        mdsalManager.installFlow(synFlowEntity);
+
+        synMatches = new ArrayList<>();
+        synMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN_ACK }));
+
+        FlowEntity synAckFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE_ID,
+                "SYN-ACK-ALLOW-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE_ID),
+                AclConstants.PROTO_MATCH_SYN_ALLOW_PRIORITY, "Egress Syn Ack ACL Table Allow", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, synMatches, allowAllInstructions);
+        mdsalManager.installFlow(synAckFlowEntity);
+
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE_ID,
+                getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE_ID), 0, "Egress Stateless ACL Table Miss Flow", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, mkMatches, allowAllInstructions);
+        mdsalManager.installFlow(flowEntity);
+
+        FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_NEXT_TABLE_ID,
+                getTableMissFlowId(NwConstants.EGRESS_ACL_NEXT_TABLE_ID), 0,
+                "Egress Stateless Next ACL Table Miss Flow", 0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches,
+                allowAllInstructions);
+        mdsalManager.installFlow(nextTblFlowEntity);
+
+        LOG.debug("Added Stateless Egress ACL Table Miss Flows for dpn {}", dpId);
     }
 
     /**

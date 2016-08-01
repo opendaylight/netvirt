@@ -37,18 +37,22 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAclServiceImpl.class);
 
-    private final IMdsalApiManager mdsalManager;
-    private final OdlInterfaceRpcService interfaceManager;
-    private final DataBroker dataBroker;
-    private final Class<? extends ServiceModeBase> serviceMode;
+    protected final IMdsalApiManager mdsalManager;
+    protected final OdlInterfaceRpcService interfaceManager;
+    protected final DataBroker dataBroker;
+    protected final Class<? extends ServiceModeBase> serviceMode;
 
     /**
      * Initialize the member variables.
      *
-     * @param serviceMode the service mode
-     * @param dataBroker the data broker instance.
-     * @param interfaceManager the interface manager instance.
-     * @param mdsalManager the mdsal manager instance.
+     * @param serviceMode
+     *            the service mode
+     * @param dataBroker
+     *            the data broker instance.
+     * @param interfaceManager
+     *            the interface manager instance.
+     * @param mdsalManager
+     *            the mdsal manager instance.
      */
     public AbstractAclServiceImpl(Class<? extends ServiceModeBase> serviceMode, DataBroker dataBroker,
             OdlInterfaceRpcService interfaceManager, IMdsalApiManager mdsalManager) {
@@ -65,8 +69,12 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return false;
         }
 
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
-            interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+            .state.Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
+        if (interfaceState == null) {
+            LOG.warn("Unable to find interface state for port {}", port.getName());
+            return false;
+        }
         BigInteger dpId = AclServiceUtils.getDpIdFromIterfaceState(interfaceState);
         if (dpId == null) {
             LOG.error("Unable to find DP Id from interface state {}", interfaceState.getName());
@@ -76,10 +84,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         programAclWithAllowedAddress(dpId, AclServiceUtils.getPortAllowedAddresses(port), interfaceState.getIfIndex(),
                 AclServiceUtils.getInterfaceAcls(port), NwConstants.ADD_FLOW);
 
+        return true;
+
         // TODO: uncomment bindservice() when the acl flow programming is
         // implemented
         // bindService(port.getName());
-        return true;
     }
 
     @Override
@@ -95,7 +104,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 result = removeAcl(portAfter);
             }
         } else if (isPortSecurityEnable) {
-            // Acls has been updated, find added/removed Acls and act accordingly.
+            // Acls has been updated, find added/removed Acls and act
+            // accordingly.
             this.processInterfaceUpdate(portBefore, portAfter);
         }
 
@@ -139,6 +149,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         programAclRules(aclUuidList, dpId, lportTag, addOrRemove);
     }
 
+
     @Override
     public boolean removeAcl(Interface port) {
         if (!AclServiceUtils.isPortSecurityEnabled(port)) {
@@ -147,13 +158,13 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         BigInteger dpId = AclServiceUtils.getDpnForInterface(interfaceManager, port.getName());
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
             interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
-        programAclWithAllowedAddress(dpId, AclServiceUtils.getPortAllowedAddresses(port), interfaceState.getIfIndex(),
-                AclServiceUtils.getInterfaceAcls(port), NwConstants.DEL_FLOW);
+        programAclWithAllowedAddress(dpId, AclServiceUtils.getPortAllowedAddresses(port),
+                interfaceState.getIfIndex(), AclServiceUtils.getInterfaceAcls(port), NwConstants.DEL_FLOW);
 
+        return true;
         // TODO: uncomment unbindService() when the acl flow programming is
         // implemented
         // unbindService(port.getName());
-        return true;
     }
 
     @Override
@@ -180,18 +191,19 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         return true;
     }
 
-
     /**
      * Bind service.
      *
-     * @param interfaceName the interface name
+     * @param interfaceName
+     *            the interface name
      */
     protected abstract void bindService(String interfaceName);
 
     /**
      * Unbind service.
      *
-     * @param interfaceName the interface name
+     * @param interfaceName
+     *            the interface name
      */
     protected abstract void unbindService(String interfaceName);
 
@@ -215,7 +227,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param lportTag the lport tag
      * @param addOrRemove whether to delete or add flow
      */
-    protected abstract void programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove);
+    protected abstract boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove);
 
     /**
      * Programs the ace custom rule.
@@ -229,29 +241,41 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     /**
      * Writes/remove the flow to/from the datastore.
-     * @param dpId the dpId
-     * @param tableId the tableId
-     * @param flowId the flowId
-     * @param priority the priority
-     * @param flowName the flow name
-     * @param idleTimeOut the idle timeout
-     * @param hardTimeOut the hard timeout
-     * @param cookie the cookie
-     * @param matches the list of matches to be writted
-     * @param instructions the list of instruction to be written.
-     * @param addOrRemove add or remove the entries.
+     *
+     * @param dpId
+     *            the dpId
+     * @param tableId
+     *            the tableId
+     * @param flowId
+     *            the flowId
+     * @param priority
+     *            the priority
+     * @param flowName
+     *            the flow name
+     * @param idleTimeOut
+     *            the idle timeout
+     * @param hardTimeOut
+     *            the hard timeout
+     * @param cookie
+     *            the cookie
+     * @param matches
+     *            the list of matches to be writted
+     * @param instructions
+     *            the list of instruction to be written.
+     * @param addOrRemove
+     *            add or remove the entries.
      */
     protected void syncFlow(BigInteger dpId, short tableId, String flowId, int priority, String flowName,
-                          int idleTimeOut, int hardTimeOut, BigInteger cookie, List<? extends MatchInfoBase>  matches,
-                          List<InstructionInfo> instructions, int addOrRemove) {
+            int idleTimeOut, int hardTimeOut, BigInteger cookie, List<? extends MatchInfoBase> matches,
+            List<InstructionInfo> instructions, int addOrRemove) {
         if (addOrRemove == NwConstants.DEL_FLOW) {
-            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,flowId,
-                priority, flowName , idleTimeOut, hardTimeOut, cookie, matches, null);
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName, idleTimeOut,
+                    hardTimeOut, cookie, matches, null);
             LOG.trace("Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
             mdsalManager.removeFlow(flowEntity);
         } else {
-            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId,
-                priority, flowName, idleTimeOut, hardTimeOut, cookie, matches, instructions);
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName, idleTimeOut,
+                    hardTimeOut, cookie, matches, instructions);
             LOG.trace("Installing DpnId {}, flowId {}", dpId, flowId);
             mdsalManager.installFlow(flowEntity);
         }
@@ -274,5 +298,23 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] {Short.toString(dispatcherTableId)}));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         return instructions;
+    }
+
+    protected String getOperAsString(int flowOper) {
+        String oper;
+        switch (flowOper) {
+            case NwConstants.ADD_FLOW:
+                oper = "Add";
+                break;
+            case NwConstants.DEL_FLOW:
+                oper = "Del";
+                break;
+            case NwConstants.MOD_FLOW:
+                oper = "Mod";
+                break;
+            default:
+                oper = "UNKNOWN";
+        }
+        return oper;
     }
 }
