@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_d9ff77a9",
+        "filename": "openstack/net-virt-sfc/impl/src/main/java/org/opendaylight/netvirt/openstack/netvirt/sfc/workaround/services/SfcClassifierService.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-01T09:19:17Z",
+      "side": 1,
+      "message": "Style nit. This seems like a lot of words. Why not just declare a single action and reuse it:\naction \u003d ActionUtils.xxx(...)\nactionList.add...etc\n\u003crepeat\u003e\n\nThis would make the function shorter and, IMHO, more readable. But again, just a nit...and I realize it was that way prior to your commit",
+      "range": {
+        "startLine": 510,
+        "startChar": 70,
+        "endLine": 510,
+        "endChar": 71
+      },
+      "revId": "623c659e7c45a8fc868dc67843d60a6c628b3d42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_39baebe1",
+        "filename": "openstack/net-virt-sfc/impl/src/main/java/org/opendaylight/netvirt/openstack/netvirt/sfc/workaround/services/SfcClassifierService.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-01T09:19:17Z",
+      "side": 1,
+      "message": "Another nit. 0x01 and 0x03 should probably be constants",
+      "revId": "623c659e7c45a8fc868dc67843d60a6c628b3d42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
