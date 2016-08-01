@@ -8,10 +8,12 @@
 
 package org.opendaylight.netvirt.ipv6service;
 
+import io.netty.util.Timeout;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6PeriodicTimer;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -30,6 +32,8 @@ public class VirtualPort  {
     private String    deviceOwner;
     private Long      ofPort;
     private HashMap<Uuid, SubnetInfo> snetInfo;
+    private Ipv6PeriodicTimer periodicTimer;
+    private Timeout periodicTimeout;
 
     // associated router if any
     private VirtualRouter router = null;
@@ -196,6 +200,26 @@ public class VirtualPort  {
         return "VirtualPort[IntfUUid=" + intfUUID + " subnetInfo="
                 + snetInfo + " NetworkId=" + networkID + " mac=" + macAddress + " ofPort="
                 + ofPort + " routerFlag=" + routerIntfFlag + " dpId=" + dpId + "]";
+    }
+
+    public void setPeriodicTimer() {
+        periodicTimer = new Ipv6PeriodicTimer(intfUUID);
+    }
+
+    public Ipv6PeriodicTimer getPeriodicTimer() {
+        return periodicTimer;
+    }
+
+    public void setPeriodicTimeout(Timeout timeout) {
+        periodicTimeout = timeout;
+    }
+
+    public void resetPeriodicTimeout() {
+        periodicTimeout = null;
+    }
+
+    public Timeout getPeriodicTimeout() {
+        return periodicTimeout;
     }
 
     private class SubnetInfo {
