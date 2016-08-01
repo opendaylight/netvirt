@@ -129,8 +129,14 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param addOrRemove whether to delete or add flow
      */
     @Override
-    protected void programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove) {
-        for (Uuid sgUuid : aclUuidList) {
+    protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove) {
+        if (aclUuidList == null || dpId == null) {
+            LOG.warn("one of the ingress acl parameters can not be null. sg {}, dpId {}",
+                    aclUuidList, dpId);
+            return false;
+        }
+
+        for (Uuid sgUuid :aclUuidList ) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
             if (null == acl) {
                 LOG.warn("The ACL is empty");
@@ -142,6 +148,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                 programAceRule(dpId, lportTag, addOrRemove, ace);
             }
         }
+        return true;
     }
 
     @Override

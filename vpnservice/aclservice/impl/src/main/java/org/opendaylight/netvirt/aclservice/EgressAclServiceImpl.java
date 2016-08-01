@@ -128,7 +128,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param addOrRemove whether to delete or add flow
      */
     @Override
-    protected void programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove) {
+    protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove) {
         LOG.trace("Applying custom rules DpId {}, lportTag {}", dpId, lportTag);
         for (Uuid sgUuid :aclUuidList ) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
@@ -142,7 +142,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
                 programAceRule(dpId, lportTag, addOrRemove, ace);
             }
         }
-
+        return true;
     }
 
     @Override

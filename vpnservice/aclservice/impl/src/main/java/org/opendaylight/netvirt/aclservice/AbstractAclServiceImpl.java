@@ -37,16 +37,19 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAclServiceImpl.class);
 
-    private final IMdsalApiManager mdsalManager;
-    private final Class<? extends ServiceModeBase> serviceMode;
+    protected final IMdsalApiManager mdsalManager;
     protected final DataBroker dataBroker;
+    protected final Class<? extends ServiceModeBase> serviceMode;
 
     /**
      * Initialize the member variables.
      *
-     * @param serviceMode the service mode
-     * @param dataBroker the data broker instance.
-     * @param mdsalManager the mdsal manager instance.
+     * @param serviceMode
+     *            the service mode
+     * @param dataBroker
+     *            the data broker instance.
+     * @param mdsalManager
+     *            the mdsal manager instance.
      */
     public AbstractAclServiceImpl(Class<? extends ServiceModeBase> serviceMode, DataBroker dataBroker,
             IMdsalApiManager mdsalManager) {
@@ -57,8 +60,12 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     @Override
     public boolean applyAcl(AclInterface port) {
+        if (port == null) {
+            LOG.error("port cannot be null");
+            return false;
+        }
         BigInteger dpId = port.getDpId();
-        if (dpId == null) {
+        if (dpId == null || port.getLPortTag() == null) {
             LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
             return false;
         }
@@ -66,10 +73,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
                 Action.ADD, NwConstants.ADD_FLOW);
 
+        return true;
+
         // TODO: uncomment bindservice() when the acl flow programming is
         // implemented
         // bindService(port.getName());
-        return true;
     }
 
     @Override
@@ -133,6 +141,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
     }
 
+
     @Override
     public boolean removeAcl(AclInterface port) {
         BigInteger dpId = port.getDpId();
@@ -143,10 +152,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
         programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
                 Action.REMOVE, NwConstants.DEL_FLOW);
+
+        return true;
         // TODO: uncomment unbindService() when the acl flow programming is
         // implemented
         // unbindService(port.getName());
-        return true;
     }
 
     @Override
@@ -167,18 +177,19 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         return true;
     }
 
-
     /**
      * Bind service.
      *
-     * @param interfaceName the interface name
+     * @param interfaceName
+     *            the interface name
      */
     protected abstract void bindService(String interfaceName);
 
     /**
      * Unbind service.
      *
-     * @param interfaceName the interface name
+     * @param interfaceName
+     *            the interface name
      */
     protected abstract void unbindService(String interfaceName);
 
@@ -203,7 +214,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param lportTag the lport tag
      * @param addOrRemove whether to delete or add flow
      */
-    protected abstract void programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove);
+    protected abstract boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove);
 
     /**
      * Programs the ace custom rule.
@@ -217,29 +228,41 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     /**
      * Writes/remove the flow to/from the datastore.
-     * @param dpId the dpId
-     * @param tableId the tableId
-     * @param flowId the flowId
-     * @param priority the priority
-     * @param flowName the flow name
-     * @param idleTimeOut the idle timeout
-     * @param hardTimeOut the hard timeout
-     * @param cookie the cookie
-     * @param matches the list of matches to be writted
-     * @param instructions the list of instruction to be written.
-     * @param addOrRemove add or remove the entries.
+     *
+     * @param dpId
+     *            the dpId
+     * @param tableId
+     *            the tableId
+     * @param flowId
+     *            the flowId
+     * @param priority
+     *            the priority
+     * @param flowName
+     *            the flow name
+     * @param idleTimeOut
+     *            the idle timeout
+     * @param hardTimeOut
+     *            the hard timeout
+     * @param cookie
+     *            the cookie
+     * @param matches
+     *            the list of matches to be writted
+     * @param instructions
+     *            the list of instruction to be written.
+     * @param addOrRemove
+     *            add or remove the entries.
      */
     protected void syncFlow(BigInteger dpId, short tableId, String flowId, int priority, String flowName,
-                          int idleTimeOut, int hardTimeOut, BigInteger cookie, List<? extends MatchInfoBase>  matches,
-                          List<InstructionInfo> instructions, int addOrRemove) {
+            int idleTimeOut, int hardTimeOut, BigInteger cookie, List<? extends MatchInfoBase> matches,
+            List<InstructionInfo> instructions, int addOrRemove) {
         if (addOrRemove == NwConstants.DEL_FLOW) {
-            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,flowId,
-                priority, flowName , idleTimeOut, hardTimeOut, cookie, matches, null);
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName, idleTimeOut,
+                    hardTimeOut, cookie, matches, null);
             LOG.trace("Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
             mdsalManager.removeFlow(flowEntity);
         } else {
-            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId,
-                priority, flowName, idleTimeOut, hardTimeOut, cookie, matches, instructions);
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName, idleTimeOut,
+                    hardTimeOut, cookie, matches, instructions);
             LOG.trace("Installing DpnId {}, flowId {}", dpId, flowId);
             mdsalManager.installFlow(flowEntity);
         }
@@ -262,5 +285,23 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] {Short.toString(dispatcherTableId)}));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         return instructions;
+    }
+
+    protected String getOperAsString(int flowOper) {
+        String oper;
+        switch (flowOper) {
+            case NwConstants.ADD_FLOW:
+                oper = "Add";
+                break;
+            case NwConstants.DEL_FLOW:
+                oper = "Del";
+                break;
+            case NwConstants.MOD_FLOW:
+                oper = "Mod";
+                break;
+            default:
+                oper = "UNKNOWN";
+        }
+        return oper;
     }
 }
