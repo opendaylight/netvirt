@@ -18,6 +18,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -69,8 +70,12 @@ public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListen
             if (!dpId.equals(Ipv6Constants.INVALID_DPID)) {
                 VirtualPort routerPort = pair.getRight();
                 ipv6ServiceUtils.unbindIpv6Service(broker, interfaceName);
-                ipv6ServiceUtils.installIcmpv6Flows(interfaceName, NwConstants.IPV6_TABLE, dpId, pair.getLeft(),
+                ipv6ServiceUtils.installIcmpv6RsPuntFlow(NwConstants.IPV6_TABLE, dpId, pair.getLeft(),
                         mdsalUtil, Ipv6Constants.DEL_FLOW);
+                for (Ipv6Address ipv6Address : routerPort.getIpv6Addresses()) {
+                    ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpId,
+                            pair.getLeft(), ipv6Address.getValue(), mdsalUtil, Ipv6Constants.DEL_FLOW);
+                }
                 ifMgr.removeInterfaceCache(interfaceName);
             }
         }
@@ -113,8 +118,12 @@ public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListen
                     return;
                 }
 
-                ipv6ServiceUtils.installIcmpv6Flows(iface.getName(), NwConstants.IPV6_TABLE, dpId,
+                ipv6ServiceUtils.installIcmpv6RsPuntFlow(NwConstants.IPV6_TABLE, dpId,
                         port.getMacAddress(), mdsalUtil, Ipv6Constants.ADD_FLOW);
+                for (Ipv6Address ipv6Address : routerPort.getIpv6Addresses()) {
+                    ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpId,
+                            port.getMacAddress(), ipv6Address.getValue(), mdsalUtil, Ipv6Constants.ADD_FLOW);
+                }
                 ipv6ServiceUtils.bindIpv6Service(broker, iface.getName(), NwConstants.IPV6_TABLE);
                 ifMgr.updateInterfaceCache(iface.getName(), new ImmutablePair<>(port.getMacAddress(), routerPort));
             }
