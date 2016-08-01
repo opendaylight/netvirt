@@ -56,6 +56,20 @@ public class Ipv6Constants {
 
     public static final int ADD_FLOW = 0;
     public static final int DEL_FLOW = 1;
+    public static final String OPENFLOW_NODE_PREFIX = "openflow:";
+    public static final short IPV6_VERSION = 6;
+    public static final short ICMP6_NHEADER = 58;
+    public static final long DEF_FLOWLABEL = 0;
+    public static final String DEF_MCAST_MAC = "33:33:00:00:00:01";
+    //default periodic RA transmission interval. timeunit in sec
+    public static final long PERIODIC_RA_INTERVAL = 300;
+
+    public enum Ipv6RtrAdvertType {
+        UNSOLICITED_ADVERTISEMENT,
+        SOLICITED_ADVERTISEMENT,
+        CEASE_ADVERTISEMENT;
+    }
+
 
     private Ipv6Constants() {
     }
