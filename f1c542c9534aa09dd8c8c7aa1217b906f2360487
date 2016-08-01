@@ -141,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_9c9fad50",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-08-01T11:42:59Z",
+      "side": 1,
+      "message": "Sure, lets advertise the prefix with RouterLifetime set to 0.",
+      "parentUuid": "7a6b29fe_5cb995e8",
+      "revId": "f1c542c9534aa09dd8c8c7aa1217b906f2360487",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_d57ae675",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/VirtualPort.java",
         "patchSetId": 2
