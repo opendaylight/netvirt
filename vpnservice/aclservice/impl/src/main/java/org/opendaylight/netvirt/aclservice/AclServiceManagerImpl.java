@@ -43,12 +43,19 @@ public class AclServiceManagerImpl implements AclServiceManager {
     @Override
     public void notify(Interface port, Action action, Interface oldPort) {
         for (AclServiceListener aclServiceListener : aclServiceListenerList) {
+            boolean result = false;
             if (action == Action.ADD) {
-                aclServiceListener.applyAcl(port);
+                result = aclServiceListener.applyAcl(port);
             } else if (action == Action.UPDATE) {
-                aclServiceListener.updateAcl(oldPort, port);
+                result = aclServiceListener.updateAcl(oldPort, port);
             } else if (action == Action.REMOVE) {
-                aclServiceListener.removeAcl(port);
+                result = aclServiceListener.removeAcl(port);
+            }
+            if (result) {
+                LOG.debug("Acl action {} invoking listener {} succeeded", action,
+                    aclServiceListener.getClass().getName());
+            } else {
+                LOG.warn("Acl action {} invoking listener {} failed", action, aclServiceListener.getClass().getName());
             }
         }
     }
@@ -56,6 +63,7 @@ public class AclServiceManagerImpl implements AclServiceManager {
     @Override
     public void notifyAce(Interface port, Action action, Ace ace) {
         for (AclServiceListener aclServiceListener : aclServiceListenerList) {
+            LOG.debug("Ace action {} invoking class {}", action, aclServiceListener.getClass().getName());
             if (action == Action.ADD) {
                 aclServiceListener.applyAce(port, ace);
             } else if (action == Action.REMOVE) {

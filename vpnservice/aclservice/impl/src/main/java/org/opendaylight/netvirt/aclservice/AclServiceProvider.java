@@ -19,6 +19,7 @@ import org.opendaylight.netvirt.aclservice.listeners.AclEventListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceStateListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclNodeListener;
+import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +61,17 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
         broker = session.getSALService(DataBroker.class);
         interfaceService = rpcProviderRegistry.getRpcService(OdlInterfaceRpcService.class);
         aclServiceManager = new AclServiceManagerImpl();
-        aclServiceManager.addAclServiceListner(new IngressAclServiceImpl(broker, interfaceService, mdsalManager));
-        aclServiceManager.addAclServiceListner(new EgressAclServiceImpl(broker, interfaceService, mdsalManager));
+        if (AclConstants.isStatelessAcl()) {
+            aclServiceManager.addAclServiceListner(new StatelessIngressAclServiceImpl(broker, interfaceService,
+                    mdsalManager));
+            aclServiceManager.addAclServiceListner(new StatelessEgressAclServiceImpl(broker, interfaceService,
+                    mdsalManager));
+            LOG.info("stateless acl service loaded");
+        } else {
+            aclServiceManager.addAclServiceListner(new IngressAclServiceImpl(broker, interfaceService, mdsalManager));
+            aclServiceManager.addAclServiceListner(new EgressAclServiceImpl(broker, interfaceService, mdsalManager));
+            LOG.info("statefull acl service loaded");
+        }
         aclInterfaceStateListener = new AclInterfaceStateListener(aclServiceManager, broker);
         aclInterfaceStateListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
         aclNodeListener = new AclNodeListener(mdsalManager);
@@ -83,4 +93,5 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
 
         LOG.info("ACL Service closed");
     }
+
 }

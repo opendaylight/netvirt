@@ -67,6 +67,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("deprecation")
 public final class AclServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceUtils.class);
@@ -382,7 +383,6 @@ public final class AclServiceUtils {
     public static BigInteger getDpIdFromIterfaceState(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
             .interfaces.rev140508.interfaces.state.Interface interfaceState) {
         BigInteger dpId = null;
-        String interfaceName = interfaceState.getName();
         List<String> ofportIds = interfaceState.getLowerLayerIf();
         if (ofportIds != null && !ofportIds.isEmpty()) {
             NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
@@ -431,5 +431,51 @@ public final class AclServiceUtils {
     public static MatchInfo buildLPortTagMatch(int lportTag) {
         return new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] {MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG});
+    }
+
+    public static MatchInfoBase popMatchInfoByType(List<MatchInfoBase> flows, MatchFieldType type) {
+        MatchInfoBase mib = getMatchInfoByType(flows, type);
+        if (mib != null) {
+            flows.remove(mib);
+        }
+        return mib;
+    }
+
+    public static MatchInfoBase getMatchInfoByType(List<MatchInfoBase> flows, MatchFieldType type) {
+        for (MatchInfoBase mib : flows) {
+            if (mib instanceof MatchInfo) {
+                if (((MatchInfo)mib).getMatchField() == type) {
+                    return mib;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static MatchInfoBase getMatchInfoByType(List<MatchInfoBase> flows, NxMatchFieldType type) {
+        for (MatchInfoBase mib : flows) {
+            if (mib instanceof NxMatchInfo) {
+                if (((NxMatchInfo)mib).getMatchField() == type) {
+                    return mib;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean containsMatchFieldType(List<MatchInfoBase> flows, MatchFieldType type) {
+        MatchInfoBase mib = getMatchInfoByType(flows, type);
+        if (mib != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean containsMatchFieldType(List<MatchInfoBase> flows, NxMatchFieldType type) {
+        MatchInfoBase mib = getMatchInfoByType(flows, type);
+        if (mib != null) {
+            return true;
+        }
+        return false;
     }
 }
