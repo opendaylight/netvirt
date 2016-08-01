@@ -307,7 +307,7 @@ public class Ipv6ServiceUtils {
         return matches;
     }
 
-    private static List<MatchInfo> getIcmpv6NSMatch(String vmMacAddress) {
+    private List<MatchInfo> getIcmpv6NSMatch(String vmMacAddress, String ndTarget) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_src,
                 new String[] { vmMacAddress }));
@@ -317,6 +317,8 @@ public class Ipv6ServiceUtils {
                 new long[] { IPProtocols.IPV6ICMP.intValue() }));
         matches.add(new MatchInfo(MatchFieldType.icmp_v6,
                 new long[] { Ipv6Constants.ICMP_V6_NS_CODE, 0}));
+        matches.add(new MatchInfo(MatchFieldType.ipv6_nd_target,
+                new String[] { ndTarget }));
         return matches;
     }
 
@@ -348,20 +350,17 @@ public class Ipv6ServiceUtils {
         }
     }
 
-    private static void installNsPuntFlows(String interfaceName, short tableId, BigInteger dpId, String vmMacAddress,
-                                          IMdsalApiManager mdsalUtil, int addOrRemove) {
-        List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(vmMacAddress);
+    public void installIcmpv6NsPuntFlow(short tableId, BigInteger dpId, String vmMacAddress,
+                                        String ipv6Address, IMdsalApiManager mdsalUtil, int addOrRemove) {
+        List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(vmMacAddress, ipv6Address);
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        // Punt to controller
-        // TODO:: Currently the punt rule is sending all icmpv6 NS packets to controller.
-        // This rule needs to be properly ammended once Matchutils (from genius) includes support for nd_target.
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
                 new String[] {}));
         instructions.add(new InstructionInfo(InstructionType.write_actions,
                 actionsInfos));
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                getIPv6FlowRef(dpId, vmMacAddress, "IPv6NS-GUA"),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6NS-GUA",
+                getIPv6FlowRef(dpId, vmMacAddress, ipv6Address),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6NS",
                 0, 0, NwConstants.COOKIE_IPV6_TABLE, neighborSolicitationMatch, instructions);
         if (addOrRemove == Ipv6Constants.DEL_FLOW) {
             LOG.trace("Removing IPv6 Neighbor Solicitation Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
@@ -372,13 +371,29 @@ public class Ipv6ServiceUtils {
         }
     }
 
-    public static void installIcmpv6Flows(String interfaceName, short tableId, BigInteger dpId, String vmMacAddress,
+    public void installIcmpv6RsPuntFlow(short tableId, BigInteger dpId, String vmMacAddress,
                                           IMdsalApiManager mdsalUtil, int addOrRemove) {
         if (dpId == null || dpId.equals(Ipv6Constants.INVALID_DPID)) {
             return;
         }
-        installRsPuntFlow(interfaceName, tableId, dpId, vmMacAddress, mdsalUtil, addOrRemove);
-        installNsPuntFlows(interfaceName, tableId, dpId, vmMacAddress, mdsalUtil, addOrRemove);
+        List<MatchInfo> routerSolicitationMatch = getIcmpv6RSMatch(vmMacAddress);
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        // Punt to controller
+        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
+                new String[] {}));
+        instructions.add(new InstructionInfo(InstructionType.write_actions,
+                actionsInfos));
+        FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
+                getIPv6FlowRef(dpId, vmMacAddress, "IPv6RS"),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6RS", 0, 0,
+                NwConstants.COOKIE_IPV6_TABLE, routerSolicitationMatch, instructions);
+        if (addOrRemove == Ipv6Constants.DEL_FLOW) {
+            LOG.trace("Removing IPv6 Router Solicitation Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            mdsalUtil.removeFlow(rsFlowEntity);
+        } else {
+            LOG.trace("Installing IPv6 Router Solicitation Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            mdsalUtil.installFlow(rsFlowEntity);
+        }
     }
 
     public BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
