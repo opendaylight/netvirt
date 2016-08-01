@@ -21,7 +21,7 @@ public enum DhcpServiceCounters {
     private OccurenceCounter counter;
 
     private DhcpServiceCounters() {
-        counter = new OccurenceCounter(getClass().getEnclosingClass().getSimpleName(), name(), name());
+        counter = new OccurenceCounter(getClass().getSimpleName(), name(), name());
     }
 
     public void inc() {
