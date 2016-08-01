@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_7cfe116d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-08-01T11:54:59Z",
+      "side": 1,
+      "message": "nitpick: I\u0027ll take a close look at the patch in sometime. In the meantime, just in-case you have to re-spin please add a line break here. \n\nNoticed the following in IRC when the patch was submitted.\n\nKalaiselvi proposed a change to netvirt: Periodic RA transmission Support added for periodic transmission of the RA messages from the router interfaces available in the compute nodes. The unsolicitied RA is sent out only on the interfaces where the same network is available.  https://git.opendaylight.org/gerrit/42727\n\nInstead of \n\nKalaiselvi proposed a change to netvirt: Periodic RA transmission \nhttps://git.opendaylight.org/gerrit/42727",
+      "revId": "e931f25d05137075dad47ec262436b06397105db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
