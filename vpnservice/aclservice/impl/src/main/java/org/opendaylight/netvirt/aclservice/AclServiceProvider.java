@@ -19,6 +19,7 @@ import org.opendaylight.netvirt.aclservice.listeners.AclEventListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceStateListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclNodeListener;
+import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,9 +58,18 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
     public void onSessionInitiated(ProviderContext session) {
         broker = session.getSALService(DataBroker.class);
         aclServiceManager = new AclServiceManagerImpl();
-        aclServiceManager.addAclServiceListner(new IngressAclServiceImpl(broker, mdsalManager));
-        aclServiceManager.addAclServiceListner(new EgressAclServiceImpl(broker, mdsalManager));
         aclInterfaceStateListener = new AclInterfaceStateListener(aclServiceManager);
+        if (AclConstants.isStatelessAcl()) {
+            aclServiceManager.addAclServiceListner(new StatelessIngressAclServiceImpl(broker,
+                    mdsalManager));
+            aclServiceManager.addAclServiceListner(new StatelessEgressAclServiceImpl(broker,
+                    mdsalManager));
+            LOG.info("stateless acl service loaded");
+        } else {
+            aclServiceManager.addAclServiceListner(new IngressAclServiceImpl(broker, mdsalManager));
+            aclServiceManager.addAclServiceListner(new EgressAclServiceImpl(broker, mdsalManager));
+            LOG.info("statefull acl service loaded");
+        }
         aclInterfaceStateListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
         aclNodeListener = new AclNodeListener(mdsalManager);
         aclNodeListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
@@ -80,4 +90,5 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
 
         LOG.info("ACL Service closed");
     }
+
 }

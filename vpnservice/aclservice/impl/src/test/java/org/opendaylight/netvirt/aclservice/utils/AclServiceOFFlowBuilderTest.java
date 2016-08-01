@@ -62,7 +62,7 @@ public class AclServiceOFFlowBuilderTest {
         Iterable<MatchInfoBase> icmpv4Matches = filter(flowMatches,
                 (item -> ((MatchInfo) item).getMatchField().equals(MatchFieldType.icmp_v4)));
         AclServiceTestUtils.verifyMatchValues((MatchInfo) Iterables.get(icmpv4Matches, 0), "1024", "2048");
-        AclServiceTestUtils.verifyMatchValues((MatchInfo) Iterables.get(icmpv4Matches, 1), "4096", "8192");
+        AclServiceTestUtils.verifyMatchValues((MatchInfo) Iterables.get(icmpv4Matches, 1), "1024", "2048");
     }
 
     @Test
