@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a6b29fe_9c3dedbe",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-01T11:08:33Z",
+      "side": 1,
+      "message": "There\u0027s one of these in the netvirt project as well. Probably worth using that one.",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_2c869013",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
         "patchSetId": 2
@@ -13,6 +30,23 @@
       "writtenOn": "2016-07-27T21:43:15Z",
       "side": 1,
       "message": "can the AsyncDataTreeChangeListenerBase be used so we can get the use of the DataTree rather than DataChange? We need to migrate the existing code to DataTree so new files woudl be good to use DataTree. AclInterfaceEventListener is an example in netvirt using it.",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_dc8c8582",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-01T11:08:33Z",
+      "side": 1,
+      "message": "question: is there a reason this is eth0? If not probably best to give it a more descriptive name like \"tun-something\".",
       "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -47,6 +81,23 @@
       "writtenOn": "2016-07-27T21:43:15Z",
       "side": 1,
       "message": "It would be good to move the rest of the code into a different file and leave just the listener pieces here. Don\u0027t let that block this review if the change can;\u0027t be made now. Would be nice to look something like what is in netvirtsfc with a delegating listener and corresponding dataprocessor class to cleanly separate functionality.",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fc8fc173",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-01T11:08:33Z",
+      "side": 1,
+      "message": "I\u0027m not sure \"persist\" is the right name for what this does. Since persistence usually implies writing to disk or something.",
       "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
