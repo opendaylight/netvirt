@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_e568c089",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-08-01T21:19:21Z",
+      "side": 1,
+      "message": "Instead of iterating over all the virtual ports all the time, would it be efficient to maintain mapping between Network/Subnet to belonging VirtualPorts? Just a suggestion...We can take up this in the next patch also if we don\u0027t have such cache already existing",
+      "range": {
+        "startLine": 526,
+        "startChar": 0,
+        "endLine": 528,
+        "endChar": 71
+      },
+      "revId": "e9cf5a710f8a53d6dcd0ea2744b8c8c3765eea2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a5e36804",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/VirtualPort.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-08-01T21:19:21Z",
+      "side": 1,
+      "message": "Cosmetic: Do we need this method? can we not do this initialization in setIntfUUID method() itself?",
+      "range": {
+        "startLine": 205,
+        "startChar": 16,
+        "endLine": 205,
+        "endChar": 32
+      },
+      "revId": "e9cf5a710f8a53d6dcd0ea2744b8c8c3765eea2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a55a484e",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6TimerWheel.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-08-01T21:19:21Z",
+      "side": 1,
+      "message": "As per the HasWheelTimer.newTimeout() documentation: \"Schedules the specified TimerTask for one-time execution after the specified delay\"\n\nBut the wrapper method name says it is a periodicTransmissionTimeout().\n\nAm I missing something here?",
+      "range": {
+        "startLine": 32,
+        "startChar": 48,
+        "endLine": 32,
+        "endChar": 58
+      },
+      "revId": "e9cf5a710f8a53d6dcd0ea2744b8c8c3765eea2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
