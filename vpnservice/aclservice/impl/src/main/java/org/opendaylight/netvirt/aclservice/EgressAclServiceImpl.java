@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 public class EgressAclServiceImpl extends AbstractAclServiceImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(EgressAclServiceImpl.class);
-    private final DataBroker dataBroker;
 
     /**
      * Initialize the member variables.
@@ -63,7 +62,6 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
                                 IMdsalApiManager mdsalManager) {
         // Service mode is w.rt. switch
         super(ServiceModeIngress.class, dataBroker, interfaceManager, mdsalManager);
-        this.dataBroker = dataBroker;
     }
 
     /**
@@ -130,7 +128,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param addOrRemove whether to delete or add flow
      */
     @Override
-    protected void programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove) {
+    protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove) {
         LOG.trace("Applying custom rules DpId {}, lportTag {}", dpId, lportTag);
         for (Uuid sgUuid :aclUuidList ) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
@@ -144,7 +142,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
                 programAceRule(dpId, lportTag, addOrRemove, ace);
             }
         }
-
+        return true;
     }
 
     @Override
@@ -179,6 +177,11 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             syncFlow(dpId, NwConstants.EGRESS_ACL_NEXT_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY,
                 "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
         }
+    }
+
+    protected void appendExtendingRules(BigInteger dpId, String flowName, List<MatchInfoBase> flowMatches,
+            int addOrRemove) {
+
     }
 
     /**
