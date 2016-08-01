@@ -15,12 +15,13 @@ import java.math.BigInteger;
  */
 public final class AclConstants {
 
-    // TODO: Move all service related constants across all modules to a common
-    // place
-    public static final short EGRESS_ACL_DEFAULT_FLOW_PRIORITY = 11;
+    // TODO: To be deleted once it is available in NwConstants
+    public static final short EGRESS_LPORT_DISPATCHER_TABLE = 220;
+    // TODO: To be moved to NwConstants
+    public static final short INGRESS_ACL_SERVICE_PRIORITY = 6;
 
-    public static final short INGRESS_ACL_SERVICE_PRIORITY = 10;
     public static final short INGRESS_ACL_DEFAULT_FLOW_PRIORITY = 1;
+    public static final short EGRESS_ACL_DEFAULT_FLOW_PRIORITY = 11;
 
     public static final Integer PROTO_MATCH_PRIORITY = 61010;
     public static final Integer PREFIX_MATCH_PRIORITY = 61009;
@@ -38,15 +39,20 @@ public final class AclConstants {
     public static final short DHCP_CLIENT_PORT_IPV6 = 568;
     public static final short DHCP_SERVER_PORT_IPV6 = 567;
     public static final BigInteger COOKIE_ACL_BASE = new BigInteger("6900000", 16);
+
     public static final int UNTRACKED_CT_STATE = 0x00;
-    public static final int UNTRACKED_CT_STATE_MASK = 0x20;
+    public static final int TRACKED_CT_STATE = 0x20;
     public static final int TRACKED_EST_CT_STATE = 0x22;
     public static final int TRACKED_REL_CT_STATE = 0x24;
     public static final int TRACKED_NEW_CT_STATE = 0x21;
     public static final int TRACKED_INV_CT_STATE = 0x30;
-    public static final int TRACKED_INV_CT_STATE_MASK = 0x30;
-    public static final int TRACKED_CT_STATE_MASK = 0x37;
+
+    public static final int UNTRACKED_CT_STATE_MASK = 0x20;
+    public static final int TRACKED_CT_STATE_MASK = 0x20;
+    public static final int TRACKED_EST_CT_STATE_MASK = 0x37;
+    public static final int TRACKED_REL_CT_STATE_MASK = 0x37;
     public static final int TRACKED_NEW_CT_STATE_MASK = 0x21;
+    public static final int TRACKED_INV_CT_STATE_MASK = 0x30;
 
     private AclConstants() {
     }

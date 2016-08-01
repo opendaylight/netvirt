@@ -140,8 +140,8 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(flowEntity);
 
         FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_NEXT_TABLE_ID,
-                getTableMissFlowId(NwConstants.INGRESS_ACL_NEXT_TABLE_ID), 0, "Ingress ACL Table Miss Flow", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
+                getTableMissFlowId(NwConstants.INGRESS_ACL_NEXT_TABLE_ID), 0, "Ingress ACL Filter Table Miss Flow",
+                0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
         mdsalManager.installFlow(nextTblFlowEntity);
 
         LOG.debug("Added Ingress ACL Table Miss Flows for dpn {}", dpId);

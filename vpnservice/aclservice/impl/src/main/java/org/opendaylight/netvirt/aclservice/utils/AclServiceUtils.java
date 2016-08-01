@@ -67,7 +67,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AclServiceUtils {
+public final class AclServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceUtils.class);
 
@@ -265,11 +265,13 @@ public class AclServiceUtils {
 
     /**
      * Returns the DHCP match.
+     *
      * @param srcPort the source port.
      * @param dstPort the destination port.
+     * @param lportTag the lport tag
      * @return list of matches.
      */
-    private static List<MatchInfoBase> buildDhcpMatches(int srcPort, int dstPort, MatchInfo portMatch) {
+    public static List<MatchInfoBase> buildDhcpMatches(int srcPort, int dstPort, int lportTag) {
         List<MatchInfoBase> matches = new ArrayList<>(6);
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { NwConstants.ETHTYPE_IPV4 }));
@@ -279,36 +281,11 @@ public class AclServiceUtils {
                 new long[] { srcPort }));
         matches.add(new MatchInfo(MatchFieldType.udp_src,
                 new long[] { dstPort}));
-        matches.add(portMatch);
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+
         matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
                 new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
         return matches;
-    }
-
-    /**
-     * Builds a list of matches for DHCP filtering on the source's MAC address.
-     *
-     * @param srcPort The source port.
-     * @param dstPort The destination port.
-     * @param attachMac The attached port's MAC address.
-     *
-     * @return The matches.
-     */
-    public static List<MatchInfoBase> buildDhcpSourceMatches(int srcPort, int dstPort, String attachMac) {
-        return buildDhcpMatches(srcPort, dstPort, new MatchInfo(MatchFieldType.eth_src, new String[] { attachMac }));
-    }
-
-    /**
-     * Builds a list of matches for DHCP filtering on the destination's MAC address.
-     *
-     * @param srcPort The source port.
-     * @param dstPort The destination port.
-     * @param attachMac The attached port's MAC address.
-     *
-     * @return The matches.
-     */
-    public static List<MatchInfoBase> buildDhcpDestinationMatches(int srcPort, int dstPort, String attachMac) {
-        return buildDhcpMatches(srcPort, dstPort, new MatchInfo(MatchFieldType.eth_dst, new String[] { attachMac }));
     }
 
     /**
@@ -414,10 +391,18 @@ public class AclServiceUtils {
         return dpId;
     }
 
-    public static List<MatchInfoBase> getAllowedIpMatches(IpPrefixOrAddress allowedIp, MatchFieldType ipv4MatchType) {
+    /**
+     * Builds the ip matches.
+     *
+     * @param ipPrefixOrAddress the ip prefix or address
+     * @param ipv4MatchType the ipv4 match type
+     * @return the list
+     */
+    public static List<MatchInfoBase> buildIpMatches(IpPrefixOrAddress ipPrefixOrAddress,
+            MatchFieldType ipv4MatchType) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_IPV4 }));
-        IpPrefix ipPrefix = allowedIp.getIpPrefix();
+        flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4}));
+        IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
         if (ipPrefix != null) {
             if (ipPrefix.getIpv4Prefix().getValue() != null) {
                 String[] ipaddressValues = ipPrefix.getIpv4Prefix().getValue().split("/");
@@ -426,10 +411,10 @@ public class AclServiceUtils {
                 // Handle IPv6
             }
         } else {
-            IpAddress ipAddress = allowedIp.getIpAddress();
+            IpAddress ipAddress = ipPrefixOrAddress.getIpAddress();
             if (ipAddress.getIpv4Address() != null) {
-                flowMatches.add(new MatchInfo(ipv4MatchType,
-                        new String[] {ipAddress.getIpv4Address().getValue(), "32"}));
+                flowMatches
+                        .add(new MatchInfo(ipv4MatchType, new String[] {ipAddress.getIpv4Address().getValue(), "32"}));
             } else {
                 // Handle IPv6
             }
@@ -437,13 +422,14 @@ public class AclServiceUtils {
         return flowMatches;
     }
 
-    public static List<MatchInfo> getLPortTagMatches(int lportTag) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
-        // Matching metadata
-        mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-            MetaDataUtil.getLportTagMetaData(lportTag),
-            MetaDataUtil.METADATA_MASK_LPORT_TAG }));
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(lportTag)}));
-        return mkMatches;
+    /**
+     * Gets the lport tag match.
+     *
+     * @param lportTag the lport tag
+     * @return the lport tag match
+     */
+    public static MatchInfo buildLPortTagMatch(int lportTag) {
+        return new MatchInfo(MatchFieldType.metadata,
+                new BigInteger[] {MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG});
     }
 }
