@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a6b29fe_93a5d306",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-08-02T15:20:55Z",
+      "side": 1,
+      "message": "Capturing the things we discussed in today\u0027s call to provide some context.\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n1. This API is invoked whenever the timer kicks in.\n2. The timer is set to 5 mins (would be made configurable via a different patch which Kalai is looking into).\n3. Its a periodic timer and IMHO is not time critical - basically its NOT invoked for a Packet-IN. \n\nPros of this approach:\n1. We can simply do a one time read from the datastore for the list of dpns-ifaceList for the network.\n2. Need not maintain any additional cache (i.e., ports on the network) or loop through the existing list of virtual interfaces.\n3. Usecases like VM migration would be handled by the respective components and updated in the db, so we need not worry about such cases since we are reading from the dataStore.\n\nCons:\n1. It would add some delay while retrieving the data from the dataStore.\n\nIn case, I missed something please feel free to add them.",
+      "revId": "ac557ad46e14e214fd13a4f3b1df6a5b625d93cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_a0b4f3f2",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
         "patchSetId": 1
