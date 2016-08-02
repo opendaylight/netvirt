@@ -1,0 +1,135 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_fdedf8f0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-08-02T12:16:47Z",
+      "side": 1,
+      "message": "nitpick: This being new file we should only use 2016.",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "dadac082c9013722b822a0c156a5f33759cabc87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5dba2ce2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-08-02T12:16:47Z",
+      "side": 1,
+      "message": "nitpick: whitespace",
+      "revId": "dadac082c9013722b822a0c156a5f33759cabc87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7db0c8f4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-08-02T12:16:47Z",
+      "side": 1,
+      "message": "Add a TODO here. Doing a ConfigDS read everytime will not perform/scale. If you can address in this patch, nothing better.",
+      "revId": "dadac082c9013722b822a0c156a5f33759cabc87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1dc8b473",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-08-02T12:16:47Z",
+      "side": 1,
+      "message": "nitpick: whitespace",
+      "revId": "dadac082c9013722b822a0c156a5f33759cabc87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ddcd9c88",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-08-02T12:16:47Z",
+      "side": 1,
+      "message": "Use tokens e.g. LOG.error(\"No fixed ip for port {}\", port.getName());",
+      "range": {
+        "startLine": 121,
+        "startChar": 12,
+        "endLine": 121,
+        "endChar": 64
+      },
+      "revId": "dadac082c9013722b822a0c156a5f33759cabc87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fda9787c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-08-02T12:16:47Z",
+      "side": 1,
+      "message": "Use Tokens, as above.",
+      "revId": "dadac082c9013722b822a0c156a5f33759cabc87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5db6acdd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-08-02T12:16:47Z",
+      "side": 1,
+      "message": "not a fan of string manipulations for this. Name, being key should be treated as an opaque identity.",
+      "revId": "dadac082c9013722b822a0c156a5f33759cabc87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
