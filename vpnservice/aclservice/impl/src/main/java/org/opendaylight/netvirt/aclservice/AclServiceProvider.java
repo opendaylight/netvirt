@@ -19,7 +19,6 @@ import org.opendaylight.netvirt.aclservice.listeners.AclEventListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceStateListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclNodeListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +28,6 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
 
     private DataBroker broker;
     private IMdsalApiManager mdsalManager;
-    private OdlInterfaceRpcService interfaceService;
     private RpcProviderRegistry rpcProviderRegistry;
     private AclServiceManager aclServiceManager;
     private AclInterfaceStateListener aclInterfaceStateListener;
@@ -58,11 +56,10 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
     @Override
     public void onSessionInitiated(ProviderContext session) {
         broker = session.getSALService(DataBroker.class);
-        interfaceService = rpcProviderRegistry.getRpcService(OdlInterfaceRpcService.class);
         aclServiceManager = new AclServiceManagerImpl();
-        aclServiceManager.addAclServiceListner(new IngressAclServiceImpl(broker, interfaceService, mdsalManager));
-        aclServiceManager.addAclServiceListner(new EgressAclServiceImpl(broker, interfaceService, mdsalManager));
-        aclInterfaceStateListener = new AclInterfaceStateListener(aclServiceManager, broker);
+        aclServiceManager.addAclServiceListner(new IngressAclServiceImpl(broker, mdsalManager));
+        aclServiceManager.addAclServiceListner(new EgressAclServiceImpl(broker, mdsalManager));
+        aclInterfaceStateListener = new AclInterfaceStateListener(aclServiceManager);
         aclInterfaceStateListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
         aclNodeListener = new AclNodeListener(mdsalManager);
         aclNodeListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);

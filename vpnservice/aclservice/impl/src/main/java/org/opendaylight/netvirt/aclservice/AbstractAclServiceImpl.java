@@ -21,12 +21,12 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
+import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
@@ -38,43 +38,37 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAclServiceImpl.class);
 
     private final IMdsalApiManager mdsalManager;
-    private final OdlInterfaceRpcService interfaceManager;
-    private final DataBroker dataBroker;
     private final Class<? extends ServiceModeBase> serviceMode;
+    protected final DataBroker dataBroker;
 
     /**
      * Initialize the member variables.
      *
      * @param serviceMode the service mode
      * @param dataBroker the data broker instance.
-     * @param interfaceManager the interface manager instance.
      * @param mdsalManager the mdsal manager instance.
      */
     public AbstractAclServiceImpl(Class<? extends ServiceModeBase> serviceMode, DataBroker dataBroker,
-            OdlInterfaceRpcService interfaceManager, IMdsalApiManager mdsalManager) {
+            IMdsalApiManager mdsalManager) {
         this.dataBroker = dataBroker;
-        this.interfaceManager = interfaceManager;
         this.mdsalManager = mdsalManager;
         this.serviceMode = serviceMode;
     }
 
     @Override
-    public boolean applyAcl(Interface port) {
-
-        if (!AclServiceUtils.isPortSecurityEnabled(port)) {
+    public boolean applyAcl(AclInterface port) {
+        if (!port.isPortSecurityEnabled()) {
             return false;
         }
 
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
-            interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
-        BigInteger dpId = AclServiceUtils.getDpIdFromIterfaceState(interfaceState);
+        BigInteger dpId = port.getDpId();
         if (dpId == null) {
-            LOG.error("Unable to find DP Id from interface state {}", interfaceState.getName());
+            LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
             return false;
         }
 
-        programAclWithAllowedAddress(dpId, AclServiceUtils.getPortAllowedAddresses(port), interfaceState.getIfIndex(),
-                AclServiceUtils.getInterfaceAcls(port), NwConstants.ADD_FLOW);
+        programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
+                Action.ADD, NwConstants.ADD_FLOW);
 
         // TODO: uncomment bindservice() when the acl flow programming is
         // implemented
@@ -83,49 +77,51 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     @Override
-    public boolean updateAcl(Interface portBefore, Interface portAfter) {
+    public boolean updateAcl(AclInterface port) {
         boolean result = false;
-        boolean isPortSecurityEnable = AclServiceUtils.isPortSecurityEnabled(portAfter);
-        boolean isPortSecurityEnableBefore = AclServiceUtils.isPortSecurityEnabled(portBefore);
+        boolean isPortSecurityEnable = port.getPortSecurityEnabled();
+        boolean isPortSecurityEnableBefore = port.getOrigPortSecurityEnabled();
         // if port security is changed, apply/remove Acls
         if (isPortSecurityEnableBefore != isPortSecurityEnable) {
             if (isPortSecurityEnable) {
-                result = applyAcl(portAfter);
+                result = applyAcl(port);
             } else {
-                result = removeAcl(portAfter);
+                result = removeAcl(port);
             }
         } else if (isPortSecurityEnable) {
             // Acls has been updated, find added/removed Acls and act accordingly.
-            this.processInterfaceUpdate(portBefore, portAfter);
+            processInterfaceUpdate(port);
         }
 
         return result;
     }
 
-    private void processInterfaceUpdate(Interface portBefore, Interface portAfter) {
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
-                interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, portAfter.getName());
-        BigInteger dpId = AclServiceUtils.getDpIdFromIterfaceState(interfaceState);
+    private void processInterfaceUpdate(AclInterface port) {
+        BigInteger dpId = port.getDpId();
         List<AllowedAddressPairs> addedAllowedAddressPairs =
-                AclServiceUtils.getUpdatedAllowedAddressPairs(portAfter,portBefore);
+                AclServiceUtils.getUpdatedAllowedAddressPairs(port.getAllowedAddressPairs(),
+                        port.getOrigAllowedAddressPairs());
         List<AllowedAddressPairs> deletedAllowedAddressPairs =
-                AclServiceUtils.getUpdatedAllowedAddressPairs(portBefore, portAfter);
+                AclServiceUtils.getUpdatedAllowedAddressPairs(port.getOrigAllowedAddressPairs(),
+                        port.getAllowedAddressPairs());
         if (addedAllowedAddressPairs != null && !addedAllowedAddressPairs.isEmpty()) {
-            programAclWithAllowedAddress(dpId, addedAllowedAddressPairs, interfaceState.getIfIndex(),
-                    AclServiceUtils.getInterfaceAcls(portAfter), NwConstants.ADD_FLOW);
+            programAclWithAllowedAddress(dpId, addedAllowedAddressPairs, port.getLPortTag(), port.getSecurityGroups(),
+                    Action.UPDATE, NwConstants.ADD_FLOW);
         }
         if (deletedAllowedAddressPairs != null && !deletedAllowedAddressPairs.isEmpty()) {
-            programAclWithAllowedAddress(dpId, deletedAllowedAddressPairs, interfaceState.getIfIndex(),
-                    AclServiceUtils.getInterfaceAcls(portAfter), NwConstants.DEL_FLOW);
+            programAclWithAllowedAddress(dpId, deletedAllowedAddressPairs, port.getLPortTag(),
+                    port.getSecurityGroups(), Action.UPDATE, NwConstants.DEL_FLOW);
         }
 
-        List<Uuid> addedAcls = AclServiceUtils.getUpdatedAclList(portAfter, portBefore);
-        List<Uuid> deletedAcls = AclServiceUtils.getUpdatedAclList(portBefore, portAfter);
+        List<Uuid> addedAcls = AclServiceUtils.getUpdatedAclList(port.getSecurityGroups(),
+                port.getOrigSecurityGroups());
+        List<Uuid> deletedAcls = AclServiceUtils.getUpdatedAclList(port.getOrigSecurityGroups(),
+                port.getSecurityGroups());
         if (addedAcls != null && !addedAcls.isEmpty()) {
-            updateCustomRules(dpId, interfaceState.getIfIndex(), addedAcls, NwConstants.ADD_FLOW);
+            updateCustomRules(dpId, port.getLPortTag(), addedAcls, NwConstants.ADD_FLOW);
         }
         if (deletedAcls != null && !deletedAcls.isEmpty()) {
-            updateCustomRules(dpId, interfaceState.getIfIndex(), deletedAcls, NwConstants.DEL_FLOW);
+            updateCustomRules(dpId, port.getLPortTag(), deletedAcls, NwConstants.DEL_FLOW);
         }
     }
 
@@ -134,22 +130,26 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     private void programAclWithAllowedAddress(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
-            int lportTag, List<Uuid> aclUuidList, int addOrRemove) {
-        programFixedRules(dpId, "", allowedAddresses, lportTag, addOrRemove);
-        programAclRules(aclUuidList, dpId, lportTag, addOrRemove);
+            int lportTag, List<Uuid> aclUuidList, Action action, int addOrRemove) {
+        programFixedRules(dpId, "", allowedAddresses, lportTag, action, addOrRemove);
+        if (action == Action.ADD || action == Action.REMOVE) {
+            programAclRules(aclUuidList, dpId, lportTag, addOrRemove);
+        }
     }
 
     @Override
-    public boolean removeAcl(Interface port) {
-        if (!AclServiceUtils.isPortSecurityEnabled(port)) {
+    public boolean removeAcl(AclInterface port) {
+        if (!port.isPortSecurityEnabled() && !port.getOrigPortSecurityEnabled()) {
             return false;
         }
-        BigInteger dpId = AclServiceUtils.getDpnForInterface(interfaceManager, port.getName());
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
-            interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
-        programAclWithAllowedAddress(dpId, AclServiceUtils.getPortAllowedAddresses(port), interfaceState.getIfIndex(),
-                AclServiceUtils.getInterfaceAcls(port), NwConstants.DEL_FLOW);
+        BigInteger dpId = port.getDpId();
+        if (dpId == null) {
+            LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
+            return false;
+        }
 
+        programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
+                Action.REMOVE, NwConstants.DEL_FLOW);
         // TODO: uncomment unbindService() when the acl flow programming is
         // implemented
         // unbindService(port.getName());
@@ -157,26 +157,20 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     @Override
-    public boolean applyAce(Interface port, Ace ace) {
-        if (!AclServiceUtils.isPortSecurityEnabled(port)) {
+    public boolean applyAce(AclInterface port, Ace ace) {
+        if (!port.isPortSecurityEnabled()) {
             return false;
         }
-        BigInteger dpId = AclServiceUtils.getDpnForInterface(interfaceManager, port.getName());
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
-                interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
-        programAceRule(dpId, interfaceState.getIfIndex(), NwConstants.ADD_FLOW, ace);
+        programAceRule(port.getDpId(), port.getLPortTag(), NwConstants.ADD_FLOW, ace);
         return true;
     }
 
     @Override
-    public boolean removeAce(Interface port, Ace ace) {
-        if (!AclServiceUtils.isPortSecurityEnabled(port)) {
+    public boolean removeAce(AclInterface port, Ace ace) {
+        if (!port.isPortSecurityEnabled()) {
             return false;
         }
-        BigInteger dpId = AclServiceUtils.getDpnForInterface(interfaceManager, port.getName());
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
-                interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, port.getName());
-        programAceRule(dpId, interfaceState.getIfIndex(), NwConstants.DEL_FLOW, ace);
+        programAceRule(port.getDpId(), port.getLPortTag(), NwConstants.DEL_FLOW, ace);
         return true;
     }
 
@@ -202,10 +196,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param dhcpMacAddress the dhcp mac address.
      * @param allowedAddresses the allowed addresses
      * @param lportTag the lport tag
+     * @param action add/modify/remove action
      * @param addOrRemove addorRemove
      */
     protected abstract void programFixedRules(BigInteger dpid, String dhcpMacAddress,
-            List<AllowedAddressPairs> allowedAddresses, int lportTag, int addOrRemove);
+            List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action, int addOrRemove);
 
     /**
      * Programs the acl custom rules.
