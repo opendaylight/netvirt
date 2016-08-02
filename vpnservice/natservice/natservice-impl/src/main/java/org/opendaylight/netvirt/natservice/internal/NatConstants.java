@@ -23,7 +23,6 @@ public class NatConstants {
     public static final String FLOWID_PREFIX = "L3.";
     public static final int DEFAULT_DNAT_FLOW_PRIORITY = 10;
     public static final long INVALID_ID = -1;
-    public static final BigInteger COOKIE_OUTBOUND_NAPT_TABLE = new BigInteger("8000008", 16);
     public static final short DEFAULT_SNAT_FLOW_PRIORITY = 10;
     public static final short DEFAULT_PSNAT_FLOW_PRIORITY = 5;
     public static final String SNAT_FLOW_NAME = "SNAT";

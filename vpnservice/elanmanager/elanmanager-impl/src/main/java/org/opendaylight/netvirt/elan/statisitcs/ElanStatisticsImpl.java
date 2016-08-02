@@ -111,7 +111,7 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
         BigInteger dpId = interfaceInfo.getDpId();
         List<MatchInfo> matches = null;
         String interfaceName = interfaceInfo.getInterfaceName();
-        if (tableId == IfmConstants.VLAN_INTERFACE_INGRESS_TABLE) {
+        if (tableId == NwConstants.VLAN_INTERFACE_INGRESS_TABLE) {
             VlanInterfaceInfo vlanInterfaceInfo = (VlanInterfaceInfo)interfaceInfo;
             matches = InterfaceServiceUtil.getMatchInfoForVlanLPort(dpId, interfaceInfo.getPortNo(),
                 InterfaceServiceUtil.getVlanId(interfaceName, elanServiceProvider.getBroker()), vlanInterfaceInfo.isVlanTransparent());

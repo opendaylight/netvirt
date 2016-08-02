@@ -62,7 +62,6 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
     static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final String FLOWID_PREFIX = "NAT.";
-    static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000002", 16);
 
     public VpnFloatingIpHandler(VpnRpcService vpnService, IBgpManager bgpManager, FibRpcService fibService) {
         this.vpnService = vpnService;
@@ -312,7 +311,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_LFIB_TABLE, flowRef,
                 10, flowRef, 0, 0,
-                COOKIE_VM_LFIB_TABLE, matches, instructions);
+                NwConstants.COOKIE_VM_LFIB_TABLE, matches, instructions);
 
         mdsalManager.installFlow(dpId, flowEntity);
 
@@ -331,7 +330,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_LFIB_TABLE, flowRef,
                                                10, flowRef, 0, 0,
-                                               COOKIE_VM_LFIB_TABLE, matches, null);
+                                               NwConstants.COOKIE_VM_LFIB_TABLE, matches, null);
 
         mdsalManager.removeFlow(dpnId, flowEntity);
 

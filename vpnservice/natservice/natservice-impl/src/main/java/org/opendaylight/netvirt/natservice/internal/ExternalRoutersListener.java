@@ -564,7 +564,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     public BigInteger getCookieOutboundFlow(long routerId) {
-        return NatConstants.COOKIE_OUTBOUND_NAPT_TABLE.add(new BigInteger("0110001", 16)).add(
+        return NwConstants.COOKIE_OUTBOUND_NAPT_TABLE.add(new BigInteger("0110001", 16)).add(
                 BigInteger.valueOf(routerId));
     }
 

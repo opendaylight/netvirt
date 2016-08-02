@@ -162,7 +162,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_FIB_TABLE, flowRef,
                 priority, flowRef, 0, 0,
-                COOKIE_VM_FIB_TABLE, matches, null);
+                NwConstants.COOKIE_VM_FIB_TABLE, matches, null);
 
         mdsalManager.removeFlow(dpnId, flowEntity);
 
@@ -181,7 +181,7 @@ public class FibRpcServiceImpl implements FibRpcService {
 
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_LFIB_TABLE, flowRef,
                 DEFAULT_FIB_FLOW_PRIORITY, flowRef, 0, 0,
-                COOKIE_VM_LFIB_TABLE, matches, null);
+                NwConstants.COOKIE_VM_LFIB_TABLE, matches, null);
 
         mdsalManager.removeFlow(dpnId, flowEntity);
 
@@ -251,7 +251,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_FIB_TABLE, flowRef,
                 priority, flowRef, 0, 0,
-                COOKIE_VM_FIB_TABLE, matches, customInstructions);
+                NwConstants.COOKIE_VM_FIB_TABLE, matches, customInstructions);
 
         mdsalManager.installFlow(dpnId, flowEntity);
 
@@ -276,7 +276,7 @@ public class FibRpcServiceImpl implements FibRpcService {
 
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_LFIB_TABLE, flowRef,
                 DEFAULT_FIB_FLOW_PRIORITY, flowRef, 0, 0,
-                COOKIE_VM_LFIB_TABLE, matches, instructions);
+                NwConstants.COOKIE_VM_LFIB_TABLE, matches, instructions);
 
         mdsalManager.installFlow(dpId, flowEntity);
 
