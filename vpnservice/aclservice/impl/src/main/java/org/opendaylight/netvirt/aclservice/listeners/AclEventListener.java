@@ -14,11 +14,11 @@ import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void update(InstanceIdentifier<Acl> key, Acl aclBefore, Acl aclAfter) {
-        List<Interface> interfaceList = AclDataUtil.getInterfaceList(new Uuid(aclAfter.getAclName()));
+        List<AclInterface> interfaceList = AclDataUtil.getInterfaceList(new Uuid(aclAfter.getAclName()));
         if (interfaceList == null || interfaceList.isEmpty()) {
             LOG.debug("acl {} is not associated with any interface.", aclAfter.getAclName());
             return;
@@ -63,10 +63,10 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     }
 
-    private void updateAceRules(List<Interface> interfaceList, List<Ace> aceList, AclServiceManager.Action action) {
+    private void updateAceRules(List<AclInterface> interfaceList, List<Ace> aceList, AclServiceManager.Action action) {
         if (null != aceList && !aceList.isEmpty()) {
             LOG.trace("update ace rules - action: {} , ace rules: {}", action.name(), aceList);
-            for (Interface port : interfaceList) {
+            for (AclInterface port : interfaceList) {
                 for (Ace aceRule : aceList) {
                     aclServiceManager.notifyAce(port, action, aceRule);
                 }
