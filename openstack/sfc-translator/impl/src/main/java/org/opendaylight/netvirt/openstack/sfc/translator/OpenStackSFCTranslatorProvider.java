@@ -9,9 +9,9 @@
 package org.opendaylight.netvirt.openstack.sfc.translator;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.netvirt.openstack.sfc.translator.flowclassifier.FlowClassifierTranslator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.openstack.sfc.translator.config.rev160720.OpenstackSfcTranslatorConfig;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,9 +20,7 @@ public class OpenStackSFCTranslatorProvider implements AutoCloseable {
 
     private final DataBroker dataBroker;
     private final BundleContext bundleContext;
-
-    private ServiceRegistration<?> reg;
-
+    private final FlowClassifierTranslator flowClassifierTranslator;
     public OpenStackSFCTranslatorProvider(
             final DataBroker dataBroker,
             final OpenstackSfcTranslatorConfig openstackSfcTranslatorConfig,
@@ -30,17 +28,17 @@ public class OpenStackSFCTranslatorProvider implements AutoCloseable {
         LOG.info("OpenStack SFC Translator started");
         this.dataBroker = dataBroker;
         this.bundleContext = bundleContext;
+        flowClassifierTranslator = new FlowClassifierTranslator(dataBroker);
     }
 
+    //This method will be called by blueprint, during bundle initialization.
     public void start() {
         LOG.info("OpenStack SFC Translator Session Initiated");
+        flowClassifierTranslator.start();
     }
 
     @Override
     public void close() throws Exception {
         LOG.info("OpenStack SFC Translator Closed");
-        if (reg != null) {
-            reg.unregister();
-        }
     }
 }
