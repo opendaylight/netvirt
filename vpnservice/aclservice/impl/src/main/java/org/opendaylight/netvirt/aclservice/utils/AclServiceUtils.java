@@ -28,6 +28,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -213,17 +214,8 @@ public final class AclServiceUtils {
      * @param port the port.
      * @return the port security is enabled/not.
      */
-    public static boolean isPortSecurityEnabled(Interface port) {
-        if (port == null) {
-            LOG.error("Port is Null");
-            return false;
-        }
-        InterfaceAcl aclInPort = port.getAugmentation(InterfaceAcl.class);
-        if (aclInPort == null) {
-            LOG.error("getSecurityGroupInPortList: no security group associated to Interface port: {}", port.getName());
-            return false;
-        }
-        return aclInPort.isPortSecurityEnabled();
+    public static boolean isPortSecurityEnabled(AclInterface port) {
+        return port.isPortSecurityEnabled();
     }
 
     /**
@@ -322,48 +314,47 @@ public final class AclServiceUtils {
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
 
-    public static List<Uuid> getUpdatedAclList(Interface updatedPort, Interface currentPort) {
-        if (updatedPort == null) {
+    public static List<Uuid> getUpdatedAclList(List<Uuid> updatedAclList, List<Uuid> currentAclList) {
+        if (updatedAclList == null) {
             return null;
         }
-        List<Uuid> updatedAclList = new ArrayList<>(AclServiceUtils.getInterfaceAcls(updatedPort));
-        if (currentPort == null) {
-            return updatedAclList;
+        List<Uuid> newAclList = new ArrayList<>(updatedAclList);
+        if (currentAclList == null) {
+            return newAclList;
         }
-        List<Uuid> currentAclList = new ArrayList<>(AclServiceUtils.getInterfaceAcls(currentPort));
-        for (Iterator<Uuid> iterator = updatedAclList.iterator(); iterator.hasNext();) {
+        List<Uuid> origAclList = new ArrayList<>(currentAclList);
+        for (Iterator<Uuid> iterator = newAclList.iterator(); iterator.hasNext();) {
             Uuid updatedAclUuid = iterator.next();
-            for (Uuid currentAclUuid :currentAclList) {
+            for (Uuid currentAclUuid :origAclList) {
                 if (updatedAclUuid.getValue().equals(currentAclUuid.getValue())) {
                     iterator.remove();
                 }
             }
         }
-        return updatedAclList;
+        return newAclList;
     }
 
-    public static List<AllowedAddressPairs> getUpdatedAllowedAddressPairs(Interface updatedPort,
-            Interface currentPort) {
-        if (updatedPort == null) {
+    public static List<AllowedAddressPairs> getUpdatedAllowedAddressPairs(
+            List<AllowedAddressPairs> updatedAllowedAddressPairs,
+            List<AllowedAddressPairs> currentAllowedAddressPairs) {
+        if (updatedAllowedAddressPairs == null) {
             return null;
         }
-        List<AllowedAddressPairs> updatedAllowedAddressPairs =
-                new ArrayList<>(AclServiceUtils.getPortAllowedAddresses(updatedPort));
-        if (currentPort == null) {
-            return updatedAllowedAddressPairs;
+        List<AllowedAddressPairs> newAllowedAddressPairs = new ArrayList<>(updatedAllowedAddressPairs);
+        if (currentAllowedAddressPairs == null) {
+            return newAllowedAddressPairs;
         }
-        List<AllowedAddressPairs> currentAllowedAddressPairs =
-                new ArrayList<>(AclServiceUtils.getPortAllowedAddresses(currentPort));
-        for (Iterator<AllowedAddressPairs> iterator = updatedAllowedAddressPairs.iterator(); iterator.hasNext();) {
+        List<AllowedAddressPairs> origAllowedAddressPairs = new ArrayList<>(currentAllowedAddressPairs);
+        for (Iterator<AllowedAddressPairs> iterator = newAllowedAddressPairs.iterator(); iterator.hasNext();) {
             AllowedAddressPairs updatedAllowedAddressPair = iterator.next();
-            for (AllowedAddressPairs currentAllowedAddressPair : currentAllowedAddressPairs) {
+            for (AllowedAddressPairs currentAllowedAddressPair : origAllowedAddressPairs) {
                 if (updatedAllowedAddressPair.getKey().equals(currentAllowedAddressPair.getKey())) {
                     iterator.remove();
                     break;
                 }
             }
         }
-        return updatedAllowedAddressPairs;
+        return newAllowedAddressPairs;
     }
 
     public static List<AllowedAddressPairs> getPortAllowedAddresses(Interface port) {
