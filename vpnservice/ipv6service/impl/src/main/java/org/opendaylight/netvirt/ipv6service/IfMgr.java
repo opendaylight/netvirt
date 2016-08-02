@@ -496,7 +496,7 @@ public class IfMgr {
         // Update the network <--> List[dpnIds, List<ports>] cache.
         VirtualNetwork vnet = vnetworks.get(intf.getNetworkID());
         if (null != vnet) {
-            vnet.updateDpnPortInfo(dpId, portId, Ipv6Constants.ADD_ENTRY);
+            vnet.updateDpnPortInfo(dpId, ofPort, Ipv6Constants.ADD_ENTRY);
         }
 
         return;
@@ -529,7 +529,7 @@ public class IfMgr {
                 VirtualNetwork vnet = vnetworks.get(intf.getNetworkID());
                 if (null != vnet) {
                     BigInteger dpId = ipv6ServiceUtils.getDataPathId(intf.getDpId());
-                    vnet.updateDpnPortInfo(dpId, intf.getIntfUUID(), Ipv6Constants.DEL_ENTRY);
+                    vnet.updateDpnPortInfo(dpId, intf.getOfPort(), Ipv6Constants.DEL_ENTRY);
                 }
             }
             vintfs.remove(portId);
@@ -715,19 +715,24 @@ public class IfMgr {
         Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt();
 
         LOG.debug("in transmitRouterAdvertisement for {}", advType);
-        for (VirtualPort port : vintfs.values()) {
-            if ((port.getOfPort() != null) && (port.getNetworkID() != null)
-                && (port.getNetworkID().equals(intf.getNetworkID()))) {
-
-                String nodeName = Ipv6Constants.OPENFLOW_NODE_PREFIX + port.getDpId();
-                String outPort = nodeName + ":" + port.getOfPort();
-                LOG.debug("Transmitting RA {} for node {}, port {}", advType, nodeName, outPort);
-                InstanceIdentifier<NodeConnector> outPortId = InstanceIdentifier.builder(Nodes.class)
-                                                              .child(Node.class, new NodeKey(new NodeId(nodeName)))
-                                                              .child(NodeConnector.class,
-                                                                   new NodeConnectorKey(new NodeConnectorId(outPort)))
-                                                              .build();
-                ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, new NodeConnectorRef(outPortId), null);
+        VirtualNetwork vnet = vnetworks.get(intf.getNetworkID());
+        if (vnet != null) {
+            String nodeName;
+            String outPort;
+            Collection<VirtualNetwork.DpnInterfaceInfo> dpnIfaceList = vnet.getDpnIfaceList();
+            for (VirtualNetwork.DpnInterfaceInfo dpnIfaceInfo : dpnIfaceList) {
+                nodeName = Ipv6Constants.OPENFLOW_NODE_PREFIX + dpnIfaceInfo.getDpId();
+                for (Long ofPort: dpnIfaceInfo.ofPortList) {
+                    // TODO: Check how to send RA to multiple ports at once.
+                    outPort = nodeName + ":" + ofPort;
+                    LOG.debug("Transmitting RA {} for node {}, port {}", advType, nodeName, outPort);
+                    InstanceIdentifier<NodeConnector> outPortId = InstanceIdentifier.builder(Nodes.class)
+                            .child(Node.class, new NodeKey(new NodeId(nodeName)))
+                            .child(NodeConnector.class,
+                                    new NodeConnectorKey(new NodeConnectorId(outPort)))
+                            .build();
+                    ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, new NodeConnectorRef(outPortId), null);
+                }
             }
         }
     }
