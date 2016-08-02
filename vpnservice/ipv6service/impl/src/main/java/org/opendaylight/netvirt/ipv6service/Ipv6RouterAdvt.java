@@ -50,7 +50,7 @@ public class Ipv6RouterAdvt {
     }
 
     public boolean transmitRtrAdvertisement(Ipv6RtrAdvertType raType, VirtualPort routerPort,
-                                            NodeConnectorRef outport, RouterSolicitationPacket rsPdu) {
+                                            List<NodeConnectorRef> outportList, RouterSolicitationPacket rsPdu) {
         if (pktService == null) {
             LOG.info("transmitRtrAdvertisement packet processing service is not yet configured");
             return false;
@@ -59,12 +59,14 @@ public class Ipv6RouterAdvt {
         updateRAResponse(raType, rsPdu, raPacket, routerPort);
         // Serialize the response packet
         byte[] txPayload = fillRouterAdvertisementPacket(raPacket.build());
-        InstanceIdentifier<Node> outNode = outport.getValue().firstIdentifierOf(Node.class);
-        TransmitPacketInput input = new TransmitPacketInputBuilder().setPayload(txPayload)
-                .setNode(new NodeRef(outNode))
-                .setEgress(outport).build();
-        LOG.debug("Transmitting the Router Advt packet out {}", outport);
-        pktService.transmitPacket(input);
+        for (NodeConnectorRef outport: outportList) {
+            InstanceIdentifier<Node> outNode = outport.getValue().firstIdentifierOf(Node.class);
+            TransmitPacketInput input = new TransmitPacketInputBuilder().setPayload(txPayload)
+                    .setNode(new NodeRef(outNode))
+                    .setEgress(outport).build();
+            LOG.debug("Transmitting the Router Advt packet out {}", outport);
+            pktService.transmitPacket(input);
+        }
         return true;
     }
 

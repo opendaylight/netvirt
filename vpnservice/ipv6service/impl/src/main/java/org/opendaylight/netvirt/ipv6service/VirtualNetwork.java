@@ -34,7 +34,7 @@ public class VirtualNetwork {
         return networkUUID;
     }
 
-    public void updateDpnPortInfo(BigInteger dpnId, Uuid portId, int addOrRemove) {
+    public void updateDpnPortInfo(BigInteger dpnId, Long ofPort, int addOrRemove) {
         DpnInterfaceInfo dpnInterface = dpnIfaceList.get(dpnId);
         if (dpnInterface == null) {
             dpnInterface = new DpnInterfaceInfo(dpnId);
@@ -42,9 +42,9 @@ public class VirtualNetwork {
         }
 
         if (addOrRemove == Ipv6Constants.ADD_ENTRY) {
-            dpnInterface.updatePort(portId);
+            dpnInterface.updateofPortList(ofPort);
         } else {
-            dpnInterface.removePort(portId);
+            dpnInterface.removeOfPortFromList(ofPort);
         }
     }
 
@@ -103,7 +103,7 @@ public class VirtualNetwork {
         while (itr.hasNext()) {
             DpnInterfaceInfo dpnInterfaceInfo = (DpnInterfaceInfo) itr.next();
             if (null != dpnInterfaceInfo) {
-                dpnInterfaceInfo.clearPortInfo();
+                dpnInterfaceInfo.clearOfPortList();
                 dpnInterfaceInfo.clearNdTargetFlowInfo();
             }
         }
@@ -113,12 +113,12 @@ public class VirtualNetwork {
     public class DpnInterfaceInfo {
         BigInteger dpId;
         int rsPuntFlowConfigured;
-        List<Uuid> portUUID;
+        List<Long> ofPortList;
         List<Ipv6Address> ndTargetFlowsPunted;
 
         DpnInterfaceInfo(BigInteger dpnId) {
             dpId = dpnId;
-            portUUID = new ArrayList<>();
+            ofPortList = new ArrayList<>();
             ndTargetFlowsPunted = new ArrayList<>();
             rsPuntFlowConfigured = Ipv6Constants.FLOWS_NOT_CONFIGURED;
         }
@@ -155,22 +155,22 @@ public class VirtualNetwork {
             this.ndTargetFlowsPunted.clear();
         }
 
-        public void updatePort(Uuid portID) {
-            this.portUUID.add(portID);
+        public void updateofPortList(Long ofPort) {
+            this.ofPortList.add(ofPort);
         }
 
-        public void removePort(Uuid portID) {
-            this.portUUID.remove(portID);
+        public void removeOfPortFromList(Long ofPort) {
+            this.ofPortList.remove(ofPort);
         }
 
-        public void clearPortInfo() {
-            this.portUUID.clear();
+        public void clearOfPortList() {
+            this.ofPortList.clear();
         }
 
         @Override
         public String toString() {
-            return "DpnInterfaceInfo [dpId=" + dpId + " rsPuntFlowConfigured=" + rsPuntFlowConfigured + " portUUID="
-                    + portUUID + "]";
+            return "DpnInterfaceInfo [dpId=" + dpId + " rsPuntFlowConfigured=" + rsPuntFlowConfigured + " ofPortList="
+                    + ofPortList + "]";
         }
     }
 }
