@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants.Ipv6RtrAdvertType;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
@@ -38,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -57,6 +59,7 @@ public class IfMgr {
     private OdlInterfaceRpcService interfaceManagerRpc;
     private static final IfMgr IFMGR_INSTANCE = new IfMgr();
     private Ipv6ServiceUtils ipv6Utils = Ipv6ServiceUtils.getInstance();
+    private DataBroker broker;
 
     private IfMgr() {
         init();
@@ -80,6 +83,11 @@ public class IfMgr {
     public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {
         LOG.trace("Registered interfaceManager successfully");
         this.interfaceManagerRpc = interfaceManagerRpc;
+    }
+
+    public void setDataBroker(final DataBroker db) {
+        LOG.trace("Updated Databroker in ifMgr instance.");
+        this.broker = db;
     }
 
     /**
@@ -521,21 +529,26 @@ public class IfMgr {
 
     private void transmitRouterAdvertisement(VirtualPort intf, Ipv6RtrAdvertType advType) {
         Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt();
+        List<DpnInterfaces> dpnsIfaceList;
+        VirtualPort port;
 
         LOG.debug("in transmitRouterAdvertisement for {}", advType);
-        for (VirtualPort port : vintfs.values()) {
-            if ((port.getOfPort() != null) && (port.getNetworkID() != null)
-                && (port.getNetworkID().equals(intf.getNetworkID()))) {
-
-                String nodeName = Ipv6Constants.OPENFLOW_NODE_PREFIX + port.getDpId();
-                String outPort = nodeName + ":" + port.getOfPort();
-                LOG.debug("Transmitting RA {} for node {}, port {}", advType, nodeName, outPort);
-                InstanceIdentifier<NodeConnector> outPortId = InstanceIdentifier.builder(Nodes.class)
-                                                              .child(Node.class, new NodeKey(new NodeId(nodeName)))
-                                                              .child(NodeConnector.class,
-                                                                   new NodeConnectorKey(new NodeConnectorId(outPort)))
-                                                              .build();
-                ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, new NodeConnectorRef(outPortId), null);
+        // Get the list of <dpns, iface-list> for the network. For each iface on the dpnId, send out an RA.
+        dpnsIfaceList = Ipv6ServiceUtils.getDpnInterfaceListForElan(broker, intf.getNetworkID().getValue());
+        for (DpnInterfaces dpnInterfaces : dpnsIfaceList) {
+            String nodeName = Ipv6Constants.OPENFLOW_NODE_PREFIX + dpnInterfaces.getDpId().toString();
+            for (String portId: dpnInterfaces.getInterfaces()) {
+                port = vintfs.get(new Uuid(portId));
+                if (null != port) {
+                    String outPort = nodeName + ":" + port.getOfPort();
+                    LOG.debug("Transmitting RA {} for node {}, port {}", advType, nodeName, outPort);
+                    InstanceIdentifier<NodeConnector> outPortId = InstanceIdentifier.builder(Nodes.class)
+                            .child(Node.class, new NodeKey(new NodeId(nodeName)))
+                            .child(NodeConnector.class,
+                                    new NodeConnectorKey(new NodeConnectorId(outPort)))
+                            .build();
+                    ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, new NodeConnectorRef(outPortId), null);
+                }
             }
         }
     }

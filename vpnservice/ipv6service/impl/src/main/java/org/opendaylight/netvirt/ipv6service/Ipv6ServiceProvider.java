@@ -52,6 +52,7 @@ public class Ipv6ServiceProvider implements BindingAwareProvider, AutoCloseable 
 
         ifMgr = IfMgr.getIfMgrInstance();
         ifMgr.setInterfaceManagerRpc(interfaceManagerRpc);
+        ifMgr.setDataBroker(broker);
         Ipv6PeriodicRAThread ipv6Thread = Ipv6PeriodicRAThread.getInstance();
         ipv6ServiceInterfaceEventListener = new Ipv6ServiceInterfaceEventListener(broker, mdsalManager);
         ipv6ServiceInterfaceEventListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);

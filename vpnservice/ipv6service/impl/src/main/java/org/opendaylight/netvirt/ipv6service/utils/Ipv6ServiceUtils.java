@@ -50,6 +50,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.EthernetHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.Ipv6Header;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -429,5 +433,18 @@ public class Ipv6ServiceUtils {
     public void unbindIpv6Service(DataBroker broker, String interfaceName) {
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION,
                 buildServiceId(interfaceName, NwConstants.IPV6_SERVICE_INDEX));
+    }
+
+    public static List<DpnInterfaces> getDpnInterfaceListForElan(DataBroker broker, String elanInstanceName) {
+        List<DpnInterfaces> dpnsIfaceList = null;
+        InstanceIdentifier<ElanDpnInterfacesList> elanDpnInstanceIdentifier =
+                InstanceIdentifier.builder(ElanDpnInterfaces.class)
+                        .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
+        Optional<ElanDpnInterfacesList> elanDpnifaceListOptional =
+                MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInstanceIdentifier);
+        if (elanDpnifaceListOptional.isPresent()) {
+            dpnsIfaceList = elanDpnifaceListOptional.get().getDpnInterfaces();
+        }
+        return dpnsIfaceList;
     }
 }
