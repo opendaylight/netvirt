@@ -21,6 +21,8 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
+import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -71,6 +73,8 @@ public class AclServiceTestUtils {
 
     public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, MatchFieldType matchType, String... params) {
         Iterable<MatchInfoBase> matches = filter(flowMatches,
+            (item -> item instanceof MatchInfo) );
+        matches = filter(matches,
                 (item -> ((MatchInfo) item).getMatchField().equals(matchType)));
         for (MatchInfoBase baseMatch : matches) {
             verifyMatchValues((MatchInfo) baseMatch, params);
@@ -79,11 +83,8 @@ public class AclServiceTestUtils {
 
     public static void verifyMatchValues(MatchInfo match, String... params) {
         switch (match.getMatchField()) {
-            case tcp_src:
-            case tcp_dst:
+
             case ip_proto:
-            case udp_src:
-            case udp_dst:
             case eth_type:
                 long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
                 Assert.assertArrayEquals(values, match.getMatchValues());
@@ -98,7 +99,28 @@ public class AclServiceTestUtils {
         }
     }
 
+    public static void verifyMatchValues(NxMatchInfo match, String... params) {
+        switch (match.getMatchField()) {
+            case nx_tcp_src_with_mask:
+            case nx_tcp_dst_with_mask:
+            case nx_udp_src_with_mask:
+            case nx_udp_dst_with_mask:
+                long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
+                Assert.assertArrayEquals(values, match.getMatchValues());
+                break;
+            default:
+                assertTrue("match type is not supported", true);
+                break;
+        }
+    }
+
     public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches, MatchFieldType matchType) {
+        Iterable<MatchInfoBase> matches = filter(flowMatches,
+                (item -> ((MatchInfo) item).getMatchField().equals(matchType)));
+        Assert.assertTrue("unexpected match type " + matchType.name(), Iterables.isEmpty(matches));
+    }
+
+    public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType) {
         Iterable<MatchInfoBase> matches = filter(flowMatches,
                 (item -> ((MatchInfo) item).getMatchField().equals(matchType)));
         Assert.assertTrue("unexpected match type " + matchType.name(), Iterables.isEmpty(matches));
