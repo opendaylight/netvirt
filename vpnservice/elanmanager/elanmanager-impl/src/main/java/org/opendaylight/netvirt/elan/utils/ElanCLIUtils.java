@@ -8,7 +8,8 @@
 package org.opendaylight.netvirt.elan.utils;
 
 public class ElanCLIUtils {
-    public static final String HEADER_UNDERLINE = "----------------------------------------------------------------------------------------------";
+    public static final String HEADER_UNDERLINE = "----------------------------------------------------------"
+            + "------------------------------------";
     public static final String MAC_TABLE_CLI_FORMAT = "%-35s %-20s %-20s %-20s";
     public static final String ELAN_CLI_FORMAT = "%-35s %-20s %-20s ";
     public static final String ELAN_INTERFACE_CLI_FORMAT = "%-35s %-25s %-15s %-15s ";
