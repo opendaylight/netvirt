@@ -114,7 +114,7 @@ public class ElanBridgeManager {
             //if br-int already exists, we can add provider networks
             Node brIntNode = southboundUtils.readBridgeNode(node, INTEGRATION_BRIDGE);
             if (brIntNode != null) {
-                if(!addControllerToBridge(node, brIntNode, INTEGRATION_BRIDGE)) {
+                if(!addControllerToBridge(node, INTEGRATION_BRIDGE)) {
                     LOG.error("Failed to set controller to existing integration bridge {}", brIntNode);
                 }
 
@@ -224,8 +224,8 @@ public class ElanBridgeManager {
         return rv;
     }
 
-    private boolean addControllerToBridge(Node ovsdbNode, Node bridgeNode, String bridgeName) {
-        return southboundUtils.setBridgeController(ovsdbNode, bridgeNode,
+    private boolean addControllerToBridge(Node ovsdbNode,String bridgeName) {
+        return southboundUtils.setBridgeController(ovsdbNode,
                             bridgeName, southboundUtils.getControllersFromOvsdbNode(ovsdbNode));
     }
 
