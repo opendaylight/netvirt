@@ -25,6 +25,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
@@ -36,7 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
@@ -50,20 +50,16 @@ import org.slf4j.LoggerFactory;
 public class EgressAclServiceImpl extends AbstractAclServiceImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(EgressAclServiceImpl.class);
-    private final DataBroker dataBroker;
 
     /**
      * Initialize the member variables.
      *
      * @param dataBroker the data broker instance.
-     * @param interfaceManager the interface manager instance.
      * @param mdsalManager the mdsal manager instance.
      */
-    public EgressAclServiceImpl(DataBroker dataBroker, OdlInterfaceRpcService interfaceManager,
-                                IMdsalApiManager mdsalManager) {
+    public EgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager) {
         // Service mode is w.rt. switch
-        super(ServiceModeIngress.class, dataBroker, interfaceManager, mdsalManager);
-        this.dataBroker = dataBroker;
+        super(ServiceModeIngress.class, dataBroker, mdsalManager);
     }
 
     /**
@@ -109,16 +105,18 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      */
     @Override
     protected void programFixedRules(BigInteger dpid, String dhcpMacAddress,
-            List<AllowedAddressPairs> allowedAddresses, int lportTag, int addOrRemove) {
+            List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action, int addOrRemove) {
         LOG.info("programFixedRules :  adding default rules.");
 
-        egressAclDhcpAllowClientTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
-        egressAclDhcpv6AllowClientTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
-        egressAclDhcpDropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
-        egressAclDhcpv6DropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
+        if (action == Action.ADD || action == Action.REMOVE) {
+            egressAclDhcpAllowClientTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
+            egressAclDhcpv6AllowClientTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
+            egressAclDhcpDropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
+            egressAclDhcpv6DropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
+        }
         programArpRule(dpid, allowedAddresses, addOrRemove);
 
-        programEgressAclFixedConntrackRule(dpid, allowedAddresses, lportTag, addOrRemove);
+        programEgressAclFixedConntrackRule(dpid, allowedAddresses, lportTag, action, addOrRemove);
     }
 
     /**
@@ -389,19 +387,21 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param write whether to add or remove the flow.
      */
     private void programEgressAclFixedConntrackRule(BigInteger dpid, List<AllowedAddressPairs> allowedAddresses,
-            int lportTag, int write) {
+            int lportTag, Action action, int write) {
         programConntrackRecircRules(dpid, allowedAddresses, AclConstants.CT_STATE_UNTRACKED_PRIORITY,
             "Untracked",AclConstants.UNTRACKED_CT_STATE,AclConstants.UNTRACKED_CT_STATE_MASK, write );
-        programConntrackForwardRule(dpid, lportTag, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,
-            "Tracked_Established", AclConstants.TRACKED_EST_CT_STATE, AclConstants.TRACKED_EST_CT_STATE_MASK,
-            write );
-        programConntrackForwardRule(dpid, lportTag, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,
-            "Tracked_Related", AclConstants.TRACKED_REL_CT_STATE, AclConstants.TRACKED_REL_CT_STATE_MASK, write );
-        programConntrackDropRule(dpid, lportTag, AclConstants.CT_STATE_NEW_PRIORITY_DROP,
-            "Tracked_New", AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, write );
-        programConntrackDropRule(dpid, lportTag, AclConstants.CT_STATE_NEW_PRIORITY_DROP,
-            "Tracked_Invalid", AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK,
-            write );
+        if (action == Action.ADD || action == Action.REMOVE) {
+            programConntrackForwardRule(dpid, lportTag, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,
+                "Tracked_Established", AclConstants.TRACKED_EST_CT_STATE, AclConstants.TRACKED_EST_CT_STATE_MASK,
+                write );
+            programConntrackForwardRule(dpid, lportTag, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,
+                "Tracked_Related", AclConstants.TRACKED_REL_CT_STATE, AclConstants.TRACKED_REL_CT_STATE_MASK, write );
+            programConntrackDropRule(dpid, lportTag, AclConstants.CT_STATE_NEW_PRIORITY_DROP,
+                "Tracked_New", AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, write );
+            programConntrackDropRule(dpid, lportTag, AclConstants.CT_STATE_NEW_PRIORITY_DROP,
+                "Tracked_Invalid", AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK,
+                write );
+        }
         LOG.info("programEgressAclFixedConntrackRule :  default connection tracking rule are added.");
     }
 }
