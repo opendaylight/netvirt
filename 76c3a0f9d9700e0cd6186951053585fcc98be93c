@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_f0a6c052",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-02T08:03:31Z",
+      "side": 1,
+      "message": "I haven\u0027t found such class, can you give me its name",
+      "parentUuid": "7a6b29fe_9c3dedbe",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_2c869013",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-07-27T21:43:15Z",
       "side": 1,
       "message": "can the AsyncDataTreeChangeListenerBase be used so we can get the use of the DataTree rather than DataChange? We need to migrate the existing code to DataTree so new files woudl be good to use DataTree. AclInterfaceEventListener is an example in netvirt using it.",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_99d97f86",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-02T08:03:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_2c869013",
       "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_cbdcb577",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-02T08:03:31Z",
+      "side": 1,
+      "message": "changed",
+      "parentUuid": "7a6b29fe_dc8c8582",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_eca8188f",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2016-07-27T21:43:15Z",
       "side": 1,
       "message": "nitpick trailing spaces",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f9e6b343",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-02T08:03:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_eca8188f",
       "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_d9e3f731",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-02T08:03:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_ac710046",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_fc8fc173",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
         "patchSetId": 2
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_b021e8b6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-02T08:03:31Z",
+      "side": 1,
+      "message": "changed to addTransportZone",
+      "parentUuid": "7a6b29fe_fc8fc173",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_4caae485",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 2
@@ -115,6 +223,24 @@
       "writtenOn": "2016-07-27T21:43:15Z",
       "side": 1,
       "message": "whitespace",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_39d02b53",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 663,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-02T08:03:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_4caae485",
       "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -156,6 +282,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_19d56f43",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-02T08:03:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_8c97dc47",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_ec96583e",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneTest.java",
         "patchSetId": 2
@@ -173,6 +317,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_79f3c30a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-02T08:03:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_ec96583e",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_0c92ac4b",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneTest.java",
         "patchSetId": 2
@@ -184,6 +346,24 @@
       "writtenOn": "2016-07-27T21:43:15Z",
       "side": 1,
       "message": "whitespace",
+      "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b9dc3b76",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-02T08:03:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_0c92ac4b",
       "revId": "76c3a0f9d9700e0cd6186951053585fcc98be93c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
