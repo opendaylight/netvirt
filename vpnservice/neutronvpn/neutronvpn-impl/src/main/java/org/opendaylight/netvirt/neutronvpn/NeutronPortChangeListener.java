@@ -484,7 +484,28 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private Interface updateInterface(Port original, Port update) {
         String parentRefName = NeutronvpnUtils.getVifPortName(update);
         String interfaceName = original.getUuid().getValue();
+        IfL2vlan.L2vlanMode l2VlanMode = IfL2vlan.L2vlanMode.Trunk;
         InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
+        IfL2vlanBuilder ifL2vlanBuilder = new IfL2vlanBuilder();
+
+        Network network = NeutronvpnUtils.getNeutronNetwork(broker, update.getNetworkId());
+        Boolean isVlanTransparent = network.isVlanTransparent();
+        if (isVlanTransparent != null && isVlanTransparent) {
+            l2VlanMode = IfL2vlan.L2vlanMode.Transparent;
+        }
+
+        if (l2VlanMode != IfL2vlan.L2vlanMode.Transparent) {
+            TrunkportExt trunkportExt = update.getAugmentation(TrunkportExt.class);
+            if (trunkportExt != null) {
+                Class<? extends TrunkportTypeBase> trunkportType = trunkportExt.getType();
+                if (trunkportType != null && trunkportType.isAssignableFrom(TrunkportTypeSubport.class)) {
+                    l2VlanMode = IfL2vlan.L2vlanMode.TrunkMember;
+                    ifL2vlanBuilder.setVlanId(new VlanId(trunkportExt.getVid()));
+                    parentRefName = trunkportExt.getParentId().getValue();
+                }
+            }
+        }
+        ifL2vlanBuilder.setL2vlanMode(l2VlanMode);
 
         if(parentRefName != null) {
             ParentRefsBuilder parentRefsBuilder = new ParentRefsBuilder().setParentInterface(parentRefName);
