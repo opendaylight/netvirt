@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_53ba1be2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-08-02T16:46:47Z",
+      "side": 1,
+      "message": "Can we use MetaDataUtil.getVpnIdMetadata() here instead?",
+      "revId": "ef1f8bf63571855fe4371322e32a7efa107bac61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
