@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_fd721848",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-08-02T11:50:52Z",
+      "side": 1,
+      "message": "Verified and proposed the following patch to address this requirement - https://git.opendaylight.org/gerrit/#/c/42965/",
+      "parentUuid": "7a6b29fe_2bbf29d2",
+      "range": {
+        "startLine": 526,
+        "startChar": 0,
+        "endLine": 528,
+        "endChar": 71
+      },
+      "revId": "e9cf5a710f8a53d6dcd0ea2744b8c8c3765eea2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_a5e36804",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/VirtualPort.java",
         "patchSetId": 5
