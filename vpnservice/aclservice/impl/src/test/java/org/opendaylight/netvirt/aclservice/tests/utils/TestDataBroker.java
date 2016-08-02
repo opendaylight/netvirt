@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.aclservice.tests.utils;
 
+import static org.mockito.Mockito.spy;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
@@ -17,7 +19,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.netvirt.aclservice.tests.idea.Mikito;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -41,24 +42,24 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public abstract class TestDataBroker extends SimplestDatabase implements DataBroker {
 
     public static DataBroker newTestDataBroker() {
-        TestDataBroker newTestDataBroker = Mikito.stub(TestDataBroker.class);
+        TestDataBroker newTestDataBroker = spy(TestDataBroker.class);
         newTestDataBroker.getMap(); // This initializes the SimplestDatabase
         return newTestDataBroker;
     }
 
     @Override
     public WriteTransaction newWriteOnlyTransaction() {
-        return Mikito.stub(TestReadOnlyReadWriteTransaction.class).parent(this);
+        return spy(TestReadOnlyReadWriteTransaction.class).parent(this);
     }
 
     @Override
     public ReadOnlyTransaction newReadOnlyTransaction() {
-        return Mikito.stub(TestReadOnlyReadWriteTransaction.class).parent(this);
+        return spy(TestReadOnlyReadWriteTransaction.class).parent(this);
     }
 
     @Override
     public ReadWriteTransaction newReadWriteTransaction() {
-        return Mikito.stub(TestReadOnlyReadWriteTransaction.class).parent(this);
+        return spy(TestReadOnlyReadWriteTransaction.class).parent(this);
     }
 
     protected abstract static class TestReadOnlyReadWriteTransaction extends SimplestDatabase

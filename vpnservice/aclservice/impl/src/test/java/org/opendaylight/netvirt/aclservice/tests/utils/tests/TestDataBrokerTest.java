@@ -8,14 +8,17 @@
 package org.opendaylight.netvirt.aclservice.tests.utils.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.withSettings;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.netvirt.aclservice.tests.utils.MockitoNotImplementedExceptionAnswer.EXCEPTION_ANSWER;
 
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.netvirt.aclservice.tests.idea.Mikito;
 import org.opendaylight.netvirt.aclservice.tests.utils.TestDataBroker;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -47,7 +50,7 @@ public class TestDataBrokerTest {
     }
 
     private TestDataObject newDO() {
-        return Mikito.stub(TestDataObject.class);
+        return mock(TestDataObject.class, withSettings().defaultAnswer(EXCEPTION_ANSWER));
     }
 
 }

@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.aclservice.tests;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.opendaylight.netvirt.aclservice.tests.utils.MockitoNotImplementedExceptionAnswer.EXCEPTION_ANSWER;
@@ -15,10 +16,10 @@ import static org.opendaylight.netvirt.aclservice.tests.utils.MockitoNotImplemen
 import java.math.BigInteger;
 import java.util.concurrent.Future;
 import org.junit.Before;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.EgressAclServiceImpl;
 import org.opendaylight.netvirt.aclservice.api.tests.AbstractAclServiceListenerTest;
-import org.opendaylight.netvirt.aclservice.api.tests.FakeIMdsalApiManager;
-import org.opendaylight.netvirt.aclservice.tests.idea.Mikito;
 import org.opendaylight.netvirt.aclservice.tests.utils.TestDataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutputBuilder;
@@ -40,7 +41,8 @@ public class AclServiceListenerImplTest extends AbstractAclServiceListenerTest {
                 .success(new GetDpidFromInterfaceOutputBuilder().setDpid(new BigInteger("123"))).buildFuture();
         doReturn(result).when(odlInterfaceRpcService).getDpidFromInterface(any());
 
-        mdsalApiManager = Mikito.stub(FakeIMdsalApiManager.class);
+        mdsalApiManager = mock(IMdsalApiManager.class, EXCEPTION_ANSWER);
+        doNothing().when(mdsalApiManager).installFlow(any(FlowEntity.class));
 
         aclService = new EgressAclServiceImpl(dataBroker, odlInterfaceRpcService, mdsalApiManager);
     }
