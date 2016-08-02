@@ -10,11 +10,16 @@ package org.opendaylight.netvirt.aclservice.utils;
 
 import static com.google.common.collect.Iterables.filter;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Iterables;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Assert;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
@@ -23,12 +28,17 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRangeBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
 
 public class AclServiceTestUtils {
@@ -124,5 +134,38 @@ public class AclServiceTestUtils {
         Iterable<MatchInfoBase> matches = filter(flowMatches,
                 (item -> ((MatchInfo) item).getMatchField().equals(matchType)));
         Assert.assertTrue("unexpected match type " + matchType.name(), Iterables.isEmpty(matches));
+    }
+
+    public static void prepareAclDataUtil(AclInterface inter, String... updatedAclNames) {
+        AclDataUtil.addAclInterfaceMap(prapreaAclIds(updatedAclNames), inter);
+    }
+
+    public static Acl prepareAcl(String aclName, String... aces) {
+        AccessListEntries aceEntries = mock(AccessListEntries.class);
+        List<Ace> aceList = prepareAceList(aces);
+        when(aceEntries.getAce()).thenReturn(aceList);
+
+        Acl acl = mock(Acl.class);
+        when(acl.getAccessListEntries()).thenReturn(aceEntries);
+        when(acl.getAclName()).thenReturn(aclName);
+        return acl;
+    }
+
+    public static List<Ace> prepareAceList(String... aces) {
+        List<Ace> aceList = new ArrayList<>();
+        for (String aceName : aces) {
+            Ace aceMock = mock(Ace.class);
+            when(aceMock.getRuleName()).thenReturn(aceName);
+            aceList.add(aceMock);
+        }
+        return aceList;
+    }
+
+    public static List<Uuid> prapreaAclIds(String... names) {
+        return Stream.of(names).map(name -> new Uuid(name)).collect(Collectors.toList());
+    }
+
+    public static void clearStaticData(AclInterface inter, String... aclNames) {
+        AclDataUtil.removeAclInterfaceMap(prapreaAclIds(aclNames), inter);
     }
 }
