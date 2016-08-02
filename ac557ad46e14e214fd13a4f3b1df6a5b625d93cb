@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_a0b4f3f2",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-08-02T14:16:24Z",
+      "side": 1,
+      "message": "Reading the interfaces from the datastore for each transmission will be a costly operation. In a single node setup, not sure which takes more time, looping through local data or reading from the datastore. But in case of clustered setup and remote shard leader this will surely be more costly than local looping.",
+      "revId": "ac557ad46e14e214fd13a4f3b1df6a5b625d93cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
