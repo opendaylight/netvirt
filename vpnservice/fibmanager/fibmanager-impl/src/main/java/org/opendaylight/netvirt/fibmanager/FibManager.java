@@ -609,7 +609,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
                     List<ActionInfo> actionsInfos = Arrays.asList(new ActionInfo(ActionType.pop_mpls, new String[]{}));
 
                     BigInteger[] metadata = new BigInteger[] {
-                        MetaDataUtil.getMetaDataForLPortDispatcher(lportTag, FibConstants.L3VPN_SERVICE_IDENTIFIER),
+                        MetaDataUtil.getMetaDataForLPortDispatcher(lportTag, NwConstants.L3VPN_SERVICE_INDEX),
                         MetaDataUtil.getMetaDataMaskForLPortDispatcher()
                     };
                     List<InstructionInfo> instructions =
@@ -667,7 +667,7 @@ public class FibManager extends AbstractDataChangeListener<VrfEntry> implements 
 
         BigInteger[] metadata = new BigInteger[] {
                         MetaDataUtil.getMetaDataForLPortDispatcher(otherEndpointlportTag,
-                                                                   FibConstants.L3VPN_SERVICE_IDENTIFIER),
+                                                                   NwConstants.L3VPN_SERVICE_INDEX),
                         MetaDataUtil.getMetaDataMaskForLPortDispatcher()
                     };
         List<Instruction> instructions =
