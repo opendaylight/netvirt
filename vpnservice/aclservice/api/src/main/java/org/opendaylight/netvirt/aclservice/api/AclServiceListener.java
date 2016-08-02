@@ -8,19 +8,19 @@
 
 package org.opendaylight.netvirt.aclservice.api;
 
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 
 public interface AclServiceListener {
 
-    boolean applyAcl(Interface port);
+    boolean applyAcl(AclInterface port);
 
-    boolean updateAcl(Interface portBefore, Interface portAfter);
+    boolean updateAcl(AclInterface portBefore, AclInterface portAfter);
 
-    boolean removeAcl(Interface port);
+    boolean removeAcl(AclInterface port);
 
-    boolean applyAce(Interface port, Ace ace);
+    boolean applyAce(AclInterface port, Ace ace);
 
-    boolean removeAce(Interface port, Ace ace);
+    boolean removeAce(AclInterface port, Ace ace);
 
 }
