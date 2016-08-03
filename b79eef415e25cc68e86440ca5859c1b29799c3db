@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_11037b10",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 6242
+      },
+      "writtenOn": "2016-08-03T04:08:58Z",
+      "side": 1,
+      "message": "AclDataUtil is updated for map update issue and pushed in patch https://git.opendaylight.org/gerrit/#/c/42967/\n it will be better if we push this patch after that patch",
+      "range": {
+        "startLine": 117,
+        "startChar": 17,
+        "endLine": 117,
+        "endChar": 35
+      },
+      "revId": "b79eef415e25cc68e86440ca5859c1b29799c3db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
