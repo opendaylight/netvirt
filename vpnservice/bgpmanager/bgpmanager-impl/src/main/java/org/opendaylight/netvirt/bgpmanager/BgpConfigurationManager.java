@@ -1152,9 +1152,9 @@ public class BgpConfigurationManager {
             LOG.trace("bgpMIP Activated");
 
         } catch (IOException io) {
-            LOG.error("IO Exception got while activating mip:  ", io);
+            //LOG.error("IO Exception got while activating mip:  ", io);
         } catch (Exception e) {
-            LOG.error("Exception got while activating mip: ", e);
+            //LOG.error("Exception got while activating mip: ", e);
         }
     }
 
@@ -1329,14 +1329,14 @@ public class BgpConfigurationManager {
             @Override
             public void run() {
                 try {
-                    LOG.error("running bgp replay task ");
+                    //LOG.error("running bgp replay task ");
                     if (get() == null) {
                         String host = getConfigHost();
                         int port = getConfigPort();
                         LOG.info("connecting  to bgp host {} ", host);
 
                         boolean res = bgpRouter.connect(host, port);
-                        LOG.error("no config to push in bgp replay task ");
+                        //LOG.error("no config to push in bgp replay task ");
                         return;
                     }
                     setStaleStartTime(System.currentTimeMillis());
