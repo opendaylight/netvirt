@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_0caa4070",
+        "filename": "openstack/utils/netvirt-it-utils/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "OK I will revert it, but this should be fixed because it can cause circular dependency.",
+      "parentUuid": "7a6b29fe_314b175b",
+      "revId": "4b0bb361f97e8abfe9df96c858866366a314f6bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_1606d120",
         "filename": "vpnservice/it/src/test/java/org/opendaylight/netvirt/it/NetvirtITConstants.java",
         "patchSetId": 5
@@ -30,6 +48,30 @@
       "writtenOn": "2016-08-02T21:49:12Z",
       "side": 1,
       "message": "NetvirtIT",
+      "range": {
+        "startLine": 11,
+        "startChar": 17,
+        "endLine": 11,
+        "endChar": 29
+      },
+      "revId": "4b0bb361f97e8abfe9df96c858866366a314f6bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4cbb98c4",
+        "filename": "vpnservice/it/src/test/java/org/opendaylight/netvirt/it/NetvirtITConstants.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_1606d120",
       "range": {
         "startLine": 11,
         "startChar": 17,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_4ce278d6",
+        "filename": "vpnservice/utils/netvirt-it-utils/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_d10f432d",
+      "revId": "4b0bb361f97e8abfe9df96c858866366a314f6bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_b16e07c8",
         "filename": "vpnservice/utils/netvirt-it-utils/pom.xml",
         "patchSetId": 5
@@ -70,6 +130,24 @@
       "writtenOn": "2016-08-02T21:49:12Z",
       "side": 1,
       "message": "this needs a proper path, like ../../commons/config-parent\n\nThis is failing the autorelease job.",
+      "revId": "4b0bb361f97e8abfe9df96c858866366a314f6bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ace7cce3",
+        "filename": "vpnservice/utils/netvirt-it-utils/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_b16e07c8",
       "revId": "4b0bb361f97e8abfe9df96c858866366a314f6bf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_ecf7048b",
+        "filename": "vpnservice/utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetITUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_f1399fd9",
+      "revId": "4b0bb361f97e8abfe9df96c858866366a314f6bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_d13623e7",
         "filename": "vpnservice/utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetITUtil.java",
         "patchSetId": 5
@@ -104,6 +200,24 @@
       "writtenOn": "2016-08-02T21:49:12Z",
       "side": 1,
       "message": "remove spaces",
+      "revId": "4b0bb361f97e8abfe9df96c858866366a314f6bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ccf4c889",
+        "filename": "vpnservice/utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetITUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_d13623e7",
       "revId": "4b0bb361f97e8abfe9df96c858866366a314f6bf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
