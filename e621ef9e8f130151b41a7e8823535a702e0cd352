@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_67c78d13",
+        "filename": "vpnservice/aclservice/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-03T10:42:39Z",
+      "side": 1,
+      "message": "nitpick spacing",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_272f55a3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-03T10:42:39Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be in the \"StatefulAclService\"? It isn\u0027t needed by the stateless implementation that implements this abstract",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_072cd9aa",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-03T10:42:39Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_47f37173",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-03T10:42:39Z",
+      "side": 1,
+      "message": "Did you want to print the action and the ace?\nAlso does it make sense to have this as INFO when it succeeds?",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_07f9794d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceProvider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-03T10:42:39Z",
+      "side": 1,
+      "message": "Why add these lines? aclInterfaceListener is already initialized below - is it because you want to register it to both operational and config?",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_27fc753e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-03T10:42:39Z",
+      "side": 1,
+      "message": "Do you think it would be ok to rename this to StatefulEgressAcl (and same for StatefulIngressAcl?)\nCan wait for future refactoring",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_274e35c2",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-03T10:42:39Z",
+      "side": 1,
+      "message": "what\u0027s this? waiting for TCP flags?\nCan we depend on that patchset and use it here?",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_87ed898e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/IngressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-03T10:42:39Z",
+      "side": 1,
+      "message": "what\u0027s this?",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_67182d85",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-03T10:42:39Z",
+      "side": 1,
+      "message": "didn\u0027t we want the SYN_ACK ALLOW flow as a default rule? I saw you did it in AclNodeListener too",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c7082130",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-03T10:42:39Z",
+      "side": 1,
+      "message": "could add some form of inheritance here too - StatelessAclNodeListener etc.. can wait..",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a209932e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-03T10:42:39Z",
+      "side": 1,
+      "message": "Is this the default flow (for non-TCP packets)?\nIf so it should ALLOW by default, not drop. Also push this code down around the flow it is actually used",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
