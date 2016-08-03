@@ -104,7 +104,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
                     LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Bgp.class));
             return optional.get();
         } catch (Exception e) {
-            LOGGER.error("failed to get bgp config",e);
+            //LOGGER.error("failed to get bgp config",e);
         }
         return null;
     }
