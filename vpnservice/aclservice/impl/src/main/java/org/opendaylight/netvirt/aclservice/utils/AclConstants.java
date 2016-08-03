@@ -17,8 +17,6 @@ public final class AclConstants {
 
     // TODO: To be deleted once it is available in NwConstants
     public static final short EGRESS_LPORT_DISPATCHER_TABLE = 220;
-    // TODO: To be moved to NwConstants
-    public static final short INGRESS_ACL_SERVICE_PRIORITY = 6;
 
     public static final short INGRESS_ACL_DEFAULT_FLOW_PRIORITY = 1;
     public static final short EGRESS_ACL_DEFAULT_FLOW_PRIORITY = 11;
