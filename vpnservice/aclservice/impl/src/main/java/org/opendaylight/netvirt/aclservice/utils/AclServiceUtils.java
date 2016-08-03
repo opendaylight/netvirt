@@ -11,8 +11,10 @@ package org.opendaylight.netvirt.aclservice.utils;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -423,4 +425,87 @@ public final class AclServiceUtils {
         return new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] {MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG});
     }
+
+    public static List<Ace> getAceWithRemoteAclId(DataBroker dataBroker, AclInterface port, Uuid remoteAcl) {
+        List<Ace> remoteAclRuleList = new ArrayList<>();
+        List<Uuid> aclList = port.getSecurityGroups();
+        for (Uuid aclId : aclList) {
+            Acl acl = getAcl(dataBroker, aclId.getValue());
+            List<Ace> aceList = acl.getAccessListEntries().getAce();
+            for (Ace ace : aceList) {
+                Uuid tempRemoteAcl = getAccesssListAttributes(ace).getRemoteGroupId();
+                if (tempRemoteAcl != null && tempRemoteAcl.equals(remoteAcl)) {
+                    remoteAclRuleList.add(ace);
+                }
+            }
+        }
+        return remoteAclRuleList;
+    }
+
+    public static Map<String, List<MatchInfoBase>> getFlowForRemoteAcl(Uuid remoteAclId, String ignoreInterfaceId,
+                                                                       Map<String, List<MatchInfoBase>>
+                                                                               flowMatchesMap, boolean
+                                                                               isSourceIpMacMatch) {
+        List<AclInterface> interfaceList = AclDataUtil.getInterfaceList(remoteAclId);
+        if (flowMatchesMap == null || interfaceList == null || interfaceList.isEmpty()) {
+            return null;
+        }
+        Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
+        for (String flowName : flowMatchesMap.keySet()) {
+            List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
+            for (AclInterface port : interfaceList) {
+                if (port.getInterfaceId().equals(ignoreInterfaceId)) {
+                    continue;
+                }
+                //get allow address pair
+                List<AllowedAddressPairs> allowedAddressPair = port.getAllowedAddressPairs();
+                // iterate over allow address pair and update match type
+                for (AllowedAddressPairs aap : allowedAddressPair) {
+                    List<MatchInfoBase> matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
+                    String flowId = flowName + "_remoteACL_interface_" + port.getInterfaceId() + "_aap_" + aap.getKey();
+                    updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
+                }
+
+            }
+
+        }
+        return updatedFlowMatchesMap;
+    }
+
+    public static Map<String, List<MatchInfoBase>> getFlowForAllowedAddresses(List<AllowedAddressPairs>
+                                                                                      syncAllowedAddresses,
+                                                                              Map<String, List<MatchInfoBase>>
+                                                                                      flowMatchesMap, boolean
+                                                                                      isSourceIpMacMatch) {
+        if (flowMatchesMap == null) {
+            return null;
+        }
+        Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
+        for (String flowName : flowMatchesMap.keySet()) {
+            List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
+            // iterate over allow address pair and update match type
+            for (AllowedAddressPairs aap : syncAllowedAddresses) {
+                List<MatchInfoBase> matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
+                String flowId = flowName + "_remoteACL_interface_aap_" + aap.getKey();
+                updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
+            }
+
+        }
+        return updatedFlowMatchesMap;
+    }
+
+    private static List<MatchInfoBase> updateAAPMatches(boolean isSourceIpMacMatch, List<MatchInfoBase> flows,
+                                                        AllowedAddressPairs aap) {
+        List<MatchInfoBase> matchInfoBaseList;
+        if (isSourceIpMacMatch) {
+            flows.remove(MatchFieldType.ipv4_source);
+            matchInfoBaseList = AclServiceUtils.buildIpMatches(aap.getIpAddress(), MatchFieldType.ipv4_source);
+        } else {
+            flows.remove(MatchFieldType.ipv4_destination);
+            matchInfoBaseList = AclServiceUtils.buildIpMatches(aap.getIpAddress(), MatchFieldType.ipv4_destination);
+        }
+        matchInfoBaseList.addAll(flows);
+        return matchInfoBaseList;
+    }
+
 }

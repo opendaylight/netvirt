@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.aclservice;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
@@ -23,7 +25,9 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -64,7 +68,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
 
         programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
-                Action.ADD, NwConstants.ADD_FLOW);
+                Action.ADD, NwConstants.ADD_FLOW, port.getInterfaceId());
 
         // TODO: uncomment bindservice() when the acl flow programming is
         // implemented
@@ -102,11 +106,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                         portAfter.getAllowedAddressPairs());
         if (addedAllowedAddressPairs != null && !addedAllowedAddressPairs.isEmpty()) {
             programAclWithAllowedAddress(dpId, addedAllowedAddressPairs, portAfter.getLPortTag(),
-                    portAfter.getSecurityGroups(), Action.UPDATE, NwConstants.ADD_FLOW);
+                    portAfter.getSecurityGroups(), Action.UPDATE, NwConstants.ADD_FLOW, portAfter.getInterfaceId());
         }
         if (deletedAllowedAddressPairs != null && !deletedAllowedAddressPairs.isEmpty()) {
             programAclWithAllowedAddress(dpId, deletedAllowedAddressPairs, portAfter.getLPortTag(),
-                    portAfter.getSecurityGroups(), Action.UPDATE, NwConstants.DEL_FLOW);
+                    portAfter.getSecurityGroups(), Action.UPDATE, NwConstants.DEL_FLOW, portAfter.getInterfaceId());
         }
 
         List<Uuid> addedAcls = AclServiceUtils.getUpdatedAclList(portAfter.getSecurityGroups(),
@@ -114,23 +118,50 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         List<Uuid> deletedAcls = AclServiceUtils.getUpdatedAclList(portBefore.getSecurityGroups(),
                 portAfter.getSecurityGroups());
         if (addedAcls != null && !addedAcls.isEmpty()) {
-            updateCustomRules(dpId, portAfter.getLPortTag(), addedAcls, NwConstants.ADD_FLOW);
+            updateCustomRules(dpId, portAfter.getLPortTag(), addedAcls, NwConstants.ADD_FLOW,
+                    portAfter.getInterfaceId(), portAfter.getAllowedAddressPairs());
         }
         if (deletedAcls != null && !deletedAcls.isEmpty()) {
-            updateCustomRules(dpId, portAfter.getLPortTag(), deletedAcls, NwConstants.DEL_FLOW);
+            updateCustomRules(dpId, portAfter.getLPortTag(), deletedAcls, NwConstants.DEL_FLOW,
+                    portAfter.getInterfaceId(), portAfter.getAllowedAddressPairs());
         }
     }
 
-    private void updateCustomRules(BigInteger dpId, int lportTag, List<Uuid> aclUuidList, int action) {
-        programAclRules(aclUuidList, dpId, lportTag, action);
+    private void updateCustomRules(BigInteger dpId, int lportTag, List<Uuid> aclUuidList, int action,
+                                   String portId, List<AllowedAddressPairs> syncAllowedAddresses) {
+        programAclRules(aclUuidList, dpId, lportTag, action, portId);
+        syncRemoteAclRules(aclUuidList, action, portId, syncAllowedAddresses);
+    }
+
+    private void syncRemoteAclRules(List<Uuid> aclUuidList, int action, String currentPortId,
+                                    List<AllowedAddressPairs> syncAllowedAddresses) {
+        for (Uuid remoteAclId : aclUuidList) {
+            Set<String> portSet = AclDataUtil.getRemoteAclInterfaces(remoteAclId);
+            if (portSet == null) {
+                continue;
+            }
+            for (String remotePortId : portSet) {
+                AclInterface port = AclInterfaceCacheUtil.getAclInterfaceFromCache(remotePortId);
+                if (currentPortId.equals(port.getInterfaceId())) {
+                    continue;
+                }
+                List<Ace> remoteAceList = AclServiceUtils.getAceWithRemoteAclId(dataBroker, port, remoteAclId);
+                for (Ace ace : remoteAceList) {
+                    programAceRule(port.getDpId(), port.getLPortTag(), action, ace, port.getInterfaceId(),
+                            syncAllowedAddresses);
+                }
+            }
+        }
     }
 
     private void programAclWithAllowedAddress(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
-            int lportTag, List<Uuid> aclUuidList, Action action, int addOrRemove) {
+                                              int lportTag, List<Uuid> aclUuidList, Action action, int addOrRemove,
+                                              String portId) {
         programFixedRules(dpId, "", allowedAddresses, lportTag, action, addOrRemove);
         if (action == Action.ADD || action == Action.REMOVE) {
-            programAclRules(aclUuidList, dpId, lportTag, addOrRemove);
+            programAclRules(aclUuidList, dpId, lportTag, addOrRemove, portId);
         }
+        syncRemoteAclRules(aclUuidList, addOrRemove, portId, allowedAddresses);
     }
 
     @Override
@@ -142,7 +173,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
 
         programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
-                Action.REMOVE, NwConstants.DEL_FLOW);
+                Action.REMOVE, NwConstants.DEL_FLOW, port.getInterfaceId());
         // TODO: uncomment unbindService() when the acl flow programming is
         // implemented
         // unbindService(port.getName());
@@ -154,7 +185,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         if (!port.isPortSecurityEnabled()) {
             return false;
         }
-        programAceRule(port.getDpId(), port.getLPortTag(), NwConstants.ADD_FLOW, ace);
+        programAceRule(port.getDpId(), port.getLPortTag(), NwConstants.ADD_FLOW, ace,
+                port.getInterfaceId(), null);
         return true;
     }
 
@@ -163,7 +195,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         if (!port.isPortSecurityEnabled()) {
             return false;
         }
-        programAceRule(port.getDpId(), port.getLPortTag(), NwConstants.DEL_FLOW, ace);
+        programAceRule(port.getDpId(), port.getLPortTag(), NwConstants.DEL_FLOW, ace,
+                port.getInterfaceId(), null);
         return true;
     }
 
@@ -203,7 +236,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param lportTag the lport tag
      * @param addOrRemove whether to delete or add flow
      */
-    protected abstract void programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove);
+    protected abstract void programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove,
+                                            String portId);
 
     /**
      * Programs the ace custom rule.
@@ -213,7 +247,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param addOrRemove whether to delete or add flow
      * @param ace rule to be program
      */
-    protected abstract void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, Ace ace);
+    protected abstract void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
+                                           List<AllowedAddressPairs> syncAllowedAddresses);
 
     /**
      * Writes/remove the flow to/from the datastore.
