@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_8bdd9d45",
+        "filename": "commons/it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_9f64bfe6",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_1fbf0fd2",
         "filename": "commons/it/pom.xml",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2016-08-01T13:13:55Z",
       "side": 1,
       "message": "call it it-parent",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6be2c104",
+        "filename": "commons/it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Change it to netvirt-it, because we already it module in the old netvirt.",
+      "parentUuid": "7a6b29fe_1fbf0fd2",
       "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_bde38004",
+        "filename": "openstack/utils/netvirt-it-utils/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "This is not something that I\u0027m using on the new netvirt project.",
+      "parentUuid": "7a6b29fe_ff6173d4",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_df5e3712",
         "filename": "openstack/utils/netvirt-it-utils/pom.xml",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2016-08-01T13:13:55Z",
       "side": 1,
       "message": "related to above comment, but this will break the old netvritIt, right?",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1df1d4cd",
+        "filename": "openstack/utils/netvirt-it-utils/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "I\u0027m not using it, just fix it because it\u0027s not right that utils has dependency in net-virt.",
+      "parentUuid": "7a6b29fe_df5e3712",
       "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_abca196c",
+        "filename": "vpnservice/vpnservice-it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_1fa0aff3",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_7fa56303",
         "filename": "vpnservice/vpnservice-it/pom.xml",
         "patchSetId": 4
@@ -98,6 +188,24 @@
       "writtenOn": "2016-08-01T13:13:55Z",
       "side": 1,
       "message": "change the indent to 2 spaces rather than 4.",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4bdd4514",
+        "filename": "vpnservice/vpnservice-it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "But we have 4 spaces inside the sections so why 2 ?",
+      "parentUuid": "7a6b29fe_7fa56303",
       "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_8babdd88",
+        "filename": "vpnservice/vpnservice-it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_5faa27d5",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_9f92ff9d",
         "filename": "vpnservice/vpnservice-it/pom.xml",
         "patchSetId": 4
@@ -132,6 +258,24 @@
       "writtenOn": "2016-08-01T13:13:55Z",
       "side": 1,
       "message": "does everything work even though we don\u0027t have the build/plugins sections to include jacoco and failsafe?",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2be289d5",
+        "filename": "vpnservice/vpnservice-it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_9f92ff9d",
       "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_8be75de4",
+        "filename": "vpnservice/vpnservice-it/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_1f870f63",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_df8c7782",
         "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
         "patchSetId": 4
@@ -166,6 +328,24 @@
       "writtenOn": "2016-08-01T13:13:55Z",
       "side": 1,
       "message": "Can we name this NetvirtIT?",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ddae3ce7",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_df8c7782",
       "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_fd8cd881",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_dfe3d731",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_bf4a5b25",
         "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
         "patchSetId": 4
@@ -200,6 +398,24 @@
       "writtenOn": "2016-08-01T13:13:55Z",
       "side": 1,
       "message": "use the constant",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5de98c19",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_bf4a5b25",
       "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_9df3240a",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "All the content of this method was copy paste from the old netvirt.",
+      "parentUuid": "7a6b29fe_9f479f1d",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_5f46a724",
         "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
         "patchSetId": 4
@@ -234,6 +468,24 @@
       "writtenOn": "2016-08-01T13:13:55Z",
       "side": 1,
       "message": "The constant can be used without the new URI()",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7df8c8e5",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_5f46a724",
       "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -257,6 +509,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_dddc7c77",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_df5117da",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_9f6e7f95",
         "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
         "patchSetId": 4
@@ -274,6 +544,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_bdd9c085",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_9f6e7f95",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_7f26036a",
         "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
         "patchSetId": 4
@@ -285,6 +573,24 @@
       "writtenOn": "2016-08-01T13:13:55Z",
       "side": 1,
       "message": "L isn\u0027t needed",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1de71442",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceIT.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_7f26036a",
       "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -440,6 +746,24 @@
       "side": 1,
       "message": "somewhat same thinking - I think it is Ok to duplicate since we want to move away from old netvirt.\n\nI would see a NetvirtItUtils in the vpnservice dir. In there pingable is just one of many It utils classes.",
       "parentUuid": "7a6b29fe_dc2be592",
+      "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_60d01b54",
+        "filename": "vpnservice/vpnservice-it/src/test/java/org/opendaylight/netvirt/vpnservice/it/VpnserviceNeutronITUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-03T07:24:16Z",
+      "side": 1,
+      "message": "Moved it to utils/netvirt-it-utils",
+      "parentUuid": "7a6b29fe_dfed97f1",
       "revId": "ba4a86b7fa21b55da0faedb1c05892e949dd44b7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
