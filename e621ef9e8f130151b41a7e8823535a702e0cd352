@@ -186,6 +186,23 @@
       "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_42799f92",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-03T10:44:13Z",
+      "side": 1,
+      "message": "did you want to use TCP_FLAG_SYN here instead of 0x002?",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
