@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -44,11 +45,13 @@ public class ArpNotificationHandler implements OdlArputilListener {
         vpnIfManager = vpnIfMgr;
         broker = dataBroker;
     }
-    
+
+    @Override
     public void onMacChanged(MacChanged notification){
 
     }
 
+    @Override
     public void onArpRequestReceived(ArpRequestReceived notification){
         LOG.trace("ArpNotification Request Received from interface {} and IP {} having MAC {} target destination {}",
                 notification.getInterface(), notification.getSrcIpaddress().getIpv4Address().getValue(),
@@ -143,19 +146,17 @@ public class ArpNotificationHandler implements OdlArputilListener {
                                     }
                                 }
                             }
-                        } else {
-                            LOG.trace("ARP request is not on an External VPN, so ignoring the request.");
-                        }
-
-					}
-
+                    } else if (VpnmanagerServiceAccessor.getElanProvider().isExternalInterface(srcInterface)) {
+                        handleArpRequestFromExternalInterface(srcInterface, srcIP, srcMac, targetIP);
+                    } else {
+                        LOG.trace("ARP request is not on an External VPN/Interface, so ignoring the request.");
+                    }
                 }
-			}
+            }
         }
-    
-		
-    
-	
+    }
+
+    @Override
     public void onArpResponseReceived(ArpResponseReceived notification){
         LOG.trace("ArpNotification Response Received from interface {} and IP {} having MAC {}",notification.getInterface(),
                 notification.getIpaddress().getIpv4Address().getValue(), notification.getMacaddress().getValue());
@@ -209,5 +210,25 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     }
             }
         }
-    }    
+    }
+
+    private void handleArpRequestFromExternalInterface(String srcInterface, IpAddress srcIP, PhysAddress srcMac,
+            IpAddress targetIP) {
+        Port port = VpnUtil.getNeutronPortForFloatingIp(broker, targetIP);
+        String targetIpValue = targetIP.getIpv4Address().getValue();
+        if (port == null) {
+            LOG.trace("No neutron port found for with floating ip {}", targetIpValue);
+            return;
+        }
+
+        MacAddress targetMac = port.getMacAddress();
+        if (targetMac == null) {
+            LOG.trace("No mac address found for floating ip {}", targetIpValue);
+            return;
+        }
+
+        LOG.trace("Target destination matches floating IP {} so respond for ARP", targetIpValue);
+        vpnIfManager.processArpRequest(srcIP, srcMac, targetIP, new PhysAddress(targetMac.getValue()), srcInterface);
+    }
+
 }

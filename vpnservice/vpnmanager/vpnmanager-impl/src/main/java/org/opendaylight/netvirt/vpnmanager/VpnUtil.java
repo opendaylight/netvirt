@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
@@ -31,6 +32,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -99,6 +101,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
@@ -115,6 +121,7 @@ public class VpnUtil {
     private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
     private static final int DEFAULT_PREFIX_LENGTH = 32;
     private static final String PREFIX_SEPARATOR = "/";
+    private static final String OWNER_FLOATING_IP = "network:floatingip";
 
     static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
         return InstanceIdentifier.builder(VpnInterfaces.class)
@@ -1229,6 +1236,28 @@ public class VpnUtil {
         } else {
             VpnUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate);
         }
+    }
+
+    public static Port getNeutronPortForFloatingIp(DataBroker broker,
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress targetIP) {
+        InstanceIdentifier<Ports> portsIdentifier = InstanceIdentifier.create(Neutron.class).child(Ports.class);
+        Optional<Ports> portsOptional = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, portsIdentifier);
+        if (!portsOptional.isPresent() || portsOptional.get().getPort() == null) {
+            LOG.trace("No neutron ports found");
+            return null;
+        }
+
+        for (Port port : portsOptional.get().getPort()) {
+            if (OWNER_FLOATING_IP.equals(port.getDeviceOwner()) && port.getFixedIps() != null) {
+                for (FixedIps ip : port.getFixedIps()) {
+                    if (Objects.equals(ip.getIpAddress(), targetIP)) {
+                        return port;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     protected static void createVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp,
