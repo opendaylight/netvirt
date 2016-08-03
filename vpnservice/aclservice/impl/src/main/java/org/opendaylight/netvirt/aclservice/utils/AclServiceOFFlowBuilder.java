@@ -19,6 +19,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
@@ -27,6 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRange;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRange;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -367,5 +370,77 @@ public class AclServiceOFFlowBuilder {
             }
         }
         return portMap;
+    }
+
+    public static Map<String, List<MatchInfoBase>> getFlowForRemoteAcl(Uuid remoteAclId, String ignoreInterfaceId,
+                                                                       Map<String, List<MatchInfoBase>>
+                                                                               flowMatchesMap, boolean
+                                                                               isSourceIpMacMatch) {
+        List<AclInterface> interfaceList = AclDataUtil.getInterfaceList(remoteAclId);
+        if (flowMatchesMap == null || interfaceList == null || interfaceList.isEmpty()) {
+            return null;
+        }
+        Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
+        for (String flowName : flowMatchesMap.keySet()) {
+            List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
+            for (AclInterface port : interfaceList) {
+                if (port.getInterfaceId().equals(ignoreInterfaceId)) {
+                    continue;
+                }
+                //get allow address pair
+                List<AllowedAddressPairs> allowedAddressPair = port.getAllowedAddressPairs();
+                // iterate over allow address pair and update match type
+                for (AllowedAddressPairs aap : allowedAddressPair) {
+                    List<MatchInfoBase> matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
+                    String flowId = flowName + "_remoteACL_interface_" + port.getInterfaceId() + "_aap_" + aap.getKey();
+                    updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
+                }
+
+            }
+
+        }
+        return updatedFlowMatchesMap;
+    }
+
+    public static Map<String, List<MatchInfoBase>> getFlowForAllowedAddresses(List<AllowedAddressPairs>
+                                                                                      syncAllowedAddresses,
+                                                                              Map<String, List<MatchInfoBase>>
+                                                                                      flowMatchesMap, boolean
+                                                                                      isSourceIpMacMatch) {
+        if (flowMatchesMap == null) {
+            return null;
+        }
+        Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
+        for (String flowName : flowMatchesMap.keySet()) {
+            List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
+            // iterate over allow address pair and update match type
+            for (AllowedAddressPairs aap : syncAllowedAddresses) {
+                List<MatchInfoBase> matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
+                String flowId = flowName + "_remoteACL_interface_aap_" + aap.getKey();
+                updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
+            }
+
+        }
+        return updatedFlowMatchesMap;
+    }
+
+    private static List<MatchInfoBase> updateAAPMatches(boolean isSourceIpMacMatch, List<MatchInfoBase> flows,
+                                                        AllowedAddressPairs aap) {
+        List<MatchInfoBase> matchInfoBaseList;
+        if (isSourceIpMacMatch) {
+            flows.remove(MatchFieldType.ipv4_source);
+            flows.remove(MatchFieldType.eth_src);
+            matchInfoBaseList = AclServiceUtils.buildIpMatches(aap.getIpAddress(), MatchFieldType.ipv4_source);
+            matchInfoBaseList.add(new MatchInfo(MatchFieldType.eth_src,
+                    new String[]{aap.getMacAddress().getValue()}));
+        } else {
+            flows.remove(MatchFieldType.ipv4_destination);
+            flows.remove(MatchFieldType.eth_dst);
+            matchInfoBaseList = AclServiceUtils.buildIpMatches(aap.getIpAddress(), MatchFieldType.ipv4_destination);
+            matchInfoBaseList.add(new MatchInfo(MatchFieldType.eth_dst,
+                    new String[]{aap.getMacAddress().getValue()}));
+        }
+        matchInfoBaseList.addAll(flows);
+        return matchInfoBaseList;
     }
 }
