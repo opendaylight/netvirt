@@ -64,28 +64,25 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
             Optional<VpnInstanceOpDataEntry> vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
 
             if (vpnOpValue.isPresent()) {
-                LOG.trace(" Active Dpn count {} in VpnInstOpData", vpnOpValue.get().getActiveDpnCount());
-                if (vpnOpValue.get().getActiveDpnCount() == 0) {
-                    final Collection<VpnToDpnList> vpnToDpnList = vpnOpValue.get().getVpnToDpnList();
-
-                    DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                    dataStoreCoordinator.enqueueJob("VPN-" + vpnName + "-DPN-" + dpnId.toString() ,
-                            new Callable<List<ListenableFuture<Void>>>() {
-                                @Override
-                                public List<ListenableFuture<Void>> call() throws Exception {
-                                    WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                                    deleteDpn(vpnToDpnList , rd , writeTxn);
-                                    CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
-                                    try {
-                                        futures.get();
-                                    } catch (InterruptedException | ExecutionException e) {
-                                        LOG.error("Error removing dpnToVpnList for vpn {} ", vpnName);
-                                        throw new RuntimeException(e.getMessage());
-                                    }
-                                    return null;
-                                }
-                            });
-
+                VpnInstanceOpDataEntry vpnInstOpData = vpnOpValue.get();
+                List<VpnToDpnList> vpnToDpnList = vpnInstOpData.getVpnToDpnList();
+                boolean flushDpnsOnVpn = true;
+                for (VpnToDpnList dpn: vpnToDpnList) {
+                    if (dpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                        flushDpnsOnVpn = false;
+                        break;
+                    }
+                }
+                if (flushDpnsOnVpn) {
+                    WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+                    deleteDpn(vpnToDpnList , rd , writeTxn);
+                    CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
+                    try {
+                        futures.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        LOG.error("Error removing dpnToVpnList for vpn {} ", vpnName);
+                        throw new RuntimeException(e.getMessage());
+                    }				
                 }
             }
         }

@@ -105,8 +105,15 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                     public List<ListenableFuture<Void>> call() throws Exception {
                                         WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
                                         WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
+										WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
                                         vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false,
-                                                writeConfigTxn, writeOperTxn);
+                                                writeConfigTxn, writeOperTxn, writeInvTxn);
+                                        RouterInterface routerInterface = VpnUtil.getConfiguredRouterInterface(broker, interfaceName);
+                                        if (routerInterface != null) {
+                                            handleRouterInterfacesUpEvent(routerInterface.getRouterName(), interfaceName, writeOperTxn);
+                                        } else {
+                                            LOG.info("Unable to process add for interface {} for NAT service", interfaceName);
+                                        }												
                                         CheckedFuture<Void, TransactionCommitFailedException> futures = writeOperTxn.submit();
                                         try {
                                             futures.get();
@@ -123,34 +130,17 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                                     vpnInterface.getVpnInstanceName(), dpnId);
                                             throw new RuntimeException(e.getMessage());
                                         }
+                                        futures = writeInvTxn.submit();
+                                        try {
+                                            futures.get();
+                                        } catch (InterruptedException | ExecutionException e) {
+                                            LOG.error("Error adding inventory/flow data for interface {} to vpn {} on dpn {}", interfaceName,
+                                                    vpnInterface.getVpnInstanceName(), dpnId);
+                                            throw new RuntimeException(e.getMessage());
+                                        }										
                                         return null;
                                     }
                                 });
-                    } else {
-                        RouterInterface routerInterface = VpnUtil.getConfiguredRouterInterface(broker, interfaceName);
-                        if (routerInterface != null) {
-                            final String routerName = routerInterface.getRouterName();
-                            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                            dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(),
-                                    new Callable<List<ListenableFuture<Void>>>() {
-                                        @Override
-                                        public List<ListenableFuture<Void>> call() throws Exception {
-                                            WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
-                                            handleRouterInterfacesUpEvent(routerName, interfaceName, writeOperTxn);
-                                            CheckedFuture<Void, TransactionCommitFailedException> futures = writeOperTxn.submit();
-                                            try {
-                                                futures.get();
-                                            } catch (InterruptedException | ExecutionException e) {
-                                                LOG.error("Error adding as router interface for interface {} to router {} ", interfaceName,
-                                                        routerName);
-                                                throw new RuntimeException(e.getMessage());
-                                            }
-                                            return null;
-                                        }
-                                    });
-                        } else {
-                            LOG.info("Unable to process add for interface {} as it is not configured for vpn", interfaceName);
-                        }
                     }
                 }
             } else {
@@ -201,12 +191,12 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                             public List<ListenableFuture<Void>> call() throws Exception {
                                 WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
                                 WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
+                                WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();								
                                 vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, false, false,
-                                        writeConfigTxn, writeOperTxn);
+                                        writeConfigTxn, writeOperTxn, writeInvTxn);
                                 RouterInterface routerInterface = VpnUtil.getConfiguredRouterInterface(broker, interfaceName);
                                 if (routerInterface != null) {
-                                    final String routerName = routerInterface.getRouterName();
-                                    handleRouterInterfacesDownEvent(routerName, interfaceName, dpnId, writeOperTxn);
+                                    handleRouterInterfacesDownEvent(routerInterface.getRouterName(), interfaceName, dpnId, writeOperTxn);									
                                 }
                                 CheckedFuture<Void, TransactionCommitFailedException> futures = writeOperTxn.submit();
                                 try {
@@ -220,10 +210,18 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                 try {
                                     futures.get();
                                 } catch (InterruptedException | ExecutionException e) {
-                                    LOG.error("Error removing Config data for interface {} from vpn {} on dpn {}", interfaceName,
+									LOG.error("Error removing Config data for interface {} from vpn {} on dpn {}", interfaceName,
                                             vpnInterface.getVpnInstanceName(), dpnId);
                                     throw new RuntimeException(e.getMessage());
                                 }
+                                futures = writeInvTxn.submit();
+                                try {
+                                    futures.get();
+                                } catch (InterruptedException | ExecutionException e) {
+                                    LOG.error("Error removing Inventory/Flow data for interface {} from vpn {} on dpn {}", interfaceName,
+                                            vpnInterface.getVpnInstanceName(), dpnId);
+                                    throw new RuntimeException(e.getMessage());
+								}
                                 return null;
                             }
                         });
@@ -257,16 +255,33 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                     public List<ListenableFuture<Void>> call() throws Exception {
                                         WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
                                         WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
-                                        vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex,
-                                                true, writeConfigTxn, writeOperTxn);
-                                        CheckedFuture<Void, TransactionCommitFailedException> futures = writeConfigTxn.submit();
+										WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
+                                        vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, 
+                                                true, writeConfigTxn, writeOperTxn, writeInvTxn);
+                                        CheckedFuture<Void, TransactionCommitFailedException> futures = writeOperTxn.submit();
                                         try {
                                             futures.get();
                                         } catch (InterruptedException | ExecutionException e) {
-                                            LOG.error("Error updating UP for interface {} in vpn {} on dpn {}", interfaceName,
+                                            LOG.error("Error updating oper data for interface {} in vpn {} on dpn {}", interfaceName,
                                                     vpnInterface.getVpnInstanceName(), dpnId);
                                             throw new RuntimeException(e.getMessage());
                                         }
+                                        futures = writeConfigTxn.submit();
+                                        try {
+                                            futures.get();
+                                        } catch (InterruptedException | ExecutionException e) {
+                                            LOG.error("Error updating config data for interface {} in vpn {} on dpn {}", interfaceName,
+                                                    vpnInterface.getVpnInstanceName(), dpnId);
+                                            throw new RuntimeException(e.getMessage());
+                                        }
+                                        futures = writeInvTxn.submit();
+                                        try {
+                                            futures.get();
+                                        } catch (InterruptedException | ExecutionException e) {
+                                            LOG.error("Error adding inventory/flow data for interface {} to vpn {} on dpn {}", interfaceName,
+                                                    vpnInterface.getVpnInstanceName(), dpnId);
+                                            throw new RuntimeException(e.getMessage());
+										}
                                         return null;
                                     }
                                 });
@@ -278,13 +293,14 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                     public List<ListenableFuture<Void>> call() throws Exception {
                                         WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
                                         WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
+										WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
                                         vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, true, false,
-                                                writeConfigTxn, writeOperTxn);
+                                                writeConfigTxn, writeOperTxn, writeInvTxn);
                                         CheckedFuture<Void, TransactionCommitFailedException> futures = writeOperTxn.submit();
                                         try {
                                             futures.get();
                                         } catch (InterruptedException | ExecutionException e) {
-                                            LOG.error("Error updating DOWN for interface {} from vpn {} on dpn {}", interfaceName,
+                                            LOG.error("Error updating oper data for interface {} from vpn {} on dpn {}", interfaceName,
                                                     vpnInterface.getVpnInstanceName(), dpnId);
                                             throw new RuntimeException(e.getMessage());
                                         }
@@ -292,10 +308,18 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                         try {
                                             futures.get();
                                         } catch (InterruptedException | ExecutionException e) {
-                                            LOG.error("Error updating DOWN for interface {} from vpn {} on dpn {}", interfaceName,
+                                            LOG.error("Error updating config data for interface {} from vpn {} on dpn {}", interfaceName,
                                                     vpnInterface.getVpnInstanceName(), dpnId);
                                             throw new RuntimeException(e.getMessage());
                                         }
+                                        futures = writeInvTxn.submit();
+                                        try {
+                                            futures.get();
+                                        } catch (InterruptedException | ExecutionException e) {
+                                            LOG.error("Error updating inventory/flow for interface {} from vpn {} on dpn {}", interfaceName,
+                                                    vpnInterface.getVpnInstanceName(), dpnId);
+                                            throw new RuntimeException(e.getMessage());
+										}
                                         return null;
                                     }
                                 });

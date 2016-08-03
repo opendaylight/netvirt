@@ -190,7 +190,6 @@ module odl-l3vpn {
            	        default "active";
            	   }
            }
-           leaf active-dpn-count { type uint32;}
         }
     }
 
