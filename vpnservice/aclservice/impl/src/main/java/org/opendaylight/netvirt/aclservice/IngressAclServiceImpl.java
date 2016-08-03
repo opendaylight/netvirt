@@ -27,6 +27,7 @@ import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -129,7 +130,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param addOrRemove whether to delete or add flow
      */
     @Override
-    protected void programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove) {
+    protected void programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove, String
+            portId) {
         for (Uuid sgUuid : aclUuidList) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
             if (null == acl) {
@@ -139,13 +141,14 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             AccessListEntries accessListEntries = acl.getAccessListEntries();
             List<Ace> aceList = accessListEntries.getAce();
             for (Ace ace : aceList) {
-                programAceRule(dpId, lportTag, addOrRemove, ace);
+                programAceRule(dpId, lportTag, addOrRemove, ace, portId, null);
             }
         }
     }
 
     @Override
-    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, Ace ace) {
+    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
+                                  List<AllowedAddressPairs> syncAllowedAddresses) {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
         if (!aceAttr.getDirection().equals(DirectionIngress.class)) {
             return;
@@ -155,6 +158,14 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         Map<String,List<MatchInfoBase>> flowMap = null;
         if (aceType instanceof AceIp) {
             flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
+            if (syncAllowedAddresses != null) {
+                flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, true);
+            } else if (aceAttr.getRemoteGroupId() != null) {
+                flowMap = AclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap,
+                        true);
+                AclDataUtil.updateRemoteAclInterfaceMap(aceAttr.getRemoteGroupId(), portId,
+                        (addOrRemove == NwConstants.ADD_FLOW));
+            }
         }
         if (null == flowMap) {
             LOG.error("Failed to apply ACL {} lportTag {}", ace.getKey(), lportTag);
