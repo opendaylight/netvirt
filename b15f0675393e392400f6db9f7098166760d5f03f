@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_a4ed208e",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-08-03T15:01:49Z",
+      "side": 1,
+      "message": "all variables should start with small case. Looks like find-replace oversight.",
+      "range": {
+        "startLine": 482,
+        "startChar": 28,
+        "endLine": 482,
+        "endChar": 42
+      },
+      "revId": "b15f0675393e392400f6db9f7098166760d5f03f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
