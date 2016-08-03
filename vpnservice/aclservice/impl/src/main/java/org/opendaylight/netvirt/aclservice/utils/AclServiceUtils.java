@@ -25,8 +25,6 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
-import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
@@ -278,13 +276,10 @@ public final class AclServiceUtils {
         matches.add(new MatchInfo(MatchFieldType.ip_proto,
                 new long[] { IPProtocols.UDP.intValue() }));
         matches.add(new MatchInfo(MatchFieldType.udp_dst,
-                new long[] { srcPort }));
+                new long[] { dstPort }));
         matches.add(new MatchInfo(MatchFieldType.udp_src,
-                new long[] { dstPort}));
+                new long[] { srcPort}));
         matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
-
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-                new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
         return matches;
     }
 

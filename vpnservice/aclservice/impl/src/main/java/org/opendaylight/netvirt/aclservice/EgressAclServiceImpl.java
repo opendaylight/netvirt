@@ -197,7 +197,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
         String flowName = "Egress_DHCP_Server_v4" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Drop_";
-        syncFlow(dpId, NwConstants.EGRESS_ACL_NEXT_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -218,7 +218,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
         String flowName = "Egress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Drop_";
-        syncFlow(dpId, NwConstants.EGRESS_ACL_NEXT_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -237,11 +237,10 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
                 AclConstants.DHCP_SERVER_PORT_IPV4, lportTag);
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.nx_conntrack, new String[] {"1", "0", "0", "255"}, 2));
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
         String flowName = "Egress_DHCP_Client_v4" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Permit_";
-        syncFlow(dpId, NwConstants.EGRESS_ACL_NEXT_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -260,7 +259,6 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
                 AclConstants.DHCP_SERVER_PORT_IPV6, lportTag);
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.nx_conntrack, new String[] {"1", "0", "0", "255"}, 2));
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
         String flowName = "Egress_DHCP_Client_v6" + "_" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Permit_";
