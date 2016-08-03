@@ -1152,9 +1152,9 @@ public class BgpConfigurationManager {
             LOG.trace("bgpMIP Activated");
 
         } catch (IOException io) {
-            LOG.error("IO Exception got while activating mip:  ", io);
+            //LOG.error("IO Exception got while activating mip:  ", io);
         } catch (Exception e) {
-            LOG.error("Exception got while activating mip: ", e);
+            //LOG.error("Exception got while activating mip: ", e);
         }
     }
 
