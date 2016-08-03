@@ -9,8 +9,10 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -19,12 +21,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 public final class AclDataUtil {
 
     private static Map<Uuid, List<AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
+    private static Map<Uuid, Set<String>> remoteAclInterfaceMap = new ConcurrentHashMap<>();
 
     private AclDataUtil() {
 
     }
 
-    public static void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
+    public static synchronized void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
             List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
             if (interfaceList == null) {
@@ -37,7 +40,7 @@ public final class AclDataUtil {
         }
     }
 
-    public static void removeAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
+    public static synchronized void removeAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
             List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
             if (interfaceList != null) {
@@ -48,6 +51,36 @@ public final class AclDataUtil {
 
     public static List<AclInterface> getInterfaceList(Uuid acl) {
         return aclInterfaceMap.get(acl);
+    }
+
+    public static void updateRemoteAclInterfaceMap(Uuid remoteAcl, String port, boolean isAdd) {
+        if (isAdd) {
+            addRemoteAclInterfaceMap(remoteAcl, port);
+        } else {
+            removeRemoteAclInterfaceMap(remoteAcl, port);
+        }
+    }
+
+    public static synchronized void addRemoteAclInterfaceMap(Uuid remoteAcl, String port) {
+        Set<String> interfaceSet = remoteAclInterfaceMap.get(remoteAcl);
+        if (interfaceSet == null) {
+            interfaceSet = new HashSet<>();
+            interfaceSet.add(port);
+            remoteAclInterfaceMap.put(remoteAcl, interfaceSet);
+        } else {
+            interfaceSet.add(port);
+        }
+    }
+
+    public static synchronized void removeRemoteAclInterfaceMap(Uuid remoteAcl, String port) {
+        Set<String> interfaceList = remoteAclInterfaceMap.get(remoteAcl);
+        if (interfaceList != null) {
+            interfaceList.remove(port);
+        }
+    }
+
+    public static Set<String> getRemoteAclInterfaces(Uuid remoteAcl) {
+        return remoteAclInterfaceMap.get(remoteAcl);
     }
 
 }

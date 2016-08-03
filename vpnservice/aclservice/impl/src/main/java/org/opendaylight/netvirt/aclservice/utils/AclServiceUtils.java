@@ -423,4 +423,20 @@ public final class AclServiceUtils {
         return new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] {MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG});
     }
+
+    public static List<Ace> getAceWithRemoteAclId(DataBroker dataBroker, AclInterface port, Uuid remoteAcl) {
+        List<Ace> remoteAclRuleList = new ArrayList<>();
+        List<Uuid> aclList = port.getSecurityGroups();
+        for (Uuid aclId : aclList) {
+            Acl acl = getAcl(dataBroker, aclId.getValue());
+            List<Ace> aceList = acl.getAccessListEntries().getAce();
+            for (Ace ace : aceList) {
+                Uuid tempRemoteAcl = getAccesssListAttributes(ace).getRemoteGroupId();
+                if (tempRemoteAcl != null && tempRemoteAcl.equals(remoteAcl)) {
+                    remoteAclRuleList.add(ace);
+                }
+            }
+        }
+        return remoteAclRuleList;
+    }
 }
