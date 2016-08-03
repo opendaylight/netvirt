@@ -58,4 +58,6 @@ public interface IElanService extends IEtreeService {
 
     Collection<String> getExternalElanInterfaces(String elanInstanceName);
 
+    boolean isExternalInterface(String interfaceName);
+
 }

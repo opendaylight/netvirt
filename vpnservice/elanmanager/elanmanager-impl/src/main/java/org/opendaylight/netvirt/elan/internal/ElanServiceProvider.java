@@ -769,6 +769,11 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
         return externalElanInterfaces;
     }
 
+    @Override
+    public boolean isExternalInterface(String interfaceName) {
+        return ElanUtils.isExternal(interfaceName);
+    }
+
     /**
      * Create ietf-interfaces based on the ELAN segment type.<br>
      * For segment type flat - create transparent interface pointing to the
