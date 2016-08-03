@@ -187,7 +187,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param lportTag the lport tag
      * @param addOrRemove add/remove the flow.
      */
-    private void egressAclDhcpDropServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag, int addOrRemove) {
+    protected void egressAclDhcpDropServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
+            int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
                 AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag);
 
@@ -207,7 +208,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param lportTag the lport tag
      * @param addOrRemove add/remove the flow.
      */
-    private void egressAclDhcpv6DropServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
+    protected void egressAclDhcpv6DropServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag);
@@ -361,7 +362,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param allowedAddresses the allowed addresses
      * @param addOrRemove whether to add or remove the flow
      */
-    private void programArpRule(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses, int addOrRemove) {
+    protected void programArpRule(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses, int addOrRemove) {
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             String attachMac = allowedAddress.getMacAddress().getValue();
             List<MatchInfo> matches = new ArrayList<>();

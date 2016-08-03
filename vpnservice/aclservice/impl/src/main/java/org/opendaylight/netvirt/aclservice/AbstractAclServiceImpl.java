@@ -213,6 +213,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param dpId the dpId
      * @param lportTag the lport tag
      * @param addOrRemove whether to delete or add flow
+     * @return program succeeded
      */
     protected abstract boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove);
 

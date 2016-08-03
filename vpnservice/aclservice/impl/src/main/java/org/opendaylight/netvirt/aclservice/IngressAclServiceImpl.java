@@ -194,8 +194,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param addOrRemove is write or delete
      * @param protoPortMatchPriority the priority
      */
-    private void ingressAclDhcpAllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag, int addOrRemove,
-            int protoPortMatchPriority) {
+    protected void ingressAclDhcpAllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
+            int addOrRemove, int protoPortMatchPriority) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
                 AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag);
 
@@ -217,7 +217,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param addOrRemove is write or delete
      * @param protoPortMatchPriority the priority
      */
-    private void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
+    protected void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove, Integer protoPortMatchPriority) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag);
@@ -353,10 +353,10 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * Adds the rule to allow arp packets.
      *
      * @param dpId the dpId
-     * @param attachMac the attached mac address
+     * @param allowedAddresses the allowed address
      * @param addOrRemove whether to add or remove the flow
      */
-    private void programArpRule(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses, int addOrRemove) {
+    protected void programArpRule(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses, int addOrRemove) {
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             String attachMac = allowedAddress.getMacAddress().getValue();
 

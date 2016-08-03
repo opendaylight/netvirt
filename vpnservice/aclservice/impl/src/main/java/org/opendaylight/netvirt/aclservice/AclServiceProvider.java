@@ -20,6 +20,7 @@ import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceStateListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclNodeListener;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.netvirt.aclservice.utils.AclConstants.SecurtiyGroupMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,13 +59,15 @@ public class AclServiceProvider implements BindingAwareProvider, AutoCloseable {
     public void onSessionInitiated(ProviderContext session) {
         broker = session.getSALService(DataBroker.class);
         aclServiceManager = new AclServiceManagerImpl();
-        aclInterfaceStateListener = new AclInterfaceStateListener(aclServiceManager);
-        if (AclConstants.isStatelessAcl()) {
-            aclServiceManager.addAclServiceListner(new StatelessIngressAclServiceImpl(broker,
-                    mdsalManager));
-            aclServiceManager.addAclServiceListner(new StatelessEgressAclServiceImpl(broker,
-                    mdsalManager));
+        SecurtiyGroupMode securityGroupMode = AclConstants.getSecurityGroupMode();
+        if (securityGroupMode == SecurtiyGroupMode.STATELESS) {
+            aclServiceManager.addAclServiceListner(new StatelessIngressAclServiceImpl(broker, mdsalManager));
+            aclServiceManager.addAclServiceListner(new StatelessEgressAclServiceImpl(broker, mdsalManager));
             LOG.info("stateless acl service loaded");
+        } else if (securityGroupMode == SecurtiyGroupMode.LEARN) {
+            aclServiceManager.addAclServiceListner(new LearnIngressAclServiceImpl(broker, mdsalManager));
+            aclServiceManager.addAclServiceListner(new LearnEgressAclServiceImpl(broker, mdsalManager));
+            LOG.info("statefull acl service loaded (learn implementation)");
         } else {
             aclServiceManager.addAclServiceListner(new IngressAclServiceImpl(broker, mdsalManager));
             aclServiceManager.addAclServiceListner(new EgressAclServiceImpl(broker, mdsalManager));
