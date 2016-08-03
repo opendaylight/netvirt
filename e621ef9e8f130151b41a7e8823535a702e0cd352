@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_c21c8f16",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-03T11:55:21Z",
+      "side": 1,
+      "message": "not used. i removed that",
+      "parentUuid": "7a6b29fe_272f55a3",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_072cd9aa",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
         "patchSetId": 5
@@ -47,6 +65,24 @@
       "writtenOn": "2016-08-03T10:42:39Z",
       "side": 1,
       "message": "ditto",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_221aa317",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-03T11:55:21Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "7a6b29fe_072cd9aa",
       "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_62a13ba9",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-03T11:55:21Z",
+      "side": 1,
+      "message": "changed to debug",
+      "parentUuid": "7a6b29fe_47f37173",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_07f9794d",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceProvider.java",
         "patchSetId": 5
@@ -81,6 +135,24 @@
       "writtenOn": "2016-08-03T10:42:39Z",
       "side": 1,
       "message": "Why add these lines? aclInterfaceListener is already initialized below - is it because you want to register it to both operational and config?",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c2780f2e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceProvider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-03T11:55:21Z",
+      "side": 1,
+      "message": "this is not in my change but it might came in one of the merges. i removed it",
+      "parentUuid": "7a6b29fe_07f9794d",
       "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_2276233f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-03T11:55:21Z",
+      "side": 1,
+      "message": "yes. but since this class is still changes i didn\u0027t want to rename it",
+      "parentUuid": "7a6b29fe_27fc753e",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_274e35c2",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
         "patchSetId": 5
@@ -115,6 +205,24 @@
       "writtenOn": "2016-08-03T10:42:39Z",
       "side": 1,
       "message": "what\u0027s this? waiting for TCP flags?\nCan we depend on that patchset and use it here?",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e2d0abf9",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-03T11:55:21Z",
+      "side": 1,
+      "message": "not used. i removed it",
+      "parentUuid": "7a6b29fe_274e35c2",
       "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -138,6 +246,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_c29f6f4f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/IngressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-03T11:55:21Z",
+      "side": 1,
+      "message": "not used. removed",
+      "parentUuid": "7a6b29fe_87ed898e",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_67182d85",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
         "patchSetId": 5
@@ -149,6 +275,24 @@
       "writtenOn": "2016-08-03T10:42:39Z",
       "side": 1,
       "message": "didn\u0027t we want the SYN_ACK ALLOW flow as a default rule? I saw you did it in AclNodeListener too",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_82b577cf",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-03T11:55:21Z",
+      "side": 1,
+      "message": "wrong name. changed",
+      "parentUuid": "7a6b29fe_67182d85",
       "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -172,6 +316,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_42e23fd6",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-03T11:55:21Z",
+      "side": 1,
+      "message": "i\u0027ll wait",
+      "parentUuid": "7a6b29fe_c7082130",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_a209932e",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 5
@@ -189,6 +351,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_22dbc31c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-03T11:55:21Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "7a6b29fe_a209932e",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_42799f92",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 5
@@ -200,6 +380,24 @@
       "writtenOn": "2016-08-03T10:44:13Z",
       "side": 1,
       "message": "did you want to use TCP_FLAG_SYN here instead of 0x002?",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_42099f94",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-03T11:55:21Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "7a6b29fe_42799f92",
       "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
