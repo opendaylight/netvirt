@@ -57,4 +57,6 @@ public interface IElanService {
 
     Collection<String> getExternalElanInterfaces(String elanInstanceName);
 
+    boolean isExternalInterface(String interfaceName);
+
 }
