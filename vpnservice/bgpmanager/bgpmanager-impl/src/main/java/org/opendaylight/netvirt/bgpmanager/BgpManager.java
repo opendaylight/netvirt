@@ -143,8 +143,10 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
     }
 
     @Override
-    public void deleteVrf(String rd) throws Exception {
-        fibDSWriter.removeVrfFromDS(rd);
+    public void deleteVrf(String rd, boolean removeFibTable) throws Exception {
+        if (removeFibTable) {
+            fibDSWriter.removeVrfFromDS(rd);
+        }
         bcm.delVrf(rd);
     }
 

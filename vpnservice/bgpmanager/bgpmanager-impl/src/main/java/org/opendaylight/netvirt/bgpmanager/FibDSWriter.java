@@ -57,36 +57,18 @@ public class FibDSWriter {
 
         }
 
-
         // Looking for existing prefix in MDSAL database
-        Optional<FibEntries> fibEntries = Optional.absent();
         try{
-            InstanceIdentifier<FibEntries> idRead = InstanceIdentifier.create(FibEntries.class);
-            fibEntries = BgpUtil.read(broker, LogicalDatastoreType.CONFIGURATION, idRead);
-
             InstanceIdentifier<VrfEntry> vrfEntryId =
                     InstanceIdentifier.builder(FibEntries.class)
                             .child(VrfTables.class, new VrfTablesKey(rd))
                             .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
             Optional<VrfEntry> entry = BgpUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
-            if (! entry.isPresent()) {
-                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-                        .setLabel((long)label).setOrigin(origin.getValue()).build();
+            VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
+                                                     .setLabel((long)label).setOrigin(origin.getValue()).build();
 
-                BgpUtil.write(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
-
-            } else { // Found in MDSAL database
-                List<String> nh = entry.get().getNextHopAddressList();
-                for (String nextHop : nextHopList) {
-                    if (!nh.contains(nextHop))
-                        nh.add(nextHop);
-                }
-                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
-                        .setLabel((long) label).setOrigin(origin.getValue()).build();
-
-                BgpUtil.update(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
-            }
+            BgpUtil.write(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
         } catch (Exception e) {
             logger.error("addFibEntryToDS: error ", e);
         }

@@ -131,8 +131,6 @@ public class FibManagerTest {
           @Override
           public Long getVpnInterfaceCount() { return vpnIntfCnt; }
 
-          @Override
-          public Long getActiveDpnCount () {return 0L;}
 
           @Override
           public List<VpnToDpnList> getVpnToDpnList() {

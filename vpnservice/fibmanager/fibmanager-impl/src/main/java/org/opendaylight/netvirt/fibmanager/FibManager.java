@@ -807,16 +807,19 @@ public LogicalDatastoreType getDatastoreType() {
                             String vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
                             if (lri.getVpnInstanceList().contains(vpnInstanceName)) {
                                 localNextHopInfo = updateVpnReferencesInLri(lri, vpnInstanceName, true);
+								localNextHopIP = lri.getPrefix();
                             } else {
                                 localNextHopInfo = updateVpnReferencesInLri(lri, vpnInstanceName, false);
+								localNextHopIP = lri.getPrefix();
                             }
                         }
+                        if (localNextHopInfo != null) {
+                            LOG.debug("Fetched labelRouteInfo for label {} interface {} and got dpn {}",
+                                    vrfEntry.getLabel(), localNextHopInfo.getVpnInterfaceName(), lri.getDpnId());
+                            BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId, rd, vrfEntry, lri.getParentVpnid());
+                            returnLocalDpnId.add(dpnId);
+                        }
                     }
-                    localNextHopIP = lri.getPrefix();
-                    LOG.debug("Fetched labelRouteInfo for label {} interface {} and got dpn {}",
-                            vrfEntry.getLabel(), localNextHopInfo.getVpnInterfaceName(), lri.getDpnId());
-                    BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId, rd, vrfEntry, lri.getParentVpnid());
-                    returnLocalDpnId.add(dpnId);
                 }
             }
         }
@@ -1319,7 +1322,10 @@ public LogicalDatastoreType getDatastoreType() {
                       FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
                               FibUtil.getNextHopLabelKey(parentRd, vrfEntry.getDestPrefix()));
                   }
-              }
+                } else {
+                    FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
+                            FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
+                }
           }
           CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
           try {
@@ -1384,9 +1390,14 @@ public LogicalDatastoreType getDatastoreType() {
                     String parentRd = lri.getParentVpnRd();
                     FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
                             FibUtil.getNextHopLabelKey(parentRd, vrfEntry.getDestPrefix()));
-                    LOG.trace("deleteFibEntries: Released subnetroute label {} for rd {} prefix {}", vrfEntry.getLabel(), rd,
+                    LOG.trace("deleteFibEntries: Released subnetroute label {} for rd {} prefix {} as labelRouteInfo cleared", vrfEntry.getLabel(), rd,
                             vrfEntry.getDestPrefix());
                 }
+            } else {
+                FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
+                        FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
+                LOG.trace("deleteFibEntries: Released subnetroute label {} for rd {} prefix {}", vrfEntry.getLabel(), rd,
+                        vrfEntry.getDestPrefix());
             }
         }
         return;
@@ -1664,11 +1675,12 @@ public LogicalDatastoreType getDatastoreType() {
   public void populateFibOnNewDpn(final BigInteger dpnId, final long vpnId, final String rd) {
       LOG.trace("New dpn {} for vpn {} : populateFibOnNewDpn", dpnId, rd);
       InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-      synchronized (rd.intern()) {
+      final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
+      synchronized (vpnInstance.getVpnInstanceName().intern()) {
           final Optional<VrfTables> vrfTable = FibUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
           if (vrfTable.isPresent()) {
               DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-              dataStoreCoordinator.enqueueJob("FIB" + vpnId + dpnId.toString(),
+              dataStoreCoordinator.enqueueJob("FIB-" + vpnId + "-" + dpnId.toString(),
                       new Callable<List<ListenableFuture<Void>>>() {
                           @Override
                           public List<ListenableFuture<Void>> call() throws Exception {
@@ -1708,15 +1720,12 @@ public LogicalDatastoreType getDatastoreType() {
     LOG.trace(  "dpn {}, vpn {}, rd {}, localNexthopIp {} , remoteNextHopIp {} : populateFibOnDpn",
                 dpnId, vpnId, rd, localNextHopIp, remoteNextHopIp);
     InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-    synchronized (rd.intern()) {
+    final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
+    synchronized (vpnInstance.getVpnInstanceName().intern()) {
       final Optional<VrfTables> vrfTable = FibUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
       if (vrfTable.isPresent()) {
           DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-          dataStoreCoordinator.enqueueJob(" FIB + on Dpn , rd "
-                            + rd.toString() + "localNextHopIp "
-                            + localNextHopIp + "remoteNextHopIP"
-                            + remoteNextHopIp + "vpnId "
-                            + vpnId + "dpnId" + dpnId,
+		  dataStoreCoordinator.enqueueJob("FIB-" + vpnId + "-" + dpnId.toString(),
                   new Callable<List<ListenableFuture<Void>>>() {
                       @Override
                       public List<ListenableFuture<Void>> call() throws Exception {
@@ -1822,17 +1831,18 @@ public LogicalDatastoreType getDatastoreType() {
   public void cleanUpDpnForVpn(final BigInteger dpnId, final long vpnId, final String rd) {
       LOG.trace("Remove dpn {} for vpn {} : cleanUpDpnForVpn", dpnId, rd);
       InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-      synchronized (rd.intern()) {
+      final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
+      synchronized (vpnInstance.getVpnInstanceName().intern()) {
           final Optional<VrfTables> vrfTable = FibUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
           if (vrfTable.isPresent()) {
               DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-              dataStoreCoordinator.enqueueJob("FIB" + vpnId + dpnId.toString(),
+              dataStoreCoordinator.enqueueJob("FIB-" + vpnId + "-" + dpnId.toString(),
                       new Callable<List<ListenableFuture<Void>>>() {
                           WriteTransaction tx = broker.newWriteOnlyTransaction();
                           @Override
                           public List<ListenableFuture<Void>> call() throws Exception {
                               for (final VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
-                            /* Handle subnet routes here */
+								/* Handle subnet routes here */
                                   SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
                                   if (subnetRoute != null) {
                                       LOG.trace("Cleaning subnetroute {} on dpn {} for vpn {} : cleanUpDpnForVpn", vrfEntry.getDestPrefix(),
@@ -1864,16 +1874,12 @@ public LogicalDatastoreType getDatastoreType() {
                 " localNexthopIp {} , remoteNexhtHopIp {} : cleanUpDpnForVpn",
                 dpnId, vpnId, rd, localNextHopIp, remoteNextHopIp);
     InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-    synchronized (rd.intern()) {
+    final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
+    synchronized (vpnInstance.getVpnInstanceName().intern()) {
       final Optional<VrfTables> vrfTable = FibUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
       if (vrfTable.isPresent()) {
           DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-          dataStoreCoordinator.enqueueJob(" FIB + on Dpn " + dpnId
-                                            + rd + rd.toString()
-                                            + "localNextHopIp " + localNextHopIp
-                                            + "remoteNextHopIP" + remoteNextHopIp
-                                            + "vpnId " + vpnId
-                                            + "dpnId" + dpnId,
+		  dataStoreCoordinator.enqueueJob(" FIB-" + vpnId + "-" + dpnId.toString(),
                   new Callable<List<ListenableFuture<Void>>>() {
                       @Override
                       public List<ListenableFuture<Void>> call() throws Exception {

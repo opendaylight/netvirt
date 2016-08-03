@@ -25,8 +25,9 @@ public interface IBgpManager {
     /**
      *
      * @param rd
+     * @param removeFibTable
      */
-    public void deleteVrf(String rd) throws Exception;
+    public void deleteVrf(String rd, boolean removeFibTable) throws Exception;
 
     /**
      * Adds one or more routes, as many as nexthops provided, in a BGP neighbour. It persists VrfEntry in datastore

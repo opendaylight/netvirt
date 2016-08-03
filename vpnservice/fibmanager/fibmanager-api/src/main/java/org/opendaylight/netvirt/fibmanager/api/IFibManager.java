@@ -43,4 +43,6 @@ public interface IFibManager {
                              int label, RouteOrigin origin, WriteTransaction writeConfigTxn);
     void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopToRemove, WriteTransaction writeConfigTxn);
     void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn);
+    void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
+    void removeVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
 }
