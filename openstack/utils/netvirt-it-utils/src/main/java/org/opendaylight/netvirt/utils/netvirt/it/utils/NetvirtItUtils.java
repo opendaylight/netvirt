@@ -250,7 +250,7 @@ public class NetvirtItUtils {
         if (!Objects.equals(m1.getIcmpv4Match(), m2.getIcmpv4Match())) { return false; }
         if (!Objects.equals(m1.getIcmpv6Match(), m2.getIcmpv6Match())) { return false; }
         if (!Objects.equals(m1.getProtocolMatchFields(), m2.getProtocolMatchFields())) { return false; }
-        if (!Objects.equals(m1.getTcpFlagMatch(), m2.getTcpFlagMatch())) { return false; }
+        if (!Objects.equals(m1.getTcpFlagsMatch(), m2.getTcpFlagsMatch())) { return false; }
 
         MatchAugmentationIterator it = new MatchAugmentationIterator(m1);
         List<AllMatchesGrouping> side1Matches = Lists.newArrayList();

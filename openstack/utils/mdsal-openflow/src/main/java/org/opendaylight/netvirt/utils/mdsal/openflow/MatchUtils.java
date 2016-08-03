@@ -34,7 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.Icmpv6MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.IpMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.MetadataBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.TcpFlagMatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.TcpFlagsMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.TunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.VlanMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._3.match.ArpMatchBuilder;
@@ -451,7 +451,7 @@ public class MatchUtils {
      *
      * @param matchBuilder MatchBuilder Object without a match yet
      * @param tcpPort  PortNumber representing a destination TCP port
-     * @param tcpFlag  int representing a tcp_flag
+     * @param tcpFlags  int representing a tcp_flag
      * @return match containing TCP_Flag (), IP Protocol (TCP), TCP_Flag (SYN)
      * <p>
      * Defined TCP Flag values in OVS v2.1+
@@ -459,7 +459,7 @@ public class MatchUtils {
      * TCP_PSH 0x008 / TCP_ACK 0x010 / TCP_URG 0x020
      * TCP_ECE 0x040 / TCP_CWR 0x080 / TCP_NS  0x100
      */
-    public static MatchBuilder createTcpFlagMatch(MatchBuilder matchBuilder, PortNumber tcpPort, int tcpFlag) {
+    public static MatchBuilder createTcpFlagsMatch(MatchBuilder matchBuilder, PortNumber tcpPort, int tcpFlags) {
 
         // Ethertype match
         EthernetMatchBuilder ethernetType = new EthernetMatchBuilder();
@@ -479,9 +479,9 @@ public class MatchUtils {
         tcpMatch.setTcpDestinationPort(dstPort);
         matchBuilder.setLayer4Match(tcpMatch.build());
 
-        TcpFlagMatchBuilder tcpFlagMatch = new TcpFlagMatchBuilder();
-        tcpFlagMatch.setTcpFlag(tcpFlag);
-        matchBuilder.setTcpFlagMatch(tcpFlagMatch.build());
+        TcpFlagsMatchBuilder tcpFlagsMatch = new TcpFlagsMatchBuilder();
+        tcpFlagsMatch.setTcpFlags(tcpFlags);
+        matchBuilder.setTcpFlagsMatch(tcpFlagsMatch.build());
         return matchBuilder;
     }
 
@@ -580,9 +580,9 @@ public class MatchUtils {
         ipMatch.setIpProtocol((short) 6);
         matchBuilder.setIpMatch(ipMatch.build());
 
-        TcpFlagMatchBuilder tcpFlagMatch = new TcpFlagMatchBuilder();
-        tcpFlagMatch.setTcpFlag(TCP_SYN);
-        matchBuilder.setTcpFlagMatch(tcpFlagMatch.build());
+        TcpFlagsMatchBuilder tcpFlagsMatch = new TcpFlagsMatchBuilder();
+        tcpFlagsMatch.setTcpFlags(TCP_SYN);
+        matchBuilder.setTcpFlagsMatch(tcpFlagsMatch.build());
         return matchBuilder;
     }
 
@@ -599,9 +599,9 @@ public class MatchUtils {
         ipMatch.setIpProtocol((short) 6);
         matchBuilder.setIpMatch(ipMatch.build());
 
-        TcpFlagMatchBuilder tcpFlagMatch = new TcpFlagMatchBuilder();
-        tcpFlagMatch.setTcpFlag(TCP_SYN);
-        matchBuilder.setTcpFlagMatch(tcpFlagMatch.build());
+        TcpFlagsMatchBuilder tcpFlagsMatch = new TcpFlagsMatchBuilder();
+        tcpFlagsMatch.setTcpFlags(TCP_SYN);
+        matchBuilder.setTcpFlagsMatch(tcpFlagsMatch.build());
         return matchBuilder;
     }
 
@@ -610,13 +610,13 @@ public class MatchUtils {
      *
      * @param matchBuilder the match builder
      * @param attachedMac the attached mac
-     * @param tcpFlag the tcp flag
+     * @param tcpFlags the tcp flag
      * @param tunnelID the tunnel iD
      * @return match containing TCP_Flag (), IP Protocol (TCP), TCP_Flag (SYN)
      */
     public static MatchBuilder createDmacTcpPortWithFlagMatch(MatchBuilder matchBuilder,
-            String attachedMac, Integer tcpFlag, String tunnelID) {
-        return createDmacTcpPortIpSaWithFlagMatch(matchBuilder, attachedMac, tcpFlag, null, tunnelID);
+            String attachedMac, Integer tcpFlags, String tunnelID) {
+        return createDmacTcpPortIpSaWithFlagMatch(matchBuilder, attachedMac, tcpFlags, null, tunnelID);
     }
 
     /**
@@ -638,13 +638,13 @@ public class MatchUtils {
      *
      * @param matchBuilder the match builder
      * @param attachedMac the attached mac
-     * @param tcpFlag the tcp flag
+     * @param tcpFlags the tcp flag
      * @param ipPrefix the src ipPrefix
      * @param tunnelID the tunnel iD
      * @return match containing TCP_Flag (), IP Protocol (TCP), TCP_Flag (SYN), Ip Source Address (IPsa)
      */
     public static MatchBuilder createDmacTcpPortIpSaWithFlagMatch(
-            MatchBuilder matchBuilder, String attachedMac, Integer tcpFlag, Ipv4Prefix ipPrefix, String tunnelID) {
+            MatchBuilder matchBuilder, String attachedMac, Integer tcpFlags, Ipv4Prefix ipPrefix, String tunnelID) {
 
         EthernetMatchBuilder ethernetMatch = new EthernetMatchBuilder();
         EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
@@ -658,15 +658,15 @@ public class MatchUtils {
             matchBuilder.setEthernetMatch(ethernetMatch.build());
         }
 
-        if (tcpFlag != null) {
+        if (tcpFlags != null) {
             // TCP Protocol Match
             IpMatchBuilder ipMatch = new IpMatchBuilder(); // ipv4 version
             ipMatch.setIpProtocol(TCP_SHORT);
             matchBuilder.setIpMatch(ipMatch.build());
 
-            TcpFlagMatchBuilder tcpFlagMatch = new TcpFlagMatchBuilder();
-            tcpFlagMatch.setTcpFlag(tcpFlag);
-            matchBuilder.setTcpFlagMatch(tcpFlagMatch.build());
+            TcpFlagsMatchBuilder tcpFlagsMatch = new TcpFlagsMatchBuilder();
+            tcpFlagsMatch.setTcpFlags(tcpFlags);
+            matchBuilder.setTcpFlagsMatch(tcpFlagsMatch.build());
         }
 
         if (tunnelID != null) {
@@ -690,12 +690,12 @@ public class MatchUtils {
      * @param matchBuilder the match builder
      * @param attachedMac the attached mac
      * @param tcpPort the tcp port
-     * @param tcpFlag the tcp flag
+     * @param tcpFlags the tcp flag
      * @param tunnelID the tunnel iD
      * @return the match builder
      */
     public static MatchBuilder createDmacTcpSynMatch(MatchBuilder matchBuilder,
-            String attachedMac, PortNumber tcpPort, Integer tcpFlag, String tunnelID) {
+            String attachedMac, PortNumber tcpPort, Integer tcpFlags, String tunnelID) {
 
         EthernetMatchBuilder ethernetMatch = new EthernetMatchBuilder();
         EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
@@ -718,9 +718,9 @@ public class MatchUtils {
         tcpMatch.setTcpDestinationPort(dstPort);
         matchBuilder.setLayer4Match(tcpMatch.build());
 
-        TcpFlagMatchBuilder tcpFlagMatch = new TcpFlagMatchBuilder();
-        tcpFlagMatch.setTcpFlag(tcpFlag);
-        matchBuilder.setTcpFlagMatch(tcpFlagMatch.build());
+        TcpFlagsMatchBuilder tcpFlagsMatch = new TcpFlagsMatchBuilder();
+        tcpFlagsMatch.setTcpFlags(tcpFlags);
+        matchBuilder.setTcpFlagsMatch(tcpFlagsMatch.build());
 
         TunnelBuilder tunnelBuilder = new TunnelBuilder();
         tunnelBuilder.setTunnelId(new BigInteger(tunnelID));
@@ -735,13 +735,13 @@ public class MatchUtils {
      * @param matchBuilder the match builder
      * @param attachedMac the attached mac
      * @param tcpPort the tcp port
-     * @param tcpFlag the tcp flag
+     * @param tcpFlags the tcp flag
      * @param segmentationId the segmentation id
      * @param dstIp the dst ip
      * @return the match builder
      */
     public static MatchBuilder createDmacTcpSynDstIpPrefixTcpPort(MatchBuilder matchBuilder,
-            MacAddress attachedMac, PortNumber tcpPort,  Integer tcpFlag, String segmentationId,
+            MacAddress attachedMac, PortNumber tcpPort,  Integer tcpFlags, String segmentationId,
             Ipv4Prefix dstIp) {
 
         EthernetMatchBuilder ethernetMatch = new EthernetMatchBuilder();
@@ -770,9 +770,9 @@ public class MatchUtils {
         tcpMatch.setTcpDestinationPort(dstPort);
         matchBuilder.setLayer4Match(tcpMatch.build());
 
-        TcpFlagMatchBuilder tcpFlagMatch = new TcpFlagMatchBuilder();
-        tcpFlagMatch.setTcpFlag(tcpFlag);
-        matchBuilder.setTcpFlagMatch(tcpFlagMatch.build());
+        TcpFlagsMatchBuilder tcpFlagsMatch = new TcpFlagsMatchBuilder();
+        tcpFlagsMatch.setTcpFlags(tcpFlags);
+        matchBuilder.setTcpFlagsMatch(tcpFlagsMatch.build());
 
         TunnelBuilder tunnelBuilder = new TunnelBuilder();
         tunnelBuilder.setTunnelId(new BigInteger(segmentationId));
@@ -817,9 +817,9 @@ public class MatchUtils {
         ipMatch.setIpProtocol(TCP_SHORT);
         matchBuilder.setIpMatch(ipMatch.build());
         // TCP Flag Match
-        TcpFlagMatchBuilder tcpFlagMatch = new TcpFlagMatchBuilder();
-        tcpFlagMatch.setTcpFlag(TCP_SYN);
-        matchBuilder.setTcpFlagMatch(tcpFlagMatch.build());
+        TcpFlagsMatchBuilder tcpFlagsMatch = new TcpFlagsMatchBuilder();
+        tcpFlagsMatch.setTcpFlags(TCP_SYN);
+        matchBuilder.setTcpFlagsMatch(tcpFlagsMatch.build());
 
         return matchBuilder;
     }
@@ -830,13 +830,13 @@ public class MatchUtils {
      * @param matchBuilder the match builder
      * @param attachedMac the attached mac
      * @param tcpPort the tcp port
-     * @param tcpFlag the tcp flag
+     * @param tcpFlags the tcp flag
      * @param segmentationId the segmentation id
      * @param dstIp the dst ip
      * @return the match builder
      */
     public static MatchBuilder createSmacTcpSynDstIpPrefixTcpPort(MatchBuilder matchBuilder, MacAddress attachedMac,
-            PortNumber tcpPort, Integer tcpFlag, String segmentationId, Ipv4Prefix dstIp) {
+            PortNumber tcpPort, Integer tcpFlags, String segmentationId, Ipv4Prefix dstIp) {
 
         EthernetMatchBuilder ethernetMatch = new EthernetMatchBuilder();
         EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
@@ -864,9 +864,9 @@ public class MatchUtils {
         tcpMatch.setTcpDestinationPort(dstPort);
         matchBuilder.setLayer4Match(tcpMatch.build());
 
-        TcpFlagMatchBuilder tcpFlagMatch = new TcpFlagMatchBuilder();
-        tcpFlagMatch.setTcpFlag(tcpFlag);
-        matchBuilder.setTcpFlagMatch(tcpFlagMatch.build());
+        TcpFlagsMatchBuilder tcpFlagsMatch = new TcpFlagsMatchBuilder();
+        tcpFlagsMatch.setTcpFlags(tcpFlags);
+        matchBuilder.setTcpFlagsMatch(tcpFlagsMatch.build());
 
         TunnelBuilder tunnelBuilder = new TunnelBuilder();
         tunnelBuilder.setTunnelId(new BigInteger(segmentationId));
@@ -880,12 +880,12 @@ public class MatchUtils {
      *
      * @param matchBuilder the match builder
      * @param attachedMac the attached mac
-     * @param tcpFlag the tcp flag
+     * @param tcpFlags the tcp flag
      * @param tunnelID the tunnel iD
      * @return matchBuilder
      */
     public static MatchBuilder createSmacTcpPortWithFlagMatch(MatchBuilder matchBuilder, String attachedMac,
-            Integer tcpFlag, String tunnelID) {
+            Integer tcpFlags, String tunnelID) {
 
         EthernetMatchBuilder ethernetMatch = new EthernetMatchBuilder();
         EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
@@ -902,9 +902,9 @@ public class MatchUtils {
         ipMatch.setIpProtocol(TCP_SHORT);
         matchBuilder.setIpMatch(ipMatch.build());
 
-        TcpFlagMatchBuilder tcpFlagMatch = new TcpFlagMatchBuilder();
-        tcpFlagMatch.setTcpFlag(tcpFlag);
-        matchBuilder.setTcpFlagMatch(tcpFlagMatch.build());
+        TcpFlagsMatchBuilder tcpFlagsMatch = new TcpFlagsMatchBuilder();
+        tcpFlagsMatch.setTcpFlags(tcpFlags);
+        matchBuilder.setTcpFlagsMatch(tcpFlagsMatch.build());
 
         TunnelBuilder tunnelBuilder = new TunnelBuilder();
         tunnelBuilder.setTunnelId(new BigInteger(tunnelID));
@@ -949,9 +949,9 @@ public class MatchUtils {
         ipMatch.setIpProtocol(TCP_SHORT);
         matchBuilder.setIpMatch(ipMatch.build());
         // TCP Flag Match
-        TcpFlagMatchBuilder tcpFlagMatch = new TcpFlagMatchBuilder();
-        tcpFlagMatch.setTcpFlag(TCP_SYN);
-        matchBuilder.setTcpFlagMatch(tcpFlagMatch.build());
+        TcpFlagsMatchBuilder tcpFlagsMatch = new TcpFlagsMatchBuilder();
+        tcpFlagsMatch.setTcpFlags(TCP_SYN);
+        matchBuilder.setTcpFlagsMatch(tcpFlagsMatch.build());
 
         return matchBuilder;
     }
@@ -962,12 +962,12 @@ public class MatchUtils {
      * @param matchBuilder the match builder
      * @param attachedMac the attached mac
      * @param tcpPort the tcp port
-     * @param tcpFlag the tcp flag
+     * @param tcpFlags the tcp flag
      * @param tunnelID the tunnel iD
      * @return the match builder
      */
     public static MatchBuilder createSmacTcpSyn(MatchBuilder matchBuilder,
-            String attachedMac, PortNumber tcpPort, Integer tcpFlag, String tunnelID) {
+            String attachedMac, PortNumber tcpPort, Integer tcpFlags, String tunnelID) {
 
         EthernetMatchBuilder ethernetMatch = new EthernetMatchBuilder();
         EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
@@ -991,9 +991,9 @@ public class MatchUtils {
         matchBuilder.setLayer4Match(tcpMatch.build());
 
 
-        TcpFlagMatchBuilder tcpFlagMatch = new TcpFlagMatchBuilder();
-        tcpFlagMatch.setTcpFlag(tcpFlag);
-        matchBuilder.setTcpFlagMatch(tcpFlagMatch.build());
+        TcpFlagsMatchBuilder tcpFlagsMatch = new TcpFlagsMatchBuilder();
+        tcpFlagsMatch.setTcpFlags(tcpFlags);
+        matchBuilder.setTcpFlagsMatch(tcpFlagsMatch.build());
 
         TunnelBuilder tunnelBuilder = new TunnelBuilder();
         tunnelBuilder.setTunnelId(new BigInteger(tunnelID));
@@ -1032,9 +1032,9 @@ public class MatchUtils {
         ipMatch.setIpProtocol(TCP_SHORT);
         matchBuilder.setIpMatch(ipMatch.build());
         // TCP Flag Match
-        TcpFlagMatchBuilder tcpFlagMatch = new TcpFlagMatchBuilder();
-        tcpFlagMatch.setTcpFlag(TCP_SYN);
-        matchBuilder.setTcpFlagMatch(tcpFlagMatch.build());
+        TcpFlagsMatchBuilder tcpFlagsMatch = new TcpFlagsMatchBuilder();
+        tcpFlagsMatch.setTcpFlags(TCP_SYN);
+        matchBuilder.setTcpFlagsMatch(tcpFlagsMatch.build());
 
         return matchBuilder;
     }
@@ -1420,7 +1420,7 @@ public class MatchUtils {
 
         } else if (UDP_SHORT == protocol) {
             ipmatch.setIpProtocol(UDP_SHORT);
-            UdpMatchBuilder udpMatch = new UdpMatchBuilder();
+            new UdpMatchBuilder();
             if (0 != srcPort) {
                 NxmOfUdpSrcBuilder udpSrc = new NxmOfUdpSrcBuilder();
                 udpSrc.setPort(new PortNumber(srcPort));
