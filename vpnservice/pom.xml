@@ -22,6 +22,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <modules>
     <module>commons/binding-parent</module>
     <module>commons/config-parent</module>
+    <module>commons/it-parent</module>
+    <module>utils</module>
     <module>model-bgp</module>
     <module>vpnmanager</module>
     <module>elanmanager</module>
@@ -37,6 +39,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module>features</module>
     <module>vpnservice-artifacts</module>
     <module>statemanager</module>
+    <module>it</module>
   </modules>
 
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
