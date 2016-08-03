@@ -18,6 +18,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -101,6 +102,12 @@ public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListen
         if (ofportIds == null || ofportIds.isEmpty() || add.getName().contains(":")) {
             return;
         }
+
+        if (add.getType() != null && add.getType().equals(Tunnel.class)) {
+            LOG.info("iface {} is a tunnel interface, skipping.", add);
+            return;
+        }
+
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface;
         iface = Ipv6ServiceUtils.getInterface(broker, add.getName());
         if (null != iface) {
