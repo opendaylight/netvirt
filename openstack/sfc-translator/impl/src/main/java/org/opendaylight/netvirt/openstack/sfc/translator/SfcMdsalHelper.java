@@ -10,14 +10,18 @@ package org.opendaylight.netvirt.openstack.sfc.translator;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.utils.mdsal.utils.MdsalUtils;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.ServiceFunctions;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunctionKey;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.ServiceFunctionChains;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChain;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChainKey;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.ServiceFunctionForwarders;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarderKey;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.ServiceFunctionPaths;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.service.function.paths.ServiceFunctionPath;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.service.function.paths.ServiceFunctionPathKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
@@ -50,6 +54,7 @@ public class SfcMdsalHelper {
         mdsalUtils = new MdsalUtils(this.dataBroker);
     }
 
+    //ACL Flow Classifier data store utility methods
     public void addAclFlowClassifier(Acl aclFlowClassifier) {
         InstanceIdentifier<Acl> aclIid = getAclPath(aclFlowClassifier.getKey());
         LOG.info("Write ACL FlowClassifier {} to config data store at {}",aclFlowClassifier, aclIid);
@@ -68,6 +73,7 @@ public class SfcMdsalHelper {
         mdsalUtils.delete(LogicalDatastoreType.CONFIGURATION, aclIid);
     }
 
+    //Service Function
     public void addServiceFunction(ServiceFunction sf) {
         InstanceIdentifier<ServiceFunction> sfIid = getSFPath(sf.getKey());
         LOG.info("Write Service Function {} to config data store at {}",sf, sfIid);
@@ -93,7 +99,19 @@ public class SfcMdsalHelper {
         return sfIid.builder().child(ServiceFunction.class, key).build();
     }
 
-    public SffName getExistingSFF(String ipAddress) {
+    private InstanceIdentifier<ServiceFunctionForwarder> getSFFPath(ServiceFunctionForwarderKey key) {
+        return sffIid.builder().child(ServiceFunctionForwarder.class, key).build();
+    }
+
+    private InstanceIdentifier<ServiceFunctionChain> getSFCPath(ServiceFunctionChainKey key) {
+        return sfcIid.builder().child(ServiceFunctionChain.class, key).build();
+    }
+
+    private InstanceIdentifier<ServiceFunctionPath> getSFPPath(ServiceFunctionPathKey key) {
+        return sfpIid.builder().child(ServiceFunctionPath.class, key).build();
+    }
+
+    public ServiceFunctionForwarder getExistingSFF(String ipAddress) {
         ServiceFunctionForwarders existingSffs = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, sffIid);
         if (existingSffs != null
                 && existingSffs.getServiceFunctionForwarder() != null
@@ -102,10 +120,34 @@ public class SfcMdsalHelper {
             List<ServiceFunctionForwarder> existingSffList = existingSffs.getServiceFunctionForwarder();
             for (ServiceFunctionForwarder sff : existingSffList) {
                 if (sff.getIpMgmtAddress().getIpv4Address().equals(new Ipv4Address(ipAddress))) {
-                    return sff.getName();
+                    return sff;
                 }
             }
         }
         return null;
+    }
+
+    public void addServiceFunctionForwarder(ServiceFunctionForwarder sff) {
+        InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sff.getKey());
+        LOG.info("Write Service Function Forwarder {} to config data store at {}",sff, sffIid);
+        mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, sffIid, sff);
+    }
+
+    public void addServiceFunctionChain(ServiceFunctionChain sfc) {
+        InstanceIdentifier<ServiceFunctionChain> sfcIid = getSFCPath(sfc.getKey());
+        LOG.info("Write Service Function Chain {} to config data store at {}",sfc, sfcIid);
+        mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, sfcIid, sfc);
+    }
+
+    public void removeServiceFunctionChain(ServiceFunctionChainKey sfcKey) {
+        InstanceIdentifier<ServiceFunctionChain> sfcIid = getSFCPath(sfcKey);
+        LOG.info("Remove Service Function Chain {} from config data store at {}",sfcKey, sfcIid);
+        mdsalUtils.delete(LogicalDatastoreType.CONFIGURATION, sfcIid);
+    }
+
+    public void addServiceFunctionPath(ServiceFunctionPath sfp) {
+        InstanceIdentifier<ServiceFunctionPath> sfpIid = getSFPPath(sfp.getKey());
+        LOG.info("Write Service Function Path {} to config data store at {}",sfp, sfpIid);
+        mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, sfpIid, sfp);
     }
 }

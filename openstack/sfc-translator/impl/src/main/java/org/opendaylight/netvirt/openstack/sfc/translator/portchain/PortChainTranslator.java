@@ -7,73 +7,94 @@
  */
 package org.opendaylight.netvirt.openstack.sfc.translator.portchain;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.netvirt.openstack.sfc.translator.INeutronSfcDataProcessor;
-import org.opendaylight.netvirt.openstack.sfc.translator.NeutronMdsalHelper;
-import org.opendaylight.netvirt.openstack.sfc.translator.SfcMdsalHelper;
+import com.google.common.base.Preconditions;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfcName;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfpName;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.CreateRenderedPathInput;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.CreateRenderedPathInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChain;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChainBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChainKey;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.service.function.chain.SfcServiceFunction;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.service.function.chain.SfcServiceFunctionBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.service.function.chain.SfcServiceFunctionKey;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.service.function.paths.ServiceFunctionPath;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.service.function.paths.ServiceFunctionPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.port.chain.attributes.ChainParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.chains.PortChain;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class will convert OpenStack Port Chain API yang models present in
  * neutron northbound project to OpenDaylight SFC yang models.
  */
-public class PortChainTranslator implements INeutronSfcDataProcessor<PortChain> {
+public class PortChainTranslator {
     private static final Logger LOG = LoggerFactory.getLogger(PortChainTranslator.class);
+    private static final String SYMMETRIC_PARAM = "symmetric";
+    private static final String SFP_NAME_PREFIX = "Path-";
 
-    private final DataBroker db;
-    private NeutronPortChainListener neutronPortChainListener;
-    private final SfcMdsalHelper sfcMdsalHelper;
-    private final NeutronMdsalHelper neutronMdsalHelper;
+    public static ServiceFunctionChain buildServiceFunctionChain(
+            PortChain portChain, List<ServiceFunction> sfList) {
+        ServiceFunctionChainBuilder sfcBuilder = new ServiceFunctionChainBuilder();
+        sfcBuilder.setName(new SfcName(portChain.getName()));
+        sfcBuilder.setKey(new ServiceFunctionChainKey(sfcBuilder.getName()));
 
-    public PortChainTranslator(DataBroker db) {
-        this.db = db;
-        sfcMdsalHelper = new SfcMdsalHelper(db);
-        neutronMdsalHelper = new NeutronMdsalHelper(db);
-    }
+        //By default set it to false. If user specify it in chain parameters, it
+        //will be overridden.
+        sfcBuilder.setSymmetric(false);
 
-    public void start() {
-        LOG.info("Port Chain Translator Initialized.");
-        if(neutronPortChainListener == null) {
-            neutronPortChainListener = new NeutronPortChainListener(db, this);
+        //Set service functions
+        List<SfcServiceFunction> sfcSfList = new ArrayList<>();
+        for(ServiceFunction sf : sfList) {
+            SfcServiceFunctionBuilder sfcSfBuilder = new SfcServiceFunctionBuilder();
+            sfcSfBuilder.setName(sf.getName().getValue());
+            sfcSfBuilder.setType(sf.getType());
+            sfcSfBuilder.setKey(new SfcServiceFunctionKey(sfcSfBuilder.getName()));
+
+            //NOTE: no explicit order is set.
+            sfcSfList.add(sfcSfBuilder.build());
         }
+        List<ChainParameters> cpList = portChain.getChainParameters();
+        if (cpList != null && !cpList.isEmpty()) {
+            for (ChainParameters cp : cpList) {
+                if(cp.getChainParameter().equals(SYMMETRIC_PARAM)) {
+                    //Override the symmetric default value.
+                    sfcBuilder.setSymmetric(new Boolean(cp.getChainParameterValue()));
+                    break;
+                }
+            }
+        }
+        sfcBuilder.setSfcServiceFunction(sfcSfList);
+        return sfcBuilder.build();
     }
 
-    /**
-     * Method removes PortChain which is identified by InstanceIdentifier.
-     *
-     * @param path - the whole path to PortChain
-     * @param deletedPortChain        - PortChain for removing
-     */
-    @Override
-    public void remove(InstanceIdentifier<PortChain> path, PortChain deletedPortChain) {
+    public static ServiceFunctionPath buildServiceFunctionPath(ServiceFunctionChain sfc) {
+        Preconditions.checkNotNull(sfc, "Service Function Chain must not be null");
+        ServiceFunctionPathBuilder sfpBuilder = new ServiceFunctionPathBuilder();
 
+        //Set the name
+        sfpBuilder.setName(new SfpName(SFP_NAME_PREFIX + sfc.getName().getValue()));
+
+        sfpBuilder.setSymmetric(sfc.isSymmetric());
+        //Set related SFC name
+        sfpBuilder.setServiceChainName(sfc.getName());
+        return sfpBuilder.build();
     }
 
-    /**
-     * Method updates the original PortChain to the update PortChain.
-     * Both are identified by same InstanceIdentifier.
-     *
-     * @param path - the whole path to PortChain
-     * @param originalPortChain   - original PortChain (for update)
-     * @param updatePortChain     - changed PortChain (contain updates)
-     */
-    @Override
-    public void update(InstanceIdentifier<PortChain> path, PortChain originalPortChain, PortChain updatePortChain) {
-
+    public static CreateRenderedPathInput buildRenderedServicePathInput(ServiceFunctionPath sfp) {
+        CreateRenderedPathInputBuilder rpInputBuilder = new CreateRenderedPathInputBuilder();
+        rpInputBuilder.setName(sfp.getName().getValue());
+        rpInputBuilder.setSymmetric(sfp.isSymmetric());
+        rpInputBuilder.setParentServiceFunctionPath(sfp.getName().getValue());
+        return rpInputBuilder.build();
     }
 
-    /**
-     * Method adds the PortChain which is identified by InstanceIdentifier
-     * to device.
-     *
-     * @param path - the whole path to new PortChain
-     * @param newPortChain        - new PortChain
-     */
-    @Override
-    public void add(InstanceIdentifier<PortChain> path, PortChain newPortChain) {
-
+    public static ServiceFunctionChainKey getSFCKey(PortChain portChain) {
+        return new ServiceFunctionChainKey(new SfcName(portChain.getName()));
     }
 }

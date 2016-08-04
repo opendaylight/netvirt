@@ -12,6 +12,9 @@
 
   <reference id="dataBroker"
     interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
+  <reference id="rspService"
+             interface="org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.RenderedServicePathService"
+             availability="optional"/>
 
   <odl:clustered-app-config id="openstackSfcTranslatorConfig"
     binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.openstack.sfc.translator.config.rev160720.OpenstackSfcTranslatorConfig">
@@ -21,6 +24,7 @@
     class="org.opendaylight.netvirt.openstack.sfc.translator.OpenStackSFCTranslatorProvider"
     init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
+    <argument ref="rspService" />
     <argument ref="openstackSfcTranslatorConfig" />
     <argument ref="blueprintBundleContext" />
   </bean>

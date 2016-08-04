@@ -30,7 +30,9 @@ import java.util.concurrent.ThreadFactory;
 /**
  * Data-tree listener which delegates data processing to a {@link INeutronSfcDataProcessor}.
  */
-public class DelegatingDataTreeListener<T extends DataObject> implements AutoCloseable, DataTreeChangeListener<T> {
+public abstract class DelegatingDataTreeListener<T extends DataObject> implements AutoCloseable,
+        DataTreeChangeListener<T>,
+        INeutronSfcDataProcessor<T> {
     private static final Logger LOG = LoggerFactory.getLogger(DelegatingDataTreeListener.class);
     private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
         .setNameFormat("NeutronSfcListener-%d").build();
@@ -38,9 +40,8 @@ public class DelegatingDataTreeListener<T extends DataObject> implements AutoClo
     private final INeutronSfcDataProcessor<T> dataProcessor;
     private ListenerRegistration<DelegatingDataTreeListener<T>> listenerRegistration;
 
-    public DelegatingDataTreeListener(INeutronSfcDataProcessor<T> dataProcessor,
-                                      DataBroker db, DataTreeIdentifier<T> treeId) {
-        this.dataProcessor = Preconditions.checkNotNull(dataProcessor, "Data processor can not be null!");
+    public DelegatingDataTreeListener(DataBroker db, DataTreeIdentifier<T> treeId) {
+        this.dataProcessor = Preconditions.checkNotNull(this, "Data processor can not be null!");
         registerListener(Preconditions.checkNotNull(db, "Data broker can not be null!"),
                 Preconditions.checkNotNull(treeId, "Tree identifier can not be null!"));
     }
