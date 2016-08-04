@@ -101,6 +101,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
@@ -601,16 +602,17 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));
 
+        short l3vpn_service_index = ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX);
         BoundServices
                 serviceInfo =
                 InterfaceUtils.getBoundServices(String.format("%s.%s.%s", "vpn",vpnInstanceName, vpnInterfaceName),
-                        NwConstants.L3VPN_SERVICE_INDEX, priority,
+                		l3vpn_service_index, priority,
                         NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
         writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION,
-                InterfaceUtils.buildServiceId(vpnInterfaceName, NwConstants.L3VPN_SERVICE_INDEX), serviceInfo, true);
-        makeArpFlow(dpId, NwConstants.L3VPN_SERVICE_INDEX, lPortTag, vpnInterfaceName,
+                InterfaceUtils.buildServiceId(vpnInterfaceName, l3vpn_service_index), serviceInfo, true);
+        makeArpFlow(dpId, l3vpn_service_index, lPortTag, vpnInterfaceName,
                 vpnId, ArpReplyOrRequest.REQUEST, NwConstants.ADD_FLOW, writeInvTxn);
-        makeArpFlow(dpId, NwConstants.L3VPN_SERVICE_INDEX, lPortTag, vpnInterfaceName,
+        makeArpFlow(dpId, l3vpn_service_index, lPortTag, vpnInterfaceName,
                 vpnId, ArpReplyOrRequest.REPLY, NwConstants.ADD_FLOW, writeInvTxn);
 
     }
@@ -1288,15 +1290,16 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     private void unbindService(BigInteger dpId, String vpnInstanceName, String vpnInterfaceName,
                                int lPortTag, boolean isInterfaceStateDown, boolean isConfigRemoval,
                                WriteTransaction writeConfigTxn, WriteTransaction writeInvTxn) {
+        short l3vpn_service_index = ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX);
         if (!isInterfaceStateDown && isConfigRemoval) {
             writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION,
                     InterfaceUtils.buildServiceId(vpnInterfaceName,
-                            NwConstants.L3VPN_SERVICE_INDEX));
+                            l3vpn_service_index));
         }
         long vpnId = VpnUtil.getVpnId(broker, vpnInstanceName);
-        makeArpFlow(dpId, NwConstants.L3VPN_SERVICE_INDEX, lPortTag, vpnInterfaceName,
+        makeArpFlow(dpId, l3vpn_service_index, lPortTag, vpnInterfaceName,
                 vpnId, ArpReplyOrRequest.REQUEST, NwConstants.DEL_FLOW, writeInvTxn);
-        makeArpFlow(dpId, NwConstants.L3VPN_SERVICE_INDEX, lPortTag, vpnInterfaceName,
+        makeArpFlow(dpId, l3vpn_service_index, lPortTag, vpnInterfaceName,
                 vpnId, ArpReplyOrRequest.REPLY, NwConstants.DEL_FLOW, writeInvTxn);
     }
 

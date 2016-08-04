@@ -23,6 +23,7 @@ import org.opendaylight.genius.interfacemanager.globals.VlanInterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.ServiceIndex;
 //import org.opendaylight.yang.gen.v1.urn.opendaylight.genius._interface.service.rev150602._interface.service.info.ServiceInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius._interface.statistics.rev150824.ResultCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
@@ -116,7 +117,8 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
             matches = InterfaceServiceUtil.getMatchInfoForVlanLPort(dpId, interfaceInfo.getPortNo(),
                 InterfaceServiceUtil.getVlanId(interfaceName, elanServiceProvider.getBroker()), vlanInterfaceInfo.isVlanTransparent());
         } else {
-            matches = InterfaceServiceUtil.getLPortDispatcherMatches(NwConstants.ELAN_SERVICE_INDEX, interfaceInfo.getInterfaceTag());
+            matches = InterfaceServiceUtil.getLPortDispatcherMatches(ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX), 
+            		interfaceInfo.getInterfaceTag());
         }
         long groupId = interfaceInfo.getGroupId();
         Set<Object> statRequestKeys = InterfaceServiceUtil.getStatRequestKeys(dpId, tableId, matches, String.format("%s.%s", elanInstanceName, interfaceName), groupId);
