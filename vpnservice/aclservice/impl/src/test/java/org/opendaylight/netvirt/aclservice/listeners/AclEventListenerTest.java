@@ -20,6 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -47,7 +48,7 @@ public class AclEventListenerTest {
         mockInstanceId = mock(InstanceIdentifier.class);
         aclInterfaceMock = mock(AclInterface.class);
         aclServiceManager = mock(AclServiceManager.class);
-        aclEventListener = new AclEventListener(aclServiceManager);
+        aclEventListener = new AclEventListener(aclServiceManager, mock(DataBroker.class));
 
         aclInterfaceValueSaver = ArgumentCaptor.forClass(AclInterface.class);
         actionValueSaver = ArgumentCaptor.forClass(AclServiceManager.Action.class);
