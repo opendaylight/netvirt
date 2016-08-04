@@ -130,7 +130,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     if (dpnId != BigInteger.ZERO) {
                         long groupid = VpnUtil.getRemoteBCGroup(elanTag);
                         String key = srcIpStr + dstIpStr;
-                        sendArpRequest(dpnId, groupid, srcMac, srcIp, dstIp);
+                        TransmitPacketInput arpRequestInput = ArpUtils.createArpRequestInput(dpnId, groupid, srcMac, srcIp, dstIp);
+                        packetService.transmitPacket(arpRequestInput);
                     }
                     return;
                 }
@@ -301,83 +302,10 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         this.packetService = service;
     }
 
-    private long getDpnIdFromPktRcved(PacketReceived packet) {
-        InstanceIdentifier<?> identifier = packet.getIngress().getValue();
-        NodeId id = identifier.firstKeyOf(Node.class, NodeKey.class).getId();
-        return getDpnIdFromNodeName(id.getValue());
-    }
-
-    private long getDpnIdFromNodeName(String nodeName) {
-        String dpId = nodeName.substring(nodeName.lastIndexOf(":") + 1);
-        return Long.parseLong(dpId);
-    }
-
     public static long getElanTagFromSubnetRouteMetadata(BigInteger metadata) {
         return ((metadata.and(MetaDataUtil.METADATA_MASK_ELAN_SUBNET_ROUTE)).shiftRight(32)).longValue();
     }
 
-    private void sendArpRequest(BigInteger dpnId, long groupId, byte[] abySenderMAC, byte[] abySenderIpAddress,
-                                byte[] abyTargetIpAddress) {
-
-        s_logger.info("SubnetRoutePacketInHandler: sendArpRequest dpnId {}, groupId {}, senderIPAddress {}, targetIPAddress {}",
-                dpnId, groupId,
-                toStringIpAddress(abySenderIpAddress),toStringIpAddress(abyTargetIpAddress));
-        if (abySenderIpAddress != null) {
-            byte[] arpPacket;
-            byte[] ethPacket;
-            List<ActionInfo> lstActionInfo;
-            TransmitPacketInput transmitPacketInput;
-
-            arpPacket = createARPPacket(ARP.REQUEST, abySenderMAC, abySenderIpAddress, VpnConstants.MAC_Broadcast,
-                    abyTargetIpAddress);
-            ethPacket = createEthernetPacket(abySenderMAC, VpnConstants.EthernetDestination_Broadcast, arpPacket);
-            lstActionInfo = new ArrayList<ActionInfo>();
-            lstActionInfo.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));
-            transmitPacketInput = MDSALUtil.getPacketOutDefault(lstActionInfo, ethPacket, dpnId);
-            packetService.transmitPacket(transmitPacketInput);
-        } else {
-            s_logger.info("SubnetRoutePacketInHandler: Unable to send ARP request because client port has no IP  ");
-        }
-    }
-
-    private static byte[] createARPPacket(short opCode, byte[] senderMacAddress, byte[] senderIP, byte[] targetMacAddress,
-                                         byte[] targetIP) {
-        ARP arp = new ARP();
-        byte[] rawArpPkt = null;
-        try {
-            arp.setHardwareType(ARP.HW_TYPE_ETHERNET);
-            arp.setProtocolType(EtherTypes.IPv4.shortValue());
-            arp.setHardwareAddressLength((byte) 6);
-            arp.setProtocolAddressLength((byte) 4);
-            arp.setOpCode(opCode);
-            arp.setSenderHardwareAddress(senderMacAddress);
-            arp.setSenderProtocolAddress(senderIP);
-            arp.setTargetHardwareAddress(targetMacAddress);
-            arp.setTargetProtocolAddress(targetIP);
-            rawArpPkt = arp.serialize();
-        } catch (Exception ex) {
-            s_logger.error("VPNUtil:  Serialized ARP packet with senderIp {} targetIP {} exception ",
-                    senderIP, targetIP, ex);
-        }
-
-        return rawArpPkt;
-    }
-
-    private static byte[] createEthernetPacket(byte[] sourceMAC, byte[] targetMAC, byte[] arp) {
-        Ethernet ethernet = new Ethernet();
-        byte[] rawEthPkt = null;
-        try {
-            ethernet.setSourceMACAddress(sourceMAC);
-            ethernet.setDestinationMACAddress(targetMAC);
-            ethernet.setEtherType(EtherTypes.ARP.shortValue());
-            ethernet.setRawPayload(arp);
-            rawEthPkt = ethernet.serialize();
-        } catch (Exception ex) {
-            s_logger.error("VPNUtil:  Serialized Ethernet packet with sourceMacAddress {} targetMacAddress {} exception ",
-                    sourceMAC, targetMAC, ex);
-        }
-        return rawEthPkt;
-    }
 
     static InstanceIdentifier<VpnIds>
     getVpnIdToVpnInstanceIdentifier(long vpnId) {
