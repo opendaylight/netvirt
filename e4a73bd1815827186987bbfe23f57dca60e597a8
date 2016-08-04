@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_99a4c958",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-04T13:44:01Z",
+      "side": 1,
+      "message": "saw two different ways here: thsi way where the registerListener is done in the constructor. Other way is to use a start() and call it there. I like this way since we don\u0027t need to keep the dataBroker around and we don\u0027t have to add the start()",
+      "revId": "e4a73bd1815827186987bbfe23f57dca60e597a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f9885dc8",
+        "filename": "vpnservice/aclservice/impl/src/main/resources/org/opendaylight/blueprint/aclservice.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-04T13:44:01Z",
+      "side": 1,
+      "message": "do need an explicit call to close or does that happen automagically?",
+      "revId": "e4a73bd1815827186987bbfe23f57dca60e597a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
