@@ -54,11 +54,9 @@ public class Ipv6PktHandlerTest {
     public void initTest() {
         pktProcessService = Mockito.mock(PacketProcessingService.class);
         ifMgrInstance = Mockito.mock(IfMgr.class);
-
-        pktHandler = new Ipv6PktHandler();
-        pktHandler.setPacketProcessingService(pktProcessService);
+        IfMgr.setIfMgrInstance(ifMgrInstance);
+        pktHandler = new Ipv6PktHandler(pktProcessService);
         Ipv6RouterAdvt.setPacketProcessingService(pktProcessService);
-        pktHandler.setIfMgrInstance(ifMgrInstance);
         counter = pktHandler.getPacketProcessedCounter();
     }
 

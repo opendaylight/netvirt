@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.ipv6service;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
@@ -27,31 +26,24 @@ import org.slf4j.LoggerFactory;
 
 public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronPortChangeListener.class);
-
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private IfMgr ifMgr;
-    private NotificationService notificationService;
+    private final DataBroker dataBroker;
+    private final IfMgr ifMgr;
 
-    public NeutronPortChangeListener(final DataBroker db) {
+    public NeutronPortChangeListener(final DataBroker dataBroker) {
         super(Port.class);
-        this.ifMgr = IfMgr.getIfMgrInstance();
-        registerListener(db);
+        this.dataBroker = dataBroker;
+        ifMgr = IfMgr.getIfMgrInstance();
     }
 
-    @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.info("Neutron Port listener Closed");
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+                getWildCardPath(), this, DataChangeScope.SUBTREE);
     }
 
-
-    private void registerListener(final DataBroker db) {
-        listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class),
-                NeutronPortChangeListener.this, DataChangeScope.SUBTREE);
+    private InstanceIdentifier<Port> getWildCardPath() {
+        return InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class);
     }
 
     @Override
@@ -88,17 +80,26 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
 
     @Override
     protected void remove(InstanceIdentifier<Port> identifier, Port port) {
-        LOG.info("remove port notification handler is invoked...");
+        LOG.debug("remove port notification handler is invoked...");
         ifMgr.removePort(port.getUuid());
     }
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
-        LOG.info("update port notification handler is invoked...");
+        LOG.debug("update port notification handler is invoked...");
         if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
             ifMgr.updateRouterIntf(update.getUuid(), new Uuid(update.getDeviceId()), update.getFixedIps());
         } else {
             ifMgr.updateHostIntf(update.getUuid(), update.getFixedIps());
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (listenerRegistration != null) {
+            listenerRegistration.close();
+            listenerRegistration = null;
+        }
+        LOG.info("{} close", getClass().getSimpleName());
     }
 }
