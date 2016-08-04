@@ -39,7 +39,7 @@ public class ElanMacTableGet extends OsgiCommandSupport {
             logger.debug("Executing updating ElanInterface command" + "\t");
             Collection<MacEntry> macTables = elanProvider.getElanMacTable(elanName);
             if(!macTables.isEmpty()) {
-                SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yy:HH:mm:SS");
+                SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yy:HH:mm:ss");
                 System.out.println(getMacTableHeaderOutput());
                 System.out.println(elanName);
                 for(MacEntry mac : macTables) {
