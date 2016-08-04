@@ -20,18 +20,43 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class NeutronRouterChangeListener extends AbstractDataChangeListener<Router> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronRouterChangeListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private IfMgr ifMgr;
-    private final DataBroker broker;
+    private final DataBroker dataBroker;
+    private final IfMgr ifMgr;
 
-    public NeutronRouterChangeListener(final DataBroker db) {
+    public NeutronRouterChangeListener(final DataBroker dataBroker) {
         super(Router.class);
-        broker = db;
+        this.dataBroker = dataBroker;
         this.ifMgr = IfMgr.getIfMgrInstance();
-        registerListener(db);
+    }
+
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+                getWildCardPath(), this, DataChangeScope.SUBTREE);
+    }
+
+    private InstanceIdentifier<Router> getWildCardPath() {
+        return InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router.class);
+    }
+
+    @Override
+    protected void add(InstanceIdentifier<Router> identifier, Router input) {
+        LOG.debug("Add Router notification handler is invoked...");
+        ifMgr.addRouter(input.getUuid(), input.getName(), input.getTenantId(), input.isAdminStateUp());
+    }
+
+    @Override
+    protected void remove(InstanceIdentifier<Router> identifier, Router input) {
+        LOG.debug("Remove Router notification handler is invoked...");
+        ifMgr.removeRouter(input.getUuid());
+    }
+
+    @Override
+    protected void update(InstanceIdentifier<Router> identifier, Router original, Router update) {
+        LOG.debug("Update Router notification handler is invoked...");
     }
 
     @Override
@@ -40,29 +65,6 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
             listenerRegistration.close();
             listenerRegistration = null;
         }
-        LOG.info("Neutron Router listener Closed");
-    }
-
-    private void registerListener(final DataBroker db) {
-        listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router.class),
-                NeutronRouterChangeListener.this, DataChangeScope.SUBTREE);
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<Router> identifier, Router input) {
-        LOG.info("Add Router notification handler is invoked...");
-        ifMgr.addRouter(input.getUuid(), input.getName(), input.getTenantId(), input.isAdminStateUp());
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<Router> identifier, Router input) {
-        LOG.info("Remove Router notification handler is invoked...");
-        ifMgr.removeRouter(input.getUuid());
-    }
-
-    @Override
-    protected void update(InstanceIdentifier<Router> identifier, Router original, Router update) {
-        LOG.info("Update Router notification handler is invoked...");
+        LOG.info("{} close", getClass().getSimpleName());
     }
 }

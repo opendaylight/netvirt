@@ -84,7 +84,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <configfile finalname="${configfile.directory}/elanmanager-impl-default-config.xml">mvn:org.opendaylight.netvirt/elanmanager-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/natservice-impl-default-config.xml">mvn:org.opendaylight.netvirt/natservice-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/aclservice-impl-default-config.xml">mvn:org.opendaylight.netvirt/aclservice-impl/{{VERSION}}/xml/config</configfile>
-    <configfile finalname="${configfile.directory}/ipv6service-impl-default-config.xml">mvn:org.opendaylight.netvirt/ipv6service-impl/{{VERSION}}/xml/config</configfile>
     <!--<configfile finalname="${configfile.directory}/cloud-servicechain-impl-default-config.xml">mvn:org.opendaylight.netvirt/cloud-servicechain-impl/{{VERSION}}/xml/config</configfile>-->
   </feature>
 
