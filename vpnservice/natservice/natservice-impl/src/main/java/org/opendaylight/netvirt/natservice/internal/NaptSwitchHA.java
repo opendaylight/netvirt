@@ -595,7 +595,7 @@ public class NaptSwitchHA {
         ifNamePrimary = getTunnelInterfaceName(dpnId, naptSwitch);
         if (ifNamePrimary != null) {
             LOG.debug("TunnelInterface {} between ordinary switch {} and naptSwitch {}",ifNamePrimary,dpnId,naptSwitch);
-            List<ActionInfo> listActionInfoPrimary = getEgressActionsForInterface(ifNamePrimary, routerId);
+            List<ActionInfo> listActionInfoPrimary = NatUtil.getEgressActionsForInterface(interfaceManager, ifNamePrimary, routerId);
             BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
             listBucketInfo.add(bucketPrimary);
         } else {
@@ -655,44 +655,6 @@ public class NaptSwitchHA {
         }
 
         return null;
-    }
-
-    protected List<ActionInfo> getEgressActionsForInterface(String ifName, long routerId) {
-        LOG.debug("getEgressActionsForInterface called for interface {}", ifName);
-        List<ActionInfo> listActionInfo = new ArrayList<>();
-        try {
-            Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
-                    interfaceManager.getEgressActionsForInterface(
-                            new GetEgressActionsForInterfaceInputBuilder().setIntfName(ifName).setTunnelKey(routerId).build());
-            RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
-            if(!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}"
-                        , ifName, rpcResult.getErrors());
-            } else {
-                List<Action> actions =
-                        rpcResult.getResult().getAction();
-                for (Action action : actions) {
-                    org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = action.getAction();
-                    if (actionClass instanceof OutputActionCase) {
-                        listActionInfo.add(new ActionInfo(ActionType.output,
-                                new String[] {((OutputActionCase)actionClass).getOutputAction()
-                                        .getOutputNodeConnector().getValue()}));
-                    } else if (actionClass instanceof PushVlanActionCase) {
-                        listActionInfo.add(new ActionInfo(ActionType.push_vlan, new String[] {}));
-                    } else if (actionClass instanceof SetFieldCase) {
-                        if (((SetFieldCase)actionClass).getSetField().getVlanMatch() != null) {
-                            int vlanVid = ((SetFieldCase)actionClass).getSetField().getVlanMatch()
-                                    .getVlanId().getVlanId().getValue();
-                            listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
-                                    new String[] { Long.toString(vlanVid) }));
-                        }
-                    }
-                }
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when egress actions for interface {}", ifName, e);
-        }
-        return listActionInfo;
     }
 
     public boolean updateNaptSwitch(String routerName, BigInteger naptSwitchId) {

@@ -111,7 +111,7 @@ public class NaptEventHandler {
             bgpVpnId = routerId;
             LOG.debug("NAT Service : BGP VPN ID {}", bgpVpnId);
             String vpnName = NatUtil.getRouterName(dataBroker, bgpVpnId);
-            String routerName = NatUtil.getRouterIdfromVpnId(dataBroker, vpnName);
+            String routerName = NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnName);
             routerId = NatUtil.getVpnId(dataBroker, routerName);
             LOG.debug("NAT Service : Router ID {}", routerId);
             dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
