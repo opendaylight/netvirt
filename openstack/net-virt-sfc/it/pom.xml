@@ -14,7 +14,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>it</artifactId>
-    <version>1.2.4-SNAPSHOT</version>
+    <version>1.2.5-SNAPSHOT</version>
     <relativePath>../../commons/it</relativePath>
   </parent>
 
@@ -27,7 +27,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <karaf.distro.artifactId>openstack.net-virt-sfc-karaf</karaf.distro.artifactId>
     <karaf.distro.version>${project.version}</karaf.distro.version>
     <karaf.distro.type>zip</karaf.distro.type>
-    <ovsdb.version>1.2.4-SNAPSHOT</ovsdb.version>
+    <ovsdb.version>1.2.5-SNAPSHOT</ovsdb.version>
    </properties>
 
   <dependencyManagement>

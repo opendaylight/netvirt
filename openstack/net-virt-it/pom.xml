@@ -11,7 +11,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>it</artifactId>
-    <version>1.2.4-SNAPSHOT</version>
+    <version>1.2.5-SNAPSHOT</version>
     <relativePath>../commons/it</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -39,12 +39,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </scm>
 
   <properties>
-    <controller.mdsal.version>1.3.3-SNAPSHOT</controller.mdsal.version>
+    <controller.mdsal.version>1.3.4-SNAPSHOT</controller.mdsal.version>
     <karaf.distro.groupId>org.opendaylight.netvirt</karaf.distro.groupId>
     <karaf.distro.artifactId>karaf</karaf.distro.artifactId>
     <karaf.distro.version>${project.version}</karaf.distro.version>
     <karaf.distro.type>zip</karaf.distro.type>
-    <ovsdb.version>1.2.4-SNAPSHOT</ovsdb.version>
+    <ovsdb.version>1.2.5-SNAPSHOT</ovsdb.version>
   </properties>
 
   <dependencies>
