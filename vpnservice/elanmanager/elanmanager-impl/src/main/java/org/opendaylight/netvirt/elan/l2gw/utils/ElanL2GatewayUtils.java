@@ -326,8 +326,10 @@ public class ElanL2GatewayUtils {
      *            the l2gw device node id
      * @param elan
      *            the elan
+     * @param interfaceName
      */
-    public static void installL2gwDeviceMacsInDpn(BigInteger dpnId, NodeId l2gwDeviceNodeId, ElanInstance elan) {
+    public static void installL2gwDeviceMacsInDpn(BigInteger dpnId, NodeId l2gwDeviceNodeId, ElanInstance elan,
+            String interfaceName) {
         L2GatewayDevice l2gwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elan.getElanInstanceName(),
                 l2gwDeviceNodeId.getValue());
         if (l2gwDevice == null) {
@@ -335,7 +337,7 @@ public class ElanL2GatewayUtils {
             return;
         }
 
-        installDmacFlowsOnDpn(dpnId, l2gwDevice, elan);
+        installDmacFlowsOnDpn(dpnId, l2gwDevice, elan, interfaceName);
     }
 
     /**
@@ -347,8 +349,10 @@ public class ElanL2GatewayUtils {
      *            the l2gw device
      * @param elan
      *            the elan
+     * @param interfaceName
      */
-    public static void installDmacFlowsOnDpn(BigInteger dpnId, L2GatewayDevice l2gwDevice, ElanInstance elan) {
+    public static void installDmacFlowsOnDpn(BigInteger dpnId, L2GatewayDevice l2gwDevice, ElanInstance elan,
+            String interfaceName) {
         String elanName = elan.getElanInstanceName();
 
         List<LocalUcastMacs> l2gwDeviceLocalMacs = l2gwDevice.getUcastLocalMacs();
@@ -356,7 +360,7 @@ public class ElanL2GatewayUtils {
             for (LocalUcastMacs localUcastMac : l2gwDeviceLocalMacs) {
                 // TODO batch these ops
                 ElanUtils.installDmacFlowsToExternalRemoteMac(dpnId, l2gwDevice.getHwvtepNodeId(), elan.getElanTag(),
-                        elan.getSegmentationId(), localUcastMac.getMacEntryKey().getValue(), elanName);
+                        elan.getSegmentationId(), localUcastMac.getMacEntryKey().getValue(), elanName, interfaceName);
             }
             LOG.debug("Installing L2gw device [{}] local macs [size: {}] in dpn [{}] for elan [{}]",
                     l2gwDevice.getHwvtepNodeId(), l2gwDeviceLocalMacs.size(), dpnId, elanName);
@@ -370,13 +374,14 @@ public class ElanL2GatewayUtils {
      *            the dpn id
      * @param elan
      *            the elan
+     * @param interfaceName
      */
-    public static void installElanL2gwDevicesLocalMacsInDpn(BigInteger dpnId, ElanInstance elan) {
+    public static void installElanL2gwDevicesLocalMacsInDpn(BigInteger dpnId, ElanInstance elan, String interfaceName) {
         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevicesFromCache = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(elan.getElanInstanceName());
         if (elanL2GwDevicesFromCache != null) {
             for (L2GatewayDevice l2gwDevice : elanL2GwDevicesFromCache.values()) {
-                installDmacFlowsOnDpn(dpnId, l2gwDevice, elan);
+                installDmacFlowsOnDpn(dpnId, l2gwDevice, elan, interfaceName);
             }
         } else {
             LOG.debug("No Elan l2 gateway devices in cache for [{}] ", elan.getElanInstanceName());
@@ -384,7 +389,7 @@ public class ElanL2GatewayUtils {
     }
 
     public static void installL2GwUcastMacInElan(final ElanInstance elan, final L2GatewayDevice extL2GwDevice,
-            final String macToBeAdded) {
+            final String macToBeAdded, String interfaceName) {
         final String extDeviceNodeId = extL2GwDevice.getHwvtepNodeId();
         final String elanInstanceName = elan.getElanInstanceName();
 
@@ -405,7 +410,7 @@ public class ElanL2GatewayUtils {
                                     // TODO batch the below call
                                     fts.addAll(ElanUtils.installDmacFlowsToExternalRemoteMac(elanDpn.getDpId(),
                                             extDeviceNodeId, elan.getElanTag(), elan.getSegmentationId(), macToBeAdded,
-                                            elanInstanceName));
+                                            elanInstanceName, interfaceName));
                                 }
                             } else {
                                 LOG.trace("Skipping install of dmac flows for mac {} as it is not found in cache",

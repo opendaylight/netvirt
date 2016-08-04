@@ -12,5 +12,7 @@ public class ElanCLIUtils {
             + "------------------------------------";
     public static final String MAC_TABLE_CLI_FORMAT = "%-35s %-20s %-20s %-20s";
     public static final String ELAN_CLI_FORMAT = "%-35s %-20s %-20s ";
+    public static final String ETREE_CLI_FORMAT = "%-35s %-20s %-20s %-20s";
     public static final String ELAN_INTERFACE_CLI_FORMAT = "%-35s %-25s %-15s %-15s ";
+    public static final String ETREE_INTERFACE_CLI_FORMAT = "%-35s %-25s %-15s %-15s %-15s";
 }
