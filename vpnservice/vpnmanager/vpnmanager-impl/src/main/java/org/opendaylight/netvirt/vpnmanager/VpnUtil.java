@@ -31,6 +31,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
@@ -121,7 +122,6 @@ public class VpnUtil {
     private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
     private static final int DEFAULT_PREFIX_LENGTH = 32;
     private static final String PREFIX_SEPARATOR = "/";
-    private static final String OWNER_FLOATING_IP = "network:floatingip";
 
     static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
         return InstanceIdentifier.builder(VpnInterfaces.class)
@@ -1248,7 +1248,7 @@ public class VpnUtil {
         }
 
         for (Port port : portsOptional.get().getPort()) {
-            if (OWNER_FLOATING_IP.equals(port.getDeviceOwner()) && port.getFixedIps() != null) {
+            if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(port.getDeviceOwner()) && port.getFixedIps() != null) {
                 for (FixedIps ip : port.getFixedIps()) {
                     if (Objects.equals(ip.getIpAddress(), targetIP)) {
                         return port;

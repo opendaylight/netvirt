@@ -9,6 +9,8 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -59,6 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev16061
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
@@ -749,6 +752,24 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
                 deleteElanInterface(elanInstanceName, elanInterface);
             }
         }
+    }
+
+    @Override
+    public String getExternalElanInterface(String elanInstanceName, BigInteger dpnId) {
+        DpnInterfaces dpnInterfaces = ElanUtils.getElanInterfaceInfoByElanDpn(elanInstanceName, dpnId);
+        if (dpnInterfaces == null || dpnInterfaces.getInterfaces() == null) {
+            logger.trace("Elan {} does not have interfaces in DPN {}", elanInstanceName, dpnId);
+            return null;
+        }
+
+        for (String dpnInterface : dpnInterfaces.getInterfaces()) {
+            if (ElanUtils.isExternal(dpnInterface)) {
+                return dpnInterface;
+            }
+        }
+
+        logger.trace("Elan {} does not have any external interace attached to DPN {}", elanInstanceName, dpnId);
+        return null;
     }
 
     @Override
