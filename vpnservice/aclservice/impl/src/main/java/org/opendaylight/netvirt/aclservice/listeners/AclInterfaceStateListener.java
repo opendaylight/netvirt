@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.aclservice.listeners;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -40,9 +42,11 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
      * Initialize the member variables.
      * @param aclServiceManger the AclServiceManager instance.
      */
-    public AclInterfaceStateListener(AclServiceManager aclServiceManger) {
+    public AclInterfaceStateListener(AclServiceManager aclServiceManger, DataBroker dataBroker) {
         super(Interface.class, AclInterfaceStateListener.class);
         this.aclServiceManger = aclServiceManger;
+
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
