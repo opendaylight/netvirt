@@ -17,20 +17,30 @@ import com.google.common.collect.Sets;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
@@ -56,6 +66,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.ip.port.IntIpProtoTypeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
@@ -65,8 +76,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 
@@ -83,6 +98,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -209,6 +226,13 @@ public class NatUtil {
         return InstanceIdentifier.builder(VpnInstanceToVpnId.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance.class,
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceKey(vpnName)).build();
+    }
+
+    static String getVpnInstanceFromVpnIdentifier(DataBroker broker, long vpnId) {
+        InstanceIdentifier<VpnIds> id = InstanceIdentifier.builder(VpnIdToVpnInstance.class)
+                .child(VpnIds.class, new VpnIdsKey(Long.valueOf(vpnId))).build();
+        Optional<VpnIds> vpnInstance = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return vpnInstance.isPresent() ? vpnInstance.get().getVpnInstanceName() : null;
     }
 
     /*
@@ -576,7 +600,7 @@ public class NatUtil {
     Method returns router Id associated to a VPN
      */
 
-    public static String getRouterIdfromVpnId(DataBroker broker,String vpnName){
+    public static String getRouterIdfromVpnInstance(DataBroker broker,String vpnName){
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
                 .child(VpnMap.class, new VpnMapKey(new Uuid(vpnName))).build();
         Optional<VpnMap> optionalVpnMap = read(broker, LogicalDatastoreType.CONFIGURATION,
@@ -585,6 +609,16 @@ public class NatUtil {
             return optionalVpnMap.get().getRouterId().getValue();
         }
         return null;
+    }
+
+    public static String getRouterIdfromVpnId(DataBroker broker, long vpnId){
+        String vpnName = getVpnInstanceFromVpnIdentifier(broker, vpnId);
+        if (vpnName == null) {
+            LOG.trace("No VPN instance found for vpn id {}", vpnId);
+            return null;
+        }
+
+        return getRouterIdfromVpnInstance(broker, vpnName);
     }
 
     static Uuid getVpnForRouter(DataBroker broker, String routerId) {
@@ -938,4 +972,75 @@ public class NatUtil {
         }
         return bgpVpnId;
     }
+
+    public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService interfaceManager, String ifName,
+            Long tunnelKey) {
+        LOG.debug("NAT Service : getEgressActionsForInterface called for interface {}", ifName);
+        GetEgressActionsForInterfaceInputBuilder egressActionsBuilder = new GetEgressActionsForInterfaceInputBuilder()
+                .setIntfName(ifName);
+        if (tunnelKey != null) {
+            egressActionsBuilder.setTunnelKey(tunnelKey);
+        }
+
+        List<ActionInfo> listActionInfo = new ArrayList<>();
+        try {
+            Future<RpcResult<GetEgressActionsForInterfaceOutput>> result = interfaceManager
+                    .getEgressActionsForInterface(egressActionsBuilder.build());
+            RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
+            if (!rpcResult.isSuccessful()) {
+                LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}", ifName,
+                        rpcResult.getErrors());
+            } else {
+                List<Action> actions = rpcResult.getResult().getAction();
+                for (Action action : actions) {
+                    org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = action
+                            .getAction();
+                    if (actionClass instanceof OutputActionCase) {
+                        listActionInfo
+                                .add(new ActionInfo(ActionType.output, new String[] { ((OutputActionCase) actionClass)
+                                        .getOutputAction().getOutputNodeConnector().getValue() }));
+                    } else if (actionClass instanceof PushVlanActionCase) {
+                        listActionInfo.add(new ActionInfo(ActionType.push_vlan, new String[] {}));
+                    } else if (actionClass instanceof SetFieldCase) {
+                        if (((SetFieldCase) actionClass).getSetField().getVlanMatch() != null) {
+                            int vlanVid = ((SetFieldCase) actionClass).getSetField().getVlanMatch().getVlanId()
+                                    .getVlanId().getValue();
+                            listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
+                                    new String[] { Long.toString(vlanVid) }));
+                        }
+                    }
+                }
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when egress actions for interface {}", ifName, e);
+        }
+        return listActionInfo;
+    }
+
+    public static MacAddress getMacAddressForFloatingIp(DataBroker broker,
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress targetIP) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports>
+        portsIdentifier = InstanceIdentifier
+                .create(Neutron.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports.class);
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports> portsOptional = read(
+                broker, LogicalDatastoreType.CONFIGURATION, portsIdentifier);
+        if (!portsOptional.isPresent() || portsOptional.get().getPort() == null) {
+            LOG.trace("No neutron ports found");
+            return null;
+        }
+
+        for (Port port : portsOptional.get().getPort()) {
+            if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(port.getDeviceOwner()) && port.getFixedIps() != null) {
+                for (FixedIps ip : port.getFixedIps()) {
+                    if (Objects.equals(ip.getIpAddress(), targetIP)) {
+                        return port.getMacAddress();
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
 }

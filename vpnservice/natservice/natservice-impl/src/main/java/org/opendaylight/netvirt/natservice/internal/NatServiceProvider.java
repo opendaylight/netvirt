@@ -105,6 +105,7 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             floatingIpListener = new FloatingIPListener(dataBroker);
             floatingIpListener.setInterfaceManager(interfaceService);
             floatingIpListener.setMdsalManager(mdsalManager);
+            floatingIpListener.setIdManager(idManager);
 
             //Instantiate ExternalNetworkListener and set the MdsalManager in it.
             extNwListener = new ExternalNetworkListener(dataBroker);
