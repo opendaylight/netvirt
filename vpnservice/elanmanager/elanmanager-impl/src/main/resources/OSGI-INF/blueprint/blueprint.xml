@@ -71,6 +71,11 @@
             </action>
         </command>
         <command>
+            <action class="org.opendaylight.netvirt.elan.cli.etree.EtreeDelete">
+                <property name="elanProvider" ref="elanProviderRef" />
+            </action>
+        </command>
+        <command>
             <action class="org.opendaylight.netvirt.elan.cli.etree.EtreeAdd">
                 <property name="elanProvider" ref="elanProviderRef" />
             </action>
