@@ -21,28 +21,32 @@ public class AclServiceManagerImpl implements AclServiceManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceManagerImpl.class);
 
-    private List<AclServiceListener> aclServiceListenerList;
+    private final List<AclServiceListener> aclServiceListeners = new ArrayList<>();
 
     /**
      * Initialize the ACL service listener list.
      */
-    public AclServiceManagerImpl() {
-        aclServiceListenerList = new ArrayList<>();
+    public AclServiceManagerImpl(final IngressAclServiceImpl ingressAclService,
+            final EgressAclServiceImpl egressAclService) {
+        addAclServiceListner(ingressAclService);
+        addAclServiceListner(egressAclService);
+
+        LOG.info("ACL Service Initiated");
     }
 
     @Override
     public void addAclServiceListner(AclServiceListener aclServiceListner) {
-        aclServiceListenerList.add(aclServiceListner);
+        aclServiceListeners.add(aclServiceListner);
     }
 
     @Override
     public void removeAclServiceListner(AclServiceListener aclServiceListner) {
-        aclServiceListenerList.remove(aclServiceListner);
+        aclServiceListeners.remove(aclServiceListner);
     }
 
     @Override
     public void notify(AclInterface port, AclInterface oldPort, Action action) {
-        for (AclServiceListener aclServiceListener : aclServiceListenerList) {
+        for (AclServiceListener aclServiceListener : aclServiceListeners) {
             if (action == Action.ADD) {
                 aclServiceListener.applyAcl(port);
             } else if (action == Action.UPDATE) {
@@ -55,7 +59,7 @@ public class AclServiceManagerImpl implements AclServiceManager {
 
     @Override
     public void notifyAce(AclInterface port, Action action, Ace ace) {
-        for (AclServiceListener aclServiceListener : aclServiceListenerList) {
+        for (AclServiceListener aclServiceListener : aclServiceListeners) {
             if (action == Action.ADD) {
                 aclServiceListener.applyAce(port, ace);
             } else if (action == Action.REMOVE) {

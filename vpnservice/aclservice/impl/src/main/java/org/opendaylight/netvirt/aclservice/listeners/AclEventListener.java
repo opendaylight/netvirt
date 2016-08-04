@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -28,11 +30,17 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         ClusteredDataTreeChangeListener<Acl> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclEventListener.class);
-    private AclServiceManager aclServiceManager;
+    private final AclServiceManager aclServiceManager;
+    private final DataBroker dataBroker;
 
-    public AclEventListener(final AclServiceManager aclServiceManager) {
+    public AclEventListener(final AclServiceManager aclServiceManager, DataBroker dataBroker) {
         super(Acl.class, AclEventListener.class);
         this.aclServiceManager = aclServiceManager;
+        this.dataBroker = dataBroker;
+    }
+
+    public void start() {
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override

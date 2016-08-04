@@ -11,6 +11,8 @@ package org.opendaylight.netvirt.aclservice.listeners;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
@@ -40,17 +42,25 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     private static final Logger LOG = LoggerFactory.getLogger(AclNodeListener.class);
 
     /** The mdsal manager. */
-    private IMdsalApiManager mdsalManager;
+    private final IMdsalApiManager mdsalManager;
+
+    /** The data broker. */
+    private final DataBroker dataBroker;
 
     /**
      * Instantiates a new acl node listener.
      *
      * @param mdsalManager the mdsal manager
      */
-    public AclNodeListener(final IMdsalApiManager mdsalManager) {
+    public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker) {
         super(FlowCapableNode.class, AclNodeListener.class);
 
         this.mdsalManager = mdsalManager;
+        this.dataBroker = dataBroker;
+    }
+
+    public void start() {
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     /*
