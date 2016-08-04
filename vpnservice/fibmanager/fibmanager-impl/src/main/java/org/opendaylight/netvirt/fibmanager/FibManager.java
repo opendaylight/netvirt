@@ -29,6 +29,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataCh
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.batching.ActionableResource;
 import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
@@ -616,7 +617,7 @@ public LogicalDatastoreType getDatastoreType() {
                     List<ActionInfo> actionsInfos = Arrays.asList(new ActionInfo(ActionType.pop_mpls, new String[]{}));
 
                     BigInteger[] metadata = new BigInteger[] {
-                        MetaDataUtil.getMetaDataForLPortDispatcher(lportTag, NwConstants.L3VPN_SERVICE_INDEX),
+                        MetaDataUtil.getMetaDataForLPortDispatcher(lportTag, ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
                         MetaDataUtil.getMetaDataMaskForLPortDispatcher()
                     };
                     List<InstructionInfo> instructions =
@@ -674,7 +675,7 @@ public LogicalDatastoreType getDatastoreType() {
 
         BigInteger[] metadata = new BigInteger[] {
                         MetaDataUtil.getMetaDataForLPortDispatcher(otherEndpointlportTag,
-                                                                   NwConstants.L3VPN_SERVICE_INDEX),
+                                                               ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
                         MetaDataUtil.getMetaDataMaskForLPortDispatcher()
                     };
         List<Instruction> instructions =

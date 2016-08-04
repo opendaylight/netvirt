@@ -12,6 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.*;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -143,7 +144,7 @@ public class InterVpnLinkUtil {
        List<MatchInfo> matches = Arrays.asList(new MatchInfo(MatchFieldType.metadata,
                                                               new BigInteger[] {
                                                                   MetaDataUtil.getMetaDataForLPortDispatcher(lportTag,
-                                                                                NwConstants.L3VPN_SERVICE_INDEX),
+                                                                  ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
                                                                   MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
        String flowRef = getLportDispatcherFlowRef(interVpnLinkName, lportTag);
        Flow lPortDispatcherFlow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
@@ -165,7 +166,7 @@ public class InterVpnLinkUtil {
        String flowRef = new StringBuffer().append(VpnConstants.FLOWID_PREFIX).append("INTERVPNLINK")
                      .append(NwConstants.FLOWID_SEPARATOR).append(interVpnLinkName)
                      .append(NwConstants.FLOWID_SEPARATOR).append(lportTag)
-                     .append(NwConstants.FLOWID_SEPARATOR).append(NwConstants.L3VPN_SERVICE_INDEX)
+                     .append(NwConstants.FLOWID_SEPARATOR).append(ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX))
                      .append(NwConstants.FLOWID_SEPARATOR).append(VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY)
                      .toString();
        return flowRef;
