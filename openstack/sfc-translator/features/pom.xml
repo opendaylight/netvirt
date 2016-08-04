@@ -76,6 +76,13 @@
       <type>xml</type>
     </dependency>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>openstack.net-virt-sfc-features</artifactId>
+      <version>${project.version}</version>
+      <classifier>features</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.sfc</groupId>
       <artifactId>features-sfc</artifactId>
       <version>${sfc.version}</version>

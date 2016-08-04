@@ -17,14 +17,51 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.a
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * OpenDaylight Neutron Port Group yang models data change listener
+ * OpenDaylight Neutron Port Pair Group yang models data change listener
  */
 public class NeutronPortPairGroupListener extends DelegatingDataTreeListener<PortPairGroup> {
     private static final InstanceIdentifier<PortPairGroup> portPairGroupIid =
             InstanceIdentifier.create(Neutron.class).child(PortPairGroups.class).child(PortPairGroup.class);
 
-    public NeutronPortPairGroupListener(DataBroker db, PortPairGroupTranslator portPairGroupTranslator) {
-        super(portPairGroupTranslator, db,
-                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, portPairGroupIid));
+    public NeutronPortPairGroupListener(DataBroker db) {
+        super(db,new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, portPairGroupIid));
+    }
+
+    /**
+     * Method removes PortPairGroup which is identified by InstanceIdentifier.
+     *
+     * @param path - the whole path to PortPairGroup
+     * @param deletedPortPairGroup        - PortPairGroup for removing
+     */
+    @Override
+    public void remove(InstanceIdentifier<PortPairGroup> path, PortPairGroup deletedPortPairGroup) {
+        //NO-OP
+    }
+
+    /**
+     * Method updates the original PortPairGroup to the update PortPairGroup.
+     * Both are identified by same InstanceIdentifier.
+     *
+     * @param path - the whole path to PortPairGroup
+     * @param originalPortPairGroup   - original PortPairGroup (for update)
+     * @param updatePortPairGroup     - changed PortPairGroup (contain updates)
+     */
+    @Override
+    public void update(InstanceIdentifier<PortPairGroup> path,
+                       PortPairGroup originalPortPairGroup,
+                       PortPairGroup updatePortPairGroup) {
+        //NO-OP
+    }
+
+    /**
+     * Method adds the PortPairGroup which is identified by InstanceIdentifier
+     * to device.
+     *
+     * @param path - the whole path to new PortPairGroup
+     * @param newPortPairGroup        - new PortPairGroup
+     */
+    @Override
+    public void add(InstanceIdentifier<PortPairGroup> path, PortPairGroup newPortPairGroup) {
+        //NO-OP
     }
 }
