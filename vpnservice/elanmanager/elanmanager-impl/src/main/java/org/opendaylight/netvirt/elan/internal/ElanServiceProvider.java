@@ -35,6 +35,8 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elan.l2gw.internal.ElanL2GatewayProvider;
 import org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
+import org.opendaylight.netvirt.elan.utils.CacheElanInstanceListener;
+import org.opendaylight.netvirt.elan.utils.CacheElanInterfaceListener;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler;
@@ -155,6 +157,8 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
     private ElanL2GatewayProvider elanL2GatewayProvider;
     private ElanStatisticsService interfaceStatsService;
     private EntityOwnershipService entityOwnershipService;
+    private CacheElanInstanceListener cacheElanInstanceListener;
+    private CacheElanInterfaceListener cacheElanInterfaceListener;
     private static final ElanStatusMonitor elanStatusMonitor = ElanStatusMonitor.getInstance();
     static DataStoreJobCoordinator dataStoreJobCoordinator;
     private ElanOvsdbNodeListener elanOvsdbNodeListener;
@@ -214,6 +218,8 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
                     .getElanDpnInterfaceClusteredListener(this);
             ElanClusterUtils.setElanServiceProvider(this);
             this.elanL2GatewayProvider = new ElanL2GatewayProvider(this);
+            cacheElanInstanceListener = new CacheElanInstanceListener(this);
+            cacheElanInterfaceListener = new CacheElanInterfaceListener(this);
             elanInterfaceManager.registerListener(LogicalDatastoreType.CONFIGURATION, broker);
             elanInstanceManager.registerListener(LogicalDatastoreType.CONFIGURATION, broker);
             notificationService.registerNotificationListener(elanSmacFlowEventListener);
@@ -574,6 +580,8 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
     public void close() throws Exception {
         this.elanInstanceManager.close();
         this.elanL2GatewayProvider.close();
+        this.cacheElanInstanceListener.close();
+        this.cacheElanInterfaceListener.close();
     }
 
     public static List<PhysAddress> getPhysAddress(List<String> macAddress) {
