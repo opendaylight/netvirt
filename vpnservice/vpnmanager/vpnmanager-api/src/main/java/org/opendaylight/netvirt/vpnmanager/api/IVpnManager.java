@@ -11,7 +11,7 @@ package org.opendaylight.netvirt.vpnmanager.api;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 
 public interface IVpnManager {
-    void setFibService(IFibManager fibManager);
+    void setFibManager(IFibManager fibManager);
     void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label);
     void delExtraRoute(String destination, String nextHop, String rd, String routerID);
 

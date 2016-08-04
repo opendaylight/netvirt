@@ -9,6 +9,9 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -17,10 +20,10 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpnservice.impl.rev150216.modules.module.configuration.vpnservice.impl.Bgpmanager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeHwvtep;
@@ -29,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.IsDcgwPresentInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.IsDcgwPresentOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -39,27 +43,70 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Future;
 
-public class TunnelInterfaceStateListener extends AbstractDataChangeListener<StateTunnelList> {
+public class TunnelInterfaceStateListener extends AbstractDataChangeListener<StateTunnelList> implements AutoCloseable{
 
     private static final Logger LOG = LoggerFactory.getLogger(TunnelInterfaceStateListener.class);
     protected enum UpdateRouteAction {
         ADVERTISE_ROUTE, WITHDRAW_ROUTE
     }
-    DataBroker broker;
+
+    private ListenerRegistration<DataChangeListener> tunnelInterfaceStateListenerRegistration;
+    private final DataBroker broker;
     private final IBgpManager bgpManager;
     private IFibManager fibManager;
-    private ItmRpcService itmProvider;
+    private ItmRpcService itmRpcService;
 
-    public TunnelInterfaceStateListener(final DataBroker broker,
-                                        final IBgpManager bgpManager, final IFibManager fibManager) {
+    /**
+     * Responsible for listening to tunnel interface state change
+     *
+     * @param db - dataBroker service reference
+     * @param bgpManager Used to advertise routes to the BGP Router
+     */
+    public TunnelInterfaceStateListener(final DataBroker db,
+                                        final IBgpManager bgpManager) {
         super(StateTunnelList.class);
-        this.broker = broker;
-        this.fibManager = fibManager;
+        broker = db;
         this.bgpManager = bgpManager;
+        registerListener(db);
     }
 
-    public void setITMProvider(ItmRpcService itmProvider) {
-        this.itmProvider = itmProvider;
+    public void setITMRpcService(ItmRpcService itmRpcService) {
+        this.itmRpcService = itmRpcService;
+    }
+
+    public void setFibManager(IFibManager fibManager) {
+        this.fibManager = fibManager;
+    }
+
+    public IFibManager getFibManager() {
+        return this.fibManager;
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (tunnelInterfaceStateListenerRegistration != null) {
+            try {
+                tunnelInterfaceStateListenerRegistration.close();
+            } catch (final Exception e) {
+                LOG.error("Error when cleaning up DataChangeListener.", e);
+            }
+            tunnelInterfaceStateListenerRegistration = null;
+        }
+        LOG.info("Tunnel Interface State Listener Closed");
+    }
+
+    private void registerListener(final DataBroker db) {
+        try {
+            tunnelInterfaceStateListenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                    getWildCardPath(), TunnelInterfaceStateListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        } catch (final Exception e) {
+            LOG.error("Tunnel Interface State Listener DataChange listener registration fail!", e);
+            throw new IllegalStateException("Tunnel Interface State Listener registration Listener failed.", e);
+        }
+    }
+
+    private InstanceIdentifier<StateTunnelList> getWildCardPath() {
+        return InstanceIdentifier.create(TunnelsState.class).child(StateTunnelList.class);
     }
 
     @Override
@@ -123,7 +170,7 @@ public class TunnelInterfaceStateListener extends AbstractDataChangeListener<Sta
         if (tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue()) {
             Future<RpcResult<IsDcgwPresentOutput>> result;
             try {
-                result = itmProvider.isDcgwPresent(new IsDcgwPresentInputBuilder()
+                result = itmRpcService.isDcgwPresent(new IsDcgwPresentInputBuilder()
                         .setDcgwIp(destTepIp)
                         .build());
                 RpcResult<IsDcgwPresentOutput> rpcResult = result.get();

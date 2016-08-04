@@ -51,7 +51,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
     private IFibManager fibManager;
     private IMdsalApiManager mdsalManager;
     private OdlInterfaceRpcService odlInterfaceRpcService;
-    private ItmRpcService itmProvider;
+    private ItmRpcService itmRpcService;
     private IdManagerService idManager;
     private OdlArputilService arpManager;
     private NeutronvpnService neuService;
@@ -84,17 +84,18 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
             vpnManager = new VpnManager(dataBroker, bgpManager);
             vpnManager.setIdManager(idManager);
             vpnInterfaceManager = new VpnInterfaceManager(dataBroker, bgpManager, notificationService);
-            tunIntfStateListener = new TunnelInterfaceStateListener(dataBroker, bgpManager, fibManager);
+            tunIntfStateListener = new TunnelInterfaceStateListener(dataBroker, bgpManager);
             vpnInterfaceManager.setMdsalManager(mdsalManager);
             vpnInterfaceManager.setIfaceMgrRpcService(odlInterfaceRpcService);
-            tunIntfStateListener.setITMProvider(itmProvider);
             vpnInterfaceManager.setIdManager(idManager);
             vpnInterfaceManager.setArpManager(arpManager);
             vpnInterfaceManager.setNeutronvpnManager(neuService);
             vpnInterfaceManager.setNotificationPublishService(notificationPublishService);
             vpnManager.setVpnInterfaceManager(vpnInterfaceManager);
             fibService = rpcProviderRegistry.getRpcService(FibRpcService.class);
+            itmRpcService = rpcProviderRegistry.getRpcService(ItmRpcService.class);
             vpnInterfaceManager.setFibRpcService(fibService);
+            tunIntfStateListener.setITMRpcService(itmRpcService);
             VpnRpcService vpnRpcService = new VpnRpcServiceImpl(idManager, vpnInterfaceManager, dataBroker);
             rpcRegistration = getRpcProviderRegistry().addRpcImplementation(VpnRpcService.class, vpnRpcService);
             //Handles subnet route entries
@@ -130,10 +131,6 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
 
     public void setOdlInterfaceRpcService(OdlInterfaceRpcService odlInterfaceRpcService) {
         this.odlInterfaceRpcService = odlInterfaceRpcService;
-    }
-
-    public void setITMProvider(ItmRpcService itmProvider) {
-        this.itmProvider = itmProvider;
     }
 
     public void setIdManager(IdManagerService idManager) {
@@ -176,16 +173,18 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
     public void close() throws Exception {
         vpnManager.close();
         vpnInterfaceManager.close();
+        tunIntfStateListener.close();
         interVpnLinkListener.close();
         interVpnLinkNodeListener.close();
 
     }
 
     @Override
-    public void setFibService(IFibManager fibManager) {
+    public void setFibManager(IFibManager fibManager) {
         LOG.debug("Fib service reference is initialized in VPN Manager");
         this.fibManager = fibManager;
         vpnInterfaceManager.setFibManager(fibManager);
+        tunIntfStateListener.setFibManager(fibManager);
     }
 
     @Override

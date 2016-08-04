@@ -80,7 +80,7 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
 
   public void setVpnmanager(IVpnManager vpnmanager) {
     this.vpnmanager = vpnmanager;
-    vpnmanager.setFibService(this);
+    vpnmanager.setFibManager(this);
   }
 
   public void setIdManager(IdManagerService idManager) {

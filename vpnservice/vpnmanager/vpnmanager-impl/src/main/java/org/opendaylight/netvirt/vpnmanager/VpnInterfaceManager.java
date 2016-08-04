@@ -126,13 +126,12 @@ import org.slf4j.LoggerFactory;
 
 public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceManager.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration, opListenerRegistration, tunnelInterfaceStateListenerRegistration;
+    private ListenerRegistration<DataChangeListener> listenerRegistration, opListenerRegistration;
     private final DataBroker broker;
     private final IBgpManager bgpManager;
     private IFibManager fibManager;
     private IMdsalApiManager mdsalManager;
     private OdlInterfaceRpcService ifaceMgrRpcService;
-    private ItmRpcService itmProvider;
     private IdManagerService idManager;
     private OdlArputilService arpManager;
     private NeutronvpnService neuService;
@@ -166,7 +165,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         arpNotificationHandler = new ArpNotificationHandler(this, broker);
         vpnSubnetRouteHandler = new VpnSubnetRouteHandler(broker, bgpManager, this);
         dpnInVpnChangeListener = new DpnInVpnChangeListener(broker);
-        tunnelInterfaceStateListener = new TunnelInterfaceStateListener(broker, bgpManager, fibManager);
         notificationService.registerNotificationListener(vpnSubnetRouteHandler);
         notificationService.registerNotificationListener(arpNotificationHandler);
         notificationService.registerNotificationListener(dpnInVpnChangeListener);
@@ -239,16 +237,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     getWildCardPath(), VpnInterfaceManager.this, DataChangeScope.SUBTREE);
             opListenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
                     getWildCardPath(), vpnInterfaceOpListener, DataChangeScope.SUBTREE);
-            tunnelInterfaceStateListenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getTunnelInterfaceStateListenerPath(), tunnelInterfaceStateListener, DataChangeScope.SUBTREE);
         } catch (final Exception e) {
             LOG.error("VPN Service DataChange listener registration fail!", e);
             throw new IllegalStateException("VPN Service registration Listener failed.", e);
         }
-    }
-
-    private InstanceIdentifier<StateTunnelList> getTunnelInterfaceStateListenerPath() {
-        return InstanceIdentifier.create(TunnelsState.class).child(StateTunnelList.class);
     }
 
     private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> getInterfaceListenerPath() {
