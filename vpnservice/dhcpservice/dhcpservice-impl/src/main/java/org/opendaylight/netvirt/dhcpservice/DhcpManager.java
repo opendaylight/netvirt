@@ -9,10 +9,8 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -54,8 +52,6 @@ public class DhcpManager implements AutoCloseable {
     private int dhcpOptRebindingTime = 0;
     private String dhcpOptDefDomainName;
     private INeutronVpnManager neutronVpnService;
-    // cache used to maintain DpnId and physical address for each interface.
-    private static HashMap<String, ImmutablePair<BigInteger, String>> interfaceToDpnIdMacAddress = new HashMap<>();
 
     /**
     * @param db - dataBroker reference
@@ -171,18 +167,6 @@ public class DhcpManager implements AutoCloseable {
                 DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
         DhcpServiceCounters.install_dhcp_table_miss_flow_for_external_table.inc();
         mdsalUtil.installFlow(flowEntity);
-    }
-
-    public void updateInterfaceCache(String interfaceName, ImmutablePair<BigInteger, String> pair) {
-        interfaceToDpnIdMacAddress.put(interfaceName, pair);
-    }
-
-    public ImmutablePair<BigInteger, String> getInterfaceCache(String interfaceName) {
-        return interfaceToDpnIdMacAddress.get(interfaceName);
-    }
-
-    public void removeInterfaceCache(String interfaceName) {
-        interfaceToDpnIdMacAddress.remove(interfaceName);
     }
 
     public void bindDhcpService(String interfaceName, short tableId) {

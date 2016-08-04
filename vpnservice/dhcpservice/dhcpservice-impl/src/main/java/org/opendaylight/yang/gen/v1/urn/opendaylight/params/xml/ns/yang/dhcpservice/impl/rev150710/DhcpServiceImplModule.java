@@ -30,6 +30,7 @@ public class DhcpServiceImplModule extends org.opendaylight.yang.gen.v1.urn.open
         dhcpProvider.setInterfaceManagerRpc(rpcregistryDependency.getRpcService(OdlInterfaceRpcService.class));
         dhcpProvider.setItmRpcService(rpcregistryDependency.getRpcService(ItmRpcService.class));
         dhcpProvider.setEntityOwnershipService(getEntityOwnershipServiceDependency());
+        dhcpProvider.setInterfaceManager(getOdlinterfaceDependency());
         getBrokerDependency().registerProvider(dhcpProvider);
         return dhcpProvider;
     }
