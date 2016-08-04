@@ -114,8 +114,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             egressAclDhcpDropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
             egressAclDhcpv6DropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
         }
-        programArpRule(dpid, allowedAddresses, addOrRemove);
-
+        programArpRule(dpid, allowedAddresses, lportTag, addOrRemove);
         programEgressAclFixedConntrackRule(dpid, allowedAddresses, lportTag, action, addOrRemove);
     }
 
@@ -359,14 +358,17 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      *
      * @param dpId the dpId
      * @param allowedAddresses the allowed addresses
+     * @param lportTag the lport tag
      * @param addOrRemove whether to add or remove the flow
      */
-    private void programArpRule(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses, int addOrRemove) {
+    private void programArpRule(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses, int lportTag,
+            int addOrRemove) {
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             String attachMac = allowedAddress.getMacAddress().getValue();
             List<MatchInfo> matches = new ArrayList<>();
             matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_ARP}));
             matches.add(new MatchInfo(MatchFieldType.arp_sha, new String[] {attachMac}));
+            matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
 
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
 

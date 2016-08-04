@@ -73,13 +73,12 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
-        instructions
-                .add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.INGRESS_ACL_TABLE_ID, ++instructionKey));
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.INGRESS_ACL_TABLE_ID, ++instructionKey));
         BoundServices serviceInfo = AclServiceUtils.getBoundServices(
-                String.format("%s.%s.%s", "vpn", "ingressacl", interfaceName),
-                AclConstants.INGRESS_ACL_SERVICE_PRIORITY, flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
+                String.format("%s.%s.%s", "vpn", "ingressacl", interfaceName), NwConstants.INGRESS_ACL_SERVICE_INDEX,
+                flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
         InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
-                AclConstants.INGRESS_ACL_SERVICE_PRIORITY, ServiceModeEgress.class);
+                NwConstants.INGRESS_ACL_SERVICE_INDEX, ServiceModeEgress.class);
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, serviceInfo);
     }
 
@@ -91,7 +90,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     protected void unbindService(String interfaceName) {
         InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
-                AclConstants.INGRESS_ACL_SERVICE_PRIORITY, ServiceModeEgress.class);
+                NwConstants.INGRESS_ACL_SERVICE_INDEX, ServiceModeEgress.class);
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
     }
 
@@ -115,8 +114,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             ingressAclDhcpv6AllowServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove,
                     AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
         }
-        programArpRule(dpid, allowedAddresses, addOrRemove);
-
+        programArpRule(dpid, lportTag, addOrRemove);
         programIngressAclFixedConntrackRule(dpid, allowedAddresses, lportTag, action, addOrRemove);
     }
 
@@ -346,22 +344,18 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * Adds the rule to allow arp packets.
      *
      * @param dpId the dpId
-     * @param attachMac the attached mac address
+     * @param lportTag the lport tag
      * @param addOrRemove whether to add or remove the flow
      */
-    private void programArpRule(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses, int addOrRemove) {
-        for (AllowedAddressPairs allowedAddress : allowedAddresses) {
-            String attachMac = allowedAddress.getMacAddress().getValue();
+    private void programArpRule(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<MatchInfo> matches = new ArrayList<>();
+        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_ARP}));
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
 
-            List<MatchInfo> matches = new ArrayList<>();
-            matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_ARP}));
-            matches.add(new MatchInfo(MatchFieldType.arp_tha, new String[] {attachMac}));
-
-            List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
-            String flowName = "Ingress_ARP_" + dpId + "_" + attachMac;
-            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
-                    AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
-        }
+        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
+        String flowName = "Ingress_ARP_" + dpId + "_" + lportTag;
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**
