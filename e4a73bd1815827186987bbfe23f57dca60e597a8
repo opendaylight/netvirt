@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_cb2b042f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-08-04T14:51:33Z",
+      "side": 1,
+      "message": "This is actually a cherry-pick of your initial patch (to rebase it on master without having to rebase the whole queue). But it doesn\u0027t make sense to keep the cherry-pick indicator since the picked commit won\u0027t ever make it into the history...",
+      "parentUuid": "7a6b29fe_2b72787c",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 68
+      },
+      "revId": "e4a73bd1815827186987bbfe23f57dca60e597a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_99a4c958",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
         "patchSetId": 7
