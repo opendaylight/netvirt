@@ -37,6 +37,7 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -1292,11 +1293,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanUtils.getElanMetadataLabel(elanTag),
                 MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_SMAC_TABLE, ++instructionKey));
+        short elan_service_index = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
         BoundServices serviceInfo = ElanUtils.getBoundServices(
-                String.format("%s.%s.%s", "vpn", elanInstanceName, interfaceName), NwConstants.ELAN_SERVICE_INDEX,
+                String.format("%s.%s.%s", "vpn", elanInstanceName, interfaceName), elan_service_index,
                 priority, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
         tx.put(LogicalDatastoreType.CONFIGURATION,
-                ElanUtils.buildServiceId(interfaceName, NwConstants.ELAN_SERVICE_INDEX), serviceInfo, true);
+                ElanUtils.buildServiceId(interfaceName, elan_service_index), serviceInfo, true);
     }
 
     private void bindEtreeService(ElanInstance elanInfo, ElanInterface elanInterface, WriteTransaction tx) {
@@ -1324,7 +1326,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private void unbindService(ElanInstance elanInfo, String interfaceName, WriteTransaction tx) {
         tx.delete(LogicalDatastoreType.CONFIGURATION,
-                ElanUtils.buildServiceId(interfaceName, NwConstants.ELAN_SERVICE_INDEX));
+                ElanUtils.buildServiceId(interfaceName, ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX)));
     }
 
     private String getFlowRef(long tableId, long elanTag) {

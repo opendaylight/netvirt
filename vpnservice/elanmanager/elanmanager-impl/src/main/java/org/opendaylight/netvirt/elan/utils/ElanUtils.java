@@ -38,6 +38,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -1226,8 +1227,9 @@ public class ElanUtils {
                 MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_SMAC_TABLE, ++instructionKey));
 
+        short serviceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
         ServicesInfo serviceInfo = InterfaceServiceUtil.buildServiceInfo(
-                String.format("%s.%s", elanInstanceName, interfaceName), NwConstants.ELAN_SERVICE_INDEX, priority,
+                String.format("%s.%s", elanInstanceName, interfaceName), serviceIndex, priority,
                 NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
         return serviceInfo;
     }
