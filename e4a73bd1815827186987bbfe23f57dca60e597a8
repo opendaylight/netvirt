@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_197ef9ae",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-08-04T13:57:26Z",
+      "side": 1,
+      "message": "Right, although I feel having the registration happening in a start method is better. So the object initialized, then it\u0027s start method gets called, triggering the registration. Thus initialization of the object and registration of the listener are fully separated. I believe this is cleaner and is a better practice not to call functions within the constructor (I could be wrong though).",
+      "parentUuid": "7a6b29fe_99a4c958",
+      "revId": "e4a73bd1815827186987bbfe23f57dca60e597a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_f9885dc8",
         "filename": "vpnservice/aclservice/impl/src/main/resources/org/opendaylight/blueprint/aclservice.xml",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2016-08-04T13:44:01Z",
       "side": 1,
       "message": "do need an explicit call to close or does that happen automagically?",
+      "revId": "e4a73bd1815827186987bbfe23f57dca60e597a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d95ac14f",
+        "filename": "vpnservice/aclservice/impl/src/main/resources/org/opendaylight/blueprint/aclservice.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-08-04T13:57:26Z",
+      "side": 1,
+      "message": "You need to specify the destroy-method and the init-method wherever you\u0027re using those. Blueprint doesn\u0027t magically find them ;)\nWhether or not your class implements AutoCloseable, you need to define that close method as a destroy-method within the bean definition",
+      "parentUuid": "7a6b29fe_f9885dc8",
       "revId": "e4a73bd1815827186987bbfe23f57dca60e597a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
