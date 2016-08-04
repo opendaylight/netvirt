@@ -66,10 +66,10 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
         this.interfaceRpc = interfaceRpc;
         Long timeout = Long.getLong("arp.cache.timeout");
         if (timeout == null) {
-            timeout = 60000L;
+            timeout = ArpConstants.DEFAULT_ARP_LEARNED_CACHE_TIMEOUT;
         }
         ArpConstants.arpCacheTimeout = timeout;
-        registerListener(this.dataBroker);
+        registerListener();
         executorService = Executors.newScheduledThreadPool(ArpConstants.THREAD_POOL_SIZE, getThreadFactory("Arp Cache Timer Tasks"));
         scheduleExpiredEntryDrainerTask();
     }
@@ -89,34 +89,35 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
             @Override
             public void uncaughtException(Thread t, Throwable e) {
                 LOG.error("Received Uncaught Exception event in Thread: {}", t.getName(), e);
-          }
-       });
-      return builder.build();
+            }
+        });
+        return builder.build();
      }
 
 
     private class ExpiredEntryDrainerTask implements Runnable {
-       @Override
-       public void run() {
-           Collection<MacEntry> expiredMacEntries = new ArrayList<>();
-           macEntryQueue.drainTo(expiredMacEntries);
-           for (MacEntry macEntry: expiredMacEntries) {
-               LOG.info("Removing the ARP cache for"+macEntry);
-               InstanceIdentifier<VpnPortipToPort> id = getVpnPortipToPortInstanceOpDataIdentifier(macEntry.getIpAddress().getHostAddress(),macEntry.getVpnName());
-               Optional<VpnPortipToPort> vpnPortipToPort = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-               if (vpnPortipToPort.isPresent()) {
-                   VpnPortipToPort vpnPortipToPortold = vpnPortipToPort.get();
-                   String fixedip = vpnPortipToPortold.getPortFixedip();
-                   String vpnName =  vpnPortipToPortold.getVpnName();
-                   String interfaceName =  vpnPortipToPortold.getPortName();
-                   String rd = getRouteDistinguisher(vpnName);
-                   DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-                   coordinator.enqueueJob(buildJobKey(fixedip,vpnName), new ArpremovechacheTask(dataBroker,fixedip, vpnName,interfaceName, rd,id));
-               }
+        @Override
+        public void run() {
+            Collection<MacEntry> expiredMacEntries = new ArrayList<>();
+            macEntryQueue.drainTo(expiredMacEntries);
+            for (MacEntry macEntry: expiredMacEntries) {
+                LOG.info("Removing the ARP cache for"+macEntry);
+                InstanceIdentifier<VpnPortipToPort> id = getVpnPortipToPortInstanceOpDataIdentifier(macEntry.getIpAddress().getHostAddress(),macEntry.getVpnName());
+                Optional<VpnPortipToPort> vpnPortipToPort = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                if (vpnPortipToPort.isPresent()) {
+                    VpnPortipToPort vpnPortipToPortold = vpnPortipToPort.get();
+                    String fixedip = vpnPortipToPortold.getPortFixedip();
+                    String vpnName =  vpnPortipToPortold.getVpnName();
+                    String interfaceName =  vpnPortipToPortold.getPortName();
+                    String rd = getRouteDistinguisher(vpnName);
+                    DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+                    coordinator.enqueueJob(buildJobKey(fixedip,vpnName),
+                            new ArpremovechacheTask(dataBroker,fixedip, vpnName,interfaceName, rd, id));
+                }
 
-           }
-       }
-    }
+            }
+        }
+     }
 
     private String getRouteDistinguisher(String vpnName) {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
@@ -131,23 +132,23 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
          return rd;
     }
 
-     public static InstanceIdentifier<VpnPortipToPort> getVpnPortipToPortInstanceOpDataIdentifier(String ip, String vpnName) {
-           return InstanceIdentifier.builder(NeutronVpnPortipPortData.class)
-               .child(VpnPortipToPort.class, new VpnPortipToPortKey(ip,vpnName)).build();
+    public static InstanceIdentifier<VpnPortipToPort> getVpnPortipToPortInstanceOpDataIdentifier(String ip,String vpnName) {
+       return InstanceIdentifier.builder(NeutronVpnPortipPortData.class)
+           .child(VpnPortipToPort.class, new VpnPortipToPortKey(ip,vpnName)).build();
     }
 
-     private void registerListener(final DataBroker db) {
-       try {
-            final DataTreeIdentifier<VpnPortipToPort> treeId = new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, getWildCardPath());
-            listenerRegistration = dataBroker.registerDataTreeChangeListener(treeId, this);
-            } catch (final Exception e) {
-             LOG.error("VPN Service DataChange listener registration fail !", e);
-             throw new IllegalStateException("VPN Service registration Listener failed.", e);
+    private void registerListener() {
+        try {
+           final DataTreeIdentifier<VpnPortipToPort> treeId = new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, getWildCardPath());
+           listenerRegistration = dataBroker.registerDataTreeChangeListener(treeId, this);
+        } catch (final Exception e) {
+            LOG.error("VPN Service DataChange listener registration fail !", e);
+            throw new IllegalStateException("VPN Service registration Listener failed.", e);
         }
-       }
+     }
 
-     @Override
-       protected ArpScheduler getDataTreeChangeListener() {
+    @Override
+    protected ArpScheduler getDataTreeChangeListener() {
         return this;
     }
 
@@ -160,41 +161,35 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
             String vpnName =  value.getVpnName();
             String interfaceName =  value.getPortName();
             Boolean islearnt = value.isLearnt();
-            if(islearnt)
-            {
+            if (islearnt) {
                 DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-                coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(),vpnName), new ArpaddchacheTask(srcInetAddr, srcMacAddress, vpnName,interfaceName, macEntryQueue));
+                coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
+                        new ArpaddchacheTask(srcInetAddr, srcMacAddress, vpnName, interfaceName, macEntryQueue));
             }
         } catch (Exception e) {
             LOG.error("Error in deserializing packet {} with exception {}", value, e);
             e.printStackTrace();
-
         }
     }
 
-
     @Override
     protected void add(InstanceIdentifier<VpnPortipToPort> identifier, VpnPortipToPort value) {
-
         try {
             InetAddress srcInetAddr = InetAddress.getByName(value.getPortFixedip());
             MacAddress srcMacAddress = MacAddress.getDefaultInstance(value.getMacAddress());
             String vpnName =  value.getVpnName();
             String interfaceName =  value.getPortName();
             Boolean islearnt = value.isLearnt();
-            if(islearnt)
+            if (islearnt)
             {
-                DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-                if(islearnt)
-                {
-                    coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(),vpnName), new ArpaddchacheTask(srcInetAddr, srcMacAddress, vpnName,interfaceName, macEntryQueue));
-                }
+                 DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+                 coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(),vpnName),
+                         new ArpaddchacheTask(srcInetAddr, srcMacAddress, vpnName,interfaceName, macEntryQueue));
             }
         }
         catch (Exception e) {
              LOG.error("Error in deserializing packet {} with exception {}", value, e);
         }
-
     }
 
     @Override
@@ -204,12 +199,9 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
 
     @Override
     protected void remove(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort dataObjectModification) {
-       // TODO Auto-generated method stub
-
-     }
+    }
 
     private String buildJobKey(String ip, String vpnName){
         return new StringBuilder(ArpConstants.ARPJOB).append(ip).append(vpnName).toString();
-
     }
 }

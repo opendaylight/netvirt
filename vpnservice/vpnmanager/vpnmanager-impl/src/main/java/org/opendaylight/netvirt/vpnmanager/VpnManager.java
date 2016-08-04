@@ -268,13 +268,15 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(writeTxn.submit());
             LOG.trace("Removed vpnIdentifier for  rd{} vpnname {}", rd, vpnName);
+            IFibManager fibManager = vpnInterfaceManager.getFibManager();
             if (rd != null) {
-                synchronized (rd.intern()) {
-                    try {
-                        bgpManager.deleteVrf(rd);
-                    } catch (Exception e) {
-                        LOG.error("Exception when removing VRF from BGP for RD {} in VPN {} exception " + e, rd, vpnName);
-                    }
+                synchronized (vpnName.intern()) {
+                    fibManager.removeVrfTable(broker, rd, null);
+                }
+                try {
+                    bgpManager.deleteVrf(rd, false);
+                } catch (Exception e) {
+                    LOG.error("Exception when removing VRF from BGP for RD {} in VPN {} exception " + e, rd, vpnName);
                 }
 
                 // Clean up VPNExtraRoutes Operational DS
@@ -285,7 +287,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
             } else {
                 // Clean up FIB Entries Config DS
                 synchronized (vpnName.intern()) {
-                    VpnUtil.removeVrfTableForVpn(broker, vpnName, null);
+                    fibManager.removeVrfTable(broker, vpnName, null);
                 }
                 // Clean up VPNExtraRoutes Operational DS
                 VpnUtil.removeVpnExtraRouteForVpn(broker, vpnName, null);
@@ -346,10 +348,18 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
             // to call the respective helpers.
             final VpnAfConfig config = vpnInstance.getIpv4Family();
             final String rd = config.getRouteDistinguisher();
-            WriteTransaction writeTxn = broker.newWriteOnlyTransaction();
-            addVpnInstance(vpnInstance, writeTxn);
+            WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
+            WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
+            addVpnInstance(vpnInstance, writeConfigTxn, writeOperTxn);
+            CheckedFuture<Void, TransactionCommitFailedException> checkFutures = writeOperTxn.submit();
+            try {
+                checkFutures.get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Error creating vpn {} ", vpnInstance.getVpnInstanceName());
+                throw new RuntimeException(e.getMessage());
+            }
             List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(writeTxn.submit());
+            futures.add(writeConfigTxn.submit());
             ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
             if (rd != null) {
                 Futures.addCallback(listenableFuture,
@@ -359,7 +369,8 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         }
     }
 
-    private void addVpnInstance(VpnInstance value, WriteTransaction writeTxn) {
+    private void addVpnInstance(VpnInstance value, WriteTransaction writeConfigTxn,
+                                WriteTransaction writeOperTxn) {
         VpnAfConfig config = value.getIpv4Family();
         String rd = config.getRouteDistinguisher();
         String vpnInstanceName = value.getVpnInstanceName();
@@ -370,8 +381,8 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
                 vpnInstanceToVpnId = VpnUtil.getVpnInstanceToVpnId(vpnInstanceName, vpnId, (rd != null) ? rd
                 : vpnInstanceName);
 
-        if (writeTxn != null) {
-            writeTxn.put(LogicalDatastoreType.CONFIGURATION, VpnUtil.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
+        if (writeConfigTxn != null) {
+            writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, VpnUtil.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
                     vpnInstanceToVpnId, true);
         } else {
             syncWrite(LogicalDatastoreType.CONFIGURATION, VpnUtil.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
@@ -382,8 +393,8 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
                 vpnIdToVpnInstance = VpnUtil.getVpnIdToVpnInstance(vpnId, value.getVpnInstanceName(),
                 (rd != null) ? rd : value.getVpnInstanceName(), (rd != null)/*isExternalVpn*/);
 
-        if (writeTxn != null) {
-            writeTxn.put(LogicalDatastoreType.CONFIGURATION,
+        if (writeConfigTxn != null) {
+            writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION,
                     VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId),
                     vpnIdToVpnInstance, true);
         } else {
@@ -414,27 +425,33 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
             VpnInstanceOpDataEntryBuilder builder =
                     new VpnInstanceOpDataEntryBuilder().setVrfId(vpnInstanceName).setVpnId(vpnId)
                             .setVpnInstanceName(vpnInstanceName)
-                            .setVpnInterfaceCount(0L).setActiveDpnCount(0L);
-            if (writeTxn != null) {
-                writeTxn.merge(LogicalDatastoreType.OPERATIONAL, VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName),
+                            .setVpnInterfaceCount(0L);
+            if (writeOperTxn != null) {
+                writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName),
                         builder.build(), true);
             } else {
                 syncWrite(LogicalDatastoreType.OPERATIONAL, VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName),
                         builder.build(), DEFAULT_CALLBACK);
             }
+            synchronized (vpnInstanceName.intern()) {
+                fibManager.addVrfTable(broker, vpnInstanceName, null);
+            }
         } else {
             VpnInstanceOpDataEntryBuilder builder =
                     new VpnInstanceOpDataEntryBuilder().setVrfId(rd).setVpnId(vpnId).setVpnInstanceName(vpnInstanceName)
-                            .setVpnInterfaceCount(0L).setActiveDpnCount(0L);
+                            .setVpnInterfaceCount(0L);
 
-            if (writeTxn != null) {
-                writeTxn.merge(LogicalDatastoreType.OPERATIONAL,
+            if (writeOperTxn != null) {
+                writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getVpnInstanceOpDataIdentifier(rd),
                         builder.build(), true);
             } else {
                 syncWrite(LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getVpnInstanceOpDataIdentifier(rd),
                         builder.build(), DEFAULT_CALLBACK);
+            }
+            synchronized (vpnInstanceName.intern()) {
+                fibManager.addVrfTable(broker, rd, null);
             }
         }
     }

@@ -198,4 +198,11 @@ public class FibManagerProvider implements BindingAwareProvider, IFibManager, Au
     FibUtil.removeOrUpdateFibEntry(broker, rd, prefix, nextHopToRemove, writeConfigTxn);
   }
 
+  public  void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn) {
+    FibUtil.addVrfTable(broker, rd, writeConfigTxn);
+  }
+
+  public void removeVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn) {
+    FibUtil.removeVrfTable(broker, rd, writeConfigTxn);
+  }
 }

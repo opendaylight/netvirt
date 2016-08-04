@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
@@ -60,6 +61,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -584,8 +586,31 @@ public class FibUtil {
     }
 
 
+    public static void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn) {
+        LOG.debug("Adding vrf table for rd {}", rd);
+        InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+        InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
+        VrfTablesBuilder vrfTablesBuilder = new VrfTablesBuilder().setKey(new VrfTablesKey(rd)).setRouteDistinguisher(rd).setVrfEntry(new ArrayList<VrfEntry>());
+        if (writeConfigTxn != null) {
+            writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTablesBuilder.build());
+        } else {
+            syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTablesBuilder.build(), FibUtil.DEFAULT_CALLBACK);
+        }
 
+    }
 
+    public static void removeVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn) {
+        LOG.debug("Removing vrf table for rd {}", rd);
+        InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+        InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
 
+        if (writeConfigTxn != null) {
+            writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfTableId);
+        } else {
+            delete(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
+        }
+    }
 
 }

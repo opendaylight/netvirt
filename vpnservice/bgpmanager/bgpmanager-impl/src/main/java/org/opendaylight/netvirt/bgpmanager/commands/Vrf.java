@@ -70,7 +70,7 @@ public class Vrf extends OsgiCommandSupport {
                     System.err.println("error: some option(s) not needed; ignored");
                 }
                 // check: rd exists? in format?
-                bm.deleteVrf(rd);
+                bm.deleteVrf(rd, true);
                 break; 
             default : 
                 return usage();

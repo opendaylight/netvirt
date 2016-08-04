@@ -57,41 +57,29 @@ public class ArpremovechacheTask implements Callable<List<ListenableFuture<Void>
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-        List<ListenableFuture<Void>> result = new ArrayList<ListenableFuture<Void>>();
-        deleteVrfEntries(rd,fixedip,tx);
-        deleteAdjacencies(fixedip,vpnName,interfaceName,tx);
-        tx.delete(LogicalDatastoreType.CONFIGURATION, id);
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
-        try {
-            futures.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore {}", e);
+        synchronized ((vpnName + fixedip).intern()) {
+            deleteAdjacencies(fixedip, vpnName, interfaceName, tx);
+            tx.delete(LogicalDatastoreType.CONFIGURATION, id);
+            CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+            try {
+                futures.get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Error writing to datastore {}", e);
+            }
         }
-        result.add(futures);
-        return result;
-
+        return null;
     }
 
-    private void deleteVrfEntries(String rd, String fixedip, WriteTransaction tx) {
-        InstanceIdentifier<VrfEntry> vrfid= InstanceIdentifier.builder(FibEntries.class).
-                child(VrfTables.class, new VrfTablesKey(rd)).
-                child(VrfEntry.class,new VrfEntryKey(iptoprefix(fixedip))).
-                build();
-
-        tx.delete(LogicalDatastoreType.CONFIGURATION, vrfid);
-    }
-
-
-    public void deleteAdjacencies(String fixedip, String vpnName, String interfaceName, WriteTransaction tx) {
-        InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-        InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
-        Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
-        if (adjacencies.isPresent()) {
-            InstanceIdentifier <Adjacency> adid = vpnIfId.augmentation(Adjacencies.class).child(Adjacency.class, new AdjacencyKey(iptoprefix(fixedip)));
-            tx.delete(LogicalDatastoreType.CONFIGURATION, adid);
-            LOG.info("deleting the adjacencies ");
+ public void deleteAdjacencies(String fixedip, String vpnName, String interfaceName, WriteTransaction tx) {
+       InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
+       InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
+       Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
+       if (adjacencies.isPresent()) {
+           InstanceIdentifier <Adjacency> adid = vpnIfId.augmentation(Adjacencies.class).child(Adjacency.class, new AdjacencyKey(iptoprefix(fixedip)));
+           tx.delete(LogicalDatastoreType.CONFIGURATION, adid);
+           LOG.info("deleting the adjacencies for vpn {} interface {}", vpnName, interfaceName);
         }
-    }
+ }
 
     private String iptoprefix(String ip){
         return new StringBuilder(ip).append(ArpConstants.PREFIX).toString();
