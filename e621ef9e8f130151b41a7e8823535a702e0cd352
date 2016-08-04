@@ -282,6 +282,40 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_332f94a3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-08-04T09:08:47Z",
+      "side": 1,
+      "message": "The allowed address pair rule can be considered here. Which can be added in a table different from TCP_SYN table.",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_93178851",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-08-04T09:08:47Z",
+      "side": 1,
+      "message": "Have made some changes for supporting remote SG[1].\n\n[1] https://git.opendaylight.org/gerrit/#/c/43051/",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_67182d85",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
         "patchSetId": 5
