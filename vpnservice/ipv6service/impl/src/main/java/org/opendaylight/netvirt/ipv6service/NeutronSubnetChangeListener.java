@@ -32,6 +32,10 @@ import org.slf4j.LoggerFactory;
 
 public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subnet> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetChangeListener.class);
+    private ListenerRegistration<DataChangeListener> listenerRegistration;
+    private final DataBroker dataBroker;
+    private final IfMgr ifMgr;
+
     private static final ImmutableBiMap<Class<? extends IpVersionBase>,String> IPV_MAP
             = new ImmutableBiMap.Builder<Class<? extends IpVersionBase>,String>()
             .put(IpVersionV4.class, Ipv6Constants.IP_VERSION_V4)
@@ -46,35 +50,25 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
             .put(Dhcpv6Stateless.class,Ipv6Constants.IPV6_DHCPV6_STATELESS)
             .build();
 
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private IfMgr ifMgr;
-    private final DataBroker broker;
-
-    public NeutronSubnetChangeListener(final DataBroker db) {
+    public NeutronSubnetChangeListener(final DataBroker dataBroker) {
         super(Subnet.class);
-        broker = db;
-        this.ifMgr = IfMgr.getIfMgrInstance();
-        registerListener(db);
+        this.dataBroker = dataBroker;
+        ifMgr = IfMgr.getIfMgrInstance();
     }
 
-    @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.info("Neutron Subnet listener Closed");
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+                getWildCardPath(), this, DataChangeScope.SUBTREE);
     }
 
-    private void registerListener(final DataBroker db) {
-        listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                InstanceIdentifier.create(Neutron.class).child(Subnets.class).child(Subnet.class),
-                NeutronSubnetChangeListener.this, DataChangeScope.SUBTREE);
+    private InstanceIdentifier<Subnet> getWildCardPath() {
+        return InstanceIdentifier.create(Neutron.class).child(Subnets.class).child(Subnet.class);
     }
 
     @Override
     protected void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
-        LOG.info("Add Subnet notification handler is invoked...");
+        LOG.debug("Add Subnet notification handler is invoked...");
         if (IPV_MAP.get(input.getIpVersion()).equals(Ipv6Constants.IP_VERSION_V6)) {
             String ipv6AddrMode = "";
             if (input.getIpv6AddressMode() != null) {
@@ -92,12 +86,21 @@ public class NeutronSubnetChangeListener extends AbstractDataChangeListener<Subn
 
     @Override
     protected void remove(InstanceIdentifier<Subnet> identifier, Subnet input) {
-        LOG.info("Remove Subnet notification handler is invoked...");
+        LOG.debug("Remove Subnet notification handler is invoked...");
         ifMgr.removeSubnet(input.getUuid());
     }
 
     @Override
     protected void update(InstanceIdentifier<Subnet> identifier, Subnet original, Subnet update) {
-        LOG.info("Update Subnet notification handler is invoked...");
+        LOG.debug("Update Subnet notification handler is invoked...");
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (listenerRegistration != null) {
+            listenerRegistration.close();
+            listenerRegistration = null;
+        }
+        LOG.info("{} close", getClass().getSimpleName());
     }
 }

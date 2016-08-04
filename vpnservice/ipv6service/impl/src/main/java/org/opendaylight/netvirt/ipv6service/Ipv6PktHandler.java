@@ -45,21 +45,15 @@ import org.slf4j.LoggerFactory;
 public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6PktHandler.class);
     private long pktProccessedCounter = 0;
-    private PacketProcessingService pktService;
-    private IfMgr ifMgr;
-    private Ipv6ServiceUtils ipv6Utils;
+    private final PacketProcessingService pktService;
+    private final IfMgr ifMgr;
+    private final Ipv6ServiceUtils ipv6Utils;
     private final ExecutorService packetProcessor = Executors.newCachedThreadPool();
 
-    public Ipv6PktHandler() {
+    public Ipv6PktHandler(PacketProcessingService pktService) {
+        this.pktService = pktService;
+        ifMgr = IfMgr.getIfMgrInstance();
         this.ipv6Utils = Ipv6ServiceUtils.getInstance();
-    }
-
-    public void setPacketProcessingService(PacketProcessingService packetService) {
-        this.pktService = packetService;
-    }
-
-    public void setIfMgrInstance(IfMgr instance) {
-        this.ifMgr = instance;
     }
 
     @Override
@@ -307,7 +301,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             VirtualPort port = ifMgr.obtainV6Interface(new Uuid(interfaceName));
             if (port == null) {
                 pktProccessedCounter++;
-                LOG.warn("Port {} not found, skipping.", port);
+                LOG.info("Port {} not found, skipping.", port);
                 return;
             }
 

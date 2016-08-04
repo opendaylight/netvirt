@@ -43,7 +43,6 @@ public class ConfigStateManager {
         readyMap.put("dhcpservice-impl", Pair.of("dhcpservice-default", false)); // no service
         readyMap.put("elanservice-impl", Pair.of("elanservice-default", false));
         readyMap.put("fibmanager-impl", Pair.of("fibmanager-default", false));
-        readyMap.put("ipv6service-impl", Pair.of("ipv6service-default", false)); // no service
         readyMap.put("natservice-impl", Pair.of("natservice-default", false)); // no service
         readyMap.put("neutronvpn-impl", Pair.of("neutronvpn-default", false));
         readyMap.put("vpnservice-impl", Pair.of("vpnservice-default", false));

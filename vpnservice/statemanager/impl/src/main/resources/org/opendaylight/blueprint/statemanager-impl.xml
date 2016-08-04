@@ -15,6 +15,9 @@
   <reference id="fibManager"
              interface="org.opendaylight.netvirt.fibmanager.api.IFibManager" />
 
+  <reference id="fibManager"
+             interface="org.opendaylight.netvirt.fibmanager.api.IFibManager" />
+
   <reference id="neutronVpnManager"
              interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
 

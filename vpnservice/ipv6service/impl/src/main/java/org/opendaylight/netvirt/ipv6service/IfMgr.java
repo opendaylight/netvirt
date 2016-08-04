@@ -55,7 +55,7 @@ public class IfMgr {
     private HashMap<Uuid, List<VirtualPort>> unprocessedSubnetIntfs;
     private HashMap<String, ImmutablePair<String, VirtualPort>> ifaceFlowCache;
     private OdlInterfaceRpcService interfaceManagerRpc;
-    private static final IfMgr IFMGR_INSTANCE = new IfMgr();
+    private static IfMgr ifMgr;
     private Ipv6ServiceUtils ipv6Utils = Ipv6ServiceUtils.getInstance();
 
     private IfMgr() {
@@ -74,7 +74,14 @@ public class IfMgr {
     }
 
     public static IfMgr getIfMgrInstance() {
-        return IFMGR_INSTANCE;
+        if (ifMgr == null) {
+            ifMgr = new IfMgr();
+        }
+        return ifMgr;
+    }
+
+    public static void setIfMgrInstance(IfMgr ifMgr) {
+        IfMgr.ifMgr = ifMgr;
     }
 
     public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {
