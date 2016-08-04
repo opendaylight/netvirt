@@ -8,6 +8,7 @@ module dhcpservice-impl {
     import odl-mdsalutil { prefix odl-mdsal; revision-date 2016-04-06;}
     import neutronvpn-api { prefix nvpn; revision-date 2015-08-12;}
     import opendaylight-entity-ownership-service { prefix eos; revision-date 2015-08-10;}
+    import odl-interface {prefix odlif; revision-date 2016-04-06;}
 
     description
         "Service definition for dhcpservice project";
@@ -73,6 +74,15 @@ module dhcpservice-impl {
                     refine type {
                         mandatory true;
                         config:required-identity eos:entity-ownership-service;
+                    }
+                }
+            }
+
+            container odlinterface {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity odlif:odl-interface;
                     }
                 }
             }
