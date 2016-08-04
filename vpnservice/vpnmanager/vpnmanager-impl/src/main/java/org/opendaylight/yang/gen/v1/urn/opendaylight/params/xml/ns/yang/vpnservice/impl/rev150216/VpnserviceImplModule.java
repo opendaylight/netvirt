@@ -44,7 +44,6 @@ public class VpnserviceImplModule extends org.opendaylight.yang.gen.v1.urn.opend
         provider.setOdlInterfaceRpcService(odlInterfaceRpcService);
         provider.setIdManager(idManager);
         provider.setArpManager(arpManager);
-        provider.setITMProvider(itmRpcService);
         provider.setRpcProviderRegistry(getRpcregistryDependency());
         provider.setNotificationPublishService(getNotificationPublishServiceDependency());
         getBrokerDependency().registerProvider(provider);
