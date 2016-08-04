@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_8163abb0",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2016-08-04T20:16:58Z",
+      "side": 1,
+      "message": "Moved the methods",
+      "range": {
+        "startLine": 113,
+        "startChar": 23,
+        "endLine": 113,
+        "endChar": 24
+      },
+      "revId": "b79eef415e25cc68e86440ca5859c1b29799c3db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_11037b10",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListenerTest.java",
         "patchSetId": 2
@@ -48,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_016f9b93",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2016-08-04T20:16:58Z",
+      "side": 1,
+      "message": "Rebased after the patch",
+      "parentUuid": "7a6b29fe_11037b10",
+      "range": {
+        "startLine": 117,
+        "startChar": 17,
+        "endLine": 117,
+        "endChar": 35
+      },
+      "revId": "b79eef415e25cc68e86440ca5859c1b29799c3db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_0c46c0bf",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListenerTest.java",
         "patchSetId": 2
@@ -59,6 +106,30 @@
       "writtenOn": "2016-08-03T07:29:50Z",
       "side": 1,
       "message": "perhaps rename: prepareAceList",
+      "range": {
+        "startLine": 132,
+        "startChar": 22,
+        "endLine": 132,
+        "endChar": 31
+      },
+      "revId": "b79eef415e25cc68e86440ca5859c1b29799c3db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_616c8f9d",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2016-08-04T20:16:58Z",
+      "side": 1,
+      "message": "Renamed",
+      "parentUuid": "7a6b29fe_0c46c0bf",
       "range": {
         "startLine": 132,
         "startChar": 22,
