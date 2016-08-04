@@ -29,10 +29,20 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
@@ -58,6 +68,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
     private OdlInterfaceRpcService interfaceManager;
     private IMdsalApiManager mdsalManager;
     private FloatingIPHandler handler;
+    private IdManagerService idManager;
 
 
     public FloatingIPListener (final DataBroker db) {
@@ -68,6 +79,11 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
     void setFloatingIpHandler(FloatingIPHandler handler) {
         this.handler = handler;
+    }
+
+
+    public void setIdManager(IdManagerService idManager) {
+        this.idManager = idManager;
     }
 
     @Override
@@ -267,8 +283,8 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
     }
 
     private FlowEntity buildSNATFlowEntity(BigInteger dpId, String internalIp, String externalIp, long vpnId, String macAddress) {
-
         LOG.info("Building SNAT Flow entity for ip {} ", internalIp);
+        long groupId = installExtNetGroupEntry(dpId, vpnId, macAddress);
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
@@ -278,23 +294,21 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
                 new long[] { 0x0800L }));
 
         matches.add(new MatchInfo(MatchFieldType.ipv4_source, new String[] {
-        //        internalIp, "32" }));
                   externalIp, "32" }));
 
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-//        actionsInfos.add(new ActionInfo(ActionType.set_source_ip, new String[]{ externalIp, "32" }));
+        List<ActionInfo> actionsInfo = new ArrayList<>();
+        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
 
-        //TODO: Set external gateway mac address
-        if(!Strings.isNullOrEmpty(macAddress)) {
-            LOG.debug("Setting ext gw mac address {} in SNAT {} flow action", macAddress, internalIp);
-            actionsInfos.add(new ActionInfo(ActionType.set_field_eth_dest, new String[]{ macAddress }));
+        IpAddress externalIpv4Address = new IpAddress(new Ipv4Address(externalIp));
+        MacAddress dstMac = NatUtil.getMacAddressForFloatingIp(broker, externalIpv4Address);
+        if (dstMac != null) {
+            actionsInfo.add(new ActionInfo(ActionType.set_field_eth_src, new String[] { dstMac.getValue() }));
+        } else {
+            LOG.warn("No MAC address found for floating IP {}", externalIp);
         }
 
-        List<InstructionInfo> instructions = new ArrayList<>();
-        //instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        //instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.L3_FIB_TABLE }));
+        actionsInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
+        instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfo));
 
         String flowRef = NatUtil.getFlowRef(dpId, NwConstants.SNAT_TABLE, vpnId, internalIp);
 
@@ -303,8 +317,45 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
                 NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
 
         return flowEntity;
+    }
 
+    private long installExtNetGroupEntry(BigInteger dpId, long vpnId, String macAddress) {
+        String routerId = NatUtil.getRouterIdfromVpnId(broker, vpnId);
+        if (routerId == null) {
+            LOG.warn("No router associated with vpn id {}", vpnId);
+            return 0;
+        }
 
+        String extNetwork = NatUtil.getAssociatedExternalNetwork(broker, routerId);
+        if (extNetwork == null) {
+            LOG.warn("No external network associated with router id {} vpn id {}", routerId, vpnId);
+            return 0;
+        }
+
+        String extInterface = NatServiceAccessor.getElanProvider().getExternalElanInterface(extNetwork, dpId);
+        if (extInterface == null) {
+            LOG.warn("No external ELAN interface attached to vpn id {} on DPN {}", vpnId, dpId);
+            return 0;
+        }
+
+        List<ActionInfo> actionList = NatUtil.getEgressActionsForInterface(interfaceManager, extInterface, null);
+        if (actionList == null || actionList.isEmpty()) {
+            LOG.warn("No actions found for interface {} vpn id {}", extInterface, vpnId);
+            return 0;
+        }
+
+        if(!Strings.isNullOrEmpty(macAddress)) {
+            actionList.add(new ActionInfo(ActionType.set_field_eth_dest, new String[]{ macAddress }));
+        }
+
+        List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+        listBucketInfo.add(new BucketInfo(actionList));
+        long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerId), idManager);
+        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpId, groupId, routerId, GroupTypes.GroupIndirect,
+                listBucketInfo);
+        LOG.trace("Install ext-net Group: id {} gw mac address {} vpn id {}", groupId, macAddress, vpnId);
+        mdsalManager.installGroup(groupEntity);
+        return groupId;
     }
 
     private void createDNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId, long vpnId, long associatedVpnId) {
@@ -743,5 +794,6 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
 
     }
+
 }
 
