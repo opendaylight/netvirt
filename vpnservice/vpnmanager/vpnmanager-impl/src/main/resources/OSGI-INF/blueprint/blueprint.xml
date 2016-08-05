@@ -1,0 +1,6 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <reference id="elanProvider" interface="org.opendaylight.netvirt.elanmanager.api.IElanService" availability="optional" />
+    <bean id="vpnmanagerServiceAccessor" class="org.opendaylight.netvirt.vpnmanager.VpnmanagerServiceAccessor">
+        <argument ref="elanProvider" />
+    </bean>
+</blueprint>
