@@ -5,10 +5,17 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.neutronvpn;
 
-
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
@@ -16,14 +23,14 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.bgpvpns.attributes.Bgpvpns;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.bgpvpns.attributes.bgpvpns.Bgpvpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.BgpvpnTypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.BgpvpnTypeL3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.BgpvpnTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.BgpvpnTypeL3;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.bgpvpns.attributes.Bgpvpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.bgpvpns.attributes.bgpvpns.Bgpvpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -32,64 +39,43 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 
 public class NeutronBgpvpnChangeListener extends AbstractDataChangeListener<Bgpvpn> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronBgpvpnChangeListener.class);
-
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private NeutronvpnManager nvpnManager;
-    private IdManagerService idManager;
-    private String adminRDValue;
-    private DataBroker dbroker;
+    private final DataBroker dataBroker;
+    private final NeutronvpnManager nvpnManager;
+    private final IdManagerService idManager;
+    private final String adminRDValue;
 
-
-
-    public NeutronBgpvpnChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr) {
+    public NeutronBgpvpnChangeListener(final DataBroker dataBroker, final NeutronvpnManager nVpnMgr,
+                                       final IdManagerService idManager) {
         super(Bgpvpn.class);
+        this.dataBroker = dataBroker;
         nvpnManager = nVpnMgr;
-        dbroker = db;
-        registerListener(db);
+        this.idManager = idManager;
         BundleContext bundleContext=FrameworkUtil.getBundle(NeutronBgpvpnChangeListener.class).getBundleContext();
         adminRDValue = bundleContext.getProperty(NeutronConstants.RD_PROPERTY_KEY);
+    }
+
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        createIdPool();
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+                getWildCardPath(), this, DataChangeScope.SUBTREE);
+    }
+
+    private InstanceIdentifier<Bgpvpn> getWildCardPath() {
+        return InstanceIdentifier.create(Neutron.class).child(Bgpvpns.class).child(Bgpvpn.class);
     }
 
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
+            listenerRegistration.close();
             listenerRegistration = null;
         }
-        LOG.info("N_Bgpvpn listener Closed");
-    }
-
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                    InstanceIdentifier.create(Neutron.class).child(Bgpvpns.class).child(Bgpvpn.class),
-                    NeutronBgpvpnChangeListener.this, DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("Neutron Manager Bgpvpn DataChange listener registration fail!", e);
-            throw new IllegalStateException("Neutron Manager Bgpvpn DataChange listener registration failed.", e);
-        }
-    }
-
-    public void setIdManager(IdManagerService idManager) {
-        this.idManager = idManager;
-        createIdPool();
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     private boolean isBgpvpnTypeL3(Class<? extends BgpvpnTypeBase> bgpvpnType) {
@@ -241,7 +227,7 @@ public class NeutronBgpvpnChangeListener extends AbstractDataChangeListener<Bgpv
         if (newRouters != null && !newRouters.isEmpty()) {
             if (oldRouters != null && !oldRouters.isEmpty()) {
                 if (oldRouters.size() > 1 || newRouters.size() > 1) {
-                    VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dbroker, vpnId);
+                    VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
                     if (vpnMap.getRouterId() != null) {
                         LOG.warn("Only Single Router association  to a given bgpvpn is allowed .Kindly de-associate " +
                                 "router " + vpnMap.getRouterId().getValue() + " from vpn " + vpnId + " before " +
@@ -276,7 +262,7 @@ public class NeutronBgpvpnChangeListener extends AbstractDataChangeListener<Bgpv
 
     private boolean validateRouteInfo(Uuid routerID) {
         Uuid assocVPNId;
-        if ((assocVPNId = NeutronvpnUtils.getVpnForRouter(dbroker, routerID, true)) != null) {
+        if ((assocVPNId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerID, true)) != null) {
             LOG.warn("VPN router association failed  due to router " + routerID.getValue()
                     + " already associated to another VPN " + assocVPNId.getValue());
             return false;

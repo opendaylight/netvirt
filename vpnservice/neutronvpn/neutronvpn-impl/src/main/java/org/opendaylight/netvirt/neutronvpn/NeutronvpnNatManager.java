@@ -8,15 +8,15 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
-
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersBuilder;
@@ -24,41 +24,36 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-
 
 public class NeutronvpnNatManager implements AutoCloseable {
-    private static final Logger logger = LoggerFactory.getLogger(NeutronvpnNatManager.class);
-
-    private final DataBroker broker;
-    IMdsalApiManager mdsalUtil;
-
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronvpnNatManager.class);
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalUtil;
     private static final int EXTERNAL_NO_CHANGE = 0;
     private static final int EXTERNAL_ADDED = 1;
     private static final int EXTERNAL_REMOVED = 2;
     private static final int EXTERNAL_CHANGED = 3;
 
     /**
-     * @param db           - dataBroker reference
+     * @param dataBroker           - dataBroker reference
      * @param mdsalManager - MDSAL Util API access
      */
-    public NeutronvpnNatManager(final DataBroker db, IMdsalApiManager mdsalManager) {
-        broker = db;
+    public NeutronvpnNatManager(final DataBroker dataBroker, final IMdsalApiManager mdsalManager) {
+        this.dataBroker = dataBroker;
         mdsalUtil = mdsalManager;
     }
 
     @Override
     public void close() throws Exception {
-        logger.info("Neutron VPN Nat Manager Closed");
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     public void handleExternalNetworkForRouter(Router original, Router update) {
@@ -67,19 +62,19 @@ public class NeutronvpnNatManager implements AutoCloseable {
         Uuid origExtNetId = null;
         Uuid updExtNetId = null;
 
-        logger.trace("handleExternalNetwork for router " +  routerId);
+        LOG.trace("handleExternalNetwork for router " +  routerId);
         int ext_net_changed = externalNetworkChanged(original, update);
         if (ext_net_changed != EXTERNAL_NO_CHANGE) {
             if (ext_net_changed == EXTERNAL_ADDED) {
                 updExtNetId = update.getExternalGatewayInfo().getExternalNetworkId();
-                logger.trace("External Network " + updExtNetId.getValue() +
+                LOG.trace("External Network " + updExtNetId.getValue() +
                         " addition detected for router " +  routerId.getValue());
                 addExternalNetworkToRouter(update);
                 return;
             }
             if (ext_net_changed == EXTERNAL_REMOVED) {
                 origExtNetId = original.getExternalGatewayInfo().getExternalNetworkId();
-                logger.trace("External Network removal detected " +
+                LOG.trace("External Network removal detected " +
                         "for router " +  routerId.getValue());
                 removeExternalNetworkFromRouter(origExtNetId, update);
                 //gateway mac unset handled as part of gateway clear deleting top-level routers node
@@ -87,7 +82,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             }
             origExtNetId = original.getExternalGatewayInfo().getExternalNetworkId();
             updExtNetId = update.getExternalGatewayInfo().getExternalNetworkId();
-            logger.trace("External Network changed from "+ origExtNetId.getValue() + " to "
+            LOG.trace("External Network changed from "+ origExtNetId.getValue() + " to "
                     + updExtNetId.getValue() + " for router " +  routerId.getValue());
             removeExternalNetworkFromRouter(origExtNetId, update);
             addExternalNetworkToRouter(update);
@@ -95,15 +90,15 @@ public class NeutronvpnNatManager implements AutoCloseable {
         }
 
         if (snatSettingChanged(original, update)) {
-            logger.trace("SNAT settings on gateway changed  " +
+            LOG.trace("SNAT settings on gateway changed  " +
                     "for router " + routerId.getValue());
-            handleSnatSettingChangeForRouter(update, broker);
+            handleSnatSettingChangeForRouter(update, dataBroker);
         }
 
         if (externalFixedIpsChanged(original, update)) {
-            logger.trace("External Fixed IPs changed " +
+            LOG.trace("External Fixed IPs changed " +
                     "for router " + routerId.getValue());
-            handleExternalFixedIpsForRouter(update, broker);
+            handleExternalFixedIpsForRouter(update, dataBroker);
         }
     }
 
@@ -194,28 +189,28 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 child(Networks.class, new NetworksKey(extNetId)).build();
 
         try {
-            logger.trace(" Creating/Updating a new Networks node: " +  extNetId.getValue());
-            Optional<Networks> optionalNets = NeutronvpnUtils.read(broker,
+            LOG.trace(" Creating/Updating a new Networks node: " +  extNetId.getValue());
+            Optional<Networks> optionalNets = NeutronvpnUtils.read(dataBroker,
                     LogicalDatastoreType.CONFIGURATION,
                     netsIdentifier);
             if (optionalNets.isPresent()) {
-                logger.error("External Network " + extNetId.getValue() +
+                LOG.error("External Network " + extNetId.getValue() +
                         " already detected to be present");
                 return;
             }
             NetworksBuilder builder = null;
             builder = new NetworksBuilder().setKey(new NetworksKey(extNetId)).setId(extNetId);
-            builder.setVpnid(NeutronvpnUtils.getVpnForNetwork(broker, extNetId));
+            builder.setVpnid(NeutronvpnUtils.getVpnForNetwork(dataBroker, extNetId));
             builder.setRouterIds(new ArrayList<Uuid>());
 
             Networks networkss = builder.build();
             // Add Networks object to the ExternalNetworks list
             //isLockAcquired = NeutronvpnUtils.lock(lockManager, extNetId.getValue());
-            logger.trace("Creating externalnetworks " + networkss);
-            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
-            logger.trace("Wrote externalnetwork successfully to CONFIG Datastore");
+            LOG.trace("Creating externalnetworks " + networkss);
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
+            LOG.trace("Wrote externalnetwork successfully to CONFIG Datastore");
         } catch (Exception ex) {
-            logger.error("Creation of External Network " +
+            LOG.error("Creation of External Network " +
                     extNetId.getValue() + " failed " + ex.getMessage());
         } finally {
             //if (isLockAcquired) {
@@ -232,24 +227,24 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 child(Networks.class, new NetworksKey(extNetId)).build();
 
         try {
-            Optional<Networks> optionalNets = NeutronvpnUtils.read(broker,
+            Optional<Networks> optionalNets = NeutronvpnUtils.read(dataBroker,
                     LogicalDatastoreType.CONFIGURATION,
                     netsIdentifier);
-            logger.trace("Removing Networks node: " +  extNetId.getValue());
+            LOG.trace("Removing Networks node: " +  extNetId.getValue());
             if (!optionalNets.isPresent()) {
-                logger.info("External Network " + extNetId.getValue() +
+                LOG.info("External Network " + extNetId.getValue() +
                         " not available in the datastore");
                 return;
             }
             // Delete Networks object from the ExternalNetworks list
             //isLockAcquired = NeutronvpnUtils.lock(lockManager, extNetId.getValue());
-            logger.trace("Deleting External Network " + extNetId.getValue());
-            MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, netsIdentifier);
-            logger.trace("Deleted External Network " + extNetId.getValue() +
+            LOG.trace("Deleting External Network " + extNetId.getValue());
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier);
+            LOG.trace("Deleted External Network " + extNetId.getValue() +
                     " successfully from CONFIG Datastore");
 
         } catch (Exception ex) {
-            logger.error("Deletion of External Network " + extNetId.getValue() +
+            LOG.error("Deletion of External Network " + extNetId.getValue() +
                     " failed" + ex.getMessage());
         } finally {
             //if (isLockAcquired) {
@@ -263,21 +258,21 @@ public class NeutronvpnNatManager implements AutoCloseable {
         Uuid extNetId = update.getExternalGatewayInfo().getExternalNetworkId();
 
         // Add this router to the ExtRouters list
-        addExternalRouter(update, broker);
+        addExternalRouter(update, dataBroker);
 
         // Create and add Networks object for this External Network to the ExternalNetworks list
         InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class).
                 child(Networks.class, new NetworksKey(extNetId)).build();
 
         try {
-            Optional<Networks> optionalNets = NeutronvpnUtils.read(broker,
+            Optional<Networks> optionalNets = NeutronvpnUtils.read(dataBroker,
                     LogicalDatastoreType.CONFIGURATION,
                     netsIdentifier);
             NetworksBuilder builder = null;
             if (optionalNets.isPresent()) {
                 builder = new NetworksBuilder(optionalNets.get());
             } else {
-                logger.error("External Network " + extNetId.getValue() +
+                LOG.error("External Network " + extNetId.getValue() +
                         " not present in the NVPN datamodel");
                 return;
             }
@@ -291,11 +286,11 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Networks networkss = builder.build();
             // Add Networks object to the ExternalNetworks list
             //isLockAcquired = NeutronvpnUtils.lock(lockManager, extNetId.getValue());
-            logger.trace("Updating externalnetworks " + networkss);
-            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
-            logger.trace("Updated externalnetworks successfully to CONFIG Datastore");
+            LOG.trace("Updating externalnetworks " + networkss);
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
+            LOG.trace("Updated externalnetworks successfully to CONFIG Datastore");
         } catch (Exception ex) {
-            logger.error("Creation of externalnetworks failed for " + extNetId.getValue() +
+            LOG.error("Creation of externalnetworks failed for " + extNetId.getValue() +
                     " with exception " + ex.getMessage());
         } finally {
             //if (isLockAcquired) {
@@ -308,17 +303,17 @@ public class NeutronvpnNatManager implements AutoCloseable {
         Uuid routerId = update.getUuid();
 
         // Remove the router to the ExtRouters list
-        removeExternalRouter(origExtNetId, update, broker);
+        removeExternalRouter(origExtNetId, update, dataBroker);
 
         // Remove the router from the ExternalNetworks list
         InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class).
                 child(Networks.class, new NetworksKey(origExtNetId)).build();
 
         try {
-            Optional<Networks> optionalNets = NeutronvpnUtils.read(broker,
+            Optional<Networks> optionalNets = NeutronvpnUtils.read(dataBroker,
                     LogicalDatastoreType.CONFIGURATION,
                     netsIdentifier);
-            logger.trace("Removing a router from External Networks node: " +
+            LOG.trace("Removing a router from External Networks node: " +
                     origExtNetId.getValue());
             if (optionalNets.isPresent()) {
                 NetworksBuilder builder = new NetworksBuilder(optionalNets.get());
@@ -327,12 +322,12 @@ public class NeutronvpnNatManager implements AutoCloseable {
                     rtrList.remove(routerId);
                     builder.setRouterIds(rtrList);
                     Networks networkss = builder.build();
-                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
-                    logger.trace("Removed router " + routerId + " from externalnetworks " + origExtNetId.getValue());
+                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
+                    LOG.trace("Removed router " + routerId + " from externalnetworks " + origExtNetId.getValue());
                 }
             }
         } catch (Exception ex) {
-            logger.error("Removing externalnetwork " + origExtNetId.getValue() +
+            LOG.error("Removing externalnetwork " + origExtNetId.getValue() +
                     " from router " + routerId + " failed " + ex.getMessage());
         } finally {
             //if (isLockAcquired) {
@@ -349,14 +344,14 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 child(Networks.class, new NetworksKey(extNetId)).build();
 
         try {
-            Optional<Networks> optionalNets = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+            Optional<Networks> optionalNets = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     netsIdentifier);
-            logger.trace("Adding vpn-id into Networks node: " +  extNetId.getValue());
+            LOG.trace("Adding vpn-id into Networks node: " +  extNetId.getValue());
             NetworksBuilder builder = null;
             if (optionalNets.isPresent()) {
                 builder = new NetworksBuilder(optionalNets.get());
             } else {
-                logger.error("External Network " + extNetId.getValue() +
+                LOG.error("External Network " + extNetId.getValue() +
                         " not present in the NVPN datamodel");
                 return;
             }
@@ -364,12 +359,12 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Networks networkss = builder.build();
             // Add Networks object to the ExternalNetworks list
             //isLockAcquired = NeutronvpnUtils.lock(lockManager, extNetId.getValue());
-            logger.trace("Setting VPN-ID for externalnetworks " + networkss);
-            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
-            logger.trace("Wrote with VPN-ID successfully to CONFIG Datastore");
+            LOG.trace("Setting VPN-ID for externalnetworks " + networkss);
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
+            LOG.trace("Wrote with VPN-ID successfully to CONFIG Datastore");
 
         } catch (Exception ex) {
-            logger.error("Attaching VPN-ID to externalnetwork " + extNetId.getValue() +
+            LOG.error("Attaching VPN-ID to externalnetwork " + extNetId.getValue() +
                     " failed with " + ex.getMessage());
         } finally {
             //if (isLockAcquired) {
@@ -386,14 +381,14 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 child(Networks.class, new NetworksKey(extNetId)).build();
 
         try {
-            Optional<Networks> optionalNets = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+            Optional<Networks> optionalNets = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     netsIdentifier);
-            logger.trace("Removing vpn-id from Networks node: " +  extNetId.getValue());
+            LOG.trace("Removing vpn-id from Networks node: " +  extNetId.getValue());
             NetworksBuilder builder = null;
             if (optionalNets.isPresent()) {
                 builder = new NetworksBuilder(optionalNets.get());
             } else {
-                logger.error("External Network " + extNetId.getValue() + " not present in the NVPN datamodel");
+                LOG.error("External Network " + extNetId.getValue() + " not present in the NVPN datamodel");
                 return;
             }
 
@@ -401,12 +396,12 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Networks networkss = builder.build();
             // Add Networks object to the ExternalNetworks list
             //isLockAcquired = NeutronvpnUtils.lock(lockManager, extNetId.getValue());
-            logger.trace("Remove vpn-id for externalnetwork " + networkss);
-            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
-            logger.trace("Updated extnetworks successfully to CONFIG Datastore");
+            LOG.trace("Remove vpn-id for externalnetwork " + networkss);
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
+            LOG.trace("Updated extnetworks successfully to CONFIG Datastore");
 
         } catch (Exception ex) {
-            logger.error("Removing VPN-ID from externalnetworks " + extNetId.getValue() +
+            LOG.error("Removing VPN-ID from externalnetworks " + extNetId.getValue() +
                     " failed with " + ex.getMessage());
         } finally {
             //if (isLockAcquired) {
@@ -429,7 +424,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Optional<Routers> optionalRouters = NeutronvpnUtils.read(broker,
                     LogicalDatastoreType.CONFIGURATION,
                     routersIdentifier);
-            logger.trace("Creating/Updating a new Routers node: " + routerId.getValue());
+            LOG.trace("Creating/Updating a new Routers node: " + routerId.getValue());
             RoutersBuilder builder = null;
             if (optionalRouters.isPresent()) {
                 builder = new RoutersBuilder(optionalRouters.get());
@@ -453,7 +448,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 builder.setExternalIps(ext_fixed_ips);
             }
             if (gatewayPortId != null) {
-                logger.trace("Setting/Updating gateway Mac for router {}", routerId.getValue());
+                LOG.trace("Setting/Updating gateway Mac for router {}", routerId.getValue());
                 Port port = NeutronvpnUtils.getNeutronPort(broker, gatewayPortId);
                 if (port.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_GATEWAY_INF)) {
                     builder.setExtGwMacAddress(port.getMacAddress().getValue());
@@ -464,12 +459,12 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Routers routerss = builder.build();
             // Add Routers object to the ExtRouters list
             //isLockAcquired = NeutronvpnUtils.lock(lockManager, extNetId.getValue());
-            logger.trace("Creating extrouters " + routerss);
+            LOG.trace("Creating extrouters " + routerss);
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, builder.build());
-            logger.trace("Wrote successfully Routers to CONFIG Datastore");
+            LOG.trace("Wrote successfully Routers to CONFIG Datastore");
 
         } catch (Exception ex) {
-            logger.error("Creation of extrouters failed for router " + routerId.getValue() +
+            LOG.error("Creation of extrouters failed for router " + routerId.getValue() +
                     " failed with " + ex.getMessage());
         } finally {
             //if (isLockAcquired) {
@@ -487,16 +482,16 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Optional<Routers> optionalRouters = NeutronvpnUtils.read(broker,
                     LogicalDatastoreType.CONFIGURATION,
                     routersIdentifier);
-            logger.trace(" Removing Routers node: " +  routerId.getValue());
+            LOG.trace(" Removing Routers node: " +  routerId.getValue());
             if (optionalRouters.isPresent()) {
                 RoutersBuilder builder = new RoutersBuilder(optionalRouters.get());
                 builder.setExternalIps(null);
                 builder.setSubnetIds(null);
                 MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routersIdentifier);
-                logger.trace("Removed router " + routerId.getValue() + " from extrouters ");
+                LOG.trace("Removed router " + routerId.getValue() + " from extrouters ");
             }
         } catch (Exception ex) {
-            logger.error("Removing extrouter " + routerId.getValue() + " from extrouters " +
+            LOG.error("Removing extrouter " + routerId.getValue() + " from extrouters " +
                     " failed with " + ex.getMessage());
         } finally {
             //if (isLockAcquired) {
@@ -514,7 +509,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Optional<Routers> optionalRouters = NeutronvpnUtils.read(broker,
                     LogicalDatastoreType.CONFIGURATION,
                     routersIdentifier);
-            logger.trace("Updating External Fixed IPs Routers node: " +  routerId.getValue());
+            LOG.trace("Updating External Fixed IPs Routers node: " +  routerId.getValue());
             if (optionalRouters.isPresent()) {
                 RoutersBuilder builder = new RoutersBuilder(optionalRouters.get());
                 if (builder != null) {
@@ -525,13 +520,13 @@ public class NeutronvpnNatManager implements AutoCloseable {
                     builder.setExternalIps(ext_fixed_ips);
                 }
                 Routers routerss = builder.build();
-                logger.trace("Updating external fixed ips for router " +
+                LOG.trace("Updating external fixed ips for router " +
                         routerId.getValue() +  " with value " + routerss);
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, routerss);
-                logger.trace("Added External Fixed IPs successfully for Routers to CONFIG Datastore");
+                LOG.trace("Added External Fixed IPs successfully for Routers to CONFIG Datastore");
             }
         } catch (Exception ex) {
-            logger.error("Updating extfixedips for " + routerId.getValue() +
+            LOG.error("Updating extfixedips for " + routerId.getValue() +
                     " in extrouters failed with " + ex.getMessage());
         } finally {
             //if (isLockAcquired) {
@@ -547,13 +542,13 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Optional<Routers> optionalRouters = NeutronvpnUtils.read(broker,
                     LogicalDatastoreType.CONFIGURATION,
                     routersIdentifier);
-            logger.trace("Updating Internal subnets for Routers node: " +
+            LOG.trace("Updating Internal subnets for Routers node: " +
                     routerId.getValue());
             RoutersBuilder builder = null;
             if (optionalRouters.isPresent()) {
                 builder = new RoutersBuilder(optionalRouters.get());
             } else {
-                logger.info("No Routers element found for router name " + routerId.getValue());
+                LOG.info("No Routers element found for router name " + routerId.getValue());
                 return;
             }
             List<Uuid> subList = NeutronvpnUtils.getNeutronRouterSubnetIds(broker, routerId);
@@ -561,12 +556,12 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Routers routerss = builder.build();
             // Add Routers object to the ExtRouters list
             //isLockAcquired = NeutronvpnUtils.lock(lockManager, extNetId.getValue());
-            logger.trace("Updating extrouters " + routerss);
+            LOG.trace("Updating extrouters " + routerss);
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, routerss);
-            logger.trace("Updated successfully Routers to CONFIG Datastore");
+            LOG.trace("Updated successfully Routers to CONFIG Datastore");
 
         } catch (Exception ex) {
-            logger.error("Updation of internal subnets for extrouters " +
+            LOG.error("Updation of internal subnets for extrouters " +
                     "failed for router " + routerId.getValue() + " with " + ex.getMessage());
         } finally {
             //if (isLockAcquired) {
@@ -584,25 +579,25 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Optional<Routers> optionalRouters = NeutronvpnUtils.read(broker,
                     LogicalDatastoreType.CONFIGURATION,
                     routersIdentifier);
-            logger.trace("Updating Internal subnets for Routers node: " +
+            LOG.trace("Updating Internal subnets for Routers node: " +
                     routerId.getValue());
             RoutersBuilder builder = null;
             if (optionalRouters.isPresent()) {
                 builder = new RoutersBuilder(optionalRouters.get());
             } else {
-                logger.trace("No Routers element found for router name " + routerId.getValue());
+                LOG.trace("No Routers element found for router name " + routerId.getValue());
                 return;
             }
             builder.setEnableSnat(update.getExternalGatewayInfo().isEnableSnat());
             Routers routerss = builder.build();
             // Add Routers object to the ExtRouters list
             //isLockAcquired = NeutronvpnUtils.lock(lockManager, extNetId.getValue());
-            logger.trace("Updating extrouters for snat change " + routerss);
+            LOG.trace("Updating extrouters for snat change " + routerss);
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, routerss);
-            logger.trace("Updated successfully Routers to CONFIG Datastore");
+            LOG.trace("Updated successfully Routers to CONFIG Datastore");
 
         } catch (Exception ex) {
-            logger.error("Updation of snat for extrouters failed for router " + routerId.getValue() +
+            LOG.error("Updation of snat for extrouters failed for router " + routerId.getValue() +
                     " with " + ex.getMessage());
         } finally {
             //if (isLockAcquired) {

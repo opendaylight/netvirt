@@ -48,8 +48,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NeutronSecurityRuleListener extends AsyncDataTreeChangeListenerBase<SecurityRule, NeutronSecurityRuleListener> {
+public class NeutronSecurityRuleListener
+        extends AsyncDataTreeChangeListenerBase<SecurityRule, NeutronSecurityRuleListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSecurityRuleListener.class);
+    private final DataBroker dataBroker;
     private static final ImmutableBiMap<Class<? extends DirectionBase>, Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase>> DIRECTION_MAP = ImmutableBiMap.of(
             DirectionEgress.class, NeutronSecurityRuleConstants.DIRECTION_EGRESS,
             DirectionIngress.class, NeutronSecurityRuleConstants.DIRECTION_INGRESS);
@@ -58,14 +60,14 @@ public class NeutronSecurityRuleListener extends AsyncDataTreeChangeListenerBase
             ProtocolTcp.class, NeutronSecurityRuleConstants.PROTOCOL_TCP,
             ProtocolUdp.class, NeutronSecurityRuleConstants.PROTOCOL_UDP,
             ProtocolIcmpV6.class, NeutronSecurityRuleConstants.PROTOCOL_ICMPV6);
-    private DataBroker dataBroker;
 
     public NeutronSecurityRuleListener(final DataBroker dataBroker) {
         super(SecurityRule.class, NeutronSecurityRuleListener.class);
         this.dataBroker = dataBroker;
     }
 
-    public void registerListener() {
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
@@ -213,7 +215,6 @@ public class NeutronSecurityRuleListener extends AsyncDataTreeChangeListenerBase
         // security rule updation is not supported from openstack, so no need to handle update.
         LOG.trace("updates on security rules not supported.");
     }
-
 
     @Override
     protected NeutronSecurityRuleListener getDataTreeChangeListener() {

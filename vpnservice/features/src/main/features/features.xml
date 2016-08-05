@@ -79,7 +79,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <configfile finalname="${configfile.directory}/bgpmanager-impl-default-config.xml">mvn:org.opendaylight.netvirt/bgpmanager-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/vpnmanager-impl-default-config.xml">mvn:org.opendaylight.netvirt/vpnmanager-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/fibmanager-impl-default-config.xml">mvn:org.opendaylight.netvirt/fibmanager-impl/{{VERSION}}/xml/config</configfile>
-    <configfile finalname="${configfile.directory}/neutronvpn-impl-default-config.xml">mvn:org.opendaylight.netvirt/neutronvpn-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/dhcpservice-impl-default-config.xml">mvn:org.opendaylight.netvirt/dhcpservice-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/elanmanager-impl-default-config.xml">mvn:org.opendaylight.netvirt/elanmanager-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/natservice-impl-default-config.xml">mvn:org.opendaylight.netvirt/natservice-impl/{{VERSION}}/xml/config</configfile>

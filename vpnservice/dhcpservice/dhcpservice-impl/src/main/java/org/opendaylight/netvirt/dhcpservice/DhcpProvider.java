@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import io.netty.util.concurrent.GlobalEventExecutor;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -20,6 +22,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +62,6 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
             final PacketProcessingService pktProcessingService = session.getRpcService(PacketProcessingService.class);
             dhcpManager = new DhcpManager(dataBroker);
             dhcpManager.setMdsalManager(mdsalManager);
-            dhcpManager.setNeutronVpnService(neutronVpnManager);
             dhcpExternalTunnelManager = new DhcpExternalTunnelManager(dataBroker, mdsalManager, itmRpcService, entityOwnershipService);
             dhcpPktHandler = new DhcpPktHandler(dataBroker, dhcpManager, dhcpExternalTunnelManager);
             dhcpPktHandler.setPacketProcessingService(pktProcessingService);
@@ -83,6 +87,28 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
         } catch (Exception e) {
             LOG.error("Error initializing services {}", e);
         }
+
+        // TODO: Remove as part of blueprint fix.
+        // This is simply here to get the INeutronVPNManager service which is already
+        // moved to blueprint.
+        GlobalEventExecutor.INSTANCE.execute(new Runnable() {
+            @Override
+            public void run() {
+                Bundle b = FrameworkUtil.getBundle(DhcpProvider.class);
+                if (b == null) {
+                    return;
+                }
+                BundleContext bundleContext = b.getBundleContext();
+                if (bundleContext == null) {
+                    return;
+                }
+                final WaitingServiceTracker<INeutronVpnManager> tracker = WaitingServiceTracker.create(
+                        INeutronVpnManager.class, bundleContext);
+                INeutronVpnManager neutronVpnManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+                LOG.info("DhcpProvider initialized. INeutronVpnManager={}", neutronVpnManager);
+                dhcpManager.setNeutronVpnService(neutronVpnManager);
+            }
+        });
     }
 
     public void setMdsalManager(IMdsalApiManager mdsalManager) {

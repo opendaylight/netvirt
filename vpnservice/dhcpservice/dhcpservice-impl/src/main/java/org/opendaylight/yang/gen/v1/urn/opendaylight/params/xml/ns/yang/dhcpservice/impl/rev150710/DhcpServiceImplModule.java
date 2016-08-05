@@ -26,7 +26,7 @@ public class DhcpServiceImplModule extends org.opendaylight.yang.gen.v1.urn.open
         dhcpProvider.setControllerDhcpEnabled(getControllerDhcpEnabled());
         dhcpProvider.setNotificationProviderService(getNotificationServiceDependency());
         dhcpProvider.setMdsalManager(getMdsalutilDependency());
-        dhcpProvider.setNeutronVpnManager(getNeutronvpnDependency());
+        //dhcpProvider.setNeutronVpnManager(getNeutronvpnDependency());
         dhcpProvider.setInterfaceManagerRpc(rpcregistryDependency.getRpcService(OdlInterfaceRpcService.class));
         dhcpProvider.setItmRpcService(rpcregistryDependency.getRpcService(ItmRpcService.class));
         dhcpProvider.setEntityOwnershipService(getEntityOwnershipServiceDependency());

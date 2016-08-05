@@ -4,7 +4,7 @@ module neutronvpn {
     namespace "urn:opendaylight:netvirt:neutronvpn";
     prefix neutronvpn;
 
-    import ietf-yang-types { prefix "yang"; }
+    import ietf-yang-types { prefix yang; revision-date "2013-07-15";}
 
     revision "2015-06-02" {
         description "Neutron based L3Service Module, provides integration of ODL VPN service with Neutron NSF";
