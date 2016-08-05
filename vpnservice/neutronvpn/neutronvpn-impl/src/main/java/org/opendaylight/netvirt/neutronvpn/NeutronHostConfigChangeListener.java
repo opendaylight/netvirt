@@ -8,37 +8,35 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.collect.Maps;
+import java.util.Map;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
-import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
+import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.Hostconfigs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.hostconfigs.Hostconfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.hostconfigs.HostconfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.OpenvswitchExternalIds;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Map;
 
-public class NeutronHostConfigChangeListener extends AbstractDataChangeListener<Node>{
-
-    private static final Logger logger= LoggerFactory.getLogger(NeutronHostConfigChangeListener.class);
-
+public class NeutronHostConfigChangeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronHostConfigChangeListener.class);
     private ListenerRegistration<DataChangeListener>listenerRegistration;
+    private final DataBroker dataBroker;
     private final SouthboundUtils southboundUtils;
     private final MdsalUtils mdsalUtils;
-
     private static final String OS_HOST_CONFIG_HOST_ID_KEY = "odl_os_hostconfig_hostid";
     private static final String OS_HOST_CONFIG_CONFIG_KEY_PREFIX = "odl_os_hostconfig_config_odl_";
     private static int HOST_TYPE_STR_LEN = 8;
@@ -49,45 +47,50 @@ public class NeutronHostConfigChangeListener extends AbstractDataChangeListener<
         DELETE
     }
 
-    public NeutronHostConfigChangeListener(final DataBroker db){
+    public NeutronHostConfigChangeListener(final DataBroker dataBroker){
         super(Node.class);
-        registerListener(db);
-        this.mdsalUtils = new MdsalUtils(db);
+        this.dataBroker = dataBroker;
+        this.mdsalUtils = new MdsalUtils(dataBroker);
         this.southboundUtils = new SouthboundUtils(mdsalUtils);
     }
 
-    private void registerListener(final DataBroker db){
-        try{
-            listenerRegistration=db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(),NeutronHostConfigChangeListener.this,AsyncDataBroker.DataChangeScope.SUBTREE);
-        } catch(final Exception e){
-            logger.error("NeutronHostConfigChangeListener: DataChange listener registration fail!",e);
-            throw new IllegalStateException("NeutronHostConfigChangeListener: registration Listener failed.",e);
-        }
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
     }
 
     private InstanceIdentifier<Node> getWildCardPath(){
         return InstanceIdentifier
-            .create(NetworkTopology.class)
-            .child(Topology.class,new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
-            .child(Node.class);
+                .create(NetworkTopology.class)
+                .child(Topology.class,new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
+                .child(Node.class);
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (listenerRegistration != null) {
+            listenerRegistration.close();
+            listenerRegistration = null;
+        }
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @Override
     protected void remove(InstanceIdentifier<Node>identifier, Node del){
-        logger.trace("NeutronHostConfigChangeListener.remove {}",del);
+        LOG.trace("NeutronHostConfigChangeListener.remove {}",del);
         updateHostConfig(del, Action.DELETE);
     }
 
     @Override
     protected void update(InstanceIdentifier<Node>identifier, Node original, Node update){
-        logger.trace("NeutronHostConfigChangeListener.update {}",update);
+        LOG.trace("NeutronHostConfigChangeListener.update {}",update);
         updateHostConfig(update, Action.UPDATE);
     }
 
     @Override
     protected void add(InstanceIdentifier<Node>identifier, Node add){
-        logger.trace("NeutronHostConfigChangeListener.add {}",add);
+        LOG.trace("NeutronHostConfigChangeListener.add {}",add);
         updateHostConfig(add, Action.ADD);
 
     }
@@ -137,12 +140,12 @@ public class NeutronHostConfigChangeListener extends AbstractDataChangeListener<
             case UPDATE:
                 hostConfigId = createInstanceIdentifier(hostConfig);
                 result = mdsalUtils.put(LogicalDatastoreType.OPERATIONAL, hostConfigId, hostConfig);
-                logger.trace("Add Node: result: {}", result);
+                LOG.trace("Add Node: result: {}", result);
                 break;
             case DELETE:
                 hostConfigId = createInstanceIdentifier(hostConfig);
                 result = mdsalUtils.delete(LogicalDatastoreType.OPERATIONAL, hostConfigId);
-                logger.trace("Delete Node: result: {}", result);
+                LOG.trace("Delete Node: result: {}", result);
                 break;
         }
     }

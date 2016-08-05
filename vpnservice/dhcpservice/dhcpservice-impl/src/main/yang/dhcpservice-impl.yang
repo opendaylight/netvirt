@@ -6,7 +6,7 @@ module dhcpservice-impl {
     import config { prefix config; revision-date 2013-04-05; }
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
     import odl-mdsalutil { prefix odl-mdsal; revision-date 2016-04-06;}
-    import neutronvpn-api { prefix nvpn; revision-date 2015-08-12;}
+    //import neutronvpn-api { prefix nvpn; revision-date 2015-08-12;}
     import opendaylight-entity-ownership-service { prefix eos; revision-date 2015-08-10;}
     import odl-interface {prefix odlif; revision-date 2016-04-06;}
 
@@ -60,14 +60,14 @@ module dhcpservice-impl {
                 }
             }
 
-            container neutronvpn {
+            /*container neutronvpn {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
                         config:required-identity nvpn:neutronvpn-api;
                     }
                 }
-            }
+            }*/
 
             container entity-ownership-service {
                 uses config:service-ref {

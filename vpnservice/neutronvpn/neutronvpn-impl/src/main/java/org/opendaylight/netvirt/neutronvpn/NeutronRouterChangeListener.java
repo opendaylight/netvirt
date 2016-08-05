@@ -8,7 +8,10 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
@@ -26,53 +29,39 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
 
 public class NeutronRouterChangeListener extends AbstractDataChangeListener<Router> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronRouterChangeListener.class);
-
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private final DataBroker broker;
-    private NeutronvpnManager nvpnManager;
-    private NeutronvpnNatManager nvpnNatManager;
+    private final DataBroker dataBroker;
+    private final NeutronvpnManager nvpnManager;
+    private final NeutronvpnNatManager nvpnNatManager;
 
-
-    public NeutronRouterChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,
-                                       NeutronvpnNatManager nVpnNatMgr) {
+    public NeutronRouterChangeListener(final DataBroker dataBroker, final NeutronvpnManager nVpnMgr,
+                                       final NeutronvpnNatManager nVpnNatMgr) {
         super(Router.class);
-        broker = db;
+        this.dataBroker = dataBroker;
         nvpnManager = nVpnMgr;
         nvpnNatManager = nVpnNatMgr;
-        registerListener(db);
+    }
+
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+                getWildCardPath(), this, DataChangeScope.SUBTREE);
+    }
+
+    private InstanceIdentifier<Router> getWildCardPath() {
+        return InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router.class);
     }
 
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
+            listenerRegistration.close();
             listenerRegistration = null;
         }
-        LOG.info("N_Router listener Closed");
-    }
-
-
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                    InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router.class),
-                    NeutronRouterChangeListener.this, DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("Neutron Manager Router DataChange listener registration fail!", e);
-            throw new IllegalStateException("Neutron Manager Router DataChange listener registration failed.", e);
-        }
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @Override
@@ -109,7 +98,7 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
     protected void update(InstanceIdentifier<Router> identifier, Router original, Router update) {
         LOG.trace("Updating Router : key: {}, original value={}, update value={}", identifier, original, update);
         Uuid routerId = update.getUuid();
-        Uuid vpnId = NeutronvpnUtils.getVpnForRouter(broker, routerId, true);
+        Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
         // internal vpn always present in case external vpn not found
         if (vpnId == null) {
             vpnId = routerId;
@@ -143,10 +132,10 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
         for ( Routes route : routes ) {
             String nextHop = String.valueOf(route.getNexthop().getValue());
             // Nexthop is another VPN?
-            Optional<InterVpnLink> interVpnLink = NeutronvpnUtils.getInterVpnLinkByEndpointIp(broker, nextHop);
+            Optional<InterVpnLink> interVpnLink = NeutronvpnUtils.getInterVpnLinkByEndpointIp(dataBroker, nextHop);
             if ( interVpnLink.isPresent() ) {
                 Optional<InterVpnLinkState> interVpnLinkState =
-                        NeutronvpnUtils.getInterVpnLinkState(broker, interVpnLink.get().getName());
+                        NeutronvpnUtils.getInterVpnLinkState(dataBroker, interVpnLink.get().getName());
                 if ( interVpnLinkState.isPresent() && interVpnLinkState.get().getState() == InterVpnLinkState.State.Active) {
                     interVpnLinkRoutes.add(route);
                     nexthopsXinterVpnLinks.put(nextHop, interVpnLink.get());

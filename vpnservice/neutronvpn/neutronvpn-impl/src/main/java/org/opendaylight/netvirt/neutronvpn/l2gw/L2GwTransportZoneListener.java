@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.neutronvpn.l2gw;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
@@ -22,17 +23,12 @@ import org.slf4j.LoggerFactory;
 /**
  * The listener class for ITM transport zone updates.
  */
-public class L2GwTransportZoneListener extends AsyncDataTreeChangeListenerBase<TransportZone, L2GwTransportZoneListener>
+public class L2GwTransportZoneListener
+        extends AsyncDataTreeChangeListenerBase<TransportZone, L2GwTransportZoneListener>
         implements AutoCloseable {
-
-    /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(L2GwTransportZoneListener.class);
-
-    /** The data broker. */
-    private DataBroker dataBroker;
-
-    /** The itm rpc service. */
-    private ItmRpcService itmRpcService;
+    private final DataBroker dataBroker;
+    private final ItmRpcService itmRpcService;
 
     /**
      * Instantiates a new l2 gw transport zone listener.
@@ -42,9 +38,13 @@ public class L2GwTransportZoneListener extends AsyncDataTreeChangeListenerBase<T
      */
     public L2GwTransportZoneListener(DataBroker dataBroker, ItmRpcService itmRpcService) {
         super(TransportZone.class, L2GwTransportZoneListener.class);
-
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
+    }
+
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     /*
@@ -115,6 +115,6 @@ public class L2GwTransportZoneListener extends AsyncDataTreeChangeListenerBase<T
      */
     @Override
     protected L2GwTransportZoneListener getDataTreeChangeListener() {
-        return L2GwTransportZoneListener.this;
+        return this;
     }
 }

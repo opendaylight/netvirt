@@ -5,18 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.neutronvpn;
 
-
 import java.util.Objects;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
@@ -32,50 +30,38 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Network> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronNetworkChangeListener.class);
-
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private final DataBroker broker;
-    private NeutronvpnManager nvpnManager;
-    private NeutronvpnNatManager nvpnNatManager;
+    private final DataBroker dataBroker;
+    private final NeutronvpnNatManager nvpnNatManager;
+    private final IElanService elanService;
 
-
-    public NeutronNetworkChangeListener(final DataBroker db, NeutronvpnManager nVpnMgr,
-                                        NeutronvpnNatManager nVpnNatMgr) {
+    public NeutronNetworkChangeListener(final DataBroker dataBroker, final NeutronvpnNatManager nVpnNatMgr,
+                                        final IElanService elanService) {
         super(Network.class);
-        broker = db;
-        nvpnManager = nVpnMgr;
+        this.dataBroker = dataBroker;
         nvpnNatManager = nVpnNatMgr;
-        registerListener(db);
+        this.elanService = elanService;
+    }
+
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+                getWildCardPath(), this, DataChangeScope.SUBTREE);
+    }
+
+    private InstanceIdentifier<Network> getWildCardPath() {
+        return InstanceIdentifier.create(Neutron.class).child(Networks.class).child(Network.class);
     }
 
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
+            listenerRegistration.close();
             listenerRegistration = null;
         }
-        LOG.info("N_Network listener Closed");
-    }
-
-
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                    InstanceIdentifier.create(Neutron.class).
-                            child(Networks.class).child(Network.class),
-                    NeutronNetworkChangeListener.this, DataChangeScope.SUBTREE);
-            LOG.info("Neutron Manager Network DataChange listener registration Success!");
-        } catch (final Exception e) {
-            LOG.error("Neutron Manager Network DataChange listener registration fail!", e);
-            throw new IllegalStateException("Neutron Manager Network DataChange listener registration failed.", e);
-        }
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @Override
@@ -91,7 +77,7 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         // Create ELAN instance for this network
         ElanInstance elanInstance = createElanInstance(input);
         // Create ELAN interface and IETF interfaces for the physical network
-        NeutronvpnServiceAccessor.getElanProvider().createExternalElanNetwork(elanInstance);
+        elanService.createExternalElanNetwork(elanInstance);
         if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
             nvpnNatManager.addExternalNetwork(input);
             NeutronvpnUtils.addToNetworkCache(input);
@@ -110,9 +96,9 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         }
         //Delete ELAN instance for this network
         String elanInstanceName = input.getUuid().getValue();
-        ElanInstance elanInstance = NeutronvpnServiceAccessor.getElanProvider().getElanInstance(elanInstanceName);
+        ElanInstance elanInstance = elanService.getElanInstance(elanInstanceName);
         if (elanInstance != null) {
-            NeutronvpnServiceAccessor.getElanProvider().deleteExternalElanNetwork(elanInstance);
+            elanService.deleteExternalElanNetwork(elanInstance);
             deleteElanInstance(elanInstanceName);
         }
         if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
@@ -139,12 +125,12 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         if (!Objects.equals(origSegmentType, updateSegmentType)
                 || !Objects.equals(origSegmentationId, updateSegmentationId)
                 || !Objects.equals(origPhysicalNetwork, updatePhysicalNetwork)) {
-            ElanInstance elanInstance = NeutronvpnServiceAccessor.getElanProvider().getElanInstance(elanInstanceName);
+            ElanInstance elanInstance = elanService.getElanInstance(elanInstanceName);
             if (elanInstance != null) {
-                NeutronvpnServiceAccessor.getElanProvider().deleteExternalElanNetwork(elanInstance);
+                elanService.deleteExternalElanNetwork(elanInstance);
                 elanInstance = updateElanInstance(elanInstanceName, updateSegmentType, updateSegmentationId,
                         updatePhysicalNetwork);
-                NeutronvpnServiceAccessor.getElanProvider().createExternalElanNetwork(elanInstance);
+                elanService.createExternalElanNetwork(elanInstance);
             }
         }
     }
@@ -156,20 +142,20 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         String physicalNetworkName = NeutronvpnUtils.getPhysicalNetworkName(input);
         ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId, physicalNetworkName);
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
-        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
+        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
         return elanInstance;
     }
 
     private void deleteElanInstance(String elanInstanceName) {
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
-        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
+        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
     }
 
     private ElanInstance updateElanInstance(String elanInstanceName, Class<? extends SegmentTypeBase> segmentType,
             String segmentationId, String physicalNetworkName) {
         ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId, physicalNetworkName);
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
-        MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
+        MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
         return elanInstance;
     }
 

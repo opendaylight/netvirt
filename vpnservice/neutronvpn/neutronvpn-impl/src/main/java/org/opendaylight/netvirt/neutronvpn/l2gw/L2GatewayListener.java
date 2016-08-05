@@ -7,81 +7,63 @@
  */
 package org.opendaylight.netvirt.neutronvpn.l2gw;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.Set;
-
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
-import org.opendaylight.genius.utils.clustering.ClusteringUtils;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.L2gateways;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.l2gateways.L2gateway;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 
 public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2gateway, L2GatewayListener>
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayListener.class);
+    private final DataBroker dataBroker;
+    private final ItmRpcService itmRpcService;
+    private final EntityOwnershipService entityOwnershipService;
 
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private final DataBroker broker;
-    private ItmRpcService itmRpcService;
-    private EntityOwnershipService entityOwnershipService;
-
-    public L2GatewayListener(final DataBroker db, RpcProviderRegistry rpcRegistry,
-                             EntityOwnershipService entityOwnershipService) {
+    public L2GatewayListener(final DataBroker dataBroker, final EntityOwnershipService entityOwnershipService,
+                             ItmRpcService itmRpcService) {
         super(L2gateway.class, L2GatewayListener.class);
-        broker = db;
+        this.dataBroker = dataBroker;
         this.entityOwnershipService = entityOwnershipService;
-        itmRpcService = rpcRegistry.getRpcService(ItmRpcService.class);
-        registerListener(db);
+        this.itmRpcService = itmRpcService;
+    }
+
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        L2GatewayCacheUtils.createL2DeviceCache();
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
-        }
-        LOG.info("L2 Gateway listener Closed");
-    }
-
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                    InstanceIdentifier.create(Neutron.class).child(L2gateways.class).child(L2gateway.class),
-                    L2GatewayListener.this, DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("Neutron Manager L2 Gateway DataChange listener registration fail!", e);
-            throw new IllegalStateException("Neutron Manager L2 Gateway DataChange listener registration failed.", e);
-        }
+    protected InstanceIdentifier<L2gateway> getWildCardPath() {
+        return InstanceIdentifier.create(Neutron.class).child(L2gateways.class).child(L2gateway.class);
     }
 
     @Override
@@ -204,8 +186,8 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
                     // Cleaning up the config DS
                     NodeId nodeId = new NodeId(l2GwDevice.getHwvtepNodeId());
                     NodeId psNodeId = HwvtepSouthboundUtils.createManagedNodeId(nodeId, l2DeviceName);
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, HwvtepSouthboundUtils.createInstanceIdentifier(nodeId));
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, HwvtepSouthboundUtils.createInstanceIdentifier(psNodeId));
+                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, HwvtepSouthboundUtils.createInstanceIdentifier(nodeId));
+                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, HwvtepSouthboundUtils.createInstanceIdentifier(psNodeId));
 
                 }
             } else {
@@ -219,17 +201,12 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
     }
 
     @Override
-    protected InstanceIdentifier<L2gateway> getWildCardPath() {
-        return InstanceIdentifier.create(L2gateway.class);
-    }
-
-    @Override
     protected ClusteredDataChangeListener getDataChangeListener() {
-        return L2GatewayListener.this;
+        return this;
     }
 
     @Override
     protected DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.BASE;
+        return AsyncDataBroker.DataChangeScope.SUBTREE;
     }
 }
