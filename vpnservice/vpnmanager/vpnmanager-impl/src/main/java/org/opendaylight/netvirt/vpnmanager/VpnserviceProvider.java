@@ -66,6 +66,7 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
     private InterVpnLinkNodeListener interVpnLinkNodeListener;
     private TunnelInterfaceStateListener tunIntfStateListener;
     private BundleContext bundleContext;
+    private FloatingIpGarpHandler garpHandler;
 
     public VpnserviceProvider(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
@@ -110,6 +111,9 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
             RouterInterfaceListener routerListener = new RouterInterfaceListener(dataBroker);
             arpscheduler = new ArpScheduler(odlInterfaceRpcService, dataBroker);
             routerListener.setVpnInterfaceManager(vpnInterfaceManager);
+            garpHandler = new FloatingIpGarpHandler(dataBroker);
+            garpHandler.setPacketService(m_packetProcessingService);
+            
             //ServiceRegistration serviceRegistration = bundleContext.registerService(IVpnManager.)
         } catch (Exception e) {
             LOG.error("Error initializing services", e);

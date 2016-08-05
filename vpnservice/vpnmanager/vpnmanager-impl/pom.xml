@@ -19,6 +19,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>vpnmanager-impl</artifactId>
   <version>${vpnservices.version}</version>
+  
   <packaging>bundle</packaging>
   <dependencies>
     <dependency>
