@@ -18,18 +18,14 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.liblldp.EtherTypes;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.dhcpservice.api.DHCP;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPConstants;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPUtils;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -38,10 +34,18 @@ import org.opendaylight.genius.mdsalutil.packet.IEEE8021Q;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
+import org.opendaylight.netvirt.dhcpservice.api.DHCP;
+import org.opendaylight.netvirt.dhcpservice.api.DHCPConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DHCPUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.HostRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -51,19 +55,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.SendToController;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
 
 public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
 
@@ -74,6 +68,7 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
     private boolean computeUdpChecksum = true;
     private PacketProcessingService pktService;
     private DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private IInterfaceManager interfaceManager;
 
     public DhcpPktHandler(final DataBroker broker, final DhcpManager dhcpManager, final DhcpExternalTunnelManager dhcpExternalTunnelManager) {
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
@@ -106,10 +101,14 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
                     String macAddress = DHCPUtils.byteArrayToString(ethPkt.getSourceMACAddress());
                     BigInteger tunnelId = packet.getMatch().getTunnel() == null ? null : packet.getMatch().getTunnel().getTunnelId();
                     String interfaceName = getInterfaceNameFromTag(portTag);
-                    ImmutablePair<BigInteger, String> pair = getDpnIdPhysicalAddressFromInterfaceName(interfaceName);
+                    InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
+                    if (interfaceInfo == null) {
+                        LOG.error("Failed to get interface info for interface name {}", interfaceName);
+                        return;
+                    }
                     DHCP replyPkt = handleDhcpPacket(pktIn, interfaceName, macAddress, tunnelId);
-                    byte[] pktOut = getDhcpPacketOut(replyPkt, ethPkt, pair.getRight());
-                    sendPacketOut(pktOut, pair.getLeft(), interfaceName, tunnelId);
+                    byte[] pktOut = getDhcpPacketOut(replyPkt, ethPkt, interfaceInfo.getMacAddress());
+                    sendPacketOut(pktOut, interfaceInfo.getDpId(), interfaceName, tunnelId);
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to get DHCP Reply");
@@ -555,27 +554,6 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         return interfaceName;
     }
 
-    private org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceStateFromOperDS(String interfaceName) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
-                buildStateInterfaceId(interfaceName);
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateOptional =
-                MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, ifStateId, dataBroker);
-        if (!ifStateOptional.isPresent()) {
-            return null;
-        }
-
-        return ifStateOptional.get();
-    }
-
-    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> buildStateInterfaceId(String interfaceName) {
-        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> idBuilder =
-                InstanceIdentifier.builder(InterfacesState.class)
-                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class,
-                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(interfaceName));
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> id = idBuilder.build();
-        return id;
-    }
-
     private List<Action> getEgressAction(String interfaceName, BigInteger tunnelId) {
         List<Action> actions = null;
         try {
@@ -597,21 +575,7 @@ public class DhcpPktHandler implements AutoCloseable, PacketProcessingListener {
         return actions;
     }
 
-    private ImmutablePair<BigInteger, String> getDpnIdPhysicalAddressFromInterfaceName(String interfaceName) {
-        ImmutablePair<BigInteger, String> pair = dhcpMgr.getInterfaceCache(interfaceName);
-        if (pair!=null && pair.getLeft() != null && pair.getRight() != null) {
-            return pair;
-        }
-        NodeConnectorId nodeConnectorId = null;
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState = getInterfaceStateFromOperDS(interfaceName);
-        if(interfaceState != null) {
-            List<String> ofportIds = interfaceState.getLowerLayerIf();
-            nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-        }
-        BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
-        String phyAddress = interfaceState==null ? "":interfaceState.getPhysAddress().getValue();
-        pair = new ImmutablePair<>(dpId, phyAddress);
-        dhcpMgr.updateInterfaceCache(interfaceName, pair);
-        return pair;
+    public void setInterfaceManager(IInterfaceManager interfaceManager) {
+        this.interfaceManager = interfaceManager;
     }
 }

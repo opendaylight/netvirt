@@ -13,11 +13,12 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
     private boolean controllerDhcpEnabled = true;
     private DhcpSubnetListener dhcpSubnetListener;
     private DhcpHwvtepListener dhcpHwvtepListener;
+    private IInterfaceManager interfaceManager;
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -60,6 +62,7 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
             dhcpPktHandler = new DhcpPktHandler(dataBroker, dhcpManager, dhcpExternalTunnelManager);
             dhcpPktHandler.setPacketProcessingService(pktProcessingService);
             dhcpPktHandler.setInterfaceManagerRpc(interfaceManagerRpc);
+            dhcpPktHandler.setInterfaceManager(interfaceManager);
             packetListener = notificationService.registerNotificationListener(dhcpPktHandler);
             dhcpNodeListener = new NodeListener(dataBroker, dhcpManager, dhcpExternalTunnelManager);
             dhcpConfigListener = new DhcpConfigListener(dataBroker, dhcpManager);
@@ -122,5 +125,9 @@ public class DhcpProvider implements BindingAwareProvider, AutoCloseable {
 
     public void setControllerDhcpEnabled(boolean controllerDhcpEnabled) {
         this.controllerDhcpEnabled = controllerDhcpEnabled;
+    }
+
+    public void setInterfaceManager(IInterfaceManager interfaceManager) {
+        this.interfaceManager = interfaceManager;
     }
 }
