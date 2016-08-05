@@ -25,6 +25,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
@@ -75,11 +76,12 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.EGRESS_ACL_TABLE_ID, ++instructionKey));
+        short serviceIndex = ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX);
         BoundServices serviceInfo =
                 AclServiceUtils.getBoundServices(String.format("%s.%s.%s", "vpn", "egressacl", interfaceName),
-                        NwConstants.ACL_SERVICE_INDEX, flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
+                serviceIndex, flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
         InstanceIdentifier<BoundServices> path =
-                AclServiceUtils.buildServiceId(interfaceName, NwConstants.ACL_SERVICE_INDEX, ServiceModeIngress.class);
+                AclServiceUtils.buildServiceId(interfaceName, serviceIndex, ServiceModeIngress.class);
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, serviceInfo);
     }
 
@@ -91,7 +93,9 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     protected void unbindService(String interfaceName) {
         InstanceIdentifier<BoundServices> path =
-                AclServiceUtils.buildServiceId(interfaceName, NwConstants.ACL_SERVICE_INDEX, ServiceModeIngress.class);
+                AclServiceUtils.buildServiceId(interfaceName,
+                        ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX),
+                        ServiceModeIngress.class);
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
     }
 

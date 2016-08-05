@@ -34,6 +34,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -417,17 +418,19 @@ public class Ipv6ServiceUtils {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, ++instructionKey));
+        short serviceIndex = ServiceIndex.getIndex(NwConstants.IPV6_SERVICE_NAME, NwConstants.IPV6_SERVICE_INDEX);
         BoundServices
                 serviceInfo =
                 getBoundServices(String.format("%s.%s", "ipv6", interfaceName),
-                        NwConstants.IPV6_SERVICE_INDEX, Ipv6Constants.DEFAULT_FLOW_PRIORITY,
+                        serviceIndex, Ipv6Constants.DEFAULT_FLOW_PRIORITY,
                         NwConstants.COOKIE_IPV6_TABLE, instructions);
         MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
-                buildServiceId(interfaceName, NwConstants.IPV6_SERVICE_INDEX), serviceInfo);
+                buildServiceId(interfaceName, serviceIndex), serviceInfo);
     }
 
     public void unbindIpv6Service(DataBroker broker, String interfaceName) {
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION,
-                buildServiceId(interfaceName, NwConstants.IPV6_SERVICE_INDEX));
+                buildServiceId(interfaceName, ServiceIndex.getIndex(NwConstants.IPV6_SERVICE_NAME,
+                        NwConstants.IPV6_SERVICE_INDEX)));
     }
 }
