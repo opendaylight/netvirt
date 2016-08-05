@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.elanmanager.api;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
@@ -55,6 +56,8 @@ public interface IElanService extends IEtreeService {
     void deleteExternalElanNetwork(ElanInstance elanInstance);
 
     void deleteExternalElanNetworks(Node node);
+
+    String getExternalElanInterface(String elanInstanceName, BigInteger dpnId);
 
     Collection<String> getExternalElanInterfaces(String elanInstanceName);
 

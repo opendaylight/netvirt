@@ -11,6 +11,7 @@ public class NeutronConstants {
 
     public static final String DEVICE_OWNER_GATEWAY_INF = "network:router_gateway";
     public static final String DEVICE_OWNER_ROUTER_INF = "network:router_interface";
+    public static final String DEVICE_OWNER_FLOATING_IP = "network:floatingip";
     public static final String VNIC_TYPE_NORMAL = "normal";
     public static final String VIF_TYPE_VHOSTUSER = "vhostuser";
     public static final String VIF_TYPE_UNBOUND = "unbound";

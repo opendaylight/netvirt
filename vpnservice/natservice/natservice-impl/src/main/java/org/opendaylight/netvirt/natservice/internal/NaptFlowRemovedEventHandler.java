@@ -129,7 +129,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
                 long bgpVpnId = routerId;
                 LOG.debug("NaptFlowRemovedEventHandler : BGP VPN ID {}", bgpVpnId);
                 String vpnName = NatUtil.getRouterName(dataBroker, bgpVpnId);
-                String routerName = NatUtil.getRouterIdfromVpnId(dataBroker, vpnName);
+                String routerName = NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnName);
                 routerId = NatUtil.getVpnId(dataBroker, routerName);
                 LOG.debug("NaptFlowRemovedEventHandler : Router ID {}", routerId);
                 ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId, internalIpv4HostAddress, internalPortNumber.toString(), protocol);

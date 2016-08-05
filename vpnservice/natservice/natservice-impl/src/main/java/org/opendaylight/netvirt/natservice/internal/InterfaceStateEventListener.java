@@ -244,7 +244,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
                 }
                 if (vpnName != null) {
                     try {
-                        routerName = NatUtil.getRouterIdfromVpnId(dataBroker, vpnName);
+                        routerName = NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnName);
                     } catch (Exception e) {
                         LOG.error("NAT Service : Unable to get routerId for vpnName {} - {}", vpnName, e);
                     }
