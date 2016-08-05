@@ -16,6 +16,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.apache.commons.lang3.StringUtils;
@@ -146,6 +148,8 @@ public class ElanUtils {
 
     private static ElanServiceProvider elanServiceProvider;
     private static final Logger LOG = LoggerFactory.getLogger(ElanUtils.class);
+    private static Map<String, ElanInstance> elanInstanceLocalCache = new ConcurrentHashMap<>();
+    private static Map<String, ElanInterface> elanInterfaceLocalCache = new ConcurrentHashMap<>();
 
     public static void setElanServiceProvider(ElanServiceProvider serviceProvider) {
         elanServiceProvider = serviceProvider;
@@ -166,6 +170,31 @@ public class ElanUtils {
             LOG.error("Error in Datastore operation", error);
         }
     };
+    
+
+    public static void addElanInstanceIntoCache(String elanInstanceName, ElanInstance elanInstance) {
+        elanInstanceLocalCache.put(elanInstanceName, elanInstance);
+    }
+
+    public static void removeElanInstanceFromCache(String elanInstanceName) {
+        elanInstanceLocalCache.remove(elanInstanceName);
+    }
+
+    public static ElanInstance getElanInstanceFromCache(String elanInstanceName) {
+        return elanInstanceLocalCache.get(elanInstanceName);
+    }
+
+    public static void addElanInterfaceIntoCache(String interfaceName, ElanInterface elanInterface) {
+        elanInterfaceLocalCache.put(interfaceName, elanInterface);
+    }
+
+    public static void removeElanInterfaceFromCache(String interfaceName) {
+        elanInterfaceLocalCache.remove(interfaceName);
+    }
+
+    public static ElanInterface getElanInterfaceFromCache(String interfaceName) {
+        return elanInterfaceLocalCache.get(interfaceName);
+    }
 
     /**
      * Uses the IdManager to retrieve a brand new ElanTag.
@@ -228,6 +257,10 @@ public class ElanUtils {
 
     // elan-instances config container
     public static ElanInstance getElanInstanceByName(String elanInstanceName) {
+    	 ElanInstance elanObj = getElanInstanceFromCache(elanInstanceName);
+         if (elanObj != null) {
+             return elanObj;
+         }
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
         Optional<ElanInstance> elanInstance = read(elanServiceProvider.getBroker(), LogicalDatastoreType.CONFIGURATION,
                 elanIdentifierId);
@@ -244,6 +277,10 @@ public class ElanUtils {
 
     // elan-interfaces Config Container
     public static ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName) {
+    	  ElanInterface elanInterfaceObj = getElanInterfaceFromCache(elanInterfaceName);
+          if (elanInterfaceObj != null) {
+              return elanInterfaceObj;
+          }
         InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
         Optional<ElanInterface> existingElanInterface = read(elanServiceProvider.getBroker(),
                 LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
