@@ -226,9 +226,6 @@ public class NetITUtil {
         //add port to map
         portInfoByName.put(portInfo.name, portInfo);
 
-        //DEBUG
-        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "a");
-
         return portInfo.name;
     }
 
