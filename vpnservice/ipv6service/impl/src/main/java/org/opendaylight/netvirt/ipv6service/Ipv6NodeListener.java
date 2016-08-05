@@ -33,26 +33,26 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Ipv6NodeListener extends AbstractDataChangeListener<FlowCapableNode>
-        implements AutoCloseable {
+public class Ipv6NodeListener extends AbstractDataChangeListener<FlowCapableNode> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6NodeListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private IMdsalApiManager mdsalUtil;
-    private IfMgr ifMgr;
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalUtil;
 
     public Ipv6NodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalUtil) {
         super(FlowCapableNode.class);
-        registerListener(dataBroker);
+        this.dataBroker = dataBroker;
         this.mdsalUtil = mdsalUtil;
     }
 
-    private void registerListener(final DataBroker db) {
-        listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), Ipv6NodeListener.this, AsyncDataBroker.DataChangeScope.ONE);
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.ONE);
     }
 
-    public void setIfMgrInstance(IfMgr instance) {
-        this.ifMgr = instance;
+    private InstanceIdentifier<FlowCapableNode> getWildCardPath() {
+        return InstanceIdentifier.create(Nodes.class).child(Node.class).augmentation(FlowCapableNode.class);
     }
 
     @Override
@@ -94,10 +94,6 @@ public class Ipv6NodeListener extends AbstractDataChangeListener<FlowCapableNode
             listenerRegistration.close();
             listenerRegistration = null;
         }
-        LOG.info("FibNodeConnectorListener Closed");
-    }
-
-    private InstanceIdentifier<FlowCapableNode> getWildCardPath() {
-        return InstanceIdentifier.create(Nodes.class).child(Node.class).augmentation(FlowCapableNode.class);
+        LOG.info("{} close", getClass().getSimpleName());
     }
 }

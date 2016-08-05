@@ -52,7 +52,7 @@ public class Ipv6RouterAdvt {
     public boolean transmitRtrAdvertisement(Ipv6RtrAdvertType raType, VirtualPort routerPort,
                                             NodeConnectorRef outport, RouterSolicitationPacket rsPdu) {
         if (pktService == null) {
-            LOG.debug("transmitRtrAdvertisement packet processing service is not yet configured");
+            LOG.info("transmitRtrAdvertisement packet processing service is not yet configured");
             return false;
         }
         RouterAdvertisementPacketBuilder raPacket = new RouterAdvertisementPacketBuilder();

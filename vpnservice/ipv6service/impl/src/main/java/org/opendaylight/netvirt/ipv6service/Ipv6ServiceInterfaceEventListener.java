@@ -12,6 +12,7 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -28,14 +29,14 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListenerBase<Interface,
-    Ipv6ServiceInterfaceEventListener>
-    implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable {
+public class Ipv6ServiceInterfaceEventListener
+        extends AsyncDataTreeChangeListenerBase<Interface, Ipv6ServiceInterfaceEventListener>
+        implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceInterfaceEventListener.class);
-    private final DataBroker broker;
-    private IfMgr ifMgr;
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalUtil;
+    private final IfMgr ifMgr;
     private Ipv6ServiceUtils ipv6ServiceUtils;
-    private IMdsalApiManager mdsalUtil;
 
     /**
      * Intialize the member variables.
@@ -43,13 +44,15 @@ public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListen
      */
     public Ipv6ServiceInterfaceEventListener(DataBroker broker, IMdsalApiManager mdsalUtil) {
         super(Interface.class, Ipv6ServiceInterfaceEventListener.class);
-        this.broker = broker;
+        this.dataBroker = broker;
         this.mdsalUtil = mdsalUtil;
+        ifMgr = IfMgr.getIfMgrInstance();
         ipv6ServiceUtils = new Ipv6ServiceUtils();
     }
 
-    public void setIfMgrInstance(IfMgr instance) {
-        this.ifMgr = instance;
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
@@ -59,7 +62,7 @@ public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListen
 
     @Override
     protected void remove(InstanceIdentifier<Interface> key, Interface del) {
-        LOG.info("Port removed {}, {}", key, del);
+        LOG.debug("Port removed {}, {}", key, del);
         List<String> ofportIds = del.getLowerLayerIf();
         if (ofportIds == null || ofportIds.isEmpty()) {
             return;
@@ -71,7 +74,7 @@ public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListen
             BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
             if (!dpId.equals(Ipv6Constants.INVALID_DPID)) {
                 VirtualPort routerPort = pair.getRight();
-                ipv6ServiceUtils.unbindIpv6Service(broker, interfaceName);
+                ipv6ServiceUtils.unbindIpv6Service(dataBroker, interfaceName);
                 ipv6ServiceUtils.installIcmpv6RsPuntFlow(NwConstants.IPV6_TABLE, dpId, pair.getLeft(),
                         mdsalUtil, Ipv6Constants.DEL_FLOW);
                 for (Ipv6Address ipv6Address : routerPort.getIpv6Addresses()) {
@@ -88,12 +91,12 @@ public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListen
     protected void update(InstanceIdentifier<Interface> key, Interface dataObjectModificationBefore,
                           Interface dataObjectModificationAfter) {
         // TODO Auto-generated method stub
-        LOG.info("Port updated...");
+        LOG.debug("Port updated...");
     }
 
     @Override
     protected void add(InstanceIdentifier<Interface> key, Interface add) {
-        LOG.info("Port added {}, {}", key, add);
+        LOG.debug("Port added {}, {}", key, add);
         List<String> ofportIds = add.getLowerLayerIf();
         // When a port is created, we receive two notifications.
         // 1. where the interface name is dpnid:tapinterfaceName (f.e., 238412509713739:tapf662f5bf-9d)
@@ -109,9 +112,9 @@ public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListen
         }
 
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface;
-        iface = Ipv6ServiceUtils.getInterface(broker, add.getName());
+        iface = Ipv6ServiceUtils.getInterface(dataBroker, add.getName());
         if (null != iface) {
-            LOG.info("Port added {}", iface);
+            LOG.debug("Port added {}", iface);
             NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
             BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
 
@@ -138,7 +141,7 @@ public class Ipv6ServiceInterfaceEventListener extends AsyncDataTreeChangeListen
                     ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpId,
                             port.getMacAddress(), ipv6Address.getValue(), mdsalUtil, Ipv6Constants.ADD_FLOW);
                 }
-                ipv6ServiceUtils.bindIpv6Service(broker, iface.getName(), NwConstants.IPV6_TABLE);
+                ipv6ServiceUtils.bindIpv6Service(dataBroker, iface.getName(), NwConstants.IPV6_TABLE);
                 ifMgr.updateInterfaceCache(iface.getName(), new ImmutablePair<>(port.getMacAddress(), routerPort));
             }
         }
