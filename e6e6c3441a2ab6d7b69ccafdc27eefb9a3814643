@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_36178da5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-02T20:42:43Z",
+      "side": 1,
+      "message": "please cleanup all the whitespace issues, tabs",
+      "revId": "e6e6c3441a2ab6d7b69ccafdc27eefb9a3814643",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_761105ac",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 714,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-02T20:42:43Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "e6e6c3441a2ab6d7b69ccafdc27eefb9a3814643",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
