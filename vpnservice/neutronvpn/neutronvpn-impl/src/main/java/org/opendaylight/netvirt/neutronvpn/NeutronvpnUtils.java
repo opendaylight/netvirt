@@ -663,9 +663,16 @@ public class NeutronvpnUtils {
     }
 
     protected static boolean lock(LockManagerService lockManager, String lockName) {
-        synchronized (NeutronvpnUtils.class) {
+        //synchronized (NeutronvpnUtils.class) {
             if (locks.get(lockName) != null) {
-                locks.get(lockName).getRight().incrementAndGet();
+				synchronized(locks) {
+					if (locks.get(lockName) != null) {
+						locks.get(lockName).getRight().incrementAndGet();
+					} else {
+						locks.putIfAbsent(lockName, new ImmutablePair<ReadWriteLock, AtomicInteger>(
+							new ReentrantReadWriteLock(), new AtomicInteger(0)));
+					}
+				}
                 try {
                     locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
                 } catch (InterruptedException e) {
@@ -684,60 +691,27 @@ public class NeutronvpnUtils {
                     throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
                 }
             }
-        }
+        //}
         return true;
-        /*
-        TryLockInput input = new TryLockInputBuilder().setLockName(lockName).setTime(5L).setTimeUnit
-                        (TimeUnits.Milliseconds).build();
-        boolean islockAcquired = false;
-        try {
-            Future<RpcResult<Void>> result = lockManager.tryLock(input);
-            if (result != null && result.get().isSuccessful()) {
-                logger.debug("Acquired lock for {}", lockName);
-                islockAcquired = true;
-            } else {
-                logger.error("Unable to acquire lock for  {}", lockName);
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Unable to acquire lock for  {}", lockName);
-            throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
-        }
-        return islockAcquired;
-        */
     }
 
     protected static boolean unlock(LockManagerService lockManager, String lockName) {
-        synchronized (NeutronvpnUtils.class) {
+        //synchronized (NeutronvpnUtils.class) {
             if (locks.get(lockName) != null) {
                 try {
                     locks.get(lockName).getLeft().writeLock().unlock();
                 } catch (Exception e) {
-                    logger.error("Unable to un-lock for  {}", lockName);
-                    throw new RuntimeException(String.format("Unable to un-lock for %s", lockName), e.getCause());
+                    logger.error("Unable to un-lock ", e);
+                    return false;
                 }
                 if (0 == locks.get(lockName).getRight().decrementAndGet()) {
-                    locks.remove(lockName);
+					synchronized(locks) {
+						locks.remove(lockName);
+					}
                 }
             }
-        }
-        return true;
-        /*
-        UnlockInput input = new UnlockInputBuilder().setLockName(lockName).build();
-        boolean islockAcquired = false;
-        try {
-            Future<RpcResult<Void>> result = lockManager.unlock(input);
-            if (result != null && result.get().isSuccessful()) {
-                logger.debug("Unlocked {}", lockName);
-                islockAcquired = true;
-            } else {
-                logger.error("Unable to unlock {}", lockName);
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Unable to unlock {}", lockName);
-            throw new RuntimeException(String.format("Unable to unlock %s", lockName), e.getCause());
-        }
-        return islockAcquired;
-        */
+        //}
+        return true;        
     }
 
     protected static Short getIPPrefixFromPort(DataBroker broker, Port port) {
