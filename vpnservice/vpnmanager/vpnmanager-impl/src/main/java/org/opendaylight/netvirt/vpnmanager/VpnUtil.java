@@ -116,6 +116,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFailedException;
@@ -613,6 +615,24 @@ public class VpnUtil {
 
         if (configuredVpnInterface.isPresent()) {
             return configuredVpnInterface.get();
+        }
+        return null;
+    }
+
+    static String getNeutronRouterFromInterface(DataBroker broker, String interfaceName) {
+        InstanceIdentifier.InstanceIdentifierBuilder<RouterInterfacesMap> idBuilder =
+                            InstanceIdentifier.builder(RouterInterfacesMap.class);
+        InstanceIdentifier<RouterInterfacesMap> id = idBuilder.build();
+        Optional<RouterInterfacesMap> RouterInterfacesMap = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (RouterInterfacesMap.isPresent()) {
+               List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces> rtrInterfaces = RouterInterfacesMap.get().getRouterInterfaces();
+                  for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces rtrInterface : rtrInterfaces) {
+                      List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces> rtrIfc = rtrInterface.getInterfaces();
+                      for(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces ifc : rtrIfc)
+                       if (ifc.getInterfaceId().equals(interfaceName)) {
+                          return rtrInterface.getRouterId().getValue();
+                       }
+                  }
         }
         return null;
     }

@@ -64,26 +64,24 @@ public class RouterInterfaceListener extends AbstractDataChangeListener<Interfac
         final String interfaceName = interfaceInfo.getInterfaceId();
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState =
                 InterfaceUtils.getInterfaceStateFromOperDS(broker, interfaceName);
-        if (interfaceState != null) {
-            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob(interfaceName,
-                    new Callable<List<ListenableFuture<Void>>>() {
-                        @Override
-                        public List<ListenableFuture<Void>> call() throws Exception {
-                            WriteTransaction writeTxn = broker.newWriteOnlyTransaction();
-                            LOG.debug("Handling interface {} in router {} add scenario", interfaceName, routerId);
-                            writeTxn.put(LogicalDatastoreType.CONFIGURATION,
-                                    VpnUtil.getRouterInterfaceId(interfaceName),
-                                    VpnUtil.getRouterInterface(interfaceName, routerId), true);
-                            vpnInterfaceManager.addToNeutronRouterDpnsMap(routerId, interfaceName, writeTxn);
-                            List<ListenableFuture<Void>> futures = new ArrayList<>();
-                            futures.add(writeTxn.submit());
-                            return futures;
-                        }
-                    });
-        } else {
-            LOG.warn("Interface {} not yet operational to handle router interface add event in router {}", interfaceName, routerId);
-        }
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(interfaceName,
+                new Callable<List<ListenableFuture<Void>>>() {
+                    @Override
+                    public List<ListenableFuture<Void>> call() throws Exception {
+                        WriteTransaction writeTxn = broker.newWriteOnlyTransaction();
+                        LOG.debug("Handling interface {} in router {} add scenario", interfaceName, routerId);
+                        writeTxn.put(LogicalDatastoreType.CONFIGURATION,
+                                VpnUtil.getRouterInterfaceId(interfaceName),
+                                VpnUtil.getRouterInterface(interfaceName, routerId), true);
+                        LOG.debug("Added the Router {} and interface {} in the ODL-L3VPN RouterInterface map",
+                                routerId, interfaceName);
+                        vpnInterfaceManager.addToNeutronRouterDpnsMap(routerId, interfaceName, writeTxn);
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        futures.add(writeTxn.submit());
+                        return futures;
+                    }
+                });
     }
 
     @Override
