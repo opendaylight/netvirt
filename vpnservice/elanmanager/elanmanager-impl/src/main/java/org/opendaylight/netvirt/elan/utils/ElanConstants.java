@@ -30,7 +30,7 @@ public class ElanConstants {
 
     public static final String L2GATEWAY_DS_JOB_NAME = "L2GW";
     public static final String UNKNOWN_DMAC = "00:00:00:00:00:00";
-    public static final int JOB_MAX_RETRIES = 3;
+    public static final int JOB_MAX_RETRIES = 6;
     public static final TopologyId OVSDB_TOPOLOGY_ID = new TopologyId(new Uri("ovsdb:1"));
     public static final String OVSDB_BRIDGE_URI_PREFIX = "bridge";
 }

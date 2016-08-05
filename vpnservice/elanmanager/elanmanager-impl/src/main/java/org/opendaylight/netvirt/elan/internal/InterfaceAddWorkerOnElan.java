@@ -48,7 +48,7 @@ public class InterfaceAddWorkerOnElan implements Callable<List<ListenableFuture<
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         try {
-            dataChangeListener.addElanInterface(elanInterface, interfaceInfo, elanInstance);
+            dataChangeListener.addElanInterface(futures, elanInterface, interfaceInfo, elanInstance);
         } catch (Exception e) {
             logger.error("Error while processing {} for {}, error {}", key, elanInterface, e);
         }

@@ -49,7 +49,7 @@ public class InterfaceRemoveWorkerOnElan implements Callable<List<ListenableFutu
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         try {
-            dataChangeListener.removeElanInterface(elanInfo, interfaceName, interfaceInfo, isInterfaceStateRemoved);
+            dataChangeListener.removeElanInterface(futures, elanInfo, interfaceName, interfaceInfo, isInterfaceStateRemoved);
         } catch (Exception e) {
             logger.error("Error while processing {} for {}, error {}", key, interfaceName, e);
         }
