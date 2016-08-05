@@ -79,6 +79,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoad;
+ 
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -1008,6 +1012,17 @@ public class NatUtil {
                             listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
                                     new String[] { Long.toString(vlanVid) }));
                         }
+                    } else if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
+                        Short tableId = ((NxActionResubmitRpcAddGroupCase)actionClass).getNxResubmit().getTable();
+                        listActionInfo.add(new ActionInfo(ActionType.nx_resubmit,
+                            new String[] { tableId.toString() }));
+                    } else if (actionClass instanceof NxActionRegLoadNodesNodeTableFlowApplyActionsCase) {
+                        NxRegLoad nxRegLoad =
+                            ((NxActionRegLoadNodesNodeTableFlowApplyActionsCase)actionClass).getNxRegLoad();
+                        listActionInfo.add(new ActionInfo(ActionType.nx_load_reg_6,
+                            new String[] { nxRegLoad.getDst().getStart().toString(),
+                                nxRegLoad.getDst().getEnd().toString(),
+                                nxRegLoad.getValue().toString(10)}));
                     }
                 }
             }
