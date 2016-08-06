@@ -40,6 +40,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     }
 
     public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 

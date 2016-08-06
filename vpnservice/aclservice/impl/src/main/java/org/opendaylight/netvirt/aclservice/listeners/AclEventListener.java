@@ -40,6 +40,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
     }
 
     public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 

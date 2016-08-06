@@ -8,20 +8,15 @@
   <reference id="mdsalManager"
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
 
-  <odl:rpc-service id="odlInterfaceRpcService"
-    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
-
   <bean id="ingressAclService"
     class="org.opendaylight.netvirt.aclservice.IngressAclServiceImpl">
     <argument ref="dataBroker" />
-    <argument ref="odlInterfaceRpcService" />
     <argument ref="mdsalManager" />
   </bean>
 
   <bean id="egressAclService"
     class="org.opendaylight.netvirt.aclservice.EgressAclServiceImpl">
     <argument ref="dataBroker" />
-    <argument ref="odlInterfaceRpcService" />
     <argument ref="mdsalManager" />
   </bean>
 
