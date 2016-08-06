@@ -248,24 +248,20 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                                              Constants.PROTO_DHCP_CLIENT_SPOOF_MATCH_PRIORITY_DROP);
         egressAclDhcpv6DropServerTrafficfromVm(dpid, localPort, write,
                                                Constants.PROTO_DHCP_CLIENT_SPOOF_MATCH_PRIORITY_DROP);
-        //Adds rule to check legitimate ip/mac pair for each packet from the vm
-        for (Neutron_IPs srcAddress : srcAddressList) {
-            try {
-                InetAddress address = InetAddress.getByName(srcAddress.getIpAddress());
-                if (address instanceof Inet4Address) {
-                    String addressWithPrefix = srcAddress.getIpAddress() + HOST_MASK;
-                    egressAclAllowTrafficFromVmIpMacPair(dpid, localPort, attachedMac, addressWithPrefix,
-                                                         Constants.PROTO_VM_IP_MAC_MATCH_PRIORITY,write);
-                } else if (address instanceof Inet6Address) {
-                    String addressWithPrefix = srcAddress.getIpAddress() + V6_HOST_MASK;
-                    egressAclAllowTrafficFromVmIpV6MacPair(dpid, localPort, attachedMac, addressWithPrefix,
-                                                           Constants.PROTO_VM_IP_MAC_MATCH_PRIORITY,write);
-                }
-            } catch (UnknownHostException e) {
-                LOG.warn("Invalid IP address {}", srcAddress.getIpAddress(), e);
-            }
-        }
+        // add rule to drop tcp syn packets from the vm
+        addTcpSynFlagMatchDrop(dpid, segmentationId, attachedMac, write, Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
+    }
 
+    private void addTcpSynFlagMatchDrop(Long dpidLong, String segmentationId, String srcMac,
+                                  boolean write, Integer priority) {
+        String flowName = "Egress_TCP_" + segmentationId + "_" + srcMac + "_DROP_";
+        MatchBuilder matchBuilder = new MatchBuilder();
+        flowName = flowName + "_";
+        matchBuilder = MatchUtils.createTcpSynWithProtoMatch(matchBuilder);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowName, priority, matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, true);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        syncFlow(flowBuilder ,nodeBuilder, write);
     }
 
     private void programArpRule(Long dpid, String segmentationId, long localPort, String attachedMac, boolean write) {
