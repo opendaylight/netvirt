@@ -172,6 +172,8 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                     egressAclTcp(dpid, segmentationId, attachedMac,
                              portSecurityRule,ipaddress, write,
                              Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                    egressAclTcpSynFlag(dpid, segmentationId, attachedMac,
+                             write, Constants.PROTO_TCP_SYN_MATCH_PRIORITY);
                     break;
                 case MatchUtils.UDP:
                     LOG.debug("programPortSecurityRule: Rule matching UDP", portSecurityRule);
@@ -242,30 +244,28 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         programArpRule(dpid, segmentationId, localPort, attachedMac, write);
         if (securityServicesManager.isConntrackEnabled()) {
             programEgressAclFixedConntrackRule(dpid, segmentationId, localPort, attachedMac, write);
+        } else {
+            // add rule to drop tcp syn packets from the vm
+            addTcpSynFlagMatchDrop(dpid, segmentationId, attachedMac, write,
+                                                         Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
         }
         // add rule to drop the DHCP server traffic originating from the vm.
         egressAclDhcpDropServerTrafficfromVm(dpid, localPort, write,
                                              Constants.PROTO_DHCP_CLIENT_SPOOF_MATCH_PRIORITY_DROP);
         egressAclDhcpv6DropServerTrafficfromVm(dpid, localPort, write,
                                                Constants.PROTO_DHCP_CLIENT_SPOOF_MATCH_PRIORITY_DROP);
-        //Adds rule to check legitimate ip/mac pair for each packet from the vm
-        for (Neutron_IPs srcAddress : srcAddressList) {
-            try {
-                InetAddress address = InetAddress.getByName(srcAddress.getIpAddress());
-                if (address instanceof Inet4Address) {
-                    String addressWithPrefix = srcAddress.getIpAddress() + HOST_MASK;
-                    egressAclAllowTrafficFromVmIpMacPair(dpid, localPort, attachedMac, addressWithPrefix,
-                                                         Constants.PROTO_VM_IP_MAC_MATCH_PRIORITY,write);
-                } else if (address instanceof Inet6Address) {
-                    String addressWithPrefix = srcAddress.getIpAddress() + V6_HOST_MASK;
-                    egressAclAllowTrafficFromVmIpV6MacPair(dpid, localPort, attachedMac, addressWithPrefix,
-                                                           Constants.PROTO_VM_IP_MAC_MATCH_PRIORITY,write);
-                }
-            } catch (UnknownHostException e) {
-                LOG.warn("Invalid IP address {}", srcAddress.getIpAddress(), e);
-            }
-        }
+    }
 
+    private void addTcpSynFlagMatchDrop(Long dpidLong, String segmentationId, String srcMac,
+                                  boolean write, Integer priority) {
+        String flowName = "Egress_TCP_" + segmentationId + "_" + srcMac + "_DROP_";
+        MatchBuilder matchBuilder = new MatchBuilder();
+        flowName = flowName + "_";
+        matchBuilder = MatchUtils.createTcpSynWithProtoMatch(matchBuilder);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowName, priority, matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, true);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        syncFlow(flowBuilder, nodeBuilder, write);
     }
 
     private void programArpRule(Long dpid, String segmentationId, long localPort, String attachedMac, boolean write) {
@@ -475,6 +475,19 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             syncFlow(flowBuilder ,nodeBuilder, write);
         }
     }
+
+    private void egressAclTcpSynFlag(Long dpidLong, String segmentationId, String srcMac,
+                                     boolean write, Integer protoTcpSynMatchPriority) {
+        MatchBuilder matchBuilder = new MatchBuilder();
+        String flowId = "Egress_TCP_" + segmentationId + "_" + srcMac + "_";
+        flowId = flowId + "_";
+        matchBuilder = MatchUtils.createTcpSynWithProtoMatch(matchBuilder);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoTcpSynMatchPriority,
+                                                              matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, false);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        syncFlow(flowBuilder ,nodeBuilder, write);
+        }
 
     private void egressAclIcmp(Long dpidLong, String segmentationId, String srcMac,
             NeutronSecurityRule portSecurityRule, String dstAddress,
