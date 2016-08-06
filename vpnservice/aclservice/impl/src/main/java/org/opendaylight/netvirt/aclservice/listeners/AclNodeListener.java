@@ -60,6 +60,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     }
 
     public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
