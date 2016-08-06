@@ -227,9 +227,25 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
 
         if (securityServicesManager.isConntrackEnabled()) {
             programIngressAclFixedConntrackRule(dpid, segmentationId, attachMac, localPort, write);
+        } else {
+            addTcpSynFlagMatch(dpid, segmentationId, attachMac, write,
+                                           Constants.PROTO_TCP_SYN_MATCH_PRIORITY);
         }
         programArpRule(dpid, segmentationId, localPort, attachMac, write);
     }
+
+    private void addTcpSynFlagMatch(Long dpidLong, String segmentationId, String srcMac,
+                              boolean write, Integer protoTcpSynMatchPriority) {
+        MatchBuilder matchBuilder = new MatchBuilder();
+        String flowId = "Ingress_TCP_" + segmentationId + "_" + srcMac + "_";
+        flowId = flowId + "_";
+        matchBuilder = MatchUtils.createTcpSynWithProtoMatch(matchBuilder);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoTcpSynMatchPriority,
+                                                                  matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, false);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        syncFlow(flowBuilder, nodeBuilder, write);
+        }
 
     private void programArpRule(Long dpid, String segmentationId, long localPort, String attachMac, boolean write) {
         MatchBuilder matchBuilder = new MatchBuilder();
