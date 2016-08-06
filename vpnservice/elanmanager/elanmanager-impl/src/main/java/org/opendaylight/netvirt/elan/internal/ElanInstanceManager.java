@@ -9,8 +9,11 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -57,6 +60,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     @Override
     protected void remove(InstanceIdentifier<ElanInstance> identifier, ElanInstance deletedElan) {
         logger.trace("Remove ElanInstance - Key: {}, value: {}", identifier, deletedElan);
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
         String elanName = deletedElan.getElanInstanceName();
         // check the elan Instance present in the Operational DataStore
         Elan existingElan = ElanUtils.getElanByName(elanName);
@@ -70,7 +74,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                             .getElanInterfaceConfigurationDataPathId(elanInterfaceName);
                     InterfaceInfo interfaceInfo = elanServiceProvider.getInterfaceManager()
                             .getInterfaceInfo(elanInterfaceName);
-                    elanServiceProvider.getElanInterfaceManager().removeElanInterface(deletedElan, elanInterfaceName,
+                    elanServiceProvider.getElanInterfaceManager().removeElanInterface(futures, deletedElan, elanInterfaceName,
                             interfaceInfo, false);
                     ElanUtils.delete(elanServiceProvider.getBroker(), LogicalDatastoreType.CONFIGURATION,
                             elanInterfaceId);

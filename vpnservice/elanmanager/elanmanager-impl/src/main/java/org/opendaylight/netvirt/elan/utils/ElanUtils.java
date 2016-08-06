@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -2005,13 +2007,14 @@ public class ElanUtils {
         return idBuilder.build();
     }
 
-    public static void waitForTransactionToComplete(WriteTransaction tx) {
+    public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(WriteTransaction tx) {
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error writing to datastore {}", e);
         }
+        return futures;
     }
 
     public static boolean isVxlan(ElanInstance elanInstance) {
