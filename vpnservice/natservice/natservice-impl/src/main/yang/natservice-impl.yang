@@ -7,7 +7,6 @@ module natservice-impl {
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
     import opendaylight-sal-binding-broker-impl { prefix md-sal-binding-impl; revision-date 2013-10-28; }
     import odl-mdsalutil { prefix odl-mdsal; revision-date 2016-04-06;}
-    import bgpmanager-api { prefix bgpmgr-api; revision-date 2015-04-20;}
     import odl-interface {prefix odlif; revision-date 2016-04-06;}
 
     description
@@ -41,14 +40,6 @@ module natservice-impl {
                          config:required-identity md-sal-binding:binding-rpc-registry;
                       }
                  }
-            }
-            container bgpmanager {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity bgpmgr-api:bgpmanager-api;
-                    }
-                }
             }
             container notification-service {
                 uses config:service-ref {

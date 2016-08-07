@@ -214,13 +214,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>bgpmanager-impl</artifactId>
-      <version>${vpnservices.version}</version>
-      <classifier>config</classifier>
-      <type>xml</type>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>bgpmanager-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>

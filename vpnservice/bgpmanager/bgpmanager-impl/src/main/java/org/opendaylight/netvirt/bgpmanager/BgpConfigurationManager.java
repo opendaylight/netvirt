@@ -5,23 +5,36 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Optional;
-
-import java.io.*;
-import java.util.*;
-import java.lang.reflect.*;
+import io.netty.util.concurrent.GlobalEventExecutor;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.concurrent.*;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
-import org.opendaylight.netvirt.bgpmanager.thrift.gen.*;
-import org.opendaylight.netvirt.bgpmanager.thrift.client.*;
-import org.opendaylight.netvirt.bgpmanager.thrift.server.*;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -31,32 +44,67 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipS
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpCounters;
+import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouter;
+import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouterException;
+import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpSyncHandle;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.Routes;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.Update;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
+import org.opendaylight.netvirt.bgpmanager.thrift.server.BgpThriftService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.*;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.*;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.*;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.*;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.ConfigServer;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.ConfigServerBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.GracefulRestart;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.GracefulRestartBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Logging;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.LoggingBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NeighborsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NeighborsKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Networks;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Vrfs;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfsKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.AddressFamilies;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.AddressFamiliesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.AddressFamiliesKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.EbgpMultihop;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.EbgpMultihopBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSource;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSourceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BgpConfigurationManager {
-    private static final Logger LOG =
-            LoggerFactory.getLogger(BgpConfigurationManager.class);
-    private static DataBroker broker;
-    private static FibDSWriter fib;
+    private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
+    private static DataBroker dataBroker;
+    private static FibDSWriter fibDSWriter;
+    public static IBgpManager bgpManager;
+    private final BundleContext bundleContext;
     private static Bgp config;
     private static BgpRouter bgpRouter;
     private static BgpThriftService updateServer;
-
+    private BgpCounters bgpCounters;
+    private Timer bgpCountersTimer;
     private static final String DEF_LOGFILE = "/var/log/bgp_debug.log";
     private static final String DEF_LOGLEVEL = "errors";
     private static final String UPDATE_PORT = "bgp.thrift.service.port";
@@ -126,7 +174,6 @@ public class BgpConfigurationManager {
     private static String cPortStartup;
     private static CountDownLatch initer = new CountDownLatch(1);
     //static IITMProvider itmProvider;
-    public static BgpManager bgpManager;
     //map<rd, map<prefix/len, nexthop/label>>
     private static Map<String, Map<String, String>> staledFibEntriesMap = new ConcurrentHashMap<>();
 
@@ -136,17 +183,64 @@ public class BgpConfigurationManager {
     static int totalStaledCount = 0;
     static int totalCleared = 0;
 
-    private static final Class[] reactors =
-            {
-                    ConfigServerReactor.class, AsIdReactor.class,
-                    GracefulRestartReactor.class, LoggingReactor.class,
-                    NeighborsReactor.class, UpdateSourceReactor.class,
-                    EbgpMultihopReactor.class, AddressFamiliesReactor.class,
-                    NetworksReactor.class, VrfsReactor.class, BgpReactor.class
-            };
+    private static final Class[] reactors = {
+            ConfigServerReactor.class, AsIdReactor.class,
+            GracefulRestartReactor.class, LoggingReactor.class,
+            NeighborsReactor.class, UpdateSourceReactor.class,
+            EbgpMultihopReactor.class, AddressFamiliesReactor.class,
+            NetworksReactor.class, VrfsReactor.class, BgpReactor.class
+    };
 
     private ListenerRegistration<DataChangeListener>[] registrations;
-    EntityOwnershipService entityOwnershipService;
+
+    final BgpConfigurationManager bgpConfigurationManager;
+
+    public BgpConfigurationManager(final DataBroker dataBroker,
+                                   final EntityOwnershipService entityOwnershipService,
+                                   final FibDSWriter fibDSWriter,
+                                   final BundleContext bundleContext)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        BgpConfigurationManager.dataBroker = dataBroker;
+        BgpConfigurationManager.fibDSWriter = fibDSWriter;
+        setEntityOwnershipService(entityOwnershipService);
+        this.bundleContext = bundleContext;
+        bgpRouter = BgpRouter.getInstance();
+        String uPort = getProperty(UPDATE_PORT, DEF_UPORT);
+        cHostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
+        cPortStartup = getProperty(CONFIG_PORT, DEF_CPORT);
+        VtyshCli.setHostAddr(cHostStartup);
+        ClearBgpCli.setHostAddr(cHostStartup);
+        LOG.info("UpdateServer at localhost:" + uPort + " ConfigServer at "
+                + cHostStartup + ":" + cPortStartup);
+        readOdlThriftIpForBgpCommunication();
+        registerCallbacks();
+
+        LOG.info("BGP Configuration manager initialized");
+        initer.countDown();
+
+        bgpConfigurationManager = this;
+        BgpUtil.batchSize = BgpUtil.BATCH_SIZE;
+        if (Integer.getInteger("batch.size") != null) {
+            BgpUtil.batchSize = Integer.getInteger("batch.size");
+        }
+        BgpUtil.batchInterval = BgpUtil.PERIODICITY;
+        if (Integer.getInteger("batch.wait.time") != null) {
+            BgpUtil.batchInterval = Integer.getInteger("batch.wait.time");
+        }
+        BgpUtil.registerWithBatchManager(new BgpVrfBatchHandler());
+
+        GlobalEventExecutor.INSTANCE.execute(new Runnable() {
+            @Override
+            public void run() {
+                final WaitingServiceTracker<IBgpManager> tracker = WaitingServiceTracker.create(
+                        IBgpManager.class, bundleContext);
+                bgpManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+                updateServer = new BgpThriftService(Integer.parseInt(uPort), bgpManager, fibDSWriter);
+                updateServer.start();
+                LOG.info("BgpConfigurationManager initialized. IBgpManager={}", bgpManager);
+            }
+        });
+    }
 
     private Object createListener(Class<?> cls) {
         Constructor<?> ctor;
@@ -170,7 +264,7 @@ public class BgpConfigurationManager {
             String dclName = obj.getClass().getName();
             try {
                 AsyncDataTreeChangeListenerBase dcl = (AsyncDataTreeChangeListenerBase) obj;
-                dcl.registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+                dcl.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
             } catch (Exception e) {
                 LOG.error(emsg, e);
                 throw new IllegalStateException(emsg + " " + dclName, e);
@@ -182,63 +276,21 @@ public class BgpConfigurationManager {
         if (updateServer != null) {
             updateServer.stop();
         }
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     private boolean configExists() throws InterruptedException, ExecutionException, TimeoutException {
         InstanceIdentifier.InstanceIdentifierBuilder<Bgp> iib =
                 InstanceIdentifier.builder(Bgp.class);
         InstanceIdentifier<Bgp> iid = iib.build();
-        Optional<Bgp> b = BgpUtil.read(broker,
+        Optional<Bgp> b = BgpUtil.read(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, iid);
         return b.isPresent();
     }
 
     private String getProperty(String var, String def) {
-        Bundle b = FrameworkUtil.getBundle(BgpManager.class);
-        if (b == null) {
-            return def;
-        }
-        BundleContext context = b.getBundleContext();
-        if (context == null) {
-            return def;
-        }
-        String s = context.getProperty(var);
+        String s = bundleContext.getProperty(var);
         return (s == null ? def : s);
-    }
-
-    static BgpConfigurationManager bgpConfigurationManager;
-
-    public BgpConfigurationManager(BgpManager bgpMgr) throws InterruptedException, ExecutionException, TimeoutException {
-        broker = bgpMgr.getBroker();
-        fib = bgpMgr.getFibWriter();
-
-        bgpManager = bgpMgr;
-        bgpRouter = BgpRouter.getInstance();
-        String uPort = getProperty(UPDATE_PORT, DEF_UPORT);
-        cHostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
-        cPortStartup = getProperty(CONFIG_PORT, DEF_CPORT);
-        VtyshCli.setHostAddr(cHostStartup);
-        ClearBgpCli.setHostAddr(cHostStartup);
-        LOG.info("UpdateServer at localhost:" + uPort + " ConfigServer at "
-                + cHostStartup + ":" + cPortStartup);
-        updateServer = new BgpThriftService(Integer.parseInt(uPort), bgpMgr);
-        updateServer.start();
-        readOdlThriftIpForBgpCommunication();
-        registerCallbacks();
-
-        LOG.info("BGP Configuration manager initialized");
-        initer.countDown();
-
-        bgpConfigurationManager = this;
-        BgpUtil.batchSize = BgpUtil.BATCH_SIZE;
-        if (Integer.getInteger("batch.size") != null) {
-            BgpUtil.batchSize = Integer.getInteger("batch.size");
-        }
-        BgpUtil.batchInterval = BgpUtil.PERIODICITY;
-        if (Integer.getInteger("batch.wait.time") != null) {
-            BgpUtil.batchInterval = Integer.getInteger("batch.wait.time");
-        }
-        BgpUtil.registerWithBatchManager(new BgpVrfBatchHandler());
     }
 
     boolean ignoreClusterDcnEventForFollower() {
@@ -246,12 +298,11 @@ public class BgpConfigurationManager {
     }
 
     public Bgp get() {
-        config = bgpManager.getConfig();
+        config = getConfig();
         return config;
     }
 
-    public void setEntityOwnershipService(EntityOwnershipService entityOwnershipService) {
-        this.entityOwnershipService = entityOwnershipService;
+    public void setEntityOwnershipService(final EntityOwnershipService entityOwnershipService) {
         try {
             EntityOwnerUtils.registerEntityCandidateForOwnerShip(entityOwnershipService,
                     BGP_ENTITY_TYPE_FOR_OWNERSHIP, BGP_ENTITY_NAME, new EntityOwnershipListener() {
@@ -271,10 +322,6 @@ public class BgpConfigurationManager {
         } catch (Exception e) {
             LOG.error("failed to register bgp entity", e);
         }
-    }
-
-    public EntityOwnershipService getEntityOwnershipService() {
-        return entityOwnershipService;
     }
 
     private static final String addWarn =
@@ -350,7 +397,7 @@ public class BgpConfigurationManager {
             try {
                 super.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error("ConfigServerReactor failed to close: ", e);
             }
         }
     }
@@ -393,8 +440,8 @@ public class BgpConfigurationManager {
                 boolean announceFbit = (afb == null) ? false : afb.booleanValue();
                 try {
                     br.startBgp(asNum, rid, stalepathTime, announceFbit);
-                    if (bgpManager.getBgpCounters() == null) {
-                        bgpManager.startBgpCountersTask();
+                    if (getBgpCounters() == null) {
+                        startBgpCountersTask();
                     }
                 } catch (BgpRouterException bre) {
                     if (bre.getErrorCode() == BgpRouterException.BGP_ERR_ACTIVE) {
@@ -436,8 +483,8 @@ public class BgpConfigurationManager {
                 } catch (Exception e) {
                     LOG.error(yangObj + " Delete received exception:  \"" + e + "\"; " + delWarn);
                 }
-                if (bgpManager.getBgpCounters() != null) {
-                    bgpManager.stopBgpCountersTask();
+                if (getBgpCounters() != null) {
+                    stopBgpCountersTask();
                 }
             }
         }
@@ -1300,7 +1347,7 @@ public class BgpConfigurationManager {
     public static long getStalePathtime(int defValue, AsId as_num) {
         long spt = 0;
         try {
-            spt = bgpManager.getConfig().getGracefulRestart().getStalepathTime();
+            spt = getConfig().getGracefulRestart().getStalepathTime();
         } catch (Exception e) {
             try {
                 spt = as_num.getStalepathTime();
@@ -1340,10 +1387,10 @@ public class BgpConfigurationManager {
                         return;
                     }
                     setStaleStartTime(System.currentTimeMillis());
-                    LOG.error("started creating stale fib  map ");
+                    LOG.error("started creating stale fibDSWriter  map ");
                     createStaleFibMap();
                     setStaleEndTime(System.currentTimeMillis());
-                    LOG.error("took {} msecs for stale fib map creation ", getStaleEndTime()- getStaleStartTime());
+                    LOG.error("took {} msecs for stale fibDSWriter map creation ", getStaleEndTime()- getStaleStartTime());
                     LOG.error("started bgp config replay ");
                     setCfgReplayStartTime(System.currentTimeMillis());
                     replay();
@@ -1413,7 +1460,7 @@ public class BgpConfigurationManager {
     }
 
     /* onUpdatePushRoute
-     * Get Stale fib map, and compare current route/fib entry.
+     * Get Stale fibDSWriter map, and compare current route/fibDSWriter entry.
      *  - Entry compare shall include NextHop, Label.
      *  - If entry matches: delete from STALE Map. NO Change to FIB Config DS.
      *  - If entry not found, add to FIB Config DS.
@@ -1447,7 +1494,7 @@ public class BgpConfigurationManager {
         }
         if (addroute) {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
-            fib.addFibEntryToDS(rd, prefix + "/" + plen, Arrays.asList(nextHop), label, RouteOrigin.BGP);
+            fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, Arrays.asList(nextHop), label, RouteOrigin.BGP);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
         }
     }
@@ -1516,7 +1563,19 @@ public class BgpConfigurationManager {
                 ts.getPort().intValue());
     }
 
-    public static synchronized void replay() {
+    public static Bgp getConfig() {
+        //TODO cleanup this cache code
+        try {
+            Optional<Bgp> optional = BgpUtil.read(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Bgp.class));
+            return optional.get();
+        } catch (Exception e) {
+            //LOG.error("failed to get bgp config",e);
+        }
+        return null;
+    }
+
+    public synchronized void replay() {
         synchronized (bgpConfigurationManager) {
             String host = getConfigHost();
             int port = getConfigPort();
@@ -1531,7 +1590,7 @@ public class BgpConfigurationManager {
                 LOG.error(msg);
                 return;
             }
-            config = bgpManager.getConfig();
+            config = getConfig();
             if (config == null) {
                 LOG.error("bgp config is empty nothing to push to bgp");
                 return;
@@ -1562,8 +1621,8 @@ public class BgpConfigurationManager {
                 LOG.error("Replay:startBgp() received exception: \"" + e + "\"");
             }
 
-            if (bgpManager.getBgpCounters() == null) {
-                bgpManager.startBgpCountersTask();
+            if (getBgpCounters() == null) {
+                startBgpCountersTask();
             }
 
             Logging l = config.getLogging();
@@ -1627,15 +1686,15 @@ public class BgpConfigurationManager {
     }
 
     private <T extends DataObject> void update(InstanceIdentifier<T> iid, T dto) {
-        BgpUtil.update(broker, LogicalDatastoreType.CONFIGURATION, iid, dto);
+        BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, iid, dto);
     }
 
     private <T extends DataObject> void asyncWrite(InstanceIdentifier<T> iid, T dto) {
-        BgpUtil.write(broker, LogicalDatastoreType.CONFIGURATION, iid, dto);
+        BgpUtil.write(dataBroker, LogicalDatastoreType.CONFIGURATION, iid, dto);
     }
 
     private <T extends DataObject> void delete(InstanceIdentifier<T> iid) {
-        BgpUtil.delete(broker, LogicalDatastoreType.CONFIGURATION, iid);
+        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, iid);
     }
 
     public synchronized void
@@ -1880,7 +1939,7 @@ public class BgpConfigurationManager {
                                 try {
                                     totalCleared++;
                                     LOG.error("BGP: RouteCleanup deletePrefix called but not executed rd:{}, prefix{}" + rd.toString() + prefix);
-                                    // fib.removeFibEntryFromDS(rd, prefix);
+                                    // fibDSWriter.removeFibEntryFromDS(rd, prefix);
                                 } catch (Exception e) {
                                     LOG.error("BGP: RouteCleanup deletePrefix failed rd:{}, prefix{}" + rd.toString() + prefix);
                                 }
@@ -1914,14 +1973,14 @@ public class BgpConfigurationManager {
                 Thread.sleep(1000);
                 retry--;
                 if (retry == 0) {
-                    LOG.error("TimeOut occured {} seconds, in waiting stale fib create", STALE_FIB_WAIT);
+                    LOG.error("TimeOut occured {} seconds, in waiting stale fibDSWriter create", STALE_FIB_WAIT);
                 }
             }
             staledFibEntriesMap.clear();
             InstanceIdentifier<FibEntries> id = InstanceIdentifier.create(FibEntries.class);
             DataBroker db = BgpUtil.getBroker();
             if (db == null) {
-                LOG.error("Couldn't find BgpUtil broker while creating createStaleFibMap");
+                LOG.error("Couldn't find BgpUtil dataBroker while creating createStaleFibMap");
                 return;
             }
 
@@ -1961,7 +2020,7 @@ public class BgpConfigurationManager {
     public static void onUpdateWithdrawRoute(String rd, String prefix, int plen) {
         LOG.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
         try {
-            fib.removeFibEntryFromDS(rd, prefix + "/" + plen);
+            fibDSWriter.removeFibEntryFromDS(rd, prefix + "/" + plen);
         } catch (Throwable e) {
             LOG.error("failed to handle withdraw route ", e);
         }
@@ -1980,4 +2039,48 @@ public class BgpConfigurationManager {
     }
     public static int getTotalStaledCount() {return totalStaledCount;}
     public static int getTotalCleared() { return totalCleared;}
+
+    public Timer getBgpCountersTimer() {
+        return bgpCountersTimer;
+    }
+
+    public BgpCounters getBgpCounters() {
+        return bgpCounters;
+    }
+
+    public  void setBgpCountersTimer (Timer t) {
+        bgpCountersTimer = t;
+    }
+
+    public void startBgpCountersTask() {
+        if (getBgpCounters() == null) {
+
+            try {
+                bgpCounters = new BgpCounters();
+                setBgpCountersTimer(new Timer(true));
+                getBgpCountersTimer().scheduleAtFixedRate(bgpCounters, 0, 120 * 1000);
+
+
+                LOG.info("Bgp Counters task scheduled for every two minutes.");
+            } catch (Exception e) {
+                System.out.println("Could not start the timertask for Bgp Counters.");
+                e.printStackTrace();
+            }
+
+            try {
+                bgpManager.setQbgpLog(BgpConstants.BGP_DEF_LOG_FILE, BgpConstants.BGP_DEF_LOG_LEVEL);
+            } catch (Exception e) {
+                System.out.println("Could not set the default options for logging");
+            }
+        }
+    }
+
+    public void stopBgpCountersTask() {
+        Timer t = getBgpCountersTimer();
+        if (getBgpCounters() != null) {
+            t.cancel();
+            setBgpCountersTimer(null);
+            bgpCounters = null;
+        }
+    }
 }

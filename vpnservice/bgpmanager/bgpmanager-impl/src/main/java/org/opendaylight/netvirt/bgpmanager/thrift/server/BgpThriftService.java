@@ -8,15 +8,20 @@
 
 package org.opendaylight.netvirt.bgpmanager.thrift.server;
 
-import java.util.*;
-
+import java.util.List;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.server.*;
-import org.apache.thrift.transport.*;
-import org.opendaylight.netvirt.bgpmanager.BgpManager;
+import org.apache.thrift.server.ServerContext;
+import org.apache.thrift.server.TServer;
+import org.apache.thrift.server.TServerEventHandler;
+import org.apache.thrift.server.TThreadedSelectorServer;
+import org.apache.thrift.transport.TFramedTransport;
+import org.apache.thrift.transport.TNonblockingServerSocket;
+import org.apache.thrift.transport.TNonblockingServerTransport;
+import org.apache.thrift.transport.TTransport;
 import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
 import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpUpdater;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.slf4j.Logger;
@@ -24,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 public class BgpThriftService {
     int ourPort;
-    BgpManager bgpManager;
+    IBgpManager bgpManager;
     FibDSWriter fibDSWriter;
     TServer server;
 
@@ -33,10 +38,10 @@ public class BgpThriftService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BgpThriftService.class);
 
-    public BgpThriftService(int ourPort, BgpManager bm) {
+    public BgpThriftService(int ourPort, IBgpManager bm, FibDSWriter fibDSWriter) {
         this.ourPort = ourPort;
         bgpManager = bm;
-        fibDSWriter = bm.getFibWriter();
+        this.fibDSWriter = fibDSWriter;
     }
 
     public static class ThriftClientContext implements  ServerContext {
