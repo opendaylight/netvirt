@@ -7,9 +7,10 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
@@ -20,44 +21,40 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-
-public class SubnetRouteInterfaceStateChangeListener extends AbstractDataChangeListener<Interface> implements AutoCloseable {
+public class SubnetRouteInterfaceStateChangeListener extends AbstractDataChangeListener<Interface>
+        implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateChangeListener.class);
-
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private final DataBroker broker;
-    private VpnInterfaceManager vpnInterfaceManager;
+    private final DataBroker dataBroker;
+    private final VpnInterfaceManager vpnInterfaceManager;
+    private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
-    public SubnetRouteInterfaceStateChangeListener(final DataBroker db, VpnInterfaceManager vpnInterfaceManager) {
+    public SubnetRouteInterfaceStateChangeListener(final DataBroker dataBroker,
+                                                   final VpnInterfaceManager vpnInterfaceManager,
+                                                   final VpnSubnetRouteHandler vpnSubnetRouteHandler) {
         super(Interface.class);
-        broker = db;
+        this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
-        registerListener(db);
+        this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
+    }
+
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+    }
+
+    private InstanceIdentifier<Interface> getWildCardPath() {
+        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
     }
 
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
+            listenerRegistration.close();
             listenerRegistration = null;
         }
-        LOG.info("Interface listener Closed");
-    }
-
-
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getWildCardPath(), SubnetRouteInterfaceStateChangeListener.this, DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("Interface DataChange listener registration failed", e);
-            throw new IllegalStateException("Nexthop Manager registration Listener failed.", e);
-        }
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @Override
@@ -67,21 +64,16 @@ public class SubnetRouteInterfaceStateChangeListener extends AbstractDataChangeL
             String interfaceName = intrf.getName();
             LOG.info("Received port UP event for interface {} ", interfaceName);
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
-                    configInterface = InterfaceUtils.getInterface(broker, interfaceName);
+                    configInterface = InterfaceUtils.getInterface(dataBroker, interfaceName);
             if (configInterface != null) {
                 if (!configInterface.getType().equals(Tunnel.class)) {
                     BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(intrf);
-                    vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceUp(dpnId, intrf.getName());
+                    vpnSubnetRouteHandler.onInterfaceUp(dpnId, intrf.getName());
                 }
             }
         } catch (Exception e) {
             LOG.error("Exception observed in handling addition for VPN Interface {}. ", intrf.getName(), e);
         }
-    }
-
-
-    private InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
     }
 
     @Override
@@ -101,7 +93,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AbstractDataChangeL
                 } catch (Exception e){
                     LOG.error("Unable to retrieve dpnId from interface operational data store for interface {}. Fetching from vpn interface op data store. ", intrf.getName(), e);
                 }
-                vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceDown(dpnId, intrf.getName());
+                vpnSubnetRouteHandler.onInterfaceDown(dpnId, intrf.getName());
             }
         } catch (Exception e) {
             LOG.error("Exception observed in handling deletion of VPN Interface {}. ", intrf.getName(), e);
@@ -117,10 +109,10 @@ public class SubnetRouteInterfaceStateChangeListener extends AbstractDataChangeL
         if (update != null) {
             if (!update.getType().equals(Tunnel.class)) {
                 if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
-                    vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceUp(dpId, update.getName());
+                    vpnSubnetRouteHandler.onInterfaceUp(dpId, update.getName());
                 } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
-                    if (VpnUtil.isVpnInterfaceConfigured(broker, interfaceName)) {
-                        vpnInterfaceManager.getVpnSubnetRouteHandler().onInterfaceDown(dpId, update.getName());
+                    if (VpnUtil.isVpnInterfaceConfigured(dataBroker, interfaceName)) {
+                        vpnSubnetRouteHandler.onInterfaceDown(dpId, update.getName());
                     }
                 }
             }

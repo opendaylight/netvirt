@@ -42,7 +42,6 @@ public class ConfigStateManager {
         readyMap.put("dhcpservice-impl", Pair.of("dhcpservice-default", false)); // no service
         readyMap.put("elanservice-impl", Pair.of("elanservice-default", false));
         readyMap.put("natservice-impl", Pair.of("natservice-default", false)); // no service
-        readyMap.put("vpnservice-impl", Pair.of("vpnservice-default", false));
     }
 
     private void getServices() {

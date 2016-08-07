@@ -43,44 +43,23 @@ import java.util.concurrent.Callable;
  * moved to some other DPN
  *
  */
-public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node>
-                                      implements AutoCloseable {
-
-    private static final Logger logger = LoggerFactory.getLogger(InterVpnLinkNodeListener.class);
+public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkNodeListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalManager;
     private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
-    private final DataBroker broker;
-    final IMdsalApiManager mdsalManager;
 
-    public InterVpnLinkNodeListener(final DataBroker db, IMdsalApiManager mdsalMgr) {
+    public InterVpnLinkNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalMgr) {
         super(Node.class);
-        broker = db;
+        this.dataBroker = dataBroker;
         mdsalManager = mdsalMgr;
-        registerListener(db);
     }
 
-    @Override
-    public void close() {
-        if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                logger.error("Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
-        }
-    }
-
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                                                                 getWildCardPath(),
-                                                                 InterVpnLinkNodeListener.this,
-                                                                 AsyncDataBroker.DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            logger.error("InterVpnLinkNodeListener: DataChange listener registration fail!", e);
-            throw new IllegalStateException("InterVpnLinkNodeListener: registration Listener failed.", e);
-        }
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
     }
 
     protected InstanceIdentifier<Node> getWildCardPath() {
@@ -88,36 +67,46 @@ public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node>
     }
 
     @Override
+    public void close() throws Exception {
+        if (listenerRegistration != null) {
+            listenerRegistration.close();
+            listenerRegistration = null;
+        }
+        LOG.info("{} close", getClass().getSimpleName());
+    }
+
+    @Override
     protected void add(InstanceIdentifier<Node> identifier, Node add) {
         NodeId nodeId = add.getId();
         String[] node =  nodeId.getValue().split(":");
         if(node.length < 2) {
-            logger.warn("Unexpected nodeId {}", nodeId.getValue());
+            LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return;
         }
         BigInteger dpId = new BigInteger(node[1]);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-        coordinator.enqueueJob("IVpnLink" + dpId.toString(), new InterVpnLinkNodeAddTask(broker, mdsalManager, dpId));
+        coordinator.enqueueJob("IVpnLink" + dpId.toString(),
+                new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, dpId));
     }
 
     @Override
     protected void remove(InstanceIdentifier<Node> identifier, Node del) {
-        logger.trace("Node {} has been deleted", identifier.firstKeyOf(Node.class).toString());
+        LOG.trace("Node {} has been deleted", identifier.firstKeyOf(Node.class).toString());
         NodeId nodeId = del.getId();
         String[] node =  nodeId.getValue().split(":");
         if(node.length < 2) {
-            logger.warn("Unexpected nodeId {}", nodeId.getValue());
+            LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return;
         }
         BigInteger dpId = new BigInteger(node[1]);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-        coordinator.enqueueJob("IVpnLink" + dpId.toString(), new InterVpnLinkNodeWorker(broker, dpId));
+        coordinator.enqueueJob("IVpnLink" + dpId.toString(), new InterVpnLinkNodeWorker(dataBroker, dpId));
 
     }
 
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
-        logger.trace("Node {} has changed", identifier.firstKeyOf(Node.class).toString());
+        LOG.trace("Node {} has changed", identifier.firstKeyOf(Node.class).toString());
     }
 
     protected class InterVpnLinkNodeWorker implements Callable<List<ListenableFuture<Void>>> {
@@ -137,7 +126,7 @@ public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node>
             for ( InterVpnLink interVpnLink : allInterVpnLinks ) {
                 InterVpnLinkState interVpnLinkState = VpnUtil.getInterVpnLinkState(broker, interVpnLink.getName());
                 if ( interVpnLinkState == null ) {
-                    logger.warn("Could not find State info for InterVpnLink={}", interVpnLink.getName());
+                    LOG.warn("Could not find State info for InterVpnLink={}", interVpnLink.getName());
                     continue;
                 }
 
@@ -157,7 +146,7 @@ public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node>
                     try {
                         Thread.sleep(timeToWait);
                     } catch (InterruptedException e) {
-                        logger.warn("Interrupted while waiting for Flows removal sync.", e);
+                        LOG.warn("Interrupted while waiting for Flows removal sync.", e);
                     }
 
                     InterVpnLink interVpnLink2 = new InterVpnLinkBuilder(interVpnLink).build();
