@@ -59,6 +59,7 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
     private IInterfaceManager interfaceManager;
     private IFibManager fibManager;
     private VpnFloatingIpHandler handler;
+    private NaptSwitchHA naptSwitchHA;
 
     public NatServiceProvider(RpcProviderRegistry rpcProviderRegistry) {
         this.rpcProviderRegistry = rpcProviderRegistry;
@@ -70,11 +71,6 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
 
     public void setMdsalManager(IMdsalApiManager mdsalManager) {
         this.mdsalManager = mdsalManager;
-    }
-
-    public void setBgpManager(IBgpManager bgpManager) {
-        LOG.debug("BGP Manager reference initialized");
-        this.bgpManager = bgpManager;
     }
 
     public void setInterfaceManager(IInterfaceManager interfaceManager) {
@@ -151,7 +147,6 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             externalRouterListener.setInterfaceManager(interfaceService);
             externalRouterListener.setIdManager(idManager);
             externalRouterListener.setNaptManager(naptManager);
-            externalRouterListener.setBgpManager(bgpManager);
             externalRouterListener.setFibService(fibService);
             externalRouterListener.setVpnService(vpnService);
             externalRouterListener.setNaptSwitchSelector(naptSwitchSelector);
@@ -186,12 +181,11 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
 
             externalRouterListener.setDefaultProgrammer(defaultRouteProgrammer);
 
-            NaptSwitchHA naptSwitchHA = new NaptSwitchHA(dataBroker,naptSwitchSelector);
+            naptSwitchHA = new NaptSwitchHA(dataBroker,naptSwitchSelector);
             naptSwitchHA.setIdManager(idManager);
             naptSwitchHA.setInterfaceManager(interfaceService);
             naptSwitchHA.setMdsalManager(mdsalManager);
             naptSwitchHA.setItmManager(itmManager);
-            naptSwitchHA.setBgpManager(bgpManager);
             naptSwitchHA.setFibService(fibService);
             naptSwitchHA.setVpnService(vpnService);
             naptSwitchHA.setExternalRoutersListener(externalRouterListener);
@@ -234,6 +228,30 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
                 LOG.info("NatServiceProvider initialized. INeutronVpnManager={}", fibManager);
                 handler.setFibManager(fibManager);
                 externalRouterListener.setFibManager(fibManager);
+            }
+        });
+
+        // TODO: Remove as part of blueprint fix.
+        // This is simply here to get the IBgpmanager service which is already
+        // moved to blueprint.
+        GlobalEventExecutor.INSTANCE.execute(new Runnable() {
+            @Override
+            public void run() {
+                Bundle b = FrameworkUtil.getBundle(this.getClass());
+                if (b == null) {
+                    return;
+                }
+                BundleContext bundleContext = b.getBundleContext();
+                if (bundleContext == null) {
+                    return;
+                }
+                final WaitingServiceTracker<IBgpManager> tracker = WaitingServiceTracker.create(
+                        IBgpManager.class, bundleContext);
+                IBgpManager bgpManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+                LOG.info("NatServiceProvider initialized. IBgpManager={}", bgpManager);
+                handler.setBgpManager(bgpManager);
+                externalRouterListener.setBgpManager(bgpManager);
+                naptSwitchHA.setBgpManager(bgpManager);
             }
         });
     }

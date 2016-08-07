@@ -96,4 +96,7 @@ public interface IBgpManager {
 
     public String getDCGwIP();
 
+    void sendNotificationEvent(String pfx, int code, int subcode);
+    void setqBGPrestartTS(long qBGPrestartTS);
+    void bgpRestarted();
 }

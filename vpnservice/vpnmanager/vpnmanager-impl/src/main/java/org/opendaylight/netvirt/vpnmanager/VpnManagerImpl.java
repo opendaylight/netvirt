@@ -38,7 +38,7 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     public void start() {
-        LOG.info("VpnserviceProvider Session Initiated");
+        LOG.info("{} start", getClass().getSimpleName());
         createIdPool();
     }
 
