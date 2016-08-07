@@ -7,17 +7,21 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
+import static org.opendaylight.netvirt.fibmanager.FibConstants.COOKIE_TUNNEL;
+import static org.opendaylight.netvirt.fibmanager.FibConstants.DEFAULT_FIB_FLOW_PRIORITY;
+import static org.opendaylight.netvirt.fibmanager.FibConstants.FLOWID_PREFIX;
+
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -28,11 +32,14 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CleanupDpnForVpnInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.PopulateFibOnDpnInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CleanupDpnForVpnInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -43,8 +50,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddressesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddressesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -53,24 +58,18 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.Futures;
-
-import static org.opendaylight.netvirt.fibmanager.FibConstants.*;
-
 public class FibRpcServiceImpl implements FibRpcService {
-
     private static final Logger LOG = LoggerFactory.getLogger(FibRpcServiceImpl.class);
-    private IMdsalApiManager mdsalManager;
-    private DataBroker broker;
-    private IFibManager fibManager;
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalManager;
+    private final IFibManager fibManager;
 
-    public FibRpcServiceImpl(DataBroker broker, IMdsalApiManager mdsalManager, IFibManager fibManager) {
-        this.broker = broker;
+    public FibRpcServiceImpl(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
+                             final IFibManager fibManager) {
+        this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.fibManager = fibManager;
     }
-
 
     /**
      * to install FIB routes on specified dpn with given instructions
@@ -81,8 +80,8 @@ public class FibRpcServiceImpl implements FibRpcService {
 
         BigInteger dpnId = input.getSourceDpid();
         String vpnName = input.getVpnName();
-        long vpnId = getVpnId(broker, vpnName);
-        String vpnRd = getVpnRd(broker, vpnName);
+        long vpnId = getVpnId(dataBroker, vpnName);
+        String vpnRd = getVpnRd(dataBroker, vpnName);
         String ipAddress = input.getIpAddress();
         LOG.info("Create custom FIB entry - {} on dpn {} for VPN {} ", ipAddress, dpnId, vpnName);
         List<Instruction> instructions = input.getInstruction();
@@ -99,11 +98,10 @@ public class FibRpcServiceImpl implements FibRpcService {
      */
     @Override
     public Future<RpcResult<Void>> removeFibEntry(RemoveFibEntryInput input) {
-
         BigInteger dpnId = input.getSourceDpid();
         String vpnName = input.getVpnName();
-        long vpnId = getVpnId(broker, vpnName);
-        String vpnRd = getVpnRd(broker, vpnName);
+        long vpnId = getVpnId(dataBroker, vpnName);
+        String vpnRd = getVpnRd(dataBroker, vpnName);
         long serviceId = input.getServiceId();
         String ipAddress = input.getIpAddress();
 
@@ -292,28 +290,28 @@ public class FibRpcServiceImpl implements FibRpcService {
     private synchronized void updateVpnToDpnAssociation(long vpnId, BigInteger dpnId, String ipAddr, String vpnName) {
         LOG.debug("Updating VPN to DPN list for dpn : {} for VPN: {} with ip: {}",
                 dpnId, vpnName, ipAddr);
-        String routeDistinguisher = getVpnRd(broker, vpnName);
+        String routeDistinguisher = getVpnRd(dataBroker, vpnName);
         String rd = (routeDistinguisher == null) ? vpnName : routeDistinguisher;
         synchronized (vpnName.intern()) {
             InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
-            Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
+            Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses
                     ipAddress = new IpAddressesBuilder().setIpAddress(ipAddr).build();
 
             if (dpnInVpn.isPresent()) {
-                MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id.child(
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, id.child(
                         org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance
                                 .op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses.class,
                         new IpAddressesKey(ipAddr)), ipAddress);
             } else {
-                MDSALUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL,
+                MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         getVpnInstanceOpDataIdentifier(rd),
                         getVpnInstanceOpData(rd, vpnId, vpnName));
                 VpnToDpnListBuilder vpnToDpnList = new VpnToDpnListBuilder().setDpnId(dpnId);
                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
                         .vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses> ipAddresses = new ArrayList<>();
                 ipAddresses.add(ipAddress);
-                MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id,
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, id,
                         vpnToDpnList.setIpAddresses(ipAddresses).build());
                 LOG.debug("populate FIB on new dpn {} for VPN {}", dpnId, vpnName);
                 fibManager.populateFibOnNewDpn(dpnId, vpnId, rd);
@@ -324,11 +322,11 @@ public class FibRpcServiceImpl implements FibRpcService {
     private synchronized void removeFromVpnDpnAssociation(long vpnId, BigInteger dpnId, String ipAddr, String vpnName) {
         LOG.debug("Removing association of VPN to DPN list for dpn : {} for VPN: {} with ip: {}",
                 dpnId, vpnName, ipAddr);
-        String routeDistinguisher = getVpnRd(broker, vpnName);
+        String routeDistinguisher = getVpnRd(dataBroker, vpnName);
         String rd = (routeDistinguisher == null) ? vpnName : routeDistinguisher;
         synchronized (vpnName.intern()) {
             InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
-            Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
+            Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             if (dpnInVpn.isPresent()) {
                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
                         .vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses> ipAddresses = dpnInVpn.get().getIpAddresses();
@@ -341,11 +339,11 @@ public class FibRpcServiceImpl implements FibRpcService {
                         if (vpnInterfaces == null || vpnInterfaces.isEmpty()) {
                             //Clean up the dpn
                             LOG.debug("Cleaning up dpn {} from VPN {}", dpnId, vpnName);
-                            MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
+                            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
                             fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd);
                         }
                     } else {
-                        delete(broker, LogicalDatastoreType.OPERATIONAL, id.child(
+                        delete(dataBroker, LogicalDatastoreType.OPERATIONAL, id.child(
                                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
                                         .vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses.class,
                                 new IpAddressesKey(ipAddr)));

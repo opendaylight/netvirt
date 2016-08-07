@@ -5,14 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.fibmanager;
 
 import java.math.BigInteger;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -28,22 +26,19 @@ import org.slf4j.LoggerFactory;
 public class FibNodeCapableListener extends AbstractDataChangeListener<FlowCapableNode> implements AutoCloseable{
     private static final Logger LOG = LoggerFactory.getLogger(FibNodeCapableListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private FibManager fibManager;
+    private final DataBroker dataBroker;
+    private final VrfEntryListener vrfEntryListener;
 
-    public FibNodeCapableListener(final DataBroker dataBroker, FibManager fibManager) {
+    public FibNodeCapableListener(final DataBroker dataBroker, final VrfEntryListener vrfEntryListener) {
         super(FlowCapableNode.class);
-        registerListener(dataBroker);
-        this.fibManager = fibManager;
+        this.dataBroker = dataBroker;
+        this.vrfEntryListener = vrfEntryListener;
     }
 
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getWildCardPath(), FibNodeCapableListener.this, DataChangeScope.ONE);
-        } catch (final Exception e) {
-            LOG.error("FibNodeConnectorListener: DataChange listener registration fail!", e);
-            throw new IllegalStateException("FibNodeConnectorListener: registration Listener failed.", e);
-        }
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.ONE);
     }
 
     private InstanceIdentifier<FlowCapableNode> getWildCardPath() {
@@ -53,22 +48,18 @@ public class FibNodeCapableListener extends AbstractDataChangeListener<FlowCapab
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
+            listenerRegistration.close();
             listenerRegistration = null;
         }
-        LOG.info("FibNodeConnectorListener Closed");
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @Override
     protected void add(InstanceIdentifier<FlowCapableNode> identifier, FlowCapableNode node) {
-        LOG.trace("FlowCapableNode Added: key: " + identifier + ", value=" + node );
-        NodeKey nodeKey = identifier.firstKeyOf(Node.class, NodeKey.class);
+        LOG.trace("FlowCapableNode Added: key: {}, value: {}", identifier, node);
+        NodeKey nodeKey = identifier.firstKeyOf(Node.class);
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
-        fibManager.processNodeAdd(dpnId);
+        vrfEntryListener.processNodeAdd(dpnId);
     }
 
     @Override

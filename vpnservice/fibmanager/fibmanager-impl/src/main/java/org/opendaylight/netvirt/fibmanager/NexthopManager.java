@@ -26,8 +26,6 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
@@ -36,8 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
@@ -70,10 +66,8 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.genius.itm.globals.ITMConstants;
-import org.opendaylight.genius.mdsalutil.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.ConfTransportTypeL3vpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.ConfTransportTypeL3vpnBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
@@ -87,11 +81,11 @@ import java.util.concurrent.Future;
 
 public class NexthopManager implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NexthopManager.class);
-    private final DataBroker broker;
-    private IMdsalApiManager mdsalManager;
-    private OdlInterfaceRpcService interfaceManager;
-    private ItmRpcService itmManager;
-    private IdManagerService idManager;
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalApiManager;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final ItmRpcService itmManager;
+    private final IdManagerService idManager;
     private static final short LPORT_INGRESS_TABLE = 0;
     private static final short LFIB_TABLE = 20;
     private static final short FIB_TABLE = 21;
@@ -117,35 +111,25 @@ public class NexthopManager implements AutoCloseable {
      * Provides nexthop functions
      * Creates group ID pool
      *
-     * @param db - dataBroker reference
+     * @param dataBroker - dataBroker reference
+     * @param mdsalApiManager - mdsalApiManager reference
+     * @param idManager - idManager reference
+     * @param interfaceManager - interfaceManager reference
+     * @param itmManager - itmManager reference
      */
-    public NexthopManager(final DataBroker db) {
-        broker = db;
+    public NexthopManager(final DataBroker dataBroker,
+                          final IMdsalApiManager mdsalApiManager,
+                          final IdManagerService idManager,
+                          final OdlInterfaceRpcService interfaceManager,
+                          final ItmRpcService itmManager) {
+        this.dataBroker = dataBroker;
+        this.mdsalApiManager = mdsalApiManager;
+        this.idManager = idManager;
+        this.interfaceManager = interfaceManager;
+        this.itmManager = itmManager;
         waitTimeForSyncInstall = Long.getLong("wait.time.sync.install");
         if (waitTimeForSyncInstall == null)
             waitTimeForSyncInstall = 1000L;
-    }
-
-    @Override
-    public void close() throws Exception {
-        LOG.info("NextHop Manager Closed");
-    }
-
-    public void setInterfaceManager(OdlInterfaceRpcService ifManager) {
-        this.interfaceManager = ifManager;
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
-    }
-
-    public void setIdManager(IdManagerService idManager) {
-        this.idManager = idManager;
-        createNexthopPointerPool();
-    }
-
-    public void setITMRpcService(ItmRpcService itmManager) {
-        this.itmManager = itmManager;
     }
 
     protected void createNexthopPointerPool() {
@@ -273,8 +257,6 @@ public class NexthopManager implements AutoCloseable {
         return null;
     }
 
-
-
     protected String getTunnelInterfaceName(BigInteger srcDpId, org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress dstIp) {
         Class<? extends TunnelTypeBase> tunType = getReqTunType(getReqTransType().toUpperCase());
         Future<RpcResult<GetInternalOrExternalInterfaceNameOutput>> result;
@@ -329,7 +311,7 @@ public class NexthopManager implements AutoCloseable {
                 LOG.trace("Install LNH Group: id {}, mac address {}, interface {} for prefix {}", groupId, macAddress, ifName, ipAddress);
 
                 // install Group
-                mdsalManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
+                mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
                 try{
                     LOG.info("Sleeping for {} to wait for the groups to get programmed.", waitTimeForSyncInstall);
                     Thread.sleep(waitTimeForSyncInstall);
@@ -352,7 +334,6 @@ public class NexthopManager implements AutoCloseable {
         return groupId;
     }
 
-
     protected void addVpnNexthopToDS(BigInteger dpnId, long vpnId, String ipPrefix, long egressPointer) {
 
         InstanceIdentifierBuilder<VpnNexthops> idBuilder = InstanceIdentifier.builder(
@@ -373,8 +354,6 @@ public class NexthopManager implements AutoCloseable {
         syncWrite(LogicalDatastoreType.OPERATIONAL, id1, nh, DEFAULT_CALLBACK);
 
     }
-
-
 
     protected InstanceIdentifier<VpnNexthop> getVpnNextHopIdentifier(long vpnId, String ipAddress) {
         InstanceIdentifier<VpnNexthop> id = InstanceIdentifier.builder(
@@ -406,7 +385,6 @@ public class NexthopManager implements AutoCloseable {
         return null;
     }
 
-
     public String getRemoteNextHopPointer(BigInteger remoteDpnId, long vpnId, String prefixIp, String nextHopIp) {
         String tunnelIfName = null;
         LOG.trace("getRemoteNextHopPointer: input [remoteDpnId {}, vpnId {}, prefixIp {}, nextHopIp {} ]",
@@ -430,7 +408,6 @@ public class NexthopManager implements AutoCloseable {
         return localDpnId;
     }
 
-
     private void removeVpnNexthopFromDS(long vpnId, String ipPrefix) {
 
         InstanceIdentifierBuilder<VpnNexthop> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
@@ -441,7 +418,6 @@ public class NexthopManager implements AutoCloseable {
         LOG.trace("Removing vpn next hop from datastore : {}", id);
         syncDelete(LogicalDatastoreType.OPERATIONAL, id);
     }
-
 
     public void removeLocalNextHop(BigInteger dpnId, Long vpnId, String ipAddress) {
 
@@ -454,7 +430,7 @@ public class NexthopManager implements AutoCloseable {
                     GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
                             dpnId, nh.getEgressPointer(), ipAddress, GroupTypes.GroupAll, null);
                     // remove Group ...
-                    mdsalManager.removeGroup(groupEntity);
+                    mdsalApiManager.removeGroup(groupEntity);
                     //update MD-SAL DS
                     removeVpnNexthopFromDS(vpnId, ipAddress);
                     //release groupId
@@ -478,7 +454,7 @@ public class NexthopManager implements AutoCloseable {
     private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
                                                     InstanceIdentifier<T> path) {
 
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
+        ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction();
 
         Optional<T> result = Optional.absent();
         try {
@@ -491,15 +467,17 @@ public class NexthopManager implements AutoCloseable {
     }
 
     private <T extends DataObject> void asyncWrite(LogicalDatastoreType datastoreType,
-                                                   InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
+                                                   InstanceIdentifier<T> path, T data,
+                                                   FutureCallback<Void> callback) {
+        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.merge(datastoreType, path, data, true);
         Futures.addCallback(tx.submit(), callback);
     }
 
     private <T extends DataObject> void syncWrite(LogicalDatastoreType datastoreType,
-                                                  InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
+                                                  InstanceIdentifier<T> path, T data,
+                                                  FutureCallback<Void> callback) {
+        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.merge(datastoreType, path, data, true);
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
         try {
@@ -511,7 +489,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     private <T extends DataObject> void syncDelete(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.delete(datastoreType, path);
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
         try {
@@ -550,7 +528,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     public void writeConfTransTypeConfigDS() {
-        FibUtil.syncWrite(  broker, LogicalDatastoreType.CONFIGURATION, getConfTransportTypeIdentifier(),
+        FibUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, getConfTransportTypeIdentifier(),
                 createConfTransportType(configuredTransportTypeL3VPN.getTransportType()),
                 FibUtil.DEFAULT_CALLBACK);
     }
@@ -559,16 +537,15 @@ public class NexthopManager implements AutoCloseable {
         return this.configuredTransportTypeL3VPN;
     }
 
-
     public String getReqTransType() {
         if (configuredTransportTypeL3VPN == L3VPNTransportTypes.Invalid) {
-                    /*
-                    * Restart scenario, Read from the ConfigDS.
-                    * if the value is Unset, cache value as VxLAN.
-                    */
+            /*
+            * Restart scenario, Read from the ConfigDS.
+            * if the value is Unset, cache value as VxLAN.
+            */
             LOG.trace("configureTransportType is not yet set.");
             Optional<ConfTransportTypeL3vpn>  configuredTransTypeFromConfig =
-                    FibUtil.read(broker, LogicalDatastoreType.CONFIGURATION, getConfTransportTypeIdentifier());
+                    FibUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, getConfTransportTypeIdentifier());
 
             if (configuredTransTypeFromConfig.isPresent()) {
                 if (configuredTransTypeFromConfig.get().getTransportType().equals(TunnelTypeGre.class)) {
@@ -625,5 +602,10 @@ public class NexthopManager implements AutoCloseable {
         } else {
             return ITMConstants.TUNNEL_TYPE_INVALID;
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        LOG.info("{} close", getClass().getSimpleName());
     }
 }

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import io.netty.util.concurrent.GlobalEventExecutor;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -24,6 +26,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +58,7 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
     private RouterPortsListener routerPortsListener;
     private IInterfaceManager interfaceManager;
     private IFibManager fibManager;
+    private VpnFloatingIpHandler handler;
 
     public NatServiceProvider(RpcProviderRegistry rpcProviderRegistry) {
         this.rpcProviderRegistry = rpcProviderRegistry;
@@ -69,11 +75,6 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
     public void setBgpManager(IBgpManager bgpManager) {
         LOG.debug("BGP Manager reference initialized");
         this.bgpManager = bgpManager;
-    }
-
-    public void setFibManager(IFibManager fibManager) {
-        LOG.debug("FIB Manager reference initialized");
-        this.fibManager = fibManager;
     }
 
     public void setInterfaceManager(IInterfaceManager interfaceManager) {
@@ -133,10 +134,9 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             //Floating ip Handler
             VpnRpcService vpnService = rpcProviderRegistry.getRpcService(VpnRpcService.class);
             FibRpcService fibService = rpcProviderRegistry.getRpcService(FibRpcService.class);
-            VpnFloatingIpHandler handler = new VpnFloatingIpHandler(vpnService, bgpManager, fibService);
+            handler = new VpnFloatingIpHandler(vpnService, bgpManager, fibService);
             handler.setBroker(dataBroker);
             handler.setMdsalManager(mdsalManager);
-            handler.setFibManager(fibManager);
             handler.setListener(floatingIpListener);
             floatingIpListener.setFloatingIpHandler(handler);
 
@@ -157,7 +157,6 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
             externalRouterListener.setNaptSwitchSelector(naptSwitchSelector);
             externalRouterListener.setNaptEventHandler(naptEventHandler);
             externalRouterListener.setNaptPacketInHandler(naptPacketInHandler);
-            externalRouterListener.setFibManager(fibManager);
 
             //Instantiate ExternalNetworksChangeListener and set the dataBroker in it.
             externalNetworksChangeListener = new ExternalNetworksChangeListener( dataBroker );
@@ -215,5 +214,27 @@ public class NatServiceProvider implements BindingAwareProvider, AutoCloseable {
         } catch (Exception e) {
             LOG.error("Error initializing NAT Manager service", e);
         }
+        // TODO: Remove as part of blueprint fix.
+        // This is simply here to get the INeutronVPNManager service which is already
+        // moved to blueprint.
+        GlobalEventExecutor.INSTANCE.execute(new Runnable() {
+            @Override
+            public void run() {
+                Bundle b = FrameworkUtil.getBundle(this.getClass());
+                if (b == null) {
+                    return;
+                }
+                BundleContext bundleContext = b.getBundleContext();
+                if (bundleContext == null) {
+                    return;
+                }
+                final WaitingServiceTracker<IFibManager> tracker = WaitingServiceTracker.create(
+                        IFibManager.class, bundleContext);
+                IFibManager fibManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+                LOG.info("NatServiceProvider initialized. INeutronVpnManager={}", fibManager);
+                handler.setFibManager(fibManager);
+                externalRouterListener.setFibManager(fibManager);
+            }
+        });
     }
 }

@@ -30,7 +30,6 @@ public class NATServiceModule extends org.opendaylight.yang.gen.v1.urn.opendayli
         provider.setMdsalManager(getMdsalutilDependency());
         provider.setInterfaceManager(getOdlinterfaceDependency());
         provider.setBgpManager(getBgpmanagerDependency());
-        provider.setFibManager(getFibmanagerDependency());
         getBrokerDependency().registerProvider(provider);
         return provider;
     }

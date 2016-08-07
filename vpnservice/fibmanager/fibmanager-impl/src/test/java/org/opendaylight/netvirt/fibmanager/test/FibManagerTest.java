@@ -28,9 +28,9 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.netvirt.fibmanager.VrfEntryListener;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
-import org.opendaylight.netvirt.fibmanager.FibManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -69,7 +69,7 @@ public class FibManagerTest {
   VrfTablesKey vrfTableKey;
 
   MockDataChangedEvent dataChangeEvent;
-  FibManager fibmgr;
+  VrfEntryListener fibmgr;
   private static final Long EgressPointer = 11L;
   VrfEntry vrfEntry;
   InstanceIdentifier<VrfEntry> identifier;
@@ -89,8 +89,6 @@ public class FibManagerTest {
     Dpn = BigInteger.valueOf(100000L);
     identifier = buildVrfEntryId(testRd, prefix);
     vrfEntry = buildVrfEntry(testRd, prefix, Arrays.asList(nexthop), label, origin);
-    fibmgr.setMdsalManager(mdsalManager);
-    fibmgr.setVpnmanager(vpnmanager);
     when(vrfTableKey.getRouteDistinguisher()).thenReturn(testRd);
   }
 
@@ -102,92 +100,6 @@ public class FibManagerTest {
                     any(DataChangeScope.class))).thenReturn(dataChangeListenerRegistration);
     dataChangeEvent = new MockDataChangedEvent();
     vrfbuilder = new VrfEntryBuilder();
-    fibmgr = new FibManager(dataBroker) {
-
-      @Override
-      protected VpnInstanceOpDataEntry getVpnInstance(String rd) {
-        return new VpnInstanceOpDataEntry() {
-
-          @Override
-          public <E extends Augmentation<VpnInstanceOpDataEntry>> E getAugmentation(Class<E> aClass) {
-            return null;
-          }
-
-          @Override
-          public Long getVpnId() {
-            return vpnId;
-          }
-
-          @Override
-          public String getVrfId() {
-            return testRd;
-          }
-
-          @Override
-          public String getVpnInstanceName() {
-            return testVpnInstanceName;
-          }
-
-          @Override
-          public Long getVpnInterfaceCount() { return vpnIntfCnt; }
-
-
-          @Override
-          public List<VpnToDpnList> getVpnToDpnList() {
-            List <VpnToDpnList> vpnToDpnLists =  new ArrayList<>();
-            vpnToDpnLists.add(new VpnToDpnList() {
-              @Override
-              public BigInteger getDpnId() {
-                return Dpn;
-              }
-
-              @Override
-              public List<VpnInterfaces> getVpnInterfaces() {
-                return null;
-              }
-
-              @Override
-              public List<IpAddresses> getIpAddresses() { return null; }
-
-              @Override
-              public VpnToDpnListKey getKey() {
-                return new VpnToDpnListKey(Dpn);
-              }
-
-              @Override
-              public VpnToDpnList.DpnState getDpnState () { return VpnToDpnList.DpnState.Active;}
-
-              @Override
-              public <E extends Augmentation<VpnToDpnList>> E getAugmentation(
-                      Class<E> augmentationType) {
-                return null;
-              }
-
-              @Override
-              public Class<? extends DataContainer> getImplementedInterface() {
-                return null;
-              }
-            });
-            return vpnToDpnLists;
-          }
-
-          @Override
-          public VpnInstanceOpDataEntryKey getKey() {
-            return new VpnInstanceOpDataEntryKey(testRd);
-          }
-
-          @Override
-          public List<Long> getRouteEntryId() {
-            return null;
-          }
-
-          @Override
-          public Class<? extends DataContainer> getImplementedInterface() {
-            return null;
-          }
-        };
-      }
-    };
     SetupMocks();
   }
 

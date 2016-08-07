@@ -243,13 +243,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>fibmanager-impl</artifactId>
-      <version>${fibmanager.version}</version>
-      <classifier>config</classifier>
-      <type>xml</type>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>fibmanager-shell</artifactId>
       <version>${fibmanager.version}</version>
     </dependency>
