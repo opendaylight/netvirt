@@ -260,7 +260,7 @@ public class AclServiceOFFlowBuilder {
             flowMatches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { NwConstants.ETHTYPE_IPV4 }));
             Ipv4Prefix srcNetwork = ((AceIpv4)acl.getAceIpVersion()).getSourceIpv4Network();
-            if (null != srcNetwork) {
+            if (null != srcNetwork && !srcNetwork.getValue().equals(AclConstants.IPV4_ALL_NETWORK)) {
                 String[] ipaddressValues = srcNetwork.getValue().split("/");
                 flowMatches.add(new MatchInfo(MatchFieldType.ipv4_source,
                     new String[] {ipaddressValues[0], ipaddressValues[1]}));
@@ -287,7 +287,7 @@ public class AclServiceOFFlowBuilder {
             flowMatches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { NwConstants.ETHTYPE_IPV4 }));
             Ipv4Prefix dstNetwork = ((AceIpv4)acl.getAceIpVersion()).getDestinationIpv4Network();
-            if (null != dstNetwork) {
+            if (null != dstNetwork && !dstNetwork.getValue().equals(AclConstants.IPV4_ALL_NETWORK)) {
                 String[] ipaddressValues = dstNetwork.getValue().split("/");
                 flowMatches.add(new MatchInfo(MatchFieldType.ipv4_destination,
                     new String[] {ipaddressValues[0], ipaddressValues[1]}));

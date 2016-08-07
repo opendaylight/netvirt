@@ -52,6 +52,8 @@ public final class AclConstants {
     public static final int TRACKED_NEW_CT_STATE_MASK = 0x21;
     public static final int TRACKED_INV_CT_STATE_MASK = 0x30;
 
+    public static final String IPV4_ALL_NETWORK = "0.0.0.0/0";
+
     private AclConstants() {
     }
 }
