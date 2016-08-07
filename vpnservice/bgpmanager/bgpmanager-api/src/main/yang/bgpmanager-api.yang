@@ -1,5 +1,5 @@
 module bgpmanager-api {
-	yang-version 1;
+    yang-version 1;
     namespace "urn:opendaylight:params:xml:ns:yang:bgpmanager:api";
     prefix "bgpmgr-api";
 

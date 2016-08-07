@@ -7,10 +7,12 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import io.netty.util.concurrent.GlobalEventExecutor;
 import java.math.BigInteger;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.NotificationService;
@@ -35,7 +37,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,53 +84,69 @@ public class VpnserviceProvider implements BindingAwareProvider, IVpnManager, Au
     @Override
     public void onSessionInitiated(ProviderContext session) {
         LOG.info("VpnserviceProvider Session Initiated");
-        try {
-            dataBroker = session.getSALService(DataBroker.class);
-            vpnManager = new VpnManager(dataBroker, bgpManager);
-            vpnManager.setIdManager(idManager);
-            vpnInterfaceManager = new VpnInterfaceManager(dataBroker, bgpManager, notificationService);
-            tunIntfStateListener = new TunnelInterfaceStateListener(dataBroker, bgpManager);
-            vpnInterfaceManager.setMdsalManager(mdsalManager);
-            vpnInterfaceManager.setIfaceMgrRpcService(odlInterfaceRpcService);
-            vpnInterfaceManager.setIdManager(idManager);
-            vpnInterfaceManager.setArpManager(arpManager);
-            vpnInterfaceManager.setNeutronvpnManager(neuService);
-            vpnInterfaceManager.setNotificationPublishService(notificationPublishService);
-            vpnManager.setVpnInterfaceManager(vpnInterfaceManager);
-            fibService = rpcProviderRegistry.getRpcService(FibRpcService.class);
-            itmRpcService = rpcProviderRegistry.getRpcService(ItmRpcService.class);
-            vpnInterfaceManager.setFibRpcService(fibService);
-            tunIntfStateListener.setITMRpcService(itmRpcService);
-            VpnRpcService vpnRpcService = new VpnRpcServiceImpl(idManager, vpnInterfaceManager, dataBroker);
-            rpcRegistration = getRpcProviderRegistry().addRpcImplementation(VpnRpcService.class, vpnRpcService);
-            //Handles subnet route entries
-            subnetRoutePacketInHandler = new SubnetRoutePacketInHandler(dataBroker, idManager);
-            m_packetProcessingService = session.getRpcService(PacketProcessingService.class);
-            subnetRoutePacketInHandler.setPacketProcessingService(m_packetProcessingService);
-            notificationService.registerNotificationListener(subnetRoutePacketInHandler);
-            interVpnLinkListener = new InterVpnLinkListener(dataBroker, idManager, mdsalManager, bgpManager,
-                                                            notificationPublishService);
-            interVpnLinkNodeListener = new InterVpnLinkNodeListener(dataBroker, mdsalManager);
-            createIdPool();
-            RouterInterfaceListener routerListener = new RouterInterfaceListener(dataBroker);
-            arpscheduler = new ArpScheduler(odlInterfaceRpcService, dataBroker);
-            routerListener.setVpnInterfaceManager(vpnInterfaceManager);
-            garpHandler = new FloatingIpGarpHandler(dataBroker);
-            garpHandler.setPacketService(m_packetProcessingService);
-            
-            //ServiceRegistration serviceRegistration = bundleContext.registerService(IVpnManager.)
-        } catch (Exception e) {
-            LOG.error("Error initializing services", e);
-        }
+
+        // TODO: Remove as part of blueprint migration.
+        // This is simply here to get the services which have already moved to blueprint.
+        GlobalEventExecutor.INSTANCE.execute(new Runnable() {
+            @Override
+            public void run() {
+                Bundle b = FrameworkUtil.getBundle(this.getClass());
+                if (b == null) {
+                    return;
+                }
+                BundleContext bundleContext = b.getBundleContext();
+                if (bundleContext == null) {
+                    return;
+                }
+                final WaitingServiceTracker<IBgpManager> tracker = WaitingServiceTracker.create(
+                        IBgpManager.class, bundleContext);
+                IBgpManager bgpManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+                try {
+                    dataBroker = session.getSALService(DataBroker.class);
+                    vpnManager = new VpnManager(dataBroker, bgpManager);
+                    vpnManager.setIdManager(idManager);
+                    vpnInterfaceManager = new VpnInterfaceManager(dataBroker, bgpManager, notificationService);
+                    tunIntfStateListener = new TunnelInterfaceStateListener(dataBroker, bgpManager);
+                    vpnInterfaceManager.setMdsalManager(mdsalManager);
+                    vpnInterfaceManager.setIfaceMgrRpcService(odlInterfaceRpcService);
+                    vpnInterfaceManager.setIdManager(idManager);
+                    vpnInterfaceManager.setArpManager(arpManager);
+                    vpnInterfaceManager.setNeutronvpnManager(neuService);
+                    vpnInterfaceManager.setNotificationPublishService(notificationPublishService);
+                    vpnManager.setVpnInterfaceManager(vpnInterfaceManager);
+                    fibService = rpcProviderRegistry.getRpcService(FibRpcService.class);
+                    itmRpcService = rpcProviderRegistry.getRpcService(ItmRpcService.class);
+                    vpnInterfaceManager.setFibRpcService(fibService);
+                    tunIntfStateListener.setITMRpcService(itmRpcService);
+                    VpnRpcService vpnRpcService = new VpnRpcServiceImpl(idManager, vpnInterfaceManager, dataBroker);
+                    rpcRegistration = getRpcProviderRegistry().addRpcImplementation(VpnRpcService.class, vpnRpcService);
+                    //Handles subnet route entries
+                    subnetRoutePacketInHandler = new SubnetRoutePacketInHandler(dataBroker, idManager);
+                    m_packetProcessingService = session.getRpcService(PacketProcessingService.class);
+                    subnetRoutePacketInHandler.setPacketProcessingService(m_packetProcessingService);
+                    notificationService.registerNotificationListener(subnetRoutePacketInHandler);
+                    interVpnLinkListener = new InterVpnLinkListener(dataBroker, idManager, mdsalManager, bgpManager,
+                            notificationPublishService);
+                    interVpnLinkNodeListener = new InterVpnLinkNodeListener(dataBroker, mdsalManager);
+                    createIdPool();
+                    RouterInterfaceListener routerListener = new RouterInterfaceListener(dataBroker);
+                    arpscheduler = new ArpScheduler(odlInterfaceRpcService, dataBroker);
+                    routerListener.setVpnInterfaceManager(vpnInterfaceManager);
+                    garpHandler = new FloatingIpGarpHandler(dataBroker);
+                    garpHandler.setPacketService(m_packetProcessingService);
+
+                    //ServiceRegistration serviceRegistration = bundleContext.registerService(IVpnManager.)
+                } catch (Exception e) {
+                    LOG.error("Error initializing services", e);
+                }
+
+                LOG.info("VpnserviceProvider initialized. IBgpManager={}", bgpManager);
+            }
+        });
     }
 
     public void setNotificationService(NotificationService notificationService) {
         this.notificationService = notificationService;
-    }
-
-    public void setBgpManager(IBgpManager bgpManager) {
-        LOG.debug("BGP Manager reference initialized");
-        this.bgpManager = bgpManager;
     }
 
     public void setMdsalManager(IMdsalApiManager mdsalManager) {

@@ -8,11 +8,7 @@
 
 package org.opendaylight.netvirt.bgpmanager.oam;
 
-/**
- * Created by echiapt on 7/27/2015.
- */
-
- import javax.management.*;
+import javax.management.*;
 
  import org.slf4j.Logger;
  import org.slf4j.LoggerFactory;
