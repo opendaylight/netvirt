@@ -25,59 +25,48 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 public class InterfaceStateChangeListener extends AbstractDataChangeListener<Interface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateChangeListener.class);
-
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private final DataBroker broker;
-    private VpnInterfaceManager vpnInterfaceManager;
-    private OdlInterfaceRpcService interfaceManager;
+    private final DataBroker dataBroker;
+    private final VpnInterfaceManager vpnInterfaceManager;
 
-
-    public InterfaceStateChangeListener(final DataBroker db, VpnInterfaceManager vpnInterfaceManager) {
+    public InterfaceStateChangeListener(final DataBroker dataBroker, VpnInterfaceManager vpnInterfaceManager) {
         super(Interface.class);
-        broker = db;
+        this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
-        registerListener(db);
     }
 
-    public void setIfaceMgrRpcService(OdlInterfaceRpcService interfaceManager) {
-        this.interfaceManager = interfaceManager;
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                getWildCardPath(), this, DataChangeScope.SUBTREE);
+    }
+
+    private InstanceIdentifier<Interface> getWildCardPath() {
+        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
     }
 
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
+            listenerRegistration.close();
             listenerRegistration = null;
         }
-        LOG.info("Interface listener Closed");
-    }
-
-
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getWildCardPath(), InterfaceStateChangeListener.this, DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("Interface DataChange listener registration failed", e);
-            throw new IllegalStateException("Nexthop Manager registration Listener failed.", e);
-        }
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @Override
@@ -87,7 +76,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
             final String interfaceName = intrf.getName();
             LOG.info("Received interface add event for interface {} ", interfaceName);
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
-                    configInterface = InterfaceUtils.getInterface(broker, interfaceName);
+                    configInterface = InterfaceUtils.getInterface(dataBroker, interfaceName);
             if (configInterface != null) {
                 if (!configInterface.getType().equals(Tunnel.class)) {
                     // We service only VM interfaces and Router interfaces here.
@@ -95,7 +84,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                     // Tunnel events are directly serviced
                     // by TunnelInterfacesStateListener present as part of VpnInterfaceManager
                     LOG.debug("Config Interface Name {}", configInterface.getName());
-                    final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(broker, interfaceName);
+                    final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
                     if (vpnInterface != null) {
                         LOG.debug("VPN Interface Name {}", vpnInterface);
                         final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(intrf);
@@ -105,12 +94,12 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                 new Callable<List<ListenableFuture<Void>>>() {
                                     @Override
                                     public List<ListenableFuture<Void>> call() throws Exception {
-                                        WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
-                                        WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
-										WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
+                                        WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+                                        WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                                        WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                         vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false,
                                                 writeConfigTxn, writeOperTxn, writeInvTxn);
-                                        String routerName = VpnUtil.getNeutronRouterFromInterface(broker, interfaceName);
+                                        String routerName = VpnUtil.getNeutronRouterFromInterface(dataBroker, interfaceName);
                                         if (routerName != null) {
                                             LOG.debug("Router Name {} ", routerName);
                                             handleRouterInterfacesUpEvent(routerName, interfaceName, writeOperTxn);
@@ -157,11 +146,6 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
         }
     }
 
-
-    private InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    }
-
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("Received interface {} down event", intrf);
@@ -175,7 +159,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
             } else {
                 BigInteger dpId = BigInteger.ZERO;
                 InstanceIdentifier<VpnInterface> id = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-                Optional<VpnInterface> optVpnInterface = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
+                Optional<VpnInterface> optVpnInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
                 if (!optVpnInterface.isPresent()) {
                     LOG.debug("Interface {} is not a vpninterface, ignoring.", intrf.getName());
                     return;
@@ -194,12 +178,12 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                         new Callable<List<ListenableFuture<Void>>>() {
                             @Override
                             public List<ListenableFuture<Void>> call() throws Exception {
-                                WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
-                                WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
-                                WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
+                                WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                                WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+                                WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                 vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, false, false,
                                         writeConfigTxn, writeOperTxn, writeInvTxn);
-                                RouterInterface routerInterface = VpnUtil.getConfiguredRouterInterface(broker, interfaceName);
+                                RouterInterface routerInterface = VpnUtil.getConfiguredRouterInterface(dataBroker, interfaceName);
                                 if (routerInterface != null) {
                                     handleRouterInterfacesDownEvent(routerInterface.getRouterName(), interfaceName, dpnId, writeOperTxn);
                                 }
@@ -215,7 +199,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                 try {
                                     futures.get();
                                 } catch (InterruptedException | ExecutionException e) {
-									LOG.error("Error removing Config data for interface {} from vpn {} on dpn {}", interfaceName,
+                                    LOG.error("Error removing Config data for interface {} from vpn {} on dpn {}", interfaceName,
                                             vpnInterface.getVpnInstanceName(), dpnId);
                                     throw new RuntimeException(e.getMessage());
                                 }
@@ -226,7 +210,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                     LOG.error("Error removing Inventory/Flow data for interface {} from vpn {} on dpn {}", interfaceName,
                                             vpnInterface.getVpnInstanceName(), dpnId);
                                     throw new RuntimeException(e.getMessage());
-								}
+                                }
                                 return null;
                             }
                         });
@@ -250,7 +234,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
         final int ifIndex = update.getIfIndex();
         if (update != null) {
             if (!update.getType().equals(Tunnel.class)) {
-                final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(broker, interfaceName);
+                final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
                 if (vpnInterface != null) {
                     if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -258,9 +242,9 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                 new Callable<List<ListenableFuture<Void>>>() {
                                     @Override
                                     public List<ListenableFuture<Void>> call() throws Exception {
-                                        WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
-                                        WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
-										WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
+                                        WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+                                        WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                                        WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                         vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, 
                                                 true, writeConfigTxn, writeOperTxn, writeInvTxn);
                                         CheckedFuture<Void, TransactionCommitFailedException> futures = writeOperTxn.submit();
@@ -286,7 +270,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                             LOG.error("Error adding inventory/flow data for interface {} to vpn {} on dpn {}", interfaceName,
                                                     vpnInterface.getVpnInstanceName(), dpnId);
                                             throw new RuntimeException(e.getMessage());
-										}
+                                        }
                                         return null;
                                     }
                                 });
@@ -296,9 +280,9 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                 new Callable<List<ListenableFuture<Void>>>() {
                                     @Override
                                     public List<ListenableFuture<Void>> call() throws Exception {
-                                        WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
-                                        WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
-										WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
+                                        WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+                                        WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                                        WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                         vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, true, false,
                                                 writeConfigTxn, writeOperTxn, writeInvTxn);
                                         CheckedFuture<Void, TransactionCommitFailedException> futures = writeOperTxn.submit();
@@ -324,7 +308,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                             LOG.error("Error updating inventory/flow for interface {} from vpn {} on dpn {}", interfaceName,
                                                     vpnInterface.getVpnInstanceName(), dpnId);
                                             throw new RuntimeException(e.getMessage());
-										}
+                                        }
                                         return null;
                                     }
                                 });

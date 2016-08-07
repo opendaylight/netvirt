@@ -22,6 +22,7 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRunti
 
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +30,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.mdsal.it.base.AbstractMdsalTestBase;
 import org.opendaylight.netvirt.utils.netvirt.it.utils.NetITUtil;
-import org.opendaylight.netvirt.vpnmanager.VpnserviceProvider;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.NodeInfo;
@@ -49,6 +49,7 @@ import org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel;
 import org.ops4j.pax.exam.options.MavenUrlReference;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.util.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +72,9 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static String connectionType;
     private static String controllerStr;
     private static AtomicBoolean setup = new AtomicBoolean(false);
-    private static DataBroker dataBroker = null;
     private static final String NETVIRT_TOPOLOGY_ID = "netvirt:1";
+    @Inject @Filter(timeout=60000)
+    private static DataBroker dataBroker = null;
 
     @Override
     public String getModuleName() {
@@ -167,8 +169,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         Thread.sleep(10*1000);
         getProperties();
 
-        // get the dataBroker
-        dataBroker = VpnserviceProvider.getDataBroker();
         assertNotNull("dataBroker should not be null", dataBroker);
         itUtils = new OvsdbItUtils(dataBroker);
         mdsalUtils = new MdsalUtils(dataBroker);
