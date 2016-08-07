@@ -5,36 +5,31 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.bgpmanager;
-
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
-import java.util.*;
-
+import java.util.List;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FibDSWriter {
     private static final Logger logger = LoggerFactory.getLogger(FibDSWriter.class);
-    private final DataBroker broker;
+    private final DataBroker dataBroker;
 
-    public FibDSWriter(final DataBroker db) {
-        broker = db;
+    public FibDSWriter(final DataBroker dataBroker) {
+        this.dataBroker = dataBroker;
     }
 
     public synchronized void addFibEntryToDS(String rd, String prefix, List<String> nextHopList,
@@ -63,12 +58,12 @@ public class FibDSWriter {
                     InstanceIdentifier.builder(FibEntries.class)
                             .child(VrfTables.class, new VrfTablesKey(rd))
                             .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
-            Optional<VrfEntry> entry = BgpUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+            Optional<VrfEntry> entry = BgpUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
             VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
                                                      .setLabel((long)label).setOrigin(origin.getValue()).build();
 
-            BgpUtil.write(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+            BgpUtil.write(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
         } catch (Exception e) {
             logger.error("addFibEntryToDS: error ", e);
         }
@@ -86,7 +81,7 @@ public class FibDSWriter {
         InstanceIdentifierBuilder<VrfEntry> idBuilder =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class, new VrfEntryKey(prefix));
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
-        BgpUtil.delete(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
     }
 
@@ -97,10 +92,7 @@ public class FibDSWriter {
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
 
-        BgpUtil.delete(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
+        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
 
     }
-
-
-
 }

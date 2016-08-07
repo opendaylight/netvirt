@@ -85,6 +85,10 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         this.fibManager = fibManager;
     }
 
+    void setBgpManager(IBgpManager bgpManager) {
+        this.bgpManager = bgpManager;
+    }
+
     @Override
     public void onAddFloatingIp(final BigInteger dpnId, final String routerId,
                                 Uuid networkId, final String interfaceName, final String externalIp, final String internalIp) {

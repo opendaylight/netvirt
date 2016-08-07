@@ -5,25 +5,37 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.bgpmanager.oam;
 
-/**
- * Created by echiapt on 7/27/2015.
- */
-
- import javax.management.*;
-
- import org.slf4j.Logger;
- import org.slf4j.LoggerFactory;
-
- import java.util.ArrayList;
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import javax.management.AttributeChangeNotification;
+import javax.management.JMException;
+import javax.management.MBeanServer;
+import javax.management.Notification;
+import javax.management.NotificationBroadcasterSupport;
+import javax.management.ObjectName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BgpAlarmBroadcaster extends NotificationBroadcasterSupport implements BgpAlarmBroadcasterMBean {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BgpAlarmBroadcaster.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BgpAlarmBroadcaster.class);
     private long sequenceNumber;
+
     public BgpAlarmBroadcaster () {
         this.sequenceNumber = 1;
+    }
+
+    public void init() {
+        // Set up the Infra for Posting BGP Alarms as JMX notifications.
+        try {
+            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+            ObjectName alarmObj = new ObjectName("SDNC.FM:name=BgpAlarmObj");
+            mbs.registerMBean(this, alarmObj);
+        } catch (JMException e) {
+            LOG.error("Adding a NotificationBroadcaster failed.", e);
+        }
+        LOG.info("{} start", getClass().getSimpleName());
     }
 
     public void sendBgpAlarmInfo(String pfx, int code , int subcode) {
@@ -42,7 +54,6 @@ public class BgpAlarmBroadcaster extends NotificationBroadcasterSupport implemen
                                             "raise Alarm Object notified", "raiseAlarmObject",
                                             "ArrayList", "", arrayList);
         sendNotification(n);
-        LOGGER.info("BGP: Alarm :"+ userAlarm.getAlarmType() + " has been posted.");
-        return;
+        LOG.info("BGP: Alarm :"+ userAlarm.getAlarmType() + " has been posted.");
     }
 }
