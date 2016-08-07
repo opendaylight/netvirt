@@ -38,7 +38,6 @@ public class ConfigStateManager {
     }
 
     private void initReady() {
-        readyMap.put("bgpmanager-impl", Pair.of("bgpmanager-default", false));
         readyMap.put("dhcpservice-impl", Pair.of("dhcpservice-default", false)); // no service
         readyMap.put("elanservice-impl", Pair.of("elanservice-default", false));
         readyMap.put("natservice-impl", Pair.of("natservice-default", false)); // no service

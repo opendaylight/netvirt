@@ -11,7 +11,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <required-capabilities>
       <capability>urn:opendaylight:params:xml:ns:yang:vpnservice:impl?module=vpnservice-impl&amp;revision=2015-02-16</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
-      <capability>urn:opendaylight:params:xml:ns:yang:bgpmanager:api?module=bgpmanager-api&amp;revision=2015-04-20</capability>
       <capability>urn:opendaylight:genius:mdsalutil?module=odl-mdsalutil&amp;revision=2016-04-06</capability>
   </required-capabilities>
   <configuration>
@@ -30,9 +29,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <name>binding-rpc-broker</name>
           </rpcregistry>
           <bgpmanager>
-            <type xmlns:bgpmanager="urn:opendaylight:params:xml:ns:yang:bgpmanager:api">bgpmanager:bgpmanager-api</type>
-            <name>bgpmanager</name>
-          </bgpmanager>
           <mdsalutil>
             <type xmlns:mdsalutil="urn:opendaylight:genius:mdsalutil">mdsalutil:odl-mdsalutil</type>
             <name>mdsalutil-service</name>
