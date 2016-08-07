@@ -52,7 +52,8 @@ public class NeutronSecurityRuleListener
         extends AsyncDataTreeChangeListenerBase<SecurityRule, NeutronSecurityRuleListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSecurityRuleListener.class);
     private final DataBroker dataBroker;
-    private static final ImmutableBiMap<Class<? extends DirectionBase>, Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase>> DIRECTION_MAP = ImmutableBiMap.of(
+    private static final ImmutableBiMap<Class<? extends DirectionBase>, Class<? extends org.opendaylight.yang.gen.
+            v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase>> DIRECTION_MAP = ImmutableBiMap.of(
             DirectionEgress.class, NeutronSecurityRuleConstants.DIRECTION_EGRESS,
             DirectionIngress.class, NeutronSecurityRuleConstants.DIRECTION_INGRESS);
     private static final ImmutableBiMap<Class<? extends ProtocolBase>, Short> PROTOCOL_MAP = ImmutableBiMap.of(
@@ -129,12 +130,7 @@ public class NeutronSecurityRuleListener
                 aceIpBuilder.setDestinationPortRange(destinationPortRangeBuilder.build());
             }
         }
-        if (securityRule.getEthertype() != null) {
-            aceIpBuilder = handleEtherType(securityRule, aceIpBuilder);
-        }
-        if (securityRule.getRemoteIpPrefix() != null) {
-            aceIpBuilder = handleRemoteIpPrefix(securityRule, aceIpBuilder, isDirectionIngress);
-        }
+        aceIpBuilder = handleRemoteIpPrefix(securityRule, aceIpBuilder, isDirectionIngress);
         if (securityRule.getRemoteGroupId() != null) {
             securityRuleAttrBuilder.setRemoteGroupId(securityRule.getRemoteGroupId());
         }
@@ -167,33 +163,50 @@ public class NeutronSecurityRuleListener
     private AceIpBuilder handleEtherType(SecurityRule securityRule, AceIpBuilder aceIpBuilder) {
         if (NeutronSecurityRuleConstants.ETHERTYPE_IPV4.equals(securityRule.getEthertype())) {
             AceIpv4Builder aceIpv4Builder = new AceIpv4Builder();
+            aceIpv4Builder.setSourceIpv4Network(new Ipv4Prefix("0.0.0.0/0"));
+            aceIpv4Builder.setDestinationIpv4Network(new Ipv4Prefix("0.0.0.0/0"));
             aceIpBuilder.setAceIpVersion(aceIpv4Builder.build());
         } else {
             AceIpv6Builder aceIpv6Builder = new AceIpv6Builder();
+            aceIpv6Builder.setSourceIpv6Network(new Ipv6Prefix("::/0"));
+            aceIpv6Builder.setDestinationIpv6Network(new Ipv6Prefix("::/0"));
             aceIpBuilder.setAceIpVersion(aceIpv6Builder.build());
+
         }
         return aceIpBuilder;
     }
 
-    private AceIpBuilder handleRemoteIpPrefix(SecurityRule securityRule, AceIpBuilder aceIpBuilder, boolean isDirectionIngress) {
-        if (securityRule.getRemoteIpPrefix().getIpv4Prefix() != null) {
-            AceIpv4Builder aceIpv4Builder = new AceIpv4Builder();
-            if (isDirectionIngress) {
-                aceIpv4Builder.setSourceIpv4Network(new Ipv4Prefix(securityRule.getRemoteIpPrefix().getIpv4Prefix().getValue()));
-            } else {
-                aceIpv4Builder.setDestinationIpv4Network(new Ipv4Prefix(securityRule.getRemoteIpPrefix().getIpv4Prefix().getValue()));
-            }
-            aceIpBuilder.setAceIpVersion(aceIpv4Builder.build());
-        } else {
-            AceIpv6Builder aceIpv6Builder = new AceIpv6Builder();
-            if (isDirectionIngress) {
-                aceIpv6Builder.setSourceIpv6Network(new Ipv6Prefix(securityRule.getRemoteIpPrefix().getIpv6Prefix().getValue()));
-            } else {
-                aceIpv6Builder.setDestinationIpv6Network(new Ipv6Prefix(securityRule.getRemoteIpPrefix().getIpv6Prefix().getValue()));
+    private AceIpBuilder handleRemoteIpPrefix(SecurityRule securityRule, AceIpBuilder aceIpBuilder,
+                                              boolean isDirectionIngress) {
+        if (securityRule.getRemoteIpPrefix() != null) {
+            if (securityRule.getRemoteIpPrefix() != null) {
+                if (securityRule.getRemoteIpPrefix().getIpv4Prefix() != null) {
+                    AceIpv4Builder aceIpv4Builder = new AceIpv4Builder();
+                    if (isDirectionIngress) {
+                        aceIpv4Builder.setSourceIpv4Network(new Ipv4Prefix(securityRule
+                            .getRemoteIpPrefix().getIpv4Prefix().getValue()));
+                    } else {
+                        aceIpv4Builder.setDestinationIpv4Network(new Ipv4Prefix(securityRule
+                            .getRemoteIpPrefix().getIpv4Prefix().getValue()));
+                    }
+                    aceIpBuilder.setAceIpVersion(aceIpv4Builder.build());
+                } else {
+                    AceIpv6Builder aceIpv6Builder = new AceIpv6Builder();
+                    if (isDirectionIngress) {
+                        aceIpv6Builder.setSourceIpv6Network(new Ipv6Prefix("::/0"));
+                    } else {
+                        aceIpv6Builder.setDestinationIpv6Network(new Ipv6Prefix("::/0"));
 
+                    }
+                    aceIpBuilder.setAceIpVersion(aceIpv6Builder.build());
+                }
             }
-            aceIpBuilder.setAceIpVersion(aceIpv6Builder.build());
+        } else {
+            if (securityRule.getEthertype() != null) {
+                handleEtherType( securityRule, aceIpBuilder);
+            }
         }
+
         return aceIpBuilder;
     }
 
