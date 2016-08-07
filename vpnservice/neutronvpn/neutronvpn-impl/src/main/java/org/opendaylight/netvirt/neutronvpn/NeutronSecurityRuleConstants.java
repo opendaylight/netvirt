@@ -29,6 +29,9 @@ public final class NeutronSecurityRuleConstants {
 
     public static final Class ETHERTYPE_IPV4 = EthertypeV4.class;
 
+    public static final String IPV4_ALL_NETWORK = "0.0.0.0/0";
+    public static final String IPV6_ALL_NETWORK = "::/0";
+
     // default acp type
     public static final Class<? extends AclBase> ACLTYPE = Ipv4Acl.class;
 
