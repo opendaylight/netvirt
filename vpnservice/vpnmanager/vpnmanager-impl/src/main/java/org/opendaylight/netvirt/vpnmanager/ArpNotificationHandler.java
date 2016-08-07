@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -35,15 +36,16 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 
 public class ArpNotificationHandler implements OdlArputilListener {
-
-    VpnInterfaceManager vpnIfManager;
-    DataBroker broker;
-
     private static final Logger LOG = LoggerFactory.getLogger(ArpNotificationHandler.class);
+    DataBroker dataBroker;
+    VpnInterfaceManager vpnIfManager;
+    final IElanService elanService;
 
-    public ArpNotificationHandler(VpnInterfaceManager vpnIfMgr, DataBroker dataBroker) {
+    public ArpNotificationHandler(DataBroker dataBroker, VpnInterfaceManager vpnIfMgr,
+                                  final IElanService elanService) {
+        this.dataBroker = dataBroker;
         vpnIfManager = vpnIfMgr;
-        broker = dataBroker;
+        this.elanService = elanService;
     }
 
     @Override
@@ -64,12 +66,12 @@ public class ArpNotificationHandler implements OdlArputilListener {
         if (metadata != null && metadata != BigInteger.ZERO) {
             long vpnId = MetaDataUtil.getVpnIdFromMetadata(metadata);
             // Respond to ARP request only if vpnservice is configured on the interface
-            if (VpnUtil.isVpnInterfaceConfigured(broker, srcInterface)) {
+            if (VpnUtil.isVpnInterfaceConfigured(dataBroker, srcInterface)) {
                 LOG.info("Received ARP Request for interface {} ", srcInterface);
                 InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds>
                         vpnIdsInstanceIdentifier = VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId);
                 Optional<VpnIds> vpnIdsOptional
-                        = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
+                        = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
                 if (!vpnIdsOptional.isPresent()) {
                     // Donot respond to ARP requests on unknown VPNs
                     LOG.trace("ARP NO_RESOLVE: VPN {} not configured. Ignoring responding to ARP requests on this VPN", vpnId);
@@ -79,7 +81,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 String ipToQuery = notification.getSrcIpaddress().getIpv4Address().getValue();
                 LOG.trace("ArpRequest being processed for Source IP {}", ipToQuery);
                 VpnIds vpnIds = vpnIdsOptional.get();
-                VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(broker, vpnIds.getVpnInstanceName(), ipToQuery);
+                VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnIds.getVpnInstanceName(), ipToQuery);
                 if (vpnPortipToPort != null) {
                     String oldPortName = vpnPortipToPort.getPortName();
                     String oldMac = vpnPortipToPort.getMacAddress();
@@ -90,7 +92,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                         if (!vpnPortipToPort.isConfig()) {
                                 synchronized ((vpnName + ipToQuery).intern()) {
                                     vpnIfManager.removeMIPAdjacency(vpnName, oldPortName, srcIP);
-                                    VpnUtil.removeVpnPortFixedIpToPort(broker, vpnName, ipToQuery);
+                                    VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery);
                                 }
                                 try {
                                     Thread.sleep(2000);
@@ -105,12 +107,12 @@ public class ArpNotificationHandler implements OdlArputilListener {
                         }
                     } else {
                         synchronized ((vpnName + ipToQuery).intern()) {
-                            VpnUtil.createVpnPortFixedIpToPort(broker, vpnName, ipToQuery, srcInterface, srcMac.getValue(), false, false, true);
+                            VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface, srcMac.getValue(), false, false, true);
                             vpnIfManager.addMIPAdjacency(vpnName, srcInterface, srcIP);
                         }
                     }
                     String targetIpToQuery = notification.getDstIpaddress().getIpv4Address().getValue();
-                    VpnPortipToPort vpnTargetIpToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(broker,
+                    VpnPortipToPort vpnTargetIpToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker,
                             vpnIds.getVpnInstanceName(), targetIpToQuery);
                     //Process and respond from Controller only for GatewayIp ARP request
                     if (vpnTargetIpToPort != null) {
@@ -128,7 +130,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                             InstanceIdentifier<Port> inst = InstanceIdentifier.create(Neutron.class)
                                     .child(Ports.class)
                                     .child(Port.class, new PortKey(portUuid));
-                            Optional<Port> port = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+                            Optional<Port> port = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, inst);
                             if (port.isPresent()) {
                                 prt = port.get();
                                 Uuid subnetUUID = prt.getFixedIps().get(0).getSubnetId();
@@ -137,7 +139,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                                 InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
                                         .child(Subnets.class)
                                         .child(Subnet.class, subnetkey);
-                                Optional<Subnet> subnet = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
+                                Optional<Subnet> subnet = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
                                 if (subnet.isPresent()) {
                                     gw = subnet.get().getGatewayIp().getIpv4Address().getValue();
                                     if (targetIpToQuery.equalsIgnoreCase(gw)) {
@@ -146,7 +148,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                                     }
                                 }
                             }
-                    } else if (VpnmanagerServiceAccessor.getElanProvider().isExternalInterface(srcInterface)) {
+                    } else if (elanService.isExternalInterface(srcInterface)) {
                         handleArpRequestFromExternalInterface(srcInterface, srcIP, srcMac, targetIP);
                     } else {
                         LOG.trace("ARP request is not on an External VPN/Interface, so ignoring the request.");
@@ -169,17 +171,17 @@ public class ArpNotificationHandler implements OdlArputilListener {
             InstanceIdentifier<VpnIds>
                     vpnIdsInstanceIdentifier = VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId);
             Optional<VpnIds> vpnIdsOptional
-                    = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
+                    = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
             if (!vpnIdsOptional.isPresent()) {
                 // Donot respond to ARP requests on unknown VPNs
                 LOG.trace("ARP NO_RESOLVE: VPN {} not configured. Ignoring responding to ARP requests on this VPN", vpnId);
                 return;
             }
-            if (VpnUtil.isVpnInterfaceConfigured(broker, srcInterface)) {
+            if (VpnUtil.isVpnInterfaceConfigured(dataBroker, srcInterface)) {
                 String vpnName = vpnIdsOptional.get().getVpnInstanceName();
                 String ipToQuery = notification.getIpaddress().getIpv4Address().getValue();
                 VpnIds vpnIds = vpnIdsOptional.get();
-                VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(broker, vpnIds.getVpnInstanceName(), ipToQuery);
+                VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnIds.getVpnInstanceName(), ipToQuery);
                 if (vpnPortipToPort != null) {
                     String oldMac = vpnPortipToPort.getMacAddress();
                     String oldPortName = vpnPortipToPort.getPortName();
@@ -190,7 +192,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                         if (!vpnPortipToPort.isConfig()) {
                                 synchronized ((vpnName + ipToQuery).intern()) {
                                     vpnIfManager.removeMIPAdjacency(vpnName, oldPortName, srcIP);
-                                    VpnUtil.removeVpnPortFixedIpToPort(broker, vpnName, ipToQuery);
+                                    VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery);
                                 }
                                 try {
                                     Thread.sleep(2000);
@@ -204,7 +206,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                         }
                     } else {
                         synchronized ((vpnName + ipToQuery).intern()) {
-                            VpnUtil.createVpnPortFixedIpToPort(broker, vpnName, ipToQuery, srcInterface, srcMac.getValue(), false, false, true);
+                            VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface, srcMac.getValue(), false, false, true);
                             vpnIfManager.addMIPAdjacency(vpnName, srcInterface, srcIP);
                         }
                     }
@@ -214,7 +216,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
 
     private void handleArpRequestFromExternalInterface(String srcInterface, IpAddress srcIP, PhysAddress srcMac,
             IpAddress targetIP) {
-        Port port = VpnUtil.getNeutronPortForFloatingIp(broker, targetIP);
+        Port port = VpnUtil.getNeutronPortForFloatingIp(dataBroker, targetIP);
         String targetIpValue = targetIP.getIpv4Address().getValue();
         if (port == null) {
             LOG.trace("No neutron port found for with floating ip {}", targetIpValue);

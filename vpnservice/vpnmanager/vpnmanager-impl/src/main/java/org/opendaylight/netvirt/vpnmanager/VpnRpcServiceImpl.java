@@ -27,17 +27,17 @@ import java.util.Collection;
 import java.util.concurrent.Future;
 
 public class VpnRpcServiceImpl implements VpnRpcService {
-
     private static final Logger LOG = LoggerFactory.getLogger(VpnRpcServiceImpl.class);
-    private IdManagerService idManager;
-    private VpnInterfaceManager vpnInterfaceMgr;
-    private DataBroker dataBroker;
-    private IFibManager fibManager;
+    private final DataBroker dataBroker;
+    private final IdManagerService idManager;
+    private final VpnInterfaceManager vpnInterfaceMgr;
+    private final IFibManager fibManager;
 
-    public VpnRpcServiceImpl(IdManagerService idManager, VpnInterfaceManager vpnIfaceMgr, DataBroker dataBroker) {
+    public VpnRpcServiceImpl(final DataBroker dataBroker, final IdManagerService idManager,
+                             final VpnInterfaceManager vpnIfaceMgr, final IFibManager fibManager) {
+        this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.vpnInterfaceMgr = vpnIfaceMgr;
-        this.dataBroker = dataBroker;
         this.fibManager = fibManager;
     }
 

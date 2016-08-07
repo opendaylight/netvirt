@@ -51,29 +51,35 @@ import java.util.List;
 import java.util.concurrent.*;
 
 public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPort,ArpScheduler> {
-
-    private ScheduledExecutorService executorService;
-    private OdlInterfaceRpcService interfaceRpc;
-    private DataBroker dataBroker;
-    private ScheduledFuture<?> scheduledResult;
     private static final Logger LOG = LoggerFactory.getLogger(ArpScheduler.class);
+    private final DataBroker dataBroker;
+    private final OdlInterfaceRpcService intfRpc;
+    private ScheduledExecutorService executorService;
+    private ScheduledFuture<?> scheduledResult;
     private DelayQueue<MacEntry> macEntryQueue = new DelayQueue<MacEntry>();
-    private ListenerRegistration<ArpScheduler> listenerRegistration;
 
-    public ArpScheduler(OdlInterfaceRpcService interfaceRpc, DataBroker dataBroker) {
+    public ArpScheduler(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceRpc) {
         super(VpnPortipToPort.class, ArpScheduler.class);
         this.dataBroker = dataBroker;
-        this.interfaceRpc = interfaceRpc;
+        this.intfRpc = interfaceRpc;
+    }
+
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
         Long timeout = Long.getLong("arp.cache.timeout");
         if (timeout == null) {
             timeout = ArpConstants.DEFAULT_ARP_LEARNED_CACHE_TIMEOUT;
         }
         ArpConstants.arpCacheTimeout = timeout;
-        registerListener();
         executorService = Executors.newScheduledThreadPool(ArpConstants.THREAD_POOL_SIZE, getThreadFactory("Arp Cache Timer Tasks"));
         scheduleExpiredEntryDrainerTask();
     }
 
+    @Override
+    protected InstanceIdentifier<VpnPortipToPort> getWildCardPath() {
+        return InstanceIdentifier.create(NeutronVpnPortipPortData.class).child(VpnPortipToPort.class);
+    }
 
     private void scheduleExpiredEntryDrainerTask() {
         LOG.info("Scheduling expired entry drainer task");
@@ -137,16 +143,6 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
            .child(VpnPortipToPort.class, new VpnPortipToPortKey(ip,vpnName)).build();
     }
 
-    private void registerListener() {
-        try {
-           final DataTreeIdentifier<VpnPortipToPort> treeId = new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, getWildCardPath());
-           listenerRegistration = dataBroker.registerDataTreeChangeListener(treeId, this);
-        } catch (final Exception e) {
-            LOG.error("VPN Service DataChange listener registration fail !", e);
-            throw new IllegalStateException("VPN Service registration Listener failed.", e);
-        }
-     }
-
     @Override
     protected ArpScheduler getDataTreeChangeListener() {
         return this;
@@ -190,11 +186,6 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
         catch (Exception e) {
              LOG.error("Error in deserializing packet {} with exception {}", value, e);
         }
-    }
-
-    @Override
-    protected InstanceIdentifier<VpnPortipToPort> getWildCardPath() {
-       return InstanceIdentifier.create(NeutronVpnPortipPortData.class).child(VpnPortipToPort.class);
     }
 
     @Override
