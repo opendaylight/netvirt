@@ -7,14 +7,16 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -35,23 +37,26 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.net.InetAddresses;
-
 public class FloatingIpGarpHandler extends AsyncDataTreeChangeListenerBase<RouterPorts, FloatingIpGarpHandler>
         implements AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(FloatingIpGarpHandler.class);
+    private final DataBroker dataBroker;
+    private final PacketProcessingService packetService;
+    private final IElanService elanService;
+    private final OdlInterfaceRpcService intfRpc;
 
-    private DataBroker broker;
-    private PacketProcessingService packetService;
-    OdlInterfaceRpcService intfRpc;
-    private static final Logger s_logger = LoggerFactory.getLogger(FloatingIpGarpHandler.class);
-
-    public FloatingIpGarpHandler(DataBroker broker) {
+    public FloatingIpGarpHandler(final DataBroker dataBroker, final PacketProcessingService packetService,
+                                 final IElanService elanService, final OdlInterfaceRpcService interfaceManager) {
         super(RouterPorts.class, FloatingIpGarpHandler.class);
-        this.broker = broker;
+        this.dataBroker = dataBroker;
+        this.packetService = packetService;
+        this.elanService = elanService;
+        this.intfRpc = interfaceManager;
     }
 
-    public void setPacketService(PacketProcessingService packetService) {
-        this.packetService = packetService;
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
@@ -80,13 +85,13 @@ public class FloatingIpGarpHandler extends AsyncDataTreeChangeListenerBase<Route
 
     private void sendGarpForIp(RouterPorts dataObjectModificationAfter, IpAddress ip) {
         if (ip.getIpv4Address() == null) {
-            s_logger.warn("Faild to send GARP for IP. recieved IPv6.");
+            LOG.warn("Faild to send GARP for IP. recieved IPv6.");
             return;
         }
-        Port floatingIpPort = VpnUtil.getNeutronPortForFloatingIp(broker, ip);
+        Port floatingIpPort = VpnUtil.getNeutronPortForFloatingIp(dataBroker, ip);
         MacAddress floatingIpMac = floatingIpPort.getMacAddress();
-        String extNet = VpnUtil.getAssociatedExternalNetwork(broker, dataObjectModificationAfter.getRouterId());
-        Collection<String> interfaces = VpnmanagerServiceAccessor. getElanProvider().getExternalElanInterfaces(extNet);
+        String extNet = VpnUtil.getAssociatedExternalNetwork(dataBroker, dataObjectModificationAfter.getRouterId());
+        Collection<String> interfaces = elanService.getExternalElanInterfaces(extNet);
         for (String externalInterface:interfaces) {
             sendGarpOnInterface(ip, floatingIpMac, externalInterface);
             
@@ -104,9 +109,9 @@ public class FloatingIpGarpHandler extends AsyncDataTreeChangeListenerBase<Route
             TransmitPacketInput arpRequestInput = ArpUtils.createArpRequestInput(dpId, ArpUtils.getMacInBytes(floatingIpMac.getValue()), ipBytes, ipBytes, ingress);
             packetService.transmitPacket(arpRequestInput);
         } catch (InterruptedException e) {
-            s_logger.warn("Faild to send GARP. rpc call getPortFromInterface did not return with a value.");
+            LOG.warn("Faild to send GARP. rpc call getPortFromInterface did not return with a value.");
         } catch (ExecutionException e) {
-            s_logger.warn("Faild to send GARP. rpc call getPortFromInterface did not return with a value.");
+            LOG.warn("Faild to send GARP. rpc call getPortFromInterface did not return with a value.");
         }
     }
 

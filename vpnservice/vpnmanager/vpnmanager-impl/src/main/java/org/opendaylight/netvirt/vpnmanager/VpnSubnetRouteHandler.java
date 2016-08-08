@@ -7,60 +7,67 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import java.util.*;
-
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
-import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.TaskState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortAddedToSubnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortRemovedFromSubnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterAssociatedToVpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterDisassociatedFromVpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetAddedToVpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetAddedToVpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetDeletedFromVpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetDeletedFromVpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetUpdatedInVpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import java.math.BigInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
-
 public class VpnSubnetRouteHandler implements NeutronvpnListener {
     private static final Logger logger = LoggerFactory.getLogger(VpnSubnetRouteHandler.class);
-
-    private final DataBroker broker;
-    private SubnetOpDpnManager subOpDpnManager;
+    private final DataBroker dataBroker;
+    private final SubnetOpDpnManager subOpDpnManager;
     private final IBgpManager bgpManager;
-    private IdManagerService idManager;
-    private VpnInterfaceManager vpnInterfaceManager;
+    private final VpnInterfaceManager vpnInterfaceManager;
+    private final IdManagerService idManager;
 
-    public VpnSubnetRouteHandler(final DataBroker db, IBgpManager bgpManager, VpnInterfaceManager vpnIntfManager) {
-        broker = db;
-        subOpDpnManager = new SubnetOpDpnManager(broker);
+    public VpnSubnetRouteHandler(final DataBroker dataBroker, final SubnetOpDpnManager subnetOpDpnManager,
+                                 final IBgpManager bgpManager, final VpnInterfaceManager vpnIntfManager,
+                                 final IdManagerService idManager) {
+        this.dataBroker = dataBroker;
+        this.subOpDpnManager = subnetOpDpnManager;
         this.bgpManager = bgpManager;
         this.vpnInterfaceManager = vpnIntfManager;
-    }
-
-    public void setIdManager(IdManagerService idManager) {
         this.idManager = idManager;
     }
 
@@ -89,7 +96,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 // Please check if subnetId belongs to an External Network
                 InstanceIdentifier<Subnetmap> subMapid = InstanceIdentifier.builder(Subnetmaps.class).
                         child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
-                Optional<Subnetmap> sm = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, subMapid);
+                Optional<Subnetmap> sm = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subMapid);
                 if (!sm.isPresent()) {
                     logger.error("onSubnetAddedToVpn: Unable to retrieve subnetmap entry for subnet : " + subnetId);
                     return;
@@ -97,7 +104,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 subMap = sm.get();
                 InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class).
                         child(Networks.class, new NetworksKey(subMap.getNetworkId())).build();
-                Optional<Networks> optionalNets = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, netsIdentifier);
+                Optional<Networks> optionalNets = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier);
                 if (optionalNets.isPresent()) {
                     logger.info("onSubnetAddedToVpn: subnet {} is an external subnet on external network {}, so ignoring this for SubnetRoute",
                             subnetId.getValue(), subMap.getNetworkId().getValue());
@@ -106,7 +113,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 //Create and add SubnetOpDataEntry object for this subnet to the SubnetOpData container
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
                         child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
-                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(broker,
+                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker,
                         LogicalDatastoreType.OPERATIONAL,
                         subOpIdentifier);
                 if (optionalSubs.isPresent()) {
@@ -124,7 +131,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder().setKey(new SubnetOpDataEntryKey(subnetId));
                 subOpBuilder.setSubnetId(subnetId);
                 subOpBuilder.setSubnetCidr(subnetIp);
-                String rd = VpnUtil.getVpnRdFromVpnInstanceConfig(broker, vpnName);
+                String rd = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpnName);
                 if (rd == null) {
                     logger.error("onSubnetAddedToVpn: The VPN Instance name " + notification.getVpnName() + " does not have RD ");
                     return;
@@ -139,7 +146,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 List<Uuid> portList = subMap.getPortList();
                 if (portList != null) {
                     for (Uuid port: portList) {
-                        Interface intfState = InterfaceUtils.getInterfaceStateFromOperDS(broker,port.getValue());
+                        Interface intfState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker,port.getValue());
                         if (intfState != null) {
                             dpnId = InterfaceUtils.getDpIdFromInterface(intfState);
                             if (dpnId == null) {
@@ -190,8 +197,9 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 }
 
                 subOpEntry = subOpBuilder.build();
-                MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
-                logger.info("onSubnetAddedToVpn: Added subnetopdataentry to OP Datastore for subnet " + subnetId.getValue());
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
+                logger.info("onSubnetAddedToVpn: Added subnetopdataentry to OP Datastore for subnet {}",
+                        subnetId.getValue());
             } catch (Exception ex) {
                 logger.error("Creation of SubnetOpDataEntry for subnet " +
                         subnetId.getValue() + " failed {}", ex);
@@ -214,7 +222,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
                     child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
                 logger.trace(" Removing the SubnetOpDataEntry node for subnet: " +  subnetId.getValue());
-                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(broker,
+                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker,
                         LogicalDatastoreType.OPERATIONAL,
                         subOpIdentifier);
                 if (!optionalSubs.isPresent()) {
@@ -230,7 +238,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                  */
                 InstanceIdentifier<Subnetmap> subMapid = InstanceIdentifier.builder(Subnetmaps.class).
                         child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
-                Optional<Subnetmap> sm = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, subMapid);
+                Optional<Subnetmap> sm = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subMapid);
                 if (!sm.isPresent()) {
                     logger.error("Stale ports removal: Unable to retrieve subnetmap entry for subnet : " + subnetId);
                 } else {
@@ -241,7 +249,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                             InstanceIdentifier<PortOpDataEntry> portOpIdentifier = InstanceIdentifier.builder(PortOpData.class).
                                     child(PortOpDataEntry.class, new PortOpDataEntryKey(port.getValue())).build();
                             logger.trace("Deleting portOpData entry for port " + port.getValue());
-                            MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
+                            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
                         }
                     }
                 }
@@ -250,7 +258,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 String rd = subOpBuilder.getVrfId();
                 String subnetIp = subOpBuilder.getSubnetCidr();
                 String vpnName = subOpBuilder.getVpnName();
-                MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
+                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
                 logger.info("onSubnetDeletedFromVpn: Removed subnetopdataentry for subnet {} successfully from Datastore", subnetId.getValue());
                 try {
                     //Withdraw the routes for all the interfaces on this subnet
@@ -283,7 +291,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
 
         InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
                 child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
-        Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(broker,
+        Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker,
                 LogicalDatastoreType.OPERATIONAL,
                 subOpIdentifier);
         if (optionalSubs.isPresent()) {
@@ -315,14 +323,14 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
                     child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
 
-                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         subOpIdentifier);
                 if (!optionalSubs.isPresent()) {
                     logger.info("onPortAddedToSubnet: Port " + portId.getValue() + " is part of a subnet " + subnetId.getValue() +
                             " that is not in VPN, ignoring");
                     return;
                 }
-                Interface intfState = InterfaceUtils.getInterfaceStateFromOperDS(broker,portId.getValue());
+                Interface intfState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker,portId.getValue());
                 if (intfState == null) {
                     // Interface State not yet available
                     subOpDpnManager.addPortOpDataEntry(portId.getValue(), subnetId, null);
@@ -370,7 +378,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                     }
                 }
                 SubnetOpDataEntry subOpEntry = subOpBuilder.build();
-                MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
                 logger.info("onPortAddedToSubnet: Updated subnetopdataentry to OP Datastore for port " + portId.getValue());
 
             } catch (Exception ex) {
@@ -403,7 +411,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 boolean last = subOpDpnManager.removeInterfaceFromDpn(subnetId, dpnId, portId.getValue());
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
                         child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
-                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         subOpIdentifier);
                 if (!optionalSubs.isPresent()) {
                     logger.info("onPortRemovedFromSubnet: Port " + portId.getValue() + " is part of a subnet " + subnetId.getValue() +
@@ -458,7 +466,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                     }
                 }
                 subOpEntry = subOpBuilder.build();
-                MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
                 logger.info("onPortRemovedFromSubnet: Updated subnetopdataentry to OP Datastore removing port " + portId.getValue());
             } catch (Exception ex) {
                 logger.error("Creation of SubnetOpDataEntry for subnet " +
@@ -490,7 +498,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             try {
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
                     child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
-                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         subOpIdentifier);
                 if (!optionalSubs.isPresent()) {
                     logger.error("onInterfaceUp: SubnetOpDataEntry for subnet " + subnetId.getValue() +
@@ -530,7 +538,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                     }
                 }
                 SubnetOpDataEntry subOpEntry = subOpBuilder.build();
-                MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
                 logger.info("onInterfaceUp: Updated subnetopdataentry to OP Datastore port up " + intfName);
             } catch (Exception ex) {
                 logger.error("Creation of SubnetOpDataEntry for subnet " +
@@ -559,7 +567,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 boolean last = subOpDpnManager.removeInterfaceFromDpn(subnetId, dpnId, interfaceName);
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
                         child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
-                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(broker,
+                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker,
                         LogicalDatastoreType.OPERATIONAL,
                         subOpIdentifier);
                 if (!optionalSubs.isPresent()) {
@@ -613,7 +621,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                     }
                 }
                 subOpEntry = subOpBuilder.build();
-                MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
                 logger.info("onInterfaceDown: Updated subnetopdataentry to OP Datastore port down " + interfaceName);
             } catch (Exception ex) {
                 logger.error("Creation of SubnetOpDataEntry for subnet " +
@@ -637,7 +645,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         Preconditions.checkNotNull(subnetIp, "SubnetRouteIp cannot be null or empty!");
         Preconditions.checkNotNull(vpnName, "vpnName cannot be null or empty!");
         Preconditions.checkNotNull(elanTag, "elanTag cannot be null or empty!");
-        String nexthopIp = InterfaceUtils.getEndpointIpAddressForDPN(broker, nhDpnId);
+        String nexthopIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, nhDpnId);
         if(nexthopIp != null)
             vpnInterfaceManager.addSubnetRouteFibEntryToDS(rd, vpnName, subnetIp, nexthopIp, label, elanTag, nhDpnId , null);
         else
@@ -665,7 +673,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         Preconditions.checkNotNull(nhDpnId, "nhDpnId cannot be null or empty!");
         Preconditions.checkNotNull(vpnName, "vpnName cannot be null or empty!");
         String nexthopIp = null;
-        nexthopIp = InterfaceUtils.getEndpointIpAddressForDPN(broker, nhDpnId);
+        nexthopIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, nhDpnId);
         if (nexthopIp == null) {
             logger.error("createSubnetRouteInVpn: Unable to obtain endpointIp address for DPNId " + nhDpnId);
             throw new Exception("Unable to obtain endpointIp address for DPNId " + nhDpnId);

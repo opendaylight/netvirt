@@ -24,6 +24,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
+import org.opendaylight.netvirt.vpnmanager.SubnetOpDpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager;
 import org.opendaylight.netvirt.vpnmanager.VpnSubnetRouteHandler;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -172,9 +173,9 @@ public class VpnSubnetRouteHandlerTest {
     @Mock ReadOnlyTransaction mockReadTx;
     @Mock WriteTransaction mockWriteTx;
     @Mock IBgpManager bgpManager;
-    @Mock
-    VpnInterfaceManager vpnInterfaceManager;
+    @Mock VpnInterfaceManager vpnInterfaceManager;
     @Mock IdManagerService idManager;
+    @Mock SubnetOpDpnManager subnetOpDpnManager;
 
     VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
@@ -201,9 +202,10 @@ public class VpnSubnetRouteHandlerTest {
                 .thenReturn(dataChangeListenerRegistration);
         setupMocks();
 
-        vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, bgpManager, vpnInterfaceManager);
-        vpnSubnetRouteHandler.setIdManager(idManager);
-        Future<RpcResult<AllocateIdOutput>> idOutputOptional = RpcResultBuilder.success(allocateIdOutput).buildFuture();
+        vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, subnetOpDpnManager, bgpManager,
+                vpnInterfaceManager, idManager);
+        Future<RpcResult<AllocateIdOutput>> idOutputOptional =
+                RpcResultBuilder.success(allocateIdOutput).buildFuture();
 
         optionalIfState = Optional.of(stateInterface);
         optionalSubs = Optional.of(subnetOp);
@@ -311,7 +313,6 @@ public class VpnSubnetRouteHandlerTest {
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
-
     }
 
     @Test
