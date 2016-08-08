@@ -104,7 +104,7 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
         VpnInstanceOpDataEntry vpnOpEntry = null;
         Long intfCount = 0L;
         Long currentIntfCount = 0L;
-        Integer retryCount = 1;
+        Integer retryCount = 2;
         long timeout = VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
         Optional<VpnInstanceOpDataEntry> vpnOpValue = null;
         vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
