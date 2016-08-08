@@ -5,21 +5,25 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.natservice.internal;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EventDispatcher implements Runnable {
-    private BlockingQueue<NAPTEntryEvent> eventQueue;
-    private NaptEventHandler naptEventHandler;
     private static final Logger LOG = LoggerFactory.getLogger(EventDispatcher.class);
+    private final BlockingQueue<NAPTEntryEvent> eventQueue;
+    private final NaptEventHandler naptEventHandler;
 
-    EventDispatcher(BlockingQueue<NAPTEntryEvent> eventQueue, NaptEventHandler naptEventHandler){
-        this.eventQueue = eventQueue;
+    public EventDispatcher(NaptEventHandler naptEventHandler){
         this.naptEventHandler = naptEventHandler;
+        this.eventQueue = new ArrayBlockingQueue<>(NatConstants.EVENT_QUEUE_LENGTH);
+    }
+
+    public void init() {
+        new Thread(this).start();
     }
 
     public void addNaptEvent(NAPTEntryEvent naptEntryEvent){
