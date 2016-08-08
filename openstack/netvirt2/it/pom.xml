@@ -14,23 +14,23 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>it</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.4.0-SNAPSHOT</version>
     <relativePath>../../commons/it</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>netvirt-it</artifactId>
-  <version>1.3.0-SNAPSHOT</version>
+  <version>1.4.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
-    <controller.mdsal.version>1.4.0-SNAPSHOT</controller.mdsal.version>
+    <controller.mdsal.version>1.5.0-SNAPSHOT</controller.mdsal.version>
     <karaf.distro.groupId>org.opendaylight.ovsdb</karaf.distro.groupId>
     <karaf.distro.artifactId>karaf</karaf.distro.artifactId>
     <karaf.distro.version>${project.version}</karaf.distro.version>
     <karaf.distro.type>zip</karaf.distro.type>
-    <ovsdb.version>1.3.0-SNAPSHOT</ovsdb.version>
+    <ovsdb.version>1.4.0-SNAPSHOT</ovsdb.version>
   </properties>
 
   <dependencies>
