@@ -119,13 +119,13 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     @Override
     public Future<RpcResult<Void>> populateFibOnDpn(PopulateFibOnDpnInput input) {
-        fibManager.populateFibOnNewDpn(input.getDpid(), input.getVpnId(), input.getRd());
+        fibManager.populateFibOnNewDpn(input.getDpid(), input.getVpnId(), input.getRd(), null);
         return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
     }
 
     @Override
     public Future<RpcResult<Void>> cleanupDpnForVpn(CleanupDpnForVpnInput input) {
-        fibManager.cleanUpDpnForVpn(input.getDpid(), input.getVpnId(), input.getRd());
+        fibManager.cleanUpDpnForVpn(input.getDpid(), input.getVpnId(), input.getRd(), null);
         return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
     }
 
@@ -314,7 +314,7 @@ public class FibRpcServiceImpl implements FibRpcService {
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, id,
                         vpnToDpnList.setIpAddresses(ipAddresses).build());
                 LOG.debug("populate FIB on new dpn {} for VPN {}", dpnId, vpnName);
-                fibManager.populateFibOnNewDpn(dpnId, vpnId, rd);
+                fibManager.populateFibOnNewDpn(dpnId, vpnId, rd, null);
             }
         }
     }
@@ -340,7 +340,7 @@ public class FibRpcServiceImpl implements FibRpcService {
                             //Clean up the dpn
                             LOG.debug("Cleaning up dpn {} from VPN {}", dpnId, vpnName);
                             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-                            fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd);
+                            fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd, null);
                         }
                     } else {
                         delete(dataBroker, LogicalDatastoreType.OPERATIONAL, id.child(
