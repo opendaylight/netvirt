@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_21928957",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 833,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-08-08T14:24:21Z",
+      "side": 1,
+      "message": "This will create 2 interfaces with the same name - interfaceName which will overlap in the DS.\nInstead, need to issue the first createVLANInterface with trunkName as 1st parameter.",
+      "revId": "33039b54caaebc63e7a906ba31eed7275e427138",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
