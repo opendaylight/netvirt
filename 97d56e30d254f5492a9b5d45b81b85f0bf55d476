@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_446873ba",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-08T16:01:40Z",
+      "side": 1,
+      "message": "What does this translate to?",
+      "range": {
+        "startLine": 25,
+        "startChar": 32,
+        "endLine": 25,
+        "endChar": 44
+      },
+      "revId": "97d56e30d254f5492a9b5d45b81b85f0bf55d476",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_046f9bc6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-08T16:01:40Z",
+      "side": 1,
+      "message": "could you follow the patter used by NeutronSecurityRuleListener where the start and close are used to keep the code conistent?",
+      "revId": "97d56e30d254f5492a9b5d45b81b85f0bf55d476",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_645f6f0f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-08T16:01:40Z",
+      "side": 1,
+      "message": "is this config in another patch?",
+      "revId": "97d56e30d254f5492a9b5d45b81b85f0bf55d476",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_246577e1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-08T16:01:40Z",
+      "side": 1,
+      "message": "all this would move to the start/init method",
+      "revId": "97d56e30d254f5492a9b5d45b81b85f0bf55d476",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_243e17b9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/org/opendaylight/blueprint/neutronvpn.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-08T16:01:40Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "97d56e30d254f5492a9b5d45b81b85f0bf55d476",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a4798795",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/org/opendaylight/blueprint/neutronvpn.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-08T16:01:40Z",
+      "side": 1,
+      "message": "could you follow the patter used by NeutronSecurityRuleListener where the start and close are used to keep the code conistent?",
+      "revId": "97d56e30d254f5492a9b5d45b81b85f0bf55d476",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
