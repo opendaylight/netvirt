@@ -63,6 +63,7 @@ import java.util.List;
  */
 public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> implements AutoCloseable{
     private static final Logger LOG = LoggerFactory.getLogger(FloatingIPListener.class);
+    private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private OdlInterfaceRpcService interfaceManager;
@@ -308,7 +309,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         }
 
         actionsInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
-        instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfo));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfo));
 
         String flowRef = NatUtil.getFlowRef(dpId, NwConstants.SNAT_TABLE, vpnId, internalIp);
 
@@ -338,23 +339,25 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
             return 0;
         }
 
-        List<ActionInfo> actionList = NatUtil.getEgressActionsForInterface(interfaceManager, extInterface, null);
-        if (actionList == null || actionList.isEmpty()) {
-            LOG.warn("No actions found for interface {} vpn id {}", extInterface, vpnId);
+        List<ActionInfo> egressActionList = NatUtil.getEgressActionsForInterface(interfaceManager, extInterface, null);
+        if (egressActionList == null || egressActionList.isEmpty()) {
+            LOG.warn("No Egress actions found for interface {} vpn id {}", extInterface, vpnId);
             return 0;
         }
 
-        if(!Strings.isNullOrEmpty(macAddress)) {
-            actionList.add(new ActionInfo(ActionType.set_field_eth_dest, new String[]{ macAddress }));
+        List<ActionInfo> actionList = new ArrayList<>();
+        if (!Strings.isNullOrEmpty(macAddress)) {
+            actionList.add(new ActionInfo(ActionType.set_field_eth_dest, new String[] { macAddress }));
         }
 
+        actionList.addAll(egressActionList);
         List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
         listBucketInfo.add(new BucketInfo(actionList));
         long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerId), idManager);
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpId, groupId, routerId, GroupTypes.GroupIndirect,
                 listBucketInfo);
         LOG.trace("Install ext-net Group: id {} gw mac address {} vpn id {}", groupId, macAddress, vpnId);
-        mdsalManager.installGroup(groupEntity);
+        mdsalManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
         return groupId;
     }
 
