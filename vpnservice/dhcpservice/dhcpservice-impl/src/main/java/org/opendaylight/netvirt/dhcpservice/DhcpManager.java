@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
@@ -141,12 +142,12 @@ public class DhcpManager {
         }
     }
 
-    public void installDhcpEntries(BigInteger dpnId, String vmMacAddress) {
-        DhcpServiceUtils.setupDhcpFlowEntry(dpnId, DHCPMConstants.DHCP_TABLE, vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil);
+    public void installDhcpEntries(BigInteger dpnId, String vmMacAddress, WriteTransaction tx) {
+        DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, tx);
     }
 
-    public void unInstallDhcpEntries(BigInteger dpId, String vmMacAddress) {
-        DhcpServiceUtils.setupDhcpFlowEntry(dpId, DHCPMConstants.DHCP_TABLE, vmMacAddress, NwConstants.DEL_FLOW, mdsalUtil);
+    public void unInstallDhcpEntries(BigInteger dpId, String vmMacAddress, WriteTransaction tx) {
+        DhcpServiceUtils.setupDhcpFlowEntry(dpId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.DEL_FLOW, mdsalUtil, tx);
     }
 
     public void setupTableMissForDhcpTable(BigInteger dpId) {
@@ -156,7 +157,7 @@ public class DhcpManager {
         actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{
                 Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, DHCPMConstants.DHCP_TABLE, "DHCPTableMissFlow",
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DHCP_TABLE, "DHCPTableMissFlow",
                 0, "DHCP Table Miss Flow", 0, 0,
                 DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
         DhcpServiceCounters.install_dhcp_table_miss_flow.inc();
@@ -176,7 +177,7 @@ public class DhcpManager {
         mdsalUtil.installFlow(flowEntity);
     }
 
-    public void bindDhcpService(String interfaceName, short tableId) {
+    public void bindDhcpService(String interfaceName, short tableId, WriteTransaction tx) {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, ++instructionKey));
@@ -185,11 +186,11 @@ public class DhcpManager {
                 getBoundServices(String.format("%s.%s", "dhcp", interfaceName),
                         DHCPMConstants.DHCP_SERVICE_PRIORITY, DHCPMConstants.DEFAULT_FLOW_PRIORITY,
                         DHCPMConstants.COOKIE_VM_INGRESS_TABLE, instructions);
-        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
-                buildServiceId(interfaceName, DHCPMConstants.DHCP_SERVICE_PRIORITY), serviceInfo);
+        tx.put(LogicalDatastoreType.CONFIGURATION,
+                buildServiceId(interfaceName, DHCPMConstants.DHCP_SERVICE_PRIORITY), serviceInfo, true);
     }
 
-    private InstanceIdentifier buildServiceId(String interfaceName,
+    private InstanceIdentifier<BoundServices> buildServiceId(String interfaceName,
                                               short dhcpServicePriority) {
         return InstanceIdentifier.builder(ServiceBindings.class).child(ServicesInfo.class, new ServicesInfoKey(interfaceName, ServiceModeIngress.class))
                 .child(BoundServices.class, new BoundServicesKey(dhcpServicePriority)).build();
@@ -203,8 +204,8 @@ public class DhcpManager {
                 .setServiceType(ServiceTypeFlowBased.class).addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
 
-    public void unbindDhcpService(String interfaceName) {
-        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION,
+    public void unbindDhcpService(String interfaceName, WriteTransaction tx) {
+        tx.delete(LogicalDatastoreType.CONFIGURATION,
                 buildServiceId(interfaceName, DHCPMConstants.DHCP_SERVICE_PRIORITY));
     }
 }

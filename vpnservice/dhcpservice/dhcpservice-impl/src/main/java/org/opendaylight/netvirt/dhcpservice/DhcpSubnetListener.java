@@ -8,10 +8,14 @@
 
 package org.opendaylight.netvirt.dhcpservice;
 
-import com.google.common.base.Optional;
+import java.math.BigInteger;
+import java.util.Iterator;
+import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -30,16 +34,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
-
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.Iterator;
-import java.util.List;
-
+import com.google.common.base.Optional;
 
 public class DhcpSubnetListener extends AsyncClusteredDataChangeListenerBase<Subnet, DhcpSubnetListener>
         implements AutoCloseable {
@@ -139,7 +139,9 @@ public class DhcpSubnetListener extends AsyncClusteredDataChangeListenerBase<Sub
                         vmMacAddress);
             }
             //install the entriesd
-            dhcpManager.installDhcpEntries(dpId, vmMacAddress);
+            WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+            dhcpManager.installDhcpEntries(dpId, vmMacAddress, tx);
+            DhcpServiceUtils.submitTransaction(tx);
         }
     }
 
@@ -160,7 +162,9 @@ public class DhcpSubnetListener extends AsyncClusteredDataChangeListenerBase<Sub
                         vmMacAddress);
             }
             //install the entries
-            dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress);
+            WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+            dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, tx);
+            DhcpServiceUtils.submitTransaction(tx);
         }
     }
 

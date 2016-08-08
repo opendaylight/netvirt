@@ -15,24 +15,17 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
-import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceAddJob;
+import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceRemoveJob;
+import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceUpdateJob;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.InterfaceNameMacAddresses;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -43,22 +36,9 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
     private static final Logger logger = LoggerFactory.getLogger(DhcpInterfaceEventListener.class);
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-
     private final DataBroker dataBroker;
     private final DhcpManager dhcpManager;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
-
-    private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
-        @Override
-        public void onSuccess(Void result) {
-            logger.debug("Success in Datastore write operation");
-        }
-
-        @Override
-        public void onFailure(Throwable error) {
-            logger.error("Error in Datastore write operation", error);
-        }
-    };
 
     public DhcpInterfaceEventListener(DhcpManager dhcpManager, DataBroker dataBroker, DhcpExternalTunnelManager dhcpExternalTunnelManager) {
         super(Interface.class);
@@ -66,6 +46,7 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
         this.dataBroker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         registerListener();
+        dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     }
 
     private void registerListener() {
@@ -98,22 +79,9 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
         }
         String interfaceName = del.getName();
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-        BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
-                DhcpServiceUtils.getInterfaceFromConfigDS(interfaceName, dataBroker);
-        if (iface != null) {
-            IfTunnel tunnelInterface = iface.getAugmentation(IfTunnel.class);
-            if (tunnelInterface != null && !tunnelInterface.isInternal()) {
-                IpAddress tunnelIp = tunnelInterface.getTunnelDestination();
-                List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(dataBroker);
-                if (dpns.contains(dpId)) {
-                    dhcpExternalTunnelManager.handleTunnelStateDown(tunnelIp, dpId);
-                }
-                return;
-            }
-        }
-        logger.trace("Received remove DCN for interface {} dpId {}", interfaceName, dpId);
-        unInstallDhcpEntries(interfaceName, dpId);
+        BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        DhcpInterfaceRemoveJob job = new DhcpInterfaceRemoveJob(dhcpManager, dhcpExternalTunnelManager, dataBroker, interfaceName, dpnId);
+        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DHCPMConstants.RETRY_COUNT);
     }
 
     @Override
@@ -138,29 +106,10 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
             return;
         }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-        BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         String interfaceName = update.getName();
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
-                DhcpServiceUtils.getInterfaceFromConfigDS(interfaceName, dataBroker);
-        if (iface == null) {
-            logger.trace("Interface {} is not present in the config DS", interfaceName);
-            return;
-        }
-        if (Tunnel.class.equals(update.getType())) {
-            IfTunnel tunnelInterface = iface.getAugmentation(IfTunnel.class);
-            if (tunnelInterface != null && !tunnelInterface.isInternal()) {
-                IpAddress tunnelIp = tunnelInterface.getTunnelDestination();
-                List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(dataBroker);
-                if (dpns.contains(dpId)) {
-                    if (update.getOperStatus() == OperStatus.Down) {
-                        dhcpExternalTunnelManager.handleTunnelStateDown(tunnelIp, dpId);
-                    } else if (update.getOperStatus() == OperStatus.Up) {
-                        dhcpExternalTunnelManager.handleTunnelStateUp(tunnelIp, dpId);
-                    }
-                }
-            }
-            return;
-        }
+        DhcpInterfaceUpdateJob job = new DhcpInterfaceUpdateJob(dhcpManager, dhcpExternalTunnelManager, dataBroker, interfaceName, dpnId, update.getOperStatus());
+        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DHCPMConstants.RETRY_COUNT);
     }
 
     @Override
@@ -171,80 +120,8 @@ public class DhcpInterfaceEventListener extends AbstractDataChangeListener<Inter
             return;
         }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-        BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
-        logger.trace("Received add DCN for interface {}, dpid {}", interfaceName, dpId);
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
-                DhcpServiceUtils.getInterfaceFromConfigDS(add.getName(), dataBroker);
-        if (iface != null) {
-            IfTunnel tunnelInterface = iface.getAugmentation(IfTunnel.class);
-            if (tunnelInterface != null && !tunnelInterface.isInternal()) {
-                IpAddress tunnelIp = tunnelInterface.getTunnelDestination();
-                List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(dataBroker);
-                if (dpns.contains(dpId)) {
-                    dhcpExternalTunnelManager.handleTunnelStateUp(tunnelIp, dpId);
-                    dhcpManager.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL);
-                }
-                return;
-            }
-        }
-        if (!dpId.equals(DHCPMConstants.INVALID_DPID)) {
-            Port port = dhcpManager.getNeutronPort(interfaceName);
-            Subnet subnet = dhcpManager.getNeutronSubnet(port);
-            if (null != subnet && subnet.isEnableDhcp()) {
-                logger.info("DhcpInterfaceEventListener add isEnableDhcp" + subnet.isEnableDhcp());
-                installDhcpEntries(interfaceName, dpId);
-            }
-        }
-    }
-
-    private String getNeutronMacAddress(String interfaceName) {
-        Port port = dhcpManager.getNeutronPort(interfaceName);
-        if (port!=null) {
-            logger.trace("Port found in neutron. Interface Name {}, port {}", interfaceName, port);
-            return port.getMacAddress().getValue();
-        }
-        return null;
-    }
-
-    private void unInstallDhcpEntries(String interfaceName, BigInteger dpId) {
-        String vmMacAddress = getAndRemoveVmMacAddress(interfaceName);
-        dhcpManager.unbindDhcpService(interfaceName);
-        dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress);
-    }
-
-    private void installDhcpEntries(String interfaceName, BigInteger dpId) {
-        String vmMacAddress = getAndUpdateVmMacAddress(interfaceName);
-        dhcpManager.bindDhcpService(interfaceName, DHCPMConstants.DHCP_TABLE);
-        dhcpManager.installDhcpEntries(dpId, vmMacAddress);
-    }
-
-    private String getAndUpdateVmMacAddress(String interfaceName) {
-        InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier = InstanceIdentifier.builder(InterfaceNameMacAddresses.class).child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
-        Optional<InterfaceNameMacAddress> existingEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
-        if (!existingEntry.isPresent()) {
-            logger.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
-            String vmMacAddress = getNeutronMacAddress(interfaceName);
-            if (vmMacAddress==null || vmMacAddress.isEmpty()) {
-                return null;
-            }
-            logger.trace("Updating InterfaceNameVmMacAddress map with {}, {}", interfaceName,vmMacAddress);
-            InterfaceNameMacAddress interfaceNameMacAddress = new InterfaceNameMacAddressBuilder().setKey(new InterfaceNameMacAddressKey(interfaceName)).setInterfaceName(interfaceName).setMacAddress(vmMacAddress).build();
-            MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier, interfaceNameMacAddress);
-            return vmMacAddress;
-        }
-        return existingEntry.get().getMacAddress();
-    }
-
-    private String getAndRemoveVmMacAddress(String interfaceName) {
-        InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier = InstanceIdentifier.builder(InterfaceNameMacAddresses.class).child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
-        Optional<InterfaceNameMacAddress> existingEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
-        if (existingEntry.isPresent()) {
-            String vmMacAddress = existingEntry.get().getMacAddress();
-            logger.trace("Entry for interface found in InterfaceNameVmMacAddress map {}, {}", interfaceName, vmMacAddress);
-            MDSALDataStoreUtils.asyncRemove(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier, DEFAULT_CALLBACK);
-            return vmMacAddress;
-        }
-        logger.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
-        return null;
+        BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        DhcpInterfaceAddJob job = new DhcpInterfaceAddJob(dhcpManager, dhcpExternalTunnelManager, dataBroker, interfaceName, dpnId);
+        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DHCPMConstants.RETRY_COUNT);
     }
 }
