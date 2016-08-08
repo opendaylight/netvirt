@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_cfbf81cf",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-08-08T13:24:52Z",
+      "side": 1,
+      "message": "Reduntant if check.",
+      "range": {
+        "startLine": 186,
+        "startChar": 12,
+        "endLine": 186,
+        "endChar": 59
+      },
+      "revId": "5db14e5d4c5314e25b8103cdd6ca024d7cfa1ca4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_8f1749ed",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-08-08T13:24:52Z",
+      "side": 1,
+      "message": "NeutronSecurityRuleConstants.IPV6_ALL_NETWORK",
+      "range": {
+        "startLine": 200,
+        "startChar": 75,
+        "endLine": 200,
+        "endChar": 81
+      },
+      "revId": "5db14e5d4c5314e25b8103cdd6ca024d7cfa1ca4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
