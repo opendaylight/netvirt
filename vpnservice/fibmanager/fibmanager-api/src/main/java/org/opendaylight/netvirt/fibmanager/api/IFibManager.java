@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.fibmanager.api;
 
+import com.google.common.util.concurrent.FutureCallback;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 
@@ -15,12 +16,15 @@ import java.math.BigInteger;
 import java.util.List;
 
 public interface IFibManager {
-    void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd);
+    void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd,
+                             final FutureCallback<List<Void>> callback);
     void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
-                          String localNextHopIp, String remoteNextHopIp);
+                          String localNextHopIp, String remoteNextHopIp,
+                          final FutureCallback<List<Void>> callback);
     void populateFibOnDpn(BigInteger localDpnId, long vpnId, String rd,
                           String localNextHopIp, String remoteNextHopIp);
-    void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd);
+    void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
+                          final FutureCallback<List<Void>> callback);
     List<String> printFibEntries();
 
     // TODO Feels like this method is not used anywhere
