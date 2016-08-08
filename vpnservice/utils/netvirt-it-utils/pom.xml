@@ -13,7 +13,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>config-parent</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <relativePath>../../commons/config-parent/</relativePath>
   </parent>
 
@@ -22,7 +22,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <packaging>bundle</packaging>
 
   <properties>
-    <ovsdb.version>1.3.0-SNAPSHOT</ovsdb.version>
+    <ovsdb.version>1.4.0-SNAPSHOT</ovsdb.version>
   </properties>
 
   <dependencies>

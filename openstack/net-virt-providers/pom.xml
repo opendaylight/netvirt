@@ -12,14 +12,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.controller</groupId>
     <artifactId>config-parent</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.6.0-SNAPSHOT</version>
     <relativePath/>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>openstack.net-virt-providers</artifactId>
-  <version>1.3.0-SNAPSHOT</version>
+  <version>1.4.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <description>The OVSDB Plugin integration project is a project for OpenDaylight that will implement the Open vSwitch Database RFC 7047 management protocol allowing the Southbound configuration of vSwitches and a network virtualization implementation.</description>
   <licenses>
@@ -43,9 +43,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </scm>
 
   <properties>
-    <liblldp.version>0.11.0-SNAPSHOT</liblldp.version>
-    <openflowplugin.version>0.3.0-SNAPSHOT</openflowplugin.version>
-    <ovsdb.version>1.3.0-SNAPSHOT</ovsdb.version>
+    <liblldp.version>0.12.0-SNAPSHOT</liblldp.version>
+    <openflowplugin.version>0.4.0-SNAPSHOT</openflowplugin.version>
+    <ovsdb.version>1.4.0-SNAPSHOT</ovsdb.version>
     <sonar.jacoco.itReportPath>../net-virt-it/target/jacoco-it.exec</sonar.jacoco.itReportPath>
   </properties>
 

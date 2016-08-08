@@ -10,29 +10,29 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.mdsal</groupId>
     <artifactId>binding-parent</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
     <relativePath/>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>binding-parent</artifactId>
-  <version>0.3.0-SNAPSHOT</version>
+  <version>0.4.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
-    <vpnservices.version>0.3.0-SNAPSHOT</vpnservices.version>
-    <ietf.inet.types.version>2010.09.24.9-SNAPSHOT</ietf.inet.types.version>
-    <ietf.yang.types.version>2010.09.24.9-SNAPSHOT</ietf.yang.types.version>
-    <ietf.interfaces.version>2014.05.08.9-SNAPSHOT</ietf.interfaces.version>
-    <iana.if.type.version>2014.05.08.9-SNAPSHOT</iana.if.type.version>
-    <yang.ext.version>2013.09.07.9-SNAPSHOT</yang.ext.version>
-    <yangtools.version>1.0.0-SNAPSHOT</yangtools.version>
-    <mdsal.version>2.1.0-SNAPSHOT</mdsal.version>
-    <controller.mdsal.version>1.4.0-SNAPSHOT</controller.mdsal.version>
-    <vpns.mdsalutil.version>0.3.0-SNAPSHOT</vpns.mdsalutil.version>
-    <model.bgp.version>2013.07.15.9-SNAPSHOT</model.bgp.version>
-    <genius.version>0.1.0-SNAPSHOT</genius.version>
+    <vpnservices.version>0.4.0-SNAPSHOT</vpnservices.version>
+    <ietf.inet.types.version>2010.09.24.7-SNAPSHOT</ietf.inet.types.version>
+    <ietf.yang.types.version>2010.09.24.7-SNAPSHOT</ietf.yang.types.version>
+    <ietf.interfaces.version>2014.05.08.7-SNAPSHOT</ietf.interfaces.version>
+    <iana.if.type.version>2014.05.08.7-SNAPSHOT</iana.if.type.version>
+    <yang.ext.version>2013.09.07.7-SNAPSHOT</yang.ext.version>
+    <yangtools.version>1.1.0-SNAPSHOT</yangtools.version>
+    <mdsal.version>2.2.0-SNAPSHOT</mdsal.version>
+    <controller.mdsal.version>1.5.0-SNAPSHOT</controller.mdsal.version>
+    <vpns.mdsalutil.version>0.4.0-SNAPSHOT</vpns.mdsalutil.version>
+    <model.bgp.version>2013.07.15.7-SNAPSHOT</model.bgp.version>
+    <genius.version>0.2.0-SNAPSHOT</genius.version>
   </properties>
 
   <build>
