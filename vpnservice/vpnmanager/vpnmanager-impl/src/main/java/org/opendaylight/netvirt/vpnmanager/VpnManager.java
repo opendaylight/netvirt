@@ -55,14 +55,10 @@ import com.google.common.base.Optional;
 public class VpnManager extends AbstractDataChangeListener<VpnInstance> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnManager.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration, fibListenerRegistration;
-    private ConcurrentMap<String, Runnable> vpnOpMap = new ConcurrentHashMap<String, Runnable>();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final DataBroker broker;
     private final IBgpManager bgpManager;
     private IdManagerService idManager;
     private VpnInterfaceManager vpnInterfaceManager;
-    private final FibEntriesListener fibListener;
-    private NotificationService notificationService;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
             new FutureCallback<Void>() {
@@ -88,7 +84,6 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         super(VpnInstance.class);
         broker = db;
         this.bgpManager = bgpManager;
-        this.fibListener = new FibEntriesListener();
         registerListener(db);
     }
 
@@ -96,8 +91,6 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         try {
             listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
                     getWildCardPath(), VpnManager.this, DataChangeScope.SUBTREE);
-            fibListenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getFibEntryListenerPath(), fibListener, DataChangeScope.BASE);
         } catch (final Exception e) {
             LOG.error("VPN Service DataChange listener registration fail !", e);
             throw new IllegalStateException("VPN Service registration Listener failed.", e);
@@ -118,7 +111,7 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
         VpnInstanceOpDataEntry vpnOpEntry = null;
         Long intfCount = 0L;
         Long currentIntfCount = 0L;
-        Integer retryCount = 1;
+        Integer retryCount = 2;
         long timeout = VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
         Optional<VpnInstanceOpDataEntry> vpnOpValue = null;
         vpnOpValue = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
@@ -433,9 +426,6 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
                 syncWrite(LogicalDatastoreType.OPERATIONAL, VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName),
                         builder.build(), DEFAULT_CALLBACK);
             }
-            synchronized (vpnInstanceName.intern()) {
-                fibManager.addVrfTable(broker, vpnInstanceName, null);
-            }
         } else {
             VpnInstanceOpDataEntryBuilder builder =
                     new VpnInstanceOpDataEntryBuilder().setVrfId(rd).setVpnId(vpnId).setVpnInstanceName(vpnInstanceName)
@@ -449,9 +439,6 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
                 syncWrite(LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getVpnInstanceOpDataIdentifier(rd),
                         builder.build(), DEFAULT_CALLBACK);
-            }
-            synchronized (vpnInstanceName.intern()) {
-                fibManager.addVrfTable(broker, rd, null);
             }
         }
     }
@@ -612,64 +599,5 @@ public class VpnManager extends AbstractDataChangeListener<VpnInstance> implemen
             return vpnInstanceOpData.get();
         }
         return null;
-    }
-
-    private class FibEntriesListener extends AbstractDataChangeListener<VrfEntry>  {
-
-        public FibEntriesListener() {
-            super(VrfEntry.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<VrfEntry> identifier,
-                VrfEntry del) {
-            LOG.trace("Remove Fib event - Key : {}, value : {} ", identifier, del);
-            final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
-            String rd = key.getRouteDistinguisher();
-            Long label = del.getLabel();
-            VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(rd);
-            if(vpnInstanceOpData != null) {
-                List<Long> routeIds = vpnInstanceOpData.getRouteEntryId();
-                if(routeIds == null) {
-                    LOG.debug("Fib Route entry is empty.");
-                    return;
-                }
-                LOG.debug("Removing label from vpn info - {}", label);
-                routeIds.remove(label);
-                asyncWrite(LogicalDatastoreType.OPERATIONAL, VpnUtil.getVpnInstanceOpDataIdentifier(rd),
-                           new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(routeIds).build(), DEFAULT_CALLBACK);
-            } else {
-                LOG.warn("No VPN Instance found for RD: {}", rd);
-            }
-        }
-
-        @Override
-        protected void update(InstanceIdentifier<VrfEntry> identifier,
-                VrfEntry original, VrfEntry update) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        protected void add(InstanceIdentifier<VrfEntry> identifier,
-                           VrfEntry add) {
-            LOG.trace("Add Vrf Entry event - Key : {}, value : {}", identifier, add);
-            final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
-            String rd = key.getRouteDistinguisher();
-            Long label = add.getLabel();
-            VpnInstanceOpDataEntry vpn = getVpnInstanceOpData(rd);
-            if(vpn != null) {
-                List<Long> routeIds = vpn.getRouteEntryId();
-                if(routeIds == null) {
-                    routeIds = new ArrayList<>();
-                }
-                LOG.debug("Adding label to vpn info - {}", label);
-                routeIds.add(label);
-                asyncWrite(LogicalDatastoreType.OPERATIONAL, VpnUtil.getVpnInstanceOpDataIdentifier(rd),
-                           new VpnInstanceOpDataEntryBuilder(vpn).setRouteEntryId(routeIds).build(), DEFAULT_CALLBACK);
-            } else {
-                LOG.warn("No VPN Instance found for RD: {}", rd);
-            }
-        }
     }
 }
