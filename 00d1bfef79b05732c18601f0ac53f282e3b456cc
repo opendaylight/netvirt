@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_cf302159",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 4038
+      },
+      "writtenOn": "2016-08-08T12:44:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_7ac1d52d",
+      "revId": "00d1bfef79b05732c18601f0ac53f282e3b456cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_da046980",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-08-05T12:08:02Z",
       "side": 1,
       "message": "tcp allow rule can also be added parallely in the custom rule. so that it will not affect the packet flow.",
+      "revId": "00d1bfef79b05732c18601f0ac53f282e3b456cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2f36f552",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 4038
+      },
+      "writtenOn": "2016-08-08T12:44:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_da046980",
       "revId": "00d1bfef79b05732c18601f0ac53f282e3b456cc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
