@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
@@ -46,46 +47,40 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateEventListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
-    private IMdsalApiManager mdsalManager;
-    private FloatingIPListener floatingIPListener;
-    private NaptManager naptManager;
-    private NeutronvpnService neutronVpnService;
+    private final IMdsalApiManager mdsalManager;
+    private final FloatingIPListener floatingIPListener;
+    private final NaptManager naptManager;
+    private final NeutronvpnService neutronVpnService;
 
-    public InterfaceStateEventListener(final DataBroker db){
+    public InterfaceStateEventListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
+                                       final FloatingIPListener floatingIPListener,
+                                       final NaptManager naptManager,
+                                       final NeutronvpnService neutronvpnService){
         super(Interface.class);
-        dataBroker = db;
-        registerListener(db);
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
+        this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
-    }
-
-    public void setFloatingIpListener(FloatingIPListener floatingIPListener) {
         this.floatingIPListener = floatingIPListener;
-    }
-
-    public void setNeutronVpnService(NeutronvpnService neutronVpnService) {
-        this.neutronVpnService = neutronVpnService;
-    }
-
-    public void setNaptManager(NaptManager naptManager) {
         this.naptManager = naptManager;
-
+        this.neutronVpnService = neutronvpnService;
     }
 
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getWildCardPath(), InterfaceStateEventListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("Interface DataChange listener registration failed", e);
-            throw new IllegalStateException("Nexthop Manager registration Listener failed.", e);
-        }
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
     }
 
     private InstanceIdentifier<Interface> getWildCardPath() {
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (listenerRegistration != null) {
+            listenerRegistration.close();
+            listenerRegistration = null;
+        }
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @Override
@@ -355,18 +350,5 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
             LOG.error("NAT Service : Exception while receiving fixedIps for port {}",interfname);
         }
         return null;
-    }
-
-    @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("NAT Service : Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
-        }
-        LOG.info("NAT Service : Interface listener Closed");
     }
 }

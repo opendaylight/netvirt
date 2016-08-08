@@ -7,12 +7,15 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import io.netty.util.concurrent.GlobalEventExecutor;
+import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.*;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
@@ -27,18 +30,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -58,68 +57,55 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by emhamla on 1/18/2016.
- */
 public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> implements AutoCloseable{
     private static final Logger LOG = LoggerFactory.getLogger(FloatingIPListener.class);
-    private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private final DataBroker broker;
-    private OdlInterfaceRpcService interfaceManager;
-    private IMdsalApiManager mdsalManager;
-    private FloatingIPHandler handler;
-    private IdManagerService idManager;
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalManager;
+    private FloatingIPHandler floatingIPHandler;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final IdManagerService idManager;
+    private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
 
-
-    public FloatingIPListener (final DataBroker db) {
+    public FloatingIPListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
+                              final OdlInterfaceRpcService interfaceManager,
+                              final IdManagerService idManager,
+                              final BundleContext bundleContext) {
         super(IpMapping.class);
-        broker = db;
-        registerListener(db);
-    }
-
-    void setFloatingIpHandler(FloatingIPHandler handler) {
-        this.handler = handler;
-    }
-
-
-    public void setIdManager(IdManagerService idManager) {
+        this.dataBroker = dataBroker;
+        this.mdsalManager = mdsalManager;
+        this.interfaceManager = interfaceManager;
         this.idManager = idManager;
+
+        GlobalEventExecutor.INSTANCE.execute(new Runnable() {
+            @Override
+            public void run() {
+                final WaitingServiceTracker<FloatingIPHandler> tracker = WaitingServiceTracker.create(
+                        FloatingIPHandler.class, bundleContext);
+                floatingIPHandler = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+                LOG.info("FloatingIPListener initialized. FloatingIPHandler={}", floatingIPHandler);
+            }
+        });
+    }
+
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+    }
+
+    private InstanceIdentifier<IpMapping> getWildCardPath() {
+        return InstanceIdentifier.create(FloatingIpInfo.class).child(RouterPorts.class).child(Ports.class)
+                .child(IpMapping.class);
     }
 
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
+            listenerRegistration.close();
             listenerRegistration = null;
         }
-        LOG.info("FloatingIP Listener Closed");
-    }
-
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                    getWildCardPath(), FloatingIPListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("FloatingIP DataChange listener registration fail!", e);
-            throw new IllegalStateException("FloatingIP Listener registration Listener failed.", e);
-        }
-    }
-
-    private InstanceIdentifier<IpMapping> getWildCardPath() {
-        return InstanceIdentifier.create(FloatingIpInfo.class).child(RouterPorts.class).child(Ports.class).child(IpMapping.class);
-    }
-
-    public void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
-        this.interfaceManager = interfaceManager;
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @Override
@@ -301,7 +287,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
 
         IpAddress externalIpv4Address = new IpAddress(new Ipv4Address(externalIp));
-        MacAddress dstMac = NatUtil.getMacAddressForFloatingIp(broker, externalIpv4Address);
+        MacAddress dstMac = NatUtil.getMacAddressForFloatingIp(dataBroker, externalIpv4Address);
         if (dstMac != null) {
             actionsInfo.add(new ActionInfo(ActionType.set_field_eth_src, new String[] { dstMac.getValue() }));
         } else {
@@ -321,13 +307,13 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
     }
 
     private long installExtNetGroupEntry(BigInteger dpId, long vpnId, String macAddress) {
-        String routerId = NatUtil.getRouterIdfromVpnId(broker, vpnId);
+        String routerId = NatUtil.getRouterIdfromVpnId(dataBroker, vpnId);
         if (routerId == null) {
             LOG.warn("No router associated with vpn id {}", vpnId);
             return 0;
         }
 
-        String extNetwork = NatUtil.getAssociatedExternalNetwork(broker, routerId);
+        String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerId);
         if (extNetwork == null) {
             LOG.warn("No external network associated with router id {} vpn id {}", routerId, vpnId);
             return 0;
@@ -396,7 +382,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
     }
 
     private Uuid getExtNetworkId(final InstanceIdentifier<RouterPorts> pIdentifier, LogicalDatastoreType dataStoreType) {
-        Optional<RouterPorts> rtrPort = NatUtil.read(broker, dataStoreType, pIdentifier);
+        Optional<RouterPorts> rtrPort = NatUtil.read(dataBroker, dataStoreType, pIdentifier);
         if(!rtrPort.isPresent()) {
             LOG.error("Unable to read router port entry for {}", pIdentifier);
             return null;
@@ -408,7 +394,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
     private long getVpnId(Uuid extNwId) {
         InstanceIdentifier<Networks> nwId = InstanceIdentifier.builder(ExternalNetworks.class).child(Networks.class, new NetworksKey(extNwId)).build();
-        Optional<Networks> nw = NatUtil.read(broker, LogicalDatastoreType.CONFIGURATION, nwId);
+        Optional<Networks> nw = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, nwId);
         if(!nw.isPresent()) {
             LOG.error("Unable to read external network for {}", extNwId);
             return NatConstants.INVALID_ID;
@@ -420,7 +406,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         }
 
         //Get the id using the VPN UUID (also vpn instance name)
-        return NatUtil.readVpnId(broker, vpnUuid.getValue());
+        return NatUtil.readVpnId(dataBroker, vpnUuid.getValue());
     }
 
     private long getVpnId(Uuid extNwId, long routerId) {
@@ -483,20 +469,20 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
              return;
         }
 
-        long routerId = NatUtil.getVpnId(broker, routerName);
+        long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if(routerId == NatConstants.INVALID_ID) {
             LOG.warn("Could not retrieve router id for {} to create NAT Flow entries", routerName);
             return;
         }
         //Check if the router to vpn association is present
-        //long associatedVpnId = NatUtil.getAssociatedVpn(broker, routerName);
-        Uuid associatedVpn = NatUtil.getVpnForRouter(broker, routerName);
+        //long associatedVpnId = NatUtil.getAssociatedVpn(dataBroker, routerName);
+        Uuid associatedVpn = NatUtil.getVpnForRouter(dataBroker, routerName);
         long associatedVpnId = NatConstants.INVALID_ID;
         if(associatedVpn == null) {
             LOG.debug("Router {} is not assicated with any BGP VPN instance", routerName);
         } else {
             LOG.debug("Router {} is associated with VPN Instance with Id {}", routerName, associatedVpn);
-            associatedVpnId = NatUtil.getVpnId(broker, associatedVpn.getValue());
+            associatedVpnId = NatUtil.getVpnId(dataBroker, associatedVpn.getValue());
             LOG.debug("vpninstance Id is {} for VPN {}", associatedVpnId, associatedVpn);
             //routerId = associatedVpnId;
         }
@@ -521,18 +507,18 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         String macAddr = getExternalGatewayMacAddress(routerName);
         createSNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), vpnId, routerId, macAddr, associatedVpnId);
 
-        handler.onAddFloatingIp(dpnId, routerName, extNwId, interfaceName, mapping.getExternalIp(), mapping
+        floatingIPHandler.onAddFloatingIp(dpnId, routerName, extNwId, interfaceName, mapping.getExternalIp(), mapping
                 .getInternalIp());
     }
 
     void createNATFlowEntries(BigInteger dpnId,  String interfaceName, String routerName, Uuid externalNetworkId, String internalIp, String externalIp) {
-        long routerId = NatUtil.getVpnId(broker, routerName);
+        long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if(routerId == NatConstants.INVALID_ID) {
             LOG.warn("Could not retrieve router id for {} to create NAT Flow entries", routerName);
             return;
         }
         //Check if the router to vpn association is present
-        long associatedVpnId = NatUtil.getAssociatedVpn(broker, routerName);
+        long associatedVpnId = NatUtil.getAssociatedVpn(dataBroker, routerName);
         if(associatedVpnId == NatConstants.INVALID_ID) {
             LOG.debug("Router {} is not assicated with any BGP VPN instance", routerName);
         } else {
@@ -551,18 +537,18 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         String macAddr = getExternalGatewayMacAddress(routerName);
         createSNATTblEntry(dpnId, internalIp, externalIp, vpnId, routerId, macAddr, associatedVpnId);
 
-        handler.onAddFloatingIp(dpnId, routerName, externalNetworkId, interfaceName, externalIp, internalIp);
+        floatingIPHandler.onAddFloatingIp(dpnId, routerName, externalNetworkId, interfaceName, externalIp, internalIp);
     }
 
     void createNATOnlyFlowEntries(BigInteger dpnId,  String interfaceName, String routerName, String associatedVPN, Uuid externalNetworkId, String internalIp, String externalIp) {
         //String segmentId = associatedVPN == null ? routerName : associatedVPN;
         LOG.debug("Retrieving vpn id for VPN {} to proceed with create NAT Flows", routerName);
-        long routerId = NatUtil.getVpnId(broker, routerName);
+        long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if(routerId == NatConstants.INVALID_ID) {
             LOG.warn("Could not retrieve vpn id for {} to create NAT Flow entries", routerName);
             return;
         }
-        long associatedVpnId = NatUtil.getVpnId(broker, associatedVPN);
+        long associatedVpnId = NatUtil.getVpnId(dataBroker, associatedVPN);
         LOG.debug("Associated VPN Id {} for router {}", associatedVpnId, routerName);
         long vpnId = getVpnId(externalNetworkId, routerId);
         if(vpnId < 0) {
@@ -589,7 +575,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
     private String getExternalGatewayMacAddress(String routerName) {
         InstanceIdentifier<Routers> routersIdentifier = NatUtil.buildRouterIdentifier(routerName);
-        Optional<Routers> optRouters = NatUtil.read(broker, LogicalDatastoreType.CONFIGURATION, routersIdentifier);
+        Optional<Routers> optRouters = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIdentifier);
         if(optRouters.isPresent()) {
             Routers routers = optRouters.get();
             return routers.getExtGwMacAddress();
@@ -607,20 +593,20 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
             return;
         }
 
-        long routerId = NatUtil.getVpnId(broker, routerName);
+        long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if(routerId == NatConstants.INVALID_ID) {
             LOG.warn("Could not retrieve router id for {} to remove NAT Flow entries", routerName);
             return;
         }
         //if(routerId == NatConstants.INVALID_ID) {
         //The router could be associated with BGP VPN
-        Uuid associatedVPN = NatUtil.getVpnForRouter(broker, routerName);
+        Uuid associatedVPN = NatUtil.getVpnForRouter(dataBroker, routerName);
         long associatedVpnId = NatConstants.INVALID_ID;
         if(associatedVPN == null) {
             LOG.warn("Could not retrieve router id for {} to remove NAT Flow entries", routerName);
         } else {
             LOG.debug("Retrieving vpn id for VPN {} to proceed with remove NAT Flows", associatedVPN.getValue());
-            associatedVpnId = NatUtil.getVpnId(broker, associatedVPN.getValue());
+            associatedVpnId = NatUtil.getVpnId(dataBroker, associatedVPN.getValue());
         }
 
         //Delete the DNAT and SNAT table entries
@@ -650,19 +636,19 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 //            LOG.error("External network associated with router {} could not be retrieved", routerName);
 //            return;
 //        }
-        handler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping.getExternalIp(), mapping.getInternalIp(), (int) label);
+        floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping.getExternalIp(), mapping.getInternalIp(), (int) label);
         removeOperationalDS(routerName, interfaceName, mapping.getInternalIp(), mapping.getExternalIp());
 
     }
 
     void removeNATFlowEntries(BigInteger dpnId, String interfaceName, String vpnName, String routerName, Uuid externalNetworkId, String internalIp, String externalIp) {
-        long routerId = NatUtil.getVpnId(broker, routerName);
+        long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if(routerId == NatConstants.INVALID_ID) {
             LOG.warn("Could not retrieve router id for {} to remove NAT Flow entries", routerName);
             return;
         }
 
-        long vpnId = NatUtil.getVpnId(broker, vpnName);
+        long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if(vpnId == NatConstants.INVALID_ID) {
             LOG.warn("VPN Id not found for {} to remove NAT flow entries {}", vpnName, internalIp);
         }
@@ -677,8 +663,8 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
             LOG.error("Could not retrieve label for prefix {} in router {}", internalIp, routerId);
             return;
         }
-        //handler.onRemoveFloatingIp(dpnId, routerName, externalNetworkId, externalIp, internalIp, (int)label);
-        ((VpnFloatingIpHandler)handler).cleanupFibEntries(dpnId, vpnName, externalIp, label);
+        //floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, externalNetworkId, externalIp, internalIp, (int)label);
+        ((VpnFloatingIpHandler) floatingIPHandler).cleanupFibEntries(dpnId, vpnName, externalIp, label);
         removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
     }
 
@@ -686,7 +672,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
                                                                           String internalIp, String externalIp) {
         String segmentId = associatedVPN == null ? routerName : associatedVPN;
         LOG.debug("Retrieving vpn id for VPN {} to proceed with remove NAT Flows", segmentId);
-        long routerId = NatUtil.getVpnId(broker, segmentId);
+        long routerId = NatUtil.getVpnId(dataBroker, segmentId);
         if(routerId == NatConstants.INVALID_ID) {
             LOG.warn("Could not retrieve vpn id for {} to remove NAT Flow entries", segmentId);
             return;
@@ -699,7 +685,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
     private long getOperationalIpMapping(String routerId, String interfaceName, String internalIp) {
         InstanceIdentifier<IpMapping> ipMappingIdentifier = NatUtil.getIpMappingIdentifier(routerId, interfaceName, internalIp);
-        Optional<IpMapping> ipMapping = NatUtil.read(broker, LogicalDatastoreType.OPERATIONAL, ipMappingIdentifier);
+        Optional<IpMapping> ipMapping = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ipMappingIdentifier);
         if(ipMapping.isPresent()) {
             return ipMapping.get().getLabel();
         }
@@ -708,7 +694,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
     private Uuid getExternalNetworkForRouter(String routerId) {
         InstanceIdentifier<RouterPorts> identifier = NatUtil.getRouterPortsId(routerId);
-        Optional<RouterPorts> optRouterPorts = NatUtil.read(broker, LogicalDatastoreType.OPERATIONAL, identifier);
+        Optional<RouterPorts> optRouterPorts = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier);
         if(optRouterPorts.isPresent()) {
             RouterPorts routerPorts = optRouterPorts.get();
             return routerPorts.getExternalNetworkId();
@@ -720,25 +706,25 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
         LOG.info("Updating operational DS for floating ip config : {} with label {}", internalIp, label);
         InstanceIdentifier<Ports> portsId = NatUtil.getPortsIdentifier(routerId, interfaceName);
-        Optional<Ports> optPorts = NatUtil.read(broker, LogicalDatastoreType.OPERATIONAL, portsId);
+        Optional<Ports> optPorts = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, portsId);
         IpMapping ipMapping = new IpMappingBuilder().setKey(new IpMappingKey(internalIp)).setInternalIp(internalIp)
                 .setExternalIp(externalIp).setLabel(label).build();
         if(optPorts.isPresent()) {
             LOG.debug("Ports {} entry already present. Updating ipmapping for internal ip {}", interfaceName, internalIp);
-            MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, portsId.child(IpMapping.class, new IpMappingKey(internalIp)), ipMapping);
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, portsId.child(IpMapping.class, new IpMappingKey(internalIp)), ipMapping);
         } else {
             LOG.debug("Adding Ports entry {} along with ipmapping {}", interfaceName, internalIp);
             List<IpMapping> ipMappings = new ArrayList<>();
             ipMappings.add(ipMapping);
             Ports ports = new PortsBuilder().setKey(new PortsKey(interfaceName)).setPortName(interfaceName).setIpMapping(ipMappings).build();
-            MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, portsId, ports);
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, portsId, ports);
         }
     }
 
     void removeOperationalDS(String routerId, String interfaceName, String internalIp, String externalIp) {
         LOG.info("Remove operational DS for floating ip config: {}", internalIp);
         InstanceIdentifier<IpMapping> ipMappingId = NatUtil.getIpMappingIdentifier(routerId, interfaceName, internalIp);
-        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, ipMappingId);
+        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, ipMappingId);
     }
 
     private FlowEntity buildPreDNATDeleteFlowEntity(BigInteger dpId, String internalIp, String externalIp, long routerId) {

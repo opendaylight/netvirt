@@ -7,14 +7,16 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.util.concurrent.AsyncFunction;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.Future;
 import java.util.List;
-
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -24,69 +26,53 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.util.concurrent.AsyncFunction;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
-import com.google.common.util.concurrent.ListenableFuture;
-
 public class VpnFloatingIpHandler implements FloatingIPHandler {
     private static final Logger LOG = LoggerFactory.getLogger(VpnFloatingIpHandler.class);
-    private VpnRpcService vpnService;
-    private FibRpcService fibService;
-    private IBgpManager bgpManager;
-    private DataBroker dataBroker;
-    private IMdsalApiManager mdsalManager;
-    private FloatingIPListener listener;
-    private IFibManager fibManager;
-
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalManager;
+    private final VpnRpcService vpnService;
+    private final IBgpManager bgpManager;
+    private final FibRpcService fibService;
+    private final FloatingIPListener floatingIPListener;
+    private final IFibManager fibManager;
     static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final String FLOWID_PREFIX = "NAT.";
 
-    public VpnFloatingIpHandler(VpnRpcService vpnService, IBgpManager bgpManager, FibRpcService fibService) {
-        this.vpnService = vpnService;
-        this.fibService = fibService;
-        this.bgpManager = bgpManager;
-    }
-
-    void setListener(FloatingIPListener listener) {
-        this.listener = listener;
-    }
-
-    void setBroker(DataBroker broker) {
-        dataBroker = broker;
-    }
-
-    void setMdsalManager(IMdsalApiManager mdsalManager) {
+    public VpnFloatingIpHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
+                                final VpnRpcService vpnService,
+                                final IBgpManager bgpManager,
+                                final FibRpcService fibService,
+                                final FloatingIPListener floatingIPListener,
+                                final IFibManager fibManager) {
+        this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
-    }
-
-    void setFibManager(IFibManager fibManager) {
-        this.fibManager = fibManager;
-    }
-
-    void setBgpManager(IBgpManager bgpManager) {
+        this.vpnService = vpnService;
         this.bgpManager = bgpManager;
+        this.fibService = fibService;
+        this.floatingIPListener = floatingIPListener;
+        this.fibManager = fibManager;
     }
 
     @Override
@@ -110,7 +96,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     GenerateVpnLabelOutput output = result.getResult();
                     long label = output.getLabel();
                     LOG.debug("Generated label {} for prefix {}", label, externalIp);
-                    listener.updateOperationalDS(routerId, interfaceName, label, internalIp, externalIp);
+                    floatingIPListener.updateOperationalDS(routerId, interfaceName, label, internalIp, externalIp);
 
                     //Inform BGP
                     String rd = NatUtil.getVpnRd(dataBroker, vpnName);

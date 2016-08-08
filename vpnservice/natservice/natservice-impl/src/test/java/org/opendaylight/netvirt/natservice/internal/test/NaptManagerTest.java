@@ -48,7 +48,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(MDSALUtil.class)
 public class NaptManagerTest {
@@ -70,13 +69,11 @@ public class NaptManagerTest {
                 any(DataChangeListener.class),
                 any(DataChangeScope.class)))
                 .thenReturn(dataChangeListenerRegistration);
-        naptManager = new NaptManager(dataBroker);
+        naptManager = new NaptManager(dataBroker, idMgr);
         when(idMgr.createIdPool(any(CreateIdPoolInput.class)))
                   .thenReturn(Futures.immediateFuture(RpcResultBuilder.<Void>success().build()));
-        naptManager.setIdManager(idMgr);
 
         PowerMockito.mockStatic(MDSALUtil.class);
-
     }
 
 

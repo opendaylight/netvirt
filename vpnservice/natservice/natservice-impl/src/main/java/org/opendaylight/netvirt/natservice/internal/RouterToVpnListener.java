@@ -7,13 +7,13 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -25,45 +25,33 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMappingKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortAddedToSubnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortRemovedFromSubnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterAssociatedToVpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterDisassociatedFromVpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetAddedToVpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetDeletedFromVpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortAddedToSubnet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortRemovedFromSubnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetUpdatedInVpn;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
 public class RouterToVpnListener implements NeutronvpnListener {
     private static final Logger LOG = LoggerFactory.getLogger(RouterToVpnListener.class);
-    private DataBroker dataBroker;
-    private FloatingIPListener floatingIpListener;
-    private OdlInterfaceRpcService interfaceManager;
+    private final DataBroker dataBroker;
+    private final FloatingIPListener floatingIpListener;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final ExternalRoutersListener externalRoutersListener;
 
-
-    private ExternalRoutersListener externalRoutersListener;
-
-    public RouterToVpnListener(DataBroker db) {
-        dataBroker = db;
-    }
-
-    void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
-        this.interfaceManager = interfaceManager;
-    }
-
-    void setFloatingIpListener(FloatingIPListener floatingIpListener) {
+    public RouterToVpnListener(final DataBroker dataBroker,
+                               final FloatingIPListener floatingIpListener,
+                               final OdlInterfaceRpcService interfaceManager,
+                               final ExternalRoutersListener externalRoutersListener) {
+        this.dataBroker = dataBroker;
         this.floatingIpListener = floatingIpListener;
-    }
-
-    void setExternalRoutersListener(ExternalRoutersListener externalRoutersListener) {
+        this.interfaceManager = interfaceManager;
         this.externalRoutersListener = externalRoutersListener;
     }
 
