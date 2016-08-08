@@ -136,7 +136,9 @@ public class InterfaceStateToTransportZoneTest {
         
         when(nVpnMgr.updateSubnetmapNodeWithPorts(any(Uuid.class), any(Uuid.class), any(Uuid.class))).thenReturn(subnetMap);
 
-        interfaceStateToTransportZoneChangeListener = new InterfaceStateToTransportZoneListener(dataBroker, nVpnMgr, "yes");
+        when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
+        thenReturn(Futures.immediateCheckedFuture(Optional.absent()));
+        interfaceStateToTransportZoneChangeListener = new InterfaceStateToTransportZoneListener(dataBroker, nVpnMgr);
     }
     
     @After
