@@ -255,13 +255,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>natservice-impl</artifactId>
-      <version>${vpnservices.version}</version>
-      <classifier>config</classifier>
-      <type>xml</type>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>natservice-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>

@@ -70,53 +70,37 @@ import java.util.HashMap;
 public class NaptSwitchHA {
     private static final Logger LOG = LoggerFactory.getLogger(NaptSwitchHA.class);
     private final DataBroker dataBroker;
-    private IMdsalApiManager mdsalManager;
-    private ItmRpcService itmManager;
-    private OdlInterfaceRpcService interfaceManager;
-    private IdManagerService idManager;
-    private NAPTSwitchSelector naptSwitchSelector;
-    private ExternalRoutersListener externalRouterListener;
-    private IBgpManager bgpManager;
-    private VpnRpcService vpnService;
-    private FibRpcService fibService;
-
+    private final IMdsalApiManager mdsalManager;
+    private final ItmRpcService itmManager;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final IdManagerService idManager;
+    private final NAPTSwitchSelector naptSwitchSelector;
+    private final ExternalRoutersListener externalRouterListener;
+    private final IBgpManager bgpManager;
+    private final VpnRpcService vpnService;
+    private final FibRpcService fibService;
     private List<String> externalIpsCache;
     private HashMap<String,Long> externalIpsLabel;
-    public NaptSwitchHA(DataBroker broker,NAPTSwitchSelector selector){
-        dataBroker = broker;
-        naptSwitchSelector = selector;
-    }
 
-    public void setItmManager(ItmRpcService itmManager) {
-        this.itmManager = itmManager;
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
+    public NaptSwitchHA(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
+                        final ExternalRoutersListener externalRouterListener,
+                        final ItmRpcService itmManager,
+                        final OdlInterfaceRpcService interfaceManager,
+                        final IdManagerService idManager,
+                        final NAPTSwitchSelector naptSwitchSelector,
+                        final IBgpManager bgpManager,
+                        final VpnRpcService vpnService,
+                        final FibRpcService fibService) {
+        this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
-    }
-
-    public void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
+        this.externalRouterListener = externalRouterListener;
+        this.itmManager = itmManager;
         this.interfaceManager = interfaceManager;
-    }
-
-    public void setIdManager(IdManagerService idManager) {
         this.idManager = idManager;
-    }
-
-    void setExternalRoutersListener(ExternalRoutersListener externalRoutersListener) {
-        this.externalRouterListener = externalRoutersListener;
-    }
-
-    public void setBgpManager(IBgpManager bgpManager) {
+        this.naptSwitchSelector = naptSwitchSelector;
         this.bgpManager = bgpManager;
-    }
-
-    public void setVpnService(VpnRpcService vpnService) {
         this.vpnService = vpnService;
-    }
-
-    public void setFibService(FibRpcService fibService) {
-        this.fibService = fibService;
+        this.fibService =fibService;
     }
 
     /* This method checks the switch that gone down is a NaptSwitch for a router.

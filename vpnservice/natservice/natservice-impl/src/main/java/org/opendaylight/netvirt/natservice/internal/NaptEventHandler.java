@@ -8,77 +8,68 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
-import org.opendaylight.genius.mdsalutil.*;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import org.opendaylight.controller.liblldp.NetUtils;
+import org.opendaylight.controller.liblldp.PacketException;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
-import org.opendaylight.genius.interfacemanager.globals.VlanInterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.InstructionType;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchFieldType;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
-import org.opendaylight.controller.liblldp.NetUtils;
-import org.opendaylight.controller.liblldp.PacketException;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NaptEventHandler {
-    private NaptManager naptManager;
     private static final Logger LOG = LoggerFactory.getLogger(NaptEventHandler.class);
+    private final DataBroker dataBroker;
     private static IMdsalApiManager mdsalManager;
-    private DataBroker dataBroker;
-    private PacketProcessingService pktService;
-    private OdlInterfaceRpcService interfaceManagerRpc;
+    private final PacketProcessingService pktService;
+    private final OdlInterfaceRpcService interfaceManagerRpc;
+    private final NaptManager naptManager;
     private IInterfaceManager interfaceManager;
 
-    public NaptEventHandler(final DataBroker dataBroker) {
+    public NaptEventHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
+                            final NaptManager naptManager,
+                            final PacketProcessingService pktService,
+                            final OdlInterfaceRpcService interfaceManagerRpc,
+                            final IInterfaceManager interfaceManager) {
         this.dataBroker = dataBroker;
-    }
-
-    public void setInterfaceManager(IInterfaceManager interfaceManager) {
+        NaptEventHandler.mdsalManager = mdsalManager;
+        this.naptManager = naptManager;
+        this.pktService = pktService;
+        this.interfaceManagerRpc = interfaceManagerRpc;
         this.interfaceManager = interfaceManager;
     }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
-    }
-
-    public void setNaptManager(NaptManager naptManager) {
-        this.naptManager = naptManager;
-    }
-
-    public void setPacketProcessingService(PacketProcessingService packetService) {
-        this.pktService = packetService;
-    }
-
-    public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {
-        LOG.trace("Registered interfaceManager successfully");;
-        this.interfaceManagerRpc = interfaceManagerRpc;
-    }
-
 
     public void handleEvent(NAPTEntryEvent naptEntryEvent){
     /*

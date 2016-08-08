@@ -1,6 +1,0 @@
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    <reference id="elanProvider" interface="org.opendaylight.netvirt.elanmanager.api.IElanService" availability="optional" />
-    <bean id="natServiceAccessor" class="org.opendaylight.netvirt.natservice.internal.NatServiceAccessor">
-        <argument ref="elanProvider" />
-    </bean>
-</blueprint>
