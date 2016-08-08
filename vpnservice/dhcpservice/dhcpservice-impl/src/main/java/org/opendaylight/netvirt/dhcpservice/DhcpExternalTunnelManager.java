@@ -137,9 +137,7 @@ public class DhcpExternalTunnelManager {
                 updateVniMacToPortCache(new BigInteger(segmentationId), macAddress, port);
             }
         }
-
     }
-
 
     public BigInteger designateDpnId(IpAddress tunnelIp,
             String elanInstanceName, List<BigInteger> dpns) {
@@ -151,22 +149,42 @@ public class DhcpExternalTunnelManager {
         return chooseDpn(tunnelIp, elanInstanceName, dpns);
     }
 
-    public void installDhcpFlowsForVms(IpAddress tunnelIp, String elanInstanceName, List<BigInteger> dpns,
-            BigInteger designatedDpnId, String vmMacAddress ) {
+    public void installDhcpFlowsForVms(final IpAddress tunnelIp, String elanInstanceName, final List<BigInteger> dpns,
+           final BigInteger designatedDpnId, final String vmMacAddress) {
         logger.trace("In installDhcpFlowsForVms ipAddress {}, elanInstanceName {}, dpn {}, vmMacAddress {}", tunnelIp, elanInstanceName, designatedDpnId, vmMacAddress);
-        synchronized (getTunnelIpDpnKey(tunnelIp, designatedDpnId)) {
-            installDhcpEntries(designatedDpnId, vmMacAddress, entityOwnershipService);
-            dpns.remove(designatedDpnId);
-            for (BigInteger dpn : dpns) {
-                installDhcpDropAction(dpn, vmMacAddress, entityOwnershipService);
-            }
+            // TODO: Make use a util that directly tells if this is the owner or not rather than making use of callbacks.
+            ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
+                    entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                    HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
+            Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean isOwner) {
+                    if (isOwner) {
+                        synchronized (getTunnelIpDpnKey(tunnelIp, designatedDpnId)) {
+                            WriteTransaction tx = broker.newWriteOnlyTransaction();
+                            dpns.remove(designatedDpnId);
+                            for (BigInteger dpn : dpns) {
+                                installDhcpDropAction(dpn, vmMacAddress, tx);
+                            }
+                            installDhcpEntries(designatedDpnId, vmMacAddress, tx);
+                            DhcpServiceUtils.submitTransaction(tx);
+                        }
+                    } else {
+                        logger.trace("Exiting installDhcpEntries since this cluster node is not the owner for dpn");
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    logger.error("Error while fetching checkNodeEntityOwner", error);
+                }
+            });
             updateLocalCache(tunnelIp, elanInstanceName, vmMacAddress);
-        }
     }
 
-    public void installDhcpFlowsForVms(BigInteger designatedDpnId, Set<String> listVmMacAddress) {
+    public void installDhcpFlowsForVms(BigInteger designatedDpnId, Set<String> listVmMacAddress, WriteTransaction tx) {
         for (String vmMacAddress : listVmMacAddress) {
-            installDhcpEntries(designatedDpnId, vmMacAddress);
+            installDhcpEntries(designatedDpnId, vmMacAddress, tx);
         }
     }
 
@@ -207,9 +225,11 @@ public class DhcpExternalTunnelManager {
     public void installDhcpDropActionOnDpn(BigInteger dpId) {
         List<String> vmMacs = getAllVmMacs();
         logger.trace("Installing drop actions to this new DPN {} VMs {}", dpId, vmMacs);
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
         for (String vmMacAddress : vmMacs) {
-            installDhcpDropAction(dpId, vmMacAddress);
+            installDhcpDropAction(dpId, vmMacAddress, tx);
         }
+        DhcpServiceUtils.submitTransaction(tx);
     }
 
     private List<String> getAllVmMacs() {
@@ -250,12 +270,11 @@ public class DhcpExternalTunnelManager {
         Pair<IpAddress, String> tunnelIpElanName = new ImmutablePair<IpAddress, String>(tunnelIp, elanInstanceName);
         Set<String> listExistingVmMacAddress;
         listExistingVmMacAddress = availableVMCache.get(tunnelIpElanName);
-        if (null == listExistingVmMacAddress) {
+        if (listExistingVmMacAddress == null) {
             listExistingVmMacAddress = new CopyOnWriteArraySet<>();
         }
         listExistingVmMacAddress.add(vmMacAddress);
-        logger.trace("Updating availableVMCache for tunnelIpElanName {} value {}", tunnelIpElanName,
-                listExistingVmMacAddress);
+        logger.trace("Updating availableVMCache for tunnelIpElanName {} value {}", tunnelIpElanName, listExistingVmMacAddress);
         availableVMCache.put(tunnelIpElanName, listExistingVmMacAddress);
     }
 
@@ -263,10 +282,11 @@ public class DhcpExternalTunnelManager {
         logger.trace("In handleDesignatedDpnDown dpnId {}, listOfDpns {}", dpnId, listOfDpns);
         try {
             Set<Pair<IpAddress, String>> setOfTunnelIpElanNamePairs = designatedDpnsToTunnelIpElanNameCache.get(dpnId);
+            WriteTransaction tx = broker.newWriteOnlyTransaction();
             if (!dpnId.equals(DHCPMConstants.INVALID_DPID)) {
                 List<String> listOfVms = getAllVmMacs();
                 for (String vmMacAddress : listOfVms) {
-                    unInstallDhcpEntries(dpnId, vmMacAddress);
+                    unInstallDhcpEntries(dpnId, vmMacAddress, tx);
                 }
             }
             if (setOfTunnelIpElanNamePairs == null || setOfTunnelIpElanNamePairs.isEmpty()) {
@@ -274,15 +294,16 @@ public class DhcpExternalTunnelManager {
                 return;
             }
             for (Pair<IpAddress, String> pair : setOfTunnelIpElanNamePairs) {
-                updateCacheAndInstallNewFlows(dpnId, listOfDpns, pair);
+                updateCacheAndInstallNewFlows(dpnId, listOfDpns, pair, tx);
             }
+            DhcpServiceUtils.submitTransaction(tx);
         } catch (Exception e) {
             logger.error("Error in handleDesignatedDpnDown {}", e);
         }
     }
 
     public void updateCacheAndInstallNewFlows(BigInteger dpnId,
-            List<BigInteger> listOfDpns, Pair<IpAddress, String> pair)
+            List<BigInteger> listOfDpns, Pair<IpAddress, String> pair, WriteTransaction tx)
             throws ExecutionException {
         BigInteger newDesignatedDpn = chooseDpn(pair.getLeft(), pair.getRight(), listOfDpns);
         if (newDesignatedDpn.equals(DHCPMConstants.INVALID_DPID)) {
@@ -291,18 +312,18 @@ public class DhcpExternalTunnelManager {
         Set<String> setOfVmMacs = tunnelIpElanNameToVmMacCache.get(pair);
         if (setOfVmMacs != null && !setOfVmMacs.isEmpty()) {
             logger.trace("Updating DHCP flows for VMs {} with new designated DPN {}", setOfVmMacs, newDesignatedDpn);
-            installDhcpFlowsForVms(newDesignatedDpn, setOfVmMacs);
+            installDhcpFlowsForVms(newDesignatedDpn, setOfVmMacs, tx);
         }
     }
 
-    private void changeExistingFlowToDrop(Pair<IpAddress, String> tunnelIpElanNamePair, BigInteger dpnId) {
+    private void changeExistingFlowToDrop(Pair<IpAddress, String> tunnelIpElanNamePair, BigInteger dpnId, WriteTransaction tx) {
         try {
             Set<String> setOfVmMacAddress = tunnelIpElanNameToVmMacCache.get(tunnelIpElanNamePair);
             if (setOfVmMacAddress == null || setOfVmMacAddress.isEmpty()) {
                 return;
             }
             for (String vmMacAddress : setOfVmMacAddress) {
-                installDhcpDropAction(dpnId, vmMacAddress);
+                installDhcpDropAction(dpnId, vmMacAddress, tx);
             }
         } catch (Exception e) {
             logger.error("Error in uninstallExistingFlows {}", e);
@@ -367,86 +388,19 @@ public class DhcpExternalTunnelManager {
         writeDesignatedSwitchForExternalTunnel(DHCPMConstants.INVALID_DPID, tunnelIp, elanInstanceName);
     }
 
-    public void installDhcpEntries(BigInteger dpnId, String vmMacAddress) {
-        DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL, vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil);
+    private void installDhcpEntries(BigInteger dpnId, String vmMacAddress, WriteTransaction tx) {
+        DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL, vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, tx);
     }
 
-    public void installDhcpEntries(final BigInteger dpnId, final String vmMacAddress, EntityOwnershipService eos) {
-        final String nodeId = DhcpServiceUtils.getNodeIdFromDpnId(dpnId);
-        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                eos, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
-        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean isOwner) {
-                if (isOwner) {
-                    installDhcpEntries(dpnId, vmMacAddress);
-                } else {
-                    logger.trace("Exiting installDhcpEntries since this cluster node is not the owner for dpn {}", nodeId);
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                logger.error("Error while fetching checkNodeEntityOwner", error);
-            }
-        });
+    public void unInstallDhcpEntries(BigInteger dpnId, String vmMacAddress, WriteTransaction tx) {
+        DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL, vmMacAddress, NwConstants.DEL_FLOW, mdsalUtil, tx);
     }
 
-    public void unInstallDhcpEntries(BigInteger dpnId, String vmMacAddress) {
-        DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL, vmMacAddress, NwConstants.DEL_FLOW, mdsalUtil);
+    private void installDhcpDropAction(BigInteger dpn, String vmMacAddress, WriteTransaction tx) {
+        DhcpServiceUtils.setupDhcpDropAction(dpn, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL, vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, tx);
     }
 
-    public void unInstallDhcpEntries(final BigInteger dpnId, final String vmMacAddress, EntityOwnershipService eos) {
-        final String nodeId = DhcpServiceUtils.getNodeIdFromDpnId(dpnId);
-        // TODO: Make use a util that directly tells if this is the owner or not rather than making use of callbacks.
-        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                eos, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
-        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean isOwner) {
-                if (isOwner) {
-                    unInstallDhcpEntries(dpnId, vmMacAddress);
-                } else {
-                    logger.trace("Exiting unInstallDhcpEntries since this cluster node is not the owner for dpn {}", nodeId);
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                logger.error("Error while fetching checkNodeEntityOwner", error);
-            }
-        });
-    }
-
-    public void installDhcpDropAction(BigInteger dpn, String vmMacAddress) {
-        DhcpServiceUtils.setupDhcpDropAction(dpn, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL, vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil);
-    }
-
-    public void installDhcpDropAction(final BigInteger dpnId, final String vmMacAddress, EntityOwnershipService eos) {
-        final String nodeId = DhcpServiceUtils.getNodeIdFromDpnId(dpnId);
-        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                eos, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
-        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean isOwner) {
-                if (isOwner) {
-                    installDhcpDropAction(dpnId, vmMacAddress);
-                } else {
-                    logger.trace("Exiting installDhcpDropAction since this cluster node is not the owner for dpn {}", nodeId);
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                logger.error("Error while fetching checkNodeEntityOwner", error);
-            }
-        });
-    }
-
-    public void handleTunnelStateDown(IpAddress tunnelIp, BigInteger interfaceDpn) {
+    public void handleTunnelStateDown(IpAddress tunnelIp, BigInteger interfaceDpn, List<ListenableFuture<Void>> futures) {
         logger.trace("In handleTunnelStateDown tunnelIp {}, interfaceDpn {}", tunnelIp, interfaceDpn);
         if (interfaceDpn == null) {
             return;
@@ -457,6 +411,7 @@ public class DhcpExternalTunnelManager {
                 if (tunnelElanPairSet == null || tunnelElanPairSet.isEmpty()) {
                     return;
                 }
+                WriteTransaction tx = broker.newWriteOnlyTransaction();
                 for (Pair<IpAddress, String> tunnelElanPair : tunnelElanPairSet) {
                     IpAddress tunnelIpInDpn = tunnelElanPair.getLeft();
                     if (tunnelIpInDpn.equals(tunnelIp)) {
@@ -466,10 +421,11 @@ public class DhcpExternalTunnelManager {
                         }
                         List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(broker);
                         dpns.remove(interfaceDpn);
-                        changeExistingFlowToDrop(tunnelElanPair, interfaceDpn);
-                        updateCacheAndInstallNewFlows(interfaceDpn, dpns, tunnelElanPair);
+                        changeExistingFlowToDrop(tunnelElanPair, interfaceDpn, tx);
+                        updateCacheAndInstallNewFlows(interfaceDpn, dpns, tunnelElanPair, tx);
                     }
                 }
+                futures.add(tx.submit());
             }
         } catch (Exception e) {
             logger.error("Error in handleTunnelStateDown {}", e.getMessage());
@@ -678,7 +634,7 @@ public class DhcpExternalTunnelManager {
         return isTunnelUp;
     }
 
-    public void handleTunnelStateUp(IpAddress tunnelIp, BigInteger interfaceDpn) {
+    public void handleTunnelStateUp(IpAddress tunnelIp, BigInteger interfaceDpn, List<ListenableFuture<Void>> futures) {
         logger.trace("In handleTunnelStateUp tunnelIp {}, interfaceDpn {}", tunnelIp, interfaceDpn);
         try {
             synchronized (getTunnelIpDpnKey(tunnelIp, interfaceDpn)) {
@@ -688,6 +644,7 @@ public class DhcpExternalTunnelManager {
                     logger.trace("There are no undesignated DPNs");
                     return;
                 }
+                WriteTransaction tx = broker.newWriteOnlyTransaction();
                 for (Pair<IpAddress, String> pair : tunnelIpElanPair) {
                     if (tunnelIp.equals(pair.getLeft())) {
                         BigInteger newDesignatedDpn = designateDpnId(tunnelIp, pair.getRight(), dpns);
@@ -695,11 +652,12 @@ public class DhcpExternalTunnelManager {
                             Set<String> vmMacAddress = tunnelIpElanNameToVmMacCache.get(pair);
                             if (vmMacAddress != null && !vmMacAddress.isEmpty()) {
                                 logger.trace("Updating DHCP flow for macAddress {} with newDpn {}", vmMacAddress, newDesignatedDpn);
-                                installDhcpFlowsForVms(newDesignatedDpn, vmMacAddress);
+                                installDhcpFlowsForVms(newDesignatedDpn, vmMacAddress, tx);
                             }
                         }
                     }
                 }
+                futures.add(tx.submit());
             }
         } catch (Exception e) {
             logger.error("Error in handleTunnelStateUp {}", e.getMessage());
@@ -738,10 +696,30 @@ public class DhcpExternalTunnelManager {
         availableVMCache.remove(tunnelIpElanName);
     }
 
-    private void unInstallDhcpEntriesOnDpns(List<BigInteger> dpns, String vmMacAddress) {
-        for (BigInteger dpn : dpns) {
-            unInstallDhcpEntries(dpn, vmMacAddress, entityOwnershipService);
-        }
+    private void unInstallDhcpEntriesOnDpns(final List<BigInteger> dpns, final String vmMacAddress) {
+            // TODO: Make use a util that directly tells if this is the owner or not rather than making use of callbacks.
+            ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
+                    entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                    HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
+            Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean isOwner) {
+                    if (isOwner) {
+                        WriteTransaction tx = broker.newWriteOnlyTransaction();
+                        for (final BigInteger dpn : dpns) {
+                            unInstallDhcpEntries(dpn, vmMacAddress, tx);
+                        }
+                        DhcpServiceUtils.submitTransaction(tx);
+                    } else {
+                        logger.trace("Exiting unInstallDhcpEntries since this cluster node is not the owner for dpn");
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    logger.error("Error while fetching checkNodeEntityOwner", error);
+                }
+            });
     }
 
     public IpAddress getTunnelIpBasedOnElan(String elanInstanceName, String vmMacAddress) {
