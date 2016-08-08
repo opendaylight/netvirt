@@ -28,6 +28,8 @@ import org.junit.runner.RunWith;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.mdsal.it.base.AbstractMdsalTestBase;
+import org.opendaylight.netvirt.it.NetvirtITConstants.DefaultFlow;
+import org.opendaylight.netvirt.utils.netvirt.it.utils.FlowITUtil;
 import org.opendaylight.netvirt.utils.netvirt.it.utils.NetITUtil;
 import org.opendaylight.netvirt.vpnmanager.VpnserviceProvider;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
@@ -66,6 +68,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static OvsdbItUtils itUtils;
     private static MdsalUtils mdsalUtils = null;
     private static SouthboundUtils southboundUtils;
+    private static FlowITUtil flowITUtil;
     private static String addressStr;
     private static String portStr;
     private static String connectionType;
@@ -175,8 +178,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         assertNotNull("mdsalUtils should not be null", mdsalUtils);
         southboundUtils = new SouthboundUtils(mdsalUtils);
         assertTrue("Did not find " + NETVIRT_TOPOLOGY_ID, this.getNetvirtTopology());
-
-//      TODO: need to implement new pipelineOrchestrator for the vpnservice pipeline
+        flowITUtil = new FlowITUtil(dataBroker);
 
         setup.set(true);
     }
@@ -219,6 +221,17 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         return found;
     }
 
+    private void validateDefaultFlows(long datapathId, int timeout){
+        LOG.info("Validating default flows");
+        for (DefaultFlow defaultFlow : DefaultFlow.values()){
+            try {
+                flowITUtil.verifyFlowByFields(datapathId, defaultFlow.getFlowId(), defaultFlow.getTableId(), timeout);
+            } catch (Exception e){
+                LOG.error("Failed to verify flow id : {}", defaultFlow.getFlowId());
+                fail();
+            }
+        }
+    }
 
     /**
      * Test for basic southbound events to netvirt.
@@ -238,6 +251,9 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                     getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
+
+            //validate default flows
+            validateDefaultFlows(nodeInfo.datapathId, 60*1000);
 
             LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
 
@@ -271,16 +287,14 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
 
-            // waiting for the default flows to be installed before adding the ports
-            Thread.sleep(20*100);
+            //validate default flows
+            validateDefaultFlows(nodeInfo.datapathId, 60*1000);
 
             //create the neutron objects
             NetITUtil net = new NetITUtil(ovs, southboundUtils, mdsalUtils);
             net.createNetworkAndSubnet();
             String port1 = net.createPort(nodeInfo.bridgeNode);
             String port2 = net.createPort(nodeInfo.bridgeNode);
-
-//          TODO - need to add pipeline validation
 
             Thread.sleep(1000);
 
