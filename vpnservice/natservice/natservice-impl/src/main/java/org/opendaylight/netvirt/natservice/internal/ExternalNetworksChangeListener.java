@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
@@ -49,75 +48,49 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 
-/**
- * Created by ESUMAMS on 1/21/2016.
- */
-public class ExternalNetworksChangeListener extends AsyncDataTreeChangeListenerBase<Networks, ExternalNetworksChangeListener>
-{
+public class ExternalNetworksChangeListener
+        extends AsyncDataTreeChangeListenerBase<Networks, ExternalNetworksChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger( ExternalNetworksChangeListener.class);
-
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
-    private IMdsalApiManager mdsalManager;
+    private final IMdsalApiManager mdsalManager;
     //private VpnFloatingIpHandler vpnFloatingIpHandler;
-    private FloatingIPListener floatingIpListener;
-    private ExternalRoutersListener externalRouterListener;
-    private OdlInterfaceRpcService interfaceManager;
-    private NaptManager naptManager;
+    private final FloatingIPListener floatingIpListener;
+    private final ExternalRoutersListener externalRouterListener;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final NaptManager naptManager;
+    private final IBgpManager bgpManager;
+    private final VpnRpcService vpnService;
+    private final FibRpcService fibService;
 
-    private IBgpManager bgpManager;
-    private VpnRpcService vpnService;
-    private FibRpcService fibService;
-
-
-    private ExternalRoutersListener externalRoutersListener;
-
-    void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
-    }
-
-    void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
-        this.interfaceManager = interfaceManager;
-    }
-
-    void setFloatingIpListener(FloatingIPListener floatingIpListener) {
-        this.floatingIpListener = floatingIpListener;
-    }
-
-    void setExternalRoutersListener(ExternalRoutersListener externalRoutersListener) {
-        this.externalRouterListener = externalRoutersListener;
-    }
-
-    public void setBgpManager(IBgpManager bgpManager) {
-        this.bgpManager = bgpManager;
-    }
-
-    public void setNaptManager(NaptManager naptManager) {
-        this.naptManager = naptManager;
-    }
-
-    public void setVpnService(VpnRpcService vpnService) {
-        this.vpnService = vpnService;
-    }
-
-    public void setFibService(FibRpcService fibService) {
-        this.fibService = fibService;
-    }
-
-    public void setListenerRegistration(ListenerRegistration<DataChangeListener> listenerRegistration) {
-        this.listenerRegistration = listenerRegistration;
-    }
-
-    public ExternalNetworksChangeListener(final DataBroker dataBroker ) {
+    public ExternalNetworksChangeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
+                                          final FloatingIPListener floatingIpListener,
+                                          final ExternalRoutersListener externalRouterListener,
+                                          final OdlInterfaceRpcService interfaceManager,
+                                          final NaptManager naptManager,
+                                          final IBgpManager bgpManager,
+                                          final VpnRpcService vpnService,
+                                          final FibRpcService fibService) {
         super( Networks.class, ExternalNetworksChangeListener.class );
         this.dataBroker = dataBroker;
+        this.mdsalManager = mdsalManager;
+        this.floatingIpListener = floatingIpListener;
+        this.externalRouterListener = externalRouterListener;
+        this.interfaceManager = interfaceManager;
+        this.naptManager = naptManager;
+        this.bgpManager = bgpManager;
+        this.vpnService = vpnService;
+        this.fibService =fibService;
     }
 
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+    }
 
     protected InstanceIdentifier<Networks> getWildCardPath() {
         return InstanceIdentifier.create(ExternalNetworks.class).child(Networks.class);
     }
-
 
     @Override
     protected void add(InstanceIdentifier<Networks> identifier, Networks networks) {
@@ -148,27 +121,10 @@ public class ExternalNetworksChangeListener extends AsyncDataTreeChangeListenerB
         }
     }
 
-    private static InstanceIdentifier<RouterToNaptSwitch> getRouterToNaptSwitchInstanceIdentifier( String routerName ) {
-
+    private static InstanceIdentifier<RouterToNaptSwitch> getRouterToNaptSwitchInstanceIdentifier(String routerName) {
         return  InstanceIdentifier.builder( NaptSwitches.class )
                         .child( RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
-
     }
-
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            }
-            catch (final Exception e) {
-                LOG.error("Error when cleaning up ExternalNetworksChangeListener.", e);
-            }
-
-            listenerRegistration = null;
-        }
-        LOG.debug("ExternalNetworksChangeListener Closed");
-    }
-
 
     @Override
     protected void update(InstanceIdentifier<Networks> identifier, Networks original, Networks update) {

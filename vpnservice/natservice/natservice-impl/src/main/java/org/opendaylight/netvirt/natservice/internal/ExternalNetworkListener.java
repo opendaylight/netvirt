@@ -7,74 +7,64 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import org.opendaylight.genius.mdsalutil.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-
 import com.google.common.base.Optional;
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
 import java.util.ArrayList;
-
+import java.util.List;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.InstructionType;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchFieldType;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExternalNetworkListener extends AbstractDataChangeListener<Networks> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworkListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private final DataBroker broker;
-    private IMdsalApiManager mdsalManager;
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalManager;
 
-    public ExternalNetworkListener (final DataBroker db) {
+    public ExternalNetworkListener (final DataBroker dataBroker, final IMdsalApiManager mdsalManager) {
         super(Networks.class);
-        broker = db;
-        //registerListener(db);
+        this.dataBroker = dataBroker;
+        this.mdsalManager = mdsalManager;
     }
 
-    @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
-        }
-        LOG.info("ExternalNetwork Listener Closed");
-    }
-
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                    getWildCardPath(), ExternalNetworkListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("External Network DataChange listener registration fail!", e);
-            throw new IllegalStateException("External Network registration Listener failed.", e);
-        }
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
+        //listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+        //        getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
     }
 
     private InstanceIdentifier<Networks> getWildCardPath() {
         return InstanceIdentifier.create(ExternalNetworks.class).child(Networks.class);
     }
 
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
+    @Override
+    public void close() throws Exception {
+        if (listenerRegistration != null) {
+            listenerRegistration.close();
+            listenerRegistration = null;
+        }
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @Override
@@ -148,12 +138,12 @@ public class ExternalNetworkListener extends AbstractDataChangeListener<Networks
     private void addOrDelDefFibRouteToSNAT(String routerId, boolean create) {
         //Router ID is used as the internal VPN's name, hence the vrf-id in VpnInstance Op DataStore
         InstanceIdentifier<VpnInstanceOpDataEntry> id = NatUtil.getVpnInstanceOpDataIdentifier(routerId);
-        Optional<VpnInstanceOpDataEntry> vpnInstOp = NatUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnInstanceOpDataEntry> vpnInstOp = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (vpnInstOp.isPresent()) {
             List<VpnToDpnList> dpnListInVpn = vpnInstOp.get().getVpnToDpnList();
             for (VpnToDpnList dpn : dpnListInVpn) {
                 BigInteger dpnId = dpn.getDpnId();
-                long vpnId = NatUtil.readVpnId(broker, vpnInstOp.get().getVrfId());
+                long vpnId = NatUtil.readVpnId(dataBroker, vpnInstOp.get().getVrfId());
                 if (create) {
                     installDefNATRouteInDPN(dpnId, vpnId);
                 } else {
@@ -218,6 +208,4 @@ public class ExternalNetworkListener extends AbstractDataChangeListener<Networks
         }
         mdsalManager.removeFlow(flowEntity);
     }
-
-
 }

@@ -5,44 +5,24 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
+import com.google.common.util.concurrent.AsyncFunction;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
-import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.fibmanager.api.IFibManager;
-import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpPortMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCounters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMappingKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.IntextIpProtocolType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.IpPortMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInputBuilder;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -59,42 +39,67 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.RouterIdName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCounters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMappingKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.IntextIpProtocolType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.IpPortMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.id.name.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.id.name.RouterIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.id.name.RouterIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -102,99 +107,65 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Sets.SetView;
-import com.google.common.util.concurrent.AsyncFunction;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
-import com.google.common.util.concurrent.ListenableFuture;
-
-/**
- * Created by EYUGSAR on 2/20/2016.
- */
-
-public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Routers, ExternalRoutersListener>{
-
+public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Routers, ExternalRoutersListener> {
     private static final Logger LOG = LoggerFactory.getLogger( ExternalRoutersListener.class);
-    private static long label;
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
-    private IMdsalApiManager mdsalManager;
-    private ItmRpcService itmManager;
-    private OdlInterfaceRpcService interfaceManager;
-    private IdManagerService idManager;
-    private NaptManager naptManager;
-    private NAPTSwitchSelector naptSwitchSelector;
-    private IBgpManager bgpManager;
-    private VpnRpcService vpnService;
-    private FibRpcService fibService;
-    private SNATDefaultRouteProgrammer defaultRouteProgrammer;
+    private final IMdsalApiManager mdsalManager;
+    private final ItmRpcService itmManager;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final IdManagerService idManager;
+    private final NaptManager naptManager;
+    private final NAPTSwitchSelector naptSwitchSelector;
+    private final IBgpManager bgpManager;
+    private final VpnRpcService vpnService;
+    private final FibRpcService fibService;
+    private final SNATDefaultRouteProgrammer defaultRouteProgrammer;
+    private final NaptEventHandler naptEventHandler;
+    private final NaptPacketInHandler naptPacketInHandler;
+    private final IFibManager fibManager;
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000022", 16);
-    private NaptEventHandler naptEventHandler;
-    private NaptPacketInHandler naptPacketInHandler;
-    private IFibManager fibManager;
 
-    public void setNaptEventHandler(NaptEventHandler naptEventHandler) {
-        this.naptEventHandler = naptEventHandler;
-    }
-
-    public void setNaptPacketInHandler(NaptPacketInHandler naptPacketInHandler) {
-        this.naptPacketInHandler = naptPacketInHandler;
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
+    public ExternalRoutersListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
+                                   final ItmRpcService itmManager,
+                                   final OdlInterfaceRpcService interfaceManager,
+                                   final IdManagerService idManager,
+                                   final NaptManager naptManager,
+                                   final NAPTSwitchSelector naptSwitchSelector,
+                                   final IBgpManager bgpManager,
+                                   final VpnRpcService vpnService,
+                                   final FibRpcService fibService,
+                                   final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
+                                   final NaptEventHandler naptEventHandler,
+                                   final NaptPacketInHandler naptPacketInHandler,
+                                   final IFibManager fibManager) {
+        super(Routers.class, ExternalRoutersListener.class);
+        this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
-    }
-
-    public void setItmManager(ItmRpcService itmManager) {
         this.itmManager = itmManager;
-    }
-
-    public void setIdManager(IdManagerService idManager) {
-        this.idManager = idManager;
-        createGroupIdPool();
-    }
-
-    void setDefaultProgrammer(SNATDefaultRouteProgrammer defaultRouteProgrammer) {
-        this.defaultRouteProgrammer = defaultRouteProgrammer;
-    }
-
-
-    public void setInterfaceManager(OdlInterfaceRpcService interfaceManager) {
         this.interfaceManager = interfaceManager;
-    }
-
-    public void setNaptManager(NaptManager naptManager) {
+        this.idManager = idManager;
         this.naptManager = naptManager;
-    }
-
-    public void setNaptSwitchSelector(NAPTSwitchSelector naptSwitchSelector) {
         this.naptSwitchSelector = naptSwitchSelector;
-    }
-
-    public void setBgpManager(IBgpManager bgpManager) {
         this.bgpManager = bgpManager;
-    }
-
-    public void setVpnService(VpnRpcService vpnService) {
         this.vpnService = vpnService;
-    }
-
-    public void setFibService(FibRpcService fibService) {
         this.fibService = fibService;
-    }
-
-    public void setFibManager(IFibManager fibManager) {
+        this.defaultRouteProgrammer = snatDefaultRouteProgrammer;
+        this.naptEventHandler = naptEventHandler;
+        this.naptPacketInHandler = naptPacketInHandler;
         this.fibManager = fibManager;
     }
 
-    public ExternalRoutersListener(DataBroker dataBroker )
-    {
-        super( Routers.class, ExternalRoutersListener.class );
-        this.dataBroker = dataBroker;
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+        createGroupIdPool();
+    }
+
+    @Override
+    protected InstanceIdentifier<Routers> getWildCardPath() {
+        return InstanceIdentifier.create(ExtRouters.class).child(Routers.class);
     }
 
     @Override
@@ -1937,13 +1908,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("NAT Service : LFIB Entry for dpID : {} label : {} removed successfully {}",dpnId, serviceId);
     }
 
-    @Override
-    protected InstanceIdentifier<Routers> getWildCardPath()
-    {
-        return InstanceIdentifier.create(ExtRouters.class).child(Routers.class);
-    }
-
-
     /**
      * router association to vpn
      *
@@ -2106,9 +2070,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 SessionAddress internalAddress = new SessionAddress(internalIp, Integer.valueOf(internalPort));
                 SessionAddress externalAddress = naptManager.getExternalAddressMapping(routerId, internalAddress, protocol);
                 long internetVpnid = NatUtil.getVpnId(dataBroker, routerId);
-                naptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, internetVpnid, routerId, bgpVpnId,
+                NaptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, internetVpnid, routerId, bgpVpnId,
                         internalAddress, externalAddress, protocol);
-                naptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, internetVpnid, routerId, bgpVpnId,
+                NaptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, internetVpnid, routerId, bgpVpnId,
                         externalAddress, internalAddress, protocol);
 
             }

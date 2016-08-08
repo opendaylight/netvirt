@@ -7,10 +7,10 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
-import java.util.List;
 import java.util.HashMap;
-
+import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
@@ -22,75 +22,55 @@ import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
 public class RouterDpnChangeListener extends AbstractDataChangeListener<DpnVpninterfacesList> implements AutoCloseable{
     private static final Logger LOG = LoggerFactory.getLogger(RouterDpnChangeListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
-    private SNATDefaultRouteProgrammer defaultRouteProgrammer;
-    private NaptSwitchHA naptSwitchHA;
-    private IMdsalApiManager mdsalManager;
-    private IdManagerService idManager;
+    private final IMdsalApiManager mdsalManager;
+    private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;
+    private final NaptSwitchHA naptSwitchHA;
+    private final IdManagerService idManager;
 
-    public RouterDpnChangeListener (final DataBroker db) {
+    public RouterDpnChangeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
+                                   final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
+                                   final NaptSwitchHA naptSwitchHA,
+                                   final IdManagerService idManager) {
         super(DpnVpninterfacesList.class);
-        dataBroker = db;
-        registerListener(db);
-    }
-
-    void setDefaultProgrammer(SNATDefaultRouteProgrammer defaultRouteProgrammer) {
-        this.defaultRouteProgrammer = defaultRouteProgrammer;
-    }
-
-    void setNaptSwitchHA(NaptSwitchHA switchHA) {
-        naptSwitchHA = switchHA;
-    }
-
-    void setMdsalManager(IMdsalApiManager mdsalManager) {
+        this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
+        this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
+        this.naptSwitchHA = naptSwitchHA;
+        this.idManager = idManager;
     }
 
-    public void setIdManager(IdManagerService idManager) {
-        this.idManager = idManager;
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+    }
+
+    private InstanceIdentifier<DpnVpninterfacesList> getWildCardPath() {
+        return InstanceIdentifier.create(NeutronRouterDpns.class).child(RouterDpnList.class).child(DpnVpninterfacesList.class);
     }
 
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
+            listenerRegistration.close();
             listenerRegistration = null;
         }
-        LOG.info("Router ports Listener Closed");
-    }
-
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getWildCardPath(), RouterDpnChangeListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("RouterPorts DataChange listener registration fail!", e);
-            throw new IllegalStateException("RouterPorts Listener registration Listener failed.", e);
-        }
-    }
-
-    private InstanceIdentifier<DpnVpninterfacesList> getWildCardPath() {
-        return InstanceIdentifier.create(NeutronRouterDpns.class).child(RouterDpnList.class).child(DpnVpninterfacesList.class);
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @Override
@@ -117,7 +97,7 @@ public class RouterDpnChangeListener extends AbstractDataChangeListener<DpnVpnin
                     LOG.debug("Retrieved vpnId {} for router {}",vpnId,routerId);
                     //Install default entry in FIB to SNAT table
                     LOG.debug("Installing default route in FIB on dpn {} for router {} with vpn {}...", dpnId,routerId,vpnId);
-                    defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId);
+                    snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId);
                 } else {
                     LOG.debug("External BGP vpn associated to router {}",routerId);
                     vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
@@ -133,7 +113,7 @@ public class RouterDpnChangeListener extends AbstractDataChangeListener<DpnVpnin
                     LOG.debug("Retrieved vpnId {} for router {}",vpnId,routerId);
                     //Install default entry in FIB to SNAT table
                     LOG.debug("Installing default route in FIB on dpn {} for routerId {} with vpnId {}...", dpnId,routerId,vpnId);
-                    defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routId);
+                    snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routId);
                 }
 
                 if (routerData.get().isEnableSnat()) {
@@ -172,7 +152,7 @@ public class RouterDpnChangeListener extends AbstractDataChangeListener<DpnVpnin
                     LOG.debug("Retrieved vpnId {} for router {}",vpnId,routerId);
                     //Remove default entry in FIB
                     LOG.debug("Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
-                    defaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId);
+                    snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId);
                 } else {
                     LOG.debug("External vpn associated to router {}", routerId);
                     vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
@@ -188,7 +168,7 @@ public class RouterDpnChangeListener extends AbstractDataChangeListener<DpnVpnin
                     LOG.debug("Retrieved vpnId {} for router {}",vpnId,routerId);
                     //Remove default entry in FIB
                     LOG.debug("Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
-                    defaultRouteProgrammer.removeDefNATRouteInDPN(dpnId,vpnId,routId);
+                    snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId,vpnId,routId);
                 }
 
                 if (routerData.get().isEnableSnat()) {
