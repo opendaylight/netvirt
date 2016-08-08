@@ -15,6 +15,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.flow.classifier.rev160511.sfc.flow.classifiers.attributes.SfcFlowClassifiers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.flow.classifier.rev160511.sfc.flow.classifiers.attributes.sfc.flow.classifiers.SfcFlowClassifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.flow.classifier.rev160511.sfc.flow.classifiers.attributes.sfc.flow.classifiers.SfcFlowClassifierKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.PortPairGroups;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.PortPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.pair.groups.PortPairGroup;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.pair.groups.PortPairGroupKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.pairs.PortPair;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.pairs.PortPairKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +34,14 @@ import org.slf4j.LoggerFactory;
  */
 public class NeutronMdsalHelper {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronMdsalHelper.class);
-    private static final InstanceIdentifier<Ports> portsPairIid =
+    private static final InstanceIdentifier<SfcFlowClassifiers> fcIid =
+            InstanceIdentifier.create(Neutron.class).child(SfcFlowClassifiers.class);
+    private static final InstanceIdentifier<Ports> portsIid =
             InstanceIdentifier.create(Neutron.class).child(Ports.class);
-
+    private static final InstanceIdentifier<PortPairs> portPairsIid =
+            InstanceIdentifier.create(Neutron.class).child(PortPairs.class);
+    private static final InstanceIdentifier<PortPairGroups> portPairGroupsIid =
+            InstanceIdentifier.create(Neutron.class).child(PortPairGroups.class);
 
     private final DataBroker dataBroker;
     private final MdsalUtils mdsalUtils;
@@ -42,7 +56,37 @@ public class NeutronMdsalHelper {
         return neutronPort;
     }
 
+    public PortPair getNeutronPortPair(Uuid portPairId) {
+        PortPair neutronPortPair
+                = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION , getNeutronPortPairPath(portPairId));
+        return neutronPortPair;
+    }
+
+    public PortPairGroup getNeutronPortPairGroup(Uuid portPairGroupId) {
+        PortPairGroup neutronPortPairGroup
+                = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION , getNeutronPortPairGroupPath(portPairGroupId));
+        return neutronPortPairGroup;
+    }
+
+    public SfcFlowClassifier getNeutronFlowClassifier(Uuid flowClassifierId) {
+        SfcFlowClassifier sfcFlowClassifier
+                = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION , getNeutronSfcFlowClassifierPath(flowClassifierId));
+        return sfcFlowClassifier;
+    }
+
     private InstanceIdentifier<Port> getNeutronPortPath(Uuid portId) {
-        return portsPairIid.builder().child(Port.class, new PortKey(portId)).build();
+        return portsIid.builder().child(Port.class, new PortKey(portId)).build();
+    }
+
+    private InstanceIdentifier<PortPair> getNeutronPortPairPath(Uuid portPairId) {
+        return portPairsIid.builder().child(PortPair.class, new PortPairKey(portPairId)).build();
+    }
+
+    private InstanceIdentifier<PortPairGroup> getNeutronPortPairGroupPath(Uuid portPairGroupId) {
+        return portPairGroupsIid.builder().child(PortPairGroup.class, new PortPairGroupKey(portPairGroupId)).build();
+    }
+
+    private InstanceIdentifier<SfcFlowClassifier> getNeutronSfcFlowClassifierPath(Uuid portId) {
+        return fcIid.builder().child(SfcFlowClassifier.class, new SfcFlowClassifierKey(portId)).build();
     }
 }

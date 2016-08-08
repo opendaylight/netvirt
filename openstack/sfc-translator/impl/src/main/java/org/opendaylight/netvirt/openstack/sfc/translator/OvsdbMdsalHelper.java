@@ -47,9 +47,18 @@ public class OvsdbMdsalHelper {
         mdsalUtils = new MdsalUtils(this.dataBroker);
     }
 
-    public OvsdbPortMetadata getOvsdbPortMetadata(Uuid ingress) {
-        LOG.info("Extract ovsdb port details for neutron port {}", ingress.getValue());
+    public Topology getOvsdbTopologyTree() {
+        LOG.info("Reading OVSDB Topolog Tree (ovsdb:1)");
+        return mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, topologyPath);
+    }
+
+    public OvsdbPortMetadata getOvsdbPortMetadata(Uuid ingressPort) {
+        LOG.info("Extract ovsdb port details for neutron port {}", ingressPort.getValue());
         Topology ovsdbTopology = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, topologyPath);
+        return getOvsdbPortMetadata(ingressPort, ovsdbTopology);
+    }
+    public OvsdbPortMetadata getOvsdbPortMetadata(Uuid ingressPort, Topology ovsdbTopology) {
+        LOG.info("Extract ovsdb port details for neutron port {}", ingressPort.getValue());
         OvsdbPortMetadata ovsdbPortMetadata = new OvsdbPortMetadata();
         OvsdbBridgeAugmentation bridgeAugmentation = null;
         if (ovsdbTopology != null) {
@@ -61,7 +70,7 @@ public class OvsdbMdsalHelper {
                                 = tp.getAugmentation(OvsdbTerminationPointAugmentation.class);
                         List<InterfaceExternalIds> externalIds = tpAugmentation.getInterfaceExternalIds();
                         for (InterfaceExternalIds externalId : externalIds) {
-                            if(externalId.getExternalIdValue().equals(ingress.getValue())) {
+                            if(externalId.getExternalIdValue().equals(ingressPort.getValue())) {
                                 ovsdbPortMetadata.setOvsdbPort(tpAugmentation);
                                 break;
                             }
@@ -104,12 +113,16 @@ public class OvsdbMdsalHelper {
         return ovsdbPortMetadata;
     }
 
-    public String getOvsdbPortName(OvsdbTerminationPointAugmentation ovsdbPort) {
+    public static String getOvsdbPortName(OvsdbTerminationPointAugmentation ovsdbPort) {
         return ovsdbPort.getName();
     }
 
-    public String getNodeIpAddress(OvsdbNodeAugmentation ovsdbNode) {
+    public static String getNodeIpAddress(OvsdbNodeAugmentation ovsdbNode) {
         //Currently we support only ipv4
         return ovsdbNode.getConnectionInfo().getRemoteIp().getIpv4Address().getValue();
+    }
+
+    public static String getNodeKey(InstanceIdentifier<?> node) {
+        return node.firstKeyOf(Node.class).getNodeId().getValue();
     }
 }
