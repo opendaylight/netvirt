@@ -63,6 +63,7 @@ import java.util.List;
  */
 public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> implements AutoCloseable{
     private static final Logger LOG = LoggerFactory.getLogger(FloatingIPListener.class);
+    private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private OdlInterfaceRpcService interfaceManager;
@@ -308,7 +309,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         }
 
         actionsInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
-        instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfo));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfo));
 
         String flowRef = NatUtil.getFlowRef(dpId, NwConstants.SNAT_TABLE, vpnId, internalIp);
 
@@ -354,7 +355,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpId, groupId, routerId, GroupTypes.GroupIndirect,
                 listBucketInfo);
         LOG.trace("Install ext-net Group: id {} gw mac address {} vpn id {}", groupId, macAddress, vpnId);
-        mdsalManager.installGroup(groupEntity);
+        mdsalManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
         return groupId;
     }
 
