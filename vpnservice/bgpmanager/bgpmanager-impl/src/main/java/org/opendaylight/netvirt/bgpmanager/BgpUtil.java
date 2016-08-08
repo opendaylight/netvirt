@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Optional;
@@ -28,13 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Created by emhamla on 8/31/2015.
- */
-
 public class BgpUtil {
-
-    private static final long FIB_READ_TIMEOUT = 1;
     private static final Logger LOG = LoggerFactory.getLogger(BgpUtil.class);
     private static DataBroker  dataBroker;
     private static BindingTransactionChain fibTransact;

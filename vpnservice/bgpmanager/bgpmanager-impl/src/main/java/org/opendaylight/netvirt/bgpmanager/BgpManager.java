@@ -5,108 +5,57 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.bgpmanager;
 
-import java.lang.management.ManagementFactory;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-import javax.management.*;
-
-import com.google.common.base.*;
-import com.google.common.base.Optional;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import org.apache.thrift.TException;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.bgpmanager.commands.Commands;
-import org.opendaylight.netvirt.bgpmanager.oam.*;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmBroadcaster;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmErrorCodes;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpManager {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BgpManager.class);
-    private BgpConfigurationManager bcm;
-    private FibDSWriter fibDSWriter;
-    //private IITMProvider        itmProvider;
-    private DataBroker dataBroker;
-    private BgpAlarmBroadcaster     qbgpAlarmProducer = null;
-    private MBeanServer qbgpAlarmServer = null;
-    private NotificationFilter  qbgpAlarmFilter = null;
-    final static int DEFAULT_STALEPATH_TIME = 210;
-    final static boolean DEFAULT_FBIT = true;
-
+public class BgpManager implements AutoCloseable, IBgpManager {
+    private static final Logger LOG = LoggerFactory.getLogger(BgpManager.class);
+    private final DataBroker dataBroker;
+    private final BgpConfigurationManager bcm;
+    private final BgpAlarmBroadcaster qbgpAlarmProducer;
+    private final FibDSWriter fibDSWriter;
     private long qBGPrestartTS = 0;
 
-    EntityOwnershipService entityOwnershipService;
-    public BgpCounters bgpCounters;
-    public Timer bgpCountersTimer;
-
-    @Override
-    public void onSessionInitiated(ProviderContext session) {
-        try {
-            dataBroker = session.getSALService(DataBroker.class);
-            fibDSWriter = new FibDSWriter(dataBroker);
-            BgpUtil.setBroker(dataBroker);
-            bcm = new BgpConfigurationManager(this);
-            bcm.setEntityOwnershipService(entityOwnershipService);
-            Commands commands = new Commands(this);
-            ConfigureBgpCli.setBgpManager(this);
-            LOGGER.info("BgpManager started");
-        } catch (Exception e) {
-            LOGGER.error("Failed to start BgpManager: "+e);
-        }
-
-        // Set up the Infra for Posting BGP Alarms as JMX notifications.
-        try {
-            qbgpAlarmProducer = new BgpAlarmBroadcaster();
-            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-            ObjectName alarmObj = new ObjectName("SDNC.FM:name=BgpAlarmObj");
-            mbs.registerMBean(qbgpAlarmProducer, alarmObj);
-        } catch (JMException e) {
-            LOGGER.error("Adding a NotificationBroadcaster failed." + e.toString());
-            e.printStackTrace();
-        }
+    public BgpManager(final DataBroker dataBroker,
+                      final BgpConfigurationManager bcm,
+                      final BgpAlarmBroadcaster bgpAlarmProducer,
+                      final FibDSWriter fibDSWriter) {
+        this.dataBroker = dataBroker;
+        this.bcm = bcm;
+        this.qbgpAlarmProducer = bgpAlarmProducer;
+        this.fibDSWriter = fibDSWriter;
     }
 
-    public void setEntityOwnershipService(EntityOwnershipService entityOwnershipService) {
-        this.entityOwnershipService = entityOwnershipService;
+    public void init() {
+        try {
+            BgpUtil.setBroker(dataBroker);
+            ConfigureBgpCli.setBgpManager(this);
+            LOG.info("{} start", getClass().getSimpleName());
+        } catch (Exception e) {
+            LOG.error("Failed to start BgpManager: ", e);
+        }
     }
 
     @Override
     public void close() throws Exception {
-        bcm.close();
-        LOGGER.info("BgpManager Closed");
-    }
-
-    /*public void setITMProvider(IITMProvider itmProvider) {
-        this.itmProvider = itmProvider;
-    }
-
-    public IITMProvider getItmProvider() { return this.itmProvider; } */
-
-    public Bgp getConfig() {
-        //TODO cleanup this cache code
-        try {
-            Optional<Bgp> optional = BgpUtil.read(dataBroker,
-                    LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Bgp.class));
-            return optional.get();
-        } catch (Exception e) {
-            //LOGGER.error("failed to get bgp config",e);
-        }
-        return null;
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     public void configureGR(int stalepathTime) throws TException {
@@ -139,7 +88,7 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
     @Override
     public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) throws Exception {
-        bcm.addVrf(rd, new ArrayList<String>(importRts), new ArrayList<String>(exportRts));
+        bcm.addVrf(rd, new ArrayList<>(importRts), new ArrayList<>(exportRts));
     }
 
     @Override
@@ -151,13 +100,15 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
     }
 
     @Override
-    public void addPrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel, RouteOrigin origin) throws Exception {
+    public void addPrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel, RouteOrigin origin)
+            throws Exception {
         fibDSWriter.addFibEntryToDS(rd, prefix, nextHopList, vpnLabel, origin);
         bcm.addPrefix(rd, prefix, nextHopList, vpnLabel);
     }
 
     @Override
-    public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel, RouteOrigin origin) throws Exception {
+    public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel, RouteOrigin origin)
+            throws Exception {
         addPrefix(rd, prefix, Arrays.asList(nextHop), vpnLabel, origin);
     }
 
@@ -174,16 +125,16 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
 
     @Override
     public void advertisePrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception {
-        LOGGER.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
+        LOG.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
         bcm.addPrefix(rd, prefix, Arrays.asList(nextHop), vpnLabel);
-        LOGGER.info("ADVERTISE: Added Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
+        LOG.info("ADVERTISE: Added Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
     }
 
     @Override
     public void withdrawPrefix(String rd, String prefix) throws Exception {
-        LOGGER.info("WITHDRAW: Removing Prefix rd {} prefix {}", rd, prefix);
+        LOG.info("WITHDRAW: Removing Prefix rd {} prefix {}", rd, prefix);
         bcm.delPrefix(rd, prefix);
-        LOGGER.info("WITHDRAW: Removed Prefix rd {} prefix {}", rd, prefix);
+        LOG.info("WITHDRAW: Removed Prefix rd {} prefix {}", rd, prefix);
     }
 
     public void setQbgpLog(String fileName, String debugLevel) throws Exception {
@@ -210,9 +161,13 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
         bcm.stopConfig();
     }
 
+    public Bgp getConfig() {
+        return bcm.getConfig();
+    }
+
     @Override
     public String getDCGwIP() {
-        Bgp conf = getConfig();
+        Bgp conf = bcm.getConfig();
         if (conf == null) {
             return null;
         }
@@ -221,10 +176,6 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
             return null;
         }
         return nbrs.get(0).getAddress().getValue();
-    }
-
-    public MBeanServer getBgpAlarmServer() {
-        return qbgpAlarmServer;
     }
 
     public synchronized void sendNotificationEvent(String pfx, int code, int subcode) {
@@ -241,69 +192,19 @@ public class BgpManager implements BindingAwareProvider, AutoCloseable, IBgpMana
             // BgpAlarmErrorCodes enum class.
             return;
         }
-        String alarmString = "";
-        alarmString = "Alarm (" + code + "," + subcode + ") from neighbor " + pfx;
         qbgpAlarmProducer.sendBgpAlarmInfo(pfx, code, subcode);
-    }
-
-    public Timer getBgpCountersTimer() {
-        return bgpCountersTimer;
-    }
-
-    public BgpCounters getBgpCounters() {
-        return bgpCounters;
-    }
-
-    public  void setBgpCountersTimer (Timer t) {
-        bgpCountersTimer = t;
-    }
-
-    public void startBgpCountersTask() {
-        if (getBgpCounters() == null) {
-
-            try {
-                bgpCounters = new BgpCounters();
-                setBgpCountersTimer(new Timer(true));
-                getBgpCountersTimer().scheduleAtFixedRate(bgpCounters, 0, 120 * 1000);
-
-
-                LOGGER.info("Bgp Counters task scheduled for every two minutes.");
-            } catch (Exception e) {
-                System.out.println("Could not start the timertask for Bgp Counters.");
-                e.printStackTrace();
-            }
-
-            try {
-                setQbgpLog(BgpConstants.BGP_DEF_LOG_FILE, BgpConstants.BGP_DEF_LOG_LEVEL);
-            } catch (Exception e) {
-                System.out.println("Could not set the default options for logging");
-            }
-        }
-    }
-
-    public void stopBgpCountersTask() {
-        Timer t = getBgpCountersTimer();
-        if (getBgpCounters() != null) {
-            t.cancel();
-            setBgpCountersTimer(null);
-            bgpCounters = null;
-        }
     }
 
     public FibDSWriter getFibWriter() {
         return fibDSWriter;
     }
 
-    public DataBroker getBroker() {
-        return dataBroker;
-    }
-
     public String getConfigHost() {
-        return bcm.getConfigHost();
+        return BgpConfigurationManager.getConfigHost();
     }
 
     public int getConfigPort() {
-        return bcm.getConfigPort();
+        return BgpConfigurationManager.getConfigPort();
     }
 
     public void bgpRestarted() {
