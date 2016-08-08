@@ -828,11 +828,12 @@ public class ElanServiceProvider implements BindingAwareProvider, IElanService, 
                 interfaceManager.createVLANInterface(interfaceName, parentRef, null, null, null,
                         IfL2vlan.L2vlanMode.Transparent, true);
             } else if (ElanUtils.isVlan(elanInstance)) {
-                String trunkName = parentRef + IfmConstants.OF_URI_SEPARATOR + "trunk";
-                interfaceManager.createVLANInterface(interfaceName, parentRef, null, null, null,
-                        IfL2vlan.L2vlanMode.Trunk, true);
                 Long segmentationId = elanInstance.getSegmentationId();
                 interfaceName = parentRef + IfmConstants.OF_URI_SEPARATOR + segmentationId;
+                interfaceManager.createVLANInterface(interfaceName, parentRef, null, null, null,
+                        IfL2vlan.L2vlanMode.Trunk, true);
+
+                String trunkName = parentRef + IfmConstants.OF_URI_SEPARATOR + "trunk";
                 interfaceManager.createVLANInterface(interfaceName, trunkName, null, segmentationId.intValue(), null,
                         IfL2vlan.L2vlanMode.TrunkMember, true);
             }
