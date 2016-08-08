@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.it;
 
+import org.opendaylight.genius.mdsalutil.NwConstants;
+
 /**
  * Constants for NetvirtIT
  */
@@ -34,4 +36,29 @@ public final class NetvirtITConstants {
     public static final String PORT_NAME = "porttest";
     public static final String INTEGRATION_BRIDGE_NAME = "br-int";
     public static final String OPENFLOW_CONNECTION_PROTOCOL = "tcp";
+
+
+    public enum DefaultFlow {
+
+        DHCP("DHCPTableMissFlow", NwConstants.DHCP_TABLE),
+        IPV6("IPv6TableMissFlow", NwConstants.IPV6_TABLE),
+        ELAN_SMAC("50", NwConstants.ELAN_SMAC_TABLE),
+        ELAN_DMAC("51", NwConstants.ELAN_DMAC_TABLE);
+
+        String flowId;
+        short tableId;
+
+        DefaultFlow(String flowId, short tableId){
+            this.flowId = flowId;
+            this.tableId = tableId;
+        }
+
+        public String getFlowId() {
+            return flowId;
+        }
+
+        public short getTableId() {
+            return tableId;
+        }
+    }
 }
