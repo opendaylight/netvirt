@@ -104,7 +104,7 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
         VpnInstanceOpDataEntry vpnOpEntry = null;
         Long intfCount = 0L;
         Long currentIntfCount = 0L;
-        Integer retryCount = 1;
+        Integer retryCount = 2;
         long timeout = VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
         Optional<VpnInstanceOpDataEntry> vpnOpValue = null;
         vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
@@ -420,9 +420,6 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
                          VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName),
                          builder.build(), TransactionUtil.DEFAULT_CALLBACK);
             }
-            synchronized (vpnInstanceName.intern()) {
-                fibManager.addVrfTable(dataBroker, vpnInstanceName, null);
-            }
         } else {
             VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder()
                     .setVrfId(rd).setVpnId(vpnId).setVpnInstanceName(vpnInstanceName).setVpnInterfaceCount(0L);
@@ -435,9 +432,6 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
                  TransactionUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getVpnInstanceOpDataIdentifier(rd),
                         builder.build(), TransactionUtil.DEFAULT_CALLBACK);
-            }
-            synchronized (vpnInstanceName.intern()) {
-                fibManager.addVrfTable(dataBroker, rd, null);
             }
         }
     }
