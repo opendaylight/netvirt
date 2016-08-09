@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_4e88891f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-08-09T16:47:30Z",
+      "side": 1,
+      "message": "I think these constants should go to NWConstants in genius, can be a different patch.",
+      "revId": "76a9fdf64856e2f2b36affb6e9962db9a3dc8481",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
