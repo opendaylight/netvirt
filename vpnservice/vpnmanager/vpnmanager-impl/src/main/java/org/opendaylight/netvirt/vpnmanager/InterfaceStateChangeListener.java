@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -72,6 +73,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("Received interface {} add event", intrf);
+        LOG.info("Received interface {} add event", intrf.getName());
         try {
             final String interfaceName = intrf.getName();
             LOG.info("Received interface add event for interface {} ", interfaceName);
@@ -106,33 +108,11 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                         } else {
                                             LOG.info("Unable to process add for interface {} for NAT service", interfaceName);
                                         }
-                                        CheckedFuture<Void, TransactionCommitFailedException> futures = writeOperTxn.submit();
-                                        try {
-                                            futures.get();
-                                        } catch (InterruptedException | ExecutionException e) {
-                                            LOG.error("Error adding Oper data for interface {} to vpn {} on dpn {}", interfaceName,
-                                                    vpnInterface.getVpnInstanceName(), dpnId);
-                                            throw new RuntimeException(e.getMessage());
-                                        }
-                                        futures = writeConfigTxn.submit();
-                                        try {
-                                            futures.get();
-                                        } catch (InterruptedException | ExecutionException e) {
-                                            LOG.error("Error adding Config data for interface {} to vpn {} on dpn {}", interfaceName,
-                                                    vpnInterface.getVpnInstanceName(), dpnId);
-                                            throw new RuntimeException(e.getMessage());
-                                        }
-                                        futures = writeInvTxn.submit();
-                                        try {
-                                            futures.get();
-                                        } catch (InterruptedException | ExecutionException e) {
-                                            LOG.error("Error adding inventory/flow data for interface {} to vpn {} on dpn {}", interfaceName,
-                                                    vpnInterface.getVpnInstanceName(), dpnId);
-                                            throw new RuntimeException(e.getMessage());
-                                        }
-                                        LOG.warn("InterfaceStateChangeListner returning null while adding the " +
-                                                "interface {}", interfaceName);
-                                        return null;
+                                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                        futures.add(writeOperTxn.submit());
+                                        futures.add(writeConfigTxn.submit());
+                                        futures.add(writeInvTxn.submit());
+                                        return futures;
                                     }
                                 });
                     }
@@ -149,6 +129,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("Received interface {} down event", intrf);
+        LOG.info("Received interface {} remove event", intrf.getName());
         try {
             final String interfaceName = intrf.getName();
             LOG.info("Received port DOWN event for interface {} ", interfaceName);
@@ -187,31 +168,11 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                 if (routerInterface != null) {
                                     handleRouterInterfacesDownEvent(routerInterface.getRouterName(), interfaceName, dpnId, writeOperTxn);
                                 }
-                                CheckedFuture<Void, TransactionCommitFailedException> futures = writeOperTxn.submit();
-                                try {
-                                    futures.get();
-                                } catch (InterruptedException | ExecutionException e) {
-                                    LOG.error("Error removing Oper data for interface {} from vpn {} on dpn {}", interfaceName,
-                                            vpnInterface.getVpnInstanceName(), dpnId);
-                                    throw new RuntimeException(e.getMessage());
-                                }
-                                futures = writeConfigTxn.submit();
-                                try {
-                                    futures.get();
-                                } catch (InterruptedException | ExecutionException e) {
-                                    LOG.error("Error removing Config data for interface {} from vpn {} on dpn {}", interfaceName,
-                                            vpnInterface.getVpnInstanceName(), dpnId);
-                                    throw new RuntimeException(e.getMessage());
-                                }
-                                futures = writeInvTxn.submit();
-                                try {
-                                    futures.get();
-                                } catch (InterruptedException | ExecutionException e) {
-                                    LOG.error("Error removing Inventory/Flow data for interface {} from vpn {} on dpn {}", interfaceName,
-                                            vpnInterface.getVpnInstanceName(), dpnId);
-                                    throw new RuntimeException(e.getMessage());
-                                }
-                                return null;
+                                List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                futures.add(writeOperTxn.submit());
+                                futures.add(writeConfigTxn.submit());
+                                futures.add(writeInvTxn.submit());
+                                return futures;
                             }
                         });
             }
@@ -247,31 +208,11 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                         WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                         vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, 
                                                 true, writeConfigTxn, writeOperTxn, writeInvTxn);
-                                        CheckedFuture<Void, TransactionCommitFailedException> futures = writeOperTxn.submit();
-                                        try {
-                                            futures.get();
-                                        } catch (InterruptedException | ExecutionException e) {
-                                            LOG.error("Error updating oper data for interface {} in vpn {} on dpn {}", interfaceName,
-                                                    vpnInterface.getVpnInstanceName(), dpnId);
-                                            throw new RuntimeException(e.getMessage());
-                                        }
-                                        futures = writeConfigTxn.submit();
-                                        try {
-                                            futures.get();
-                                        } catch (InterruptedException | ExecutionException e) {
-                                            LOG.error("Error updating config data for interface {} in vpn {} on dpn {}", interfaceName,
-                                                    vpnInterface.getVpnInstanceName(), dpnId);
-                                            throw new RuntimeException(e.getMessage());
-                                        }
-                                        futures = writeInvTxn.submit();
-                                        try {
-                                            futures.get();
-                                        } catch (InterruptedException | ExecutionException e) {
-                                            LOG.error("Error adding inventory/flow data for interface {} to vpn {} on dpn {}", interfaceName,
-                                                    vpnInterface.getVpnInstanceName(), dpnId);
-                                            throw new RuntimeException(e.getMessage());
-                                        }
-                                        return null;
+                                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                        futures.add(writeOperTxn.submit());
+                                        futures.add(writeConfigTxn.submit());
+                                        futures.add(writeInvTxn.submit());
+                                        return futures;
                                     }
                                 });
                     } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
@@ -285,31 +226,11 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                                         WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                         vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, true, false,
                                                 writeConfigTxn, writeOperTxn, writeInvTxn);
-                                        CheckedFuture<Void, TransactionCommitFailedException> futures = writeOperTxn.submit();
-                                        try {
-                                            futures.get();
-                                        } catch (InterruptedException | ExecutionException e) {
-                                            LOG.error("Error updating oper data for interface {} from vpn {} on dpn {}", interfaceName,
-                                                    vpnInterface.getVpnInstanceName(), dpnId);
-                                            throw new RuntimeException(e.getMessage());
-                                        }
-                                        futures = writeConfigTxn.submit();
-                                        try {
-                                            futures.get();
-                                        } catch (InterruptedException | ExecutionException e) {
-                                            LOG.error("Error updating config data for interface {} from vpn {} on dpn {}", interfaceName,
-                                                    vpnInterface.getVpnInstanceName(), dpnId);
-                                            throw new RuntimeException(e.getMessage());
-                                        }
-                                        futures = writeInvTxn.submit();
-                                        try {
-                                            futures.get();
-                                        } catch (InterruptedException | ExecutionException e) {
-                                            LOG.error("Error updating inventory/flow for interface {} from vpn {} on dpn {}", interfaceName,
-                                                    vpnInterface.getVpnInstanceName(), dpnId);
-                                            throw new RuntimeException(e.getMessage());
-                                        }
-                                        return null;
+                                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                        futures.add(writeOperTxn.submit());
+                                        futures.add(writeConfigTxn.submit());
+                                        futures.add(writeInvTxn.submit());
+                                        return futures;
                                     }
                                 });
                     }
