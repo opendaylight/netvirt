@@ -12,12 +12,12 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceConfigRemoveJob;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -28,9 +28,9 @@ public class DhcpInterfaceConfigListener extends AbstractDataChangeListener<Inte
     private static final Logger logger = LoggerFactory.getLogger(DhcpInterfaceConfigListener.class);
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-
     private final DataBroker dataBroker;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private DataStoreJobCoordinator dataStoreJobCoordinator;
 
     public DhcpInterfaceConfigListener(DataBroker dataBroker, DhcpExternalTunnelManager dhcpExternalTunnelManager) {
         super(Interface.class);
@@ -40,6 +40,7 @@ public class DhcpInterfaceConfigListener extends AbstractDataChangeListener<Inte
 
     public void init() {
         registerListener();
+        dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     }
 
     private void registerListener() {
@@ -66,14 +67,8 @@ public class DhcpInterfaceConfigListener extends AbstractDataChangeListener<Inte
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface del) {
-        IfTunnel tunnelInterface = del.getAugmentation(IfTunnel.class);
-        if (tunnelInterface != null && !tunnelInterface.isInternal()) {
-            IpAddress tunnelIp = tunnelInterface.getTunnelDestination();
-            ParentRefs interfce = del.getAugmentation(ParentRefs.class);
-            if (interfce != null) {
-                dhcpExternalTunnelManager.handleTunnelStateDown(tunnelIp, interfce.getDatapathNodeIdentifier());
-            }
-        }
+        DhcpInterfaceConfigRemoveJob job = new DhcpInterfaceConfigRemoveJob(dhcpExternalTunnelManager, dataBroker, del);
+        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(del.getName()), job, DHCPMConstants.RETRY_COUNT );
     }
 
     @Override
