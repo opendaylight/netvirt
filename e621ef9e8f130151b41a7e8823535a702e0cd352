@@ -543,6 +543,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_4654f353",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-09T11:56:03Z",
+      "side": 1,
+      "message": "this method is not used any more. i\u0027ll remove it",
+      "parentUuid": "7a6b29fe_8be576aa",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_cbc76e11",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
         "patchSetId": 5
@@ -554,6 +572,24 @@
       "writtenOn": "2016-08-09T09:35:06Z",
       "side": 1,
       "message": "\"true\" instead of \"yes\" would be more typical?",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2651f762",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-09T11:56:03Z",
+      "side": 1,
+      "message": "same",
+      "parentUuid": "7a6b29fe_cbc76e11",
       "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -577,6 +613,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_864e0bc0",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-09T11:56:03Z",
+      "side": 1,
+      "message": "the usage of this deprecate class is not part of my code change and it deals with deprecated yang model.",
+      "parentUuid": "7a6b29fe_ebed0a8d",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_ab6832f6",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImplTest.java",
         "patchSetId": 5
@@ -588,6 +642,24 @@
       "writtenOn": "2016-08-09T09:35:06Z",
       "side": 1,
       "message": "To compare (assert on) FlowEntity instances in tests, perhaps you would be interested in using my new AssertBeans helper which you should see appearing in https://git.opendaylight.org/gerrit/#/c/42109/ in the coming hours (it\u0027s not there yet as of writing this, but I\u0027m about to push something I have local)",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_664befb0",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImplTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-09T11:56:03Z",
+      "side": 1,
+      "message": "i can do this cleanup once MethodInvocationSaver will move to the new place",
+      "parentUuid": "7a6b29fe_ab6832f6",
       "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -622,6 +694,24 @@
       "writtenOn": "2016-08-09T09:35:06Z",
       "side": 1,
       "message": "Perhaps this class, if you want t oretain it and use it elsewhere, would fit into the upcoming org.opendaylight.yangtools:testutils which I\u0027m introducing in https://git.opendaylight.org/gerrit/#/c/42529/ ?",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a6cce736",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/utils/MethodInvocationParamSaver.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-09T11:56:03Z",
+      "side": 1,
+      "message": "since i haven\u0027t found any when creating this class it was created here.\nyou can add it to your review. once it will be there i remove my",
+      "parentUuid": "7a6b29fe_4b899ec9",
       "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
