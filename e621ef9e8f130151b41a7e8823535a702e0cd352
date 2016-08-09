@@ -404,6 +404,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_4b023e3f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-09T09:35:06Z",
+      "side": 1,
+      "message": "It would be much better to change the use of any @Deprecated classes used here than to just suppress the warning.  The @Deprecated classes may be removed in the future, and will cuse pain then, making the adjustment now, here or in another Gerrit, would be best.  If no time, better to leave the warnings than to suppress them.",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_c7082130",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 5
@@ -503,6 +520,108 @@
       "side": 1,
       "message": "fixed",
       "parentUuid": "7a6b29fe_42799f92",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_8be576aa",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-09T09:35:06Z",
+      "side": 1,
+      "message": "as this isStatelessAcl() is NOT a constant, perhaps there is some better existing help utility class elsewhere than this AclConstants class?",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_cbc76e11",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-09T09:35:06Z",
+      "side": 1,
+      "message": "\"true\" instead of \"yes\" would be more typical?",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ebed0a8d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-09T09:35:06Z",
+      "side": 1,
+      "message": "It would be much better to change the use of any @Deprecated classes used here than to just suppress the warning.  The @Deprecated classes may be removed in the future, and will cuse pain then, making the adjustment now, here or in another Gerrit, would be best.  If no time, better to leave the warnings than to suppress them.",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ab6832f6",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImplTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-09T09:35:06Z",
+      "side": 1,
+      "message": "To compare (assert on) FlowEntity instances in tests, perhaps you would be interested in using my new AssertBeans helper which you should see appearing in https://git.opendaylight.org/gerrit/#/c/42109/ in the coming hours (it\u0027s not there yet as of writing this, but I\u0027m about to push something I have local)",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4b77ded4",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImplTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-09T09:35:06Z",
+      "side": 1,
+      "message": "To create data structures like this, perhaps you would enjoy using the Xtend bean creation syntax illustrated e.g. in FlowEntryObjects.xtend of https://git.opendaylight.org/gerrit/#/c/42109/ ?",
+      "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4b899ec9",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/utils/MethodInvocationParamSaver.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-09T09:35:06Z",
+      "side": 1,
+      "message": "Perhaps this class, if you want t oretain it and use it elsewhere, would fit into the upcoming org.opendaylight.yangtools:testutils which I\u0027m introducing in https://git.opendaylight.org/gerrit/#/c/42529/ ?",
       "revId": "e621ef9e8f130151b41a7e8823535a702e0cd352",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
