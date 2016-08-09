@@ -6,8 +6,9 @@
   <reference id="dataBroker"
     interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
     odl:type="default" />
-  <reference id="rpcRegistry"
-    interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry" />
+  <!-- dhcpservice-impl fails to find the service below -->
+  <!--<reference id="rpcRegistry"
+    interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry" />-->
   <reference id="entityOwnershipService"
     interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
   <reference id="mdsalUtils"
