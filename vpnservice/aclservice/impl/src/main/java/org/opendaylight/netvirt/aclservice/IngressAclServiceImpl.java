@@ -299,29 +299,37 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * Program conntrack tracked rule.
      *
      * @param dpId the dp id
-     * @param lportTag the lport tag
+     * @param allowedAddresses the allowed addresses
      * @param priority the priority
      * @param flowId the flow id
      * @param conntrackState the conntrack state
      * @param conntrackMask the conntrack mask
      * @param addOrRemove the add or remove
      */
-    private void programConntrackTrackedRule(BigInteger dpId, int lportTag, Integer priority, String flowId,
-            int conntrackState, int conntrackMask, int addOrRemove) {
-        List<MatchInfoBase> matches = new ArrayList<>();
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
+    private void programConntrackTrackedRule(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
+            Integer priority, String flowId, int conntrackState, int conntrackMask, int addOrRemove) {
+        for (AllowedAddressPairs allowedAddress : allowedAddresses) {
+            IpPrefixOrAddress attachIp = allowedAddress.getIpAddress();
+            String attachMac = allowedAddress.getMacAddress().getValue();
 
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.goto_table, new String[] {}));
+            List<MatchInfoBase> matches = new ArrayList<>();
+            matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4}));
+            matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
+            matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] {attachMac}));
+            matches.addAll(AclServiceUtils.buildIpMatches(attachIp, MatchFieldType.ipv4_destination));
 
-        List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(
-                new InstructionInfo(InstructionType.goto_table, new long[] {NwConstants.INGRESS_ACL_NEXT_TABLE_ID}));
+            List<ActionInfo> actionsInfos = new ArrayList<>();
+            actionsInfos.add(new ActionInfo(ActionType.goto_table, new String[] {}));
 
-        String flowName = "Ingress_Fixed_Conntrk_Trk_" + dpId + "_" + lportTag + "_" + flowId;
-        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, priority, "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE,
-                matches, instructions, addOrRemove);
+            List<InstructionInfo> instructions = new ArrayList<>();
+            instructions.add(new InstructionInfo(InstructionType.goto_table,
+                    new long[] {NwConstants.INGRESS_ACL_NEXT_TABLE_ID}));
+
+            String flowName = "Ingress_Fixed_Conntrk_Trk_" + dpId + "_" + attachMac + "_"
+                    + String.valueOf(attachIp.getValue()) + "_" + flowId;
+            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, priority, "ACL", 0, 0,
+                    AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        }
     }
 
     /**
@@ -381,14 +389,14 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             int lportTag, Action action, int write) {
         programConntrackRecircRules(dpid, allowedAddresses, AclConstants.CT_STATE_UNTRACKED_PRIORITY,
             "Untracked", AclConstants.UNTRACKED_CT_STATE, AclConstants.UNTRACKED_CT_STATE_MASK, write);
+        programConntrackTrackedRule(dpid, allowedAddresses, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Tracked",
+                AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK, write);
         if (action == Action.ADD || action == Action.REMOVE) {
             programConntrackForwardRule(dpid, lportTag, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,
                     "Tracked_Established", AclConstants.TRACKED_EST_CT_STATE, AclConstants.TRACKED_EST_CT_STATE_MASK,
                     write);
             programConntrackForwardRule(dpid, lportTag, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Tracked_Related",
                     AclConstants.TRACKED_REL_CT_STATE, AclConstants.TRACKED_REL_CT_STATE_MASK, write);
-            programConntrackTrackedRule(dpid, lportTag, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Tracked",
-                    AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK, write);
             programConntrackDropRule(dpid, lportTag, AclConstants.CT_STATE_NEW_PRIORITY_DROP, "Tracked_New",
                     AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, write);
             programConntrackDropRule(dpid, lportTag, AclConstants.CT_STATE_NEW_PRIORITY_DROP, "Tracked_Invalid",
