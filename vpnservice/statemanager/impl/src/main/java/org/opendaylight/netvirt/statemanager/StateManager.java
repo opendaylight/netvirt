@@ -80,6 +80,11 @@ public class StateManager implements IStateManager {
     @Override
     public void setReady(boolean ready) {
         if (ready) {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                LOG.warn("StateManager thread was interrupted", e);
+            }
             LOG.info("StateManager all is ready");
             initializeNetvirtTopology();
         }

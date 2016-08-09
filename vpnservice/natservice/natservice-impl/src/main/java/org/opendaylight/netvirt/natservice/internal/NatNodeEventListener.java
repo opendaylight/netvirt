@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
@@ -20,31 +21,33 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-
 public class NatNodeEventListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NatNodeEventListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
-    private NaptSwitchHA naptSwitchHA;
+    private final DataBroker dataBroker;
 
-    public NatNodeEventListener(final DataBroker db,final  NaptSwitchHA napt) {
+    public NatNodeEventListener(final DataBroker dataBroker) {
         super(Node.class);
-        naptSwitchHA = napt;
-        registerListener(db);
+        this.dataBroker = dataBroker;
     }
 
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getWildCardPath(), NatNodeEventListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("NatNodeEventListener: DataChange listener registration fail!", e);
-            throw new IllegalStateException("NatNodeEventListener: registration Listener failed.", e);
-        }
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
     }
 
     private InstanceIdentifier<Node> getWildCardPath() {
         return InstanceIdentifier.create(Nodes.class).child(Node.class);
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (listenerRegistration != null) {
+            listenerRegistration.close();
+            listenerRegistration = null;
+        }
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @Override
@@ -75,18 +78,5 @@ public class NatNodeEventListener extends AbstractDataChangeListener<Node> imple
         }
         BigInteger dpnId = new BigInteger(node[1]);
         LOG.debug("NodeId added is {}",dpnId);
-    }
-
-    @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
-        }
-        LOG.info("NatNodeEventListener Closed");
     }
 }
