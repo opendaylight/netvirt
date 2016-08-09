@@ -12,9 +12,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -52,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
 
 public class DhcpServiceUtils {
 
@@ -73,7 +77,7 @@ public class DhcpServiceUtils {
         return interfaceInstanceIdentifierBuilder.build();
     }
 
-    public static void setupDhcpFlowEntry(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove, IMdsalApiManager mdsalUtil) {
+    public static void setupDhcpFlowEntry(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove, IMdsalApiManager mdsalUtil, WriteTransaction tx) {
         if (dpId == null || dpId.equals(DHCPMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
@@ -94,14 +98,14 @@ public class DhcpServiceUtils {
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, null);
             logger.trace("Removing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.remove_dhcp_flow.inc();
-            mdsalUtil.removeFlow(flowEntity);
+            mdsalUtil.removeFlowToTx(flowEntity, tx);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
             logger.trace("Installing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.install_dhcp_flow.inc();
-            mdsalUtil.installFlow(flowEntity);
+            mdsalUtil.addFlowToTx(flowEntity, tx);
         }
     }
 
@@ -112,7 +116,7 @@ public class DhcpServiceUtils {
                 .append(vmMacAddress).toString();
     }
 
-    public static void setupDhcpDropAction(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove, IMdsalApiManager mdsalUtil) {
+    public static void setupDhcpDropAction(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove, IMdsalApiManager mdsalUtil, WriteTransaction tx) {
         if (dpId == null || dpId.equals(DHCPMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
@@ -131,14 +135,14 @@ public class DhcpServiceUtils {
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, null);
             logger.trace("Removing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.remove_dhcp_drop_flow.inc();
-            mdsalUtil.removeFlow(flowEntity);
+            mdsalUtil.removeFlowToTx(flowEntity, tx);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
             logger.trace("Installing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.install_dhcp_drop_flow.inc();
-            mdsalUtil.installFlow(flowEntity);
+            mdsalUtil.addFlowToTx(flowEntity, tx);
         }
     }
 
@@ -226,5 +230,18 @@ public class DhcpServiceUtils {
             return null;
         }
         return trunkPort.get().getMacAddress().getValue();
+    }
+
+    public static String getJobKey(String interfaceName) {
+        return new StringBuilder().append(DHCPMConstants.DHCP_JOB_KEY_PREFIX).append(interfaceName).toString();
+    }
+
+    public static void submitTransaction(WriteTransaction tx) {
+        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        try {
+            futures.get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Error writing to datastore tx {} error {}", tx, e.getMessage());
+        }
     }
 }
