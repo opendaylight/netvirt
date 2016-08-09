@@ -12,18 +12,32 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
 
 public class InterfaceStateToTransportZoneListener extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateToTransportZoneListener> implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable{
 
+    private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateToTransportZoneListener.class);
     private InterfaceStateManager ism;
 
-    public InterfaceStateToTransportZoneListener(DataBroker dbx, NeutronvpnManager nvManager, String autoTunnelConfig) {
+    public InterfaceStateToTransportZoneListener(DataBroker dbx, NeutronvpnManager nvManager) {
         super(Interface.class, InterfaceStateToTransportZoneListener.class);
         ism = new InterfaceStateManager(dbx, nvManager);
-        if (isAutoTunnelConfigEnabled(autoTunnelConfig)) {
+        Optional<NeutronvpnConfig> nvsConfig = MDSALDataStoreUtils.read(dbx,
+                LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
+                .create(NeutronvpnConfig.class));
+        Boolean useTZ = true;
+        if (nvsConfig.isPresent()) {
+            useTZ = nvsConfig.get().isUseTransportZone() == null ? true : nvsConfig.get().isUseTransportZone();
+        }
+        if (isAutoTunnelConfigEnabled(useTZ)) {
             registerListener(LogicalDatastoreType.OPERATIONAL, dbx);
         }       
 
@@ -57,8 +71,13 @@ public class InterfaceStateToTransportZoneListener extends AsyncDataTreeChangeLi
         return InterfaceStateToTransportZoneListener.this;
     }
     
-    private boolean isAutoTunnelConfigEnabled(String autoTunnelConfig) {
-        return !"no".equals(autoTunnelConfig);
+    private boolean isAutoTunnelConfigEnabled(Boolean useTZ) {
+        if (useTZ) {
+            LOG.info("using automatic tunnel configuration");
+        } else {
+            LOG.info("don't use automatic tunnel configuration");
+        }
+        return useTZ;
     }
 
 }
