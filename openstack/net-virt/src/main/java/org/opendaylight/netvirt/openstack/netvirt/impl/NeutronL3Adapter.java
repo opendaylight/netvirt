@@ -151,7 +151,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
     private static final String DEFAULT_EXT_RTR_MAC = "00:00:5E:00:01:01";
 
     public NeutronL3Adapter(NeutronModelsDataStoreHelper neutronHelper) {
-        LOG.info(">>>>>> NeutronL3Adapter constructor {}", this.getClass());
+        LOG.info("NeutronL3Adapter: Constructor Initialized");
         this.neutronModelsDataStoreHelper = neutronHelper;
     }
 
