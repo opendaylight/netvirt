@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
+import com.google.common.util.concurrent.FutureCallback;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.math.BigInteger;
 import java.util.List;
@@ -44,14 +45,16 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd) {
-        vrfEntryListener.populateFibOnNewDpn(dpnId, vpnId, rd);
+    public void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd,
+                                    FutureCallback<List<Void>> callback) {
+        vrfEntryListener.populateFibOnNewDpn(dpnId, vpnId, rd, callback);
     }
 
     @Override
     public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
-                                 String localNextHopIp, String remoteNextHopIp) {
-        vrfEntryListener.cleanUpDpnForVpn(dpnId, vpnId, rd, localNextHopIp, remoteNextHopIp);
+                                 String localNextHopIp, String remoteNextHopIp,
+                                 FutureCallback<List<Void>> callback) {
+        vrfEntryListener.cleanUpDpnForVpn(dpnId, vpnId, rd, localNextHopIp, remoteNextHopIp, callback);
     }
 
     @Override
@@ -61,8 +64,9 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd) {
-        vrfEntryListener.cleanUpDpnForVpn(dpnId, vpnId, rd);
+    public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
+                                 FutureCallback<List<Void>> callback) {
+        vrfEntryListener.cleanUpDpnForVpn(dpnId, vpnId, rd, callback);
     }
 
     @Override
