@@ -203,8 +203,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param addOrRemove is write or delete
      * @param protoPortMatchPriority the priority
      */
-    private void ingressAclDhcpAllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag, int addOrRemove,
-            int protoPortMatchPriority) {
+    protected void ingressAclDhcpAllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
+            int addOrRemove, int protoPortMatchPriority) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
                 AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag);
 
@@ -226,7 +226,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param addOrRemove is write or delete
      * @param protoPortMatchPriority the priority
      */
-    private void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
+    protected void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove, Integer protoPortMatchPriority) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag);
@@ -365,7 +365,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param lportTag the lport tag
      * @param addOrRemove whether to add or remove the flow
      */
-    private void programArpRule(BigInteger dpId, int lportTag, int addOrRemove) {
+    protected void programArpRule(BigInteger dpId, int lportTag, int addOrRemove) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_ARP}));
         matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));

@@ -17,6 +17,7 @@ module aclservice-config {
             type enumeration {
                 enum "stateless";
                 enum "stateful";
+                enum "learn";
             }
         }
     }
