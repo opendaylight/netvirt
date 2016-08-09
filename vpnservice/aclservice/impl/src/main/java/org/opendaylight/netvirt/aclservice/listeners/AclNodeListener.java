@@ -9,9 +9,11 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import com.google.common.base.Optional;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -25,6 +27,8 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
+import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
@@ -146,9 +150,12 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         if (securityGroupMode == null || securityGroupMode == SecurityGroupMode.Stateful) {
             addIngressAclTableMissFlow(dpnId);
             addEgressAclTableMissFlow(dpnId);
-        } else {
+        } else if (securityGroupMode == SecurityGroupMode.Stateless) {
             addStatelessIngressAclTableMissFlow(dpnId);
             addStatelessEgressAclTableMissFlow(dpnId);
+        } else if (securityGroupMode == SecurityGroupMode.Learn) {
+            addLearnIngressAclTableMissFlow(dpnId);
+            addLearnEgressAclTableMissFlow(dpnId);
         }
     }
 
@@ -175,6 +182,109 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(nextTblFlowEntity);
 
         LOG.debug("Added Ingress ACL Table Miss Flows for dpn {}", dpId);
+    }
+
+    private void addLearnEgressAclTableMissFlow(BigInteger dpId) {
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit,
+                new String[] {Short.toString(AclConstants.EGRESS_LEARN_TABLE) }));
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit,
+                new String[] {Short.toString(AclConstants.EGRESS_LEARN2_TABLE) }));
+        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        FlowEntity doubleResubmitTable = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE_ID,
+                "RESUB-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE_ID),
+                AclConstants.PROTO_MATCH_PRIORITY, "Egress resubmit ACL Table Block", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
+        mdsalManager.installFlow(doubleResubmitTable);
+
+        mkMatches = new ArrayList<>();
+        mkInstructions = new ArrayList<>();
+        actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
+        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, AclConstants.EGRESS_LEARN_TABLE,
+                "LEARN-" + getTableMissFlowId(AclConstants.EGRESS_LEARN_TABLE), 0,
+                "Egress Learn ACL Table Miss Flow", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
+        mdsalManager.installFlow(flowEntity);
+
+        flowEntity = MDSALUtil.buildFlowEntity(dpId, AclConstants.EGRESS_LEARN2_TABLE,
+                "LEARN-" + getTableMissFlowId(AclConstants.EGRESS_LEARN2_TABLE), 0,
+                "Egress Learn2 ACL Table Miss Flow", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
+        mdsalManager.installFlow(flowEntity);
+
+        List<NxMatchInfo> nxMkMatches = new ArrayList<>();
+        nxMkMatches.add(new NxMatchInfo(NxMatchFieldType.nxm_reg_6,
+                new long[] {Long.valueOf(AclConstants.LEARN_MATCH_REG_VALUE)}));
+
+        short dispatcherTableId = AclConstants.EGRESS_LPORT_DISPATCHER_TABLE;
+        List<InstructionInfo> instructions = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] {Short.toString(dispatcherTableId)}));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+
+        flowEntity = MDSALUtil.buildFlowEntity(dpId, AclConstants.EGRESS_LEARN2_TABLE,
+                "LEARN2-REG-" + getTableMissFlowId(AclConstants.EGRESS_LEARN2_TABLE),
+                AclConstants.PROTO_MATCH_PRIORITY, "Egress Learn2 ACL Table match reg Flow", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, nxMkMatches, instructions);
+        mdsalManager.installFlow(flowEntity);
+        LOG.debug("Added learn ACL Table Miss Flows for dpn {}", dpId);
+    }
+
+    private void addLearnIngressAclTableMissFlow(BigInteger dpId) {
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit,
+                new String[] {Short.toString(AclConstants.INGRESS_LEARN_TABLE) }));
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit,
+                new String[] {Short.toString(AclConstants.INGRESS_LEARN2_TABLE) }));
+        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        FlowEntity doubleResubmitTable = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE_ID,
+                "RESUB-" + getTableMissFlowId(NwConstants.INGRESS_ACL_TABLE_ID),
+                AclConstants.PROTO_MATCH_PRIORITY, "Ingress resubmit ACL Table Block", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
+        mdsalManager.installFlow(doubleResubmitTable);
+
+        mkMatches = new ArrayList<>();
+        mkInstructions = new ArrayList<>();
+        actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
+        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, AclConstants.INGRESS_LEARN_TABLE,
+                "LEARN-" + getTableMissFlowId(AclConstants.INGRESS_LEARN_TABLE), 0,
+                "Ingress Learn ACL Table Miss Flow", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
+        mdsalManager.installFlow(flowEntity);
+
+        flowEntity = MDSALUtil.buildFlowEntity(dpId, AclConstants.INGRESS_LEARN2_TABLE,
+                "LEARN-" + getTableMissFlowId(AclConstants.INGRESS_LEARN2_TABLE), 0,
+                "Ingress Learn2 ACL Table Miss Flow", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
+        mdsalManager.installFlow(flowEntity);
+
+        List<NxMatchInfo> nxMkMatches = new ArrayList<>();
+        nxMkMatches.add(new NxMatchInfo(NxMatchFieldType.nxm_reg_6,
+                new long[] {Long.valueOf(AclConstants.LEARN_MATCH_REG_VALUE)}));
+
+        short dispatcherTableId = NwConstants.LPORT_DISPATCHER_TABLE;
+        List<InstructionInfo> instructions = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] {Short.toString(dispatcherTableId)}));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+
+        flowEntity = MDSALUtil.buildFlowEntity(dpId, AclConstants.INGRESS_LEARN2_TABLE,
+                "LEARN2-REG-" + getTableMissFlowId(AclConstants.INGRESS_LEARN2_TABLE),
+                AclConstants.PROTO_MATCH_PRIORITY, "Egress Learn2 ACL Table match reg Flow", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, nxMkMatches, instructions);
+        mdsalManager.installFlow(flowEntity);
+        LOG.debug("Added learn ACL Table Miss Flows for dpn {}", dpId);
+
     }
 
     /**
