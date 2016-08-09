@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 
 public class InterfaceStateManager {
     
-    private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateToTransportZoneListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateManager.class);
     private static final String OF_URI_SEPARATOR = ":";
     private static final String TUNNEL_PORT = "tunnel_port";
     private static final String LOCAL_IP = "local_ip";

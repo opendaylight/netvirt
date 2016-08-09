@@ -118,9 +118,15 @@
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
   </bean>
-
+  
   <bean id="neutronvpnManagerImpl"
         class="org.opendaylight.netvirt.neutronvpn.NeutronvpnManagerImpl">
+        <argument ref="neutronvpnManager" />
+  </bean>
+  
+  <bean id="InterfaceStateToTransportZoneListener"
+        class="org.opendaylight.netvirt.neutronvpn.InterfaceStateToTransportZoneListener">
+    <argument ref="dataBroker" />
     <argument ref="neutronvpnManager" />
   </bean>
   <service ref="neutronvpnManagerImpl" odl:type="default"
