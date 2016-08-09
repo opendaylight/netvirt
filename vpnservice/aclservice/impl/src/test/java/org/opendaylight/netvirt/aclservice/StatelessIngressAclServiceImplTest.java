@@ -80,6 +80,7 @@ public class StatelessIngressAclServiceImplTest {
         testedService = new StatelessIngressAclServiceImpl(dataBroker, mdsalManager);
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
+        doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
         installFlowValueSaver = new MethodInvocationParamSaver<Void>(null);
         doAnswer(installFlowValueSaver).when(mdsalManager).installFlow(any(FlowEntity.class));
         removeFlowValueSaver = new MethodInvocationParamSaver<Void>(null);

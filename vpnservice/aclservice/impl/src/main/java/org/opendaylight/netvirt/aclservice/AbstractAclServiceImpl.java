@@ -73,15 +73,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
             return false;
         }
-
         programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
                 Action.ADD, NwConstants.ADD_FLOW, port.getInterfaceId());
 
+        bindService(port.getInterfaceId());
         return true;
-
-        // TODO: uncomment bindservice() when the acl flow programming is
-        // implemented
-        // bindService(port.getName());
     }
 
     @Override
@@ -180,14 +176,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
             return false;
         }
-
         programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
                 Action.REMOVE, NwConstants.DEL_FLOW, port.getInterfaceId());
 
+        unbindService(port.getInterfaceId());
         return true;
-        // TODO: uncomment unbindService() when the acl flow programming is
-        // implemented
-        // unbindService(port.getName());
     }
 
     @Override
