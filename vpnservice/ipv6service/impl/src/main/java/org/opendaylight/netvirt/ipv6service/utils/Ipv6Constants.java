@@ -56,6 +56,10 @@ public class Ipv6Constants {
 
     public static final int ADD_FLOW = 0;
     public static final int DEL_FLOW = 1;
+    public static final int ADD_ENTRY = 0;
+    public static final int DEL_ENTRY = 1;
+    public static final int FLOWS_CONFIGURED = 1;
+    public static final int FLOWS_NOT_CONFIGURED = 0;
     public static final String OPENFLOW_NODE_PREFIX = "openflow:";
     public static final short IPV6_VERSION = 6;
     public static final short ICMP6_NHEADER = 58;
