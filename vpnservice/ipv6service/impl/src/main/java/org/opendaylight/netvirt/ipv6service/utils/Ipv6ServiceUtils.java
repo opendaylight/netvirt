@@ -31,10 +31,12 @@ import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.utils.ServiceIndex;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -295,23 +297,21 @@ public class Ipv6ServiceUtils {
         return ipv6LLA;
     }
 
-    private static List<MatchInfo> getIcmpv6RSMatch(String vmMacAddress) {
+    private static List<MatchInfo> getIcmpv6RSMatch(Long elanTag) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_src,
-                new String[] { vmMacAddress }));
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { NwConstants.ETHTYPE_IPV6 }));
         matches.add(new MatchInfo(MatchFieldType.ip_proto,
                 new long[] { IPProtocols.IPV6ICMP.intValue() }));
         matches.add(new MatchInfo(MatchFieldType.icmp_v6,
                 new long[] { Ipv6Constants.ICMP_V6_RS_CODE, 0}));
+        matches.add(new MatchInfo(MatchFieldType.metadata,
+                new BigInteger[] { ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE}));
         return matches;
     }
 
-    private List<MatchInfo> getIcmpv6NSMatch(String vmMacAddress, String ndTarget) {
+    private List<MatchInfo> getIcmpv6NSMatch(Long elanTag, String ndTarget) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_src,
-                new String[] { vmMacAddress }));
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { NwConstants.ETHTYPE_IPV6 }));
         matches.add(new MatchInfo(MatchFieldType.ip_proto,
@@ -320,40 +320,21 @@ public class Ipv6ServiceUtils {
                 new long[] { Ipv6Constants.ICMP_V6_NS_CODE, 0}));
         matches.add(new MatchInfo(MatchFieldType.ipv6_nd_target,
                 new String[] { ndTarget }));
+        matches.add(new MatchInfo(MatchFieldType.metadata,
+                new BigInteger[] { ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE}));
         return matches;
     }
 
-    private static String getIPv6FlowRef(BigInteger dpId, String vmMacAddress, String flowType) {
+    private static String getIPv6FlowRef(BigInteger dpId, Long elanTag, String flowType) {
         return new StringBuffer().append(Ipv6Constants.FLOWID_PREFIX)
                 .append(dpId).append(Ipv6Constants.FLOWID_SEPARATOR)
-                .append(vmMacAddress).append(flowType).toString();
+                .append(elanTag).append(Ipv6Constants.FLOWID_SEPARATOR)
+                .append(flowType).toString();
     }
 
-    private static void installRsPuntFlow(String interfaceName, short tableId, BigInteger dpId, String vmMacAddress,
-                                          IMdsalApiManager mdsalUtil, int addOrRemove) {
-        List<MatchInfo> routerSolicitationMatch = getIcmpv6RSMatch(vmMacAddress);
-        List<InstructionInfo> instructions = new ArrayList<>();
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        // Punt to controller
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
-                new String[] {}));
-        instructions.add(new InstructionInfo(InstructionType.write_actions,
-                actionsInfos));
-        FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                getIPv6FlowRef(dpId, vmMacAddress, "IPv6RS"),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6RS", 0, 0,
-                NwConstants.COOKIE_IPV6_TABLE, routerSolicitationMatch, instructions);
-        if (addOrRemove == Ipv6Constants.DEL_FLOW) {
-            LOG.trace("Removing IPv6 Router Solicitation Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
-            mdsalUtil.removeFlow(rsFlowEntity);
-        } else {
-            LOG.trace("Installing IPv6 Router Solicitation Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
-            mdsalUtil.installFlow(rsFlowEntity);
-        }
-    }
-
-    public void installIcmpv6NsPuntFlow(short tableId, BigInteger dpId, String vmMacAddress,
-                                        String ipv6Address, IMdsalApiManager mdsalUtil, int addOrRemove) {
-        List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(vmMacAddress, ipv6Address);
+    public void installIcmpv6NsPuntFlow(short tableId, BigInteger dpId,  Long elanTag, String ipv6Address,
+                                        IMdsalApiManager mdsalUtil,int addOrRemove) {
+        List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(elanTag, ipv6Address);
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
@@ -361,23 +342,23 @@ public class Ipv6ServiceUtils {
         instructions.add(new InstructionInfo(InstructionType.write_actions,
                 actionsInfos));
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                getIPv6FlowRef(dpId, vmMacAddress, ipv6Address),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6NS",
+                getIPv6FlowRef(dpId, elanTag, ipv6Address),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6NS",
                 0, 0, NwConstants.COOKIE_IPV6_TABLE, neighborSolicitationMatch, instructions);
         if (addOrRemove == Ipv6Constants.DEL_FLOW) {
-            LOG.trace("Removing IPv6 Neighbor Solicitation Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            LOG.trace("Removing IPv6 Neighbor Solicitation Flow DpId {}, elanTag {}", dpId, elanTag);
             mdsalUtil.removeFlow(rsFlowEntity);
         } else {
-            LOG.trace("Installing IPv6 Neighbor Solicitation Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            LOG.trace("Installing IPv6 Neighbor Solicitation Flow DpId {}, elanTag {}", dpId, elanTag);
             mdsalUtil.installFlow(rsFlowEntity);
         }
     }
 
-    public void installIcmpv6RsPuntFlow(short tableId, BigInteger dpId, String vmMacAddress,
-                                          IMdsalApiManager mdsalUtil, int addOrRemove) {
+    public void installIcmpv6RsPuntFlow(short tableId, BigInteger dpId, Long elanTag, IMdsalApiManager mdsalUtil,
+                                        int addOrRemove) {
         if (dpId == null || dpId.equals(Ipv6Constants.INVALID_DPID)) {
             return;
         }
-        List<MatchInfo> routerSolicitationMatch = getIcmpv6RSMatch(vmMacAddress);
+        List<MatchInfo> routerSolicitationMatch = getIcmpv6RSMatch(elanTag);
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         // Punt to controller
@@ -386,13 +367,13 @@ public class Ipv6ServiceUtils {
         instructions.add(new InstructionInfo(InstructionType.write_actions,
                 actionsInfos));
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                getIPv6FlowRef(dpId, vmMacAddress, "IPv6RS"),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6RS", 0, 0,
+                getIPv6FlowRef(dpId, elanTag, "IPv6RS"),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6RS", 0, 0,
                 NwConstants.COOKIE_IPV6_TABLE, routerSolicitationMatch, instructions);
         if (addOrRemove == Ipv6Constants.DEL_FLOW) {
-            LOG.trace("Removing IPv6 Router Solicitation Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            LOG.trace("Removing IPv6 Router Solicitation Flow DpId {}, elanTag {}", dpId, elanTag);
             mdsalUtil.removeFlow(rsFlowEntity);
         } else {
-            LOG.trace("Installing IPv6 Router Solicitation Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
+            LOG.trace("Installing IPv6 Router Solicitation Flow DpId {}, elanTag {}", dpId, elanTag);
             mdsalUtil.installFlow(rsFlowEntity);
         }
     }
@@ -414,9 +395,11 @@ public class Ipv6ServiceUtils {
                 .child(BoundServices.class, new BoundServicesKey(priority)).build();
     }
 
-    public void bindIpv6Service(DataBroker broker, String interfaceName, short tableId) {
+    public void bindIpv6Service(DataBroker broker, String interfaceName, Long elanTag, short tableId) {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanUtils.getElanMetadataLabel(elanTag),
+                MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, ++instructionKey));
         short serviceIndex = ServiceIndex.getIndex(NwConstants.IPV6_SERVICE_NAME, NwConstants.IPV6_SERVICE_INDEX);
         BoundServices
@@ -432,5 +415,13 @@ public class Ipv6ServiceUtils {
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION,
                 buildServiceId(interfaceName, ServiceIndex.getIndex(NwConstants.IPV6_SERVICE_NAME,
                         NwConstants.IPV6_SERVICE_INDEX)));
+    }
+
+    public static BigInteger getDataPathId(String dpId) {
+        long dpid = 0L;
+        if (dpId != null) {
+            dpid = new BigInteger(dpId.replaceAll(":", ""), 16).longValue();
+        }
+        return BigInteger.valueOf(dpid);
     }
 }

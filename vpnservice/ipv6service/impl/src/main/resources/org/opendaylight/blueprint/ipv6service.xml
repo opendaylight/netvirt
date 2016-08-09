@@ -9,6 +9,8 @@
   <reference id="mdsalUtils"
              interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
 
+  <reference id="elanProvider" interface="org.opendaylight.netvirt.elanmanager.api.IElanService" availability="optional" />
+
   <odl:rpc-service id="odlInterfaceRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
   <odl:rpc-service id="packetProcessingService"
@@ -25,7 +27,6 @@
         class="org.opendaylight.netvirt.ipv6service.Ipv6ServiceInterfaceEventListener"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
   </bean>
 
   <bean id="neutronPortChangeListener"
@@ -36,6 +37,12 @@
 
   <bean id="neutronRouterChangeListener"
         class="org.opendaylight.netvirt.ipv6service.NeutronRouterChangeListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+  </bean>
+
+  <bean id="neutronNetworkChangeListener"
+        class="org.opendaylight.netvirt.ipv6service.NeutronNetworkChangeListener"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
   </bean>
@@ -58,5 +65,8 @@
         init-method="start" destroy-method="close">
     <argument ref="packetProcessingService" />
     <argument ref="odlInterfaceRpcService" />
+    <argument ref="elanProvider" />
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
   </bean>
 </blueprint>
