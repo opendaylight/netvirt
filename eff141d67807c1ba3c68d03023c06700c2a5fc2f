@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_c6bc836f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-08-09T12:14:38Z",
+      "side": 1,
+      "message": "should have been signed by me as well. IIRC I signed it with two different users ID I have. Sad to see they went away. Same goes with others blueprint patches within netvirt. Thus i don\u0027t get credit for the tremendous work I\u0027ve done (which I believe is important in Open Source community).\ntoo bad I guess",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 44
+      },
+      "revId": "eff141d67807c1ba3c68d03023c06700c2a5fc2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
