@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.ipv6service;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6PeriodicTrQueue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
@@ -18,17 +21,29 @@ public class Ipv6ServiceImpl {
     private final PacketProcessingService pktProcessingService;
     private final OdlInterfaceRpcService interfaceManagerRpc;
     private final IfMgr ifMgr;
+    private final IElanService elanProvider;
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalUtil;
 
     public Ipv6ServiceImpl(final PacketProcessingService pktProcessingService,
-                    final OdlInterfaceRpcService interfaceManagerRpc) {
+                           final OdlInterfaceRpcService interfaceManagerRpc,
+                           final IElanService elanProvider,
+                           final DataBroker dataBroker,
+                           final IMdsalApiManager mdsalUtil) {
         this.pktProcessingService = pktProcessingService;
         this.interfaceManagerRpc = interfaceManagerRpc;
+        this.elanProvider = elanProvider;
+        this.dataBroker = dataBroker;
+        this.mdsalUtil = mdsalUtil;
         ifMgr = IfMgr.getIfMgrInstance();
     }
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         ifMgr.setInterfaceManagerRpc(interfaceManagerRpc);
+        ifMgr.setElanProvider(elanProvider);
+        ifMgr.setDataBroker(dataBroker);
+        ifMgr.setMdsalUtilManager(mdsalUtil);
         final Ipv6PeriodicRAThread ipv6Thread = Ipv6PeriodicRAThread.getInstance();
         Ipv6RouterAdvt.setPacketProcessingService(pktProcessingService);
     }

@@ -9,18 +9,14 @@ package org.opendaylight.netvirt.ipv6service;
 
 import java.math.BigInteger;
 import java.util.List;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -34,20 +30,16 @@ public class Ipv6ServiceInterfaceEventListener
         implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceInterfaceEventListener.class);
     private final DataBroker dataBroker;
-    private final IMdsalApiManager mdsalUtil;
     private final IfMgr ifMgr;
-    private Ipv6ServiceUtils ipv6ServiceUtils;
 
     /**
      * Intialize the member variables.
      * @param broker the data broker instance.
      */
-    public Ipv6ServiceInterfaceEventListener(DataBroker broker, IMdsalApiManager mdsalUtil) {
+    public Ipv6ServiceInterfaceEventListener(DataBroker broker) {
         super(Interface.class, Ipv6ServiceInterfaceEventListener.class);
         this.dataBroker = broker;
-        this.mdsalUtil = mdsalUtil;
         ifMgr = IfMgr.getIfMgrInstance();
-        ipv6ServiceUtils = new Ipv6ServiceUtils();
     }
 
     public void start() {
@@ -63,28 +55,6 @@ public class Ipv6ServiceInterfaceEventListener
     @Override
     protected void remove(InstanceIdentifier<Interface> key, Interface del) {
         LOG.debug("Port removed {}, {}", key, del);
-        List<String> ofportIds = del.getLowerLayerIf();
-        if (ofportIds == null || ofportIds.isEmpty()) {
-            return;
-        }
-        String interfaceName = del.getName();
-        ImmutablePair<String, VirtualPort> pair = ifMgr.getInterfaceCache(interfaceName);
-        if (pair != null && pair.getLeft() != null && pair.getRight() != null) {
-            NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-            BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
-            if (!dpId.equals(Ipv6Constants.INVALID_DPID)) {
-                VirtualPort routerPort = pair.getRight();
-                ipv6ServiceUtils.unbindIpv6Service(dataBroker, interfaceName);
-                ipv6ServiceUtils.installIcmpv6RsPuntFlow(NwConstants.IPV6_TABLE, dpId, pair.getLeft(),
-                        mdsalUtil, Ipv6Constants.DEL_FLOW);
-                for (Ipv6Address ipv6Address : routerPort.getIpv6Addresses()) {
-                    ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpId,
-                            pair.getLeft(), ipv6Address.getValue(), mdsalUtil, Ipv6Constants.DEL_FLOW);
-                }
-                ifMgr.removeInterfaceCache(interfaceName);
-                ifMgr.deleteInterface(new Uuid(del.getName()), dpId.toString());
-            }
-        }
     }
 
     @Override
@@ -127,22 +97,14 @@ public class Ipv6ServiceInterfaceEventListener
                 }
 
                 Long ofPort = MDSALUtil.getOfPortNumberFromPortName(nodeConnectorId);
-                ifMgr.updateInterface(portId, dpId.toString(), ofPort);
+                ifMgr.updateInterface(portId, dpId, ofPort);
 
                 VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
                 if (routerPort == null) {
                     LOG.info("Port {} is not associated to a Router, skipping.", routerPort);
                     return;
                 }
-
-                ipv6ServiceUtils.installIcmpv6RsPuntFlow(NwConstants.IPV6_TABLE, dpId,
-                        port.getMacAddress(), mdsalUtil, Ipv6Constants.ADD_FLOW);
-                for (Ipv6Address ipv6Address : routerPort.getIpv6Addresses()) {
-                    ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpId,
-                            port.getMacAddress(), ipv6Address.getValue(), mdsalUtil, Ipv6Constants.ADD_FLOW);
-                }
-                ipv6ServiceUtils.bindIpv6Service(dataBroker, iface.getName(), NwConstants.IPV6_TABLE);
-                ifMgr.updateInterfaceCache(iface.getName(), new ImmutablePair<>(port.getMacAddress(), routerPort));
+                ifMgr.programIcmpv6PuntFlowsIfNecessary(portId, dpId, routerPort);
             }
         }
     }

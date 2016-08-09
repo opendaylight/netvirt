@@ -31,6 +31,7 @@ public class VirtualPort  {
     private String    dpId;
     private String    deviceOwner;
     private Long      ofPort;
+    private Boolean   serviceBindingStatus;
     private HashMap<Uuid, SubnetInfo> snetInfo;
     private Ipv6PeriodicTimer periodicTimer;
     private Timeout periodicTimeout;
@@ -47,6 +48,7 @@ public class VirtualPort  {
 
     public VirtualPort() {
         snetInfo = new HashMap<Uuid, SubnetInfo>();
+        serviceBindingStatus = Boolean.FALSE;
     }
 
     public Uuid getIntfUUID() {
@@ -129,6 +131,16 @@ public class VirtualPort  {
         return ipv6AddrList;
     }
 
+    public List<Ipv6Address> getIpv6AddressesWithoutLLA() {
+        List<Ipv6Address> ipv6AddrList = new ArrayList<>();
+        for (SubnetInfo subnetInfo : snetInfo.values()) {
+            if (subnetInfo.getIpAddr().getIpv6Address() instanceof Ipv6Address) {
+                ipv6AddrList.add(subnetInfo.getIpAddr().getIpv6Address());
+            }
+        }
+        return ipv6AddrList;
+    }
+
     public String getMacAddress() {
         return macAddress;
     }
@@ -179,6 +191,14 @@ public class VirtualPort  {
 
     public Long getOfPort() {
         return ofPort;
+    }
+
+    public void setServiceBindingStatus(Boolean status) {
+        this.serviceBindingStatus = status;
+    }
+
+    public Boolean getServiceBindingStatus() {
+        return serviceBindingStatus;
     }
 
     public void removeSelf() {
