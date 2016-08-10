@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_23ed5bc4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/ChangeUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-10T20:10:21Z",
+      "side": 1,
+      "message": "could these tools be pulled out to a utils class?",
+      "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_83d1cffd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-10T20:10:21Z",
+      "side": 1,
+      "message": "wrong class",
+      "range": {
+        "startLine": 58,
+        "startChar": 62,
+        "endLine": 58,
+        "endChar": 92
+      },
+      "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_63ce335c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-10T20:10:21Z",
+      "side": 1,
+      "message": "how often are these updates?",
+      "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0305bf79",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-10T20:10:21Z",
+      "side": 1,
+      "message": "could pass in some utils... there are a billion different variants, but most of the code passes in a IMdsalManagerApi form genius.",
+      "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_43ffb767",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-10T20:10:21Z",
+      "side": 1,
+      "message": "bummer this isn\u0027t a util either. we use it in old netvirt, but t isn\u0027t a util.",
+      "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_23043b7a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-10T20:10:21Z",
+      "side": 1,
+      "message": "maybe a single method taking operation. And could add two wrappers but seems like passing operation is the same.",
+      "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
