@@ -54,7 +54,6 @@ public class ExternalNetworksChangeListener
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
-    //private VpnFloatingIpHandler vpnFloatingIpHandler;
     private final FloatingIPListener floatingIpListener;
     private final ExternalRoutersListener externalRouterListener;
     private final OdlInterfaceRpcService interfaceManager;
