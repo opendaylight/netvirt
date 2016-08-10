@@ -1231,7 +1231,6 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
             String ifName = prefixInfo.getVpnInterfaceName();
-            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
             Optional<VpnInterface> optvpnInterface = FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     FibUtil.getVpnInterfaceIdentifier(ifName));
             if (optvpnInterface.isPresent()) {
@@ -1261,7 +1260,7 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
             }
             //remove adjacency corr to prefix
             if (numAdj > 1) {
-                LOG.trace("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId, vrfEntry.getDestPrefix());
+                LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId, vrfEntry.getDestPrefix());
                 FibUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
             }
@@ -1291,13 +1290,6 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
                     FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
                             FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
                 }
-            }
-            CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
-            try {
-                futures.get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Error cleaning up interface {} on vpn {}", ifName, vpnId);
-                throw new RuntimeException(e.getMessage());
             }
             return null;
         }
@@ -1695,86 +1687,86 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
                 dpnId, vpnId, rd, localNextHopIp, remoteNextHopIp);
         InstanceIdentifier<VrfTables> id = buildVrfId(rd);
         final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
-            final Optional<VrfTables> vrfTable = FibUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-            if (vrfTable.isPresent()) {
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("FIB-" + vpnId + "-" + dpnId.toString(),
-                        new Callable<List<ListenableFuture<Void>>>() {
-                            @Override
-                            public List<ListenableFuture<Void>> call() throws Exception {
-                                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                                synchronized (vpnInstance.getVpnInstanceName().intern()) {
-                                    WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
-                                    LOG.trace("populate FIB starts on Dpn " + dpnId
-                                            + "rd  " + rd.toString()
-                                            + "localNextHopIp " + localNextHopIp
-                                            + "remoteNextHopIp" + remoteNextHopIp
-                                            + "vpnId " + vpnId );
-                                    for (VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
-                                        LOG.trace("old vrfEntry before populate:: {}", vrfEntry);
+        final Optional<VrfTables> vrfTable = FibUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        if (vrfTable.isPresent()) {
+            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+            dataStoreCoordinator.enqueueJob("FIB-" + vpnId + "-" + dpnId.toString(),
+                    new Callable<List<ListenableFuture<Void>>>() {
+                        @Override
+                        public List<ListenableFuture<Void>> call() throws Exception {
+                            List<ListenableFuture<Void>> futures = new ArrayList<>();
+                            synchronized (vpnInstance.getVpnInstanceName().intern()) {
+                                WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
+                                LOG.trace("populate FIB starts on Dpn " + dpnId
+                                        + "rd  " + rd.toString()
+                                        + "localNextHopIp " + localNextHopIp
+                                        + "remoteNextHopIp" + remoteNextHopIp
+                                        + "vpnId " + vpnId );
+                                for (VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
+                                    LOG.trace("old vrfEntry before populate:: {}", vrfEntry);
 
-                                        if (vrfEntry.getOrigin().equals(RouteOrigin.BGP.getValue())) {
-                                            if (remoteNextHopIp.trim().equals(vrfEntry.getNextHopAddressList().get(0).trim())) {
-                                                LOG.trace(" creating remote FIB entry for vfEntry {}", vrfEntry);
-                                                createRemoteFibEntry(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry, writeTransaction);
-                                            }
-                                        } else if (vrfEntry.getOrigin().equals(RouteOrigin.STATIC.getValue())) {
-                                            BigInteger dpnIdForPrefix = null;
-                                            String destPfx = vrfEntry.getDestPrefix();
-                                            if (vrfEntry.getAugmentation(SubnetRoute.class) == null) {
-                                                Optional<Extraroute> extraRouteInfo =
-                                                        FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                                                getVpnToExtrarouteIdentifier(rd, vrfEntry.getDestPrefix()));
-                                                if (extraRouteInfo.isPresent()) {
-                                                    continue;
-                                                }
-                                                dpnIdForPrefix = nextHopManager.getDpnForPrefix(vpnId, destPfx);
-                                            } else {
-                                                // Subnet Route handling
-                                                Optional<Prefixes> localNextHopInfoData =
-                                                        FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                                                FibUtil.getPrefixToInterfaceIdentifier(vpnId, destPfx));
-                                                if (localNextHopInfoData.isPresent()) {
-                                                    Prefixes prefixes = localNextHopInfoData.get();
-                                                    dpnIdForPrefix = prefixes.getDpnId();
-                                                }
-                                            }
-                                            if (dpnIdForPrefix == null) {
-                                                LOG.trace("Populate::the dpnIdForPrefix is null for prefix {}.",
-                                                        vrfEntry.getDestPrefix());
-                                                continue;
-                                            }
-                                            int sameDpnId = dpnIdForPrefix.compareTo(dpnId);
-                                            if (sameDpnId != 0) {
-                                                LOG.trace("Populate::Different srcDpnId {} and dpnIdForPrefix {} for prefix {}",
-                                                        dpnId, dpnIdForPrefix, vrfEntry.getDestPrefix());
-                                                continue;
-                                            }
-                                            InstanceIdentifier<VrfEntry> vrfEntryId = getVrfEntryId(rd, vrfEntry.getDestPrefix());
-                                            List<String> newNextHopAddrList = vrfEntry.getNextHopAddressList();
-                                            newNextHopAddrList.add(localNextHopIp);
-                                            VrfEntry newVrfEntry =
-                                                    new VrfEntryBuilder(vrfEntry).setNextHopAddressList(newNextHopAddrList).build();
-                                            // Just update the VrfEntry
-                                            FibUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                                                    vrfEntryId, newVrfEntry);
-                                            // writeTransaction.put(LogicalDatastoreType.CONFIGURATION,
-                                            //       vrfEntryId, newVrfEntry);
-                                            vrfEntry = getVrfEntry(dataBroker, rd, destPfx);
-                                            LOG.trace("updated vrfEntry after populate:: {}", vrfEntry);
+                                    if (vrfEntry.getOrigin().equals(RouteOrigin.BGP.getValue())) {
+                                        if (remoteNextHopIp.trim().equals(vrfEntry.getNextHopAddressList().get(0).trim())) {
+                                            LOG.trace(" creating remote FIB entry for vfEntry {}", vrfEntry);
+                                            createRemoteFibEntry(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry, writeTransaction);
                                         }
+                                    } else if (vrfEntry.getOrigin().equals(RouteOrigin.STATIC.getValue())) {
+                                        BigInteger dpnIdForPrefix = null;
+                                        String destPfx = vrfEntry.getDestPrefix();
+                                        if (vrfEntry.getAugmentation(SubnetRoute.class) == null) {
+                                            Optional<Extraroute> extraRouteInfo =
+                                                    FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                                            getVpnToExtrarouteIdentifier(rd, vrfEntry.getDestPrefix()));
+                                            if (extraRouteInfo.isPresent()) {
+                                                continue;
+                                            }
+                                            dpnIdForPrefix = nextHopManager.getDpnForPrefix(vpnId, destPfx);
+                                        } else {
+                                            // Subnet Route handling
+                                            Optional<Prefixes> localNextHopInfoData =
+                                                    FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                                            FibUtil.getPrefixToInterfaceIdentifier(vpnId, destPfx));
+                                            if (localNextHopInfoData.isPresent()) {
+                                                Prefixes prefixes = localNextHopInfoData.get();
+                                                dpnIdForPrefix = prefixes.getDpnId();
+                                            }
+                                        }
+                                        if (dpnIdForPrefix == null) {
+                                            LOG.trace("Populate::the dpnIdForPrefix is null for prefix {}.",
+                                                    vrfEntry.getDestPrefix());
+                                            continue;
+                                        }
+                                        int sameDpnId = dpnIdForPrefix.compareTo(dpnId);
+                                        if (sameDpnId != 0) {
+                                            LOG.trace("Populate::Different srcDpnId {} and dpnIdForPrefix {} for prefix {}",
+                                                    dpnId, dpnIdForPrefix, vrfEntry.getDestPrefix());
+                                            continue;
+                                        }
+                                        InstanceIdentifier<VrfEntry> vrfEntryId = getVrfEntryId(rd, vrfEntry.getDestPrefix());
+                                        List<String> newNextHopAddrList = vrfEntry.getNextHopAddressList();
+                                        newNextHopAddrList.add(localNextHopIp);
+                                        VrfEntry newVrfEntry =
+                                                new VrfEntryBuilder(vrfEntry).setNextHopAddressList(newNextHopAddrList).build();
+                                        // Just update the VrfEntry
+                                        FibUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                                vrfEntryId, newVrfEntry);
+                                        // writeTransaction.put(LogicalDatastoreType.CONFIGURATION,
+                                        //       vrfEntryId, newVrfEntry);
+                                        vrfEntry = getVrfEntry(dataBroker, rd, destPfx);
+                                        LOG.trace("updated vrfEntry after populate:: {}", vrfEntry);
                                     }
-                                    futures.add(writeTransaction.submit());
-                                    LOG.trace("populate FIB ends on Dpn " + dpnId
-                                            + "rd  " + rd.toString()
-                                            + "localNextHopIp " + localNextHopIp
-                                            + "remoteNextHopIp" + remoteNextHopIp
-                                            + "vpnId " + vpnId);
                                 }
-                                return futures;
+                                futures.add(writeTransaction.submit());
+                                LOG.trace("populate FIB ends on Dpn " + dpnId
+                                        + "rd  " + rd.toString()
+                                        + "localNextHopIp " + localNextHopIp
+                                        + "remoteNextHopIp" + remoteNextHopIp
+                                        + "vpnId " + vpnId);
                             }
-                        });
-            }
+                            return futures;
+                        }
+                    });
+        }
     }
 
     public void handleRemoteRoute(final boolean action, final BigInteger localDpnId, final BigInteger remoteDpnId,
@@ -1820,43 +1812,42 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
         LOG.trace("Remove dpn {} for vpn {} : cleanUpDpnForVpn", dpnId, rd);
         InstanceIdentifier<VrfTables> id = buildVrfId(rd);
         final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
-            final Optional<VrfTables> vrfTable = FibUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-            if (vrfTable.isPresent()) {
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("FIB-" + vpnId + "-" + dpnId.toString(),
-                        new Callable<List<ListenableFuture<Void>>>() {
-                            @Override
-                            public List<ListenableFuture<Void>> call() throws Exception {
-                                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                                synchronized (vpnInstance.getVpnInstanceName().intern()) {
-                                    WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                                    for (final VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
-                                      /* Handle subnet routes here */
-                                        SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
-                                        if (subnetRoute != null) {
-                                            LOG.trace("Cleaning subnetroute {} on dpn {} for vpn {} : cleanUpDpnForVpn", vrfEntry.getDestPrefix(),
-                                                    dpnId, rd);
-                                            makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx);
-                                            makeLFibTableEntry(dpnId, vrfEntry.getLabel(), null, DEFAULT_FIB_FLOW_PRIORITY, NwConstants.DEL_FLOW, tx);
-                                            LOG.trace("cleanUpDpnForVpn: Released subnetroute label {} for rd {} prefix {}", vrfEntry.getLabel(), rd,
-                                                    vrfEntry.getDestPrefix());
-                                            continue;
-                                        }
-                                        // Passing null as we don't know the dpn
-                                        // to which prefix is attached at this point
-                                        deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry, tx);
+        final Optional<VrfTables> vrfTable = FibUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        if (vrfTable.isPresent()) {
+            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+            dataStoreCoordinator.enqueueJob("FIB-" + vpnId + "-" + dpnId.toString(),
+                    new Callable<List<ListenableFuture<Void>>>() {
+                        @Override
+                        public List<ListenableFuture<Void>> call() throws Exception {
+                            List<ListenableFuture<Void>> futures = new ArrayList<>();
+                            synchronized (vpnInstance.getVpnInstanceName().intern()) {
+                                WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+                                for (final VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
+                                    /* Handle subnet routes here */
+                                    SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
+                                    if (subnetRoute != null) {
+                                        LOG.trace("Cleaning subnetroute {} on dpn {} for vpn {} : cleanUpDpnForVpn", vrfEntry.getDestPrefix(),
+                                                dpnId, rd);
+                                        makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx);
+                                        makeLFibTableEntry(dpnId, vrfEntry.getLabel(), null, DEFAULT_FIB_FLOW_PRIORITY, NwConstants.DEL_FLOW, tx);
+                                        LOG.trace("cleanUpDpnForVpn: Released subnetroute label {} for rd {} prefix {}", vrfEntry.getLabel(), rd,
+                                                vrfEntry.getDestPrefix());
+                                        continue;
                                     }
-                                    futures.add(tx.submit());
-                                    if (callback != null) {
-                                        ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
-                                        Futures.addCallback(listenableFuture, callback);
-                                    }
+                                    // Passing null as we don't know the dpn
+                                    // to which prefix is attached at this point
+                                    deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry, tx);
                                 }
-                                return futures;
+                                futures.add(tx.submit());
+                                if (callback != null) {
+                                    ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
+                                    Futures.addCallback(listenableFuture, callback);
+                                }
                             }
+                            return futures;
+                        }
 
-                        });
-
+                    });
         }
     }
 

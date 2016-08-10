@@ -148,8 +148,15 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                     for (Uuid port: portList) {
                         Interface intfState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker,port.getValue());
                         if (intfState != null) {
-                            dpnId = InterfaceUtils.getDpIdFromInterface(intfState);
-                            if (dpnId == null) {
+                            try {
+                                dpnId = InterfaceUtils.getDpIdFromInterface(intfState);
+                            } catch (Exception e) {
+                                logger.error("onSubnetAddedToVpn: Unable to obtain dpnId for interface {},",
+                                        " subnetroute inclusion for this interface failed with exception {}",
+                                        port.getValue(), e);
+                                continue;
+                            }
+                            if (dpnId.equals(BigInteger.ZERO)) {
                                 logger.info("onSubnetAddedToVpn: Port " + port.getValue() + " is not assigned DPN yet, ignoring ");
                                 continue;
                             }
@@ -336,8 +343,16 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                     subOpDpnManager.addPortOpDataEntry(portId.getValue(), subnetId, null);
                     return;
                 }
-                BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(intfState);
-                if (dpnId == null) {
+                BigInteger dpnId = BigInteger.ZERO;
+                try {
+                    dpnId = InterfaceUtils.getDpIdFromInterface(intfState);
+                } catch (Exception e) {
+                    logger.error("onSubnetAddedToVpn: Unable to obtain dpnId for interface {},",
+                            " subnetroute inclusion for this interface failed with exception {}",
+                            portId.getValue(), e);
+                    return;
+                }
+                if (dpnId.equals(BigInteger.ZERO)) {
                     logger.info("onPortAddedToSubnet: Port " + portId.getValue() + " is not assigned DPN yet, ignoring ");
                     return;
                 }

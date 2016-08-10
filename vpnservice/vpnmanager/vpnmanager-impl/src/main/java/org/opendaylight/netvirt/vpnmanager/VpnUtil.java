@@ -582,14 +582,6 @@ public class VpnUtil {
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
     }
 
-    static VpnInstanceOpDataEntry getVpnInstanceOpDataBuilder(String rd, long vpnId, String vpnName) {
-        return new VpnInstanceOpDataEntryBuilder().setVrfId(rd).setVpnId(vpnId).setVpnInstanceName(vpnName).build();
-    }
-
-    static VpnInstanceOpDataEntry updateIntfCntInVpnInstOpData(Long newCount, String vrfId) {
-        return new VpnInstanceOpDataEntryBuilder().setVpnInterfaceCount(newCount).setVrfId(vrfId).build();
-    }
-
     static InstanceIdentifier<RouterInterface> getRouterInterfaceId(String interfaceName) {
         return InstanceIdentifier.builder(RouterInterfaces.class)
                 .child(RouterInterface.class, new RouterInterfaceKey(interfaceName)).build();
