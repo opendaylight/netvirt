@@ -80,15 +80,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static DataBroker dataBroker = null;
 
     @Override
-    public String getModuleName() {
-        return "vpnservice-impl";
-    }
-
-    @Override
-    public String getInstanceName() { return "vpnservice-default"; }
-
-
-    @Override
     public MavenUrlReference getFeatureRepo() {
         return maven()
                 .groupId("org.opendaylight.netvirt")
