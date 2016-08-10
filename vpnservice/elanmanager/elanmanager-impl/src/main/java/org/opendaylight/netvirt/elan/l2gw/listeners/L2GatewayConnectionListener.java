@@ -29,12 +29,15 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListene
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
-    private ElanInstanceManager elanInstanceManager;
+    private final ElanInstanceManager elanInstanceManager;
+    private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
 
-    public L2GatewayConnectionListener(final DataBroker db, ElanInstanceManager elanInstanceManager) {
+    public L2GatewayConnectionListener(final DataBroker db, ElanInstanceManager elanInstanceManager,
+                                       L2GatewayConnectionUtils l2GatewayConnectionUtils) {
         super(L2gatewayConnection.class, L2GatewayConnectionListener.class);
         broker = db;
         this.elanInstanceManager = elanInstanceManager;
+        this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
         registerListener(db);
     }
 
@@ -74,7 +77,7 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListene
         // Create logical switch in each of the L2GwDevices part of L2Gw
         // Logical switch name is network UUID
         // Add L2GwDevices to ELAN
-        L2GatewayConnectionUtils.addL2GatewayConnection(input);
+        l2GatewayConnectionUtils.addL2GatewayConnection(input);
     }
 
     @Override
@@ -83,7 +86,7 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListene
             LOG.trace("Removing L2gatewayConnection: {}", input);
         }
 
-        L2GatewayConnectionUtils.deleteL2GatewayConnection(input);
+        l2GatewayConnectionUtils.deleteL2GatewayConnection(input);
     }
 
     @Override

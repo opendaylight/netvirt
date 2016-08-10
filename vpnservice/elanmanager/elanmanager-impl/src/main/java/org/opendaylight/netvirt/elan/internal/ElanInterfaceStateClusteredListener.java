@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.elan.internal;
 
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -19,54 +19,31 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.external.tunnel.list.ExternalTunnel;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ElanInterfaceStateClusteredListener extends
     AsyncClusteredDataChangeListenerBase<Interface, ElanInterfaceStateClusteredListener> implements AutoCloseable {
-    public  ElanServiceProvider getElanServiceProvider() {
-        return elanServiceProvider;
-    }
-    public void setElanServiceProvider(ElanServiceProvider elanServiceProvider) {
-        this.elanServiceProvider = elanServiceProvider;
-    }
-
-    private  ElanServiceProvider elanServiceProvider = null;
-    private static volatile ElanInterfaceStateClusteredListener elanInterfaceStateClusteredListener = null;
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
 
     private static final Logger logger = LoggerFactory.getLogger(ElanInterfaceStateClusteredListener.class);
 
+    private final DataBroker broker;
+    private final ElanInterfaceManager elanInterfaceManager;
+    private final ElanUtils elanUtils;
+    private final EntityOwnershipService entityOwnershipService;
 
-    public ElanInterfaceStateClusteredListener(ElanServiceProvider elanServiceProvider) {
+    public ElanInterfaceStateClusteredListener(DataBroker broker, ElanInterfaceManager elanInterfaceManager,
+                                               ElanUtils elanUtils, EntityOwnershipService entityOwnershipService) {
         super(Interface.class, ElanInterfaceStateClusteredListener.class);
-        this.elanServiceProvider = elanServiceProvider;
-        registerListener(this.elanServiceProvider.getBroker());
-    }
-    public static ElanInterfaceStateClusteredListener getElanInterfaceStateClusteredListener(
-        ElanServiceProvider elanServiceProvider) {
-        if (elanInterfaceStateClusteredListener == null)
-            synchronized (ElanInterfaceStateClusteredListener.class) {
-                if (elanInterfaceStateClusteredListener == null)
-                {
-                    ElanInterfaceStateClusteredListener elanInterfaceStateClusteredListener = new ElanInterfaceStateClusteredListener(elanServiceProvider);
-                    return elanInterfaceStateClusteredListener;
-
-                }
-            }
-        return elanInterfaceStateClusteredListener;
+        this.broker = broker;
+        this.elanInterfaceManager = elanInterfaceManager;
+        this.elanUtils = elanUtils;
+        this.entityOwnershipService = entityOwnershipService;
     }
 
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = elanServiceProvider.getBroker().registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), ElanInterfaceStateClusteredListener.this, AsyncDataBroker.DataChangeScope.BASE);
-        } catch (final Exception e) {
-            logger.error("Elan Interfaces DataChange listener registration fail!", e);
-            throw new IllegalStateException("ElanInterface registration Listener failed.", e);
-        }
+    public void init() {
+        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
     @Override
@@ -99,7 +76,7 @@ public class ElanInterfaceStateClusteredListener extends
             if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
                 final String interfaceName = intrf.getName();
 
-                ElanClusterUtils.runOnlyInLeaderNode(new Runnable() {
+                ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, new Runnable() {
                     @Override
                     public void run() {
                         logger.debug("running external tunnel update job for interface {} added", interfaceName);
@@ -111,11 +88,11 @@ public class ElanInterfaceStateClusteredListener extends
     }
 
     private void handleExternalTunnelUpdate(String interfaceName, Interface update) {
-        ExternalTunnel externalTunnel = ElanUtils.getExternalTunnel(interfaceName, LogicalDatastoreType.CONFIGURATION);
+        ExternalTunnel externalTunnel = elanUtils.getExternalTunnel(interfaceName, LogicalDatastoreType.CONFIGURATION);
         if (externalTunnel != null) {
             logger.debug("handling external tunnel update event for ext device dst {}  src {} ",
                 externalTunnel.getDestinationDevice(), externalTunnel.getSourceDevice());
-            elanServiceProvider.getElanInterfaceManager().handleExternalTunnelStateEvent(externalTunnel, update);
+            elanInterfaceManager.handleExternalTunnelStateEvent(externalTunnel, update);
         } else {
             logger.trace("External tunnel not found with interfaceName: {}", interfaceName);
         }

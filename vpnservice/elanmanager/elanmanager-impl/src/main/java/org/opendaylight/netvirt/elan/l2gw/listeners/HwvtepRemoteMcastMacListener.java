@@ -51,7 +51,8 @@ public class HwvtepRemoteMcastMacListener
 
     private List<IpAddress> expectedPhyLocatorIps;
 
-    DataBroker broker;
+    private final DataBroker broker;
+    private final ElanUtils elanUtils;
 
     String logicalSwitchName;
 
@@ -59,31 +60,30 @@ public class HwvtepRemoteMcastMacListener
 
     Callable<List<ListenableFuture<Void>>> taskToRun;
 
-    static DataStoreJobCoordinator dataStoreJobCoordinator;
-
-    public static void setDataStoreJobCoordinator(DataStoreJobCoordinator ds) {
-        dataStoreJobCoordinator = ds;
-    }
+    private final DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
 
     /**
      * Instantiates a new remote mcast mac listener.
      *
      * @param broker
      *            the mdsal databroker reference
-     * @param logicalSwitchName
+     * @param elanUtils
+     *@param logicalSwitchName
      *            the logical switch name
      * @param l2GatewayDevice
-     *            the l2 gateway device
+ *            the l2 gateway device
      * @param expectedPhyLocatorIps
-     *            the expected phy locator ips
+*            the expected phy locator ips
      * @param task
-     *            the task to be run upon data presence
-     * @throws Exception
+*            the task to be run upon data presence     @throws Exception
      *             the exception
      */
-    public HwvtepRemoteMcastMacListener(DataBroker broker, String logicalSwitchName, L2GatewayDevice l2GatewayDevice,
-            List<IpAddress> expectedPhyLocatorIps, Callable<List<ListenableFuture<Void>>> task) throws Exception {
+    public HwvtepRemoteMcastMacListener(DataBroker broker, ElanUtils elanUtils, String logicalSwitchName,
+                                        L2GatewayDevice l2GatewayDevice,
+                                        List<IpAddress> expectedPhyLocatorIps,
+                                        Callable<List<ListenableFuture<Void>>> task) throws Exception {
         super(RemoteMcastMacs.class, HwvtepRemoteMcastMacListener.class);
+        this.elanUtils = elanUtils;
         this.nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
         this.broker = broker;
         this.taskToRun = task;
@@ -103,7 +103,7 @@ public class HwvtepRemoteMcastMacListener
     private boolean isDataPresentInOpDs(InstanceIdentifier<RemoteMcastMacs> path) throws Exception {
         Optional<RemoteMcastMacs> mac = null;
         try {
-            mac = ElanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, path);
+            mac = elanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, path);
         } catch (Throwable e) {
         }
         if (mac == null || !mac.isPresent()) {

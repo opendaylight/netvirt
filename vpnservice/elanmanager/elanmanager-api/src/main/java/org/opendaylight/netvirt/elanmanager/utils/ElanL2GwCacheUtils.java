@@ -20,10 +20,8 @@ public class ElanL2GwCacheUtils {
     private static final ConcurrentHashMap<String, L2GatewayDevice> EMPTY_MAP = new ConcurrentHashMap<>();
     public static final String L2GATEWAY_CONN_CACHE_NAME = "L2GWCONN";
 
-    public static void createElanL2GwDeviceCache() {
-        if (CacheUtil.getCache(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME) == null) {
-            CacheUtil.createCache(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
-        }
+    static {
+        CacheUtil.createCache(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
     }
 
     public static void addL2GatewayDeviceToCache(String elanName, L2GatewayDevice l2GwDevice) {

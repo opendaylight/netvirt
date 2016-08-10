@@ -8,23 +8,20 @@
 package org.opendaylight.netvirt.elan.statisitcs;
 
 import com.google.common.util.concurrent.Futures;
-
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
-import org.opendaylight.netvirt.elan.utils.ElanConstants;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
-//import org.opendaylight.genius.ericsson.mdsalutil.statistics.StatValue;
-//import org.opendaylight.genius.ericsson.mdsalutil.statistics.StatisticsInfo;
-import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.globals.VlanInterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.genius._interface.service.rev150602._interface.service.info.ServiceInfo;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius._interface.statistics.rev150824.ResultCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -40,32 +37,20 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Future;
-
 public class ElanStatisticsImpl implements ElanStatisticsService {
-    private ElanServiceProvider elanServiceProvider;
     private static final Logger logger = LoggerFactory.getLogger(ElanStatisticsImpl.class);
-    private static volatile ElanStatisticsImpl elanStatisticsImpl;
 
+    private final DataBroker dataBroker;
+    private final IInterfaceManager interfaceManager;
+    private final IMdsalApiManager mdsalMgr;
+    private final ElanUtils elanUtils;
 
-    private ElanStatisticsImpl(ElanServiceProvider elanServiceProvider) {
-        super();
-        this.elanServiceProvider = elanServiceProvider;
-
-
-    }
-
-    public static ElanStatisticsImpl getElanStatisticsService(ElanServiceProvider elanServiceProvider) {
-        if (elanStatisticsImpl == null)
-            synchronized (ElanStatisticsImpl.class) {
-                if (elanStatisticsImpl == null) {
-                    elanStatisticsImpl = new ElanStatisticsImpl(elanServiceProvider);
-                }
-            }
-        return elanStatisticsImpl;
+    public ElanStatisticsImpl(DataBroker dataBroker, IInterfaceManager interfaceManager, IMdsalApiManager mdsalMgr,
+                              ElanUtils elanUtils) {
+        this.dataBroker = dataBroker;
+        this.interfaceManager = interfaceManager;
+        this.mdsalMgr = mdsalMgr;
+        this.elanUtils = elanUtils;
     }
 
     @Override
@@ -78,15 +63,15 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
             rpcResultBuilder = RpcResultBuilder.failed();
             return getFutureWithAppErrorMessage(rpcResultBuilder, "Interface name is not provided");
         }
-        ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
+        ElanInterface elanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
         if (elanInterface == null) {
             rpcResultBuilder = RpcResultBuilder.failed();
             return getFutureWithAppErrorMessage(rpcResultBuilder, String.format("Interface %s is not a ELAN interface", interfaceName));
         }
         String elanInstanceName = elanInterface.getElanInstanceName();
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(elanInstanceName);
+        ElanInstance elanInfo = elanUtils.getElanInstanceByName(elanInstanceName);
         long elanTag = elanInfo.getElanTag();
-        InterfaceInfo interfaceInfo = elanServiceProvider.getInterfaceManager().getInterfaceInfo(interfaceName);
+        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
         ServicesInfo serviceInfo = ElanUtils.getServiceInfo(elanInstanceName, elanTag, interfaceName);
         //FIXME [ELANBE] Get this API Later
         short tableId = 0;
@@ -115,7 +100,7 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
         if (tableId == NwConstants.VLAN_INTERFACE_INGRESS_TABLE) {
             VlanInterfaceInfo vlanInterfaceInfo = (VlanInterfaceInfo)interfaceInfo;
             matches = InterfaceServiceUtil.getMatchInfoForVlanLPort(dpId, interfaceInfo.getPortNo(),
-                InterfaceServiceUtil.getVlanId(interfaceName, elanServiceProvider.getBroker()), vlanInterfaceInfo.isVlanTransparent());
+                InterfaceServiceUtil.getVlanId(interfaceName, dataBroker), vlanInterfaceInfo.isVlanTransparent());
         } else {
             matches = InterfaceServiceUtil.getLPortDispatcherMatches(ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX), 
             		interfaceInfo.getInterfaceTag());
