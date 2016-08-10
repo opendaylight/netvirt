@@ -24,7 +24,10 @@ import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
+import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
@@ -134,7 +137,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
 
         NodeKey nodeKey = key.firstKeyOf(Node.class);
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
-        createTableMissEntries(dpnId);
+        createTableDefaultEntries(dpnId);
     }
 
     /**
@@ -142,10 +145,15 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
      *
      * @param dpnId the dpn id
      */
-    private void createTableMissEntries(BigInteger dpnId) {
+    private void createTableDefaultEntries(BigInteger dpnId) {
         if (securityGroupMode == null || securityGroupMode == SecurityGroupMode.Stateful) {
             addIngressAclTableMissFlow(dpnId);
             addEgressAclTableMissFlow(dpnId);
+            addConntrackRules(dpnId, NwConstants.LPORT_DISPATCHER_TABLE,
+                NwConstants.EGRESS_ACL_NEXT_TABLE_ID, NwConstants.ADD_FLOW);
+            addConntrackRules(dpnId,NwConstants.EGRESS_LPORT_DISPATCHER_TABLE,
+                NwConstants.INGRESS_ACL_NEXT_TABLE_ID,
+                 NwConstants.ADD_FLOW);
         } else {
             addStatelessIngressAclTableMissFlow(dpnId);
             addStatelessEgressAclTableMissFlow(dpnId);
@@ -298,6 +306,114 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(nextTblFlowEntity);
 
         LOG.debug("Added Egress ACL Table Miss Flows for dpn {}", dpId);
+    }
+
+    private void addConntrackRules(BigInteger dpnId, short dispatcherTableId,short tableId, int write) {
+        programConntrackForwardRule(dpnId, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,
+            "Tracked_Established", AclConstants.TRACKED_EST_CT_STATE, AclConstants.TRACKED_EST_CT_STATE_MASK,
+            dispatcherTableId, tableId, write );
+        programConntrackForwardRule(dpnId, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,"Tracked_Related", AclConstants
+            .TRACKED_REL_CT_STATE, AclConstants.TRACKED_REL_CT_STATE_MASK, dispatcherTableId, tableId, write );
+        programConntrackDropRule(dpnId, AclConstants.CT_STATE_NEW_PRIORITY_DROP,"Tracked_New",
+            AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, tableId, write );
+        programConntrackDropRule(dpnId, AclConstants.CT_STATE_NEW_PRIORITY_DROP, "Tracked_Invalid",
+            AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK, tableId, write );
+
+    }
+
+    /**
+     * Adds the rule to forward the packets known packets.
+     *
+     * @param dpId the dpId
+     * @param lportTag the lport tag
+     * @param priority the priority of the flow
+     * @param flowId the flowId
+     * @param conntrackState the conntrack state of the packets thats should be
+     *        send
+     * @param conntrackMask the conntrack mask
+     * @param addOrRemove whether to add or remove the flow
+     */
+    private void programConntrackForwardRule(BigInteger dpId, Integer priority, String flowId,
+            int conntrackState, int conntrackMask, short dispatcherTableId, short tableId, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
+
+        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(
+            new ArrayList<>(),dispatcherTableId);
+
+        flowId = "Fixed_Conntrk_Trk_" + dpId + "_" + flowId + dispatcherTableId;
+        syncFlow(dpId, tableId, flowId, priority, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Adds the rule to drop the unknown/invalid packets .
+     *
+     * @param dpId the dpId
+     * @param lportTag the lport tag
+     * @param priority the priority of the flow
+     * @param flowId the flowId
+     * @param conntrackState the conntrack state of the packets thats should be
+     *        send
+     * @param conntrackMask the conntrack mask
+     * @param addOrRemove whether to add or remove the flow
+     */
+    private void programConntrackDropRule(BigInteger dpId, Integer priority, String flowId,
+            int conntrackState, int conntrackMask, short tableId, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
+        instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
+        flowId = "Fixed_Conntrk_NewDrop_" + dpId + "_" + flowId + tableId;
+        syncFlow(dpId, tableId, flowId, priority, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Gets the dispatcher table resubmit instructions.
+     *
+     * @param actionsInfos the actions infos
+     * @return the instructions for dispatcher table resubmit
+     */
+    private List<InstructionInfo> getDispatcherTableResubmitInstructions(List<ActionInfo> actionsInfos,
+                                                                         short dispatcherTableId) {
+        List<InstructionInfo> instructions = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] {Short.toString(dispatcherTableId)}));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        return instructions;
+    }
+
+    /**
+     * Writes/remove the flow to/from the datastore.
+     * @param dpId the dpId
+     * @param tableId the tableId
+     * @param flowId the flowId
+     * @param priority the priority
+     * @param flowName the flow name
+     * @param idleTimeOut the idle timeout
+     * @param hardTimeOut the hard timeout
+     * @param cookie the cookie
+     * @param matches the list of matches to be written
+     * @param instructions the list of instruction to be written.
+     * @param addOrRemove add or remove the entries.
+     */
+    protected void syncFlow(BigInteger dpId, short tableId, String flowId, int priority, String flowName,
+                          int idleTimeOut, int hardTimeOut, BigInteger cookie, List<? extends MatchInfoBase>  matches,
+                          List<InstructionInfo> instructions, int addOrRemove) {
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,flowId,
+                priority, flowName , idleTimeOut, hardTimeOut, cookie, matches, null);
+            LOG.trace("Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
+            mdsalManager.removeFlow(flowEntity);
+        } else {
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId,
+                priority, flowName, idleTimeOut, hardTimeOut, cookie, matches, instructions);
+            LOG.trace("Installing DpnId {}, flowId {}", dpId, flowId);
+            mdsalManager.installFlow(flowEntity);
+        }
     }
 
     /**
