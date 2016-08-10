@@ -243,7 +243,8 @@ public class TunnelInterfaceStateListener extends AbstractDataChangeListener<Sta
                                                         vpnId, rd, adjacency.getIpAddress(), srcTepIp, destTepIp);
                                             }
                                             if ((tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue()) &&
-                                                    (dcgwPresentStatus == VpnConstants.DCGWPresentStatus.Absent.getValue())) {                                                bgpManager.withdrawPrefix(rd, adjacency.getIpAddress());
+                                                    (dcgwPresentStatus == VpnConstants.DCGWPresentStatus.Absent.getValue())) {
+                                                bgpManager.withdrawPrefix(rd, adjacency.getIpAddress());
                                                 fibManager.cleanUpDpnForVpn(srcDpnId, vpnId, rd, srcTepIp, destTepIp, null);
                                             }
                                         }

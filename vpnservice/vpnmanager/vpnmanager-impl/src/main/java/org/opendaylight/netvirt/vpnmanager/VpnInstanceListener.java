@@ -40,6 +40,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.Vpn;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -104,7 +106,7 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
         VpnInstanceOpDataEntry vpnOpEntry = null;
         Long intfCount = 0L;
         Long currentIntfCount = 0L;
-        Integer retryCount = 2;
+        Integer retryCount = 3;
         long timeout = VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
         Optional<VpnInstanceOpDataEntry> vpnOpValue = null;
         vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
@@ -250,9 +252,6 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
             // Clean up VpnInstanceToVpnId from Config DS
             VpnUtil.removeVpnIdToVpnInstance(broker, vpnId, writeTxn);
             VpnUtil.removeVpnInstanceToVpnId(broker, vpnName, writeTxn);
-
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(writeTxn.submit());
             LOG.trace("Removed vpnIdentifier for  rd{} vpnname {}", rd, vpnName);
             if (rd != null) {
                 synchronized (vpnName.intern()) {
@@ -265,30 +264,40 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
                 }
 
                 // Clean up VPNExtraRoutes Operational DS
-                VpnUtil.removeVpnExtraRouteForVpn(broker, rd, null);
+                InstanceIdentifier<Vpn> vpnToExtraroute = VpnUtil.getVpnToExtrarouteIdentifier(rd);
+                Optional<Vpn> optVpnToExtraroute = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
+                if (optVpnToExtraroute.isPresent()) {
+                    VpnUtil.removeVpnExtraRouteForVpn(broker, rd, writeTxn);
+                }
 
                 // Clean up VPNInstanceOpDataEntry
-                VpnUtil.removeVpnOpInstance(broker, rd, null);
+                VpnUtil.removeVpnOpInstance(broker, rd, writeTxn);
             } else {
                 // Clean up FIB Entries Config DS
                 synchronized (vpnName.intern()) {
                     fibManager.removeVrfTable(broker, vpnName, null);
                 }
                 // Clean up VPNExtraRoutes Operational DS
-                VpnUtil.removeVpnExtraRouteForVpn(broker, vpnName, null);
+                InstanceIdentifier<Vpn> vpnToExtraroute = VpnUtil.getVpnToExtrarouteIdentifier(vpnName);
+                Optional<Vpn> optVpnToExtraroute = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
+                if (optVpnToExtraroute.isPresent()) {
+                    VpnUtil.removeVpnExtraRouteForVpn(broker, vpnName, writeTxn);
+                }
 
                 // Clean up VPNInstanceOpDataEntry
-                VpnUtil.removeVpnOpInstance(broker, vpnName, null);
+                VpnUtil.removeVpnOpInstance(broker, vpnName, writeTxn);
             }
             // Clean up PrefixToInterface Operational DS
-            VpnUtil.removePrefixToInterfaceForVpnId(broker, vpnId, null);
+            VpnUtil.removePrefixToInterfaceForVpnId(broker, vpnId, writeTxn);
 
             // Clean up L3NextHop Operational DS
-            VpnUtil.removeL3nexthopForVpnId(broker, vpnId, null);
+            VpnUtil.removeL3nexthopForVpnId(broker, vpnId, writeTxn);
 
             // Release the ID used for this VPN back to IdManager
             VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME, vpnName);
 
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(writeTxn.submit());
             return futures;
         }
     }
@@ -409,8 +418,7 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
         if (rd == null) {
             VpnInstanceOpDataEntryBuilder builder =
                     new VpnInstanceOpDataEntryBuilder().setVrfId(vpnInstanceName).setVpnId(vpnId)
-                            .setVpnInstanceName(vpnInstanceName)
-                            .setVpnInterfaceCount(0L);
+                            .setVpnInstanceName(vpnInstanceName);
             if (writeOperTxn != null) {
                 writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName),
@@ -420,12 +428,9 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
                          VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName),
                          builder.build(), TransactionUtil.DEFAULT_CALLBACK);
             }
-            synchronized (vpnInstanceName.intern()) {
-                fibManager.addVrfTable(dataBroker, vpnInstanceName, null);
-            }
         } else {
             VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder()
-                    .setVrfId(rd).setVpnId(vpnId).setVpnInstanceName(vpnInstanceName).setVpnInterfaceCount(0L);
+                    .setVrfId(rd).setVpnId(vpnId).setVpnInstanceName(vpnInstanceName);
 
             if (writeOperTxn != null) {
                 writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
@@ -435,9 +440,6 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
                  TransactionUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getVpnInstanceOpDataIdentifier(rd),
                         builder.build(), TransactionUtil.DEFAULT_CALLBACK);
-            }
-            synchronized (vpnInstanceName.intern()) {
-                fibManager.addVrfTable(dataBroker, rd, null);
             }
         }
     }

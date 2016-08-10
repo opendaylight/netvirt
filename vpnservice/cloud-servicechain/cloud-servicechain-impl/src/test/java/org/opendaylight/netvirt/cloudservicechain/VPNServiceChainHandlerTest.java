@@ -197,10 +197,6 @@ public class VPNServiceChainHandlerTest {
         LinkedList<Long> ids = new LinkedList<>();
         ids.add(1L);
 
-
-
-        vi.setRouteEntryId(ids);
-        vi.setVpnInterfaceCount(1L);
         vi.setVrfId("1");
         vi.setKey(new VpnInstanceOpDataEntryKey(rd));
 
