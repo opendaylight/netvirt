@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_a31a0b6c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-10T17:21:50Z",
+      "side": 1,
+      "message": "this should be EGRESS_ACL_TABLE",
+      "revId": "57c903b76bef2736df2b39a5b0631c2dda71a454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e32b6380",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessIngressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-10T17:21:50Z",
+      "side": 1,
+      "message": "this should be INGRESS_ACL_TABLE",
+      "revId": "57c903b76bef2736df2b39a5b0631c2dda71a454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
