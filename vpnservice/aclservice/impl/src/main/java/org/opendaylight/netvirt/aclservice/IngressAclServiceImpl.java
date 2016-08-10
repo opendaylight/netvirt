@@ -279,30 +279,6 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     /**
-     * Adds the rule to forward the packets known packets .
-     *
-     * @param dpId the dpId
-     * @param lportTag the lport tag
-     * @param priority the priority of the flow
-     * @param flowId the flowId
-     * @param conntrackState the conntrack state of the packets thats should be
-     *        send
-     * @param conntrackMask the conntrack mask
-     * @param addOrRemove whether to add or remove the flow
-     */
-    private void programConntrackForwardRule(BigInteger dpId, int lportTag, Integer priority, String flowId,
-            int conntrackState, int conntrackMask, int addOrRemove) {
-        List<MatchInfoBase> matches = new ArrayList<>();
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
-
-        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
-        String flowName = "Ingress_Fixed_Conntrk_Untrk_" + dpId + "_" + lportTag + "_" + flowId;
-        syncFlow(dpId, NwConstants.INGRESS_ACL_NEXT_TABLE_ID, flowName, priority, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
-    }
-
-    /**
      * Program conntrack tracked rule.
      *
      * @param dpId the dp id
@@ -340,33 +316,6 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     /**
-     * Adds the rule to drop the unknown/invalid packets .
-     *
-     * @param dpId the dpId
-     * @param lportTag the lport tag
-     * @param priority the priority of the flow
-     * @param flowId the flowId
-     * @param conntrackState the conntrack state of the packets thats should be
-     *        send
-     * @param conntrackMask the conntrack mask
-     * @param addOrRemove whether to add or remove the flow
-     */
-    private void programConntrackDropRule(BigInteger dpId, int lportTag, Integer priority, String flowId,
-            int conntrackState, int conntrackMask, int addOrRemove) {
-        List<MatchInfoBase> matches = new ArrayList<>();
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] { conntrackState, conntrackMask}));
-
-        List<InstructionInfo> instructions = new ArrayList<>();
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
-        actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
-        String flowName = "Ingress_Fixed_Conntrk_NewDrop_" + dpId + "_" + lportTag + "_" + flowId;
-        syncFlow(dpId, NwConstants.INGRESS_ACL_NEXT_TABLE_ID, flowName, priority, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
-    }
-
-    /**
      * Adds the rule to allow arp packets.
      *
      * @param dpId the dpId
@@ -398,17 +347,6 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             "Untracked", AclConstants.UNTRACKED_CT_STATE, AclConstants.UNTRACKED_CT_STATE_MASK, write);
         programConntrackTrackedRule(dpid, allowedAddresses, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Tracked",
                 AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK, write);
-        if (action == Action.ADD || action == Action.REMOVE) {
-            programConntrackForwardRule(dpid, lportTag, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,
-                    "Tracked_Established", AclConstants.TRACKED_EST_CT_STATE, AclConstants.TRACKED_EST_CT_STATE_MASK,
-                    write);
-            programConntrackForwardRule(dpid, lportTag, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Tracked_Related",
-                    AclConstants.TRACKED_REL_CT_STATE, AclConstants.TRACKED_REL_CT_STATE_MASK, write);
-            programConntrackDropRule(dpid, lportTag, AclConstants.CT_STATE_NEW_PRIORITY_DROP, "Tracked_New",
-                    AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, write);
-            programConntrackDropRule(dpid, lportTag, AclConstants.CT_STATE_NEW_PRIORITY_DROP, "Tracked_Invalid",
-                    AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK, write);
-        }
         LOG.info("programIngressAclFixedConntrackRule :  default connection tracking rule are added.");
     }
 }
