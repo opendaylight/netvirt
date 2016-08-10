@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -50,8 +51,8 @@ public class ExternalNetworkListener extends AbstractDataChangeListener<Networks
 
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        //listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-        //        getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
     }
 
     private InstanceIdentifier<Networks> getWildCardPath() {

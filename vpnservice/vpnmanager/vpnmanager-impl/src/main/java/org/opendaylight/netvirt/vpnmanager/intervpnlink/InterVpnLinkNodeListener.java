@@ -58,7 +58,7 @@ public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node> i
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
                 getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
     }
 
