@@ -841,7 +841,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
                 .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
         Optional<VpnInstance> vpnInstance = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-        String rd = "";
+        String rd = null;
         if(vpnInstance.isPresent()) {
             VpnInstance instance = vpnInstance.get();
             VpnAfConfig config = instance.getIpv4Family();
@@ -888,7 +888,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
          * After retries completed, rollbackworker is executed.
          * If rollbackworker fails, this is a double-fault. Double fault is logged and ignored.
          */
-
         @Override
         public void onFailure(Throwable throwable) {
             LOG.warn("Job: failed with exception: {}", throwable.getStackTrace());
@@ -916,8 +915,9 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     vpnInterfaces = new ArrayList<>();
                 }
                 vpnInterfaces.add(vpnInterface);
-                VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder().setDpnId(dpnId);
+                VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
                 vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
+
                 if (writeTxn != null) {
                     writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(), true);
                 } else {
@@ -950,7 +950,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 LOG.error("Error adding to dpnToVpnList for vpn {} interface {} dpn {}", vpnName, intfName, dpnId);
                 throw new RuntimeException(e.getMessage());
             }
-
         }
         /*
          * Informing the Fib only after writeTxn is submitted successfuly.
@@ -958,7 +957,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         if (newDpnOnVpn) {
             LOG.debug("Sending populateFib event for new dpn {} in VPN {}", dpnId, vpnName);
             fibManager.populateFibOnNewDpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd, true /* entered */));
-            publishAddNotification(dpnId, vpnName, rd);
         }
     }
 
@@ -1018,7 +1016,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         if (lastDpnOnVpn) {
             LOG.debug("Sending cleanup event for dpn {} in VPN {}", dpnId, vpnName);
             fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd, false /* exited */));
-            publishRemoveNotification(dpnId, vpnName, rd);
         }
     }	
 
@@ -1469,12 +1466,12 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     }
 
     public synchronized void deleteSubnetRouteFibEntryFromDS(String rd, String prefix, String vpnName){
-        fibManager.removeOrUpdateFibEntry(dataBroker, rd, prefix, null /* nextHopToRemove */, null);
+        fibManager.removeFibEntry(dataBroker, rd, prefix, null);
         List<VpnInstance> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
         for (VpnInstance vpnInstance : vpnsToImportRoute) {
             String importingRd = vpnInstance.getIpv4Family().getRouteDistinguisher();
             LOG.info("Deleting imported subnet route rd {} prefix {} from vpn {}", rd, prefix, vpnInstance.getVpnInstanceName());
-            fibManager.removeOrUpdateFibEntry(dataBroker, importingRd, prefix, null /* nextHopToRemove */, null);
+            fibManager.removeFibEntry(dataBroker, importingRd, prefix, null);
         }
     }
 
@@ -1486,11 +1483,12 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             VpnInterface currVpnIntf = optVpnInterface.get();
             String prefix = VpnUtil.getIpPrefix(adj.getIpAddress());
             String rd = getRouteDistinguisher(currVpnIntf.getVpnInstanceName());
+            rd = (rd != null) ? rd : currVpnIntf.getVpnInstanceName();
             InstanceIdentifier<Adjacencies> adjPath = identifier.augmentation(Adjacencies.class);
             Optional<Adjacencies> optAdjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, adjPath);
             long label =
                     VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                            VpnUtil.getNextHopLabelKey((rd != null) ? rd : currVpnIntf.getVpnInstanceName(), prefix));
+                            VpnUtil.getNextHopLabelKey(rd, prefix));
 
             List<Adjacency> adjacencies;
             if (optAdjacencies.isPresent()) {
@@ -1527,6 +1525,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
                 if (!adjacencies.isEmpty()) {
                     String rd = getRouteDistinguisher(currVpnIntf.getVpnInstanceName());
+                    rd = (rd != null) ? rd :currVpnIntf.getVpnInstanceName();
                     LOG.trace("Adjacencies are " + adjacencies);
                     Iterator<Adjacency> adjIt = adjacencies.iterator();
                     while (adjIt.hasNext()) {

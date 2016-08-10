@@ -21,12 +21,6 @@ module odl-l3vpn {
         }
     }
 
-    grouping vpn-route-list{
-        leaf-list route-entry-id{
-            type uint32;
-        }
-    }
-
     augment "/l3vpn:vpn-interfaces/l3vpn:vpn-interface" {
         ext:augment-identifier "adjacencies";
         uses adjacency-list;
