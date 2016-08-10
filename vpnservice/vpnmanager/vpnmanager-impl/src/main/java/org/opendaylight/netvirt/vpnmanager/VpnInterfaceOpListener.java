@@ -88,15 +88,9 @@ public class VpnInterfaceOpListener extends AbstractDataChangeListener<VpnInterf
                     public List<ListenableFuture<Void>> call() throws Exception {
                         WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
                         postProcessVpnInterfaceRemoval(identifier, del, writeOperTxn);
-                        CheckedFuture<Void, TransactionCommitFailedException> futures = writeOperTxn.submit();
-                        try {
-                            futures.get();
-                        } catch (InterruptedException | ExecutionException e) {
-                            LOG.error("Error handling removal of oper data for interface {} from vpn {}", interfaceName,
-                                    vpnName);
-                            throw new RuntimeException(e.getMessage());
-                        }
-                        return null;
+                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                        futures.add(writeOperTxn.submit());
+                        return futures;
                     }
                 });
     }
@@ -107,7 +101,7 @@ public class VpnInterfaceOpListener extends AbstractDataChangeListener<VpnInterf
         String interfaceName = key.getName();
         String vpnName = del.getVpnInstanceName();
 
-        LOG.trace("VpnInterfaceOpListener removed: interface name {} vpnName {}", interfaceName, vpnName);
+        LOG.info("VpnInterfaceOpListener removed: interface name {} vpnName {}", interfaceName, vpnName);
         //decrement the vpn interface count in Vpn Instance Op Data
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to
                 .vpn.id.VpnInstance>
@@ -121,8 +115,8 @@ public class VpnInterfaceOpListener extends AbstractDataChangeListener<VpnInterf
             //String rd = getRouteDistinguisher(del.getVpnInstanceName());
 
             VpnInstanceOpDataEntry vpnInstOp = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
-            LOG.trace("VpnInterfaceOpListener removed: interface name {} rd {} vpnName {} in Vpn Op Instance {}",
-                    interfaceName, rd, vpnName, vpnInstOp);
+            LOG.trace("VpnInterfaceOpListener removed: interface name {} rd {} vpnName {}",
+                    interfaceName, rd, vpnName);
 
             if (vpnInstOp != null) {
                 // Vpn Interface removed => No more adjacencies from it.
