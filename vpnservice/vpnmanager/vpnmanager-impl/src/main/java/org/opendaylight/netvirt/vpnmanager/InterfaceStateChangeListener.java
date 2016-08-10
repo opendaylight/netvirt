@@ -89,7 +89,15 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                     final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
                     if (vpnInterface != null) {
                         LOG.debug("VPN Interface Name {}", vpnInterface);
-                        final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(intrf);
+                        BigInteger intfDpnId = BigInteger.ZERO;
+                        try {
+                            intfDpnId = InterfaceUtils.getDpIdFromInterface(intrf);
+                        } catch (Exception e){
+                            LOG.error("Unable to retrieve dpnId for interface {}. Process vpn interface add fail with exception {}.",
+                                    intrf.getName(), e);
+                            return;
+                        }
+                        final BigInteger dpnId = intfDpnId;
                         final int ifIndex = intrf.getIfIndex();
                         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                         dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(),
@@ -133,11 +141,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
         try {
             final String interfaceName = intrf.getName();
             LOG.info("Received port DOWN event for interface {} ", interfaceName);
-            if (intrf != null && intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
-                //withdraw all prefixes in all vpns for this dpn from bgp
-                // FIXME: Blocked until tunnel event[vxlan/gre] support is available
-                // vpnInterfaceManager.updatePrefixesForDPN(dpId, VpnInterfaceManager.UpdateRouteAction.WITHDRAW_ROUTE);
-            } else {
+            if (intrf != null && intrf.getType() != null && !intrf.getType().equals(Tunnel.class)) {
                 BigInteger dpId = BigInteger.ZERO;
                 InstanceIdentifier<VpnInterface> id = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
                 Optional<VpnInterface> optVpnInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
@@ -149,7 +153,7 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
                 try {
                     dpId = InterfaceUtils.getDpIdFromInterface(intrf);
                 } catch (Exception e){
-                    LOG.warn("Unable to retrieve dpnId from interface operational data store for interface {}. Fetching from vpn interface op data store. ", intrf.getName(), e);
+                    LOG.error("Unable to retrieve dpnId from interface operational data store for interface {}.Fetching from vpn interface op data store. ", intrf.getName(), e);
                     dpId = vpnInterface.getDpnId();
                 }
                 final BigInteger dpnId = dpId;
@@ -192,8 +196,9 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
             return;
         }
         final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
+
         final int ifIndex = update.getIfIndex();
-        if (update != null) {
+        if (update != null && (update.getType() != null)) {
             if (!update.getType().equals(Tunnel.class)) {
                 final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
                 if (vpnInterface != null) {
