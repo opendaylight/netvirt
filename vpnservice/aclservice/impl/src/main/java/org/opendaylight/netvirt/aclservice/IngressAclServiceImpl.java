@@ -48,6 +48,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Provides the stateful implementation for ingress (w.r.t VM) ACL service.
+ *
+ * <p>
+ * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress
+ * and vice versa.
+ */
 public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(IngressAclServiceImpl.class);
@@ -74,12 +81,12 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
-        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.INGRESS_ACL_TABLE_ID, ++instructionKey));
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.EGRESS_ACL_TABLE, ++instructionKey));
         BoundServices serviceInfo = AclServiceUtils.getBoundServices(
-                String.format("%s.%s.%s", "vpn", "ingressacl", interfaceName), NwConstants.INGRESS_ACL_SERVICE_INDEX,
+                String.format("%s.%s.%s", "vpn", "ingressacl", interfaceName), NwConstants.EGRESS_ACL_SERVICE_INDEX,
                 flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
         InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
-                NwConstants.INGRESS_ACL_SERVICE_INDEX, ServiceModeEgress.class);
+                NwConstants.EGRESS_ACL_SERVICE_INDEX, ServiceModeEgress.class);
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, serviceInfo);
     }
 
@@ -91,7 +98,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     protected void unbindService(String interfaceName) {
         InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
-                NwConstants.INGRESS_ACL_SERVICE_INDEX, ServiceModeEgress.class);
+                NwConstants.EGRESS_ACL_SERVICE_INDEX, ServiceModeEgress.class);
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
     }
 
@@ -188,7 +195,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                 new String[] {"1", "0", "0", "255"}, 2));
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
-            syncFlow(dpId, NwConstants.INGRESS_ACL_NEXT_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY,
+            syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY,
                 "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
         }
     }
@@ -212,7 +219,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
         String flowName = "Ingress_DHCP_Server_v4" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Permit_";
-        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -236,7 +243,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
         String flowName =
                 "Ingress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_" + "_" + dhcpMacAddress + "_Permit_";
-        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -269,11 +276,11 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             List<ActionInfo> actionsInfos = new ArrayList<>();
 
             actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                    new String[] {"0", "0", "0", Short.toString(NwConstants.INGRESS_ACL_NEXT_TABLE_ID)}, 2));
+                    new String[] {"0", "0", "0", Short.toString(NwConstants.EGRESS_ACL_FILTER_TABLE)}, 2));
             instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
             String flowName = "Ingress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_"
                     + String.valueOf(attachIp.getValue()) + "_" + flowId;
-            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+            syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         }
     }
@@ -306,11 +313,11 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
             List<InstructionInfo> instructions = new ArrayList<>();
             instructions.add(new InstructionInfo(InstructionType.goto_table,
-                    new long[] {NwConstants.INGRESS_ACL_NEXT_TABLE_ID}));
+                    new long[] {NwConstants.EGRESS_ACL_FILTER_TABLE}));
 
             String flowName = "Ingress_Fixed_Conntrk_Trk_" + dpId + "_" + attachMac + "_"
                     + String.valueOf(attachIp.getValue()) + "_" + flowId;
-            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, priority, "ACL", 0, 0,
+            syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, priority, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         }
     }
@@ -329,7 +336,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
         String flowName = "Ingress_ARP_" + dpId + "_" + lportTag;
-        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
