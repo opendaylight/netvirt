@@ -24,6 +24,11 @@
   <odl:rpc-service id="idManagerService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
 
+  <bean id="elanBridgeManager" class="org.opendaylight.netvirt.elan.internal.ElanBridgeManager"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+  </bean>
+
   <bean id="elanForwardingEntriesHandler" class="org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler"
     destroy-method="close">
     <argument ref="dataBroker" />
@@ -49,6 +54,16 @@
     <argument ref="idManagerService" />
     <argument ref="elanInterfaceManager" />
     <argument ref="interfaceManager" />
+    <argument ref="elanUtils" />
+  </bean>
+
+  <bean id="elanL2GatewayMulticastUtils"
+    class="org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils"
+    init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanInstanceManager" />
+    <argument ref="elanInterfaceManager" />
+    <argument ref="elanL2GatewayUtils" />
     <argument ref="elanUtils" />
   </bean>
 
@@ -156,6 +171,17 @@
     <argument ref="l2GatewayConnectionUtils" />
   </bean>
 
+  <bean id="l2GatewayConnectionUtils"
+    class="org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionUtils"
+    destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanInstanceManager" />
+    <argument ref="elanL2GatewayUtils" />
+    <argument ref="entityOwnershipService" />
+    <argument ref="elanUtils" />
+    <argument ref="elanL2GatewayMulticastUtils" />
+  </bean>
+
   <bean id="hwvtepPhysicalSwitchListener"
     class="org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepPhysicalSwitchListener"
     init-method="init" destroy-method="close">
@@ -168,7 +194,7 @@
   <bean id="hwvtepTerminationPointListener"
     class="org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepTerminationPointListener"
     destroy-method="close">
-    <argument ref="broker" />
+    <argument ref="dataBroker" />
     <argument ref="elanL2GatewayUtils" />
     <argument ref="entityOwnershipService" />
   </bean>
