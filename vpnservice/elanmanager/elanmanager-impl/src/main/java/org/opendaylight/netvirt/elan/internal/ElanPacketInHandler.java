@@ -48,12 +48,11 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     private final ElanUtils elanUtils;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
 
-    public ElanPacketInHandler(DataBroker dataBroker, final IInterfaceManager interfaceManager, ElanUtils elanUtils,
-                               ElanL2GatewayUtils elanL2GatewayUtils) {
+    public ElanPacketInHandler(DataBroker dataBroker, final IInterfaceManager interfaceManager, ElanUtils elanUtils) {
         broker = dataBroker;
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
-        this.elanL2GatewayUtils = elanL2GatewayUtils;
+        this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
     }
 
     @Override

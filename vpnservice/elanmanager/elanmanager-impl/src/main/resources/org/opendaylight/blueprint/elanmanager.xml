@@ -24,10 +24,12 @@
   <odl:rpc-service id="idManagerService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
 
-  <bean id="elanForwardingEntriesHandler" class="org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler"
-    destroy-method="close">
+  <bean id="elanBridgeManager" class="org.opendaylight.netvirt.elan.internal.ElanBridgeManager">
     <argument ref="dataBroker" />
-    <argument ref="elanUtils" />
+  </bean>
+
+  <bean id="elanForwardingEntriesHandler" class="org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler">
+    <argument ref="dataBroker" />
   </bean>
 
   <bean id="elanInterfaceManager"
@@ -38,8 +40,6 @@
     <argument ref="mdsalUtils" />
     <argument ref="interfaceManager" />
     <argument ref="elanForwardingEntriesHandler" />
-    <argument ref="elanL2GatewayUtils" />
-    <argument ref="elanUtils" />
   </bean>
 
   <bean id="elanInstanceManager"
@@ -49,7 +49,6 @@
     <argument ref="idManagerService" />
     <argument ref="elanInterfaceManager" />
     <argument ref="interfaceManager" />
-    <argument ref="elanUtils" />
   </bean>
 
   <bean id="elanNodeListener"
@@ -64,7 +63,6 @@
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
     <argument ref="elanUtils" />
-    <argument ref="elanL2GatewayUtils" />
   </bean>
   <odl:notification-listener ref="elanPacketInHandler" />
 
@@ -72,6 +70,7 @@
     class="org.opendaylight.netvirt.elan.internal.ElanSmacFlowEventListener">
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
+    <argument ref="elanUtils" />
   </bean>
   <odl:notification-listener ref="elanSmacFlowEventListener" />
 
@@ -81,6 +80,8 @@
     <argument ref="elanInstanceManager" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="itmRpcService" />
+    <argument ref="elanInterfaceManager" />
+    <argument ref="entityOwnershipService" />
   </bean>
 
   <bean id="elanStatisticsImpl" class="org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl">
@@ -108,11 +109,11 @@
     <argument ref="entityOwnershipService" />
   </bean>
 
-  <bean id="elanInterfaceClusterListener"
+  <bean id="elanDpnInterfaceClusteredListener"
     class="org.opendaylight.netvirt.elan.internal.ElanDpnInterfaceClusteredListener">
     <argument ref="dataBroker" />
     <argument ref="entityOwnershipService" />
-    <argument ref="elanL2GatewayUtils" />
+    <argument ref="elanUtils" />
   </bean>
 
   <bean id="elanService" class="org.opendaylight.netvirt.elan.internal.ElanServiceProvider"
@@ -122,17 +123,11 @@
     <argument ref="elanInstanceManager" />
     <argument ref="elanBridgeManager" />
     <argument ref="dataBroker" />
+    <argument ref="elanInterfaceManager" />
     <argument ref="elanStatusMonitor" />
     <argument ref="elanUtils" />
   </bean>
   <service ref="elanService" odl:type="default" interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
-
-  <bean id="elanL2GatewayUtils" class="org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils">
-    <argument ref="dataBroker" />
-    <argument ref="itmRpcService" />
-    <argument ref="elanUtils" />
-    <argument ref="entityOwnershipService" />
-  </bean>
 
   <bean id="cacheElanInterfaceListener" class="org.opendaylight.netvirt.elan.utils.CacheElanInterfaceListener"
     init-method="init" destroy-method="close">
@@ -142,7 +137,7 @@
   <bean id="hwvtepLocalUcastMacListener" class="org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLocalUcastMacListener"
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="elanL2GatewayUtils" />
+    <argument ref="elanUtils" />
   </bean>
 
   <bean id="elanStatusMonitor" class="org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor"
@@ -152,8 +147,7 @@
     class="org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionListener"
     destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="elanInstanceManager" />
-    <argument ref="l2GatewayConnectionUtils" />
+    <argument ref="elanUtils" />
   </bean>
 
   <bean id="hwvtepPhysicalSwitchListener"
@@ -162,14 +156,14 @@
     <argument ref="dataBroker" />
     <argument ref="itmRpcService" />
     <argument ref="entityOwnershipService" />
-    <argument ref="l2GatewayConnectionUtils" />
+    <argument ref="elanUtils" />
   </bean>
 
   <bean id="hwvtepTerminationPointListener"
     class="org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepTerminationPointListener"
     destroy-method="close">
-    <argument ref="broker" />
-    <argument ref="elanL2GatewayUtils" />
+    <argument ref="dataBroker" />
+    <argument ref="elanUtils" />
     <argument ref="entityOwnershipService" />
   </bean>
 </blueprint>
