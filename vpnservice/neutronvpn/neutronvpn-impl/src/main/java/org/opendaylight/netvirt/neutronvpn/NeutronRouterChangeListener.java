@@ -36,13 +36,15 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
     private final DataBroker dataBroker;
     private final NeutronvpnManager nvpnManager;
     private final NeutronvpnNatManager nvpnNatManager;
+    private final NeutronSubnetGwMacResolver gwMacResolver;
 
     public NeutronRouterChangeListener(final DataBroker dataBroker, final NeutronvpnManager nVpnMgr,
-                                       final NeutronvpnNatManager nVpnNatMgr) {
+                                       final NeutronvpnNatManager nVpnNatMgr, NeutronSubnetGwMacResolver gwMacResolver) {
         super(Router.class);
         this.dataBroker = dataBroker;
         nvpnManager = nVpnMgr;
         nvpnNatManager = nVpnNatMgr;
+        this.gwMacResolver = gwMacResolver;
     }
 
     public void start() {
@@ -72,6 +74,7 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
         // Create internal VPN
         nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, input.getUuid(), null);
         NeutronvpnUtils.addToRouterCache(input);
+        gwMacResolver.sendArpRequestsToExtGateways(input);
     }
 
     @Override
@@ -122,6 +125,7 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
         }
 
         nvpnNatManager.handleExternalNetworkForRouter(original, update);
+        gwMacResolver.sendArpRequestsToExtGateways(update);
     }
 
     private void handleChangedRoutes(Uuid vpnName, List<Routes> routes, int addedOrRemoved) {
