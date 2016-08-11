@@ -24,4 +24,6 @@ public interface IVpnManager {
      */
     boolean existsVpn(String vpnName);
     boolean isVPNConfigured();
+
+    long getArpCacheTimeoutSec();
 }
