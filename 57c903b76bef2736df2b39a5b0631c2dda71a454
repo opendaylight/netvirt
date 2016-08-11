@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_de1720a2",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-08-11T05:05:16Z",
+      "side": 1,
+      "message": "This change is intentional.\nThis is to make the constant names uniform in the NwConstants, earlier Aclservice constants where named w.r.t to vm now it changed w.r.t to switch. The patch [1] was pushed to handle it in genius\n\n[1]https://git.opendaylight.org/gerrit/#/c/43488/",
+      "parentUuid": "7a6b29fe_a31a0b6c",
+      "revId": "57c903b76bef2736df2b39a5b0631c2dda71a454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_e32b6380",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessIngressAclServiceImpl.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-08-10T17:21:50Z",
       "side": 1,
       "message": "this should be INGRESS_ACL_TABLE",
+      "revId": "57c903b76bef2736df2b39a5b0631c2dda71a454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1e1238b1",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessIngressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-08-11T05:05:16Z",
+      "side": 1,
+      "message": "This change is intentional.\nThis is to make the constant names uniform in the NwConstants, earlier Aclservice constants where named w.r.t to vm now it changed w.r.t to switch. The patch [1] was pushed to handle it in genius\n\n[1]https://git.opendaylight.org/gerrit/#/c/43488/",
+      "parentUuid": "7a6b29fe_e32b6380",
       "revId": "57c903b76bef2736df2b39a5b0631c2dda71a454",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
