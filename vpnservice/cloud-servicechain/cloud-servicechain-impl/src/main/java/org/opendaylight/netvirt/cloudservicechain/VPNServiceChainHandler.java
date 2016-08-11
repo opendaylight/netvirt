@@ -42,34 +42,18 @@ import com.google.common.base.Optional;
 public class VPNServiceChainHandler implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(VPNServiceChainHandler.class);
-    private IMdsalApiManager mdsalManager;
+
+    private final IMdsalApiManager mdsalManager;
     private final DataBroker broker;
-    private FibRpcService fibRpcService;
+    private final FibRpcService fibRpcService;
 
     /**
+     * @param mdsalManager
      * @param db
      */
-    public VPNServiceChainHandler(final DataBroker db, FibRpcService fibRpcSrv) {
+    public VPNServiceChainHandler(final DataBroker db, IMdsalApiManager mdsalManager, FibRpcService fibRpcSrv) {
         this.broker = db;
-        this.fibRpcService = fibRpcSrv;
-    }
-
-
-    /**
-     * Method for injecting MdsalManager dependency
-     *
-     * @param mdsalManager  MDSAL Util API access
-     */
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
         this.mdsalManager = mdsalManager;
-    }
-
-    /**
-     * Method for injecting the FibRpcService dependency
-     *
-     * @param fibRpcSrv FIB's RPC Service accessor
-     */
-    public void setFibRpcService(FibRpcService fibRpcSrv) {
         this.fibRpcService = fibRpcSrv;
     }
 
