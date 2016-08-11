@@ -67,11 +67,6 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-        Long timeout = Long.getLong("arp.cache.timeout");
-        if (timeout == null) {
-            timeout = ArpConstants.DEFAULT_ARP_LEARNED_CACHE_TIMEOUT;
-        }
-        ArpConstants.arpCacheTimeout = timeout;
         executorService = Executors.newScheduledThreadPool(ArpConstants.THREAD_POOL_SIZE, getThreadFactory("Arp Cache Timer Tasks"));
         scheduleExpiredEntryDrainerTask();
     }
