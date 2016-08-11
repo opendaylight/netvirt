@@ -47,7 +47,7 @@ public class ArpaddchacheTask implements Callable<List<ListenableFuture<Void>>> 
     }
 
     public  void addOrUpdateMacEntryToQueue(String vpnName, MacAddress macAddress,InetAddress InetAddress, String interfaceName) {
-        MacEntry newMacEntry = new MacEntry(ArpConstants.arpCacheTimeout,vpnName,macAddress, InetAddress,interfaceName );
+        MacEntry newMacEntry = new MacEntry(ArpConstants.ARP_CACHE_TIMEOUT,vpnName,macAddress, InetAddress,interfaceName );
         if (!macEntryQueue.contains(newMacEntry)) {
             LOG.info("Adding ARP cache");
             macEntryQueue.offer(newMacEntry);

@@ -14,6 +14,9 @@
              interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
   <reference id="notificationPublishService"
              interface="org.opendaylight.controller.md.sal.binding.api.NotificationPublishService" />
+  <reference ref="vpnManager"
+           interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
+
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -23,6 +26,9 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService" />
   <odl:rpc-service id="vpnRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService" />
+  <odl:rpc-service id="odlArputilService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService" />
+
 
   <bean id="neutronvpnNatManager"
         class="org.opendaylight.netvirt.neutronvpn.NeutronvpnNatManager"
@@ -86,6 +92,7 @@
     <argument ref="dataBroker" />
     <argument ref="neutronvpnManager" />
     <argument ref="neutronvpnNatManager" />
+    <argument ref="neutronSubnetGwMacResolver" />
   </bean>
 
   <bean id="neutronPortChangeListener"
@@ -96,6 +103,15 @@
     <argument ref="neutronvpnNatManager" />
     <argument ref="notificationPublishService" />
     <argument ref="lockManagerService" />
+  </bean>
+
+  <bean id="neutronSubnetGwMacResolver"
+        class="org.opendaylight.netvirt.neutronvpn.NeutronSubnetGwMacResolver"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="vpnManager" />
+    <argument ref="odlArputilService" />
+    <argument ref="elanService" />
   </bean>
 
   <bean id="l2GatewayListener"
