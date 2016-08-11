@@ -10,11 +10,10 @@ package org.opendaylight.netvirt.it;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 
 /**
- * Constants for NetvirtIT
+ * Constants for NetvirtIT.
  */
 public final class NetvirtITConstants {
     private NetvirtITConstants() {
-        throw new AssertionError("This class should not be instantiated.");
     }
 
     public static final String ORG_OPS4J_PAX_LOGGING_CFG = "etc/org.ops4j.pax.logging.cfg";
@@ -47,7 +46,7 @@ public final class NetvirtITConstants {
         String flowId;
         short tableId;
 
-        DefaultFlow(String flowId, short tableId){
+        DefaultFlow(String flowId, short tableId) {
             this.flowId = flowId;
             this.tableId = tableId;
         }
