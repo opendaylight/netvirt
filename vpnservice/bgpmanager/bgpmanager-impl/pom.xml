@@ -20,9 +20,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <artifactId>bgpmanager-impl</artifactId>
   <version>${vpnservices.version}</version>
   <packaging>bundle</packaging>
-  <properties>
-   <codahale.metrics.version>3.0.1</codahale.metrics.version>
-   </properties>
   <dependencies>
 
     <dependency>
@@ -87,17 +84,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 	</exclusion>
 	</exclusions>
    </dependency>
- <dependency>
-        <groupId>com.codahale.metrics</groupId>
-        <artifactId>metrics-core</artifactId>
-		<version>3.0.1</version>
-        
+    <dependency>
+      <groupId>io.dropwizard.metrics</groupId>
+      <artifactId>metrics-core</artifactId>
     </dependency>
-	<dependency>
-        <groupId>com.codahale.metrics</groupId>
-        <artifactId>metrics-graphite</artifactId>
-		<version>3.0.1</version>
-        
+    <dependency>
+      <groupId>io.dropwizard.metrics</groupId>
+      <artifactId>metrics-graphite</artifactId>
     </dependency>
 
   </dependencies>
