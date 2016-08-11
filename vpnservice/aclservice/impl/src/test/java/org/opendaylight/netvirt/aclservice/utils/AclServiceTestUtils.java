@@ -199,6 +199,12 @@ public class AclServiceTestUtils {
         AclDataUtil.removeAclInterfaceMap(prapreaAclIds(aclNames), inter);
     }
 
+    public static void verifyActionTypeExist(List<ActionInfo> flowActions, ActionType actionType) {
+        Iterable<ActionInfo> actions = filter(flowActions,
+                (item -> ((ActionInfo) item).getActionType().equals(actionType)));
+        assertFalse(Iterables.isEmpty(actions));
+    }
+
     public static void verifyActionInfo(List<ActionInfo> flowActions, ActionType actionType, String... params) {
         Iterable<ActionInfo> actions = filter(flowActions,
                 (item -> ((ActionInfo) item).getActionType().equals(actionType)));
@@ -219,6 +225,17 @@ public class AclServiceTestUtils {
             default:
                 assertTrue("match type is not supported", false);
                 break;
+        }
+    }
+
+    public static void verifyLearnActionFlowModInfo(List<ActionInfo> flowActions,
+            NwConstants.LearnFlowModsType type, String... params) {
+        Iterable<ActionInfo> actions = filter(flowActions,
+                (item -> ((ActionInfo) item).getActionType().equals(ActionType.learn)
+                        && ((ActionInfo) item).getActionValuesMatrix()[0].equals(type.name())));
+        assertFalse(Iterables.isEmpty(actions));
+        for (ActionInfo action : actions) {
+            verifyActionValues(action, params);
         }
     }
 
