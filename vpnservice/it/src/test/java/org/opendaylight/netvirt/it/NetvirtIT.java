@@ -56,16 +56,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- * Integration tests for Netvirt
- *
+ * Integration tests for Netvirt.
  */
-
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class NetvirtIT extends AbstractMdsalTestBase {
-
     private static final Logger LOG = LoggerFactory.getLogger(NetvirtIT.class);
+
     private static OvsdbItUtils itUtils;
     private static MdsalUtils mdsalUtils = null;
     private static SouthboundUtils southboundUtils;
@@ -76,7 +73,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static String controllerStr;
     private static AtomicBoolean setup = new AtomicBoolean(false);
     private static final String NETVIRT_TOPOLOGY_ID = "netvirt:1";
-    @Inject @Filter(timeout=60000)
+    @Inject @Filter(timeout = 60000)
     private static DataBroker dataBroker = null;
 
     @Override
@@ -147,6 +144,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
     @Before
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void setup() throws InterruptedException {
         if (setup.get()) {
             LOG.info("Skipping setUp, already initialized");
@@ -160,7 +158,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             fail("Failed to setup test: " + e);
         }
 
-        Thread.sleep(10*1000);
+        Thread.sleep(10 * 1000);
         getProperties();
 
         assertNotNull("dataBroker should not be null", dataBroker);
@@ -181,8 +179,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         connectionType = props.getProperty(NetvirtITConstants.CONNECTION_TYPE, "active");
         controllerStr = props.getProperty(NetvirtITConstants.CONTROLLER_IPADDRESS, "0.0.0.0");
         String userSpaceEnabled = props.getProperty(NetvirtITConstants.USERSPACE_ENABLED, "no");
-        LOG.info("setUp: Using the following properties: mode= {}, ip:port= {}:{}, controller ip: {}, " +
-                        "userspace.enabled: {}",
+        LOG.info("setUp: Using the following properties: mode= {}, ip:port= {}:{}, controller ip: {}, "
+                        + "userspace.enabled: {}",
                 connectionType, addressStr, portStr, controllerStr, userSpaceEnabled);
     }
 
@@ -192,9 +190,9 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         TopologyId topologyId = new TopologyId(NETVIRT_TOPOLOGY_ID);
         InstanceIdentifier<Topology> path =
                 InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, new TopologyKey(topologyId));
-        for(int i = 0; i < 60; ++i) {
+        for (int i = 0; i < 60; ++i) {
             Topology topology = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, path);
-            if(topology != null) {
+            if (topology != null) {
                 LOG.info("getNetvirtTopology: found {}...", NETVIRT_TOPOLOGY_ID);
                 found = Boolean.valueOf(true);
                 break;
@@ -212,14 +210,15 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         return found;
     }
 
-    private void validateDefaultFlows(long datapathId, int timeout){
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private void validateDefaultFlows(long datapathId, int timeout) {
         LOG.info("Validating default flows");
-        for (DefaultFlow defaultFlow : DefaultFlow.values()){
+        for (DefaultFlow defaultFlow : DefaultFlow.values()) {
             try {
                 flowITUtil.verifyFlowByFields(datapathId, defaultFlow.getFlowId(), defaultFlow.getTableId(), timeout);
-            } catch (Exception e){
+            } catch (Exception e) {
                 LOG.error("Failed to verify flow id : {}", defaultFlow.getFlowId());
-                fail();
+                fail("Failed to verify flow id : " + defaultFlow.getFlowId());
             }
         }
     }
@@ -233,18 +232,18 @@ public class NetvirtIT extends AbstractMdsalTestBase {
      * - remove the bridge
      * - remove the node and verify it is not in operational
      * </pre>
-     * @throws InterruptedException
      */
     @Test
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNetVirt() throws InterruptedException {
-        try(DockerOvs ovs = new DockerOvs()) {
-            ConnectionInfo connectionInfo = SouthboundUtils.
-                    getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
+        try (DockerOvs ovs = new DockerOvs()) {
+            ConnectionInfo connectionInfo = SouthboundUtils
+                    .getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
 
             //validate default flows
-            validateDefaultFlows(nodeInfo.datapathId, 60*1000);
+            validateDefaultFlows(nodeInfo.datapathId, 60 * 1000);
 
             LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
 
@@ -252,14 +251,14 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                     "internal", null, null, 0L);
             Thread.sleep(1000);
 
-            OvsdbTerminationPointAugmentation terminationPointOfBridge = southboundUtils.
-                    getTerminationPointOfBridge(nodeInfo.bridgeNode, NetvirtITConstants.PORT_NAME);
+            OvsdbTerminationPointAugmentation terminationPointOfBridge = southboundUtils
+                    .getTerminationPointOfBridge(nodeInfo.bridgeNode, NetvirtITConstants.PORT_NAME);
             assertNotNull("Did not find " + NetvirtITConstants.PORT_NAME, terminationPointOfBridge);
 
             nodeInfo.disconnect();
         } catch (Exception e) {
             LOG.error("testNetVirt: Exception thrown by OvsDocker.OvsDocker()", e);
-            fail();
+            fail("testNetVirt: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
         }
     }
 
@@ -270,16 +269,17 @@ public class NetvirtIT extends AbstractMdsalTestBase {
      * @throws InterruptedException if we're interrupted while waiting for some mdsal operation to complete
      */
     @Test
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNeutronNet() throws InterruptedException {
         LOG.warn("testNeutronNet: starting test");
-        try(DockerOvs ovs = new DockerOvs()) {
-            ConnectionInfo connectionInfo = SouthboundUtils.
-                    getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
+        try (DockerOvs ovs = new DockerOvs()) {
+            ConnectionInfo connectionInfo = SouthboundUtils
+                    .getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
 
             //validate default flows
-            validateDefaultFlows(nodeInfo.datapathId, 60*1000);
+            validateDefaultFlows(nodeInfo.datapathId, 60 * 1000);
 
             //create the neutron objects
             NetITUtil net = new NetITUtil(ovs, southboundUtils, mdsalUtils);
@@ -301,7 +301,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             nodeInfo.disconnect();
         } catch (Exception e) {
             LOG.error("testNeutronNet: Exception thrown by OvsDocker.OvsDocker()", e);
-            fail();
+            fail("testNeutronNet: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
         }
     }
 }
