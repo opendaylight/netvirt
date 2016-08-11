@@ -13,11 +13,12 @@ module aclservice-config {
 
     container aclservice-config {
         config true;
-        leaf security-group-mode {
+        leaf acl-mode {
             type enumeration {
                 enum "transparent";
                 enum "stateless";
                 enum "stateful";
+                enum "learn";
             }
         }
     }
