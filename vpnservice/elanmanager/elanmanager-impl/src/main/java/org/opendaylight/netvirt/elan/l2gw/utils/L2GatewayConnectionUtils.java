@@ -54,15 +54,13 @@ public class L2GatewayConnectionUtils {
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
 
     public L2GatewayConnectionUtils(DataBroker dataBroker, ElanInstanceManager elanInstanceManager,
-                                    ElanL2GatewayUtils elanL2GatewayUtils,
-                                    EntityOwnershipService entityOwnershipService, ElanUtils elanUtils,
-                                    ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
+                                    EntityOwnershipService entityOwnershipService, ElanUtils elanUtils) {
         this.broker = dataBroker;
         this.elanInstanceManager = elanInstanceManager;
-        this.elanL2GatewayUtils = elanL2GatewayUtils;
+        this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
         this.entityOwnershipService = entityOwnershipService;
         this.elanUtils = elanUtils;
-        this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
+        this.elanL2GatewayMulticastUtils = elanUtils.getElanL2GatewayMulticastUtils();
     }
 
     public static boolean isGatewayAssociatedToL2Device(L2GatewayDevice l2GwDevice) {

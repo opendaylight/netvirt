@@ -24,6 +24,7 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
@@ -73,16 +74,16 @@ public class HwvtepPhysicalSwitchListener
      *            the data broker
      * @param itmRpcService
      * @param entityOwnershipService
-     * @param l2GatewayConnectionUtils
+     * @param elanUtils
      */
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
                                         EntityOwnershipService entityOwnershipService,
-                                        L2GatewayConnectionUtils l2GatewayConnectionUtils) {
+                                        ElanUtils elanUtils) {
         super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
         this.entityOwnershipService = entityOwnershipService;
-        this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
+        this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
     }
 
     public void init() {
