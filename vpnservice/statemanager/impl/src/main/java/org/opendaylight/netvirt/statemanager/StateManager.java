@@ -40,7 +40,7 @@ public class StateManager implements IStateManager {
      * Start method called by blueprint.
      */
     public void start() {
-        new ConfigStateManager(this).start();
+        setReady(true);
     }
 
     /**
@@ -77,9 +77,8 @@ public class StateManager implements IStateManager {
         }
     }
 
-    @Override
-    public void setReady(boolean ready) {
-        if (ready) {
+    private class WriteTopology implements Runnable {
+        public void run() {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -87,6 +86,13 @@ public class StateManager implements IStateManager {
             }
             LOG.info("StateManager all is ready");
             initializeNetvirtTopology();
+        }
+    }
+
+    @Override
+    public void setReady(boolean ready) {
+        if (ready) {
+            new Thread(new WriteTopology()).start();
         }
     }
 }

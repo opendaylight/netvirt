@@ -13,6 +13,7 @@ import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.utils.ElanCLIUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -32,7 +33,7 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
     private IInterfaceManager interfaceManager;
     public static int MAX_LENGTH = 31;
     private IElanService elanProvider;
-    private ElanUtils elanUtils;
+    //private ElanUtils elanUtils;
     public static boolean isDisplay = true;
 
     public void setElanProvider(IElanService elanServiceProvider) {
@@ -43,9 +44,9 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
         this.interfaceManager = interfaceManager;
     }
 
-    public void setElanUtils(ElanUtils elanUtils) {
+    /*public void setElanUtils(ElanUtils elanUtils) {
         this.elanUtils = elanUtils;
-    }
+    }*/
 
     @Override
     protected Object doExecute() {
@@ -99,7 +100,8 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
         if (!interfaceList.isEmpty()) {
             for (String elanInterface : interfaceList) {
                 InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterface);
-                EtreeInterface etreeInterface = elanUtils.getEtreeInterfaceByElanInterfaceName(elanInterface);
+                EtreeInterface etreeInterface =
+                        ElanServiceProvider.getElanutils().getEtreeInterfaceByElanInterfaceName(elanInterface);
                 if (interfaceInfo != null) {
                     System.out.println(String.format(ElanCLIUtils.ETREE_INTERFACE_CLI_FORMAT,
                             elanInstance.getElanInstanceName() + "/" + elanInstance.getElanTag(),
