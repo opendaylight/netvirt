@@ -34,13 +34,16 @@ public class ElanDpnInterfacesListener extends AbstractDataChangeListener<DpnInt
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private static final Logger logger = LoggerFactory.getLogger(ElanDpnInterfacesListener.class);
     private final DataBroker broker;
-    private IMdsalApiManager mdsalManager;
+    private final IMdsalApiManager mdsalManager;
 
     public ElanDpnInterfacesListener(final DataBroker db, final IMdsalApiManager mdsalMgr) {
         super(DpnInterfaces.class);
         this.broker = db;
         this.mdsalManager = mdsalMgr;
-        registerListener(db);
+    }
+
+    public void init() {
+        registerListener(broker);
     }
 
     private void registerListener(final DataBroker db) {
