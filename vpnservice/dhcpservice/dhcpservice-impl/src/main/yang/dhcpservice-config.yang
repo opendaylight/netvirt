@@ -15,7 +15,7 @@ module dhcpservice-config {
         leaf controller-dhcp-enabled {
             description "Enable the dhcpservice on the controller";
             type boolean;
-            default true;
+            default false;
         }
     }
 }
