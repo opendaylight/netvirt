@@ -41,9 +41,8 @@ import com.google.common.base.Optional;
 public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements AutoCloseable {
 
     // This one holds the current info about the VPN Pseudo Ports
-    private DataBroker broker;
-
-    private IMdsalApiManager mdsalMgr;
+    private final DataBroker broker;
+    private final IMdsalApiManager mdsalMgr;
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
 
@@ -54,11 +53,9 @@ public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements
         super(VrfEntry.class);
         this.broker = broker;
         this.mdsalMgr = mdsalMgr;
-        registerListener();
     }
 
-    public void setDataBroker(DataBroker dataBroker) {
-        this.broker = dataBroker;
+    public void init() {
         registerListener();
     }
 

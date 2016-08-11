@@ -315,13 +315,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>cloud-servicechain-impl</artifactId>
-      <version>${cloud-servicechain.version}</version>
-      <classifier>config</classifier>
-      <type>xml</type>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>statemanager-impl</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>

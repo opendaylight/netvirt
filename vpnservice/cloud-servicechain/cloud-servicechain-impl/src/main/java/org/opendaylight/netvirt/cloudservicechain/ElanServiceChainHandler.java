@@ -24,11 +24,12 @@ import com.google.common.base.Optional;
  * Elan Pseudo Ports when participating in ServiceChains.
  *
  */
-public class ElanServiceChainHandler implements AutoCloseable {
+public class ElanServiceChainHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ElanServiceChainHandler.class);
+
     private final DataBroker broker;
-    private IMdsalApiManager mdsalManager;
+    private final IMdsalApiManager mdsalManager;
 
     /**
      * @param db reference to the assigned DataBroker
@@ -37,11 +38,6 @@ public class ElanServiceChainHandler implements AutoCloseable {
     public ElanServiceChainHandler(final DataBroker db, final IMdsalApiManager mdsalMgr) {
         this.broker = db;
         this.mdsalManager = mdsalMgr;
-    }
-
-    @Override
-    public void close() throws Exception {
-
     }
 
     /**
