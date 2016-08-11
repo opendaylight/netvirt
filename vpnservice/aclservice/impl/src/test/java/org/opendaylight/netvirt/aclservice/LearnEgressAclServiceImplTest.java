@@ -18,6 +18,7 @@ import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
 import java.util.Arrays;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -58,9 +59,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @RunWith(MockitoJUnitRunner.class)
-public class StatelessEgressAclServiceImplTest {
+public class LearnEgressAclServiceImplTest {
 
-    private StatelessEgressAclServiceImpl testedService;
+    private LearnEgressAclServiceImpl testedService;
 
     @Mock
     DataBroker dataBroker;
@@ -76,14 +77,15 @@ public class StatelessEgressAclServiceImplTest {
 
     @Before
     public void setUp() {
-        testedService = new StatelessEgressAclServiceImpl(dataBroker, mdsalManager);
+        testedService = new LearnEgressAclServiceImpl(dataBroker, mdsalManager);
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
         installFlowValueSaver = new MethodInvocationParamSaver<Void>(null);
         doAnswer(installFlowValueSaver).when(mdsalManager).installFlow(any(FlowEntity.class));
         removeFlowValueSaver = new MethodInvocationParamSaver<Void>(null);
-        doAnswer(removeFlowValueSaver).when(mdsalManager).removeFlow(any(FlowEntity.class));
+        doAnswer(installFlowValueSaver).when(mdsalManager).removeFlow(any(FlowEntity.class));
+
     }
 
     @Test
@@ -104,14 +106,13 @@ public class StatelessEgressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubTcpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 80);
         assertEquals(true, testedService.applyAcl(ai));
-        assertEquals(1, installFlowValueSaver.getNumOfInvocations());
+        assertEquals(4, installFlowValueSaver.getNumOfInvocations());
 
-        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(0).get(0);
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
+        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(3).get(0);
+        AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
-        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.nx_resubmit, "" + NwConstants.LPORT_DISPATCHER_TABLE);
+        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
+                ActionType.learn);
 
     }
 
@@ -120,12 +121,11 @@ public class StatelessEgressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubAllowAllInterface(sgUuid, "if_name");
         assertEquals(true, testedService.applyAcl(ai));
-        assertEquals(1, installFlowValueSaver.getNumOfInvocations());
+        assertEquals(4, installFlowValueSaver.getNumOfInvocations());
 
-        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(0).get(0);
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
-        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.nx_resubmit, "" + NwConstants.LPORT_DISPATCHER_TABLE);
+        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(3).get(0);
+        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
+                ActionType.learn);
     }
 
     @Test
@@ -133,16 +133,14 @@ public class StatelessEgressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubTcpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 84);
         assertEquals(true, testedService.applyAcl(ai));
-        assertEquals(2, installFlowValueSaver.getNumOfInvocations());
-        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(0).get(0);
+        assertEquals(5, installFlowValueSaver.getNumOfInvocations());
+        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(3).get(0);
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65532");
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
 
-        FlowEntity secondRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(1).get(0);
+        FlowEntity secondRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(4).get(0);
         AclServiceTestUtils.verifyMatchInfo(secondRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "84", "65535");
-        AclServiceTestUtils.verifyMatchInfo(secondRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
     }
 
     @Test
@@ -150,10 +148,16 @@ public class StatelessEgressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubUdpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 80);
         assertEquals(true, testedService.applyAcl(ai));
-        assertEquals(0, installFlowValueSaver.getNumOfInvocations());
+        assertEquals(4, installFlowValueSaver.getNumOfInvocations());
+        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(3).get(0);
+        AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
+                NxMatchFieldType.nx_udp_dst_with_mask, "80", "65535");
+        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
+                ActionType.learn);
     }
 
     @Test
+    @Ignore
     public void removeAcl__SinglePort() throws Exception {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubTcpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 80);
@@ -192,6 +196,13 @@ public class StatelessEgressAclServiceImplTest {
         return ai;
     }
 
+    private void stubInterfaceAcl(String ifName, AclInterface ai) {
+        AllowedAddressPairsBuilder aapb = new AllowedAddressPairsBuilder();
+        aapb.setIpAddress(new IpPrefixOrAddress("1.1.1.1/32".toCharArray()));
+        aapb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
+        ai.setAllowedAddressPairs(Arrays.asList(aapb.build()));
+    }
+
     private AclInterface stubAllowAllInterface(Uuid sgUuid, String ifName) {
         AclInterface ai = new AclInterface();
         ai.setPortSecurityEnabled(true);
@@ -202,13 +213,6 @@ public class StatelessEgressAclServiceImplTest {
 
         stubAccessList(sgUuid, null, -1, -1, (short)-1);
         return ai;
-    }
-
-    private void stubInterfaceAcl(String ifName, AclInterface ai) {
-        AllowedAddressPairsBuilder aapb = new AllowedAddressPairsBuilder();
-        aapb.setIpAddress(new IpPrefixOrAddress("1.1.1.1/32".toCharArray()));
-        aapb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
-        ai.setAllowedAddressPairs(Arrays.asList(aapb.build()));
     }
 
     private void stubAccessList(Uuid sgUuid, String ipv4PrefixStr, int portLower, int portUpper, short protocol) {
