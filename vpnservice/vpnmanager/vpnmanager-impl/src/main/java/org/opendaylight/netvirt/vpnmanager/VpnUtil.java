@@ -1282,8 +1282,8 @@ public class VpnUtil {
         InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         VpnPortipToPortBuilder builder = new VpnPortipToPortBuilder().setKey(
                 new VpnPortipToPortKey(fixedIp, vpnName)).setVpnName(vpnName).setPortFixedip(fixedIp).setPortName(portName)
-                .setMacAddress(macAddress).setSubnetIp(isSubnetIp).setConfig(isConfig).setLearnt(isLearnt);
-        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
+                .setMacAddress(macAddress.toLowerCase()).setSubnetIp(isSubnetIp).setConfig(isConfig).setLearnt(isLearnt);
+        MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
         LOG.debug("ARP learned for fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to VpnPortipToPort DS",
                 fixedIp, vpnName, portName, macAddress, isLearnt);
     }
@@ -1294,15 +1294,15 @@ public class VpnUtil {
         InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         VpnPortipToPortBuilder builder = new VpnPortipToPortBuilder().setKey(
                 new VpnPortipToPortKey(fixedIp, vpnName)).setVpnName(vpnName).setPortFixedip(fixedIp).setPortName(portName)
-                .setMacAddress(macAddress).setSubnetIp(isSubnetIp).setConfig(isConfig).setLearnt(isLearnt);;
-        MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
+                .setMacAddress(macAddress.toLowerCase()).setSubnetIp(isSubnetIp).setConfig(isConfig).setLearnt(isLearnt);;
+        MDSALUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
         LOG.debug("Updated Arp learnt fixedIp: {}, vpn {}, interface {}, mac {}, isLearnt {} Updated to VpnPortipToPort DS",
                 fixedIp, vpnName, portName, macAddress, isLearnt);
     }
 
     protected static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp) {
         InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
-        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
         LOG.debug("Delete learned ARP for fixedIp: {}, vpn {} removed from VpnPortipToPort DS",
                 fixedIp, vpnName);
     }
@@ -1315,7 +1315,7 @@ public class VpnUtil {
 
     static VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
         InstanceIdentifier id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
-        Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
         if (vpnPortipToPortData.isPresent()) {
             return (vpnPortipToPortData.get());
         }
