@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.cloudservicechain;
 
 import java.math.BigInteger;;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -187,9 +188,9 @@ public class VPNServiceChainHandler implements AutoCloseable {
      * @param scfTag Service Function tag
      * @param scsTag Service Chain tag
      * @param lportTag Lport tag
-     * @return fake VpnPseudoPort interface name
+     * @return the fake VpnPseudoPort interface name
      */
-    private String getVpnPseudoPortIfName(Long dpId, int scfTag, int scsTag, int lportTag) {
+    private String buildVpnPseudoPortIfName(Long dpId, int scfTag, int scsTag, int lportTag) {
         return new StringBuilder("VpnPseudo.").append(dpId).append(NwConstants.FLOWID_SEPARATOR)
                                               .append(lportTag).append(NwConstants.FLOWID_SEPARATOR)
                                               .append(scfTag).append(NwConstants.FLOWID_SEPARATOR)
@@ -201,7 +202,6 @@ public class VPNServiceChainHandler implements AutoCloseable {
     public void close() throws Exception {
         // add
     }
-
 
 
     /**
@@ -220,6 +220,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
         // These Flows must be installed in the DPN where the last SF in the ServiceChain is located
         //   + ScForwardingTable (75):  (This one is created and maintained by ScHopManager)
         //       - Match:  scfTag + servChainId + lportTagOfvVSF    Instr: VpnPseudoPortTag + SI=L3VPN + GOTO LPortDisp
+        // And these 2 flows must be installed in all Dpns where the Vpn is present:
         //   + LPortDisp (17):
         //       - Match:  VpnPseudoPortTag + SI==L3VPN    Instr: setVpnTag + GOTO FIB
         //   + FIB (21): (one entry per VrfEntry, and it is maintained by FibManager)
@@ -239,21 +240,34 @@ public class VPNServiceChainHandler implements AutoCloseable {
             LOG.debug("Router distinguisher (rd): {}, lportTag: {} ", rd, vpnPseudoLportTag);
             // Find out the set of DPNs for the given VPN ID
             if (vpnInstance != null) {
-                Long vpnId = vpnInstance.getVpnId();
-                BigInteger dpId = BigInteger.valueOf(dpnId);
-                Flow flow = VpnServiceChainUtils.buildLPortDispFromScfToL3VpnFlow(vpnId, dpId, vpnPseudoLportTag,
-                                                                                  addOrRemove);
-                if ( addOrRemove == NwConstants.ADD_FLOW ) {
-                    mdsalManager.installFlow(BigInteger.valueOf(dpnId), flow);
-                } else {
-                    // Only remove if it is the LastServiceChain using it.
-                    if ( isLastServiceChain ) {
-                        mdsalManager.removeFlow(BigInteger.valueOf(dpnId), flow);
+
+                if ( addOrRemove == NwConstants.ADD_FLOW
+                        || (addOrRemove == NwConstants.DEL_FLOW && isLastServiceChain) ) {
+
+                    Long vpnId = vpnInstance.getVpnId();
+                    List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+                    if ( vpnToDpnList != null ) {
+                        List<BigInteger> dpns = new ArrayList<BigInteger>();
+                        for (VpnToDpnList dpnInVpn : vpnToDpnList ) {
+                            dpns.add(dpnInVpn.getDpnId());
+                        }
+                        if ( !dpns.contains(dpnId) ) {
+                            LOG.debug("Dpn {} is not included in the current VPN Footprint", dpnId);
+                            dpns.add(BigInteger.valueOf(dpnId));
+                        }
+                        for ( BigInteger dpn : dpns ) {
+                            VpnServiceChainUtils.programLPortDispatcherFlowForScfToVpn(mdsalManager, vpnId, dpn,
+                                    vpnPseudoLportTag, addOrRemove);
+                        }
+                    } else {
+                        LOG.debug("Could not find VpnToDpn list for VPN {} with rd {}", vpnName, rd);
                     }
                 }
 
-                // Update the Vpn footprint by adding or removing the fake interfaces
-                String intfName = getVpnPseudoPortIfName(dpnId, scfTag, servChainTag, vpnPseudoLportTag);
+                // We need to keep a fake VpnInterface in the DPN where the last vSF (before the VpnPseudoPort) is
+                // located, because in case the last real VpnInterface is removed from that DPN, we still need
+                // the Fib table programmed there
+                String intfName = buildVpnPseudoPortIfName(dpnId, scfTag, servChainTag, vpnPseudoLportTag);
                 if (addOrRemove == NwConstants.ADD_FLOW ) {
                     // Including this DPN in the VPN footprint even if there is no VpnInterface here.
                     // This is needed so that FibManager maintains the FIB table in this DPN

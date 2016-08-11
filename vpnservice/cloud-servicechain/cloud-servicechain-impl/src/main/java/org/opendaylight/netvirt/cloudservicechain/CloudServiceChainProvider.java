@@ -9,13 +9,12 @@ package org.opendaylight.netvirt.cloudservicechain;
 
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.api.ICloudServiceChain;
-import org.opendaylight.netvirt.cloudservicechain.listeners.ElanDpnInterfacesListener;
-import org.opendaylight.netvirt.cloudservicechain.listeners.VpnPseudoPortListener;
-import org.opendaylight.netvirt.cloudservicechain.listeners.VrfListener;
+import org.opendaylight.netvirt.cloudservicechain.listeners.*;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnPseudoPortCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.slf4j.Logger;
@@ -26,6 +25,7 @@ public class CloudServiceChainProvider implements BindingAwareProvider, ICloudSe
     private static final Logger LOG = LoggerFactory.getLogger(CloudServiceChainProvider.class);
     private IMdsalApiManager mdsalManager;
     private FibRpcService fibRpcService;
+    private NotificationService notificationService;
     VPNServiceChainHandler vpnServiceChainHandler;
     ElanServiceChainHandler elanServiceChainHandler;
 
@@ -33,6 +33,15 @@ public class CloudServiceChainProvider implements BindingAwareProvider, ICloudSe
     VpnPseudoPortListener vpnPseudoPortListener;
     VrfListener labelListener;
     ElanDpnInterfacesListener elanDpnInterfacesListener;
+    VpnToDpnListener vpnToDpnListener;
+    NodeListener nodeListener;
+
+    public CloudServiceChainProvider(NotificationService notificationServiceDependency,
+                                     IMdsalApiManager mdsalManager, FibRpcService fibRpcService) {
+        this.notificationService = notificationServiceDependency;
+        this.mdsalManager = mdsalManager;
+        this.fibRpcService = fibRpcService;
+    }
 
     @Override
     public void onSessionInitiated(ProviderContext session) {
@@ -46,22 +55,15 @@ public class CloudServiceChainProvider implements BindingAwareProvider, ICloudSe
             vpnPseudoPortListener = new VpnPseudoPortListener(dataBroker);
             labelListener = new VrfListener(dataBroker, mdsalManager);
             elanDpnInterfacesListener = new ElanDpnInterfacesListener(dataBroker, mdsalManager);
+            vpnToDpnListener = new VpnToDpnListener(dataBroker, mdsalManager);
+            nodeListener = new NodeListener(dataBroker, mdsalManager);
+
+            notificationService.registerNotificationListener(vpnToDpnListener);
 
             elanServiceChainHandler = new ElanServiceChainHandler(dataBroker, mdsalManager);
 
         } catch (Exception e) {
             LOG.error("Error initializing services", e);
-        }
-    }
-
-    public void setMdsalManager(IMdsalApiManager mdsalManager) {
-        this.mdsalManager = mdsalManager;
-    }
-
-    public void setFibRpcService(FibRpcService fibManager) {
-        this.fibRpcService = fibManager;
-        if ( this.vpnServiceChainHandler != null ) {
-            this.vpnServiceChainHandler.setFibRpcService(fibManager);
         }
     }
 

@@ -33,5 +33,6 @@ public class CloudServiceChainConstants {
     public static final long SCF_L3VPN_ID_POOL_START = 20000;
     public static final long SCF_L3VPN_ID_POOL_END = 65535;
     public static final long ETHERTYPE_IPV4 = 0x0800L;
+    public static final long INVALID_VPN_TAG = -1;
 
 }
