@@ -13,8 +13,8 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataCh
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
-import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
@@ -29,15 +29,13 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListene
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
-    private final ElanInstanceManager elanInstanceManager;
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
 
-    public L2GatewayConnectionListener(final DataBroker db, ElanInstanceManager elanInstanceManager,
-                                       L2GatewayConnectionUtils l2GatewayConnectionUtils) {
+    public L2GatewayConnectionListener(final DataBroker db,
+                                       ElanUtils elanUtils) {
         super(L2gatewayConnection.class, L2GatewayConnectionListener.class);
         broker = db;
-        this.elanInstanceManager = elanInstanceManager;
-        this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
+        this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
         registerListener(db);
     }
 

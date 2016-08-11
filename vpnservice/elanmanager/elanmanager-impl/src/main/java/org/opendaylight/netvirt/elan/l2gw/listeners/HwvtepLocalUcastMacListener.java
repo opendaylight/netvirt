@@ -15,6 +15,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -43,11 +44,11 @@ public class HwvtepLocalUcastMacListener extends
     private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
 
-    public HwvtepLocalUcastMacListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils) {
+    public HwvtepLocalUcastMacListener(DataBroker broker, ElanUtils elanUtils) {
         super(LocalUcastMacs.class, HwvtepLocalUcastMacListener.class);
 
         this.broker = broker;
-        this.elanL2GatewayUtils = elanL2GatewayUtils;
+        this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
     }
 
     public void init() {
