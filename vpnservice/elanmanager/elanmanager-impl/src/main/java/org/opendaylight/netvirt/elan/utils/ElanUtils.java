@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -44,6 +45,10 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
+import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -161,6 +166,9 @@ public class ElanUtils {
     private final ElanInstanceManager elanInstanceManager;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
     private final ItmRpcService itmRpcService;
+    private ElanL2GatewayUtils elanL2GatewayUtils;
+    private ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
+    private L2GatewayConnectionUtils l2GatewayConnectionUtils;
 
     public static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
@@ -175,14 +183,34 @@ public class ElanUtils {
     };
 
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanInstanceManager elanInstanceManager,
-                     OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService) {
+                     OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService,
+                     ElanInterfaceManager elanInterfaceManager,
+                     EntityOwnershipService entityOwnershipService) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.elanInstanceManager = elanInstanceManager;
         this.interfaceManagerRpcService = interfaceManagerRpcService;
         this.itmRpcService = itmRpcService;
+
+        elanL2GatewayMulticastUtils =
+                new ElanL2GatewayMulticastUtils(broker, elanInstanceManager, elanInterfaceManager, this);
+        elanL2GatewayUtils = new ElanL2GatewayUtils(broker, itmRpcService, this,
+                entityOwnershipService, elanL2GatewayMulticastUtils);
+        l2GatewayConnectionUtils = new L2GatewayConnectionUtils(broker,
+                elanInstanceManager, entityOwnershipService, this);
     }
 
+    public ElanL2GatewayUtils getElanL2GatewayUtils() {
+        return elanL2GatewayUtils;
+    }
+
+    public ElanL2GatewayMulticastUtils getElanL2GatewayMulticastUtils() {
+        return elanL2GatewayMulticastUtils;
+    }
+
+    public L2GatewayConnectionUtils getL2GatewayConnectionUtils() {
+        return l2GatewayConnectionUtils;
+    }
 
     public static void addElanInstanceIntoCache(String elanInstanceName, ElanInstance elanInstance) {
         elanInstanceLocalCache.put(elanInstanceName, elanInstance);

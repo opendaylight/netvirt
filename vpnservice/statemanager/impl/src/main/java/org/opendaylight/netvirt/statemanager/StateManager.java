@@ -40,7 +40,7 @@ public class StateManager implements IStateManager {
      * Start method called by blueprint.
      */
     public void start() {
-        new ConfigStateManager(this).start();
+        setReady(true);
     }
 
     /**

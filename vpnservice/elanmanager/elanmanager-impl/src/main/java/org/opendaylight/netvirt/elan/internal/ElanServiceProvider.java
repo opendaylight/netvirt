@@ -20,12 +20,16 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.exceptions.InterfaceAlreadyExistsException;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler;
@@ -41,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface;
@@ -74,20 +79,28 @@ public class ElanServiceProvider implements IElanService {
     private final ElanBridgeManager bridgeMgr;
     private final DataBroker broker;
     private final ElanStatusMonitor elanStatusMonitor;
-    private final ElanUtils elanUtils;
+    private static ElanUtils elanUtils;
 
     private boolean generateIntBridgeMac = true;
 
     public ElanServiceProvider(IdManagerService idManager, IInterfaceManager interfaceManager,
-                               ElanInstanceManager elanInstanceManager, ElanBridgeManager bridgeMgr, DataBroker broker,
+                               ElanInstanceManager elanInstanceManager, ElanBridgeManager bridgeMgr,
+                               DataBroker dataBroker,
+                               ElanInterfaceManager elanInterfaceManager,
                                ElanStatusMonitor elanStatusMonitor, ElanUtils elanUtils) {
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
         this.elanInstanceManager = elanInstanceManager;
         this.bridgeMgr = bridgeMgr;
-        this.broker = broker;
+        this.broker = dataBroker;
         this.elanStatusMonitor = elanStatusMonitor;
         this.elanUtils = elanUtils;
+        elanInstanceManager.setElanUtils(elanUtils);
+        elanInterfaceManager.setElanUtils(elanUtils);
+    }
+
+    public static ElanUtils getElanutils() {
+        return ElanServiceProvider.elanUtils;
     }
 
     public void init() {

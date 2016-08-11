@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
@@ -43,13 +44,12 @@ public class ElanDpnInterfaceClusteredListener
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
 
     public ElanDpnInterfaceClusteredListener(DataBroker broker, EntityOwnershipService entityOwnershipService,
-                                             ElanL2GatewayUtils elanL2GatewayUtils,
-                                             ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
+                                             ElanUtils elanUtils) {
         super(DpnInterfaces.class, ElanDpnInterfaceClusteredListener.class);
         this.broker = broker;
         this.entityOwnershipService = entityOwnershipService;
-        this.elanL2GatewayUtils = elanL2GatewayUtils;
-        this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
+        this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
+        this.elanL2GatewayMulticastUtils = elanUtils.getElanL2GatewayMulticastUtils();
     }
 
     public void init() {
