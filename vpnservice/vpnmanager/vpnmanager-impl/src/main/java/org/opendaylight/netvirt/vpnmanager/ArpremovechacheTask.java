@@ -59,7 +59,7 @@ public class ArpremovechacheTask implements Callable<List<ListenableFuture<Void>
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         synchronized ((vpnName + fixedip).intern()) {
             deleteAdjacencies(fixedip, vpnName, interfaceName, tx);
-            tx.delete(LogicalDatastoreType.CONFIGURATION, id);
+            tx.delete(LogicalDatastoreType.OPERATIONAL, id);
             CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
             try {
                 futures.get();
