@@ -9,6 +9,9 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import java.math.BigInteger;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 
 /**
@@ -68,11 +71,33 @@ public final class AclConstants {
     public static final int ICMPV6_TYPE_NA = 136;
     public static final int ICMPV6_TYPE_MLD2_REPORT = 143;
 
+    public static final BigInteger METADATA_MASK_LEARN_FLAG = new BigInteger("FFFFFFFFFFFFFFFE", 16);
+
+    public static final String SECURITY_GROUP_TCP_IDLE_TO_KEY = "security-group-tcp-idle-timeout";
+    public static final String SECURITY_GROUP_TCP_HARD_TO_KEY = "security-group-tcp-hard-timeout";
+    public static final String SECURITY_GROUP_TCP_FIN_IDLE_TO_KEY = "security-group-tcp-fin-idle-timeout";
+    public static final String SECURITY_GROUP_TCP_FIN_HARD_TO_KEY = "security-group-tcp-fin-hard-timeout";
+    public static final String SECURITY_GROUP_UDP_IDLE_TO_KEY = "security-group-udp-idle-timeout";
+    public static final String SECURITY_GROUP_UDP_HARD_TO_KEY = "security-group-udp-hard-timeout";
+
+    public static final String LEARN_MATCH_REG_VALUE = "1";
+
     private AclConstants() {
     }
 
-    public static boolean isStatelessAcl() {
-        final String enabledPropertyStr = ConfigProperties.getProperty(AclConstants.class, "stateless.sg.enabled");
-        return enabledPropertyStr != null && enabledPropertyStr.equalsIgnoreCase("yes");
+    private static Map<String, Object> globalConf = Collections.synchronizedMap(new HashMap<>());
+
+    public static String getGlobalConf(String key, String defaultValue) {
+        String ret = defaultValue;
+        String value = (String)globalConf.get(key);
+        if (value == null) {
+            String propertyStr = ConfigProperties.getProperty(AclConstants.class, key);
+            if (propertyStr != null) {
+                ret = propertyStr;
+            }
+            globalConf.put(key, ret);
+        }
+        return ret;
     }
+
 }
