@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_41c5ec3a",
+        "filename": "vpnservice/ipv6service/impl/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-08-11T14:31:37Z",
+      "side": 1,
+      "message": "I know this was already merged and it\u0027s a small issue.\nBut, should we have a dependency on elanmanager-impl?",
+      "revId": "4cd0f9b67ddc62ea080c433af8daf7a3cc667eae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
