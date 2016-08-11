@@ -31,6 +31,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <type xmlns:mdsalutil="urn:opendaylight:genius:mdsalutil">mdsalutil:odl-mdsalutil</type>
             <name>mdsalutil-service</name>
           </mdsalutil>
+          <notification-service>
+            <type xmlns:bindingimpl="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">bindingimpl:binding-new-notification-service</type>
+            <name>binding-notification-adapter</name>
+          </notification-service>
         </module>
       </modules>
       <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
