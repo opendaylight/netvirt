@@ -108,9 +108,7 @@ public class VPNServiceChainHandlerTest {
 
         when(broker.newReadOnlyTransaction()).thenReturn(readTx);
         when(broker.newWriteOnlyTransaction()).thenReturn(writeTx);
-        vpnsch = new VPNServiceChainHandler(broker, fibRpcService);
-        vpnsch.setMdsalManager(mdsalMgr);
-        vpnsch.setFibRpcService(fibRpcService);
+        vpnsch = new VPNServiceChainHandler(broker, mdsalMgr, fibRpcService);
     }
 
     @After

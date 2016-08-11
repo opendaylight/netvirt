@@ -19,10 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class VpnPseudoPortCache {
     public static final String VPNPSEUDOPORT_CACHE_NAME = "VrfToVpnPseudoPortCache";
 
-    public static void createVpnPseudoPortCache() {
-        if (CacheUtil.getCache(VPNPSEUDOPORT_CACHE_NAME) == null) {
-            CacheUtil.createCache(VPNPSEUDOPORT_CACHE_NAME);
-        }
+    static {
+        CacheUtil.createCache(VPNPSEUDOPORT_CACHE_NAME);
     }
 
     public static void addVpnPseudoPortToCache(String vrfId, long vpnPseudoLportTag) {

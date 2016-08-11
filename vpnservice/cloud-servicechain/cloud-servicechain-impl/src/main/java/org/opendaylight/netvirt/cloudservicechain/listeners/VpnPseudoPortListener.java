@@ -28,35 +28,24 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class VpnPseudoPortListener
-    extends AsyncClusteredDataChangeListenerBase<VpnToPseudoPortTag, VpnPseudoPortListener>
-    implements AutoCloseable {
-
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
+    extends AsyncClusteredDataChangeListenerBase<VpnToPseudoPortTag, VpnPseudoPortListener> {
 
     private static final Logger logger = LoggerFactory.getLogger(VpnPseudoPortListener.class);
 
+    private final DataBroker broker;
+
     public VpnPseudoPortListener(final DataBroker broker) {
         super(VpnToPseudoPortTag.class, VpnPseudoPortListener.class);
+        this.broker = broker;
+    }
 
-        try {
-            listenerRegistration = broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                                                                     getWildCardPath(), this,
-                                                                     AsyncDataBroker.DataChangeScope.BASE);
-        } catch (final Exception e) {
-            logger.error("VpnPseudoPort DataChange listener registration fail!", e);
-        }
+    public void init() {
+        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
     @Override
-    public void close() {
-        if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                logger.error("Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
-        }
+    public void close() throws Exception {
+        super.close();
         logger.info("VpnPseudoPort listener Closed");
     }
 
