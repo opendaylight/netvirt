@@ -12,6 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -29,7 +30,26 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpResponseInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpResponseInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
+import java.util.concurrent.Future;
+import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,13 +59,17 @@ public class ArpNotificationHandler implements OdlArputilListener {
     private static final Logger LOG = LoggerFactory.getLogger(ArpNotificationHandler.class);
     DataBroker dataBroker;
     VpnInterfaceManager vpnIfManager;
+    IdManagerService idManager;
+    OdlArputilService arpManager;
     final IElanService elanService;
 
     public ArpNotificationHandler(DataBroker dataBroker, VpnInterfaceManager vpnIfMgr,
-                                  final IElanService elanService) {
+                                  final IElanService elanService, IdManagerService idManager,OdlArputilService arpManager){
         this.dataBroker = dataBroker;
         vpnIfManager = vpnIfMgr;
         this.elanService = elanService;
+        this.idManager = idManager;
+        this.arpManager = arpManager;
     }
 
     @Override
@@ -91,7 +115,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                                 srcMac, srcInterface);
                         if (!vpnPortipToPort.isConfig()) {
                                 synchronized ((vpnName + ipToQuery).intern()) {
-                                    vpnIfManager.removeMIPAdjacency(vpnName, oldPortName, srcIP);
+                                    removeMIPAdjacency(vpnName, oldPortName, srcIP);
                                     VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery);
                                 }
                                 try {
@@ -108,7 +132,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     } else {
                         synchronized ((vpnName + ipToQuery).intern()) {
                             VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface, srcMac.getValue(), false, false, true);
-                            vpnIfManager.addMIPAdjacency(vpnName, srcInterface, srcIP);
+                            addMIPAdjacency(vpnName, srcInterface, srcIP);
                         }
                     }
                     String targetIpToQuery = notification.getDstIpaddress().getIpv4Address().getValue();
@@ -119,7 +143,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                         if (vpnTargetIpToPort.isSubnetIp()) {
                             String macAddress = vpnTargetIpToPort.getMacAddress();
                             PhysAddress targetMac = new PhysAddress(macAddress);
-                            vpnIfManager.processArpRequest(srcIP, srcMac, targetIP, targetMac, srcInterface);
+                            processArpRequest(srcIP, srcMac, targetIP, targetMac, srcInterface);
                         }
                     } else {
                         //Respond for gateway Ips ARP requests if L3vpn configured without a router
@@ -144,7 +168,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                                     gw = subnet.get().getGatewayIp().getIpv4Address().getValue();
                                     if (targetIpToQuery.equalsIgnoreCase(gw)) {
                                         LOG.trace("Target Destination matches the Gateway IP {} so respond for ARP", gw);
-                                        vpnIfManager.processArpRequest(srcIP, srcMac, targetIP, null, srcInterface);
+                                        processArpRequest(srcIP, srcMac, targetIP, null, srcInterface);
                                     }
                                 }
                             }
@@ -191,7 +215,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                                 srcMac, srcInterface);
                         if (!vpnPortipToPort.isConfig()) {
                                 synchronized ((vpnName + ipToQuery).intern()) {
-                                    vpnIfManager.removeMIPAdjacency(vpnName, oldPortName, srcIP);
+                                    removeMIPAdjacency(vpnName, oldPortName, srcIP);
                                     VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery);
                                 }
                                 try {
@@ -207,7 +231,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     } else {
                         synchronized ((vpnName + ipToQuery).intern()) {
                             VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface, srcMac.getValue(), false, false, true);
-                            vpnIfManager.addMIPAdjacency(vpnName, srcInterface, srcIP);
+                            addMIPAdjacency(vpnName, srcInterface, srcIP);
                         }
                     }
             }
@@ -231,6 +255,83 @@ public class ArpNotificationHandler implements OdlArputilListener {
 
         LOG.trace("Target destination matches floating IP {} so respond for ARP", targetIpValue);
         vpnIfManager.processArpRequest(srcIP, srcMac, targetIP, new PhysAddress(targetMac.getValue()), srcInterface);
+    }
+
+    public void processArpRequest(IpAddress srcIP, PhysAddress srcMac, IpAddress targetIP, PhysAddress targetMac,
+                                  String srcInterface){
+        //Build ARP response with ARP requests TargetIp TargetMac as the Arp Response SrcIp and SrcMac
+        SendArpResponseInput input = new SendArpResponseInputBuilder().setInterface(srcInterface)
+                .setDstIpaddress(srcIP).setDstMacaddress(srcMac).setSrcIpaddress(targetIP).setSrcMacaddress(targetMac).build();
+        final String msgFormat = String.format("Send ARP Response on interface %s to destination %s", srcInterface, srcIP);
+        Future<RpcResult<Void>> future = arpManager.sendArpResponse(input);
+        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(future), new FutureCallback<RpcResult<Void>>() {
+            @Override
+            public void onFailure(Throwable error) {
+                LOG.error("Error - {}", msgFormat, error);
+            }
+
+            @Override
+            public void onSuccess(RpcResult<Void> result) {
+                if(!result.isSuccessful()) {
+                    LOG.warn("Rpc call to {} failed", msgFormat);
+                } else {
+                    LOG.debug("Successful RPC Result - {}", msgFormat);
+                }
+            }
+        });
+    }
+
+    private void addMIPAdjacency(String vpnName,String vpnInterface, IpAddress prefix){
+
+        LOG.trace("Adding {} adjacency to VPN Interface {} ",prefix,vpnInterface);
+        InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
+        InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
+        Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
+        String nextHopIpAddr = null;
+        String nextHopMacAddress = null;
+        String ip = prefix.getIpv4Address().getValue();
+        if (adjacencies.isPresent()) {
+            List<Adjacency> adjacencyList = adjacencies.get().getAdjacency();
+            ip = VpnUtil.getIpPrefix(ip);
+            for (Adjacency adjacs : adjacencyList) {
+                if (adjacs.getMacAddress() != null && !adjacs.getMacAddress().isEmpty()) {
+                    nextHopIpAddr = adjacs.getIpAddress();
+                    nextHopMacAddress = adjacs.getMacAddress();
+                    break;
+                }
+            }
+            if (nextHopMacAddress != null && ip != null) {
+                String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
+                long label =
+                        VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                                VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ip));
+                String nextHopIp = nextHopIpAddr.split("/")[0];
+                Adjacency newAdj = new AdjacencyBuilder().setIpAddress(ip).setKey
+                        (new AdjacencyKey(ip)).setNextHopIpList(Arrays.asList(nextHopIp)).build();
+                adjacencyList.add(newAdj);
+                Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
+                VpnInterface newVpnIntf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(vpnInterface)).
+                        setName(vpnInterface).setVpnInstanceName(vpnName).addAugmentation(Adjacencies.class, aug).build();
+                VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId, newVpnIntf);
+                LOG.debug(" Successfully stored subnetroute Adjacency into VpnInterface {}", vpnInterface);
+            }
+        }
+
+    }
+
+    private void removeMIPAdjacency(String vpnName, String vpnInterface, IpAddress prefix) {
+        String ip = VpnUtil.getIpPrefix(prefix.getIpv4Address().getValue());
+        LOG.trace("Removing {} adjacency from Old VPN Interface {} ",ip,vpnInterface);
+        InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
+        InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
+        Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, path);
+        if (adjacencies.isPresent()) {
+            InstanceIdentifier<Adjacency> adjacencyIdentifier = InstanceIdentifier.builder(VpnInterfaces.class).
+                    child(VpnInterface.class, new VpnInterfaceKey(vpnInterface)).augmentation(Adjacencies.class)
+                    .child(Adjacency.class, new AdjacencyKey(ip)).build();
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, adjacencyIdentifier);
+            LOG.trace("Successfully Deleted Adjacency into VpnInterface {}", vpnInterface);
+        }
     }
 
 }
