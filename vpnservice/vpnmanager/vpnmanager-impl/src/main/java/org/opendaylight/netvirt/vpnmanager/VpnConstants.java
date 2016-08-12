@@ -24,6 +24,15 @@ public class VpnConstants {
     public static final long MAX_WAIT_TIME_IN_MILLISECONDS = 90000;
     public static final long PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS = 10000;
     public static final int ELAN_GID_MIN = 200000;
+
+    // An IdPool for Pseudo LPort tags, that is, lportTags that are no related to an interface.
+    // These lportTags must be higher than 65535 to avoid collision with interface LportTags
+    // TODO: This pool details and creation... should it be located in InterfaceManager?
+    public static final String PSEUDO_LPORT_TAG_ID_POOL_NAME = System.getProperty("lporttag.idpool.name", "lporttag");
+    public static final long LOWER_PSEUDO_LPORT_TAG = Long.getLong("lporttag.range.lower", 170001);
+    // The max value for LPortTag is 1F FF FF => 2097151
+    public static final long UPPER_PSEUDO_LPORT_TAG = Long.getLong("lporttag.range.upper", 2097151);
+
     public static byte[] EthernetDestination_Broadcast = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
             (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
     public static byte[] MAC_Broadcast = new byte[] { (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0 };
