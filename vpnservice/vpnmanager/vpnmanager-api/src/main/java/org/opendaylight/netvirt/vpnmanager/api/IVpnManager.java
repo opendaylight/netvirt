@@ -10,6 +10,9 @@ package org.opendaylight.netvirt.vpnmanager.api;
 
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 
+import java.math.BigInteger;
+import java.util.List;
+
 public interface IVpnManager {
     void setFibManager(IFibManager fibManager);
     void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label);
@@ -26,4 +29,11 @@ public interface IVpnManager {
     boolean isVPNConfigured();
 
     long getArpCacheTimeoutMillis();
+    /**
+     * Retrieves the list of DPNs where the specified VPN has footprint
+     *
+     * @param vpnInstanceName The name of the Vpn instance
+     * @return The list of DPNs
+     */
+    List<BigInteger> getDpnsOnVpn(String vpnInstanceName);
 }
