@@ -16,6 +16,8 @@
              interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
   <reference id="mdsalUtils"
              interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+  <reference id="neutronvpnManager"
+             interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -40,6 +42,7 @@
     <argument ref="odlInterfaceRpcService" />
     <argument ref="idManagerService" />
     <argument ref="elanService" />
+    <argument ref="subnetGwMacChangeListener "/>
     <argument ref="blueprintBundleContext" />
   </bean>
 
@@ -198,5 +201,22 @@
     <argument ref="externalRoutersListener" />
   </bean>
   <odl:notification-listener ref="routerToVpnListener" />
+
+  <bean id="subnetGwMacChangeListener"
+        class="org.opendaylight.netvirt.natservice.internal.SubnetGwMacChangeListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="neutronvpnManager" />
+    <argument ref="externalNetworkGroupInstaller" />
+  </bean>
+  
+  <bean id="externalNetworkGroupInstaller"
+        class="org.opendaylight.netvirt.natservice.internal.ExternalNetworkGroupInstaller">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+    <argument ref="elanService" />
+    <argument ref="idManagerService" />
+    <argument ref="odlInterfaceRpcService" />
+  </bean>
 
 </blueprint>
