@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_887d60ea",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/ChangeUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2016-08-12T16:30:10Z",
+      "side": 1,
+      "message": "Maybe - these are pulled from TransactUtils in the OVSDB plugin.",
+      "parentUuid": "7a6b29fe_23ed5bc4",
+      "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_83d1cffd",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
         "patchSetId": 6
@@ -30,6 +48,30 @@
       "writtenOn": "2016-08-10T20:10:21Z",
       "side": 1,
       "message": "wrong class",
+      "range": {
+        "startLine": 58,
+        "startChar": 62,
+        "endLine": 58,
+        "endChar": 92
+      },
+      "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c49aaa62",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2016-08-12T16:30:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_83d1cffd",
       "range": {
         "startLine": 58,
         "startChar": 62,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_6878c4f2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2016-08-12T16:30:10Z",
+      "side": 1,
+      "message": "I suppose as frequently as changes to qos configuration is made (not much?).  Anyway, changed to a log trace.",
+      "parentUuid": "7a6b29fe_63ce335c",
+      "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_0305bf79",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
         "patchSetId": 6
@@ -70,6 +130,24 @@
       "writtenOn": "2016-08-10T20:10:21Z",
       "side": 1,
       "message": "could pass in some utils... there are a billion different variants, but most of the code passes in a IMdsalManagerApi form genius.",
+      "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_684f24be",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2016-08-12T16:30:10Z",
+      "side": 1,
+      "message": "Found a different source for this used by other places in netvirt, so changed to that.",
+      "parentUuid": "7a6b29fe_0305bf79",
       "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_e85b3485",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2016-08-12T16:30:10Z",
+      "side": 1,
+      "message": "tried to figure out how to pull in the constant - but ended up just defining a local string.",
+      "parentUuid": "7a6b29fe_43ffb767",
+      "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_23043b7a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
         "patchSetId": 6
@@ -104,6 +200,24 @@
       "writtenOn": "2016-08-10T20:10:21Z",
       "side": 1,
       "message": "maybe a single method taking operation. And could add two wrappers but seems like passing operation is the same.",
+      "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_28552c50",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2016-08-12T16:30:10Z",
+      "side": 1,
+      "message": "Not quite sure what you\u0027re saying.\n\nI copied these methods from InterfaceMetaUtils in genius \u0027as-is\u0027.\n\nI just experimented with making interfacemanager-impl a dependency in the pom.xml and removing these methods from here.  (ending up going around in circles due to other master tip breakages yesterday - so reverted to this approach).  Not sure what is preferable.",
+      "parentUuid": "7a6b29fe_23043b7a",
       "revId": "e6a7ea4576678640e9c43b957b28d4a00c5e61c0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
