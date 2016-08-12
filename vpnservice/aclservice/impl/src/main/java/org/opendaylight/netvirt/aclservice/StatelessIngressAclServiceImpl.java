@@ -34,6 +34,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Provides the stateless implementation for ingress (w.r.t VM) ACL service.
+ *
+ * <p>
+ * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress
+ * and vice versa.
+ */
 public class StatelessIngressAclServiceImpl extends IngressAclServiceImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatelessIngressAclServiceImpl.class);
@@ -85,7 +92,7 @@ public class StatelessIngressAclServiceImpl extends IngressAclServiceImpl {
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
         String flowName = "SYN_" + origFlowName;
-        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE_ID, flowName, AclConstants.PROTO_MATCH_SYN_ALLOW_PRIORITY,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_SYN_ALLOW_PRIORITY,
                 "ACL_SYN_", 0, 0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
         String oper = getOperAsString(addOrRemove);
         LOG.debug("{} allow syn packet flow {}", oper, flowName);

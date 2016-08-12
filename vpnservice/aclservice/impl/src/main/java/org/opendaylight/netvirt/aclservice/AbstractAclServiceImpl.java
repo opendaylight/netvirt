@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
@@ -26,7 +25,6 @@ import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
-import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -306,7 +304,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected List<InstructionInfo> getDispatcherTableResubmitInstructions(List<ActionInfo> actionsInfos) {
         short dispatcherTableId = NwConstants.LPORT_DISPATCHER_TABLE;
         if (ServiceModeEgress.class.equals(this.serviceMode)) {
-            dispatcherTableId = AclConstants.EGRESS_LPORT_DISPATCHER_TABLE;
+            dispatcherTableId = NwConstants.EGRESS_LPORT_DISPATCHER_TABLE;
         }
 
         List<InstructionInfo> instructions = new ArrayList<>();
