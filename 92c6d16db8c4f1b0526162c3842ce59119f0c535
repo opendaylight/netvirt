@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_f8f4a9d0",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-08-12T09:50:52Z",
+      "side": 1,
+      "message": "Is this test only method to be removed later? If not required, please remove or else add a TODO if you are planning to remove it later.",
+      "range": {
+        "startLine": 169,
+        "startChar": 4,
+        "endLine": 169,
+        "endChar": 45
+      },
+      "revId": "92c6d16db8c4f1b0526162c3842ce59119f0c535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6d1619a9",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-08-12T09:50:52Z",
+      "side": 1,
+      "message": "Use NwConstants.EGRESS_LPORT_DISPATCHER_TABLE",
+      "range": {
+        "startLine": 270,
+        "startChar": 34,
+        "endLine": 270,
+        "endChar": 76
+      },
+      "revId": "92c6d16db8c4f1b0526162c3842ce59119f0c535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ed2189fd",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-08-12T09:50:52Z",
+      "side": 1,
+      "message": "Use NwConstants.EGRESS_ACL_TABLE as the deprecated NwConstants.INGRESS_ACL_TABLE_ID is planned to be removed",
+      "range": {
+        "startLine": 293,
+        "startChar": 73,
+        "endLine": 293,
+        "endChar": 105
+      },
+      "revId": "92c6d16db8c4f1b0526162c3842ce59119f0c535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1897e591",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-08-12T09:50:52Z",
+      "side": 1,
+      "message": "Few comments below:\n1. Please move these constants to NwConstants (in genius).\n\n2. Earlier Aclservice constants where named w.r.t to vm now it\u0027s been changed w.r.t to switch. So, please interchange these table names.\n   For eg: EGRESS_LEARN_TABLE should be something like INGRESS_ACL_LEARN_TABLE\n   \n   I have already pushed a patch to take care of this in the existing code.\n   https://git.opendaylight.org/gerrit/#/c/43640/\n   \n3. Having ACL in the table names would provide better clarity. For eg: INGRESS_ACL_LEARN_TABLE\n\n4. Can EGRESS_LEARN2_TABLE and INGRESS_LEARN2_TABLE have more appropriate names?",
+      "range": {
+        "startLine": 67,
+        "startChar": 4,
+        "endLine": 70,
+        "endChar": 57
+      },
+      "revId": "92c6d16db8c4f1b0526162c3842ce59119f0c535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_58e83d10",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-08-12T09:50:52Z",
+      "side": 1,
+      "message": "Security group term is tied to openstack, but ACL is generic. So, please rename security groups to ACL where ever applicable unless its very much specific to openstack.",
+      "range": {
+        "startLine": 74,
+        "startChar": 32,
+        "endLine": 74,
+        "endChar": 79
+      },
+      "revId": "92c6d16db8c4f1b0526162c3842ce59119f0c535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_385101d9",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-08-12T09:50:52Z",
+      "side": 1,
+      "message": "This might have to be done using blueprint way of dependency injection.",
+      "range": {
+        "startLine": 89,
+        "startChar": 4,
+        "endLine": 123,
+        "endChar": 5
+      },
+      "revId": "92c6d16db8c4f1b0526162c3842ce59119f0c535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
