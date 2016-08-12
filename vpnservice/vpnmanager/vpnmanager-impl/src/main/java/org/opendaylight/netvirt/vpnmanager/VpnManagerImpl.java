@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -16,6 +18,7 @@ import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +59,28 @@ public class VpnManagerImpl implements IVpnManager {
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to create idPool for VPN Service",e);
         }
+
+        // Now an IdPool for InterVpnLink endpoint's pseudo ports
+        CreateIdPoolInput createPseudoLporTagPool =
+                new CreateIdPoolInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME)
+                        .setLow(VpnConstants.LOWER_PSEUDO_LPORT_TAG)
+                        .setHigh(VpnConstants.UPPER_PSEUDO_LPORT_TAG)
+                        .build();
+        try {
+            Future<RpcResult<Void>> result = idManager.createIdPool(createPseudoLporTagPool);
+            if (result != null && result.get().isSuccessful()) {
+                LOG.debug("Created IdPool for Pseudo Port tags");
+            } else {
+                Collection<RpcError> errors = result.get().getErrors();
+                StringBuilder errMsg = new StringBuilder();
+                for ( RpcError err : errors ) {
+                    errMsg.append(err.getMessage()).append("\n");
+                }
+                LOG.error("IdPool creation for PseudoPort tags failed. Reasons: {}", errMsg);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to create idPool for Pseudo Port tags",e);
+        }
     }
 
     @Override
@@ -78,6 +103,11 @@ public class VpnManagerImpl implements IVpnManager {
     @Override
     public boolean isVPNConfigured() {
         return vpnInstanceListener.isVPNConfigured();
+    }
+
+    @Override
+    public List<BigInteger> getDpnsOnVpn(String vpnInstanceName) {
+        return VpnUtil.getDpnsOnVpn(dataBroker, vpnInstanceName);
     }
 
     @Override
