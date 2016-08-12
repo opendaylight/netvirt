@@ -166,4 +166,17 @@
     <argument ref="elanUtils" />
     <argument ref="entityOwnershipService" />
   </bean>
+
+  <odl:clustered-app-config id="elanConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig">
+  </odl:clustered-app-config>
+
+  <bean id="ElanOvsdbNodeListener"
+        class="org.opendaylight.netvirt.elan.internal.ElanOvsdbNodeListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanConfig" />
+    <argument ref="elanBridgeManager" />
+    <argument ref="elanService" />
+  </bean>
 </blueprint>
