@@ -95,7 +95,6 @@ public class ElanServiceProvider implements IElanService {
         this.broker = dataBroker;
         this.elanStatusMonitor = elanStatusMonitor;
         this.elanUtils = elanUtils;
-        elanInstanceManager.setElanUtils(elanUtils);
         elanInterfaceManager.setElanUtils(elanUtils);
     }
 
@@ -348,7 +347,7 @@ public class ElanServiceProvider implements IElanService {
 
     @Override
     public Collection<MacEntry> getElanMacTable(String elanInstanceName) {
-        Elan elanInfo = elanUtils.getElanByName(elanInstanceName);
+        Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceName);
         List<MacEntry> macAddress = new ArrayList<>();
         if (elanInfo == null) {
             return macAddress;
@@ -368,7 +367,7 @@ public class ElanServiceProvider implements IElanService {
 
     @Override
     public void flushMACTable(String elanInstanceName) {
-        Elan elanInfo = elanUtils.getElanByName(elanInstanceName);
+        Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceName);
         if (elanInfo == null) {
             return;
         }
