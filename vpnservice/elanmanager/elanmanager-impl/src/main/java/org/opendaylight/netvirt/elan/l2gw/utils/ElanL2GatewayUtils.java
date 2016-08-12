@@ -312,6 +312,7 @@ public class ElanL2GatewayUtils {
      * @param elan
      *            the elan
      * @param interfaceName
+     *            the interface name
      */
     public void installL2gwDeviceMacsInDpn(BigInteger dpnId, NodeId l2gwDeviceNodeId, ElanInstance elan,
             String interfaceName) {
@@ -335,6 +336,7 @@ public class ElanL2GatewayUtils {
      * @param elan
      *            the elan
      * @param interfaceName
+     *            the interface name
      */
     public void installDmacFlowsOnDpn(BigInteger dpnId, L2GatewayDevice l2gwDevice, ElanInstance elan,
             String interfaceName) {
@@ -360,6 +362,7 @@ public class ElanL2GatewayUtils {
      * @param elan
      *            the elan
      * @param interfaceName
+     *            the interface name
      */
     public void installElanL2gwDevicesLocalMacsInDpn(BigInteger dpnId, ElanInstance elan, String interfaceName) {
         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevicesFromCache = ElanL2GwCacheUtils

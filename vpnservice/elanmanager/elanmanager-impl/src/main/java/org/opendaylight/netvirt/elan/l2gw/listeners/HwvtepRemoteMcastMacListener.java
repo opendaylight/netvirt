@@ -65,18 +65,13 @@ public class HwvtepRemoteMcastMacListener
     /**
      * Instantiates a new remote mcast mac listener.
      *
-     * @param broker
-     *            the mdsal databroker reference
-     * @param elanUtils
-     *@param logicalSwitchName
-     *            the logical switch name
-     * @param l2GatewayDevice
- *            the l2 gateway device
-     * @param expectedPhyLocatorIps
-*            the expected phy locator ips
-     * @param task
-*            the task to be run upon data presence     @throws Exception
-     *             the exception
+     * @param broker                the mdsal databroker reference
+     * @param elanUtils             elan utils
+     * @param logicalSwitchName     the logical switch name
+     * @param l2GatewayDevice       the l2 gateway device
+     * @param expectedPhyLocatorIps the expected phy locator ips
+     * @param task                  the task to be run upon data presence
+     * @throws Exception            the exception
      */
     public HwvtepRemoteMcastMacListener(DataBroker broker, ElanUtils elanUtils, String logicalSwitchName,
                                         L2GatewayDevice l2GatewayDevice,

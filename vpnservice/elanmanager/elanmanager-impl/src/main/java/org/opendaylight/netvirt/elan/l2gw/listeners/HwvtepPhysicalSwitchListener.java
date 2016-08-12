@@ -72,9 +72,9 @@ public class HwvtepPhysicalSwitchListener
      *
      * @param dataBroker
      *            the data broker
-     * @param itmRpcService
-     * @param entityOwnershipService
-     * @param elanUtils
+     * @param itmRpcService itm rpc
+     * @param entityOwnershipService entity ownership service
+     * @param elanUtils elan utils
      */
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
                                         EntityOwnershipService entityOwnershipService,

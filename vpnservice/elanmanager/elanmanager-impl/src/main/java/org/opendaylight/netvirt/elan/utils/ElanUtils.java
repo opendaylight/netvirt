@@ -1215,6 +1215,8 @@ public class ElanUtils {
      *            the id manager
      * @param elanInstanceAdded
      *            the elan instance added
+     * @param elanInterfaces
+     *            the elan interfaces
      * @param tx
      *            transaction
      */
@@ -1642,6 +1644,8 @@ public class ElanUtils {
      *            the mac address
      * @param displayName
      *            the display name
+     * @param interfaceName
+     *            the interface name
      *
      * @return the dmac flows
      */
@@ -1858,6 +1862,8 @@ public class ElanUtils {
      *            the elan instance name
      * @param addOrRemove
      *            Indicates if flows must be installed or removed.
+     * @param interfaceName
+     *            the interface name
      * @see org.opendaylight.genius.mdsalutil.MDSALUtil.MdsalOp
      */
     public void setupDmacFlowsToExternalRemoteMac(BigInteger dpId, String extNodeId, Long elanTag, Long vni,

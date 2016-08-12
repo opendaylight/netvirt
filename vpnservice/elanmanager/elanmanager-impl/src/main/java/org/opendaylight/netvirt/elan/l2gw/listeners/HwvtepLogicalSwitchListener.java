@@ -68,14 +68,16 @@ public class HwvtepLogicalSwitchListener extends
     /**
      * Instantiates a new hardware vtep logical switch listener.
      *
+     * @param dataBroker DataBroker
+     * @param elanL2GatewayUtils l2 gateway utils
      * @param entityOwnershipService the entity ownership service
      * @param elanUtils the ELAN utilities
-     * @param elanL2GatewayMulticastUtils
+     * @param elanL2GatewayMulticastUtils l2 gateway multicast utils
      * @param l2GatewayDevice the l2 gateway device
      * @param logicalSwitchName the logical switch name
      * @param physicalDevice the physical device
      * @param defaultVlanId the default vlan id
-     * @param l2GwConnId
+     * @param l2GwConnId l2 gateway connection id
      */
     public HwvtepLogicalSwitchListener(DataBroker dataBroker, ElanL2GatewayUtils elanL2GatewayUtils,
                                        EntityOwnershipService entityOwnershipService, ElanUtils elanUtils,
@@ -105,7 +107,7 @@ public class HwvtepLogicalSwitchListener extends
      * getWildCardPath()
      */
     @Override
-	public InstanceIdentifier<LogicalSwitches> getWildCardPath() {
+    public InstanceIdentifier<LogicalSwitches> getWildCardPath() {
         return HwvtepSouthboundUtils.createLogicalSwitchesInstanceIdentifier(nodeId,
                 new HwvtepNodeName(logicalSwitchName));
     }
