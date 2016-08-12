@@ -14,6 +14,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface INeutronVpnManager {
@@ -39,6 +40,8 @@ public interface INeutronVpnManager {
     IpAddress getNeutronSubnetGateway(Uuid subnetId);
 
     String getVifPortName(Port port);
+
+    Collection<Uuid> getSubnetIdsForGatewayIp(IpAddress ipAddress);
 
 }
 
