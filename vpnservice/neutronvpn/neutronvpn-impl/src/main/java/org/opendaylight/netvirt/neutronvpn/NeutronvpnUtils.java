@@ -11,7 +11,10 @@ package org.opendaylight.netvirt.neutronvpn;
 import com.google.common.base.Optional;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -33,6 +36,7 @@ import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -117,6 +121,7 @@ public class NeutronvpnUtils {
     public static ConcurrentHashMap<Uuid, Router> routerMap = new ConcurrentHashMap<Uuid, Router>();
     public static ConcurrentHashMap<Uuid, Port> portMap = new ConcurrentHashMap<Uuid, Port>();
     public static ConcurrentHashMap<Uuid, Subnet> subnetMap = new ConcurrentHashMap<Uuid, Subnet>();
+    public static Map<IpAddress, Set<Uuid>> subnetGwIpMap = new ConcurrentHashMap<IpAddress, Set<Uuid>>();
     private static final Set<Class<? extends NetworkTypeBase>> supportedNetworkTypes = Sets.newConcurrentHashSet();
 
     private static long LOCK_WAIT_TIME = 10L;
@@ -535,7 +540,7 @@ public class NeutronvpnUtils {
      */
     protected static List<AllowedAddressPairs> getUpdatedAllowedAddressPairs(
             List<AllowedAddressPairs> aclInterfaceAllowedAddressPairs,
-            List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> origAllowedAddressPairs, 
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> origAllowedAddressPairs,
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs> newAllowedAddressPairs) {
         List<AllowedAddressPairs> addedAllowedAddressPairs = getAllowedAddressPairsDelta(newAllowedAddressPairs,
                 origAllowedAddressPairs);
@@ -711,7 +716,7 @@ public class NeutronvpnUtils {
                 }
             }
         //}
-        return true;        
+        return true;
     }
 
     protected static Short getIPPrefixFromPort(DataBroker broker, Port port) {
@@ -787,10 +792,26 @@ public class NeutronvpnUtils {
 
     public static void addToSubnetCache(Subnet subnet) {
         subnetMap.put(subnet.getUuid(), subnet);
+        IpAddress gatewayIp = subnet.getGatewayIp();
+        if (gatewayIp != null) {
+            Set<Uuid> gwIps = subnetGwIpMap.get(gatewayIp);
+            if (gwIps == null) {
+                gwIps = Sets.newConcurrentHashSet();
+                subnetGwIpMap.put(gatewayIp, gwIps);
+            }
+            gwIps.add(subnet.getUuid());
+        }
     }
 
     public static void removeFromSubnetCache(Subnet subnet) {
         subnetMap.remove(subnet.getUuid());
+        IpAddress gatewayIp = subnet.getGatewayIp();
+        if (gatewayIp != null) {
+            Set<Uuid> gwIps = subnetGwIpMap.get(gatewayIp);
+            if (gwIps != null) {
+                gwIps.remove(subnet.getUuid());
+            }
+        }
     }
 
     protected static VpnPortipToPort getVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp) {
@@ -811,6 +832,11 @@ public class NeutronvpnUtils {
         NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
         return providerExtension != null ? providerExtension.getPhysicalNetwork() : null;
     }
+
+    public static Collection<Uuid> getSubnetIdsForGatewayIp(IpAddress ipAddress) {
+        return subnetGwIpMap.getOrDefault(ipAddress, Collections.emptySet());
+    }
+
     static InstanceIdentifier<VpnPortipToPort> buildVpnPortipToPortIdentifier(String vpnName, String fixedIp) {
         InstanceIdentifier<VpnPortipToPort> id = InstanceIdentifier.builder(NeutronVpnPortipPortData.class).child
                 (VpnPortipToPort.class, new VpnPortipToPortKey(fixedIp, vpnName)).build();
