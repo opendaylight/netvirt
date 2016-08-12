@@ -107,8 +107,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private final IInterfaceManager interfaceManager;
     private final IdManagerService idManager;
     private final ElanForwardingEntriesHandler elanForwardingEntriesHandler;
-    private final ElanL2GatewayUtils elanL2GatewayUtils;
-    private final ElanUtils elanUtils;
+    private ElanL2GatewayUtils elanL2GatewayUtils;
+    private ElanUtils elanUtils;
 
     private static final long waitTimeForSyncInstall = Long.getLong("wait.time.sync.install", 300L);
 
@@ -120,16 +120,19 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                 final IdManagerService managerService,
                                 final IMdsalApiManager mdsalApiManager,
                                 IInterfaceManager interfaceManager,
-                                final ElanForwardingEntriesHandler elanForwardingEntriesHandler,
-                                final ElanL2GatewayUtils elanL2GatewayUtils, ElanUtils elanUtils) {
+                                final ElanForwardingEntriesHandler elanForwardingEntriesHandler) {
         super(ElanInterface.class, ElanInterfaceManager.class);
         this.broker = dataBroker;
         this.idManager = managerService;
         this.mdsalManager = mdsalApiManager;
         this.interfaceManager = interfaceManager;
         this.elanForwardingEntriesHandler = elanForwardingEntriesHandler;
-        this.elanL2GatewayUtils = elanL2GatewayUtils;
+    }
+
+    public void setElanUtils(ElanUtils elanUtils) {
         this.elanUtils = elanUtils;
+        this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
+        this.elanForwardingEntriesHandler.setElanUtils(elanUtils);
     }
 
     public void init() {

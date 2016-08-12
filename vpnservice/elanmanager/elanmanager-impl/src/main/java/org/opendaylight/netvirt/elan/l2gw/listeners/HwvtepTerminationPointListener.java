@@ -20,6 +20,7 @@ import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBa
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
@@ -67,12 +68,12 @@ public class HwvtepTerminationPointListener extends
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final EntityOwnershipService entityOwnershipService;
 
-    public HwvtepTerminationPointListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
+    public HwvtepTerminationPointListener(DataBroker broker, ElanUtils elanUtils,
                                           EntityOwnershipService entityOwnershipService) {
         super(TerminationPoint.class, HwvtepTerminationPointListener.class);
 
         this.broker = broker;
-        this.elanL2GatewayUtils = elanL2GatewayUtils;
+        this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
         this.entityOwnershipService = entityOwnershipService;
         registerListener();
         logger.debug("created HwvtepTerminationPointListener");

@@ -44,18 +44,21 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     private final DataBroker broker;
     private final IdManagerService idManager;
-    private final ElanInterfaceManager elanInterfaceManager;
     private final IInterfaceManager interfaceManager;
-    private final ElanUtils elanUtils;
+    private final ElanInterfaceManager elanInterfaceManager;
+    private ElanUtils elanUtils;
 
     public ElanInstanceManager(final DataBroker dataBroker, final IdManagerService managerService,
                                final ElanInterfaceManager elanInterfaceManager,
-                               final IInterfaceManager interfaceManager, ElanUtils elanUtils) {
+                               final IInterfaceManager interfaceManager) {
         super(ElanInstance.class, ElanInstanceManager.class);
         this.broker = dataBroker;
         this.idManager = managerService;
         this.elanInterfaceManager = elanInterfaceManager;
         this.interfaceManager = interfaceManager;
+    }
+
+    public void setElanUtils(ElanUtils elanUtils) {
         this.elanUtils = elanUtils;
     }
 
