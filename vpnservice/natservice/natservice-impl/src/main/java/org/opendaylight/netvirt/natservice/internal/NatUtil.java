@@ -38,6 +38,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -67,8 +70,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
@@ -79,12 +85,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoad;
- 
+
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -312,12 +322,18 @@ public class NatUtil {
             }
     */
     public static Uuid getVpnIdfromNetworkId(DataBroker broker, Uuid networkId) {
-        InstanceIdentifier id = buildNetworkIdentifier(networkId);
+        InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         Optional<Networks> networkData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (networkData.isPresent()) {
             return networkData.get().getVpnid();
         }
         return null;
+    }
+
+    public static List<Uuid> getRouterIdsfromNetworkId(DataBroker broker, Uuid networkId) {
+        InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
+        Optional<Networks> networkData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return networkData.isPresent() ? networkData.get().getRouterIds() : Collections.emptyList();
     }
 
     static String getAssociatedExternalNetwork(DataBroker dataBroker, String routerId) {
@@ -977,6 +993,28 @@ public class NatUtil {
         return bgpVpnId;
     }
 
+
+    public static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
+        BigInteger nodeId = BigInteger.ZERO;
+        try {
+            GetDpidFromInterfaceInput
+                    dpIdInput =
+                    new GetDpidFromInterfaceInputBuilder().setIntfName(ifName).build();
+            Future<RpcResult<GetDpidFromInterfaceOutput>>
+                    dpIdOutput =
+                    interfaceManagerRpcService.getDpidFromInterface(dpIdInput);
+            RpcResult<GetDpidFromInterfaceOutput> dpIdResult = dpIdOutput.get();
+            if (dpIdResult.isSuccessful()) {
+                nodeId = dpIdResult.getResult().getDpid();
+            } else {
+                LOG.error("Could not retrieve DPN Id for interface {}", ifName);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Exception when getting dpn for interface {}", ifName,  e);
+        }
+        return nodeId;
+    }
+
     public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService interfaceManager, String ifName,
             Long tunnelKey) {
         LOG.debug("NAT Service : getEgressActionsForInterface called for interface {}", ifName);
@@ -1032,7 +1070,7 @@ public class NatUtil {
         return listActionInfo;
     }
 
-    public static MacAddress getMacAddressForFloatingIp(DataBroker broker,
+    public static Port getNeutronPortForFloatingIp(DataBroker broker,
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress targetIP) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports>
         portsIdentifier = InstanceIdentifier
@@ -1049,13 +1087,65 @@ public class NatUtil {
             if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(port.getDeviceOwner()) && port.getFixedIps() != null) {
                 for (FixedIps ip : port.getFixedIps()) {
                     if (Objects.equals(ip.getIpAddress(), targetIP)) {
-                        return port.getMacAddress();
+                        return port;
                     }
                 }
             }
         }
 
         return null;
+    }
+
+    public static Uuid getSubnetIdForFloatingIp(Port port,
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress targetIP) {
+        if (port == null) {
+            return null;
+        }
+
+        for (FixedIps ip : port.getFixedIps()) {
+            if (Objects.equals(ip.getIpAddress(), targetIP)) {
+                return ip.getSubnetId();
+            }
+        }
+
+        return null;
+    }
+
+    public static Subnetmap getSubnetMap(DataBroker broker, Uuid subnetId) {
+        InstanceIdentifier<Subnetmap> subnetmapId = InstanceIdentifier.builder(Subnetmaps.class)
+                .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
+        Optional<Subnetmap> subnetOpt = read(broker, LogicalDatastoreType.CONFIGURATION, subnetmapId);
+        return subnetOpt.isPresent() ? subnetOpt.get() : null;
+    }
+
+    public static String getSubnetGwMac(DataBroker broker, Uuid subnetId, String vpnName) {
+        if (subnetId == null) {
+            return null;
+        }
+
+        InstanceIdentifier<Subnet> subnetInst = InstanceIdentifier.create(Neutron.class).child(Subnets.class)
+                .child(Subnet.class, new SubnetKey(subnetId));
+        Optional<Subnet> subnetOpt = read(broker, LogicalDatastoreType.CONFIGURATION, subnetInst);
+        if (!subnetOpt.isPresent()) {
+            return null;
+        }
+
+        IpAddress gatewayIp = subnetOpt.get().getGatewayIp();
+        if (gatewayIp == null) {
+            LOG.trace("No GW ip found for subnet {}", subnetId.getValue());
+            return null;
+        }
+
+        InstanceIdentifier<VpnPortipToPort> portIpInst = InstanceIdentifier.builder(NeutronVpnPortipPortData.class)
+                .child(VpnPortipToPort.class, new VpnPortipToPortKey(gatewayIp.getIpv4Address().getValue(), vpnName))
+                .build();
+        Optional<VpnPortipToPort> portIpToPortOpt = read(broker, LogicalDatastoreType.CONFIGURATION, portIpInst);
+        if (!portIpToPortOpt.isPresent()) {
+            LOG.trace("No resolution was found to GW ip {} in subnet {}", gatewayIp, subnetId.getValue());
+            return null;
+        }
+
+        return portIpToPortOpt.get().getMacAddress();
     }
 
 }
