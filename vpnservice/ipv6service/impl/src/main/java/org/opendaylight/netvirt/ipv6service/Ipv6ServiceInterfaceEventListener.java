@@ -64,15 +64,23 @@ public class Ipv6ServiceInterfaceEventListener
         LOG.debug("Port updated...");
     }
 
+    private boolean isNeutronPort(String name) {
+        try {
+            Uuid portId = new Uuid(name);
+            return true;
+        } catch (IllegalArgumentException e) {
+            LOG.debug("Port {} is not a Neutron Port, skipping.", name);
+        }
+        return false;
+    }
+
     @Override
     protected void add(InstanceIdentifier<Interface> key, Interface add) {
         LOG.debug("Port added {}, {}", key, add);
         List<String> ofportIds = add.getLowerLayerIf();
-        // When a port is created, we receive two notifications.
-        // 1. where the interface name is dpnid:tapinterfaceName (f.e., 238412509713739:tapf662f5bf-9d)
-        // 2. neutron interface with name as UUID (f.e., f662f5bf-9d54-4dd7-8bcd-7a0a3a0bae4a)
-        // In ipv6service, we are interested only in notification-2, so we skip notification-1.
-        if (ofportIds == null || ofportIds.isEmpty() || add.getName().contains(":")) {
+        // When a port is created, we receive multiple notifications.
+        // In ipv6service, we are only interested in the notification for NeutronPort, so we skip other notifications
+        if (ofportIds == null || ofportIds.isEmpty() || !isNeutronPort(add.getName())) {
             return;
         }
 
