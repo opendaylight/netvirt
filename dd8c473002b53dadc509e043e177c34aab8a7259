@@ -16,6 +16,24 @@
       "revId": "dd8c473002b53dadc509e043e177c34aab8a7259",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ad1031a9",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-08-12T07:43:31Z",
+      "side": 1,
+      "message": "Agree with your first point - even I noticed that we can either flood or send to a particular port. Added this comment, so that we can re-visit (if packetProcessingService is updated in future).\n\nFor the second point:\nSince we are maintaining a list of DpnIDs \u003c--\u003e List(ofPorts) \"per network\", the idea was to output same RA across all the ports that belong to the network. For a different network, I agree that we will be using a different prefix info in the RA.\n\nHowever, if you are trying to convey that even for the same network depending on the output port the \"RA payload\" would vary - can you elaborate it? AFAIU, we can use the same RA content for all the ports on the network. I see that we can further optimize the solution by re-using the txPayload in transmitRtrAdvertisement. I\u0027ll wait for your comments before making any changes. Thanks.",
+      "parentUuid": "7a6b29fe_2ded41f0",
+      "revId": "dd8c473002b53dadc509e043e177c34aab8a7259",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
