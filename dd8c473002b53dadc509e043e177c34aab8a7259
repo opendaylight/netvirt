@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_2ded41f0",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-08-12T05:52:23Z",
+      "side": 1,
+      "message": "I think the packetProcessingService allows either a broadcast of the packet through all ports or unicast through a single port.\nAlso the prefix information in RA will be modified based on the given output port so i am not sure of sending the RA through multiple ports in one shot.",
+      "revId": "dd8c473002b53dadc509e043e177c34aab8a7259",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
