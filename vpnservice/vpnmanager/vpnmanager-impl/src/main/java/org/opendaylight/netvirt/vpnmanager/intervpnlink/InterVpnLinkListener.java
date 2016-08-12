@@ -153,14 +153,14 @@ public class InterVpnLinkListener extends AbstractDataChangeListener<InterVpnLin
                 new SecondEndpointStateBuilder().setVpnUuid(secondEndpointVpnUuid).setDpId(secondDpnList)
                                                 .setLportTag(secondVpnLportTag).build();
 
-            InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, add.getName(), InterVpnLinkState.State.Active, firstEndPointState,
-                                            secondEndPointState);
+            InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, add.getName(), InterVpnLinkState.State.Active,
+                                                     firstEndPointState, secondEndPointState);
 
             // Note that in the DPN of the firstEndpoint we install the lportTag of the secondEndpoint and viceversa
             InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, add, firstDpnList,
-                                                    secondEndpointVpnUuid, secondVpnLportTag);
+                                                             secondEndpointVpnUuid, secondVpnLportTag);
             InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, add, secondDpnList,
-                                                    firstEndpointVpnUuid, firstVpnLportTag);
+                                                             firstEndpointVpnUuid, firstVpnLportTag);
             // Update the VPN -> DPNs Map.
             // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
             // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach
@@ -182,8 +182,8 @@ public class InterVpnLinkListener extends AbstractDataChangeListener<InterVpnLin
             SecondEndpointState secondEndPointState =
                 new SecondEndpointStateBuilder().setVpnUuid(secondEndpointVpnUuid)
                                                 .setLportTag(secondVpnLportTag).build();
-            InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, add.getName(), InterVpnLinkState.State.Error, firstEndPointState,
-                                            secondEndPointState);
+            InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, add.getName(), InterVpnLinkState.State.Error,
+                                                     firstEndPointState, secondEndPointState);
         }
 
 
@@ -363,8 +363,8 @@ public class InterVpnLinkListener extends AbstractDataChangeListener<InterVpnLin
     }
 
     private void releaseVpnLinkLPortTag(String idKey) {
-        ReleaseIdInput releaseIdInput = new ReleaseIdInputBuilder().setPoolName(IfmConstants.IFM_IDPOOL_NAME)
-                                                                   .setIdKey(idKey).build();
+        ReleaseIdInput releaseIdInput =
+                new ReleaseIdInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME).setIdKey(idKey).build();
         idManager.releaseId(releaseIdInput);
     }
 
@@ -392,11 +392,13 @@ public class InterVpnLinkListener extends AbstractDataChangeListener<InterVpnLin
 
     private Integer allocateVpnLinkLportTag(String idKey) {
         AllocateIdInput getIdInput =
-                new AllocateIdInputBuilder().setPoolName(IfmConstants.IFM_IDPOOL_NAME).setIdKey(idKey).build();
+                new AllocateIdInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME)
+                        .setIdKey(idKey)
+                        .build();
         try {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
             RpcResult<AllocateIdOutput> rpcResult = result.get();
-            if(rpcResult.isSuccessful()) {
+            if (rpcResult.isSuccessful()) {
                 return rpcResult.getResult().getIdValue().intValue();
             } else {
                 LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
@@ -412,9 +414,9 @@ public class InterVpnLinkListener extends AbstractDataChangeListener<InterVpnLin
                               String errorMsg) {
         // Setting InterVPNLink in error state in MDSAL
         InterVpnLinkState vpnLinkErrorState =
-           new InterVpnLinkStateBuilder(vpnLinkState).setState(InterVpnLinkState.State.Error)
-                                                     .setErrorDescription(errorMsg)
-                                                     .build();
+            new InterVpnLinkStateBuilder(vpnLinkState).setState(InterVpnLinkState.State.Error)
+                                                      .setErrorDescription(errorMsg)
+                                                      .build();
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.put(LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid, vpnLinkErrorState, true);
         tx.submit();

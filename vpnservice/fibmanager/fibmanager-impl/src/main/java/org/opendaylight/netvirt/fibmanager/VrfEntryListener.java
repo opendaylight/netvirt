@@ -348,15 +348,16 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
                     });
         }
 
-        Optional<String> vpnUuid = FibUtil.getVpnNameFromRd(dataBroker, rd);
-        if ( vpnUuid.isPresent() ) {
-            Optional<InterVpnLink> interVpnLink = FibUtil.getInterVpnLinkByVpnUuid(dataBroker, vpnUuid.get());
+        Optional<String> optVpnUuid = FibUtil.getVpnNameFromRd(dataBroker, rd);
+        if ( optVpnUuid.isPresent() ) {
+            Optional<InterVpnLink> interVpnLink = FibUtil.getInterVpnLinkByVpnUuid(dataBroker, optVpnUuid.get());
             if ( interVpnLink.isPresent() ) {
+                String vpnUuid = optVpnUuid.get();
                 String routeNexthop = vrfEntry.getNextHopAddressList().get(0);
-                if ( isNexthopTheOtherVpnLinkEndpoint(routeNexthop, vpnUuid.get(), interVpnLink.get()) ) {
+                if ( isNexthopTheOtherVpnLinkEndpoint(routeNexthop, vpnUuid, interVpnLink.get()) ) {
                     // This is an static route that points to the other endpoint of an InterVpnLink
                     // In that case, we should add another entry in FIB table pointing to LPortDispatcher table.
-                    installRouteInInterVpnLink(interVpnLink.get(), rd, vrfEntry, vpnId);
+                    installRouteInInterVpnLink(interVpnLink.get(), vpnUuid, vrfEntry, vpnId);
                 }
             }
         }
@@ -611,6 +612,8 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
         Preconditions.checkNotNull(interVpnLink, "InterVpnLink cannot be null");
         Preconditions.checkArgument(vrfEntry.getNextHopAddressList() != null
                 && vrfEntry.getNextHopAddressList().size() == 1);
+        String destination = vrfEntry.getDestPrefix();
+        String nextHop = vrfEntry.getNextHopAddressList().get(0);
 
         // After having received a static route, we should check if the vpn is part of an inter-vpn-link.
         // In that case, we should populate the FIB table of the VPN pointing to LPortDisptacher table
@@ -622,7 +625,7 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
         }
         if ( ! interVpnLinkState.get().getState().equals(InterVpnLinkState.State.Active) ) {
             LOG.warn("Route to {} with nexthop={} cannot be installed because the interVpnLink {} is not active",
-                    vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList().get(0), interVpnLink.getName());
+                    destination, nextHop, interVpnLink.getName());
             return;
         }
 
@@ -642,12 +645,13 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
                         ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
                 MetaDataUtil.getMetaDataMaskForLPortDispatcher()
         };
+        int instIdx = 0;
         List<Instruction> instructions =
                 Arrays.asList(new InstructionInfo(InstructionType.write_metadata, metadata).buildInstruction(0),
                         new InstructionInfo(InstructionType.goto_table,
                                 new long[] { NwConstants.L3_INTERFACE_TABLE }).buildInstruction(1));
 
-        String values[] = vrfEntry.getDestPrefix().split("/");
+        String values[] = destination.split("/");
         String destPrefixIpAddress = values[0];
         int prefixLength = (values.length == 1) ? 0 : Integer.parseInt(values[1]);
 
@@ -663,8 +667,7 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
         }
 
         int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
-        String nextHop = vrfEntry.getNextHopAddressList().get(0);
-        String flowRef = getInterVpnFibFlowRef(interVpnLink.getName(), vrfEntry.getDestPrefix(), nextHop);
+        String flowRef = getInterVpnFibFlowRef(interVpnLink.getName(), destination, nextHop);
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef, 0, 0,
                 COOKIE_VM_FIB_TABLE, matches, instructions);
 
