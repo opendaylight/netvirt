@@ -1321,6 +1321,31 @@ public class VpnUtil {
         }
         return null;
     }
+
+    public static List<BigInteger> getDpnsOnVpn(DataBroker dataBroker, String vpnInstanceName) {
+        List<BigInteger> result = new ArrayList<BigInteger>();
+        String rd = getVpnRd(dataBroker, vpnInstanceName);
+        if ( rd == null ) {
+            LOG.debug("Could not find Route-Distinguisher for VpnName={}", vpnInstanceName);
+            return result;
+        }
+
+        VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(dataBroker, rd);
+        if ( vpnInstanceOpData == null ) {
+            LOG.debug("Could not find OpState for VpnName={}", vpnInstanceName);
+            return result;
+        }
+
+        List<VpnToDpnList> vpnToDpnList = vpnInstanceOpData.getVpnToDpnList();
+        if ( vpnToDpnList == null ) {
+            LOG.debug("Could not find DPN footprint for VpnName={}", vpnInstanceName);
+            return result;
+        }
+        for ( VpnToDpnList vpnToDpn : vpnToDpnList) {
+            result.add(vpnToDpn.getDpnId());
+        }
+        return result;
+    }
     
     static String getAssociatedExternalNetwork(DataBroker dataBroker, String routerId) {
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerId);
