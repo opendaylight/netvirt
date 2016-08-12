@@ -341,9 +341,9 @@ public class ElanUtils {
     }
 
     // elan-state Operational container
-    public Elan getElanByName(String elanInstanceName) {
+    public static Elan getElanByName(DataBroker broker, String elanInstanceName) {
         InstanceIdentifier<Elan> elanIdentifier = getElanInstanceOperationalDataPath(elanInstanceName);
-        Optional<Elan> elanInstance = read(broker, LogicalDatastoreType.OPERATIONAL,
+        Optional<Elan> elanInstance = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
                 elanIdentifier);
         if (elanInstance.isPresent()) {
             return elanInstance.get();

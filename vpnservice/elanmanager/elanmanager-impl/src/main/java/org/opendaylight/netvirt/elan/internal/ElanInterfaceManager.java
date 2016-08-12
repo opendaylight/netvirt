@@ -269,7 +269,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private Elan removeElanStateForInterface(ElanInstance elanInfo, String interfaceName, WriteTransaction tx) {
         String elanName = elanInfo.getElanInstanceName();
-        Elan elanState = elanUtils.getElanByName(elanName);
+        Elan elanState = ElanUtils.getElanByName(broker, elanName);
         if (elanState == null) {
             return elanState;
         }
@@ -553,7 +553,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         String interfaceName = elanInterface.getName();
         String elanInstanceName = elanInterface.getElanInstanceName();
 
-        Elan elanInfo = elanUtils.getElanByName(elanInstanceName);
+        Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceName);
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         if (elanInfo == null) {
             List<String> elanInterfaces = new ArrayList<String>();
