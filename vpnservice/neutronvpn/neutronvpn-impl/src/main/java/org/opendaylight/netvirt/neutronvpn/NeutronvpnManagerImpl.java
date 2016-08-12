@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
+import java.util.Collection;
 import java.util.List;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -80,5 +81,10 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     @Override
     public IpAddress getNeutronSubnetGateway(Uuid subnetId) {
         return nvManager.getNeutronSubnetGateway(subnetId);
+    }
+
+    @Override
+    public Collection<Uuid> getSubnetIdsForGatewayIp(IpAddress ipAddress) {
+        return  NeutronvpnUtils.getSubnetIdsForGatewayIp(ipAddress);
     }
 }
