@@ -52,6 +52,24 @@
       "revId": "dd8c473002b53dadc509e043e177c34aab8a7259",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f8d669c2",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-08-12T10:40:15Z",
+      "side": 1,
+      "message": "I did the necessary changes locally, but I\u0027m unable to validate them as Netvirt seems to be broken currently. So, one option is to get this patch merged in the current state (before RC0 is cut off) and propose a follow on patch for the additional changes.\nThe other option is to wait until Netvirt is fixed.",
+      "parentUuid": "7a6b29fe_d86f2dc4",
+      "revId": "dd8c473002b53dadc509e043e177c34aab8a7259",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
