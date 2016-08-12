@@ -29,6 +29,7 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
+import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -139,6 +140,25 @@ public class VpnServiceChainUtils {
     }
 
     /**
+     *      * Retrieves the VpnId searching by VpnInstanceName
+     *
+     * @param broker
+     * @param vpnName
+     * @return
+     */
+    public static long getVpnId(DataBroker broker, String vpnName) {
+
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt
+                .l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance> id =
+                getVpnInstanceToVpnIdIdentifier(vpnName);
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt
+                .l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance> vpnInstance =
+                MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+
+        return vpnInstance.isPresent() ? vpnInstance.get().getVpnId() : VpnConstants.INVALID_ID;
+    }
+
+    /**
      * Retrieves the VPN's Route Distinguisher out from the VpnName
      * @param broker
      * @param vpnName The Vpn Instance Name. Typically the UUID.
@@ -172,6 +192,27 @@ public class VpnServiceChainUtils {
         return vpnVrfEntries;
     }
 
+
+    /**
+     * Installs/removes a flow in LPortDispatcher table that is in charge of
+     * handling packets that falls back from SCF Pipeline to L3Vpn.
+     *
+     * @param mdsalManager  MDSAL Util API accessor
+     * @param vpnId Dataplane identifier of the VPN, the Vrf Tag.
+     * @param dpId The DPN where the flow must be installed/removed
+     * @param vpnPseudoLportTag Dataplane identifier for the VpnPseudoPort
+     * @param addOrRemove States if the flow must be created or removed
+     */
+    public static void programLPortDispatcherFlowForScfToVpn(IMdsalApiManager mdsalManager, long vpnId, BigInteger dpId,
+                                                             Integer vpnPseudoLportTag, int addOrRemove) {
+        Flow flow = buildLPortDispFromScfToL3VpnFlow(vpnId, dpId, vpnPseudoLportTag, addOrRemove);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            mdsalManager.installFlow(dpId, flow);
+        } else {
+            mdsalManager.removeFlow(dpId, flow);
+        }
+    }
+
     /**
      * Build the flow that must be inserted when there is a ScHop whose egressPort is a VPN Pseudo Port. In that case,
      * packets must be moved from the SCF to VPN Pipeline
@@ -179,11 +220,13 @@ public class VpnServiceChainUtils {
      * Flow matches:  VpnPseudo port lPortTag + SI=L3VPN
      * Actions: Write vrfTag in Metadata + goto FIB Table
 
-     * @param vpnId Id of the Vpn that is the target of the packet
+     * @param vpnId Dataplane identifier of the VPN, the Vrf Tag.
      * @param dpId The DPN where the flow must be installed/removed
-     * @param addOrRemove
-     * @param lportTag lportTag of the VpnPseudoLPort
-     * @return
+     * @param lportTag Dataplane identifier for the VpnPseudoPort
+     * @param addOrRemove States if it must build a Flow to be created or
+     *     removed
+     *
+     * @return the Flow object
      */
     public static Flow buildLPortDispFromScfToL3VpnFlow(Long vpnId, BigInteger dpId, Integer lportTag,
                                                         int addOrRemove) {
@@ -212,7 +255,7 @@ public class VpnServiceChainUtils {
     /**
      * @param lportTag
      * @param serviceIndex
-     * @return
+     * @return the list of Matches
      */
     public static List<MatchInfo> buildMatchOnLportTagAndSI(Integer lportTag, short serviceIndex) {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
@@ -225,9 +268,10 @@ public class VpnServiceChainUtils {
     }
 
     /**
-     * Builds a Flow entry that sets the VpnTag in metadata and sends to FIB table.
-     * @param vpnTag
-     * @return
+     * Builds a The Instructions that sets the VpnTag in metadata and sends to FIB table.
+     *
+     * @param vpnTag Dataplane identifier of the VPN.
+     * @return the list of Instructions
      */
     public static List<Instruction> buildSetVrfTagAndGotoFibInstructions(Integer vpnTag) {
         List<Instruction> result = new ArrayList<Instruction>();
@@ -355,6 +399,17 @@ public class VpnServiceChainUtils {
                                       getCookieSCHop(scfTag), matches, instructions);
         return flowEntity;
 
+    }
+
+    public static Optional<Long> getVpnPseudoLportTag(DataBroker broker, String rd) {
+        VpnToPseudoPortTagKey key = new VpnToPseudoPortTagKey(rd);
+        InstanceIdentifier<VpnToPseudoPortTag> path = InstanceIdentifier.builder(VpnToPseudoPortTagData.class)
+                .child(VpnToPseudoPortTag.class, key)
+                .build();
+        Optional<VpnToPseudoPortTag> lPortTagOpc = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
+
+        return lPortTagOpc.isPresent() ? Optional.fromNullable(lPortTagOpc.get().getLportTag())
+                : Optional.<Long>absent();
     }
 
     /**

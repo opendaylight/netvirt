@@ -302,10 +302,10 @@ public class VPNServiceChainHandlerTest {
         VrfEntry ve = stubCreateDCGWVrfEntry();
 
         ArgumentCaptor<Flow> argumentCaptor = ArgumentCaptor.forClass(Flow.class);
-        verify(mdsalMgr, times(1)).installFlow((BigInteger)anyObject(), argumentCaptor.capture());
+        verify(mdsalMgr, times(2)).installFlow((BigInteger)anyObject(), argumentCaptor.capture());
 
         List<Flow> installedFlowsCaptured = argumentCaptor.getAllValues();
-        assert (installedFlowsCaptured.size() == 1);
+        assert (installedFlowsCaptured.size() == 2);
 
         Flow expectedLportDispatcherFlowEntity = VpnServiceChainUtils.buildLPortDispFromScfToL3VpnFlow(vpnId,
                 new BigInteger(String.valueOf(dpnId)), dpnId, NwConstants.ADD_FLOW);

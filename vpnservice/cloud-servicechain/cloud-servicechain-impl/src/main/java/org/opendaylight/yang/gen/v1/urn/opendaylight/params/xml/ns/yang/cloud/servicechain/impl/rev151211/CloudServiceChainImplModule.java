@@ -20,9 +20,9 @@ public class CloudServiceChainImplModule extends org.opendaylight.yang.gen.v1.ur
     @Override
     public java.lang.AutoCloseable createInstance() {
         FibRpcService fibRpcService = getRpcregistryDependency().getRpcService(FibRpcService.class);
-        CloudServiceChainProvider provider = new CloudServiceChainProvider();
-        provider.setMdsalManager(getMdsalutilDependency());
-        provider.setFibRpcService(fibRpcService);
+        CloudServiceChainProvider provider = new CloudServiceChainProvider(getNotificationServiceDependency(),
+                getMdsalutilDependency(),
+                fibRpcService );
         getBrokerDependency().registerProvider(provider);
         return provider;
     }

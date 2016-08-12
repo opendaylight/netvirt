@@ -1200,20 +1200,23 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             sn = optSn.get();
             oldVpnId = sn.getVpnId();
             List<String> ips = sn.getRouterInterfaceFixedIps();
-            for (String ipValue : ips) {
-                IpAddress ip = new IpAddress(ipValue.toCharArray());
-                if (oldVpnId != null) {
-                    InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(oldVpnId
-                            .getValue(), ipValue);
-                    Optional<VpnPortipToPort> optionalVpnPort = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
-                            .CONFIGURATION, id);
-                    if (optionalVpnPort.isPresent()) {
-                        removeVpnPortFixedIpToPort(oldVpnId.getValue(), ipValue);
+            if ( ips != null ) {
+                for (String ipValue : ips) {
+                    IpAddress ip = new IpAddress(ipValue.toCharArray());
+                    if (oldVpnId != null) {
+                        InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(oldVpnId.getValue(), ipValue);
+                        Optional<VpnPortipToPort> optionalVpnPort = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                        if (optionalVpnPort.isPresent()) {
+                            removeVpnPortFixedIpToPort(oldVpnId.getValue(), ipValue);
+                        }
                     }
+                    createVpnPortFixedIpToPort(vpnId.getValue(), ipValue, sn.getRouterInterfaceName().getValue(),
+                            sn.getRouterIntfMacAddress(), true, true, false);
                 }
-                createVpnPortFixedIpToPort(vpnId.getValue(), ipValue, sn.getRouterInterfaceName().getValue(),
-                        sn.getRouterIntfMacAddress(), true, true, false);
+            } else {
+                LOG.warn("No fixed IPs configured for router interface. VpnId={}  subnetId={}", vpnId, subnet);
             }
+
         }
         sn = updateSubnetNode(subnet, null, null, null, null, vpnId);
         boolean isLockAcquired = false;
