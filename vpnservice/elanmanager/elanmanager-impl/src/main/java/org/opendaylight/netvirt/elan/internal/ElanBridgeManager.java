@@ -46,7 +46,7 @@ public class ElanBridgeManager {
 
     /**
      * Construct a new ElanBridgeManager
-     * @param dataBroker
+     * @param dataBroker DataBroker
      */
     public ElanBridgeManager(DataBroker dataBroker) {
         //TODO: ClusterAware!!!??
@@ -244,6 +244,7 @@ public class ElanBridgeManager {
      * Get the OVS node physical interface name from provider mappings.
      * @param node OVSDB node
      * @param physicalNetworkName name of physical network
+     * @return physical network name
      */
     public String getProviderMappingValue(Node node, String physicalNetworkName) {
         Optional<Map<String, String>> providerMappings = getOpenvswitchOtherConfigMap(node, PROVIDER_MAPPINGS_KEY);
@@ -274,7 +275,7 @@ public class ElanBridgeManager {
     /**
      * Get the name of the patch-port which is patched to the bridge containing interfaceName
      * @param interfaceName The external interface
-     * @return
+     * @return interface name
      */
     public static String getIntSidePatchPortName(String interfaceName) {
         return interfaceName + INT_SIDE_PATCH_PORT_SUFFIX;
