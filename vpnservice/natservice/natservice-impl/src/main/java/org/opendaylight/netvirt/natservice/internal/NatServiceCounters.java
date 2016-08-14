@@ -12,7 +12,11 @@ import org.opendaylight.infrautils.counters.api.OccurenceCounter;
 
 public enum NatServiceCounters {
     install_default_nat_flow, //
-    remove_default_nat_flow;
+    remove_default_nat_flow, //
+    remove_external_network_group, //
+    subnetmap_add, //
+    subnetmap_remove, //
+    subnetmap_update;
 
     private OccurenceCounter counter;
 
