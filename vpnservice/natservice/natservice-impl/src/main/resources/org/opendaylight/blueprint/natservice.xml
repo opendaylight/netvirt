@@ -34,6 +34,13 @@
   <odl:rpc-service id="fibRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService" />
 
+  <bean id="subnetmapListener"
+        class="org.opendaylight.netvirt.natservice.internal.SubnetmapListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="externalNetworkGroupInstaller" />
+  </bean>
+
   <bean id="floatingIPListener"
         class="org.opendaylight.netvirt.natservice.internal.FloatingIPListener"
         init-method="init" destroy-method="close">

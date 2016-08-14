@@ -993,7 +993,6 @@ public class NatUtil {
         return bgpVpnId;
     }
 
-
     public static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
         BigInteger nodeId = BigInteger.ZERO;
         try {

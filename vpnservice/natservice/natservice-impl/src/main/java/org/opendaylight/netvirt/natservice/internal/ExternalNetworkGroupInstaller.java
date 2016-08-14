@@ -41,8 +41,8 @@ public class ExternalNetworkGroupInstaller {
     private IdManagerService idManager;
     private OdlInterfaceRpcService interfaceManager;
 
-    public ExternalNetworkGroupInstaller(DataBroker broker, IMdsalApiManager mdsalManager, IElanService elanService,
-            IdManagerService idManager, OdlInterfaceRpcService interfaceManager) {
+    public ExternalNetworkGroupInstaller(DataBroker broker, IMdsalApiManager mdsalManager, IElanService elanService, IdManagerService idManager,
+            OdlInterfaceRpcService interfaceManager) {
         this.broker = broker;
         this.mdsalManager = mdsalManager;
         this.elanService = elanService;
@@ -72,6 +72,10 @@ public class ExternalNetworkGroupInstaller {
         installExtNetGroupEntries(subnetMap, macAddress);
     }
 
+    public void removeExtNetGroupEntires(Subnetmap subnetMap) {
+        removeExtNetGroupEntries(subnetMap);
+    }
+
     public void installExtNetGroupEntries(Uuid subnetId, String macAddress) {
         Subnetmap subnetMap = NatUtil.getSubnetMap(broker, subnetId);
         installExtNetGroupEntries(subnetMap, macAddress);
@@ -85,13 +89,13 @@ public class ExternalNetworkGroupInstaller {
         String subnetName = subnetMap.getId().getValue();
         Uuid networkId = subnetMap.getNetworkId();
         if (networkId == null) {
-            LOG.warn("No external network associated subnet id {}", subnetName);
+            LOG.warn("No network associated subnet id {}", subnetName);
             return;
         }
 
         Collection<String> extInterfaces = elanService.getExternalElanInterfaces(networkId.getValue());
         if (extInterfaces == null || extInterfaces.isEmpty()) {
-            LOG.warn("No external ELAN interfaces attached to external subnet {}", subnetName);
+            LOG.trace("No external ELAN interfaces attached to subnet {}", subnetName);
             return;
         }
 
@@ -100,15 +104,43 @@ public class ExternalNetworkGroupInstaller {
         for (String extInterface : extInterfaces) {
             GroupEntity groupEntity = buildExtNetGroupEntity(macAddress, subnetName, groupId, extInterface);
             if (groupEntity != null) {
-                LOG.trace("Install ext-net Group: id {} gw mac address {} subnet id {}", groupId, macAddress,
-                        subnetName);
+                LOG.trace("Install ext-net Group: id {} gw mac address {} subnet id {}", groupId, macAddress, subnetName);
                 mdsalManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
             }
         }
     }
 
-    private GroupEntity buildExtNetGroupEntity(String macAddress, String subnetName, long groupId,
-            String extInterface) {
+    private void removeExtNetGroupEntries(Subnetmap subnetMap) {
+        if (subnetMap == null) {
+            return;
+        }
+
+        String subnetName = subnetMap.getId().getValue();
+        Uuid networkId = subnetMap.getNetworkId();
+        if (networkId == null) {
+            LOG.warn("No external network associated subnet id {}", subnetName);
+            return;
+        }
+
+        Collection<String> extInterfaces = elanService.getExternalElanInterfaces(networkId.getValue());
+        if (extInterfaces == null || extInterfaces.isEmpty()) {
+            LOG.trace("No external ELAN interfaces attached to subnet {}", subnetName);
+            return;
+        }
+
+        long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetName), idManager);
+
+        for (String extInterface : extInterfaces) {
+            GroupEntity groupEntity = buildEmptyExtNetGroupEntity(subnetName, groupId, extInterface);
+            if (groupEntity != null) {
+                LOG.trace("Remove ext-net Group: id {}, subnet id {}", groupId, subnetName);
+                NatServiceCounters.remove_external_network_group.inc();
+                mdsalManager.syncRemoveGroup(groupEntity);
+            }
+        }
+    }
+
+    private GroupEntity buildExtNetGroupEntity(String macAddress, String subnetName, long groupId, String extInterface) {
         BigInteger dpId = NatUtil.getDpnForInterface(interfaceManager, extInterface);
         if (BigInteger.ZERO.equals(dpId)) {
             LOG.warn("No DPN for interface {}. NAT ext-net flow will not be installed", extInterface);
@@ -132,4 +164,13 @@ public class ExternalNetworkGroupInstaller {
         return MDSALUtil.buildGroupEntity(dpId, groupId, subnetName, GroupTypes.GroupIndirect, listBucketInfo);
     }
 
+    private GroupEntity buildEmptyExtNetGroupEntity(String subnetName, long groupId, String extInterface) {
+        BigInteger dpId = NatUtil.getDpnForInterface(interfaceManager, extInterface);
+        if (BigInteger.ZERO.equals(dpId)) {
+            LOG.warn("No DPN for interface {}. NAT ext-net flow will not be installed", extInterface);
+            return null;
+        }
+
+        return MDSALUtil.buildGroupEntity(dpId, groupId, subnetName, GroupTypes.GroupIndirect, new ArrayList<BucketInfo>());
+    }
 }
