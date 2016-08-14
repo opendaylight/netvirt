@@ -76,6 +76,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.ovsdb/utils.southbound-utils/{{VERSION}}</bundle>
     <bundle>wrap:mvn:org.apache.thrift/libthrift/0.9.1$overwrite=merge&amp;Bundle-Version=0.9.1&amp;Export-Package=*;-noimport:=true;version="0.9.1"</bundle>
     <!--<configfile finalname="${configfile.directory}/cloud-servicechain-impl-default-config.xml">mvn:org.opendaylight.netvirt/cloud-servicechain-impl/{{VERSION}}/xml/config</configfile>-->
+    <configfile finalname="etc/org.opendaylight.netvirt.aclservice.cfg">mvn:org.opendaylight.netvirt/aclservice-impl/{{VERSION}}/cfg/config</configfile>
   </feature>
 
   <feature name='odl-netvirt-openstack' version='${project.version}' description='OpenDaylight :: NetVirt :: OpenStack'>
