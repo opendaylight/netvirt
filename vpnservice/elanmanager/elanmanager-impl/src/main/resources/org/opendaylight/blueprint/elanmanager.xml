@@ -93,7 +93,8 @@
   <odl:rpc-implementation ref="elanStatisticsImpl" />
 
   <bean id="elanInterfaceStateChangeListener"
-    class="org.opendaylight.netvirt.elan.internal.ElanInterfaceStateChangeListener">
+    class="org.opendaylight.netvirt.elan.internal.ElanInterfaceStateChangeListener"
+    init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="elanInterfaceManager" />
     <argument ref="interfaceManager" />
