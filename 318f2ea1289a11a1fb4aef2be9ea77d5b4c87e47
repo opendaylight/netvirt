@@ -16,6 +16,24 @@
       "revId": "318f2ea1289a11a1fb4aef2be9ea77d5b4c87e47",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f9130864",
+        "filename": "vpnservice/it/src/test/java/org/opendaylight/netvirt/it/NetvirtITConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-08-14T13:32:57Z",
+      "side": 1,
+      "message": "I will remove it till we will have better understanding how which flows to check in stateless/stateful mode",
+      "parentUuid": "7a6b29fe_392620cf",
+      "revId": "318f2ea1289a11a1fb4aef2be9ea77d5b4c87e47",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
