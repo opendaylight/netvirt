@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_392620cf",
+        "filename": "vpnservice/it/src/test/java/org/opendaylight/netvirt/it/NetvirtITConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-14T13:21:40Z",
+      "side": 1,
+      "message": "do we want to add these acl checks? Are these dependent on the stateless/stateful mode?\n\nIt might be best to just add the few flows we know should always be there and then we can later add these other types of flows.",
+      "revId": "318f2ea1289a11a1fb4aef2be9ea77d5b4c87e47",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
