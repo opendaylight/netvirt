@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.aclservice.listeners;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,6 @@ import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
-import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -58,26 +56,26 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
 
     private SecurityGroupMode securityGroupMode = null;
 
+    private AclserviceConfig config;
+
     /**
      * Instantiates a new acl node listener.
      *
      * @param mdsalManager the mdsal manager
+     * @param dataBroker the data broker
+     * @param config - acl service configuration
      */
-    public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker) {
+    public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker, AclserviceConfig config) {
         super(FlowCapableNode.class, AclNodeListener.class);
 
         this.mdsalManager = mdsalManager;
         this.dataBroker = dataBroker;
+        this.config = config;
     }
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        Optional<AclserviceConfig> aclConfig = MDSALDataStoreUtils.read(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
-                .create(AclserviceConfig.class));
-        if (aclConfig.isPresent()) {
-            this.securityGroupMode = aclConfig.get().getSecurityGroupMode();
-        }
+        this.securityGroupMode = config.getSecurityGroupMode();
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
@@ -146,6 +144,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
      * @param dpnId the dpn id
      */
     private void createTableDefaultEntries(BigInteger dpnId) {
+        LOG.info("installing security group default rule in mode {}", this.securityGroupMode);
         if (securityGroupMode == null || securityGroupMode == SecurityGroupMode.Stateful) {
             addIngressAclTableMissFlow(dpnId);
             addEgressAclTableMissFlow(dpnId);
@@ -153,6 +152,9 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                     NwConstants.ADD_FLOW);
             addConntrackRules(dpnId, NwConstants.EGRESS_LPORT_DISPATCHER_TABLE, NwConstants.EGRESS_ACL_FILTER_TABLE,
                     NwConstants.ADD_FLOW);
+        } else if (securityGroupMode == SecurityGroupMode.Transparent) {
+            addTransparentIngressAclTableMissFlow(dpnId);
+            addTransparentEgressAclTableMissFlow(dpnId);
         } else {
             addStatelessIngressAclTableMissFlow(dpnId);
             addStatelessEgressAclTableMissFlow(dpnId);
@@ -182,6 +184,70 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(nextTblFlowEntity);
 
         LOG.debug("Added Ingress ACL Table Miss Flows for dpn {}", dpId);
+    }
+
+    /**
+     * Adds the ingress acl table transparent flow.
+     *
+     * @param dpId the dp id
+     */
+    private void addTransparentIngressAclTableMissFlow(BigInteger dpId) {
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        List<InstructionInfo> allowAllInstructions = new ArrayList<>();
+        allowAllInstructions.add(
+            new InstructionInfo(InstructionType.goto_table,
+                    new long[] { NwConstants.INGRESS_ACL_FILTER_TABLE }));
+
+        FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE,
+                getTableMissFlowId(NwConstants.INGRESS_ACL_TABLE), 0, "Ingress ACL Table allow all Flow",
+                0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, allowAllInstructions);
+        mdsalManager.installFlow(nextTblFlowEntity);
+
+        short dispatcherTableId = NwConstants.LPORT_DISPATCHER_TABLE;
+
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        List<InstructionInfo> dispatcherInstructions = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] {Short.toString(dispatcherTableId)}));
+        dispatcherInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+
+        nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
+                getTableMissFlowId(NwConstants.INGRESS_ACL_FILTER_TABLE), 0, "Ingress ACL Filter Table allow all Flow",
+                0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, dispatcherInstructions);
+        mdsalManager.installFlow(nextTblFlowEntity);
+
+        LOG.debug("Added Transparent Ingress ACL Table allow all Flows for dpn {}", dpId);
+    }
+
+    /**
+     * Adds the egress acl table transparent flow.
+     *
+     * @param dpId the dp id
+     */
+    private void addTransparentEgressAclTableMissFlow(BigInteger dpId) {
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        List<InstructionInfo> allowAllInstructions = new ArrayList<>();
+        allowAllInstructions.add(
+            new InstructionInfo(InstructionType.goto_table,
+                    new long[] { NwConstants.EGRESS_ACL_FILTER_TABLE }));
+
+        FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
+                getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE), 0, "Egress ACL Table allow all Flow",
+                0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, allowAllInstructions);
+        mdsalManager.installFlow(nextTblFlowEntity);
+
+        short dispatcherTableId =  NwConstants.EGRESS_LPORT_DISPATCHER_TABLE;
+
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] {Short.toString(dispatcherTableId)}));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+
+        nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
+                getTableMissFlowId(NwConstants.EGRESS_ACL_FILTER_TABLE), 0, "Egress ACL Filter Table allow all Flow",
+                0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, instructions);
+        mdsalManager.installFlow(nextTblFlowEntity);
+
+        LOG.debug("Added Transparent Egress ACL Table allow all Flows for dpn {}", dpId);
     }
 
     /**
