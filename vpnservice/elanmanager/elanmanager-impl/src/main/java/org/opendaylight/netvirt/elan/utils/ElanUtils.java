@@ -688,7 +688,7 @@ public class ElanUtils {
     public void setupMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, long macTimeout,
             String macAddress, WriteTransaction writeFlowGroupTx) {
         synchronized (macAddress) {
-            LOG.info("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
+            LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
                     writeFlowGroupTx);
             setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, mdsalManager,
@@ -699,7 +699,7 @@ public class ElanUtils {
     public void setupDMacFlowonRemoteDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo, BigInteger dstDpId,
             String macAddress, WriteTransaction writeFlowTx) {
         synchronized (macAddress) {
-            LOG.info("Acquired lock for mac : " + macAddress + "Proceeding with install operation.");
+            LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
             setupOrigDmacFlowsonRemoteDpn(elanInfo, interfaceInfo, dstDpId, macAddress, writeFlowTx);
         }
     }
@@ -1124,7 +1124,7 @@ public class ElanUtils {
         }
         String macAddress = macEntry.getMacAddress().getValue();
         synchronized (macAddress) {
-            LOG.info("Acquired lock for mac : " + macAddress + "Proceeding with remove operation.");
+            LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with remove operation.");
             deleteMacFlows(elanInfo, interfaceInfo, macAddress, /* alsoDeleteSMAC */ true, deleteFlowGroupTx);
         }
     }
