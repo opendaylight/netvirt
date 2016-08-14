@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a6b29fe_f9a02845",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/LearnEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-14T11:52:38Z",
+      "side": 1,
+      "message": "Maybe there are other protocols that we can use their L4 src/dst port for match?\nCan keep for a later commit, but should review other protocols for better match if possible, I think a lot fall into the category like UDP",
+      "revId": "92c6d16db8c4f1b0526162c3842ce59119f0c535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b9bd106b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/LearnEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-14T11:52:38Z",
+      "side": 1,
+      "message": "I think SECURITY_GROUP_OTHERS_IDLE_TO_KEY deserves its own name, confusing to use the UDP define here.\nor just rename to SECURITY_GROUP_DEFAULT_IDLE_TO_KEY (same for HARD)",
+      "revId": "92c6d16db8c4f1b0526162c3842ce59119f0c535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_99993422",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/LearnEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-14T11:52:38Z",
+      "side": 1,
+      "message": "what is \"8\" ? REG_LEN or something? same in many other places here",
+      "revId": "92c6d16db8c4f1b0526162c3842ce59119f0c535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_f8f4a9d0",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 1
