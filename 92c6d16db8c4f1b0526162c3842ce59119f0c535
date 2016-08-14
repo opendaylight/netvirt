@@ -71,6 +71,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_39f90081",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-14T10:09:48Z",
+      "side": 1,
+      "message": "Why define new tables? Why not use INGRESS_ACL_TABLE, INGRESS_ACL_FILTER_TABLE, EGRESS_ACL_TABLE, EGRESS_ACL_FILTER_TABLE",
+      "revId": "92c6d16db8c4f1b0526162c3842ce59119f0c535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_1897e591",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
         "patchSetId": 1
