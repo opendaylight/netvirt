@@ -34,7 +34,7 @@
 
   <bean id="elanInterfaceManager"
     class="org.opendaylight.netvirt.elan.internal.ElanInterfaceManager"
-    destroy-method="close">
+    init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="idManagerService" />
     <argument ref="mdsalUtils" />
@@ -53,7 +53,7 @@
 
   <bean id="elanNodeListener"
     class="org.opendaylight.netvirt.elan.internal.ElanNodeListener"
-    destroy-method="close">
+    init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
   </bean>
@@ -110,7 +110,8 @@
   </bean>
 
   <bean id="elanDpnInterfaceClusteredListener"
-    class="org.opendaylight.netvirt.elan.internal.ElanDpnInterfaceClusteredListener">
+    class="org.opendaylight.netvirt.elan.internal.ElanDpnInterfaceClusteredListener"
+    init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="entityOwnershipService" />
     <argument ref="elanUtils" />

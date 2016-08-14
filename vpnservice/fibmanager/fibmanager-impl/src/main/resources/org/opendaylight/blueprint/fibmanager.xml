@@ -35,7 +35,7 @@
   </bean>
 
   <bean id="vfrEntryListener" class="org.opendaylight.netvirt.fibmanager.VrfEntryListener"
-        destroy-method="close">
+        init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
     <argument ref="nexthopManager" />
@@ -53,7 +53,7 @@
 
   <bean id="fibNodeCapableListener"
         class="org.opendaylight.netvirt.fibmanager.FibNodeCapableListener"
-        destroy-method="close">
+        init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="vfrEntryListener" />
   </bean>
