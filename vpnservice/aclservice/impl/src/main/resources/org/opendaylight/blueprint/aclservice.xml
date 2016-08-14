@@ -1,16 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-  xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
-  odl:use-default-for-reference-types="true">
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           odl:use-default-for-reference-types="true">
 
   <reference id="dataBroker"
     interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
   <reference id="mdsalManager"
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+
+  <odl:clustered-app-config id="aclserviceConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig">
+    <!--<odl:default-config><![CDATA[
+    <aclservice-config xmlns="urn:opendaylight:netvirt:aclservice-config">
+      <security-group-mode>stateless</security-group-mode>
+    </aclservice-config>
+  ]]></odl:default-config>-->
+  </odl:clustered-app-config>
+
+  <!--<cm:property-placeholder persistent-id="org.opendaylight.netvirt.aclservice" update-strategy="none">
+    <cm:default-properties>
+      <cm:property name="security-group-mode" value="stateless"/>
+    </cm:default-properties>
+  </cm:property-placeholder>-->
+
   <bean id="aclServiceFactory"
     class="org.opendaylight.netvirt.aclservice.AclServiceImplFactory" init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalManager" />
+    <argument ref="aclserviceConfig" />
+    <!--<property name="securityGroupMode" value="${security-group-mode}"/>-->
+    <!--<cm:managed-properties persistent-id="org.opendaylight.netvirt.aclservice"
+                           update-strategy="component-managed"
+                           update-method="updateConfigParameter"/>-->
   </bean>
   <bean id="ingressAclService"
     class="org.opendaylight.netvirt.aclservice.AclServiceImplFactory" factory-ref="aclServiceFactory" factory-method="createIngressAclServiceImpl">
@@ -34,6 +56,7 @@
     init-method="start" destroy-method="close">
     <argument ref="mdsalManager" />
     <argument ref="dataBroker" />
+    <argument ref="aclserviceConfig" />
   </bean>
   <bean id="aclInterfaceListener"
     class="org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener"
