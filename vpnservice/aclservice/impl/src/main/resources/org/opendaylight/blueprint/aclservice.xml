@@ -7,10 +7,16 @@
     interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
   <reference id="mdsalManager"
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+
+  <odl:clustered-app-config id="aclserviceConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig">
+  </odl:clustered-app-config>
+
   <bean id="aclServiceFactory"
     class="org.opendaylight.netvirt.aclservice.AclServiceImplFactory" init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalManager" />
+    <argument ref="aclserviceConfig" />
   </bean>
   <bean id="ingressAclService"
     class="org.opendaylight.netvirt.aclservice.AclServiceImplFactory" factory-ref="aclServiceFactory" factory-method="createIngressAclServiceImpl">
@@ -34,6 +40,7 @@
     init-method="start" destroy-method="close">
     <argument ref="mdsalManager" />
     <argument ref="dataBroker" />
+    <argument ref="aclserviceConfig" />
   </bean>
   <bean id="aclInterfaceListener"
     class="org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener"
