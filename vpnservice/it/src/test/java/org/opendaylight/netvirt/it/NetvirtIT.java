@@ -244,7 +244,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             nodeInfo.connect();
 
             //validate default flows
-            validateDefaultFlows(nodeInfo.datapathId, 60*1000);
+            validateDefaultFlows(nodeInfo.datapathId, 2*60*1000);
 
             LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
 
@@ -279,7 +279,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             nodeInfo.connect();
 
             //validate default flows
-            validateDefaultFlows(nodeInfo.datapathId, 60*1000);
+            validateDefaultFlows(nodeInfo.datapathId, 2*60*1000);
 
             //create the neutron objects
             NetITUtil net = new NetITUtil(ovs, southboundUtils, mdsalUtils);
