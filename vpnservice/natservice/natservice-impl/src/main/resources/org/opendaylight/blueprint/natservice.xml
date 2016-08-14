@@ -45,7 +45,7 @@
 
   <bean id="externalNetworkListener"
         class="org.opendaylight.netvirt.natservice.internal.ExternalNetworkListener"
-        destroy-method="close">
+        init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
   </bean>
@@ -141,7 +141,7 @@
 
   <bean id="interfaceStateEventListener"
         class="org.opendaylight.netvirt.natservice.internal.InterfaceStateEventListener"
-        destroy-method="close">
+        init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
     <argument ref="floatingIPListener" />
