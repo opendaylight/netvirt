@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -157,6 +159,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanUtils.class);
@@ -186,6 +189,7 @@ public class ElanUtils {
         }
     };
 
+    @Inject
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanInstanceManager elanInstanceManager,
                      OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService,
                      ElanInterfaceManager elanInterfaceManager,
@@ -2188,12 +2192,12 @@ public class ElanUtils {
 
     public static FlowEntity buildDmacRedirectToDispatcherFlow(BigInteger dpId, String dstMacAddress,
             String displayName, long elanTag) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
         matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        List<ActionInfo> actions = new ArrayList<ActionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actions = new ArrayList<>();
         actions.add(new ActionInfo(ActionType.nx_resubmit,
                 new String[] { String.valueOf(NwConstants.LPORT_DISPATCHER_TABLE) }));
 
@@ -2207,7 +2211,7 @@ public class ElanUtils {
 
     public static FlowEntity buildDmacRedirectToDispatcherFlowMacNoActions(BigInteger dpId, String dstMacAddress,
             String displayName, long elanTag) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
         matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
