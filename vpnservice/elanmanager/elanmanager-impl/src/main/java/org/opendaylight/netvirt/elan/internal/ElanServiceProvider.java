@@ -20,19 +20,13 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.exceptions.InterfaceAlreadyExistsException;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
-import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
-import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
-import org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
@@ -44,8 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface;
@@ -121,7 +113,7 @@ public class ElanServiceProvider implements IElanService {
                 .setLow(ElanConstants.ELAN_ID_LOW_VALUE).setHigh(ElanConstants.ELAN_ID_HIGH_VALUE).build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 logger.debug("ELAN Id Pool is created successfully");
             }
         } catch (Exception e) {
@@ -461,51 +453,33 @@ public class ElanServiceProvider implements IElanService {
 
     @Override
     public void createExternalElanNetworks(Node node) {
-        handleExternalElanNetworks(node, new BiFunction<ElanInstance, String, Void>() {
-
-            @Override
-            public Void apply(ElanInstance elanInstance, String interfaceName) {
-                createExternalElanNetwork(elanInstance, interfaceName);
-                return null;
-            }
+        handleExternalElanNetworks(node, (elanInstance, interfaceName) -> {
+            createExternalElanNetwork(elanInstance, interfaceName);
+            return null;
         });
     }
 
     @Override
     public void createExternalElanNetwork(ElanInstance elanInstance) {
-        handleExternalElanNetwork(elanInstance, new BiFunction<ElanInstance, String, Void>() {
-
-            @Override
-            public Void apply(ElanInstance elanInstance, String interfaceName) {
-                createExternalElanNetwork(elanInstance, interfaceName);
-                return null;
-            }
-
+        handleExternalElanNetwork(elanInstance, (elanInstance1, interfaceName) -> {
+            createExternalElanNetwork(elanInstance1, interfaceName);
+            return null;
         });
     }
 
     @Override
     public void deleteExternalElanNetworks(Node node) {
-        handleExternalElanNetworks(node, new BiFunction<ElanInstance, String, Void>() {
-
-            @Override
-            public Void apply(ElanInstance elanInstance, String interfaceName) {
-                deleteExternalElanNetwork(elanInstance, interfaceName);
-                return null;
-            }
+        handleExternalElanNetworks(node, (elanInstance, interfaceName) -> {
+            deleteExternalElanNetwork(elanInstance, interfaceName);
+            return null;
         });
     }
 
     @Override
     public void deleteExternalElanNetwork(ElanInstance elanInstance) {
-        handleExternalElanNetwork(elanInstance, new BiFunction<ElanInstance, String, Void>() {
-
-            @Override
-            public Void apply(ElanInstance elanInstance, String interfaceName) {
-                deleteExternalElanNetwork(elanInstance, interfaceName);
-                return null;
-            }
-
+        handleExternalElanNetwork(elanInstance, (elanInstance1, interfaceName) -> {
+            deleteExternalElanNetwork(elanInstance1, interfaceName);
+            return null;
         });
     }
 
