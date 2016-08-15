@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortAddedToSubnetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortRemovedFromSubnetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
@@ -65,17 +66,19 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private final NeutronvpnNatManager nvpnNatManager;
     private final LockManagerService lockManager;
     private final NotificationPublishService notificationPublishService;
+    private final NeutronSubnetGwMacResolver gwMacResolver;
 
     public NeutronPortChangeListener(final DataBroker dataBroker,
                                      final NeutronvpnManager nVpnMgr, final NeutronvpnNatManager nVpnNatMgr,
                                      final NotificationPublishService notiPublishService,
-                                     final LockManagerService lockManager) {
+                                     final LockManagerService lockManager, NeutronSubnetGwMacResolver gwMacResolver) {
         super(Port.class);
         this.dataBroker = dataBroker;
         nvpnManager = nVpnMgr;
         nvpnNatManager = nVpnNatMgr;
         notificationPublishService = notiPublishService;
         this.lockManager = lockManager;
+        this.gwMacResolver = gwMacResolver;
     }
 
     public void start() {
@@ -117,6 +120,9 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 handleRouterInterfaceAdded(input);
                 /* nothing else to do here */
                 return;
+            }
+            if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(input.getDeviceOwner())) {
+                handleRouterGatewayUpdated(input);
             }
         }
         if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
@@ -177,6 +183,9 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 handleRouterInterfaceAdded(update);
                 /* nothing else to do here */
                 return;
+            }
+            if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(update.getDeviceOwner())) {
+                handleRouterGatewayUpdated(update);
             }
         }
 
@@ -249,6 +258,17 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 }
             }
         }
+    }
+
+    private void handleRouterGatewayUpdated(Port routerGwPort) {
+        Uuid routerId = new Uuid(routerGwPort.getDeviceId());
+        Router router = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
+        if (router == null) {
+            LOG.warn("No router found for router GW port {} router id {}", routerGwPort.getUuid(), routerId.getValue());
+            return;
+        }
+
+        gwMacResolver.sendArpRequestsToExtGateways(router);
     }
 
     private Long getVpnIdFromUuid(Uuid vpnId) {
