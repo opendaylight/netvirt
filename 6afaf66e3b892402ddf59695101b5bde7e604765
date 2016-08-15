@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_32c0f2df",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetGwMacResolver.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-08-15T16:28:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_b2d88280",
+      "revId": "6afaf66e3b892402ddf59695101b5bde7e604765",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_323bd29d",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetGwMacResolver.java",
         "patchSetId": 12
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_d25ede44",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetGwMacResolver.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-08-15T16:28:06Z",
+      "side": 1,
+      "message": "It\u0027s a common case. After neutron router-create the router has no external gw port attached and only after neutron router-gateway-set it is being created",
+      "parentUuid": "7a6b29fe_323bd29d",
+      "revId": "6afaf66e3b892402ddf59695101b5bde7e604765",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_d2c41e94",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetGwMacResolver.java",
         "patchSetId": 12
@@ -47,6 +83,24 @@
       "writtenOn": "2016-08-15T15:14:59Z",
       "side": 1,
       "message": "indent",
+      "revId": "6afaf66e3b892402ddf59695101b5bde7e604765",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_92b74686",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetGwMacResolver.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-08-15T16:28:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_d2c41e94",
       "revId": "6afaf66e3b892402ddf59695101b5bde7e604765",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
