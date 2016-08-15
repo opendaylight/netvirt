@@ -15,7 +15,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -156,6 +157,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
+@Singleton
 public class ElanUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanUtils.class);
@@ -168,9 +170,9 @@ public class ElanUtils {
     private final ElanInstanceManager elanInstanceManager;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
     private final ItmRpcService itmRpcService;
-    private ElanL2GatewayUtils elanL2GatewayUtils;
-    private ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
-    private L2GatewayConnectionUtils l2GatewayConnectionUtils;
+    private final ElanL2GatewayUtils elanL2GatewayUtils;
+    private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
+    private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
 
     public static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
@@ -184,6 +186,7 @@ public class ElanUtils {
         }
     };
 
+    @Inject
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanInstanceManager elanInstanceManager,
                      OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService,
                      ElanInterfaceManager elanInterfaceManager,

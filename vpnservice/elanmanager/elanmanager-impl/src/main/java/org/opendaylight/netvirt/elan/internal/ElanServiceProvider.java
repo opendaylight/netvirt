@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -29,6 +31,7 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.infrautils.inject.AbstractLifecycle;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -65,7 +68,8 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElanServiceProvider implements IElanService {
+@Singleton
+public class ElanServiceProvider extends AbstractLifecycle implements IElanService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanServiceProvider.class);
 
@@ -75,15 +79,17 @@ public class ElanServiceProvider implements IElanService {
     private final ElanBridgeManager bridgeMgr;
     private final DataBroker broker;
     private final ElanStatusMonitor elanStatusMonitor;
-    private static ElanUtils elanUtils;
+    private final ElanUtils elanUtils;
 
     private boolean generateIntBridgeMac = true;
 
+    @Inject
     public ElanServiceProvider(IdManagerService idManager, IInterfaceManager interfaceManager,
                                ElanInstanceManager elanInstanceManager, ElanBridgeManager bridgeMgr,
                                DataBroker dataBroker,
                                ElanInterfaceManager elanInterfaceManager,
-                               ElanStatusMonitor elanStatusMonitor, ElanUtils elanUtils, EntityOwnershipService entityOwnershipService) {
+                               ElanStatusMonitor elanStatusMonitor, ElanUtils elanUtils,
+                               EntityOwnershipService entityOwnershipService) {
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
         this.elanInstanceManager = elanInstanceManager;
@@ -101,8 +107,9 @@ public class ElanServiceProvider implements IElanService {
         }
     }
 
+    @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void init() throws Exception {
+    protected void start() throws Exception {
         LOG.info("Starting ElnaServiceProvider");
         elanStatusMonitor.reportStatus("STARTING");
         try {
@@ -112,6 +119,10 @@ public class ElanServiceProvider implements IElanService {
             elanStatusMonitor.reportStatus("ERROR");
             throw e;
         }
+    }
+
+    @Override
+    protected void stop() throws Exception {
     }
 
     private void createIdPool() throws Exception {
