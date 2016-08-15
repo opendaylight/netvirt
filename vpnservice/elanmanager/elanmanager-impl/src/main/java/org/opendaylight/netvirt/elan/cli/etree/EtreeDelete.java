@@ -33,9 +33,9 @@ public class EtreeDelete extends OsgiCommandSupport {
             LOG.debug("Executing the Deletion of EtreeInstance command" + "\t" + etreeName + "\t");
             boolean isSuccess = elanProvider.deleteEtreeInstance(etreeName);
             if (isSuccess) {
-                System.out.println("Etree Instance deleted successfully");
+                session.getConsole().println("Etree Instance deleted successfully");
             } else {
-                System.out.println("Etree Instance failed to delete");
+                session.getConsole().println("Etree Instance failed to delete");
             }
         } catch (Exception e) {
             LOG.error("Failed to delete Etree Instance {}", e);
