@@ -108,35 +108,40 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     </dependency>
 
       <!--  Only for unit-test -->
-   <dependency>
+      <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-all</artifactId>
-        <version>${mockitoall.version}</version>
         <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-api-mockito</artifactId>
-        <version>${powermock.version}</version>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-module-junit4</artifactId>
-        <version>${powermock.version}</version>
-        <scope>test</scope>
-    </dependency>
+      </dependency>
       <dependency>
-          <groupId>org.opendaylight.controller</groupId>
-          <artifactId>sal-binding-broker-impl</artifactId>
-          <scope>test</scope>
+        <groupId>org.opendaylight.yangtools</groupId>
+        <artifactId>testutils</artifactId>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.opendaylight.genius</groupId>
+        <artifactId>mdsalutil-api</artifactId>
+        <version>${genius.version}</version>
+        <scope>test</scope>
+        <type>test-jar</type>
       </dependency>
       <dependency>
           <groupId>org.opendaylight.controller</groupId>
           <artifactId>sal-binding-broker-impl</artifactId>
-          <version>${mdsal.version}</version>
           <scope>test</scope>
           <type>test-jar</type>
+      </dependency>
+      <dependency>
+          <groupId>org.opendaylight.controller</groupId>
+          <artifactId>sal-binding-broker-impl</artifactId>
+          <scope>test</scope>
+          <type>test-jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.opendaylight.genius</groupId>
+        <artifactId>lockmanager-impl</artifactId>
+        <version>${genius.version}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
           <groupId>org.slf4j</groupId>
