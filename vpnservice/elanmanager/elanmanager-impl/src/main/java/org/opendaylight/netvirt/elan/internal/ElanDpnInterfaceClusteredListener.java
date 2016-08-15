@@ -7,30 +7,24 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import java.util.List;
-import java.util.concurrent.Callable;
-
+import com.google.common.collect.Lists;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
-import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
-
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.ListenableFuture;
 
 public class ElanDpnInterfaceClusteredListener
     extends AsyncClusteredDataChangeListenerBase<DpnInterfaces, ElanDpnInterfaceClusteredListener>
@@ -80,13 +74,8 @@ public class ElanDpnInterfaceClusteredListener
             return;
         }
         ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, elanName, "updating mcast mac upon tunnel event",
-            new Callable<List<ListenableFuture<Void>>>() {
-                @Override
-                public List<ListenableFuture<Void>> call() throws Exception {
-                    return Lists.newArrayList(
-                        elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName));
-                }
-            });
+            () -> Lists.newArrayList(
+                elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName)));
     }
 
     @Override
@@ -102,16 +91,13 @@ public class ElanDpnInterfaceClusteredListener
             return;
         }
         ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, elanName, "handling ElanDpnInterface removed",
-            new Callable<List<ListenableFuture<Void>>>() {
-                @Override
-                public List<ListenableFuture<Void>> call() throws Exception {
-                    // deleting Elan L2Gw Devices UcastLocalMacs From Dpn
-                    elanL2GatewayUtils.deleteElanL2GwDevicesUcastLocalMacsFromDpn(elanName,
-                        dpnInterfaces.getDpId());
-                    // updating remote mcast mac on l2gw devices
-                    return Lists.newArrayList(
-                        elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName));
-                }
+            () -> {
+                // deleting Elan L2Gw Devices UcastLocalMacs From Dpn
+                elanL2GatewayUtils.deleteElanL2GwDevicesUcastLocalMacsFromDpn(elanName,
+                    dpnInterfaces.getDpId());
+                // updating remote mcast mac on l2gw devices
+                return Lists.newArrayList(
+                    elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName));
             });
     }
 
@@ -136,10 +122,6 @@ public class ElanDpnInterfaceClusteredListener
         }
     }
 
-    /**
-     * @param identifier
-     * @return
-     */
     private String getElanName(InstanceIdentifier<DpnInterfaces> identifier) {
         return identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
     }

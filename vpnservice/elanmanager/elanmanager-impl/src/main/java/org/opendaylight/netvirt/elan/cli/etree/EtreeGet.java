@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 @Command(scope = "etree", name = "show", description = "display Etree Instance")
 public class EtreeGet extends OsgiCommandSupport {
 
-    private static final Logger logger = LoggerFactory.getLogger(EtreeGet.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EtreeGet.class);
 
     @Argument(index = 0, name = "etreeName", description = "ETREE-NAME", required = false, multiValued = false)
     private String etreeName;
@@ -34,7 +34,7 @@ public class EtreeGet extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Executing Get EtreeInstance command" + "\t" + etreeName + "\t");
+            LOG.debug("Executing Get EtreeInstance command" + "\t" + etreeName + "\t");
             if (etreeName != null) {
                 ElanInstance elanInstance = elanProvider.getElanInstance(etreeName);
                 if (elanInstance == null || elanInstance.getAugmentation(EtreeInstance.class) == null) {
@@ -64,7 +64,7 @@ public class EtreeGet extends OsgiCommandSupport {
 
             }
         } catch (Exception e) {
-            logger.error("Elan Instance failed to get {}", e);
+            LOG.error("Elan Instance failed to get {}", e);
             e.printStackTrace();
         }
         return null;

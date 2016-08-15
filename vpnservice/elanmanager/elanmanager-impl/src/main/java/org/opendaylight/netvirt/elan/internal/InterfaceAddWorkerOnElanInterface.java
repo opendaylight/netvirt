@@ -7,17 +7,15 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 public class InterfaceAddWorkerOnElanInterface implements Callable<List<ListenableFuture<Void>>> {
     private String key;
@@ -26,7 +24,7 @@ public class InterfaceAddWorkerOnElanInterface implements Callable<List<Listenab
     private InterfaceInfo interfaceInfo;
     private ElanInterfaceManager dataChangeListener;
     private boolean isFirstInterfaceInDpn;
-    private static final Logger logger = LoggerFactory.getLogger(InterfaceAddWorkerOnElanInterface.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InterfaceAddWorkerOnElanInterface.class);
 
     public InterfaceAddWorkerOnElanInterface(String key, ElanInterface elanInterface, InterfaceInfo interfaceInfo,
                                              ElanInstance elanInstance, boolean isFirstInterfaceInDpn, ElanInterfaceManager dataChangeListener) {
@@ -52,7 +50,7 @@ public class InterfaceAddWorkerOnElanInterface implements Callable<List<Listenab
         try {
             dataChangeListener.setupEntriesForElanInterface(futures, elanInstance, elanInterface, interfaceInfo, isFirstInterfaceInDpn);
         } catch (Exception e) {
-            logger.error("Error while processing {} for {}, error {}", key, elanInterface, e);
+            LOG.error("Error while processing {} for {}, error {}", key, elanInterface, e);
         }
         return futures;
     }

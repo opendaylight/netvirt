@@ -21,7 +21,6 @@ import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,16 +29,15 @@ import org.slf4j.LoggerFactory;
  * A listener for Ucast MAC entries that are added/removed to/from an External
  * Device (e.g., TOR).
  *
- * When a Ucast MAC addr appears in the hwvtep's operational DS, that MAC must
+ * <p>When a Ucast MAC addr appears in the hwvtep's operational DS, that MAC must
  * be populated in DMAC tables in all Elan participating DPNs. ELAN is selected
  * according to field 'tunnel_key' of the Logical Switch to which the new MAC
  * belongs.
- *
  */
 public class HwvtepLocalUcastMacListener extends
         AsyncClusteredDataChangeListenerBase<LocalUcastMacs, HwvtepLocalUcastMacListener> implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory.getLogger(HwvtepLocalUcastMacListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HwvtepLocalUcastMacListener.class);
 
     private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
@@ -60,18 +58,18 @@ public class HwvtepLocalUcastMacListener extends
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         String macAddress = macRemoved.getMacEntryKey().getValue();
 
-        logger.trace("LocalUcastMacs {} removed from {}", macAddress, hwvtepNodeId);
+        LOG.trace("LocalUcastMacs {} removed from {}", macAddress, hwvtepNodeId);
 
         ElanInstance elan = elanL2GatewayUtils.getElanInstanceForUcastLocalMac(macRemoved);
         if (elan == null) {
-            logger.warn("Could not find ELAN for mac {} being deleted", macAddress);
+            LOG.warn("Could not find ELAN for mac {} being deleted", macAddress);
             return;
         }
 
         String elanName = elan.getElanInstanceName();
         L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, hwvtepNodeId);
         if (elanL2GwDevice == null) {
-            logger.warn("Could not find L2GatewayDevice for ELAN: {}, nodeID:{} from cache", elanName, hwvtepNodeId);
+            LOG.warn("Could not find L2GatewayDevice for ELAN: {}, nodeID:{} from cache", elanName, hwvtepNodeId);
             return;
         }
 
@@ -94,18 +92,18 @@ public class HwvtepLocalUcastMacListener extends
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         String macAddress = macAdded.getMacEntryKey().getValue();
 
-        logger.trace("LocalUcastMacs {} added to {}", macAddress, hwvtepNodeId);
+        LOG.trace("LocalUcastMacs {} added to {}", macAddress, hwvtepNodeId);
 
         ElanInstance elan = elanL2GatewayUtils.getElanInstanceForUcastLocalMac(macAdded);
         if (elan == null) {
-            logger.warn("Could not find ELAN for mac {} being added", macAddress);
+            LOG.warn("Could not find ELAN for mac {} being added", macAddress);
             return;
         }
 
         String elanName = elan.getElanInstanceName();
         L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, hwvtepNodeId);
         if (elanL2GwDevice == null) {
-            logger.warn("Could not find L2GatewayDevice for ELAN: {}, nodeID:{} from cache", elanName, hwvtepNodeId);
+            LOG.warn("Could not find L2GatewayDevice for ELAN: {}, nodeID:{} from cache", elanName, hwvtepNodeId);
             return;
         }
 

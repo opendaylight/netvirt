@@ -12,13 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.genius.utils.cache.CacheUtil;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 
 public class ElanL2GwCacheUtils {
+
     private static final ConcurrentHashMap<String, L2GatewayDevice> EMPTY_MAP = new ConcurrentHashMap<>();
     public static final String L2GATEWAY_CONN_CACHE_NAME = "L2GWCONN";
+
+    private ElanL2GwCacheUtils() {
+    }
 
     static {
         CacheUtil.createCache(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
@@ -30,7 +33,7 @@ public class ElanL2GwCacheUtils {
                         ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
         ConcurrentMap<String, L2GatewayDevice> deviceMap = cachedMap.get(elanName);
         if (deviceMap == null) {
-            synchronized(ElanL2GwCacheUtils.class) {
+            synchronized (ElanL2GwCacheUtils.class) {
                 deviceMap = cachedMap.get(elanName);
                 if (deviceMap == null) {
                     deviceMap = new ConcurrentHashMap<>();
@@ -80,7 +83,8 @@ public class ElanL2GwCacheUtils {
     }
 
     public static ConcurrentMap<String, L2GatewayDevice> getInvolvedL2GwDevices(String elanName) {
-        ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap = (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil
+        ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
+                (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil
                 .getCache(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
         ConcurrentMap<String, L2GatewayDevice> result = cachedMap.get(elanName);
         if (result == null) {
@@ -90,7 +94,6 @@ public class ElanL2GwCacheUtils {
     }
 
     public static List<L2GatewayDevice> getAllElanDevicesFromCache() {
-        List<String> l2GwsList = new ArrayList<>();
         ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
                 (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
                         ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
@@ -99,8 +102,7 @@ public class ElanL2GwCacheUtils {
         }
 
         List<L2GatewayDevice> l2GwDevices = new ArrayList<>();
-        for (ConcurrentMap<String, L2GatewayDevice> l2gwDevices : cachedMap.values())
-        {
+        for (ConcurrentMap<String, L2GatewayDevice> l2gwDevices : cachedMap.values()) {
             for (L2GatewayDevice l2gwDevice : l2gwDevices.values() ) {
                 l2GwDevices.add(l2gwDevice);
             }

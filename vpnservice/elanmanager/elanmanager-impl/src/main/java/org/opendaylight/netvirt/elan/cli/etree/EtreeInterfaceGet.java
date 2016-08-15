@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 @Command(scope = "etreeInterface", name = "show", description = "display Etree Interfaces for the EtreeInstance")
 public class EtreeInterfaceGet extends OsgiCommandSupport {
 
-    private static final Logger logger = LoggerFactory.getLogger(EtreeInterfaceGet.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EtreeInterfaceGet.class);
 
     @Argument(index = 0, name = "etreeName", description = "ETREE-NAME", required = false, multiValued = false)
     private String etreeName;
@@ -50,7 +50,7 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Executing Get EtreeInterface command for the corresponding Etree Instance" + "\t" + etreeName
+            LOG.debug("Executing Get EtreeInterface command for the corresponding Etree Instance" + "\t" + etreeName
                     + "\t");
             if (etreeName != null) {
                 ElanInstance elanInstance = elanProvider.getElanInstance(etreeName);
@@ -80,7 +80,7 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
 
             }
         } catch (Exception e) {
-            logger.error("Elan Instance failed to get {}", e);
+            LOG.error("Elan Instance failed to get {}", e);
             e.printStackTrace();
         }
         return null;
