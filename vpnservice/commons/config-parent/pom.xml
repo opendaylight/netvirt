@@ -6,7 +6,8 @@ This program and the accompanying materials are made available under the
 terms of the Eclipse Public License v1.0 which accompanies this distribution,
 and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <parent>
     <groupId>org.opendaylight.controller</groupId>
@@ -23,54 +24,32 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <properties>
     <!-- ODL -->
-    <vpnservices.version>0.3.0-SNAPSHOT</vpnservices.version>
-    <yangtools.version>1.0.0-SNAPSHOT</yangtools.version>
-    <mdsal.model.version>0.9.0-SNAPSHOT</mdsal.model.version>
     <controller.mdsal.version>1.4.0-SNAPSHOT</controller.mdsal.version>
-    <vpns.mdsalutil.version>0.3.0-SNAPSHOT</vpns.mdsalutil.version>
-    <model.bgp.version>2013.07.15.9-SNAPSHOT</model.bgp.version>
-    <openflowplugin.version>0.3.0-SNAPSHOT</openflowplugin.version>
-    <vpns.ovsdb.version>1.3.0-SNAPSHOT</vpns.ovsdb.version>
-    <liblldp.version>0.11.0-SNAPSHOT</liblldp.version>
-    <karaf.shell.console.version>3.0.3</karaf.shell.console.version>
-    <neutron.version>0.7.0-SNAPSHOT</neutron.version>
+    <mdsal.model.version>0.9.0-SNAPSHOT</mdsal.model.version>
     <genius.version>0.1.0-SNAPSHOT</genius.version>
     <infrautils.version>1.0.0-SNAPSHOT</infrautils.version>
+    <karaf.shell.console.version>3.0.3</karaf.shell.console.version>
+    <liblldp.version>0.11.0-SNAPSHOT</liblldp.version>
+    <model.bgp.version>2013.07.15.9-SNAPSHOT</model.bgp.version>
+    <neutron.version>0.7.0-SNAPSHOT</neutron.version>
+    <openflowplugin.version>0.3.0-SNAPSHOT</openflowplugin.version>
+    <vpns.mdsalutil.version>0.3.0-SNAPSHOT</vpns.mdsalutil.version>
+    <vpns.ovsdb.version>1.3.0-SNAPSHOT</vpns.ovsdb.version>
+    <vpnservices.version>0.3.0-SNAPSHOT</vpnservices.version>
+    <yangtools.version>1.0.0-SNAPSHOT</yangtools.version>
   </properties>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.opendaylight.mdsal</groupId>
-        <artifactId>mdsal-artifacts</artifactId>
-        <version>2.1.0-SNAPSHOT</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.opendaylight.mdsal.model</groupId>
-        <artifactId>mdsal-model-artifacts</artifactId>
-        <version>${mdsal.model.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
-    <!-- Testing Dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-jacoco-listeners</artifactId>
