@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ElanStatisticsImpl implements ElanStatisticsService {
-    private static final Logger logger = LoggerFactory.getLogger(ElanStatisticsImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanStatisticsImpl.class);
 
     private final DataBroker dataBroker;
     private final IInterfaceManager interfaceManager;
@@ -57,7 +57,7 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
     public Future<RpcResult<GetElanInterfaceStatisticsOutput>> getElanInterfaceStatistics(
         GetElanInterfaceStatisticsInput input) {
         String interfaceName = input.getInterfaceName();
-        logger.debug("getElanInterfaceStatistics is called for elan interface {}", interfaceName);
+        LOG.debug("getElanInterfaceStatistics is called for elan interface {}", interfaceName);
         RpcResultBuilder<GetElanInterfaceStatisticsOutput> rpcResultBuilder = null;
         if (interfaceName == null) {
             rpcResultBuilder = RpcResultBuilder.failed();
@@ -83,7 +83,7 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
 //            return getFutureWithAppErrorMessage(rpcResultBuilder, String.format("Interface %s or Service %s doesn't exist", interfaceName, serviceInfo));
 //        }
         if (!interfaceInfo.isOperational()) {
-            logger.debug("interface {} is down and returning with no statistics", interfaceName);
+            LOG.debug("interface {} is down and returning with no statistics", interfaceName);
             rpcResultBuilder = RpcResultBuilder.success();
             return Futures.immediateFuture(rpcResultBuilder.withResult(new GetElanInterfaceStatisticsOutputBuilder().setStatResult(new StatResultBuilder()
                 .setStatResultCode(ResultCode.NotFound).setByteRxCount(0L).setByteTxCount(0L).setPacketRxCount(0L)
@@ -102,8 +102,8 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
             matches = InterfaceServiceUtil.getMatchInfoForVlanLPort(dpId, interfaceInfo.getPortNo(),
                 InterfaceServiceUtil.getVlanId(interfaceName, dataBroker), vlanInterfaceInfo.isVlanTransparent());
         } else {
-            matches = InterfaceServiceUtil.getLPortDispatcherMatches(ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX), 
-            		interfaceInfo.getInterfaceTag());
+            matches = InterfaceServiceUtil.getLPortDispatcherMatches(ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX),
+                    interfaceInfo.getInterfaceTag());
         }
         long groupId = interfaceInfo.getGroupId();
         Set<Object> statRequestKeys = InterfaceServiceUtil.getStatRequestKeys(dpId, tableId, matches, String.format("%s.%s", elanInstanceName, interfaceName), groupId);

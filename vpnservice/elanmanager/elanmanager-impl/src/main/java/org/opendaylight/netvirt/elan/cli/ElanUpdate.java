@@ -7,12 +7,12 @@
  */
 package org.opendaylight.netvirt.elan.cli;
 
-import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
 
 @Command(scope = "elan", name = "update", description = "updating the Elan Instance")
 public class ElanUpdate  extends OsgiCommandSupport {
@@ -23,7 +23,7 @@ public class ElanUpdate  extends OsgiCommandSupport {
     private long macTimeOut;
     @Argument(index = 2, name = "elanDescr", description = "ELAN-Description", required = false, multiValued = false)
     private String elanDescr;
-    private static final Logger logger = LoggerFactory.getLogger(ElanUpdate.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanUpdate.class);
     private IElanService elanProvider;
 
     public void setElanProvider(IElanService elanServiceProvider) {
@@ -33,7 +33,7 @@ public class ElanUpdate  extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Updating the ElanInstance command" + "\t" + elanName + "\t" + macTimeOut + "\t" + elanDescr + "\t");
+            LOG.debug("Updating the ElanInstance command" + "\t" + elanName + "\t" + macTimeOut + "\t" + elanDescr + "\t");
             elanProvider.updateElanInstance(elanName, macTimeOut, elanDescr);
         } catch (Exception e) {
             e.printStackTrace();

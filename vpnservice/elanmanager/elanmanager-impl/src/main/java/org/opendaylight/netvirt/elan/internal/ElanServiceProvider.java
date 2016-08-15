@@ -63,7 +63,7 @@ import org.slf4j.LoggerFactory;
 
 public class ElanServiceProvider implements IElanService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanServiceProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanServiceProvider.class);
 
     private final IdManagerService idManager;
     private final IInterfaceManager interfaceManager;
@@ -96,14 +96,14 @@ public class ElanServiceProvider implements IElanService {
     }
 
     public void init() {
-        logger.info("Starting ElnaServiceProvider");
+        LOG.info("Starting ElnaServiceProvider");
         elanStatusMonitor.reportStatus("STARTING");
         try {
             createIdPool();
 
             elanStatusMonitor.reportStatus("OPERATIONAL");
         } catch (Exception e) {
-            logger.error("Error initializing services", e);
+            LOG.error("Error initializing services", e);
             elanStatusMonitor.reportStatus("ERROR");
         }
     }
@@ -114,10 +114,10 @@ public class ElanServiceProvider implements IElanService {
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
-                logger.debug("ELAN Id Pool is created successfully");
+                LOG.debug("ELAN Id Pool is created successfully");
             }
         } catch (Exception e) {
-            logger.error("Failed to create ELAN Id pool {}", e);
+            LOG.error("Failed to create ELAN Id pool {}", e);
         }
     }
 
@@ -127,7 +127,7 @@ public class ElanServiceProvider implements IElanService {
         boolean isSuccess = true;
         if (existingElanInstance != null) {
             if (compareWithExistingElanInstance(existingElanInstance, macTimeout, description)) {
-                logger.debug("Elan Instance is already present in the Operational DS {}", existingElanInstance);
+                LOG.debug("Elan Instance is already present in the Operational DS {}", existingElanInstance);
                 return true;
             } else {
                 ElanInstance updateElanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
@@ -135,7 +135,7 @@ public class ElanServiceProvider implements IElanService {
                         .setKey(new ElanInstanceKey(elanInstanceName)).build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                         ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName), updateElanInstance);
-                logger.debug("Updating the Elan Instance {} with MAC TIME-OUT %l and Description %s ",
+                LOG.debug("Updating the Elan Instance {} with MAC TIME-OUT %l and Description %s ",
                         updateElanInstance, macTimeout, description);
             }
         } else {
@@ -144,7 +144,7 @@ public class ElanServiceProvider implements IElanService {
                     .build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstance);
-            logger.debug("Creating the new Elan Instance {}", elanInstance);
+            LOG.debug("Creating the new Elan Instance {}", elanInstance);
         }
         return isSuccess;
     }
@@ -155,7 +155,7 @@ public class ElanServiceProvider implements IElanService {
         boolean isSuccess = true;
         if (existingElanInstance != null) {
             if (compareWithExistingElanInstance(existingElanInstance, macTimeout, description)) {
-                logger.warn("Etree Instance is already present in the Operational DS {}", existingElanInstance);
+                LOG.warn("Etree Instance is already present in the Operational DS {}", existingElanInstance);
                 return true;
             } else {
                 EtreeInstance etreeInstance = new EtreeInstanceBuilder().build();
@@ -165,7 +165,7 @@ public class ElanServiceProvider implements IElanService {
                         .addAugmentation(EtreeInstance.class, etreeInstance).build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                         ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName), updateElanInstance);
-                logger.debug("Updating the Etree Instance {} with MAC TIME-OUT %l and Description %s ",
+                LOG.debug("Updating the Etree Instance {} with MAC TIME-OUT %l and Description %s ",
                         updateElanInstance, macTimeout, description);
             }
         } else {
@@ -175,7 +175,7 @@ public class ElanServiceProvider implements IElanService {
                     .addAugmentation(EtreeInstance.class, etreeInstance).build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstance);
-            logger.debug("Creating the new Etree Instance {}", elanInstance);
+            LOG.debug("Creating the new Etree Instance {}", elanInstance);
         }
         return isSuccess;
     }
@@ -205,10 +205,10 @@ public class ElanServiceProvider implements IElanService {
         boolean isSuccess = false;
         ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(elanInstanceName);
         if (existingElanInstance == null) {
-            logger.debug("Elan Instance is not present {}", existingElanInstance);
+            LOG.debug("Elan Instance is not present {}", existingElanInstance);
             return isSuccess;
         }
-        logger.debug("Deletion of the existing Elan Instance {}", existingElanInstance);
+        LOG.debug("Deletion of the existing Elan Instance {}", existingElanInstance);
         ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
                 ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName));
         isSuccess = true;
@@ -235,7 +235,7 @@ public class ElanServiceProvider implements IElanService {
             }
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName), elanInterface);
-            logger.debug("Creating the new Etree Interface {}", elanInterface);
+            LOG.debug("Creating the new Etree Interface {}", elanInterface);
         }
     }
 
@@ -257,7 +257,7 @@ public class ElanServiceProvider implements IElanService {
             }
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName), elanInterface);
-            logger.debug("Creating the new ELan Interface {}", elanInterface);
+            LOG.debug("Creating the new ELan Interface {}", elanInterface);
         }
     }
 
@@ -272,7 +272,7 @@ public class ElanServiceProvider implements IElanService {
         List<PhysAddress> updatedMacAddresses = getPhysAddress(updatedStaticMacAddresses);
         List<PhysAddress> updatedPhysAddress = getUpdatedPhyAddress(existingMacAddress, updatedMacAddresses);
         if (updatedPhysAddress.size() > 0) {
-            logger.debug("updating the ElanInterface with new Mac Entries {}", updatedStaticMacAddresses);
+            LOG.debug("updating the ElanInterface with new Mac Entries {}", updatedStaticMacAddresses);
             ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
                     .setName(interfaceName).setDescription(newDescription).setStaticMacEntries(updatedPhysAddress)
                     .setKey(new ElanInterfaceKey(interfaceName)).build();
@@ -284,7 +284,7 @@ public class ElanServiceProvider implements IElanService {
     @Override
     public void deleteEtreeInterface(String elanInstanceName, String interfaceName) {
         deleteElanInterface(elanInstanceName, interfaceName);
-        logger.debug("deleting the Etree Interface {}", interfaceName);
+        LOG.debug("deleting the Etree Interface {}", interfaceName);
     }
 
     @Override
@@ -293,7 +293,7 @@ public class ElanServiceProvider implements IElanService {
         if (existingElanInterface != null) {
             ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName));
-            logger.debug("deleting the Elan Interface {}", existingElanInterface);
+            LOG.debug("deleting the Elan Interface {}", existingElanInterface);
         }
     }
 
@@ -376,7 +376,7 @@ public class ElanServiceProvider implements IElanService {
                     try {
                         deleteStaticMacAddress(elanInstanceName, elanInterface, macEntry.getMacAddress().getValue());
                     } catch (MacNotFoundException e) {
-                        logger.error("Mac Not Found Exception {}", e);
+                        LOG.error("Mac Not Found Exception {}", e);
                         e.printStackTrace();
                     }
                 }
@@ -491,7 +491,7 @@ public class ElanServiceProvider implements IElanService {
 
         List<ElanInstance> elanInstances = getElanInstances();
         if (elanInstances == null || elanInstances.isEmpty()) {
-            logger.trace("No ELAN instances found");
+            LOG.trace("No ELAN instances found");
             return;
         }
 
@@ -519,7 +519,7 @@ public class ElanServiceProvider implements IElanService {
 
     private void createExternalElanNetwork(ElanInstance elanInstance, String interfaceName) {
         if (interfaceName == null) {
-            logger.trace("No physial interface is attached to {}", elanInstance.getPhysicalNetworkName());
+            LOG.trace("No physial interface is attached to {}", elanInstance.getPhysicalNetworkName());
             return;
         }
 
@@ -529,7 +529,7 @@ public class ElanServiceProvider implements IElanService {
 
     private void deleteExternalElanNetwork(ElanInstance elanInstance, String interfaceName) {
         if (interfaceName == null) {
-            logger.trace("No physial interface is attached to {}", elanInstance.getPhysicalNetworkName());
+            LOG.trace("No physial interface is attached to {}", elanInstance.getPhysicalNetworkName());
             return;
         }
 
@@ -546,7 +546,7 @@ public class ElanServiceProvider implements IElanService {
     public String getExternalElanInterface(String elanInstanceName, BigInteger dpnId) {
         DpnInterfaces dpnInterfaces = elanUtils.getElanInterfaceInfoByElanDpn(elanInstanceName, dpnId);
         if (dpnInterfaces == null || dpnInterfaces.getInterfaces() == null) {
-            logger.trace("Elan {} does not have interfaces in DPN {}", elanInstanceName, dpnId);
+            LOG.trace("Elan {} does not have interfaces in DPN {}", elanInstanceName, dpnId);
             return null;
         }
 
@@ -556,7 +556,7 @@ public class ElanServiceProvider implements IElanService {
             }
         }
 
-        logger.trace("Elan {} does not have any external interace attached to DPN {}", elanInstanceName, dpnId);
+        LOG.trace("Elan {} does not have any external interace attached to DPN {}", elanInstanceName, dpnId);
         return null;
     }
 
@@ -564,7 +564,7 @@ public class ElanServiceProvider implements IElanService {
     public Collection<String> getExternalElanInterfaces(String elanInstanceName) {
         List<String> elanInterfaces = getElanInterfaces(elanInstanceName);
         if (elanInterfaces == null || elanInterfaces.isEmpty()) {
-            logger.trace("No ELAN interfaces defined for {}", elanInstanceName);
+            LOG.trace("No ELAN interfaces defined for {}", elanInstanceName);
             return Collections.emptySet();
         }
 
@@ -618,7 +618,7 @@ public class ElanServiceProvider implements IElanService {
                         IfL2vlan.L2vlanMode.TrunkMember, true);
             }
         } catch (InterfaceAlreadyExistsException e) {
-            logger.trace("Interface {} was already created", interfaceName);
+            LOG.trace("Interface {} was already created", interfaceName);
         }
 
         return interfaceName;
@@ -629,7 +629,7 @@ public class ElanServiceProvider implements IElanService {
         InstanceIdentifier<Interface> interfaceInstanceIdentifier = InstanceIdentifier.builder(Interfaces.class)
                 .child(Interface.class, interfaceKey).build();
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, interfaceInstanceIdentifier);
-        logger.debug("Deleting IETF interface {}", interfaceName);
+        LOG.debug("Deleting IETF interface {}", interfaceName);
     }
 
     private String getExtInterfaceName(Node node, String physicalNetworkName) {
@@ -639,7 +639,7 @@ public class ElanServiceProvider implements IElanService {
 
         String providerMappingValue = bridgeMgr.getProviderMappingValue(node, physicalNetworkName);
         if (providerMappingValue == null) {
-            logger.trace("No provider mapping found for physicalNetworkName {} node {}", physicalNetworkName,
+            LOG.trace("No provider mapping found for physicalNetworkName {} node {}", physicalNetworkName,
                     node.getNodeId().getValue());
             return null;
         }
@@ -655,7 +655,7 @@ public class ElanServiceProvider implements IElanService {
 
         List<ElanInstance> elanInstances = getElanInstances();
         if (elanInstances == null || elanInstances.isEmpty()) {
-            logger.trace("No ELAN instances found");
+            LOG.trace("No ELAN instances found");
             return;
         }
 
@@ -670,13 +670,13 @@ public class ElanServiceProvider implements IElanService {
     private void handleExternalElanNetwork(ElanInstance elanInstance, BiFunction<ElanInstance, String, Void> function) {
         String elanInstanceName = elanInstance.getElanInstanceName();
         if (elanInstance.getPhysicalNetworkName() == null) {
-            logger.trace("No physical network attached to {}", elanInstanceName);
+            LOG.trace("No physical network attached to {}", elanInstanceName);
             return;
         }
 
         List<Node> nodes = bridgeMgr.southboundUtils.getOvsdbNodes();
         if (nodes == null || nodes.isEmpty()) {
-            logger.trace("No OVS nodes found while creating external network for ELAN {}",
+            LOG.trace("No OVS nodes found while creating external network for ELAN {}",
                     elanInstance.getElanInstanceName());
             return;
         }

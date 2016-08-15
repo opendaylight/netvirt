@@ -10,15 +10,15 @@ package org.opendaylight.netvirt.elan.internal;
 
 import java.math.BigInteger;
 import java.util.List;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -31,9 +31,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElanInterfaceStateChangeListener extends AsyncDataTreeChangeListenerBase<Interface,ElanInterfaceStateChangeListener> implements AutoCloseable {
+public class ElanInterfaceStateChangeListener
+        extends AsyncDataTreeChangeListenerBase<Interface, ElanInterfaceStateChangeListener> implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanInterfaceStateChangeListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceStateChangeListener.class);
 
     private final DataBroker broker;
     private final ElanInterfaceManager elanInterfaceManager;
@@ -55,11 +56,11 @@ public class ElanInterfaceStateChangeListener extends AsyncDataTreeChangeListene
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface delIf) {
-        logger.trace("Received interface {} Down event", delIf);
+        LOG.trace("Received interface {} Down event", delIf);
         String interfaceName =  delIf.getName();
         ElanInterface elanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
         if (elanInterface == null) {
-            logger.debug("No Elan Interface is created for the interface:{} ", interfaceName);
+            LOG.debug("No Elan Interface is created for the interface:{} ", interfaceName);
             return;
         }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(delIf.getLowerLayerIf().get(0));
@@ -78,18 +79,20 @@ public class ElanInterfaceStateChangeListener extends AsyncDataTreeChangeListene
 
     @Override
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
-        logger.trace("Operation Interface update event - Old: {}, New: {}", original, update);
+        LOG.trace("Operation Interface update event - Old: {}, New: {}", original, update);
         String interfaceName = update.getName();
         if (update.getType() == null) {
-            logger.trace("Interface type for interface {} is null", interfaceName);
+            LOG.trace("Interface type for interface {} is null", interfaceName);
             return;
         }
         if (update.getType().equals(Tunnel.class)) {
-            if (!original.getOperStatus().equals(Interface.OperStatus.Unknown) && !update.getOperStatus().equals(Interface.OperStatus.Unknown)){
+            if (!original.getOperStatus().equals(Interface.OperStatus.Unknown)
+                    && !update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
                 if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                     InternalTunnel internalTunnel = getTunnelState(interfaceName);
                     if (internalTunnel != null) {
-                        elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
+                        elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
+                                internalTunnel.getDestinationDPN());
                     }
                 }
             }
@@ -98,7 +101,7 @@ public class ElanInterfaceStateChangeListener extends AsyncDataTreeChangeListene
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        logger.trace("Received interface {} up event", intrf);
+        LOG.trace("Received interface {} up event", intrf);
         String interfaceName =  intrf.getName();
         ElanInterface elanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
         if (elanInterface == null) {
@@ -113,7 +116,8 @@ public class ElanInterfaceStateChangeListener extends AsyncDataTreeChangeListene
             }
             return;
         }
-        InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName);
+        InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
+                .getElanInterfaceConfigurationDataPathId(interfaceName);
         elanInterfaceManager.add(elanInterfaceId, elanInterface);
     }
 
@@ -136,6 +140,7 @@ public class ElanInterfaceStateChangeListener extends AsyncDataTreeChangeListene
         }
         return internalTunnel;
     }
+
     @Override
     protected InstanceIdentifier<Interface> getWildCardPath() {
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);

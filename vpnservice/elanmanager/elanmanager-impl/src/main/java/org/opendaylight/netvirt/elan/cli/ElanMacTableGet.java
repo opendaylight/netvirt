@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.cli;
 
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -16,14 +19,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forw
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-
 @Command(scope = "elanmactable", name = "show", description = "get Elan Mac table")
 public class ElanMacTableGet extends OsgiCommandSupport {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanMacTableGet.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanMacTableGet.class);
 
     @Argument(index = 0, name = "elanName", description = "ELAN-NAME", required = true, multiValued = false)
     private String elanName;
@@ -36,7 +35,7 @@ public class ElanMacTableGet extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Executing updating ElanInterface command" + "\t");
+            LOG.debug("Executing updating ElanInterface command" + "\t");
             Collection<MacEntry> macTables = elanProvider.getElanMacTable(elanName);
             if(!macTables.isEmpty()) {
                 SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yy:HH:mm:ss");
