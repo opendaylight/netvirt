@@ -142,7 +142,7 @@
     <argument ref="elanUtils" />
   </bean>
 
-  <bean id="elanStatusMonitor" class="org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor"
+  <bean id="elanStatusMonitor" class="org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitorJMX"
     init-method="init" />
 
   <bean id="l2GatewayConnectionListener"
