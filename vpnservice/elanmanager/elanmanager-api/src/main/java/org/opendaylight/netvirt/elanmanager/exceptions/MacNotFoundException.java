@@ -8,14 +8,17 @@
 
 package org.opendaylight.netvirt.elanmanager.exceptions;
 
+/**
+ * Exception thrown when a MAC address was not found.
+ */
 public class MacNotFoundException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    public MacNotFoundException() {
-
-    }
-
+    /**
+     * Constructor.
+     * @param message the eror message text, which must include the MAC address that was not found
+     */
     public MacNotFoundException(String message) {
         super(message);
     }
