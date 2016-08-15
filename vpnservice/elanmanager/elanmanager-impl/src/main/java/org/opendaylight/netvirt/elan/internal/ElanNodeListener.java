@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 public class ElanNodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanNodeListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanNodeListener.class);
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
@@ -57,7 +57,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
             listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
                 getWildCardPath(), ElanNodeListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
         } catch (final Exception e) {
-            logger.error("ElanNodeListener: DataChange listener registration fail!", e);
+            LOG.error("ElanNodeListener: DataChange listener registration fail!", e);
             throw new IllegalStateException("ElanNodeListener: registration Listener failed.", e);
         }
     }
@@ -82,7 +82,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         NodeId nodeId = add.getId();
         String[] node =  nodeId.getValue().split(":");
         if (node.length < 2) {
-            logger.warn("Unexpected nodeId {}", nodeId.getValue());
+            LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return;
         }
         BigInteger dpId = new BigInteger(node[1]);

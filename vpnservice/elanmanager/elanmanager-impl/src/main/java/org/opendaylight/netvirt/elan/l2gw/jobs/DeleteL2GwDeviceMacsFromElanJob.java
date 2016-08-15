@@ -8,24 +8,22 @@
 
 package org.opendaylight.netvirt.elan.l2gw.jobs;
 
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentMap;
-
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
-import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentMap;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Job class to delete L2 gateway device local ucast macs from other Elan L2

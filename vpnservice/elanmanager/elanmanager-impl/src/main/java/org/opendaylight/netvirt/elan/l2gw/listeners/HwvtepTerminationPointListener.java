@@ -9,7 +9,11 @@ package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -17,15 +21,15 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipS
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
-import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
-import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
-import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.devices.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
@@ -38,30 +42,21 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
- * Listener for physical locator presence in operational datastore
- *
- *
- *
+ * Listener for physical locator presence in operational datastore.
  */
-public class HwvtepTerminationPointListener extends
-        AsyncClusteredDataChangeListenerBase<TerminationPoint, HwvtepTerminationPointListener> implements AutoCloseable {
+public class HwvtepTerminationPointListener
+        extends AsyncClusteredDataChangeListenerBase<TerminationPoint, HwvtepTerminationPointListener>
+        implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory.getLogger(HwvtepTerminationPointListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HwvtepTerminationPointListener.class);
 
     private DataBroker broker;
     private ListenerRegistration<DataChangeListener> lstnerRegistration;
@@ -76,15 +71,16 @@ public class HwvtepTerminationPointListener extends
         this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
         this.entityOwnershipService = entityOwnershipService;
         registerListener();
-        logger.debug("created HwvtepTerminationPointListener");
+        LOG.debug("created HwvtepTerminationPointListener");
     }
 
     static Map<InstanceIdentifier<TerminationPoint>, List<Runnable>> waitingJobsList = new ConcurrentHashMap<>();
     static Map<InstanceIdentifier<TerminationPoint>, Boolean> teps = new ConcurrentHashMap<>();
 
-    public static void runJobAfterPhysicalLocatorIsAvialable(InstanceIdentifier<TerminationPoint> key, Runnable runnable) {
+    public static void runJobAfterPhysicalLocatorIsAvialable(InstanceIdentifier<TerminationPoint> key,
+            Runnable runnable) {
         if (teps.get(key) != null) {
-            logger.debug("physical locator already available {} running job ", key);
+            LOG.debug("physical locator already available {} running job ", key);
             runnable.run();
             return;
         }
@@ -95,7 +91,7 @@ public class HwvtepTerminationPointListener extends
             } else {
                 list.add(runnable);
             }
-            logger.debug("added the job to wait list of physical locator {}", key);
+            LOG.debug("added the job to wait list of physical locator {}", key);
         }
     }
 
@@ -103,10 +99,10 @@ public class HwvtepTerminationPointListener extends
         try {
             lstnerRegistration = this.broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
                     InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
-                            new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class).
-                    child(TerminationPoint.class), this, DataChangeScope.BASE);
+                            new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class)
+                    .child(TerminationPoint.class), this, DataChangeScope.BASE);
         } catch (final Exception e) {
-            logger.error("Hwvtep LocalUcasMacs DataChange listener registration failed !", e);
+            LOG.error("Hwvtep LocalUcasMacs DataChange listener registration failed !", e);
             throw new IllegalStateException("Hwvtep LocalUcasMacs DataChange listener registration failed .", e);
         }
     }
@@ -117,7 +113,7 @@ public class HwvtepTerminationPointListener extends
             try {
                 lstnerRegistration.close();
             } catch (final Exception e) {
-                logger.error("Error when cleaning up DataChangeListener.", e);
+                LOG.error("Error when cleaning up DataChangeListener.", e);
             }
             lstnerRegistration = null;
         }
@@ -125,13 +121,14 @@ public class HwvtepTerminationPointListener extends
 
     @Override
     protected void remove(InstanceIdentifier<TerminationPoint> identifier, TerminationPoint del) {
-        logger.trace("physical locator removed {}", identifier);
+        LOG.trace("physical locator removed {}", identifier);
         teps.remove(identifier);
     }
 
     @Override
-    protected void update(InstanceIdentifier<TerminationPoint> identifier, TerminationPoint original, TerminationPoint update) {
-        logger.trace("physical locator available {}", identifier);
+    protected void update(InstanceIdentifier<TerminationPoint> identifier, TerminationPoint original,
+            TerminationPoint update) {
+        LOG.trace("physical locator available {}", identifier);
     }
 
     @Override
@@ -141,16 +138,11 @@ public class HwvtepTerminationPointListener extends
         if (portAugmentation != null) {
             final NodeId nodeId = identifier.firstIdentifierOf(Node.class).firstKeyOf(Node.class).getNodeId();
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
-                    "handling Physical Switch add", new Callable<List<ListenableFuture<Void>>>() {
-                        @Override
-                        public List<ListenableFuture<Void>> call() throws Exception {
-                            return handlePortAdded(portAugmentation, add, nodeId);
-                        }
-                    });
+                    "handling Physical Switch add", () -> handlePortAdded(portAugmentation, add, nodeId));
             return;
         }
 
-        logger.trace("physical locator available {}", identifier);
+        LOG.trace("physical locator available {}", identifier);
         teps.put(identifier, true);
         List<Runnable> runnableList = null;
         synchronized (HwvtepTerminationPointListener.class) {
@@ -158,19 +150,19 @@ public class HwvtepTerminationPointListener extends
             waitingJobsList.remove(identifier);
         }
         if (runnableList != null) {
-            logger.debug("physical locator available {} running jobs ", identifier);
+            LOG.debug("physical locator available {} running jobs ", identifier);
             for (Runnable r : runnableList) {
                 r.run();
             }
         } else {
-            logger.debug("no jobs are waiting for physical locator {}", identifier);
+            LOG.debug("no jobs are waiting for physical locator {}", identifier);
         }
     }
 
     @Override
     protected InstanceIdentifier<TerminationPoint> getWildCardPath() {
-        return InstanceIdentifier.create(NetworkTopology.class).child(Topology.class).child(Node.class).
-                child(TerminationPoint.class);
+        return InstanceIdentifier.create(NetworkTopology.class).child(Topology.class).child(Node.class)
+                .child(TerminationPoint.class);
     }
 
     @Override
@@ -204,10 +196,10 @@ public class HwvtepTerminationPointListener extends
                     }
                 }
             } else {
-                logger.error("{} details are not present in L2Gateway Cache", psName);
+                LOG.error("{} details are not present in L2Gateway Cache", psName);
             }
         } else {
-            logger.error("{} entry not in config datastore", psNodeId);
+            LOG.error("{} entry not in config datastore", psNodeId);
         }
         return Collections.emptyList();
     }
@@ -218,7 +210,7 @@ public class HwvtepTerminationPointListener extends
         for (L2gatewayConnection l2GwConn : l2GwConns) {
             L2gateway l2Gateway = L2GatewayConnectionUtils.getNeutronL2gateway(broker, l2GwConn.getL2gatewayId());
             if (l2Gateway == null) {
-                logger.error("L2Gateway with id {} is not present", l2GwConn.getL2gatewayId().getValue());
+                LOG.error("L2Gateway with id {} is not present", l2GwConn.getL2gatewayId().getValue());
             } else {
                 String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(
                         l2GwConn.getNetworkId().getValue());
@@ -228,8 +220,8 @@ public class HwvtepTerminationPointListener extends
                     if (l2DeviceName != null && l2DeviceName.equals(psName)) {
                         for (Interfaces deviceInterface : l2Device.getInterfaces()) {
                             if (deviceInterface.getInterfaceName().equals(newPortId)) {
-                                if (deviceInterface.getSegmentationIds() != null &&
-                                        !deviceInterface.getSegmentationIds().isEmpty()) {
+                                if (deviceInterface.getSegmentationIds() != null
+                                        && !deviceInterface.getSegmentationIds().isEmpty()) {
                                     for (Integer vlanId : deviceInterface.getSegmentationIds()) {
                                         vlanBindings.add(HwvtepSouthboundUtils.createVlanBinding(hwvtepNodeId, vlanId,
                                                 logicalSwitchName));
@@ -238,7 +230,7 @@ public class HwvtepTerminationPointListener extends
                                     // Use defaultVlanId (specified in L2GatewayConnection) if Vlan
                                     // ID not specified at interface level.
                                     Integer segmentationId = l2GwConn.getSegmentId();
-                                    int defaultVlanId = (segmentationId != null) ? segmentationId : 0;
+                                    int defaultVlanId = segmentationId != null ? segmentationId : 0;
                                     vlanBindings.add(HwvtepSouthboundUtils.createVlanBinding(hwvtepNodeId,
                                             defaultVlanId, logicalSwitchName));
                                 }
@@ -252,7 +244,7 @@ public class HwvtepTerminationPointListener extends
     }
 
     private boolean isL2GatewayConfigured(L2GatewayDevice l2GwDevice) {
-        return (l2GwDevice.getHwvtepNodeId() != null && l2GwDevice.isConnected() &&
-                l2GwDevice.getL2GatewayIds().size() > 0 && l2GwDevice.getTunnelIp() != null);
+        return l2GwDevice.getHwvtepNodeId() != null && l2GwDevice.isConnected()
+                && l2GwDevice.getL2GatewayIds().size() > 0 && l2GwDevice.getTunnelIp() != null;
     }
 }

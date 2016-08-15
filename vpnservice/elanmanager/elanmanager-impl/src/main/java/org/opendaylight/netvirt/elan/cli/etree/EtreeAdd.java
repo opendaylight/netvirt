@@ -23,7 +23,7 @@ public class EtreeAdd extends OsgiCommandSupport {
     private long macTimeOut = 30;
     @Argument(index = 2, name = "elanDescr", description = "ELAN-Description", required = false, multiValued = false)
     private String etreeDescr;
-    private static final Logger logger = LoggerFactory.getLogger(EtreeAdd.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EtreeAdd.class);
     private IElanService elanProvider;
     public static int MAX_LENGTH = 31;
 
@@ -34,7 +34,7 @@ public class EtreeAdd extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Executing create EtreeInstance command" + "\t" + etreeName + "\t" + macTimeOut + "\t"
+            LOG.debug("Executing create EtreeInstance command" + "\t" + etreeName + "\t" + macTimeOut + "\t"
                     + etreeDescr + "\t");
             if (etreeName.length() <= MAX_LENGTH) {
                 boolean isSuccess = elanProvider.createEtreeInstance(etreeName, macTimeOut, etreeDescr);
@@ -45,7 +45,7 @@ public class EtreeAdd extends OsgiCommandSupport {
                 System.out.println("Failed to create Etree Instance, max length is allowed 1 .. 31");
             }
         } catch (Exception e) {
-            logger.error("Etree Instance failed to create {}", e);
+            LOG.error("Etree Instance failed to create {}", e);
             e.printStackTrace();
         }
         return null;

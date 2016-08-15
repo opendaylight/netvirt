@@ -11,7 +11,6 @@ import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
@@ -25,7 +24,7 @@ public class EtreeInterfaceDelete extends OsgiCommandSupport {
     private String etreeName;
     @Argument(index = 1, name = "interfaceName", description = "InterfaceName", required = true, multiValued = false)
     private String interfaceName;
-    private static final Logger logger = LoggerFactory.getLogger(EtreeInterfaceDelete.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EtreeInterfaceDelete.class);
     private IElanService elanProvider;
     //private ElanUtils elanUtils;
 
@@ -40,7 +39,7 @@ public class EtreeInterfaceDelete extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Deleting EtreeInterface command" + "\t" + etreeName + "\t" + interfaceName + "\t");
+            LOG.debug("Deleting EtreeInterface command" + "\t" + etreeName + "\t" + interfaceName + "\t");
             ElanInterface existingInterface =
                     ElanServiceProvider.getElanutils().getElanInterfaceByElanInterfaceName(interfaceName);
             if (existingInterface == null || existingInterface.getAugmentation(EtreeInterface.class) == null) {

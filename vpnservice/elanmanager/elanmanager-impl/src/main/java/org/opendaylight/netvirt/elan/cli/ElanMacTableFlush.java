@@ -7,12 +7,12 @@
  */
 package org.opendaylight.netvirt.elan.cli;
 
-import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
 
 @Command(scope = "elanmactable", name = "flush", description = "Flush the Mac Entries for Elan Instance")
 public class ElanMacTableFlush extends OsgiCommandSupport {
@@ -20,7 +20,7 @@ public class ElanMacTableFlush extends OsgiCommandSupport {
     @Argument(index = 0, name = "elanName", description = "ELAN-NAME", required = true, multiValued = false)
     private String elanName;
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanMacTableFlush.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanMacTableFlush.class);
     private IElanService elanProvider;
 
     public void setElanProvider(IElanService elanServiceProvider) {
@@ -30,7 +30,7 @@ public class ElanMacTableFlush extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Executing create ElanInstance command" + "\t" + elanName + "\t");
+            LOG.debug("Executing create ElanInstance command" + "\t" + elanName + "\t");
             elanProvider.flushMACTable(elanName);
         } catch (Exception e) {
             e.printStackTrace();

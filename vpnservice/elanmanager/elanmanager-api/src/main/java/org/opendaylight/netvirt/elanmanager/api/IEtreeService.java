@@ -11,6 +11,7 @@ import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface.EtreeInterfaceType;
 
 public interface IEtreeService {
+
     void deleteEtreeInterface(String elanInstanceName, String interfaceName);
 
     boolean deleteEtreeInstance(String elanInstanceName);
@@ -18,5 +19,5 @@ public interface IEtreeService {
     void addEtreeInterface(String elanInstanceName, String interfaceName, EtreeInterfaceType interfaceType,
             List<String> staticMacAddresses, String description);
 
-    boolean createEtreeInstance(String elanInstanceName, long MacTimeout, String description);
+    boolean createEtreeInstance(String elanInstanceName, long macTimeout, String description);
 }
