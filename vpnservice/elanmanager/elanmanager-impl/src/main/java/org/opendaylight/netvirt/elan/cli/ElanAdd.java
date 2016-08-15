@@ -38,10 +38,10 @@ public class ElanAdd extends OsgiCommandSupport {
             if(elanName.length()<= MAX_LENGTH) {
                 boolean isSuccess = elanProvider.createElanInstance(elanName, macTimeOut, elanDescr);
                 if (isSuccess) {
-                    System.out.println("Elan Instance is created successfully");
+                    session.getConsole().println("Elan Instance is created successfully");
                 }
             } else {
-                System.out.println("Failed to create Elan Instance, max length is allowed 1 .. 31");
+                session.getConsole().println("Failed to create Elan Instance, max length is allowed 1 .. 31");
             }
         } catch (Exception e) {
             logger.error("Elan Instance failed to create {}", e);

@@ -39,10 +39,10 @@ public class EtreeAdd extends OsgiCommandSupport {
             if (etreeName.length() <= MAX_LENGTH) {
                 boolean isSuccess = elanProvider.createEtreeInstance(etreeName, macTimeOut, etreeDescr);
                 if (isSuccess) {
-                    System.out.println("Etree Instance was created successfully");
+                    session.getConsole().println("Etree Instance was created successfully");
                 }
             } else {
-                System.out.println("Failed to create Etree Instance, max length is allowed 1 .. 31");
+                session.getConsole().println("Failed to create Etree Instance, max length is allowed 1 .. 31");
             }
         } catch (Exception e) {
             logger.error("Etree Instance failed to create {}", e);
