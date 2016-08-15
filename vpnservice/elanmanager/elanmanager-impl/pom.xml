@@ -19,11 +19,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <artifactId>elanmanager-impl</artifactId>
   <packaging>bundle</packaging>
 
-  <properties>
-    <powermock.version>1.6.4</powermock.version>
-    <mockitoall.version>1.10.19</mockitoall.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -72,7 +67,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>org.apache.karaf.shell</groupId>
       <artifactId>org.apache.karaf.shell.console</artifactId>
-      <version>3.0.3</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.genius</groupId>
@@ -109,31 +103,53 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
-      <version>${mockitoall.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-      <version>${powermock.version}</version>
+      <groupId>org.opendaylight.yangtools</groupId>
+      <artifactId>testutils</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>${powermock.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>sal-binding-broker-impl</artifactId>
-      <version>${mdsal.version}</version>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>mdsalutil-api</artifactId>
+      <version>${genius.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>sal-binding-broker-impl</artifactId>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.mdsal</groupId>
+      <artifactId>mdsal-binding-test-utils</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>lockmanager-impl</artifactId>
+      <version>${genius.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>idmanager-impl</artifactId>
+      <version>${genius.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>inject.guice.testutils</artifactId>
+      <version>${infrautils.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>infrautils-testutils</artifactId>
+      <version>${infrautils.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -158,6 +174,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           <propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>
         </configuration>
       </plugin>
+      <plugin>
+         <groupId>org.eclipse.xtend</groupId>
+         <artifactId>xtend-maven-plugin</artifactId>
+       </plugin>
     </plugins>
   </build>
 
