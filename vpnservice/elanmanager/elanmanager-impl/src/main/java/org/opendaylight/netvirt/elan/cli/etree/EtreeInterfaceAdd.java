@@ -50,17 +50,17 @@ public class EtreeInterfaceAdd extends OsgiCommandSupport {
             }
         }
         if (inputType == null) {
-            System.out.println("interfaceType must be one of: leaf/root, but was: " + interfaceType);
+            session.getConsole().println("interfaceType must be one of: leaf/root, but was: " + interfaceType);
             return null;
         }
 
         ElanInstance elanInstance = elanProvider.getElanInstance(elanName);
         if (elanInstance == null) {
-            System.out.println("Etree instance " + elanName + " does not exist.");
+            session.getConsole().println("Etree instance " + elanName + " does not exist.");
             return null;
         } else {
             if (elanInstance.getAugmentation(EtreeInstance.class) == null) {
-                System.out.println("Etree instance " + elanName + " exists but isn't configured as Etree.");
+                session.getConsole().println("Etree instance " + elanName + " exists but isn't configured as Etree.");
                 return null;
             }
         }
@@ -69,7 +69,7 @@ public class EtreeInterfaceAdd extends OsgiCommandSupport {
             logger.debug("Executing create EtreeInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
                     + interfaceType + "\t" + staticMacAddresses + "\t" + elanInterfaceDescr + "\t");
             elanProvider.addEtreeInterface(elanName, interfaceName, inputType, staticMacAddresses, elanInterfaceDescr);
-            System.out.println("Created etree interface successfully");
+            session.getConsole().println("Created etree interface successfully");
         } catch (Exception e) {
             e.printStackTrace();
         }

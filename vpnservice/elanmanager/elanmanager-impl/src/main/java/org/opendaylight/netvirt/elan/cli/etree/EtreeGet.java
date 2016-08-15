@@ -38,20 +38,20 @@ public class EtreeGet extends OsgiCommandSupport {
             if (etreeName != null) {
                 ElanInstance elanInstance = elanProvider.getElanInstance(etreeName);
                 if (elanInstance == null || elanInstance.getAugmentation(EtreeInstance.class) == null) {
-                    System.out.println("No Etree Instance present with name:" + etreeName);
+                    session.getConsole().println("No Etree Instance present with name:" + etreeName);
                 } else {
-                    System.out.println(getEtreeHeaderOutput());
-                    System.out.println(String.format(ElanCLIUtils.ETREE_CLI_FORMAT, elanInstance.getElanInstanceName(),
+                    session.getConsole().println(getEtreeHeaderOutput());
+                    session.getConsole().println(String.format(ElanCLIUtils.ETREE_CLI_FORMAT, elanInstance.getElanInstanceName(),
                             elanInstance.getMacTimeout(), elanInstance.getElanTag(), elanInstance.getDescription()));
                 }
 
             } else {
                 List<ElanInstance> elanInstanceList = elanProvider.getElanInstances();
                 if (elanInstanceList != null && !elanInstanceList.isEmpty()) {
-                    System.out.println(getEtreeHeaderOutput());
+                    session.getConsole().println(getEtreeHeaderOutput());
                     for (ElanInstance elanInstance : elanInstanceList) {
                         if (elanInstance.getAugmentation(EtreeInstance.class) != null) {
-                            System.out.println(String.format(ElanCLIUtils.ETREE_CLI_FORMAT,
+                            session.getConsole().println(String.format(ElanCLIUtils.ETREE_CLI_FORMAT,
                                     elanInstance.getElanInstanceName(), elanInstance.getMacTimeout(),
                                     elanInstance.getElanTag(),
                                     elanInstance.getAugmentation(EtreeInstance.class).getEtreeLeafTagVal().getValue(),
@@ -59,7 +59,7 @@ public class EtreeGet extends OsgiCommandSupport {
                         }
                     }
                 } else {
-                    System.out.println("No Etree Instances are present");
+                    session.getConsole().println("No Etree Instances are present");
                 }
 
             }
