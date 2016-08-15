@@ -7,23 +7,22 @@
  */
 package org.opendaylight.netvirt.elan.cli;
 
+import java.util.List;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.netvirt.elan.utils.ElanCLIUtils;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.netvirt.elan.utils.ElanCLIUtils;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 @Command(scope = "elanInterface", name = "show", description = "display Elan Interfaces for the ElanInstance")
 public class ElanInterfaceGet extends OsgiCommandSupport {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanInterfaceGet.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceGet.class);
 
     @Argument(index = 0, name = "elanName", description = "ELAN-NAME", required = false, multiValued = false)
     private String elanName;
@@ -43,7 +42,7 @@ public class ElanInterfaceGet extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Executing Get ElanInterface command for the corresponding Elan Instance" + "\t" + elanName +  "\t");
+            LOG.debug("Executing Get ElanInterface command for the corresponding Elan Instance" + "\t" + elanName +  "\t");
             if(elanName != null) {
                 ElanInstance elanInstance = elanProvider.getElanInstance(elanName);
                 List<String> elanInterfaces = elanProvider.getElanInterfaces(elanName);
@@ -56,10 +55,11 @@ public class ElanInterfaceGet extends OsgiCommandSupport {
 
             } else {
                 List<ElanInstance> elanInstances = elanProvider.getElanInstances();
-                if(!elanInstances.isEmpty()) {
+                if (!elanInstances.isEmpty()) {
                     System.out.println(getElanInterfaceHeaderOutput());
-                    for(ElanInstance elanInstance : elanInstances) {
-                        List<String> elanInterfaces = elanProvider.getElanInterfaces(elanInstance.getElanInstanceName());
+                    for (ElanInstance elanInstance : elanInstances) {
+                        List<String> elanInterfaces = elanProvider
+                                .getElanInterfaces(elanInstance.getElanInstanceName());
                         displayInterfaces(elanInstance, elanInterfaces);
                         System.out.println("\n");
                     }
@@ -67,7 +67,7 @@ public class ElanInterfaceGet extends OsgiCommandSupport {
 
             }
         } catch (Exception e) {
-            logger.error("Elan Instance failed to get {}", e);
+            LOG.error("Elan Instance failed to get {}", e);
             e.printStackTrace();
         }
         return null;
@@ -75,19 +75,23 @@ public class ElanInterfaceGet extends OsgiCommandSupport {
 
     private Object getElanInterfaceHeaderOutput() {
         StringBuilder headerBuilder = new StringBuilder();
-        headerBuilder.append(String.format(ElanCLIUtils.ELAN_INTERFACE_CLI_FORMAT, "ElanInstance/Tag", "ElanInterface/Tag", "OpState" , "AdminState"));
+        headerBuilder.append(String.format(ElanCLIUtils.ELAN_INTERFACE_CLI_FORMAT, "ElanInstance/Tag",
+                "ElanInterface/Tag", "OpState", "AdminState"));
         headerBuilder.append('\n');
         headerBuilder.append(ElanCLIUtils.HEADER_UNDERLINE);
         return headerBuilder.toString();
     }
 
     private void displayInterfaces(ElanInstance elanInstance, List<String> interfaceList) {
-        if(!interfaceList.isEmpty()) {
+        if (!interfaceList.isEmpty()) {
             for (String elanInterface : interfaceList)
             {
                 InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterface);
                 if (interfaceInfo != null) {
-                    System.out.println(String.format(ElanCLIUtils.ELAN_INTERFACE_CLI_FORMAT, elanInstance.getElanInstanceName()+"/"+elanInstance.getElanTag(), elanInterface+"/"+interfaceInfo.getInterfaceTag(), interfaceInfo.getOpState(), interfaceInfo.getAdminState()));
+                    System.out.println(String.format(ElanCLIUtils.ELAN_INTERFACE_CLI_FORMAT,
+                            elanInstance.getElanInstanceName() + "/" + elanInstance.getElanTag(),
+                            elanInterface + "/" + interfaceInfo.getInterfaceTag(), interfaceInfo.getOpState(),
+                            interfaceInfo.getAdminState()));
                 }
             }
         }

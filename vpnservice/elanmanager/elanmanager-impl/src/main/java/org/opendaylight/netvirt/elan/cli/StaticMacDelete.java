@@ -23,7 +23,7 @@ public class StaticMacDelete  extends OsgiCommandSupport {
     private String interfaceName;
     @Argument(index = 2, name = "staticMacAddress", description = "StaticMacAddress", required = true, multiValued = false)
     private String staticMacAddress;
-    private static final Logger logger = LoggerFactory.getLogger(StaticMacDelete.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StaticMacDelete.class);
     private IElanService elanProvider;
 
     public void setElanProvider(IElanService elanServiceProvider) {
@@ -33,7 +33,7 @@ public class StaticMacDelete  extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Executing create ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t" + staticMacAddress + "\t");
+            LOG.debug("Executing create ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t" + staticMacAddress + "\t");
             elanProvider.deleteStaticMacAddress(elanName, interfaceName, staticMacAddress);
         } catch (Exception e) {
 

@@ -144,6 +144,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
           <scope>test</scope>
       </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
@@ -155,6 +156,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <Embed-Dependency>utils.config;type=!pom;inline=false</Embed-Dependency>
             <Embed-Transitive>true</Embed-Transitive>
           </instructions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>
         </configuration>
       </plugin>
     </plugins>
