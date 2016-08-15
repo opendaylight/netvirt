@@ -524,7 +524,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                         List<Instruction> instructions = new ArrayList<Instruction>();
 
                         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(
-                                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
+                                MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
                         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));
 
                         BoundServices
@@ -1017,7 +1017,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             LOG.debug("Sending cleanup event for dpn {} in VPN {}", dpnId, vpnName);
             fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd, false /* exited */));
         }
-    }	
+    }
 
     void handleVpnsExportingRoutes(String vpnName, String vpnRd) {
         List<VpnInstance> vpnsToExportRoute = getVpnsExportingMyRoute(vpnName);
@@ -1121,11 +1121,11 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
     }
 
-    protected void processVpnInterfaceDown(BigInteger dpId, 
+    protected void processVpnInterfaceDown(BigInteger dpId,
                                            String interfaceName,
                                            int lPortTag,
                                            boolean isInterfaceStateDown,
-                                           boolean isConfigRemoval, 
+                                           boolean isConfigRemoval,
                                            WriteTransaction writeConfigTxn,
                                            WriteTransaction writeOperTxn,
                                            WriteTransaction writeInvTxn) {
