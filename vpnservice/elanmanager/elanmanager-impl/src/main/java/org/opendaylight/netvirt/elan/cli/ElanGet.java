@@ -38,21 +38,21 @@ public class ElanGet extends OsgiCommandSupport {
             if(elanName != null) {
                 ElanInstance elanInstance = elanProvider.getElanInstance(elanName);
                 if (elanInstance == null) {
-                    System.out.println("No Elan Instance present with name:" + elanName);
+                    session.getConsole().println("No Elan Instance present with name:" + elanName);
                 } else {
-                    System.out.println(getElanHeaderOutput());
-                    System.out.println(String.format(ElanCLIUtils.ELAN_CLI_FORMAT, elanInstance.getElanInstanceName(), elanInstance.getMacTimeout(), elanInstance.getElanTag(), elanInstance.getDescription()));
+                    session.getConsole().println(getElanHeaderOutput());
+                    session.getConsole().println(String.format(ElanCLIUtils.ELAN_CLI_FORMAT, elanInstance.getElanInstanceName(), elanInstance.getMacTimeout(), elanInstance.getElanTag(), elanInstance.getDescription()));
                 }
 
             } else {
                List<ElanInstance> elanInstanceList = elanProvider.getElanInstances();
                 if(elanInstanceList != null && !elanInstanceList.isEmpty()) {
-                    System.out.println(getElanHeaderOutput());
+                    session.getConsole().println(getElanHeaderOutput());
                     for(ElanInstance elanInstance : elanInstanceList) {
-                        System.out.println(String.format(ElanCLIUtils.ELAN_CLI_FORMAT, elanInstance.getElanInstanceName(), elanInstance.getMacTimeout(), elanInstance.getElanTag(), elanInstance.getDescription()));
+                        session.getConsole().println(String.format(ElanCLIUtils.ELAN_CLI_FORMAT, elanInstance.getElanInstanceName(), elanInstance.getMacTimeout(), elanInstance.getElanTag(), elanInstance.getDescription()));
                     }
                 } else {
-                    System.out.println("No Elan Instances are present");
+                    session.getConsole().println("No Elan Instances are present");
                 }
 
             }

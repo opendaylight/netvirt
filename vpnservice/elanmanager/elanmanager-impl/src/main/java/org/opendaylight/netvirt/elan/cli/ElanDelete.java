@@ -33,9 +33,9 @@ public class ElanDelete extends OsgiCommandSupport {
             logger.debug("Executing the Deletion of ElanInstance command" + "\t" + elanName + "\t");
            boolean isSuccess =  elanProvider.deleteElanInstance(elanName);
             if(isSuccess) {
-                System.out.println("Elan Instance deleted successfully");
+                session.getConsole().println("Elan Instance deleted successfully");
             } else {
-                System.out.println("ELan Instance failed to delete");
+                session.getConsole().println("ELan Instance failed to delete");
             }
         } catch (Exception e) {
             logger.error("Failed to delete Elan Instance {}", e);

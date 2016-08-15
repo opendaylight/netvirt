@@ -38,9 +38,9 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
     protected Object doExecute() {
         try {
             if (cacheName == null) {
-                System.out.println("Available caches");
-                System.out.println(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
-                System.out.println(L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME);
+                session.getConsole().println("Available caches");
+                session.getConsole().println(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
+                session.getConsole().println(L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME);
                 return null;
             }
             switch (cacheName) {
@@ -61,11 +61,11 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
         ConcurrentMap<String, L2GatewayDevice> devices = (ConcurrentMap<String, L2GatewayDevice>) CacheUtil
                 .getCache(L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME);
         if (devices == null) {
-            System.out.println("no devices are present in cache");
+            session.getConsole().println("no devices are present in cache");
             return;
         }
         for (String deviceName : devices.keySet()) {
-            System.out.println("device "+ devices.get(deviceName));
+            session.getConsole().println("device "+ devices.get(deviceName));
         }
     }
 
@@ -75,12 +75,12 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
                     (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
                             cacheName);
             if (cache == null) {
-                System.out.println("no devices are present in elan cache");
+                session.getConsole().println("no devices are present in elan cache");
             }
             for (String elan : cache.keySet()) {
                 print(elan, cache.get(elan));
-                System.out.println(DEMARCATION);
-                System.out.println(DEMARCATION);
+                session.getConsole().println(DEMARCATION);
+                session.getConsole().println(DEMARCATION);
             }
             return;
         }
@@ -91,10 +91,10 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
 
     private void print(String elan,
             ConcurrentMap<String, L2GatewayDevice> devices) {
-        System.out.println("Elan name : "+elan);
-        System.out.println("No of devices in elan "+devices.keySet().size());
+        session.getConsole().println("Elan name : "+elan);
+        session.getConsole().println("No of devices in elan "+devices.keySet().size());
         for (String deviceName : devices.keySet()) {
-            System.out.println("device "+ devices.get(deviceName));
+            session.getConsole().println("device "+ devices.get(deviceName));
         }
     }
 }

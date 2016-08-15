@@ -15,7 +15,6 @@ import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.utils.ElanCLIUtils;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface;
@@ -56,26 +55,26 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
             if (etreeName != null) {
                 ElanInstance elanInstance = elanProvider.getElanInstance(etreeName);
                 if (elanInstance == null || elanInstance.getAugmentation(EtreeInstance.class) == null) {
-                    System.out.println("Etree instance doesn't exist or isn't configured as etree: " + etreeName);
+                    session.getConsole().println("Etree instance doesn't exist or isn't configured as etree: " + etreeName);
                     return null;
                 }
                 List<String> elanInterfaces = elanProvider.getElanInterfaces(etreeName);
                 if (elanInterfaces == null) {
-                    System.out.println("No Etree Interfaces present for ELan Instance:" + etreeName);
+                    session.getConsole().println("No Etree Interfaces present for ELan Instance:" + etreeName);
                     return null;
                 }
-                System.out.println(getEtreeInterfaceHeaderOutput());
+                session.getConsole().println(getEtreeInterfaceHeaderOutput());
                 displayInterfaces(elanInstance, elanInterfaces);
 
             } else {
                 List<ElanInstance> elanInstances = elanProvider.getElanInstances();
                 if (!elanInstances.isEmpty()) {
-                    System.out.println(getEtreeInterfaceHeaderOutput());
+                    session.getConsole().println(getEtreeInterfaceHeaderOutput());
                     for (ElanInstance elanInstance : elanInstances) {
                         List<String> elanInterfaces =
                                 elanProvider.getElanInterfaces(elanInstance.getElanInstanceName());
                         displayInterfaces(elanInstance, elanInterfaces);
-                        System.out.println("\n");
+                        session.getConsole().println("\n");
                     }
                 }
 
@@ -103,7 +102,7 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
                 EtreeInterface etreeInterface =
                         ElanServiceProvider.getElanutils().getEtreeInterfaceByElanInterfaceName(elanInterface);
                 if (interfaceInfo != null) {
-                    System.out.println(String.format(ElanCLIUtils.ETREE_INTERFACE_CLI_FORMAT,
+                    session.getConsole().println(String.format(ElanCLIUtils.ETREE_INTERFACE_CLI_FORMAT,
                             elanInstance.getElanInstanceName() + "/" + elanInstance.getElanTag(),
                             elanInterface + "/" + interfaceInfo.getInterfaceTag(), interfaceInfo.getOpState(),
                             interfaceInfo.getAdminState(), etreeInterface.getEtreeInterfaceType().getName()));
