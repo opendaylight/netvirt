@@ -40,10 +40,9 @@ public final class NetvirtITConstants {
 
     public enum DefaultFlow {
 
+        DHCP_EXTERNAL_TUNNEL("DHCPTableMissFlowForExternalTunnel",NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL),
         DHCP("DHCPTableMissFlow", NwConstants.DHCP_TABLE),
-        IPV6("IPv6TableMissFlow", NwConstants.IPV6_TABLE),
-        ELAN_SMAC(""+NwConstants.ELAN_SMAC_TABLE, NwConstants.ELAN_SMAC_TABLE),
-        ELAN_DMAC(""+NwConstants.ELAN_DMAC_TABLE, NwConstants.ELAN_DMAC_TABLE);
+        IPV6("IPv6TableMissFlow", NwConstants.IPV6_TABLE);
 
         String flowId;
         short tableId;
