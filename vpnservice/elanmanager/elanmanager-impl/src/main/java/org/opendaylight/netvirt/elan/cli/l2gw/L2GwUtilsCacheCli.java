@@ -9,14 +9,13 @@
 package org.opendaylight.netvirt.elan.cli.l2gw;
 
 import java.util.concurrent.ConcurrentMap;
-
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
-import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
