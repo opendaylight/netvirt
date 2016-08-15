@@ -20,7 +20,7 @@ public class ElanDelete extends OsgiCommandSupport {
     @Argument(index = 0, name = "elanName", description = "ELAN-NAME", required = true, multiValued = false)
     private String elanName;
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanDelete.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanDelete.class);
     private IElanService elanProvider;
 
     public void setElanProvider(IElanService elanServiceProvider) {
@@ -30,15 +30,15 @@ public class ElanDelete extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Executing the Deletion of ElanInstance command" + "\t" + elanName + "\t");
-           boolean isSuccess =  elanProvider.deleteElanInstance(elanName);
-            if(isSuccess) {
+            LOG.debug("Executing the Deletion of ElanInstance command" + "\t" + elanName + "\t");
+            boolean isSuccess =  elanProvider.deleteElanInstance(elanName);
+            if (isSuccess) {
                 System.out.println("Elan Instance deleted successfully");
             } else {
                 System.out.println("ELan Instance failed to delete");
             }
         } catch (Exception e) {
-            logger.error("Failed to delete Elan Instance {}", e);
+            LOG.error("Failed to delete Elan Instance {}", e);
             e.printStackTrace();
         }
         return null;

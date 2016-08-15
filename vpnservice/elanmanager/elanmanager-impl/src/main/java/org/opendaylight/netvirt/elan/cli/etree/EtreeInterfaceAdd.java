@@ -33,7 +33,7 @@ public class EtreeInterfaceAdd extends OsgiCommandSupport {
     @Argument(index = 4, name = "elanInterfaceDescr", description = "ELAN Interface-Description", required = false,
             multiValued = false)
     private String elanInterfaceDescr;
-    private static final Logger logger = LoggerFactory.getLogger(EtreeInterfaceAdd.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EtreeInterfaceAdd.class);
     private IElanService elanProvider;
 
     public void setElanProvider(IElanService elanServiceProvider) {
@@ -66,7 +66,7 @@ public class EtreeInterfaceAdd extends OsgiCommandSupport {
         }
 
         try {
-            logger.debug("Executing create EtreeInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
+            LOG.debug("Executing create EtreeInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
                     + interfaceType + "\t" + staticMacAddresses + "\t" + elanInterfaceDescr + "\t");
             elanProvider.addEtreeInterface(elanName, interfaceName, inputType, staticMacAddresses, elanInterfaceDescr);
             System.out.println("Created etree interface successfully");

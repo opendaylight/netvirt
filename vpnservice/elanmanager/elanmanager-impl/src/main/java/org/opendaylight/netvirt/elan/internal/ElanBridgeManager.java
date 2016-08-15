@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.elan.internal;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -21,8 +21,6 @@ import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeNetdev;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
-import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +43,7 @@ public class ElanBridgeManager {
     private Random random;
 
     /**
-     * Construct a new ElanBridgeManager
+     * Construct a new ElanBridgeManager.
      * @param dataBroker DataBroker
      */
     public ElanBridgeManager(DataBroker dataBroker) {
@@ -65,7 +63,7 @@ public class ElanBridgeManager {
     }
 
     /**
-     * Is the Node object an OVSDB node?
+     * Is the Node object an OVSDB node.
      * @param node unidentified node object
      * @return true if the Node is an OVSDB node
      */
@@ -74,7 +72,7 @@ public class ElanBridgeManager {
     }
 
     /**
-     * Is this Node the integration bridge (br-int)
+     * Is this Node the integration bridge (br-int).
      * @param node unidentified noe object
      * @return true if the Node is a bridge and it is the integration bridge
      */
@@ -92,7 +90,7 @@ public class ElanBridgeManager {
     }
 
     /**
-     * Is this node a bridge?
+     * Is this node a bridge.
      * @param node unidentified node object
      * @return true if this node is a bridge
      */
@@ -114,7 +112,7 @@ public class ElanBridgeManager {
             //if br-int already exists, we can add provider networks
             Node brIntNode = southboundUtils.readBridgeNode(node, INTEGRATION_BRIDGE);
             if (brIntNode != null) {
-                if(!addControllerToBridge(node, INTEGRATION_BRIDGE)) {
+                if (!addControllerToBridge(node, INTEGRATION_BRIDGE)) {
                     LOG.error("Failed to set controller to existing integration bridge {}", brIntNode);
                 }
 
@@ -205,7 +203,9 @@ public class ElanBridgeManager {
     }
 
     /**
-     * Add a bridge to the OVSDB node but check that it does not exist in the CONFIGURATION or OPERATIONAL md-sals first
+     * Add a bridge to the OVSDB node but check that it does not exist in the
+     * CONFIGURATION or OPERATIONAL md-sals first.
+     *
      * @param ovsdbNode Which OVSDB node
      * @param bridgeName Name of the bridge
      * @param mac mac address to set on the bridge or null
@@ -213,13 +213,14 @@ public class ElanBridgeManager {
      */
     public boolean addBridge(Node ovsdbNode, String bridgeName, String mac) {
         boolean rv = true;
-        if ((!southboundUtils.isBridgeOnOvsdbNode(ovsdbNode, bridgeName)) ||
-                (southboundUtils.getBridgeFromConfig(ovsdbNode, bridgeName) == null)) {
+        if (!southboundUtils.isBridgeOnOvsdbNode(ovsdbNode, bridgeName)
+                || southboundUtils.getBridgeFromConfig(ovsdbNode, bridgeName) == null) {
             Class<? extends DatapathTypeBase> dpType = null;
             if (isUserSpaceEnabled()) {
                 dpType = DatapathTypeNetdev.class;
             }
-            rv = southboundUtils.addBridge(ovsdbNode, bridgeName, southboundUtils.getControllersFromOvsdbNode(ovsdbNode), dpType, mac);
+            rv = southboundUtils.addBridge(ovsdbNode, bridgeName,
+                    southboundUtils.getControllersFromOvsdbNode(ovsdbNode), dpType, mac);
         }
         return rv;
     }
@@ -272,8 +273,11 @@ public class ElanBridgeManager {
 
         return res;
     }
+
     /**
-     * Get the name of the patch-port which is patched to the bridge containing interfaceName
+     * Get the name of the patch-port which is patched to the bridge containing
+     * interfaceName.
+     *
      * @param interfaceName The external interface
      * @return interface name
      */
@@ -286,13 +290,13 @@ public class ElanBridgeManager {
     }
 
     /**
-     * Add a port to a bridge
+     * Add a port to a bridge.
      * @param node the bridge node
      * @param bridgeName name of the bridge
      * @param portName name of port to add
      * @return true if successful in writing to mdsal
      */
-    public boolean addPortToBridge (Node node, String bridgeName, String portName) {
+    public boolean addPortToBridge(Node node, String bridgeName, String portName) {
         boolean rv = true;
 
         if (southboundUtils.extractTerminationPointAugmentation(node, portName) == null) {
@@ -314,14 +318,14 @@ public class ElanBridgeManager {
     }
 
     /**
-     * Add a patch port to a bridge
+     * Add a patch port to a bridge.
      * @param node the bridge node
      * @param bridgeName name of the bridge
      * @param portName name of the port
      * @param peerPortName name of the port's peer (the other side)
      * @return true if successful
      */
-    public boolean addPatchPort (Node node, String bridgeName, String portName, String peerPortName) {
+    public boolean addPatchPort(Node node, String bridgeName, String portName, String peerPortName) {
         boolean rv = true;
 
         if (southboundUtils.extractTerminationPointAugmentation(node, portName) == null) {
@@ -349,10 +353,10 @@ public class ElanBridgeManager {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        int i = 0;
-        while(true) {
-            stringBuilder.append(String.format("%02x", macBytes[i++]));
-            if (i >= 6) {
+        int index = 0;
+        while (true) {
+            stringBuilder.append(String.format("%02x", macBytes[index++]));
+            if (index >= 6) {
                 break;
             }
             stringBuilder.append(':');

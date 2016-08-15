@@ -9,20 +9,19 @@
 package org.opendaylight.netvirt.elan.cli.l2gw;
 
 import java.util.concurrent.ConcurrentMap;
-
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
-import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Command(scope = "l2gw", name = "show-cache", description = "display l2gateways cache")
 public class L2GwUtilsCacheCli extends OsgiCommandSupport {
-    private static final Logger logger = LoggerFactory.getLogger(L2GwUtilsCacheCli.class);
+    private static final Logger LOG = LoggerFactory.getLogger(L2GwUtilsCacheCli.class);
 
     private static final String DEMARCATION = "=================================";
 
@@ -44,12 +43,12 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
                 return null;
             }
             switch (cacheName) {
-            case ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME:
-                dumpElanL2GwCache();
-                break;
-            case L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME:
-                dumpL2GwCache();
-                break;
+                case ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME:
+                    dumpElanL2GwCache();
+                    break;
+                case L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME:
+                    dumpL2GwCache();
+                    break;
             }
         } catch (Exception e) {
         }
@@ -65,7 +64,7 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
             return;
         }
         for (String deviceName : devices.keySet()) {
-            System.out.println("device "+ devices.get(deviceName));
+            System.out.println("device " + devices.get(deviceName));
         }
     }
 
@@ -91,10 +90,10 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
 
     private void print(String elan,
             ConcurrentMap<String, L2GatewayDevice> devices) {
-        System.out.println("Elan name : "+elan);
-        System.out.println("No of devices in elan "+devices.keySet().size());
+        System.out.println("Elan name : " + elan);
+        System.out.println("No of devices in elan " + devices.keySet().size());
         for (String deviceName : devices.keySet()) {
-            System.out.println("device "+ devices.get(deviceName));
+            System.out.println("device " + devices.get(deviceName));
         }
     }
 }

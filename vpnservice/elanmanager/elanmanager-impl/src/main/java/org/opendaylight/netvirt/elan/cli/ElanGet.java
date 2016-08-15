@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.cli;
 
+import java.util.List;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -16,12 +17,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 @Command(scope = "elan", name = "show", description = "display Elan Instance")
 public class ElanGet extends OsgiCommandSupport {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanGet.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanGet.class);
 
     @Argument(index = 0, name = "elanName", description = "ELAN-NAME", required = false, multiValued = false)
     private String elanName;
@@ -34,8 +33,8 @@ public class ElanGet extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Executing Get ElanInstance command" + "\t" + elanName +  "\t");
-            if(elanName != null) {
+            LOG.debug("Executing Get ElanInstance command" + "\t" + elanName +  "\t");
+            if (elanName != null) {
                 ElanInstance elanInstance = elanProvider.getElanInstance(elanName);
                 if (elanInstance == null) {
                     System.out.println("No Elan Instance present with name:" + elanName);
@@ -45,20 +44,20 @@ public class ElanGet extends OsgiCommandSupport {
                 }
 
             } else {
-               List<ElanInstance> elanInstanceList = elanProvider.getElanInstances();
-                if(elanInstanceList != null && !elanInstanceList.isEmpty()) {
+                List<ElanInstance> elanInstanceList = elanProvider.getElanInstances();
+                if (elanInstanceList != null && !elanInstanceList.isEmpty()) {
                     System.out.println(getElanHeaderOutput());
-                    for(ElanInstance elanInstance : elanInstanceList) {
-                        System.out.println(String.format(ElanCLIUtils.ELAN_CLI_FORMAT, elanInstance.getElanInstanceName(), elanInstance.getMacTimeout(), elanInstance.getElanTag(), elanInstance.getDescription()));
+                    for (ElanInstance elanInstance : elanInstanceList) {
+                        System.out.println(String.format(ElanCLIUtils.ELAN_CLI_FORMAT,
+                                elanInstance.getElanInstanceName(), elanInstance.getMacTimeout(),
+                                elanInstance.getElanTag(), elanInstance.getDescription()));
                     }
                 } else {
                     System.out.println("No Elan Instances are present");
                 }
-
             }
         } catch (Exception e) {
-            logger.error("Elan Instance failed to get {}", e);
-            e.printStackTrace();
+            LOG.error("Elan Instance failed to get {}", e);
         }
         return null;
     }

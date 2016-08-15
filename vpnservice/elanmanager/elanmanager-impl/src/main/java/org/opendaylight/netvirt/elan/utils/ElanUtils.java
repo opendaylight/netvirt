@@ -12,7 +12,6 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,7 +20,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -77,7 +75,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
@@ -271,7 +268,7 @@ public class ElanUtils {
 
     public <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path) {
-        ReadOnlyTransaction tx = (broker != null) ? broker.newReadOnlyTransaction()
+        ReadOnlyTransaction tx = broker != null ? broker.newReadOnlyTransaction()
                 : this.broker.newReadOnlyTransaction();
         Optional<T> result = Optional.absent();
         try {
@@ -297,10 +294,10 @@ public class ElanUtils {
 
     // elan-instances config container
     public ElanInstance getElanInstanceByName(String elanInstanceName) {
-    	 ElanInstance elanObj = getElanInstanceFromCache(elanInstanceName);
-         if (elanObj != null) {
-             return elanObj;
-         }
+        ElanInstance elanObj = getElanInstanceFromCache(elanInstanceName);
+        if (elanObj != null) {
+            return elanObj;
+        }
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
         Optional<ElanInstance> elanInstance = read(broker, LogicalDatastoreType.CONFIGURATION,
                 elanIdentifierId);
@@ -317,10 +314,10 @@ public class ElanUtils {
 
     // elan-interfaces Config Container
     public ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName) {
-    	  ElanInterface elanInterfaceObj = getElanInterfaceFromCache(elanInterfaceName);
-          if (elanInterfaceObj != null) {
-              return elanInterfaceObj;
-          }
+        ElanInterface elanInterfaceObj = getElanInterfaceFromCache(elanInterfaceName);
+        if (elanInterfaceObj != null) {
+            return elanInterfaceObj;
+        }
         InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
         Optional<ElanInterface> existingElanInterface = read(broker,
                 LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
@@ -435,7 +432,7 @@ public class ElanUtils {
      * @return the elan interface mac addresses
      */
     public List<PhysAddress> getElanInterfaceMacAddresses(String interfaceName) {
-        List<PhysAddress> macAddresses = new ArrayList<PhysAddress>();
+        List<PhysAddress> macAddresses = new ArrayList<>();
         ElanInterfaceMac elanInterfaceMac = getElanInterfaceMacByInterfaceName(interfaceName);
         if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
             List<MacEntry> macEntries = elanInterfaceMac.getMacEntry();
@@ -555,7 +552,7 @@ public class ElanUtils {
      * @return list of dpIds
      */
     public List<BigInteger> getParticipatingDPNsInElanInstance(String elanInstanceName) {
-        List<BigInteger> dpIds = new ArrayList<BigInteger>();
+        List<BigInteger> dpIds = new ArrayList<>();
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanInstanceName);
         Optional<ElanDpnInterfacesList> existingElanDpnInterfaces = read(broker,
                 LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
@@ -638,28 +635,28 @@ public class ElanUtils {
     }
 
     public static long getElanLocalBCGID(long elanTag) {
-        return ElanConstants.ELAN_GID_MIN + (((elanTag % ElanConstants.ELAN_GID_MIN) * 2) - 1);
+        return ElanConstants.ELAN_GID_MIN + (elanTag % ElanConstants.ELAN_GID_MIN * 2 - 1);
     }
 
     public static long getElanRemoteBCGID(long elanTag) {
-        return ElanConstants.ELAN_GID_MIN + (((elanTag % ElanConstants.ELAN_GID_MIN) * 2));
+        return ElanConstants.ELAN_GID_MIN + elanTag % ElanConstants.ELAN_GID_MIN * 2;
     }
 
     public static long getEtreeLeafLocalBCGID(long etreeLeafTag) {
-        return ElanConstants.ELAN_GID_MIN + (((etreeLeafTag % ElanConstants.ELAN_GID_MIN) * 2) - 1);
+        return ElanConstants.ELAN_GID_MIN + (etreeLeafTag % ElanConstants.ELAN_GID_MIN * 2 - 1);
     }
 
     public static long getEtreeLeafRemoteBCGID(long etreeLeafTag) {
-        return ElanConstants.ELAN_GID_MIN + (((etreeLeafTag % ElanConstants.ELAN_GID_MIN) * 2));
+        return ElanConstants.ELAN_GID_MIN + etreeLeafTag % ElanConstants.ELAN_GID_MIN * 2;
     }
 
     public static BigInteger getElanMetadataLabel(long elanTag) {
-        return (BigInteger.valueOf(elanTag)).shiftLeft(24);
+        return BigInteger.valueOf(elanTag).shiftLeft(24);
     }
 
     public static BigInteger getElanMetadataLabel(long elanTag, boolean isSHFlagSet) {
-        int shBit = (isSHFlagSet) ? 1 : 0;
-        return (BigInteger.valueOf(elanTag)).shiftLeft(24).or(BigInteger.valueOf(shBit));
+        int shBit = isSHFlagSet ? 1 : 0;
+        return BigInteger.valueOf(elanTag).shiftLeft(24).or(BigInteger.valueOf(shBit));
     }
 
     public static BigInteger getElanMetadataLabel(long elanTag, int lportTag) {
@@ -707,12 +704,6 @@ public class ElanUtils {
     /**
      * Inserts a Flow in SMAC table to state that the MAC has already been
      * learnt.
-     *
-     * @param elanInfo
-     * @param interfaceInfo
-     * @param macTimeout
-     * @param macAddress
-     * @param mdsalApiManager
      */
     private void setupKnownSmacFlow(ElanInstance elanInfo, InterfaceInfo interfaceInfo, long macTimeout,
             String macAddress, IMdsalApiManager mdsalApiManager, WriteTransaction writeFlowGroupTx) {
@@ -726,17 +717,17 @@ public class ElanUtils {
 
     public FlowEntity buildKnownSmacFlow(ElanInstance elanInfo, InterfaceInfo interfaceInfo, long macTimeout,
             String macAddress) {
-        BigInteger dpId = interfaceInfo.getDpId();
         int lportTag = interfaceInfo.getInterfaceTag();
-        long elanTag = getElanTag(elanInfo, interfaceInfo);
         // Matching metadata and eth_src fields
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 getElanMetadataLabel(elanInfo.getElanTag(), lportTag), getElanMetadataMask() }));
         mkMatches.add(new MatchInfo(MatchFieldType.eth_src, new String[] { macAddress }));
-        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.ELAN_DMAC_TABLE }));
 
+        BigInteger dpId = interfaceInfo.getDpId();
+        long elanTag = getElanTag(elanInfo, interfaceInfo);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE,
                 getKnownDynamicmacFlowRef(NwConstants.ELAN_SMAC_TABLE, dpId, lportTag, macAddress, elanTag), 20,
                 elanInfo.getDescription(), (int) macTimeout, 0,
@@ -769,7 +760,7 @@ public class ElanUtils {
     /**
      * Installs a Flow in INTERNAL_TUNNEL_TABLE of the affected DPN that sends
      * the packet through the specified interface if the tunnel_id matches the
-     * interface's lportTag
+     * interface's lportTag.
      *
      * @param interfaceInfo
      *            the interface info
@@ -811,21 +802,21 @@ public class ElanUtils {
 
     /**
      * Constructs the Matches that checks that the tunnel_id field contains a
-     * specific lportTag
+     * specific lportTag.
      *
      * @param lportTag
      *            lportTag that must be checked against the tunnel_id field
      * @return the list of match Info
      */
     public static List<MatchInfo> getTunnelIdMatchForFilterEqualsLPortTag(int lportTag) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(lportTag) }));
         return mkMatches;
     }
 
     /**
-     * Constructs the Instructions that take the packet over a given interface
+     * Constructs the Instructions that take the packet over a given interface.
      *
      * @param ifName
      *            Name of the interface where the packet must be sent over. It
@@ -834,7 +825,7 @@ public class ElanUtils {
      * @return the Instruction
      */
     public List<Instruction> getInstructionsInPortForOutGroup(String ifName) {
-        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List<Instruction> mkInstructions = new ArrayList<>();
         List<Action> actions = getEgressActionsForInterface(ifName, /* tunnelKey */ null);
 
         mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
@@ -856,7 +847,7 @@ public class ElanUtils {
      * @return the egress actions for interface
      */
     public List<Action> getEgressActionsForInterface(String ifName, Long tunnelKey) {
-        List<Action> listAction = new ArrayList<Action>();
+        List<Action> listAction = new ArrayList<>();
         try {
             GetEgressActionsForInterfaceInput getEgressActionInput = new GetEgressActionsForInterfaceInputBuilder()
                     .setIntfName(ifName).setTunnelKey(tunnelKey).build();
@@ -867,8 +858,7 @@ public class ElanUtils {
                 LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}", ifName,
                         rpcResult.getErrors());
             } else {
-                List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actions = rpcResult
-                        .getResult().getAction();
+                List<Action> actions = rpcResult.getResult().getAction();
                 listAction = actions;
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -895,9 +885,8 @@ public class ElanUtils {
                     // On the local DPN set up a direct output flow
                     setupLocalDmacFlow(elanTag, dpId, ifName, macAddress, elanInstanceName, mdsalApiManager, ifTag,
                             writeFlowGroupTx);
-                    LOG.debug(
-                            "Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address:{} on dpn:{}",
-                            elanInstanceName, interfaceInfo.getPortName(), macAddress, dpId);
+                    LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} mand mac address:{} "
+                            + "on dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, dpId);
                 } else {
                     // Check for the Remote DPN present in Inventory Manager
                     if (isDpnPresent(elanDpn.getDpId())) {
@@ -916,9 +905,9 @@ public class ElanUtils {
                                 macAddress, // MAC to be programmed in remote
                                             // DPN
                                 elanInstanceName, writeFlowGroupTx, ifName);
-                        LOG.debug(
-                                "Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address:{} on dpn:{}",
-                                elanInstanceName, interfaceInfo.getPortName(), macAddress, elanDpn.getDpId());
+                        LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address:{} on"
+                                + " dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress,
+                                elanDpn.getDpId());
                     }
                 }
             }
@@ -940,9 +929,8 @@ public class ElanUtils {
                 setupRemoteDmacFlow(dstDpId, dpId, interfaceInfo.getInterfaceTag(), elanTag, macAddress,
                         elanInstanceName, writeFlowTx, interfaceInfo.getInterfaceName());
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(
-                            "Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address {} on dpn:{}",
-                            elanInstanceName, interfaceInfo.getPortName(), macAddress, remoteFE.getDpId());
+                    LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address {} on"
+                            + " dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, remoteFE.getDpId());
                 }
                 break;
             }
@@ -1006,7 +994,7 @@ public class ElanUtils {
      * Builds the flow to be programmed in the DMAC table of the local DPN (that
      * is, where the MAC is attached to). This flow consists in:
      *
-     * Match: + elanTag in metadata + packet goes to a MAC locally attached
+     * <p>Match: + elanTag in metadata + packet goes to a MAC locally attached
      * Actions: + optionally, pop-vlan + set-vlan-id + output to ifName's
      * portNumber
      *
@@ -1031,7 +1019,7 @@ public class ElanUtils {
                 new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
         mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { macAddress }));
 
-        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List<Instruction> mkInstructions = new ArrayList<>();
         List<Action> actions = getEgressActionsForInterface(ifName, /* tunnelKey */ null);
         mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
@@ -1096,7 +1084,7 @@ public class ElanUtils {
                 new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
         mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { macAddress }));
 
-        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List<Instruction> mkInstructions = new ArrayList<>();
 
         // List of Action for the provided Source and Destination DPIDs
         try {
@@ -1138,20 +1126,20 @@ public class ElanUtils {
         for (DpnInterfaces dpnInterface : remoteFEs) {
             Long elanTag = elanInfo.getElanTag();
             BigInteger dstDpId = dpnInterface.getDpId();
-            if (executeDeleteMacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, elanInstanceName, srcdpId, elanTag,
-                    dstDpId, deleteFlowGroupTx)) {
+            if (executeDeleteMacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, elanInstanceName, srcdpId,
+                    elanTag, dstDpId, deleteFlowGroupTx)) {
                 isFlowsRemovedInSrcDpn = true;
             }
-            executeEtreeDeleteMacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, elanInstanceName, srcdpId, elanTag,
-                    dstDpId, deleteFlowGroupTx);
+            executeEtreeDeleteMacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, elanInstanceName, srcdpId,
+                    elanTag, dstDpId, deleteFlowGroupTx);
         }
         if (!isFlowsRemovedInSrcDpn) {
             deleteSmacAndDmacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, deleteFlowGroupTx);
         }
     }
 
-    private void executeEtreeDeleteMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress, boolean deleteSmac,
-            String elanInstanceName, BigInteger srcdpId, Long elanTag, BigInteger dstDpId,
+    private void executeEtreeDeleteMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
+            boolean deleteSmac, String elanInstanceName, BigInteger srcdpId, Long elanTag, BigInteger dstDpId,
             WriteTransaction deleteFlowGroupTx) {
         EtreeLeafTagName etreeLeafTag = getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {
@@ -1160,8 +1148,8 @@ public class ElanUtils {
         }
     }
 
-    private boolean executeDeleteMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress, boolean deleteSmac,
-            String elanInstanceName, BigInteger srcdpId, Long elanTag, BigInteger dstDpId,
+    private boolean executeDeleteMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
+            boolean deleteSmac, String elanInstanceName, BigInteger srcdpId, Long elanTag, BigInteger dstDpId,
             WriteTransaction deleteFlowGroupTx) {
         boolean isFlowsRemovedInSrcDpn = false;
         if (dstDpId.equals(srcdpId)) {
@@ -1199,9 +1187,8 @@ public class ElanUtils {
                         getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)),
                 deleteFlowGroupTx);
         if (LOG.isDebugEnabled()) {
-            LOG.debug(
-                    "All the required flows deleted for elan:{}, logical Interface port:{} and mac address:{} on dpn:{}",
-                    elanInstanceName, interfaceInfo.getPortName(), macAddress, srcdpId);
+            LOG.debug("All the required flows deleted for elan:{}, logical Interface port:{} and MAC address:{} "
+                    + "on dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, srcdpId);
         }
     }
 
@@ -1292,7 +1279,7 @@ public class ElanUtils {
         InstanceIdentifier<Node> node = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId))
                 .build();
         Optional<Node> nodePresent = read(broker, LogicalDatastoreType.OPERATIONAL, node);
-        return (nodePresent.isPresent());
+        return nodePresent.isPresent();
     }
 
     public static ServicesInfo getServiceInfo(String elanInstanceName, long elanTag, String interfaceName) {
@@ -1423,8 +1410,9 @@ public class ElanUtils {
             if (output.get().isSuccessful()) {
                 GetExternalTunnelInterfaceNameOutput tunnelInterfaceNameOutput = output.get().getResult();
                 String tunnelIfaceName = tunnelInterfaceNameOutput.getInterfaceName();
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelIfaceName);
+                }
 
                 result = buildTunnelItmEgressActions(tunnelIfaceName, vni);
             }
@@ -1479,7 +1467,7 @@ public class ElanUtils {
 
     /**
      * Build the list of actions to be taken when sending the packet to external
-     * (physical) port
+     * (physical) port.
      *
      * @param interfaceName
      *            Interface name
@@ -1490,7 +1478,7 @@ public class ElanUtils {
     }
 
     public static List<MatchInfo> getTunnelMatchesForServiceId(int elanTag) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(elanTag) }));
 
@@ -1515,7 +1503,7 @@ public class ElanUtils {
     }
 
     public void createTerminatingServiceActions(BigInteger destDpId, int serviceId, List<Action> actions) {
-        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List<Instruction> mkInstructions = new ArrayList<>();
         mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         CreateTerminatingServiceActionsInput input = new CreateTerminatingServiceActionsInputBuilder()
                 .setDpnId(destDpId).setServiceId(serviceId).setInstruction(mkInstructions).build();
@@ -1709,7 +1697,7 @@ public class ElanUtils {
     }
 
     public static List<MatchInfo> buildMatchesForElanTagShFlagAndDstMac(long elanTag, boolean shFlag, String macAddr) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 getElanMetadataLabel(elanTag, shFlag), MetaDataUtil.METADATA_MASK_SERVICE_SH_FLAG }));
         mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { macAddr }));
@@ -1772,8 +1760,6 @@ public class ElanUtils {
      *            ElanId to which the MAC is being added to
      * @param dstMacAddress
      *            The mac address to be programmed
-     * @param displayName
-     * @return
      */
     private static Flow buildDmacFlowDropIfPacketComingFromTunnel(BigInteger dpnId, String extDeviceNodeId,
             Long elanTag, String dstMacAddress) {
@@ -1798,7 +1784,7 @@ public class ElanUtils {
      * Builds a Flow to be programmed in a remote DPN's DMAC table. This method
      * must be used when the MAC is located in another CSS.
      *
-     * This flow consists in: Match: + elanTag in packet's metadata + packet
+     * <p>This flow consists in: Match: + elanTag in packet's metadata + packet
      * going to a MAC known to be located in another DPN Actions: +
      * set_tunnel_id(lportTag) + output on ITM internal tunnel interface with
      * the other DPN
@@ -1821,7 +1807,7 @@ public class ElanUtils {
             long elanTag, String macAddress, String displayName) {
         List<MatchInfo> mkMatches = buildMatchesForElanTagShFlagAndDstMac(elanTag, /* shFlag */ false, macAddress);
 
-        List<Instruction> mkInstructions = new ArrayList<Instruction>();
+        List<Instruction> mkInstructions = new ArrayList<>();
 
         try {
             // List of Action for the provided Source and Destination DPIDs
@@ -1969,7 +1955,7 @@ public class ElanUtils {
         if (ifState == null) {
             return false;
         }
-        return ((ifState.getOperStatus() == OperStatus.Up) && (ifState.getAdminStatus() == AdminStatus.Up));
+        return ifState.getOperStatus() == OperStatus.Up && ifState.getAdminStatus() == AdminStatus.Up;
     }
 
     /**
@@ -1981,11 +1967,14 @@ public class ElanUtils {
      *            the data broker
      * @return the interface state from oper ds
      */
-    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceStateFromOperDS(
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+        .ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceStateFromOperDS(
             String interfaceName, DataBroker dataBroker) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId = createInterfaceStateInstanceIdentifier(
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+            .ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId = createInterfaceStateInstanceIdentifier(
                 interfaceName);
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateOptional = MDSALUtil
+        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+            .ietf.interfaces.rev140508.interfaces.state.Interface> ifStateOptional = MDSALUtil
                 .read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
         if (ifStateOptional.isPresent()) {
             return ifStateOptional.get();
@@ -2002,11 +1991,13 @@ public class ElanUtils {
      *            the data broker
      * @return the interface from config ds
      */
-    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface getInterfaceFromConfigDS(
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+        .ietf.interfaces.rev140508.interfaces.Interface getInterfaceFromConfigDS(
             String interfaceName, DataBroker dataBroker) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> ifaceId = createInterfaceInstanceIdentifier(
-                interfaceName);
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> iface = MDSALUtil
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+            .ietf.interfaces.rev140508.interfaces.Interface> ifaceId = createInterfaceInstanceIdentifier(interfaceName);
+        Optional<org.opendaylight.yang.gen.v1.urn
+            .ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> iface = MDSALUtil
                 .read(dataBroker, LogicalDatastoreType.CONFIGURATION, ifaceId);
         if (iface.isPresent()) {
             return iface.get();
@@ -2021,12 +2012,16 @@ public class ElanUtils {
      *            the interface name
      * @return the instance identifier
      */
-    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> createInterfaceStateInstanceIdentifier(
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+        .ietf.interfaces.rev140508.interfaces.state.Interface> createInterfaceStateInstanceIdentifier(
             String interfaceName) {
-        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> idBuilder = InstanceIdentifier
+        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+            .ietf.interfaces.rev140508.interfaces.state.Interface> idBuilder = InstanceIdentifier
                 .builder(InterfacesState.class)
-                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class,
-                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+                        .ietf.interfaces.rev140508.interfaces.state.Interface.class,
+                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+                            .ietf.interfaces.rev140508.interfaces.state.InterfaceKey(
                                 interfaceName));
         return idBuilder.build();
     }
@@ -2038,17 +2033,22 @@ public class ElanUtils {
      *            the interface name
      * @return the instance identifier
      */
-    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> createInterfaceInstanceIdentifier(
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+        .ietf.interfaces.rev140508.interfaces.Interface> createInterfaceInstanceIdentifier(
             String interfaceName) {
-        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> idBuilder = InstanceIdentifier
+        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+            .ietf.interfaces.rev140508.interfaces.Interface> idBuilder = InstanceIdentifier
                 .builder(Interfaces.class)
-                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class,
-                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey(
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+                        .ietf.interfaces.rev140508.interfaces.Interface.class,
+                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+                            .ietf.interfaces.rev140508.interfaces.InterfaceKey(
                                 interfaceName));
         return idBuilder.build();
     }
 
-    public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(WriteTransaction tx) {
+    public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(
+            WriteTransaction tx) {
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
         try {
             futures.get();
@@ -2080,7 +2080,8 @@ public class ElanUtils {
     }
 
     public static boolean isExternal(
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface) {
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+            .ietf.interfaces.rev140508.interfaces.Interface iface) {
         if (iface == null) {
             return false;
         }

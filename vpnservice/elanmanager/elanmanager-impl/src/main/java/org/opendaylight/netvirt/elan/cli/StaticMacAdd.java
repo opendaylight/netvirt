@@ -7,12 +7,12 @@
  */
 package org.opendaylight.netvirt.elan.cli;
 
-import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
 
 @Command(scope = "staticMac", name = "add", description = "adding Static Mac Address")
 public class StaticMacAdd extends OsgiCommandSupport {
@@ -23,7 +23,7 @@ public class StaticMacAdd extends OsgiCommandSupport {
     private String interfaceName;
     @Argument(index = 2, name = "staticMacAddress", description = "StaticMacAddress", required = true, multiValued = false)
     private String staticMacAddress;
-    private static final Logger logger = LoggerFactory.getLogger(StaticMacAdd.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StaticMacAdd.class);
     private IElanService elanProvider;
 
     public void setElanProvider(IElanService elanServiceProvider) {
@@ -33,7 +33,7 @@ public class StaticMacAdd extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Executing create ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t" + staticMacAddress + "\t");
+            LOG.debug("Executing create ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t" + staticMacAddress + "\t");
             elanProvider.addStaticMacAddress(elanName, interfaceName, staticMacAddress);
         } catch (Exception e) {
             e.printStackTrace();

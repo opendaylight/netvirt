@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 public class ElanNodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanNodeListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanNodeListener.class);
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
@@ -57,7 +57,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
             listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
                 getWildCardPath(), ElanNodeListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
         } catch (final Exception e) {
-            logger.error("ElanNodeListener: DataChange listener registration fail!", e);
+            LOG.error("ElanNodeListener: DataChange listener registration fail!", e);
             throw new IllegalStateException("ElanNodeListener: registration Listener failed.", e);
         }
     }
@@ -82,7 +82,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         NodeId nodeId = add.getId();
         String[] node =  nodeId.getValue().split(":");
         if (node.length < 2) {
-            logger.warn("Unexpected nodeId {}", nodeId.getValue());
+            LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return;
         }
         BigInteger dpId = new BigInteger(node[1]);
@@ -95,13 +95,13 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
     }
 
     private void setupTableMissSmacFlow(BigInteger dpId) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
-        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
-        List <ActionInfo> actionsInfos = new ArrayList <ActionInfo> ();
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
         mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.ELAN_DMAC_TABLE }));
 
+        List<MatchInfo> mkMatches = new ArrayList<>();
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE, getTableMissFlowRef(NwConstants.ELAN_SMAC_TABLE),
             0, "ELAN sMac Table Miss Flow", 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_SMAC,
             mkMatches, mkInstructions);
@@ -109,9 +109,9 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
     }
 
     private void setupTableMissDmacFlow(BigInteger dpId) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
 
-        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.ELAN_UNKNOWN_DMAC_TABLE }));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, getTableMissFlowRef(NwConstants.ELAN_DMAC_TABLE),

@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import java.util.Collection;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -24,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 public class CacheElanInstanceListener implements ClusteredDataTreeChangeListener<ElanInstance> {
 
-    private static final Logger logger = LoggerFactory.getLogger(CacheElanInstanceListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CacheElanInstanceListener.class);
 
     private final DataBroker broker;
 
@@ -40,12 +39,12 @@ public class CacheElanInstanceListener implements ClusteredDataTreeChangeListene
 
     private void registerListener() {
         final DataTreeIdentifier<ElanInstance> treeId =
-                new DataTreeIdentifier<ElanInstance>(LogicalDatastoreType.CONFIGURATION, getWildcardPath());
+                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, getWildcardPath());
         try {
-            logger.trace("Registering on path: {}", treeId);
+            LOG.trace("Registering on path: {}", treeId);
             registration = broker.registerDataTreeChangeListener(treeId, CacheElanInstanceListener.this);
         } catch (final Exception e) {
-            logger.warn("CacheInterfaceConfigListener registration failed", e);
+            LOG.warn("CacheInterfaceConfigListener registration failed", e);
         }
     }
 
@@ -54,7 +53,7 @@ public class CacheElanInstanceListener implements ClusteredDataTreeChangeListene
     }
 
     public void close() throws Exception {
-        if(registration != null) {
+        if (registration != null) {
             registration.close();
         }
     }
@@ -64,18 +63,18 @@ public class CacheElanInstanceListener implements ClusteredDataTreeChangeListene
         for (DataTreeModification<ElanInstance> change : changes) {
             DataObjectModification<ElanInstance> mod = change.getRootNode();
             switch (mod.getModificationType()) {
-            case DELETE:
-                ElanUtils.removeElanInstanceFromCache(mod.getDataBefore().getElanInstanceName());
-                break;
-            case SUBTREE_MODIFIED:
-            case WRITE:
-                ElanInstance elanInstance = mod.getDataAfter();
-                ElanUtils.addElanInstanceIntoCache(elanInstance.getElanInstanceName(), elanInstance);
-                break;
-            default:
-                throw new IllegalArgumentException("Unhandled modification type " + mod.getModificationType());
+                case DELETE:
+                    ElanUtils.removeElanInstanceFromCache(mod.getDataBefore().getElanInstanceName());
+                    break;
+                case SUBTREE_MODIFIED:
+                case WRITE:
+                    ElanInstance elanInstance = mod.getDataAfter();
+                    ElanUtils.addElanInstanceIntoCache(elanInstance.getElanInstanceName(), elanInstance);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unhandled modification type " + mod.getModificationType());
             }
-        }		
+        }
     }
 
 }
