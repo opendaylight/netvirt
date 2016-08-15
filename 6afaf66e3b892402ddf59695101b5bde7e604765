@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_b2d88280",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetGwMacResolver.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-15T15:14:59Z",
+      "side": 1,
+      "message": "make all these final as well as the constructor",
+      "revId": "6afaf66e3b892402ddf59695101b5bde7e604765",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_323bd29d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetGwMacResolver.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-15T15:14:59Z",
+      "side": 1,
+      "message": "is this a common possibility or should we log this at higher level?",
+      "revId": "6afaf66e3b892402ddf59695101b5bde7e604765",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d2c41e94",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetGwMacResolver.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-15T15:14:59Z",
+      "side": 1,
+      "message": "indent",
+      "revId": "6afaf66e3b892402ddf59695101b5bde7e604765",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
