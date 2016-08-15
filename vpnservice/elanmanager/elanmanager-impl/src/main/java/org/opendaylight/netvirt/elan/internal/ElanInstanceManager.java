@@ -13,6 +13,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -38,6 +41,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanInstance, ElanInstanceManager>
         implements AutoCloseable {
 
@@ -48,6 +52,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     private final IInterfaceManager interfaceManager;
     private final ElanInterfaceManager elanInterfaceManager;
 
+    @Inject
     public ElanInstanceManager(final DataBroker dataBroker, final IdManagerService managerService,
                                final ElanInterfaceManager elanInterfaceManager,
                                final IInterfaceManager interfaceManager) {
@@ -58,6 +63,8 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         this.interfaceManager = interfaceManager;
     }
 
+    @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
