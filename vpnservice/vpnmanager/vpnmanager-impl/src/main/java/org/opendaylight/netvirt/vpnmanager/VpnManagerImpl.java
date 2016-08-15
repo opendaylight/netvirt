@@ -84,4 +84,9 @@ public class VpnManagerImpl implements IVpnManager {
     public boolean existsVpn(String vpnName) {
         return VpnUtil.getVpnInstance(dataBroker, vpnName) != null;
     }
+
+    @Override
+    public long getArpCacheTimeoutMillis() {
+        return ArpConstants.ARP_CACHE_TIMEOUT_MILLIS;
+    }
 }
