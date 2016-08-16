@@ -12,15 +12,10 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
@@ -34,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetDeletedFromVpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetUpdatedInVpn;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +101,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
         Map<String, BigInteger> portToDpnMap = new HashMap<>();
         for(Ports port : interfaces) {
             String portName = port.getPortName();
-            BigInteger dpnId = getDpnForInterface(interfaceManager, portName);
+            BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
             if(dpnId.equals(BigInteger.ZERO)) {
                 LOG.debug("DPN not found for {}, skip handling of router {} association with vpn", portName, routerName, vpnName);
                 continue;
@@ -137,7 +131,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
         List<Ports> interfaces = routerPorts.getPorts();
         for(Ports port : interfaces) {
             String portName = port.getPortName();
-            BigInteger dpnId = getDpnForInterface(interfaceManager, portName);
+            BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
             if(dpnId.equals(BigInteger.ZERO)) {
                 LOG.debug("DPN not found for {}, skip handling of router {} association with vpn", portName, routerName, vpnName);
                 continue;
@@ -151,27 +145,6 @@ public class RouterToVpnListener implements NeutronvpnListener {
                 floatingIpListener.createNATOnlyFlowEntries(dpnId, portName, routerName, null, networkId, ipMap.getInternalIp(), externalIp);
             }
         }
-    }
-
-    private BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
-        BigInteger nodeId = BigInteger.ZERO;
-        try {
-            GetDpidFromInterfaceInput
-                    dpIdInput =
-                    new GetDpidFromInterfaceInputBuilder().setIntfName(ifName).build();
-            Future<RpcResult<GetDpidFromInterfaceOutput>>
-                    dpIdOutput =
-                    interfaceManagerRpcService.getDpidFromInterface(dpIdInput);
-            RpcResult<GetDpidFromInterfaceOutput> dpIdResult = dpIdOutput.get();
-            if (dpIdResult.isSuccessful()) {
-                nodeId = dpIdResult.getResult().getDpid();
-            } else {
-                LOG.error("Could not retrieve DPN Id for interface {}", ifName);
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Exception when getting dpn for interface {}", ifName,  e);
-        }
-        return nodeId;
     }
 
     @Override

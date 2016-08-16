@@ -87,6 +87,7 @@ public class ExternalNetworksChangeListener
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
+    @Override
     protected InstanceIdentifier<Networks> getWildCardPath() {
         return InstanceIdentifier.create(ExternalNetworks.class).child(Networks.class);
     }
@@ -169,7 +170,7 @@ public class ExternalNetworksChangeListener
             List<Ports> interfaces = routerPorts.getPorts();
             for(Ports port : interfaces) {
                 String portName = port.getPortName();
-                BigInteger dpnId = getDpnForInterface(interfaceManager, portName);
+                BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
                 if(dpnId.equals(BigInteger.ZERO)) {
                     LOG.debug("DPN not found for {}, skip handling of ext nw {} association", portName, network.getId());
                     continue;
@@ -254,7 +255,7 @@ public class ExternalNetworksChangeListener
             List<Ports> interfaces = routerPorts.getPorts();
             for(Ports port : interfaces) {
                 String portName = port.getPortName();
-                BigInteger dpnId = getDpnForInterface(interfaceManager, portName);
+                BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
                 if(dpnId.equals(BigInteger.ZERO)) {
                     LOG.debug("DPN not found for {}, skip handling of ext nw {} disassociation", portName, network.getId());
                     continue;
@@ -266,27 +267,6 @@ public class ExternalNetworksChangeListener
                 }
             }
         }
-    }
-
-    public static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
-        BigInteger nodeId = BigInteger.ZERO;
-        try {
-            GetDpidFromInterfaceInput
-                    dpIdInput =
-                    new GetDpidFromInterfaceInputBuilder().setIntfName(ifName).build();
-            Future<RpcResult<GetDpidFromInterfaceOutput>>
-                    dpIdOutput =
-                    interfaceManagerRpcService.getDpidFromInterface(dpIdInput);
-            RpcResult<GetDpidFromInterfaceOutput> dpIdResult = dpIdOutput.get();
-            if (dpIdResult.isSuccessful()) {
-                nodeId = dpIdResult.getResult().getDpid();
-            } else {
-                LOG.error("Could not retrieve DPN Id for interface {}", ifName);
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Exception when getting dpn for interface {}", ifName,  e);
-        }
-        return nodeId;
     }
 
 }
