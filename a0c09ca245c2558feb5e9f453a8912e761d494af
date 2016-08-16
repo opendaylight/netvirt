@@ -16,6 +16,24 @@
       "revId": "a0c09ca245c2558feb5e9f453a8912e761d494af",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6cd1e656",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statusanddiag/ElanStatusMonitorJMX.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-16T22:55:36Z",
+      "side": 1,
+      "message": "Duh! Nothing did - you\u0027re right.  This class is actually just the artist formerly known as ElanStatusMonitor, which I renamed to ElanStatusMonitorJMX impl and introduced a new interface ElanStatusMonitor.  What I had forgotten was to change the elanmanager.xml blueprint accordingly!  Fixed now / well spotted - thank you. This would have caused new instability.  And convinces me more than ever before that XML files for object wiring are stupid (if this had been static Java for wiring, we would have immediately seen it, because compilation would have failed; I\u0027ll be proposing a general solution to this problem under https://git.opendaylight.org/gerrit/#/c/43754/ (had a good discussion with skitt about that general topic today)",
+      "parentUuid": "7a6b29fe_09ff84ab",
+      "revId": "a0c09ca245c2558feb5e9f453a8912e761d494af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
