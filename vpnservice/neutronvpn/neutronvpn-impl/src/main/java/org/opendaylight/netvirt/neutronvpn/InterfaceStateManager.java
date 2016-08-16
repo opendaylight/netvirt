@@ -38,6 +38,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.VtepsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -50,7 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class InterfaceStateManager {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateManager.class);
     private static final String OF_URI_SEPARATOR = ":";
     private static final String TUNNEL_PORT = "tunnel_port";
@@ -81,6 +86,10 @@ public class InterfaceStateManager {
         for(Port port : ports){
             try{
 
+                if(!checkIfVXLANNetwork(port)){
+                    continue;
+                }
+
                 String subnetIp = getSubnetIPFromPort(port);
 
                 BigInteger dpnId = getDpnIdFromInterfaceState(inter);
@@ -103,6 +112,19 @@ public class InterfaceStateManager {
                 LOG.error("faild to add tunnels on port added to subnet", e);
             }       
         }
+    }
+
+
+    private boolean checkIfVXLANNetwork(Port port) {
+        InstanceIdentifier<Network> networkPath = InstanceIdentifier.create(Neutron.class).child(Networks.class).child(Network.class, new NetworkKey(port.getNetworkId()));
+        Network network = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, networkPath);
+
+        if(network == null || !NeutronvpnUtils.isNetworkOfType(network, NetworkTypeVxlan.class)){
+            LOG.debug("port in non-VXLAN network " + port.getName());
+            return false;
+        }
+        
+        return true;
     }
 
 
