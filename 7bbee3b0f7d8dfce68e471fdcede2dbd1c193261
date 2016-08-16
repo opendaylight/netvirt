@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_a9b5b0ef",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworkGroupInstaller.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-16T19:57:54Z",
+      "side": 1,
+      "message": "final checkstyle rules for import ordering is statics first then all other imports in alphabetical order.",
+      "revId": "7bbee3b0f7d8dfce68e471fdcede2dbd1c193261",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_89b8b4e6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SubnetGwMacChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-16T19:57:54Z",
+      "side": 1,
+      "message": "for future changes: we started with start() then switched to using init() for the init-method.\n\nAlso have the LOG.info(\"start\"...)",
+      "range": {
+        "startLine": 40,
+        "startChar": 16,
+        "endLine": 40,
+        "endChar": 21
+      },
+      "revId": "7bbee3b0f7d8dfce68e471fdcede2dbd1c193261",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
