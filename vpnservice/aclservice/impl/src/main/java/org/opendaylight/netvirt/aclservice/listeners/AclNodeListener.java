@@ -302,10 +302,17 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, allowAllInstructions);
         mdsalManager.installFlow(flowEntity);
 
+        short dispatcherTableId =  NwConstants.EGRESS_LPORT_DISPATCHER_TABLE;
+
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] {Short.toString(dispatcherTableId)}));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+
         FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
                 getTableMissFlowId(NwConstants.EGRESS_ACL_FILTER_TABLE), 0,
                 "Ingress Stateless Next ACL Table Miss Flow", 0, 0, AclConstants.COOKIE_ACL_BASE,
-                mkMatches, allowAllInstructions);
+                mkMatches, instructions);
         mdsalManager.installFlow(nextTblFlowEntity);
 
         LOG.debug("Added Stateless Ingress ACL Table Miss Flows for dpn {}.", dpId);
@@ -358,10 +365,17 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 AclConstants.COOKIE_ACL_BASE, mkMatches, allowAllInstructions);
         mdsalManager.installFlow(flowEntity);
 
+        short dispatcherTableId = NwConstants.LPORT_DISPATCHER_TABLE;
+
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        List<InstructionInfo> dispatcherInstructions = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] {Short.toString(dispatcherTableId)}));
+        dispatcherInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+
         FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
                 getTableMissFlowId(NwConstants.INGRESS_ACL_FILTER_TABLE), 0,
                 "Egress Stateless Next ACL Table Miss Flow", 0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches,
-                allowAllInstructions);
+                dispatcherInstructions);
         mdsalManager.installFlow(nextTblFlowEntity);
 
         LOG.debug("Added Stateless Egress ACL Table Miss Flows for dpn {}", dpId);
