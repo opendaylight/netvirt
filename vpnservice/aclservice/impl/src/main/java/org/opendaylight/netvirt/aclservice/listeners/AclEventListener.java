@@ -17,11 +17,13 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,23 +54,25 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Acl> key, Acl accessListEntry) {
-        // no need to handle here as Acl will be removed from AclInterfaceListener
+    protected void remove(InstanceIdentifier<Acl> key, Acl acl) {
+        updateRemoteAclCache(acl.getAccessListEntries().getAce(), acl.getAclName(), AclServiceManager.Action.REMOVE);
     }
 
     @Override
     protected void update(InstanceIdentifier<Acl> key, Acl aclBefore, Acl aclAfter) {
         List<AclInterface> interfaceList = AclDataUtil.getInterfaceList(new Uuid(aclAfter.getAclName()));
-        if (interfaceList == null || interfaceList.isEmpty()) {
-            LOG.debug("acl {} is not associated with any interface.", aclAfter.getAclName());
-            return;
-        }
         // find and update added ace rules in acl
         List<Ace> addedAceRules = getChangedAceList(aclAfter, aclBefore);
-        updateAceRules(interfaceList, addedAceRules, AclServiceManager.Action.ADD);
+        updateRemoteAclCache(addedAceRules, aclAfter.getAclName(), AclServiceManager.Action.ADD);
+        if (AclClusterUtil.isEntityOwner() && interfaceList != null) {
+            updateAceRules(interfaceList, addedAceRules, AclServiceManager.Action.ADD);
+        }
         // find and update deleted ace rules in acl
         List<Ace> deletedAceRules = getChangedAceList(aclBefore, aclAfter);
-        updateAceRules(interfaceList, deletedAceRules, AclServiceManager.Action.REMOVE);
+        if (AclClusterUtil.isEntityOwner() && interfaceList != null) {
+            updateAceRules(interfaceList, deletedAceRules, AclServiceManager.Action.REMOVE);
+        }
+        updateRemoteAclCache(deletedAceRules, aclAfter.getAclName(), AclServiceManager.Action.REMOVE);
 
     }
 
@@ -84,8 +88,24 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
     }
 
     @Override
-    protected void add(InstanceIdentifier<Acl> key, Acl dataObjectModification) {
-        // no need to handle here as Acl will be added from AclInterfaceListener
+    protected void add(InstanceIdentifier<Acl> key, Acl acl) {
+        updateRemoteAclCache(acl.getAccessListEntries().getAce(), acl.getAclName(), AclServiceManager.Action.ADD);
+    }
+
+    private void updateRemoteAclCache(List<Ace> aceList, String aclName, AclServiceManager.Action action) {
+        if (null == aceList) {
+            return;
+        }
+        for (Ace ace : aceList) {
+            SecurityRuleAttr aceAttributes = ace.getAugmentation(SecurityRuleAttr.class);
+            if (aceAttributes != null && aceAttributes.getRemoteGroupId() != null) {
+                if (action == AclServiceManager.Action.ADD) {
+                    AclDataUtil.addRemoteAclId(aceAttributes.getRemoteGroupId(), new Uuid(aclName));
+                } else {
+                    AclDataUtil.removeRemoteAclId(aceAttributes.getRemoteGroupId(), new Uuid(aclName));
+                }
+            }
+        }
     }
 
     @Override

@@ -19,6 +19,7 @@ import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,6 +34,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
@@ -244,4 +246,16 @@ public class AclServiceTestUtils {
                 break;
         }
     }
+
+    public static void prepareAclClusterUtil(String entityName) {
+        if (CacheUtil.getCache("entity.owner.cache") == null) {
+            CacheUtil.createCache("entity.owner.cache");
+        }
+        ConcurrentMap entityOwnerCache = CacheUtil.getCache("entity.owner.cache");
+        if (entityOwnerCache != null) {
+            entityOwnerCache.put(entityName, true);
+        }
+
+    }
+
 }
