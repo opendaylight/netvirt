@@ -8,6 +8,8 @@
     interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
   <reference id="mdsalManager"
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+  <reference id="entityOwnershipService"
+             interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
 
   <odl:clustered-app-config id="aclserviceConfig"
                             binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig">
@@ -70,4 +72,10 @@
     <argument ref="aclServiceManager" />
     <argument ref="dataBroker" />
   </bean>
+  <bean id="aclClusterUtil"
+    class="org.opendaylight.netvirt.aclservice.utils.AclClusterUtil"
+    init-method="start" destroy-method="close">
+    <argument ref="entityOwnershipService" />
+  </bean>
+
 </blueprint>

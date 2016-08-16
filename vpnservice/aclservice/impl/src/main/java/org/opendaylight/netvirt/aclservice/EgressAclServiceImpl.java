@@ -28,7 +28,6 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
-import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -176,8 +175,6 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             } else if (aceAttr.getRemoteGroupId() != null) {
                 flowMap = AclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap,
                         false);
-                AclDataUtil.updateRemoteAclInterfaceMap(aceAttr.getRemoteGroupId(), portId,
-                        (addOrRemove == NwConstants.ADD_FLOW));
             }
         }
         if (null == flowMap) {

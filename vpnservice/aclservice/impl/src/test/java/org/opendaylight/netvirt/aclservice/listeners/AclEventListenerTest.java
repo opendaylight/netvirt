@@ -14,6 +14,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils.clearStaticData;
 import static org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils.prepareAcl;
+import static org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils.prepareAclClusterUtil;
 import static org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils.prepareAclDataUtil;
 
 import org.junit.After;
@@ -53,6 +54,8 @@ public class AclEventListenerTest {
         aclInterfaceValueSaver = ArgumentCaptor.forClass(AclInterface.class);
         actionValueSaver = ArgumentCaptor.forClass(AclServiceManager.Action.class);
         aceValueSaver = ArgumentCaptor.forClass(Ace.class);
+        prepareAclClusterUtil("netvirt-acl");
+
 
         aclName = "00000000-0000-0000-0000-000000000001";
     }
