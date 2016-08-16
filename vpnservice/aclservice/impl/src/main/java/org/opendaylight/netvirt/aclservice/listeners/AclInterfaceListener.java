@@ -16,6 +16,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -70,18 +71,23 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                 aclInterface = updateAclInterfaceInCache(interfaceId, aclInPortAfter);
             }
             AclInterface oldAclInterface = getOldAclInterfaceObject(aclInterface, aclInPortBefore);
-
-            if (aclInterface.isPortSecurityEnabled()) {
-                processAclUpdate(aclInterface, oldAclInterface.getSecurityGroups(), aclInterface.getSecurityGroups());
+            List<Uuid> addedAclList = AclServiceUtils.getUpdatedAclList(aclInterface.getSecurityGroups(),
+                    oldAclInterface.getSecurityGroups());
+            List<Uuid> deletedAclList = AclServiceUtils.getUpdatedAclList(oldAclInterface.getSecurityGroups(),
+                    aclInterface.getSecurityGroups());
+            if (addedAclList != null && !addedAclList.isEmpty()) {
+                AclDataUtil.addAclInterfaceMap(addedAclList, aclInterface);
             }
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
-                .Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(
-                dataBroker, portAfter.getName());
-            if (interfaceState == null || !interfaceState.getOperStatus().equals(org.opendaylight.yang.gen.v1.urn.ietf
-                .params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus.Up)) {
-                return;
+                    .Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(
+                    dataBroker, portAfter.getName());
+            if (AclClusterUtil.isEntityOwner() && interfaceState != null && interfaceState.getOperStatus().equals(org.opendaylight.yang.gen.v1.urn.ietf
+                    .params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus.Up)) {
+                aclServiceManager.notify(aclInterface, oldAclInterface, AclServiceManager.Action.UPDATE);
             }
-            aclServiceManager.notify(aclInterface, oldAclInterface, AclServiceManager.Action.UPDATE);
+            if (deletedAclList != null && !deletedAclList.isEmpty()) {
+                AclDataUtil.removeAclInterfaceMap(deletedAclList, aclInterface);
+            }
         }
     }
 
@@ -116,18 +122,6 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         }
         return oldAclInterface;
     }
-
-    private void processAclUpdate(AclInterface port, List<Uuid> aclListBefore, List<Uuid> aclListAfter) {
-        List<Uuid> addedAclList = AclServiceUtils.getUpdatedAclList(aclListAfter, aclListBefore);
-        List<Uuid> deletedAclList = AclServiceUtils.getUpdatedAclList(aclListBefore, aclListAfter);
-        if (addedAclList != null && !addedAclList.isEmpty()) {
-            AclDataUtil.addAclInterfaceMap(addedAclList, port);
-        }
-        if (deletedAclList != null && !deletedAclList.isEmpty()) {
-            AclDataUtil.removeAclInterfaceMap(deletedAclList, port);
-        }
-    }
-
 
     @Override
     protected void add(InstanceIdentifier<Interface> key, Interface port) {
