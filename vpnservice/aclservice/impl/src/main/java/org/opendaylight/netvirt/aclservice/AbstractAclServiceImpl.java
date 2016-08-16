@@ -24,7 +24,6 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
-import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -138,12 +137,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     private void syncRemoteAclRules(List<Uuid> aclUuidList, int action, String currentPortId,
                                     List<AllowedAddressPairs> syncAllowedAddresses) {
         for (Uuid remoteAclId : aclUuidList) {
-            Set<String> portSet = AclDataUtil.getRemoteAclInterfaces(remoteAclId);
+            Set<AclInterface> portSet = AclDataUtil.getRemoteAclInterfaces(remoteAclId);
             if (portSet == null) {
                 continue;
             }
-            for (String remotePortId : portSet) {
-                AclInterface port = AclInterfaceCacheUtil.getAclInterfaceFromCache(remotePortId);
+            for (AclInterface port : portSet) {
                 if (currentPortId.equals(port.getInterfaceId())) {
                     continue;
                 }
