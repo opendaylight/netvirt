@@ -65,7 +65,10 @@ public class StatelessEgressAclServiceImpl extends EgressAclServiceImpl {
         Matches matches = ace.getMatches();
         AceType aceType = matches.getAceType();
         Map<String, List<MatchInfoBase>> flowMap = null;
+        Short protocol = null;
+
         if (aceType instanceof AceIp) {
+            protocol = ((AceIp)aceType).getProtocol();
             flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
         }
         if (null == flowMap) {
@@ -77,7 +80,7 @@ public class StatelessEgressAclServiceImpl extends EgressAclServiceImpl {
             List<MatchInfoBase> flowMatches = flow.getValue();
             boolean hasTcpDstMatch = AclServiceUtils.containsMatchFieldType(flowMatches,
                     NxMatchFieldType.nx_tcp_dst_with_mask);
-            if (hasTcpDstMatch || flowMatches.isEmpty()) {
+            if (hasTcpDstMatch || protocol == null) {
                 flowName += "Egress" + lportTag + ace.getKey().getRuleName();
                 flowMatches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
 
@@ -88,7 +91,7 @@ public class StatelessEgressAclServiceImpl extends EgressAclServiceImpl {
 
     private void programAllowSynRules(BigInteger dpId, String origFlowName,
             List<MatchInfoBase> origFlowMatches, int addFlow) {
-        List<MatchInfoBase> flowMatches = new ArrayList<MatchInfoBase>();
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.addAll(origFlowMatches);
         flowMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN }));
 

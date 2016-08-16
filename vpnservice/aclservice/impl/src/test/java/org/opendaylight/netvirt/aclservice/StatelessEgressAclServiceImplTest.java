@@ -80,9 +80,9 @@ public class StatelessEgressAclServiceImplTest {
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
-        installFlowValueSaver = new MethodInvocationParamSaver<Void>(null);
+        installFlowValueSaver = new MethodInvocationParamSaver<>(null);
         doAnswer(installFlowValueSaver).when(mdsalManager).installFlow(any(FlowEntity.class));
-        removeFlowValueSaver = new MethodInvocationParamSaver<Void>(null);
+        removeFlowValueSaver = new MethodInvocationParamSaver<>(null);
         doAnswer(removeFlowValueSaver).when(mdsalManager).removeFlow(any(FlowEntity.class));
     }
 
@@ -202,7 +202,7 @@ public class StatelessEgressAclServiceImplTest {
         ai.setLPortTag(new Integer(2));
         stubInterfaceAcl(ifName, ai);
 
-        stubAccessList(sgUuid, null, -1, -1, (short)-1);
+        stubAccessList(sgUuid, "0.0.0.0/0", -1, -1, (short)-1);
         return ai;
     }
 
