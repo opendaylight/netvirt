@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import static org.junit.Assert.*;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -17,6 +18,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,10 +55,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.VtepsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtensionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
@@ -67,6 +76,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 
@@ -113,6 +123,8 @@ public class InterfaceStateToTransportZoneTest {
     private List<Vteps> expectedVteps = new ArrayList<>();
     
     InterfaceStateToTransportZoneListener interfaceStateToTransportZoneChangeListener;
+
+    private Network network;
 
     @Before
     public void setUp() {
@@ -177,11 +189,13 @@ public class InterfaceStateToTransportZoneTest {
                 .addAugmentation(ParentRefs.class, new ParentRefsBuilder().setParentInterface(PHYS_PORT_NAME).build()).build());
         interf = new InterfacesBuilder().setInterface(interfaces).build();
         port = buildPort(PORT_IP);
+        network = buildNetwork(NetworkTypeVxlan.class);
         TransportZone tz = new TransportZoneBuilder().setZoneName(NETWORK_ID).setTunnelType(TunnelTypeVxlan.class).setSubnets(new ArrayList<>()).build();
         buildNode();
         when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(interf))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(port))).
+        thenReturn(Futures.immediateCheckedFuture(Optional.of(network))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(tz))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(getBridgeRefForNode()))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(node))).
@@ -200,11 +214,13 @@ public class InterfaceStateToTransportZoneTest {
                 .addAugmentation(ParentRefs.class, new ParentRefsBuilder().setParentInterface(PHYS_PORT_NAME).build()).build());
         interf = new InterfacesBuilder().setInterface(interfaces).build();
         port = buildPort(PORT_IP);
-        TransportZone tz = new TransportZoneBuilder().setZoneName(NETWORK_ID).setTunnelType(TunnelTypeVxlan.class).setSubnets(buildSubnets()).build();
+        network = buildNetwork(NetworkTypeVxlan.class);
+        TransportZone tz = new TransportZoneBuilder().setZoneName(NETWORK_ID).setTunnelType(TunnelTypeVxlan.class).setSubnets(new ArrayList<>()).build();
         buildNode();
         when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(interf))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(port))).
+        thenReturn(Futures.immediateCheckedFuture(Optional.of(network))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(tz))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(getBridgeRefForNode()))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(node))).
@@ -213,8 +229,35 @@ public class InterfaceStateToTransportZoneTest {
         intBuilder.setName(PHYS_PORT_NAME);
         intBuilder.setLowerLayerIf(new ArrayList<>(Arrays.asList(new String[] {"int:"+DPN_ID})));//NetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
         expectedVteps.add(buildVtep(BigInteger.valueOf(DPN_ID), new IpAddress(OVS_IP.toCharArray()), VTEP_PORT));
-        expectedVteps.add(buildVtep(DPN_ID_2, OVS_IP_2, VTEP_PORT));
         interfaceStateToTransportZoneChangeListener.add(InstanceIdentifier.create(Interface.class), intBuilder.build());
+    }
+
+    @Test
+    public void addInterfaceState_VLAN_Network() throws Exception {
+        List<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> interfaces = new ArrayList<>();
+        interfaces.add(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder().setName(PORT_NAME)
+                .addAugmentation(ParentRefs.class, new ParentRefsBuilder().setParentInterface(PHYS_PORT_NAME).build()).build());
+        interf = new InterfacesBuilder().setInterface(interfaces).build();
+        port = buildPort(PORT_IP);
+        network = buildNetwork(NetworkTypeVlan.class);
+        TransportZone tz = new TransportZoneBuilder().setZoneName(NETWORK_ID).setTunnelType(TunnelTypeVxlan.class).setSubnets(buildSubnets()).build();
+        buildNode();
+        when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
+        thenReturn(Futures.immediateCheckedFuture(Optional.of(interf))).
+        thenReturn(Futures.immediateCheckedFuture(Optional.of(port))).
+        thenReturn(Futures.immediateCheckedFuture(Optional.of(network)));
+        InterfaceBuilder intBuilder = new InterfaceBuilder();
+        intBuilder.setName(PHYS_PORT_NAME);
+        intBuilder.setLowerLayerIf(new ArrayList<>(Arrays.asList(new String[] {"int:"+DPN_ID})));//NetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
+        interfaceStateToTransportZoneChangeListener.add(InstanceIdentifier.create(Interface.class), intBuilder.build());
+    }
+    
+    private Network buildNetwork(Class<? extends NetworkTypeBase> networkType) {
+        NetworkBuilder builder = new NetworkBuilder();
+        NetworkProviderExtensionBuilder augBuilder = new NetworkProviderExtensionBuilder();
+        augBuilder.setNetworkType(networkType);
+        builder.addAugmentation(NetworkProviderExtension.class, augBuilder.build());
+        return builder.build();
     }
 
     private List<Subnets> buildSubnets() {

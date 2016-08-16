@@ -866,6 +866,11 @@ public class NeutronvpnUtils {
         NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
         return npe != null && supportedNetworkTypes.contains(npe.getNetworkType());
     }
+    
+    static boolean isNetworkOfType(Network network, Class<? extends NetworkTypeBase> type) {
+        NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
+        return npe != null && type.isAssignableFrom(npe.getNetworkType());
+    }
 
     /**
      * Get inter-VPN link state
