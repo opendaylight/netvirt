@@ -12,9 +12,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public class ElanInterfaceStateClusteredListener extends
     AsyncClusteredDataChangeListenerBase<Interface, ElanInterfaceStateClusteredListener> implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanInterfaceStateClusteredListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceStateClusteredListener.class);
 
     private final DataBroker broker;
     private final ElanInterfaceManager elanInterfaceManager;
@@ -79,7 +79,7 @@ public class ElanInterfaceStateClusteredListener extends
                 ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, new Runnable() {
                     @Override
                     public void run() {
-                        logger.debug("running external tunnel update job for interface {} added", interfaceName);
+                        LOG.debug("running external tunnel update job for interface {} added", interfaceName);
                         handleExternalTunnelUpdate(interfaceName, intrf);
                     }
                 });
@@ -90,11 +90,11 @@ public class ElanInterfaceStateClusteredListener extends
     private void handleExternalTunnelUpdate(String interfaceName, Interface update) {
         ExternalTunnel externalTunnel = elanUtils.getExternalTunnel(interfaceName, LogicalDatastoreType.CONFIGURATION);
         if (externalTunnel != null) {
-            logger.debug("handling external tunnel update event for ext device dst {}  src {} ",
+            LOG.debug("handling external tunnel update event for ext device dst {}  src {} ",
                 externalTunnel.getDestinationDevice(), externalTunnel.getSourceDevice());
             elanInterfaceManager.handleExternalTunnelStateEvent(externalTunnel, update);
         } else {
-            logger.trace("External tunnel not found with interfaceName: {}", interfaceName);
+            LOG.trace("External tunnel not found with interfaceName: {}", interfaceName);
         }
     }
 

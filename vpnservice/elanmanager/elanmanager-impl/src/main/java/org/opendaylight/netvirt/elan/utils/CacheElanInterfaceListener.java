@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import java.util.Collection;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -25,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class CacheElanInterfaceListener implements ClusteredDataTreeChangeListener<ElanInterface> {
 
     private ListenerRegistration<CacheElanInterfaceListener> registration;
-    private static final Logger logger = LoggerFactory.getLogger(CacheElanInterfaceListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CacheElanInterfaceListener.class);
     private final DataBroker broker;
 
     public CacheElanInterfaceListener(DataBroker dataBroker) {
@@ -38,20 +37,21 @@ public class CacheElanInterfaceListener implements ClusteredDataTreeChangeListen
 
     private void registerListener() {
         final DataTreeIdentifier<ElanInterface> treeId =
-                new DataTreeIdentifier<ElanInterface>(LogicalDatastoreType.CONFIGURATION, getWildcardPath());
+                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, getWildcardPath());
         try {
-            logger.trace("Registering on path: {}", treeId);
+            LOG.trace("Registering on path: {}", treeId);
             registration = broker.registerDataTreeChangeListener(treeId, CacheElanInterfaceListener.this);
         } catch (final Exception e) {
-            logger.warn("CacheInterfaceConfigListener registration failed", e);
+            LOG.warn("CacheInterfaceConfigListener registration failed", e);
         }
     }
+
     protected InstanceIdentifier<ElanInterface> getWildcardPath() {
         return InstanceIdentifier.create(ElanInterfaces.class).child(ElanInterface.class);
     }
 
     public void close() throws Exception {
-        if(registration != null) {
+        if (registration != null) {
             registration.close();
         }
     }
@@ -61,18 +61,18 @@ public class CacheElanInterfaceListener implements ClusteredDataTreeChangeListen
         for (DataTreeModification<ElanInterface> change : changes) {
             DataObjectModification<ElanInterface> mod = change.getRootNode();
             switch (mod.getModificationType()) {
-            case DELETE:
-                ElanUtils.removeElanInterfaceFromCache(mod.getDataBefore().getName());
-                break;
-            case SUBTREE_MODIFIED:
-            case WRITE:
-                ElanInterface elanInterface = mod.getDataAfter();
-                ElanUtils.addElanInterfaceIntoCache(elanInterface.getName(), elanInterface);
-                break;
-            default:
-                throw new IllegalArgumentException("Unhandled modification type " + mod.getModificationType());
+                case DELETE:
+                    ElanUtils.removeElanInterfaceFromCache(mod.getDataBefore().getName());
+                    break;
+                case SUBTREE_MODIFIED:
+                case WRITE:
+                    ElanInterface elanInterface = mod.getDataAfter();
+                    ElanUtils.addElanInterfaceIntoCache(elanInterface.getName(), elanInterface);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unhandled modification type " + mod.getModificationType());
             }
-        }		
+        }
     }
 
 }

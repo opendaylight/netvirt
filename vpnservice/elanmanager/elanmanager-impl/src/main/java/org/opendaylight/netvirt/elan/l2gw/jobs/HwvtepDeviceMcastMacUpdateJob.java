@@ -7,16 +7,14 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.jobs;
 
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.ListenableFuture;
 
 public class HwvtepDeviceMcastMacUpdateJob implements Callable<List<ListenableFuture<Void>>> {
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepDeviceMcastMacUpdateJob.class);
@@ -35,6 +33,7 @@ public class HwvtepDeviceMcastMacUpdateJob implements Callable<List<ListenableFu
     public String getJobKey() {
         return elanName;
     }
+
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         LOG.info("running update mcast mac entry job for {} {}",

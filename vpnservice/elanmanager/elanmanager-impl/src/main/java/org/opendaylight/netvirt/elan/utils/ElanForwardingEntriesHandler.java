@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.utils;
 
 
 
+import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -23,12 +24,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
 
 public class ElanForwardingEntriesHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanForwardingEntriesHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanForwardingEntriesHandler.class);
 
     private final DataBroker broker;
     private ElanUtils elanUtils;
@@ -43,10 +42,10 @@ public class ElanForwardingEntriesHandler {
 
     public void updateElanInterfaceForwardingTablesList(String elanInstanceName, String interfaceName, String existingInterfaceName, MacEntry mac, WriteTransaction tx) {
         if (existingInterfaceName.equals(interfaceName)) {
-            logger.error(String.format("Static MAC address %s has already been added for the same ElanInstance %s on the same Logical Interface Port %s."
+            LOG.error(String.format("Static MAC address %s has already been added for the same ElanInstance %s on the same Logical Interface Port %s."
                 + " No operation will be done.", mac.getMacAddress().toString(), elanInstanceName, interfaceName));
         } else {
-            logger.warn(String.format("Static MAC address %s had already been added for ElanInstance %s on Logical Interface Port %s. "
+            LOG.warn(String.format("Static MAC address %s had already been added for ElanInstance %s on Logical Interface Port %s. "
                 + "This would be considered as MAC movement scenario and old static mac will be removed and new static MAC will be added"
                 + "for ElanInstance %s on Logical Interface Port %s", mac.getMacAddress().toString(), elanInstanceName, interfaceName, elanInstanceName, interfaceName));
             //Update the  ElanInterface Forwarding Container & ElanForwarding Container

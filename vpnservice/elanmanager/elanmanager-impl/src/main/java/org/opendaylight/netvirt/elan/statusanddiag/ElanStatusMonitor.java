@@ -8,22 +8,21 @@
 package org.opendaylight.netvirt.elan.statusanddiag;
 
 import java.lang.management.ManagementFactory;
-
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElanStatusMonitor implements ElanStatusMonitorMBean{
+public class ElanStatusMonitor implements ElanStatusMonitorMBean {
+
+    private static final String JMX_ELAN_OBJ_NAME = "com.ericsson.sdncp.services.status:type=SvcElanService";
+    private static final Logger LOG = LoggerFactory.getLogger(ElanStatusMonitor.class);
 
     private String serviceStatus;
-    private static final String JMX_ELAN_OBJ_NAME = "com.ericsson.sdncp.services.status:type=SvcElanService";
-    private static final Logger log = LoggerFactory.getLogger(ElanStatusMonitor.class);
 
     public void init() {
         registerMbean();
@@ -34,15 +33,15 @@ public class ElanStatusMonitor implements ElanStatusMonitorMBean{
         try {
             ObjectName objName = new ObjectName(JMX_ELAN_OBJ_NAME);
             mbs.registerMBean(this, objName);
-            log.info("MXBean registration SUCCESSFUL!!! {}", JMX_ELAN_OBJ_NAME);
+            LOG.info("MXBean registration SUCCESSFUL!!! {}", JMX_ELAN_OBJ_NAME);
         } catch (InstanceAlreadyExistsException iaeEx) {
-            log.error("MXBean registration FAILED with InstanceAlreadyExistsException", iaeEx);
+            LOG.error("MXBean registration FAILED with InstanceAlreadyExistsException", iaeEx);
         } catch (MBeanRegistrationException mbrEx) {
-            log.error("MXBean registration FAILED with MBeanRegistrationException", mbrEx);
+            LOG.error("MXBean registration FAILED with MBeanRegistrationException", mbrEx);
         } catch (NotCompliantMBeanException ncmbEx) {
-            log.error("MXBean registration FAILED with NotCompliantMBeanException", ncmbEx);
+            LOG.error("MXBean registration FAILED with NotCompliantMBeanException", ncmbEx);
         } catch (MalformedObjectNameException monEx) {
-            log.error("MXBean registration failed with MalformedObjectNameException", monEx);
+            LOG.error("MXBean registration failed with MalformedObjectNameException", monEx);
         }
     }
 
@@ -51,7 +50,8 @@ public class ElanStatusMonitor implements ElanStatusMonitorMBean{
         return serviceStatus;
     }
 
-    public void reportStatus (String serviceStatus) {
+    @SuppressWarnings("hiding")
+    public void reportStatus(String serviceStatus) {
         this.serviceStatus = serviceStatus;
     }
 }

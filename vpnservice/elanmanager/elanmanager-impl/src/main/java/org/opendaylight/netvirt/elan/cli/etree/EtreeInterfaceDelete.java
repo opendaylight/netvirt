@@ -24,7 +24,7 @@ public class EtreeInterfaceDelete extends OsgiCommandSupport {
     private String etreeName;
     @Argument(index = 1, name = "interfaceName", description = "InterfaceName", required = true, multiValued = false)
     private String interfaceName;
-    private static final Logger logger = LoggerFactory.getLogger(EtreeInterfaceDelete.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EtreeInterfaceDelete.class);
     private IElanService elanProvider;
     //private ElanUtils elanUtils;
 
@@ -39,7 +39,7 @@ public class EtreeInterfaceDelete extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Deleting EtreeInterface command" + "\t" + etreeName + "\t" + interfaceName + "\t");
+            LOG.debug("Deleting EtreeInterface command" + "\t" + etreeName + "\t" + interfaceName + "\t");
             ElanInterface existingInterface =
                     ElanServiceProvider.getElanutils().getElanInterfaceByElanInterfaceName(interfaceName);
             if (existingInterface == null || existingInterface.getAugmentation(EtreeInterface.class) == null) {
