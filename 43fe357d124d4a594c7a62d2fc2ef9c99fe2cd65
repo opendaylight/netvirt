@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_334f51bf",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-16T15:16:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_1345f5b2",
+      "revId": "43fe357d124d4a594c7a62d2fc2ef9c99fe2cd65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_f3267915",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateManager.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-08-16T15:06:49Z",
       "side": 1,
       "message": "I don\u0027t think this check belongs here since the name of the method is getPortFormInterface which sounds that it returns all ports and not just the ones on a VxLan network. That\u0027s what the documentation says as well. To me it makes more sense to do this check in updateTransportZone where you iterate over the ports returned from this method. Either that or maybe change the name of the method to something like getVxlanPortsFromInterface or something like that.",
+      "revId": "43fe357d124d4a594c7a62d2fc2ef9c99fe2cd65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d34ffdbc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-16T15:16:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_f3267915",
       "revId": "43fe357d124d4a594c7a62d2fc2ef9c99fe2cd65",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
