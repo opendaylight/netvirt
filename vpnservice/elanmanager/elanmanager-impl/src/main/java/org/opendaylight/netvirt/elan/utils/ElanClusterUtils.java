@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.elan.utils;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.List;
+import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.utils.SystemPropertyReader;
@@ -18,11 +20,8 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.concurrent.Callable;
-
 public class ElanClusterUtils {
-    private static final Logger logger = LoggerFactory.getLogger(ElanClusterUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanClusterUtils.class);
 
     public static void runOnlyInLeaderNode(EntityOwnershipService entityOwnershipService, Runnable job) {
         runOnlyInLeaderNode(entityOwnershipService, job, "");
@@ -39,12 +38,13 @@ public class ElanClusterUtils {
                 if (isOwner) {
                     job.run();
                 } else {
-                    logger.trace("job is not run as i m not cluster owner desc :{} ", jobDescription);
+                    LOG.trace("job is not run as i m not cluster owner desc :{} ", jobDescription);
                 }
             }
+
             @Override
             public void onFailure(Throwable error) {
-                logger.error("Failed to identity cluster owner ", error);
+                LOG.error("Failed to identity cluster owner ", error);
             }
         });
     }
@@ -64,16 +64,17 @@ public class ElanClusterUtils {
             @Override
             public void onSuccess(Boolean isOwner) {
                 if (isOwner) {
-                    logger.trace("scheduling job {} ", jobDescription);
+                    LOG.trace("scheduling job {} ", jobDescription);
                     DataStoreJobCoordinator.getInstance().enqueueJob(jobKey, dataStoreJob,
                         SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
                 } else {
-                    logger.trace("job is not run as i m not cluster owner desc :{} ", jobDescription);
+                    LOG.trace("job is not run as i m not cluster owner desc :{} ", jobDescription);
                 }
             }
+
             @Override
             public void onFailure(Throwable error) {
-                logger.error("Failed to identity cluster owner for job "+jobDescription, error);
+                LOG.error("Failed to identity cluster owner for job " + jobDescription, error);
             }
         });
     }

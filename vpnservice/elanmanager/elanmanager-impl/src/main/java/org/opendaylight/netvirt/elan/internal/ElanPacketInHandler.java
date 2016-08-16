@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("deprecation")
 public class ElanPacketInHandler implements PacketProcessingListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanPacketInHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanPacketInHandler.class);
 
     private final DataBroker broker;
     private final IInterfaceManager interfaceManager;
@@ -76,15 +76,15 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
                 Optional<IfIndexInterface> interfaceInfoOp = elanUtils.getInterfaceInfoByInterfaceTag(portTag);
                 if (!interfaceInfoOp.isPresent()) {
-                    logger.warn("There is no interface for given portTag {}", portTag);
+                    LOG.warn("There is no interface for given portTag {}", portTag);
                     return;
                 }
                 String interfaceName = interfaceInfoOp.get().getInterfaceName();
-                logger.debug("Received a packet with srcMac: {} ElanTag: {} PortTag: {} InterfaceName: {}", macAddress,
+                LOG.debug("Received a packet with srcMac: {} ElanTag: {} PortTag: {} InterfaceName: {}", macAddress,
                         elanTag, portTag, interfaceName);
                 ElanTagName elanTagName = elanUtils.getElanInfoByElanTag(elanTag);
                 if (elanTagName == null) {
-                    logger.warn("not able to find elanTagName in elan-tag-name-map for elan tag {}", elanTag);
+                    LOG.warn("not able to find elanTagName in elan-tag-name-map for elan tag {}", elanTag);
                     return;
                 }
                 String elanName = elanTagName.getName();
@@ -152,7 +152,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
                         Arrays.asList(physAddress));
             } catch (Exception e) {
-                logger.trace("Failed to decode packet: {}", e);
+                LOG.trace("Failed to decode packet: {}", e);
             }
         }
 
@@ -166,14 +166,14 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     private void tryAndRemoveInvalidMacEntry(String elanName, MacEntry macEntry) {
         ElanInstance elanInfo = elanUtils.getElanInstanceByName(elanName);
         if (elanInfo == null) {
-            logger.warn(String.format("MAC %s is been added (either statically or dynamically) for an invalid Elan %s. "
+            LOG.warn(String.format("MAC %s is been added (either statically or dynamically) for an invalid Elan %s. "
                     + "Manual cleanup may be necessary", macEntry.getMacAddress(), elanName));
             return;
         }
 
         InterfaceInfo oldInterfaceLport = interfaceManager.getInterfaceInfo(macEntry.getInterface());
         if (oldInterfaceLport == null) {
-            logger.warn(
+            LOG.warn(
                     String.format(
                             "MAC %s is been added (either statically or dynamically) on an invalid Logical Port %s. "
                                     + "Manual cleanup may be necessary",

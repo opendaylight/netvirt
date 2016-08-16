@@ -23,7 +23,7 @@ public class ElanAdd extends OsgiCommandSupport {
     private long macTimeOut = 30;
     @Argument(index = 2, name = "elanDescr", description = "ELAN-Description", required = false, multiValued = false)
     private String elanDescr;
-    private static final Logger logger = LoggerFactory.getLogger(ElanAdd.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanAdd.class);
     private IElanService elanProvider;
     public static int MAX_LENGTH = 31;
 
@@ -34,7 +34,7 @@ public class ElanAdd extends OsgiCommandSupport {
     @Override
     protected Object doExecute() {
         try {
-            logger.debug("Executing create ElanInstance command" + "\t" + elanName + "\t" + macTimeOut + "\t" + elanDescr + "\t");
+            LOG.debug("Executing create ElanInstance command" + "\t" + elanName + "\t" + macTimeOut + "\t" + elanDescr + "\t");
             if(elanName.length()<= MAX_LENGTH) {
                 boolean isSuccess = elanProvider.createElanInstance(elanName, macTimeOut, elanDescr);
                 if (isSuccess) {
@@ -44,7 +44,7 @@ public class ElanAdd extends OsgiCommandSupport {
                 session.getConsole().println("Failed to create Elan Instance, max length is allowed 1 .. 31");
             }
         } catch (Exception e) {
-            logger.error("Elan Instance failed to create {}", e);
+            LOG.error("Elan Instance failed to create {}", e);
             e.printStackTrace();
         }
         return null;
