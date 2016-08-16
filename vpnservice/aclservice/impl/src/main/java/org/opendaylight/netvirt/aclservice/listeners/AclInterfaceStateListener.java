@@ -17,6 +17,7 @@ import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
@@ -66,7 +67,9 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
         if (aclInterface != null && aclInterface.getPortSecurityEnabled() != null
                 && aclInterface.isPortSecurityEnabled()) {
-            aclServiceManger.notify(aclInterface, null, Action.REMOVE);
+            if (AclClusterUtil.isEntityOwner()) {
+                aclServiceManger.notify(aclInterface, null, Action.REMOVE);
+            }
             List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
                 AclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
@@ -90,7 +93,9 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             if (aclList != null) {
                 AclDataUtil.addAclInterfaceMap(aclList, aclInterface);
             }
-            aclServiceManger.notify(aclInterface, null, Action.ADD);
+            if (AclClusterUtil.isEntityOwner()) {
+                aclServiceManger.notify(aclInterface, null, Action.ADD);
+            }
         }
     }
 
