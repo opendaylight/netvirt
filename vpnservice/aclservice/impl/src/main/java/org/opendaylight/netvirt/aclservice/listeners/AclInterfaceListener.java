@@ -57,12 +57,6 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
 
     @Override
     protected void update(InstanceIdentifier<Interface> key, Interface portBefore, Interface portAfter) {
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
-                interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, portAfter.getName());
-        if (interfaceState == null || !interfaceState.getOperStatus().equals(org.opendaylight.yang.gen.v1.urn.ietf
-                .params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus.Up)) {
-            return;
-        }
 
         InterfaceAcl aclInPortAfter = portAfter.getAugmentation(InterfaceAcl.class);
         InterfaceAcl aclInPortBefore = portBefore.getAugmentation(InterfaceAcl.class);
@@ -79,6 +73,13 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
 
             if (aclInterface.isPortSecurityEnabled()) {
                 processAclUpdate(aclInterface, oldAclInterface.getSecurityGroups(), aclInterface.getSecurityGroups());
+            }
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
+                .Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(
+                dataBroker, portAfter.getName());
+            if (interfaceState == null || !interfaceState.getOperStatus().equals(org.opendaylight.yang.gen.v1.urn.ietf
+                .params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus.Up)) {
+                return;
             }
             aclServiceManager.notify(aclInterface, oldAclInterface, AclServiceManager.Action.UPDATE);
         }

@@ -259,8 +259,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
         String flowName = "Egress_DHCP_Client_v4" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Permit_";
-        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
-                0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
+            "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**
@@ -281,8 +281,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
         String flowName = "Egress_DHCP_Client_v6" + "_" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Permit_";
-        syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
-                0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
+            "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**

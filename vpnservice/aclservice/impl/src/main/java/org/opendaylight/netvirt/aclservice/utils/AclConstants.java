@@ -19,12 +19,13 @@ public final class AclConstants {
     public static final short INGRESS_ACL_DEFAULT_FLOW_PRIORITY = 1;
     public static final short EGRESS_ACL_DEFAULT_FLOW_PRIORITY = 11;
 
+    public static final Integer PROTO_DHCP_SERVER_MATCH_PRIORITY = 63010;
+    public static final Integer PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY = 63010;
     public static final Integer PROTO_MATCH_PRIORITY = 61010;
     public static final Integer PREFIX_MATCH_PRIORITY = 61009;
     public static final Integer PROTO_PREFIX_MATCH_PRIORITY = 61008;
     public static final Integer PROTO_PORT_MATCH_PRIORITY = 61007;
     public static final Integer PROTO_PORT_PREFIX_MATCH_PRIORITY = 61007;
-    public static final Integer PROTO_DHCP_SERVER_MATCH_PRIORITY = 61006;
     public static final Integer PROTO_MATCH_SYN_ALLOW_PRIORITY = 61005;
     public static final Integer PROTO_MATCH_SYN_ACK_ALLOW_PRIORITY = 61004;
     public static final Integer PROTO_MATCH_SYN_DROP_PRIORITY = 61003;
