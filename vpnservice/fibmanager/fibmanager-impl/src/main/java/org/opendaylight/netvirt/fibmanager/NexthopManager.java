@@ -128,8 +128,11 @@ public class NexthopManager implements AutoCloseable {
         this.interfaceManager = interfaceManager;
         this.itmManager = itmManager;
         waitTimeForSyncInstall = Long.getLong("wait.time.sync.install");
-        if (waitTimeForSyncInstall == null)
+        if (waitTimeForSyncInstall == null) {
             waitTimeForSyncInstall = 1000L;
+        }
+
+        createNexthopPointerPool();
     }
 
     protected void createNexthopPointerPool() {
