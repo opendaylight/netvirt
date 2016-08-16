@@ -40,6 +40,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 public class NeutronSubnetGwMacResolver {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetGwMacResolver.class);
+    private static final long L3_INSTALL_DELAY_MILLIS = 5000;
 
     private final DataBroker broker;
     private final IVpnManager vpnManager;
@@ -81,6 +82,20 @@ public class NeutronSubnetGwMacResolver {
     }
 
     public void sendArpRequestsToExtGateways(Router router) {
+        // Let the FIB flows a chance to be installed
+        // otherwise the ARP response will be routed straight to L2
+        // and bypasses L3 arp cache
+        executorService.schedule(new Runnable() {
+
+            @Override
+            public void run() {
+                sendArpRequestsToExtGatewayTask(router);
+            }
+
+        }, L3_INSTALL_DELAY_MILLIS, TimeUnit.MILLISECONDS);
+    }
+
+    private void sendArpRequestsToExtGatewayTask(Router router) {
         LOG.trace("Send ARP requests to external GW for router {}", router);
         Port extPort = getRouterExtGatewayPort(router);
         if (extPort == null) {
