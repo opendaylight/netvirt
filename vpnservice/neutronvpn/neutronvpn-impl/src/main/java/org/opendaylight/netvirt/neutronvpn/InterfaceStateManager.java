@@ -38,6 +38,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.VtepsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -157,6 +162,14 @@ public class InterfaceStateManager {
 
             if(port == null){
                 LOG.debug("got Interface State of non NeutronPort instance " + physPortId);
+                continue;
+            }
+
+            InstanceIdentifier<Network> networkPath = InstanceIdentifier.create(Neutron.class).child(Networks.class).child(Network.class, new NetworkKey(port.getNetworkId()));
+            Network network = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, networkPath);
+
+            if(network == null || !NeutronvpnUtils.isNetworkOfType(network, NetworkTypeVxlan.class)){
+                LOG.debug("port in non-VXLAN network " + port.getName());
                 continue;
             }
 
