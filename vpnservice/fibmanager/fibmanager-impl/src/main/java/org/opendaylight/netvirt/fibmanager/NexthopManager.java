@@ -128,19 +128,27 @@ public class NexthopManager implements AutoCloseable {
         this.interfaceManager = interfaceManager;
         this.itmManager = itmManager;
         waitTimeForSyncInstall = Long.getLong("wait.time.sync.install");
-        if (waitTimeForSyncInstall == null)
+        if (waitTimeForSyncInstall == null) {
             waitTimeForSyncInstall = 1000L;
+        }
+
+        createIdPool();
     }
 
-    protected void createNexthopPointerPool() {
+    private void createIdPool() {
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
                 .setPoolName(NEXTHOP_ID_POOL_NAME)
                 .setLow(150000L)
                 .setHigh(175000L)
                 .build();
-        //TODO: Error handling
-        Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
-        LOG.trace("NextHopPointerPool result : {}", result);
+        try {
+            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+            if ((result != null) && (result.get().isSuccessful())) {
+                LOG.info("Created IdPool for NextHopPointerPool");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to create idPool for NextHopPointerPool",e);
+        }
     }
 
     private BigInteger getDpnId(String ofPortId) {
