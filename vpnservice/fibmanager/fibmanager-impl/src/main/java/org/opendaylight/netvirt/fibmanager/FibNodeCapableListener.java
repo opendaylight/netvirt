@@ -12,7 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
@@ -23,34 +23,33 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FibNodeCapableListener extends AbstractDataChangeListener<FlowCapableNode> implements AutoCloseable{
+public class FibNodeCapableListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, FibNodeCapableListener> implements AutoCloseable{
     private static final Logger LOG = LoggerFactory.getLogger(FibNodeCapableListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final VrfEntryListener vrfEntryListener;
 
     public FibNodeCapableListener(final DataBroker dataBroker, final VrfEntryListener vrfEntryListener) {
-        super(FlowCapableNode.class);
+        super(FlowCapableNode.class, FibNodeCapableListener.class);
         this.dataBroker = dataBroker;
         this.vrfEntryListener = vrfEntryListener;
     }
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.ONE);
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
-    private InstanceIdentifier<FlowCapableNode> getWildCardPath() {
+    @Override
+    protected FibNodeCapableListener getDataTreeChangeListener() {
+        return FibNodeCapableListener.this;
+    }
+
+    protected InstanceIdentifier<FlowCapableNode> getWildCardPath() {
         return InstanceIdentifier.create(Nodes.class).child(Node.class).augmentation(FlowCapableNode.class);
     }
 
     @Override
     public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
         LOG.info("{} close", getClass().getSimpleName());
     }
 
