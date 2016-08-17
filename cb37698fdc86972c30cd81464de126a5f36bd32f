@@ -22,6 +22,30 @@
       "revId": "cb37698fdc86972c30cd81464de126a5f36bd32f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e2417d3a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 6242
+      },
+      "writtenOn": "2016-08-17T10:13:53Z",
+      "side": 1,
+      "message": "it is eth type field of security-rule, which is already set as matcheField in matches. So here check is to identify whether eth type is ipv4.",
+      "parentUuid": "7a6b29fe_6719ff87",
+      "range": {
+        "startLine": 497,
+        "startChar": 35,
+        "endLine": 497,
+        "endChar": 44
+      },
+      "revId": "cb37698fdc86972c30cd81464de126a5f36bd32f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
