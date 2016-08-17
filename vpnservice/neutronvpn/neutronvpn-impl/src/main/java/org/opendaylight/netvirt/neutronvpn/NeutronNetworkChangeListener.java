@@ -114,6 +114,10 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
                     update);
         }
 
+        if (update.getAugmentation(NetworkL3Extension.class).isExternal()) {
+            NeutronvpnUtils.addToNetworkCache(update);
+        }
+
         String elanInstanceName = original.getUuid().getValue();
         Class<? extends SegmentTypeBase> origSegmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(original);
         String origSegmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(original);
