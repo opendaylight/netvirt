@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.port.pair.attributes.ServiceFunctionParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.pair.groups.PortPairGroup;
@@ -104,19 +105,24 @@ public class PortPairTranslator {
 
         //Set locator type
         if (neutronPort != null) {
+            List<FixedIps> fixedIps = neutronPort.getFixedIps();
             List<AllowedAddressPairs> attachedIpAddresses = neutronPort.getAllowedAddressPairs();
-            //Pick up the first ip address
             IpAddress ipAddress;
-            if (attachedIpAddresses != null && !attachedIpAddresses.isEmpty()) {
+            if (fixedIps != null && !fixedIps.isEmpty()){
+                ipAddress = fixedIps.get(0).getIpAddress();
+                sfLocator.setIp(ipAddress);
+
+            } else if (attachedIpAddresses != null && !attachedIpAddresses.isEmpty()) {
+                //Pick up the first ip address
                 ipAddress = attachedIpAddresses.get(0).getIpAddress().getIpAddress();
                 sfLocator.setIp(ipAddress);
-                sfLocator.setPort(new PortNumber(SF_LOCATOR_PORT));
             } else {
                 LOG.warn("No ip address attached to Neutron Port {} related to Port Pair {}", neutronPort, portPair);
                 //Ideally we should exit here, because without IP address OpenDaylight SFC won't be able to find the
                 //respective overlay. But if user passes additional parameter through service_function_param
                 //that can be leveraged here. Parameter passed through service_function_param will take precedence.
             }
+            sfLocator.setPort(new PortNumber(SF_LOCATOR_PORT));
 
         } else {
             LOG.warn("Neutron port mapped to Port pair ingress/egress port is not found : {}", portPair);
@@ -135,29 +141,31 @@ public class PortPairTranslator {
         }
 
         //But if user pass specific param using service_function_parameters, set/override it accordingly
-        for(ServiceFunctionParameters sfParam : sfParams) {
-            if (sfParam.getServiceFunctionParameter().equals(NSH_AWARE_PARAM)) {
-                serviceFunctionBuilder.setNshAware(new Boolean(sfParam.getServiceFunctionParameterValue()));
-            }
-            //There is by default type set to port pair group name, override it if user pass it specific type
-            if (sfParam.getServiceFunctionParameter().equals(SF_TYPE_PARAM)) {
-                serviceFunctionBuilder.setType(new SftTypeName(sfParam.getServiceFunctionParameterValue()));
-            }
-            if (sfParam.getServiceFunctionParameter().equals(DPL_TRANSPORT_PARAM)) {
-                Class transportTypeClass
-                        = DPL_TRANSPORT_TYPE.get(sfParam.getServiceFunctionParameterValue());
-                sfDataPlaneLocatorBuilder.setTransport(transportTypeClass);
-            }
-            if (sfParam.getServiceFunctionParameter().equals(DPL_IP_PARAM)) {
-                IpAddress ipAddress = new IpAddress(new Ipv4Address(sfParam.getServiceFunctionParameterValue()));
-                sfLocator.setIp(ipAddress);
-            }
-            if (sfParam.getServiceFunctionParameter().equals(DPL_PORT_PARAM)) {
-                sfLocator.setPort(new PortNumber(new Integer(sfParam.getServiceFunctionParameterValue())));
-            }
-            if (sfParam.getServiceFunctionParameter().equals(SFF_NAME_PARAM)) {
-                sfDataPlaneLocatorBuilder.setServiceFunctionForwarder(
-                        new SffName(sfParam.getServiceFunctionParameterValue()));
+        if (sfParams != null) {
+            for(ServiceFunctionParameters sfParam : sfParams) {
+                if (sfParam.getServiceFunctionParameter().equals(NSH_AWARE_PARAM)) {
+                    serviceFunctionBuilder.setNshAware(new Boolean(sfParam.getServiceFunctionParameterValue()));
+                }
+                //There is by default type set to port pair group name, override it if user pass it specific type
+                if (sfParam.getServiceFunctionParameter().equals(SF_TYPE_PARAM)) {
+                    serviceFunctionBuilder.setType(new SftTypeName(sfParam.getServiceFunctionParameterValue()));
+                }
+                if (sfParam.getServiceFunctionParameter().equals(DPL_TRANSPORT_PARAM)) {
+                    Class transportTypeClass
+                            = DPL_TRANSPORT_TYPE.get(sfParam.getServiceFunctionParameterValue());
+                    sfDataPlaneLocatorBuilder.setTransport(transportTypeClass);
+                }
+                if (sfParam.getServiceFunctionParameter().equals(DPL_IP_PARAM)) {
+                    IpAddress ipAddress = new IpAddress(new Ipv4Address(sfParam.getServiceFunctionParameterValue()));
+                    sfLocator.setIp(ipAddress);
+                }
+                if (sfParam.getServiceFunctionParameter().equals(DPL_PORT_PARAM)) {
+                    sfLocator.setPort(new PortNumber(new Integer(sfParam.getServiceFunctionParameterValue())));
+                }
+                if (sfParam.getServiceFunctionParameter().equals(SFF_NAME_PARAM)) {
+                    sfDataPlaneLocatorBuilder.setServiceFunctionForwarder(
+                            new SffName(sfParam.getServiceFunctionParameterValue()));
+                }
             }
         }
 

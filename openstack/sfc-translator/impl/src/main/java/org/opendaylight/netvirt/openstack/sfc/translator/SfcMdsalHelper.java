@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class SfcMdsalHelper {
     public void addAclFlowClassifier(Acl aclFlowClassifier) {
         InstanceIdentifier<Acl> aclIid = getAclPath(aclFlowClassifier.getKey());
         LOG.info("Write ACL FlowClassifier {} to config data store at {}",aclFlowClassifier, aclIid);
-        mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, aclIid, aclFlowClassifier);
+        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, aclIid, aclFlowClassifier);
     }
 
     public void updateAclFlowClassifier(Acl aclFlowClassifier) {
@@ -77,7 +78,7 @@ public class SfcMdsalHelper {
     public void addServiceFunction(ServiceFunction sf) {
         InstanceIdentifier<ServiceFunction> sfIid = getSFPath(sf.getKey());
         LOG.info("Write Service Function {} to config data store at {}",sf, sfIid);
-        mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, sfIid, sf);
+        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sfIid, sf);
     }
 
     public void updateServiceFunction(ServiceFunction sf) {
@@ -130,13 +131,13 @@ public class SfcMdsalHelper {
     public void addServiceFunctionForwarder(ServiceFunctionForwarder sff) {
         InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sff.getKey());
         LOG.info("Write Service Function Forwarder {} to config data store at {}",sff, sffIid);
-        mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, sffIid, sff);
+        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sffIid, sff);
     }
 
     public void addServiceFunctionChain(ServiceFunctionChain sfc) {
         InstanceIdentifier<ServiceFunctionChain> sfcIid = getSFCPath(sfc.getKey());
         LOG.info("Write Service Function Chain {} to config data store at {}",sfc, sfcIid);
-        mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, sfcIid, sfc);
+        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sfcIid, sfc);
     }
 
     public void removeServiceFunctionChain(ServiceFunctionChainKey sfcKey) {
@@ -148,6 +149,14 @@ public class SfcMdsalHelper {
     public void addServiceFunctionPath(ServiceFunctionPath sfp) {
         InstanceIdentifier<ServiceFunctionPath> sfpIid = getSFPPath(sfp.getKey());
         LOG.info("Write Service Function Path {} to config data store at {}",sfp, sfpIid);
-        mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, sfpIid, sfp);
+        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sfpIid, sfp);
+    }
+
+    private <D extends DataObject> void mdsalPutWrapper(LogicalDatastoreType dataStore, InstanceIdentifier<D> iid, D data) {
+        try {
+            mdsalUtils.put(dataStore, iid, data);
+        } catch (Exception e) {
+            LOG.error("Exception while putting data in data store {} : {}",iid, data, e);
+        }
     }
 }
