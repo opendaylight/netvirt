@@ -45,6 +45,40 @@
       "revId": "415b9214579349e43d0356ebd41c394b722bf680",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c7d8d381",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-17T06:24:26Z",
+      "side": 1,
+      "message": "you can use here Utility function:\nAclServiceUtil.containsMatchFieldType",
+      "revId": "415b9214579349e43d0356ebd41c394b722bf680",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e7dd0f72",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-17T06:24:26Z",
+      "side": 1,
+      "message": "you can use here Utility function:\nAclServiceUtil.containsMatchFieldType",
+      "revId": "415b9214579349e43d0356ebd41c394b722bf680",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
