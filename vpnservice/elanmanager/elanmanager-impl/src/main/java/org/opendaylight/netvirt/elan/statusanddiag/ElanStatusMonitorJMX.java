@@ -8,11 +8,8 @@
 package org.opendaylight.netvirt.elan.statusanddiag;
 
 import java.lang.management.ManagementFactory;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
+import javax.management.JMException;
 import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,25 +20,15 @@ public class ElanStatusMonitorJMX implements ElanStatusMonitor, ElanStatusMonito
     private static final String JMX_ELAN_OBJ_NAME = "com.ericsson.sdncp.services.status:type=SvcElanService";
     private static final Logger LOG = LoggerFactory.getLogger(ElanStatusMonitorJMX.class);
 
-    public void init() {
+    public void init() throws Exception {
         registerMbean();
     }
 
-    public void registerMbean() {
+    public void registerMbean() throws JMException {
         MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-        try {
-            ObjectName objName = new ObjectName(JMX_ELAN_OBJ_NAME);
-            mbs.registerMBean(this, objName);
-            LOG.info("MXBean registration SUCCESSFUL!!! {}", JMX_ELAN_OBJ_NAME);
-        } catch (InstanceAlreadyExistsException iaeEx) {
-            LOG.error("MXBean registration FAILED with InstanceAlreadyExistsException", iaeEx);
-        } catch (MBeanRegistrationException mbrEx) {
-            LOG.error("MXBean registration FAILED with MBeanRegistrationException", mbrEx);
-        } catch (NotCompliantMBeanException ncmbEx) {
-            LOG.error("MXBean registration FAILED with NotCompliantMBeanException", ncmbEx);
-        } catch (MalformedObjectNameException monEx) {
-            LOG.error("MXBean registration failed with MalformedObjectNameException", monEx);
-        }
+        ObjectName objName = new ObjectName(JMX_ELAN_OBJ_NAME);
+        mbs.registerMBean(this, objName);
+        LOG.info("ElanStatusMonitor MXBean successfully registered {}", JMX_ELAN_OBJ_NAME);
     }
 
     @Override
