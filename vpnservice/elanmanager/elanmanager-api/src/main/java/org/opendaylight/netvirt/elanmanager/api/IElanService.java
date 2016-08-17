@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 
@@ -63,4 +64,5 @@ public interface IElanService extends IEtreeService {
 
     boolean isExternalInterface(String interfaceName);
 
+    ElanInterface getElanInterfaceByElanInterfaceName(String interfaceName);
 }
