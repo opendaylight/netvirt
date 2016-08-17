@@ -101,6 +101,7 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
     protected void update(InstanceIdentifier<Router> identifier, Router original, Router update) {
         LOG.trace("Updating Router : key: {}, original value={}, update value={}", identifier, original, update);
         Uuid routerId = update.getUuid();
+        NeutronvpnUtils.addToRouterCache(update);
         Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
         // internal vpn always present in case external vpn not found
         if (vpnId == null) {
