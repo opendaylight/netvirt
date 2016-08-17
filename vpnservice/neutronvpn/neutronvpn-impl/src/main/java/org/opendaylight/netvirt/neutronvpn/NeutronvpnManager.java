@@ -198,7 +198,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     builder.setRouterInterfaceFixedIps(null);
                 }
                 subnetmap = builder.build();
-                handleExternalSubnetPorts(subnetmap);
+                createExternalVpnInterfaces(subnetmap);
                 isLockAcquired = NeutronvpnUtils.lock(lockManager, subnetId.getValue());
                 LOG.debug("Creating/Updating subnetMap node for FixedIps: {} ", subnetId.getValue());
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
@@ -248,7 +248,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
 
             subnetmap = builder.build();
-            handleExternalSubnetPorts(subnetmap);
+            createExternalVpnInterfaces(subnetmap);
             isLockAcquired = NeutronvpnUtils.lock(lockManager, subnetId.getValue());
             LOG.debug("Creating/Updating subnetMap node: {} ", subnetId.getValue());
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
@@ -609,6 +609,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             isLockAcquired = NeutronvpnUtils.lock(lockManager, vpnId.getValue());
             LOG.debug("Deleting vpnInstance {}", vpnId.getValue());
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier);
+            deleteExternalVpnInterfaces(vpnId);
         } catch (Exception e) {
             LOG.error("Deletion of VPNInstance node failed for VPN {}", vpnId.getValue());
         } finally {
@@ -2251,7 +2252,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnName, fixedIp);
     }
 
-    private void handleExternalSubnetPorts(Subnetmap subnetmap) {
+    private void createExternalVpnInterfaces(Subnetmap subnetmap) {
         Uuid routerId = subnetmap.getRouterId();
         Uuid subnetId = subnetmap.getId();
         if (routerId == null) {
@@ -2276,6 +2277,32 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
         for (String elanInterface : extElanInterfaces) {
             createVpnInterface(subnetmap.getVpnId(), elanInterface);
+        }
+    }
+
+    private void deleteExternalVpnInterfaces(Uuid vpnId) {
+        if (vpnId == null) {
+            return;
+        }
+
+        Uuid routerId = vpnId;
+        InstanceIdentifier<Routers> routersIdentifier = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
+        Optional<Routers> optionalRouters = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                routersIdentifier);
+        if (!optionalRouters.isPresent() || optionalRouters.get().getNetworkId() == null) {
+            LOG.trace("No external network attached to router {}", routerId);
+            return;
+        }
+
+        Uuid extNetId = optionalRouters.get().getNetworkId();
+        Collection<String> extElanInterfaces = elanService.getExternalElanInterfaces(extNetId.getValue());
+        if (extElanInterfaces == null || extElanInterfaces.isEmpty()) {
+            LOG.trace("No external ports attached to network {}", routerId);
+            return;
+        }
+
+        for (String elanInterface : extElanInterfaces) {
+            deleteVpnInterface(vpnId.getValue(), elanInterface);
         }
     }
 }
