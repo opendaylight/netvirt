@@ -91,10 +91,6 @@ public class ElanServiceProvider implements IElanService {
         elanInterfaceManager.setElanUtils(elanUtils);
     }
 
-    public static ElanUtils getElanutils() {
-        return ElanServiceProvider.elanUtils;
-    }
-
     public void init() {
         LOG.info("Starting ElnaServiceProvider");
         elanStatusMonitor.reportStatus("STARTING");
@@ -178,6 +174,11 @@ public class ElanServiceProvider implements IElanService {
             LOG.debug("Creating the new Etree Instance {}", elanInstance);
         }
         return isSuccess;
+    }
+
+    @Override
+    public EtreeInterface getEtreeInterfaceByElanInterfaceName(String elanInterface) {
+        return ElanUtils.getEtreeInterfaceByElanInterfaceName(broker, elanInterface);
     }
 
     public static boolean compareWithExistingElanInstance(ElanInstance existingElanInstance, long macTimeOut,
@@ -264,7 +265,7 @@ public class ElanServiceProvider implements IElanService {
     @Override
     public void updateElanInterface(String elanInstanceName, String interfaceName,
             List<String> updatedStaticMacAddresses, String newDescription) {
-        ElanInterface existingElanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
+        ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         if (existingElanInterface == null) {
             return;
         }
@@ -289,7 +290,7 @@ public class ElanServiceProvider implements IElanService {
 
     @Override
     public void deleteElanInterface(String elanInstanceName, String interfaceName) {
-        ElanInterface existingElanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
+        ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         if (existingElanInterface != null) {
             ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName));
@@ -299,7 +300,7 @@ public class ElanServiceProvider implements IElanService {
 
     @Override
     public void addStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress) {
-        ElanInterface existingElanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
+        ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         PhysAddress updateStaticMacAddress = new PhysAddress(macAddress);
         if (existingElanInterface != null) {
             List<PhysAddress> existingMacAddress = existingElanInterface.getStaticMacEntries();
@@ -319,7 +320,7 @@ public class ElanServiceProvider implements IElanService {
     @Override
     public void deleteStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress)
             throws MacNotFoundException {
-        ElanInterface existingElanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
+        ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         PhysAddress physAddress = new PhysAddress(macAddress);
         if (existingElanInterface == null) {
             return;
@@ -408,7 +409,7 @@ public class ElanServiceProvider implements IElanService {
 
     @Override
     public ElanInstance getElanInstance(String elanName) {
-        return elanUtils.getElanInstanceByName(elanName);
+        return ElanUtils.getElanInstanceByName(broker, elanName);
     }
 
     @Override
@@ -581,6 +582,11 @@ public class ElanServiceProvider implements IElanService {
     @Override
     public boolean isExternalInterface(String interfaceName) {
         return elanUtils.isExternal(interfaceName);
+    }
+
+    @Override
+    public ElanInterface getElanInterfaceByElanInterfaceName(String interfaceName) {
+        return ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
     }
 
     /**

@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elan.cli.etree;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
@@ -26,22 +25,17 @@ public class EtreeInterfaceDelete extends OsgiCommandSupport {
     private String interfaceName;
     private static final Logger LOG = LoggerFactory.getLogger(EtreeInterfaceDelete.class);
     private IElanService elanProvider;
-    //private ElanUtils elanUtils;
 
     public void setElanProvider(IElanService elanServiceProvider) {
         this.elanProvider = elanServiceProvider;
     }
-
-    /*public void setElanUtils(ElanUtils elanUtils) {
-        this.elanUtils = elanUtils;
-    }*/
 
     @Override
     protected Object doExecute() {
         try {
             LOG.debug("Deleting EtreeInterface command" + "\t" + etreeName + "\t" + interfaceName + "\t");
             ElanInterface existingInterface =
-                    ElanServiceProvider.getElanutils().getElanInterfaceByElanInterfaceName(interfaceName);
+                    elanProvider.getElanInterfaceByElanInterfaceName(interfaceName);
             if (existingInterface == null || existingInterface.getAugmentation(EtreeInterface.class) == null) {
                 session.getConsole()
                         .println("Etree interface doesn't exist or isn't configured as etree: " + interfaceName);

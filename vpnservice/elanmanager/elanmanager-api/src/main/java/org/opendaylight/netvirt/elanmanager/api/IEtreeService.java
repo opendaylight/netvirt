@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elanmanager.api;
 
 import java.util.List;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface.EtreeInterfaceType;
 
 public interface IEtreeService {
@@ -20,4 +21,6 @@ public interface IEtreeService {
             List<String> staticMacAddresses, String description);
 
     boolean createEtreeInstance(String elanInstanceName, long macTimeout, String description);
+
+    EtreeInterface getEtreeInterfaceByElanInterfaceName(String elanInterface);
 }
