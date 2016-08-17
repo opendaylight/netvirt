@@ -68,7 +68,6 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
                 byte[] srcMac = res.getSourceMACAddress();
                 String macAddress = NWUtil.toStringMacAddress(srcMac);
-                PhysAddress physAddress = new PhysAddress(macAddress);
                 BigInteger metadata = notification.getMatch().getMetadata().getMetadata();
                 long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
 
@@ -88,6 +87,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                     return;
                 }
                 String elanName = elanTagName.getName();
+                PhysAddress physAddress = new PhysAddress(macAddress);
                 MacEntry macEntry = elanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
                 if (macEntry != null && macEntry.getInterface() == interfaceName) {
                     BigInteger macTimeStamp = macEntry.getControllerLearnedForwardingEntryTimestamp();
@@ -129,7 +129,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                         return;
                     }
                 }
-                BigInteger timeStamp = new BigInteger(String.valueOf((long) System.currentTimeMillis()));
+                BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
                 macEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
                         .setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp)
                         .setIsStaticAddress(false).build();
