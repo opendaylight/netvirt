@@ -16,6 +16,24 @@
       "revId": "081332ce193a2204ef7dfff820f0d2c396fad1fb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_3d039a0e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/L2GwUtilsCacheCli.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-17T13:33:48Z",
+      "side": 1,
+      "message": "Yes, that\u0027s our Checkstyle configuraiton",
+      "parentUuid": "7a6b29fe_296d2099",
+      "revId": "081332ce193a2204ef7dfff820f0d2c396fad1fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
