@@ -377,7 +377,6 @@ public class ElanServiceProvider implements IElanService {
                         deleteStaticMacAddress(elanInstanceName, elanInterface, macEntry.getMacAddress().getValue());
                     } catch (MacNotFoundException e) {
                         LOG.error("Mac Not Found Exception {}", e);
-                        e.printStackTrace();
                     }
                 }
             }
@@ -467,6 +466,16 @@ public class ElanServiceProvider implements IElanService {
         });
     }
 
+    private void createExternalElanNetwork(ElanInstance elanInstance, String interfaceName) {
+        if (interfaceName == null) {
+            LOG.trace("No physial interface is attached to {}", elanInstance.getPhysicalNetworkName());
+            return;
+        }
+
+        String elanInterfaceName = createIetfInterfaces(elanInstance, interfaceName);
+        addElanInterface(elanInstance.getElanInstanceName(), elanInterfaceName, null, null);
+    }
+
     @Override
     public void deleteExternalElanNetworks(Node node) {
         handleExternalElanNetworks(node, (elanInstance, interfaceName) -> {
@@ -481,6 +490,21 @@ public class ElanServiceProvider implements IElanService {
             deleteExternalElanNetwork(elanInstance1, interfaceName);
             return null;
         });
+    }
+
+    private void deleteExternalElanNetwork(ElanInstance elanInstance, String interfaceName) {
+        if (interfaceName == null) {
+            LOG.trace("No physial interface is attached to {}", elanInstance.getPhysicalNetworkName());
+            return;
+        }
+
+        String elanInstanceName = elanInstance.getElanInstanceName();
+        for (String elanInterface : getExternalElanInterfaces(elanInstanceName)) {
+            if (elanInterface.startsWith(interfaceName)) {
+                deleteIetfInterface(elanInterface);
+                deleteElanInterface(elanInstanceName, elanInterface);
+            }
+        }
     }
 
     @Override
@@ -513,31 +537,6 @@ public class ElanServiceProvider implements IElanService {
                 if (updatedPortName != null && !updatedPortName.equals(origPortName)) {
                     createExternalElanNetwork(elanInstance, getExtInterfaceName(updatedNode, updatedPortName));
                 }
-            }
-        }
-    }
-
-    private void createExternalElanNetwork(ElanInstance elanInstance, String interfaceName) {
-        if (interfaceName == null) {
-            LOG.trace("No physial interface is attached to {}", elanInstance.getPhysicalNetworkName());
-            return;
-        }
-
-        String elanInterfaceName = createIetfInterfaces(elanInstance, interfaceName);
-        addElanInterface(elanInstance.getElanInstanceName(), elanInterfaceName, null, null);
-    }
-
-    private void deleteExternalElanNetwork(ElanInstance elanInstance, String interfaceName) {
-        if (interfaceName == null) {
-            LOG.trace("No physial interface is attached to {}", elanInstance.getPhysicalNetworkName());
-            return;
-        }
-
-        String elanInstanceName = elanInstance.getElanInstanceName();
-        for (String elanInterface : getExternalElanInterfaces(elanInstanceName)) {
-            if (elanInterface.startsWith(interfaceName)) {
-                deleteIetfInterface(elanInterface);
-                deleteElanInterface(elanInstanceName, elanInterface);
             }
         }
     }

@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Listen for new OVSDB nodes and then make sure they have the necessary bridges configured
+ * Listen for new OVSDB nodes and then make sure they have the necessary bridges configured.
  */
 public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ElanOvsdbNodeListener.class);
@@ -36,7 +36,7 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> impl
     private boolean generateIntBridgeMac;
 
     /**
-     * Constructor
+     * Constructor.
      * @param dataBroker the DataBroker
      * @param elanConfig the elan configuration
      * @param bridgeMgr bridge manager
