@@ -38,16 +38,11 @@ public class ElanInterfaceStateChangeListener
 
     private final DataBroker broker;
     private final ElanInterfaceManager elanInterfaceManager;
-    private final IInterfaceManager interfaceManager;
-    private final ElanUtils elanUtils;
 
-    public ElanInterfaceStateChangeListener(final DataBroker db, final ElanInterfaceManager ifManager,
-                                            final IInterfaceManager interfaceManager, ElanUtils elanUtils) {
+    public ElanInterfaceStateChangeListener(final DataBroker db, final ElanInterfaceManager ifManager) {
         super(Interface.class, ElanInterfaceStateChangeListener.class);
         broker = db;
         elanInterfaceManager = ifManager;
-        this.interfaceManager = interfaceManager;
-        this.elanUtils = elanUtils;
     }
 
     public void init() {
@@ -58,7 +53,7 @@ public class ElanInterfaceStateChangeListener
     protected void remove(InstanceIdentifier<Interface> identifier, Interface delIf) {
         LOG.trace("Received interface {} Down event", delIf);
         String interfaceName =  delIf.getName();
-        ElanInterface elanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
+        ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         if (elanInterface == null) {
             LOG.debug("No Elan Interface is created for the interface:{} ", interfaceName);
             return;
@@ -70,7 +65,7 @@ public class ElanInterfaceStateChangeListener
         interfaceInfo.setInterfaceType(InterfaceInfo.InterfaceType.VLAN_INTERFACE);
         interfaceInfo.setInterfaceTag(delIf.getIfIndex());
         String elanInstanceName = elanInterface.getElanInstanceName();
-        ElanInstance elanInstance = elanUtils.getElanInstanceByName(elanInstanceName);
+        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElan removeWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInstance,
             interfaceName, interfaceInfo, true, elanInterfaceManager);
@@ -103,7 +98,7 @@ public class ElanInterfaceStateChangeListener
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("Received interface {} up event", intrf);
         String interfaceName =  intrf.getName();
-        ElanInterface elanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
+        ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         if (elanInterface == null) {
             if (intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
                 if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
@@ -128,7 +123,7 @@ public class ElanInterfaceStateChangeListener
 
     public  InternalTunnel getTunnelState(String interfaceName) {
         InternalTunnel internalTunnel = null;
-        TunnelList tunnelList = elanUtils.buildInternalTunnel(broker);
+        TunnelList tunnelList = ElanUtils.buildInternalTunnel(broker);
         if (tunnelList != null && tunnelList.getInternalTunnel() != null) {
             List<InternalTunnel> internalTunnels = tunnelList.getInternalTunnel();
             for (InternalTunnel tunnel : internalTunnels) {
