@@ -29,13 +29,9 @@ public class ElanInterfaceDelete  extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() {
-        try {
-            LOG.debug("Deleting ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t");
-            elanProvider.deleteElanInterface(elanName, interfaceName);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    protected Object doExecute() throws Exception {
+        LOG.debug("Deleting ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t");
+        elanProvider.deleteElanInterface(elanName, interfaceName);
         return null;
     }
 }

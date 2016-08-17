@@ -31,37 +31,33 @@ public class ElanGet extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() {
-        try {
-            LOG.debug("Executing Get ElanInstance command" + "\t" + elanName +  "\t");
-            if (elanName != null) {
-                ElanInstance elanInstance = elanProvider.getElanInstance(elanName);
-                if (elanInstance == null) {
-                    session.getConsole().println("No Elan Instance present with name:" + elanName);
-                } else {
-                    session.getConsole().println(getElanHeaderOutput());
+    protected Object doExecute() throws Exception {
+        LOG.debug("Executing Get ElanInstance command" + "\t" + elanName +  "\t");
+        if (elanName != null) {
+            ElanInstance elanInstance = elanProvider.getElanInstance(elanName);
+            if (elanInstance == null) {
+                session.getConsole().println("No Elan Instance present with name:" + elanName);
+            } else {
+                session.getConsole().println(getElanHeaderOutput());
+                session.getConsole()
+                        .println(String.format(ElanCLIUtils.ELAN_CLI_FORMAT, elanInstance.getElanInstanceName(),
+                                elanInstance.getMacTimeout(), elanInstance.getElanTag(),
+                                elanInstance.getDescription()));
+            }
+
+        } else {
+            List<ElanInstance> elanInstanceList = elanProvider.getElanInstances();
+            if (elanInstanceList != null && !elanInstanceList.isEmpty()) {
+                session.getConsole().println(getElanHeaderOutput());
+                for (ElanInstance elanInstance : elanInstanceList) {
                     session.getConsole()
                             .println(String.format(ElanCLIUtils.ELAN_CLI_FORMAT, elanInstance.getElanInstanceName(),
                                     elanInstance.getMacTimeout(), elanInstance.getElanTag(),
                                     elanInstance.getDescription()));
                 }
-
             } else {
-                List<ElanInstance> elanInstanceList = elanProvider.getElanInstances();
-                if (elanInstanceList != null && !elanInstanceList.isEmpty()) {
-                    session.getConsole().println(getElanHeaderOutput());
-                    for (ElanInstance elanInstance : elanInstanceList) {
-                        session.getConsole()
-                                .println(String.format(ElanCLIUtils.ELAN_CLI_FORMAT, elanInstance.getElanInstanceName(),
-                                        elanInstance.getMacTimeout(), elanInstance.getElanTag(),
-                                        elanInstance.getDescription()));
-                    }
-                } else {
-                    session.getConsole().println("No Elan Instances are present");
-                }
+                session.getConsole().println("No Elan Instances are present");
             }
-        } catch (Exception e) {
-            LOG.error("Elan Instance failed to get {}", e);
         }
         return null;
     }
