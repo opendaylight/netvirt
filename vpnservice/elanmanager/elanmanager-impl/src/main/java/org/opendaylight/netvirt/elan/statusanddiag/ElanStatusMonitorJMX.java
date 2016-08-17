@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class ElanStatusMonitorJMX implements ElanStatusMonitor, ElanStatusMonitorMBean {
 
     private String serviceStatus;
-    private static final String JMX_ELAN_OBJ_NAME = "com.ericsson.sdncp.services.status:type=SvcElanService";
+    private static final String JMX_ELAN_OBJ_NAME = "org.opendaylight.netvirt.elan:type=SvcElanService";
     private static final Logger LOG = LoggerFactory.getLogger(ElanStatusMonitorJMX.class);
 
     public void init() {
