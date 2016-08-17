@@ -163,8 +163,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         coordinator.enqueueJob(elanInstanceName, configWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
-    public void removeElanInterface(List<ListenableFuture<Void>> futures, ElanInstance elanInfo, String interfaceName, InterfaceInfo interfaceInfo,
-            boolean isInterfaceStateRemoved) {
+    public void removeElanInterface(List<ListenableFuture<Void>> futures, ElanInstance elanInfo, String interfaceName,
+            InterfaceInfo interfaceInfo, boolean isInterfaceStateRemoved) {
         String elanName = elanInfo.getElanInstanceName();
         boolean isLastElanInterface = false;
         long elanTag = elanInfo.getElanTag();
@@ -546,7 +546,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
     }
 
-    void addElanInterface(List<ListenableFuture<Void>> futures, ElanInterface elanInterface, InterfaceInfo interfaceInfo, ElanInstance elanInstance) {
+    void addElanInterface(List<ListenableFuture<Void>> futures, ElanInterface elanInterface,
+            InterfaceInfo interfaceInfo, ElanInstance elanInstance) {
         Preconditions.checkNotNull(elanInstance, "elanInstance cannot be null");
         Preconditions.checkNotNull(interfaceInfo, "interfaceInfo cannot be null");
         Preconditions.checkNotNull(elanInterface, "elanInterface cannot be null");
@@ -613,8 +614,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         coordinator.enqueueJob(interfaceName, addWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
-    void setupEntriesForElanInterface(List<ListenableFuture<Void>> futures, ElanInstance elanInstance, ElanInterface elanInterface,
-            InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn) {
+    void setupEntriesForElanInterface(List<ListenableFuture<Void>> futures, ElanInstance elanInstance,
+            ElanInterface elanInterface, InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn) {
         String elanInstanceName = elanInstance.getElanInstanceName();
         String interfaceName = elanInterface.getName();
         WriteTransaction tx = broker.newWriteOnlyTransaction();
@@ -1076,10 +1077,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             InterfaceInfo interfaceInfo) {
         EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
         if (etreeInstance != null) {
-            long etreeLeafTag = etreeInstance.getEtreeLeafTagVal().getValue();
             List<Bucket> listBucket = new ArrayList<>();
             int bucketId = 0;
-            long groupId = ElanUtils.getEtreeLeafLocalBCGID(etreeLeafTag);
 
             List<String> interfaces = new ArrayList<>();
             if (newDpnInterface != null) {
@@ -1105,6 +1104,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 createDropBucket(listBucket);
             }
 
+            long etreeLeafTag = etreeInstance.getEtreeLeafTagVal().getValue();
+            long groupId = ElanUtils.getEtreeLeafLocalBCGID(etreeLeafTag);
             Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                     MDSALUtil.buildBucketLists(listBucket));
             LOG.trace("installing the localBroadCast Group:{}", group);
@@ -1211,14 +1212,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         setupEtreeTerminateServiceTable(elanInfo, dpId, writeFlowGroupTx);
     }
 
-    private void setupEtreeTerminateServiceTable(ElanInstance elanInfo, BigInteger dpId,
-            WriteTransaction writeFlowGroupTx) {
-        EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
-        if (etreeInstance != null) {
-            setupTerminateServiceTable(elanInfo, dpId, etreeInstance.getEtreeLeafTagVal().getValue(), writeFlowGroupTx);
-        }
-    }
-
     public void setupTerminateServiceTable(ElanInstance elanInfo, BigInteger dpId, long elanTag,
             WriteTransaction writeFlowGroupTx) {
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
@@ -1229,6 +1222,14 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 getInstructionsForOutGroup(ElanUtils.getElanLocalBCGID(elanTag)));
 
         mdsalManager.addFlowToTx(dpId, flowEntity, writeFlowGroupTx);
+    }
+
+    private void setupEtreeTerminateServiceTable(ElanInstance elanInfo, BigInteger dpId,
+            WriteTransaction writeFlowGroupTx) {
+        EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
+        if (etreeInstance != null) {
+            setupTerminateServiceTable(elanInfo, dpId, etreeInstance.getEtreeLeafTagVal().getValue(), writeFlowGroupTx);
+        }
     }
 
     public void setupUnknownDMacTable(ElanInstance elanInfo, BigInteger dpId, WriteTransaction writeFlowGroupTx) {
@@ -1342,8 +1343,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     private void unbindService(ElanInstance elanInfo, String interfaceName, WriteTransaction tx) {
-        tx.delete(LogicalDatastoreType.CONFIGURATION,
-                ElanUtils.buildServiceId(interfaceName, ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX)));
+        tx.delete(LogicalDatastoreType.CONFIGURATION, ElanUtils.buildServiceId(interfaceName,
+                ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX)));
     }
 
     private String getFlowRef(long tableId, long elanTag) {
@@ -1565,19 +1566,19 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return false;
     }
 
-    private List<MatchInfo> getMatchesForFilterEqualsLPortTag(int LportTag) {
+    private List<MatchInfo> getMatchesForFilterEqualsLPortTag(int lportTag) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] { MetaDataUtil.getLportTagMetaData(LportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG }));
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(LportTag) }));
+                new BigInteger[] { MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG }));
+        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(lportTag) }));
         return mkMatches;
     }
 
-    private List<MatchInfo> getTunnelIdMatchForFilterEqualsLPortTag(int LportTag) {
+    private List<MatchInfo> getTunnelIdMatchForFilterEqualsLPortTag(int lportTag) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(LportTag) }));
+        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(lportTag) }));
         return mkMatches;
     }
 
