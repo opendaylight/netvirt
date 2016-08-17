@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class InterfaceAddWorkerOnElanInterface implements Callable<List<ListenableFuture<Void>>> {
+
     private String key;
     private ElanInterface elanInterface;
     private ElanInstance elanInstance;
@@ -27,7 +28,7 @@ public class InterfaceAddWorkerOnElanInterface implements Callable<List<Listenab
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceAddWorkerOnElanInterface.class);
 
     public InterfaceAddWorkerOnElanInterface(String key, ElanInterface elanInterface, InterfaceInfo interfaceInfo,
-                                             ElanInstance elanInstance, boolean isFirstInterfaceInDpn, ElanInterfaceManager dataChangeListener) {
+            ElanInstance elanInstance, boolean isFirstInterfaceInDpn, ElanInterfaceManager dataChangeListener) {
         super();
         this.key = key;
         this.elanInterface = elanInterface;
@@ -47,11 +48,8 @@ public class InterfaceAddWorkerOnElanInterface implements Callable<List<Listenab
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        try {
-            dataChangeListener.setupEntriesForElanInterface(futures, elanInstance, elanInterface, interfaceInfo, isFirstInterfaceInDpn);
-        } catch (Exception e) {
-            LOG.error("Error while processing {} for {}, error {}", key, elanInterface, e);
-        }
+        dataChangeListener.setupEntriesForElanInterface(futures, elanInstance, elanInterface, interfaceInfo,
+                isFirstInterfaceInDpn);
         return futures;
     }
 

@@ -95,29 +95,25 @@ public class ElanServiceProvider implements IElanService {
         return ElanServiceProvider.elanUtils;
     }
 
-    public void init() {
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void init() throws Exception {
         LOG.info("Starting ElnaServiceProvider");
         elanStatusMonitor.reportStatus("STARTING");
         try {
             createIdPool();
-
             elanStatusMonitor.reportStatus("OPERATIONAL");
         } catch (Exception e) {
-            LOG.error("Error initializing services", e);
             elanStatusMonitor.reportStatus("ERROR");
+            throw e;
         }
     }
 
-    private void createIdPool() {
+    private void createIdPool() throws Exception {
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder().setPoolName(ElanConstants.ELAN_ID_POOL_NAME)
                 .setLow(ElanConstants.ELAN_ID_LOW_VALUE).setHigh(ElanConstants.ELAN_ID_HIGH_VALUE).build();
-        try {
-            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
-            if (result != null && result.get().isSuccessful()) {
-                LOG.debug("ELAN Id Pool is created successfully");
-            }
-        } catch (Exception e) {
-            LOG.error("Failed to create ELAN Id pool {}", e);
+        Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+        if (result != null && result.get().isSuccessful()) {
+            LOG.debug("ELAN Id Pool is created successfully");
         }
     }
 
@@ -377,7 +373,6 @@ public class ElanServiceProvider implements IElanService {
                         deleteStaticMacAddress(elanInstanceName, elanInterface, macEntry.getMacAddress().getValue());
                     } catch (MacNotFoundException e) {
                         LOG.error("Mac Not Found Exception {}", e);
-                        e.printStackTrace();
                     }
                 }
             }
