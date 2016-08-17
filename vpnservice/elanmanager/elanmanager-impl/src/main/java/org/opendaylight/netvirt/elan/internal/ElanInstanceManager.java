@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -123,7 +124,11 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
             elanUtils.waitForTransactionToComplete(tx);
             return;
         }
-        elanInterfaceManager.handleunprocessedElanInterfaces(update);
+        try {
+            elanInterfaceManager.handleunprocessedElanInterfaces(update);
+        } catch (ElanException e) {
+            LOG.error("update() failed for ElanInstance: " + identifier.toString(), e);
+        }
     }
 
     @Override
