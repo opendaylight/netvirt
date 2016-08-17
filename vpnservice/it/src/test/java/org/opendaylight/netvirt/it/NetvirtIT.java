@@ -20,6 +20,8 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configure
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 
+import com.google.common.collect.Maps;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
@@ -66,6 +68,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static OvsdbItUtils itUtils;
     private static MdsalUtils mdsalUtils = null;
     private static SouthboundUtils southboundUtils;
+    private static org.opendaylight.netvirt.utils.netvirt.it.utils.SouthboundUtils nvSouthboundUtils;
     private static FlowITUtil flowITUtil;
     private static String addressStr;
     private static String portStr;
@@ -129,16 +132,22 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                         LogLevel.INFO.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.netvirt",
-                        LogLevel.DEBUG.name()),
+                        LogLevel.TRACE.name()),
+                /*editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.opendaylight.openflowplugin.impl",
+                        LogLevel.DEBUG.name()),*/
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.openflowjava.protocol.impl.util.ListDeserializer",
                         LogLevel.ERROR.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.controller.configpusherfeature.internal.FeatureConfigPusher",
                         LogLevel.ERROR.name()),
-//                editConfigurationFilePut(NetvirtITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
-//                        "log4j.logger.org.opendaylight.ovsdb",
-//                        LogLevel.TRACE.name()),
+                editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.apache.aries.blueprint.container.ServiceRecipe",
+                        LogLevel.WARN.name()),
+                editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.opendaylight.netvirt.fibmanager.FibNodeCapableListener",
+                        LogLevel.DEBUG.name()),
                 super.getLoggingOption());
     }
 
@@ -166,6 +175,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         mdsalUtils = new MdsalUtils(dataBroker);
         assertNotNull("mdsalUtils should not be null", mdsalUtils);
         southboundUtils = new SouthboundUtils(mdsalUtils);
+        nvSouthboundUtils = new org.opendaylight.netvirt.utils.netvirt.it.utils.SouthboundUtils(mdsalUtils);
         assertTrue("Did not find " + NETVIRT_TOPOLOGY_ID, this.getNetvirtTopology());
         flowITUtil = new FlowITUtil(dataBroker);
 
@@ -237,10 +247,15 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNetVirt() throws InterruptedException {
         try (DockerOvs ovs = new DockerOvs()) {
+            ovs.logState(0);
             ConnectionInfo connectionInfo = SouthboundUtils
                     .getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
+
+            Map<String, String> otherConfigs = Maps.newHashMap();
+            otherConfigs.put("local_ip", "10.1.1.1");
+            assertTrue(nvSouthboundUtils.addOpenVSwitchOtherConfig(nodeInfo.ovsdbNode, otherConfigs));
 
             //validate default flows
             validateDefaultFlows(nodeInfo.datapathId, 2 * 60 * 1000);
@@ -255,6 +270,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                     .getTerminationPointOfBridge(nodeInfo.bridgeNode, NetvirtITConstants.PORT_NAME);
             assertNotNull("Did not find " + NetvirtITConstants.PORT_NAME, terminationPointOfBridge);
 
+            ovs.logState(0);
             nodeInfo.disconnect();
         } catch (Exception e) {
             LOG.error("testNetVirt: Exception thrown by OvsDocker.OvsDocker()", e);
