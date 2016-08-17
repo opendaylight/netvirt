@@ -19,6 +19,8 @@ public final class AclConstants {
     public static final short INGRESS_ACL_DEFAULT_FLOW_PRIORITY = 1;
     public static final short EGRESS_ACL_DEFAULT_FLOW_PRIORITY = 11;
 
+    public static final Integer PROTO_IPV6_DROP_PRIORITY = 63020;
+    public static final Integer PROTO_IPV6_ALLOWED_PRIORITY = 63010;
     public static final Integer PROTO_DHCP_SERVER_MATCH_PRIORITY = 63010;
     public static final Integer PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY = 63010;
     public static final Integer PROTO_MATCH_PRIORITY = 61010;
@@ -36,8 +38,8 @@ public final class AclConstants {
     public static final Integer CT_STATE_NEW_PRIORITY_DROP = 36007;
     public static final short DHCP_CLIENT_PORT_IPV4 = 68;
     public static final short DHCP_SERVER_PORT_IPV4 = 67;
-    public static final short DHCP_CLIENT_PORT_IPV6 = 568;
-    public static final short DHCP_SERVER_PORT_IPV6 = 567;
+    public static final short DHCP_CLIENT_PORT_IPV6 = 546;
+    public static final short DHCP_SERVER_PORT_IPV6 = 547;
     public static final BigInteger COOKIE_ACL_BASE = new BigInteger("6900000", 16);
 
     public static final int UNTRACKED_CT_STATE = 0x00;
@@ -58,6 +60,13 @@ public final class AclConstants {
     public static final long TCP_FLAG_SYN = 1 << 1;
     public static final long TCP_FLAG_ACK = 1 << 4;
     public static final long TCP_FLAG_SYN_ACK = TCP_FLAG_SYN + TCP_FLAG_ACK;
+
+    public static final int ICMPV6_TYPE_MLD_QUERY = 130;
+    public static final int ICMPV6_TYPE_RS = 133;
+    public static final int ICMPV6_TYPE_RA = 134;
+    public static final int ICMPV6_TYPE_NS = 135;
+    public static final int ICMPV6_TYPE_NA = 136;
+    public static final int ICMPV6_TYPE_MLD2_REPORT = 143;
 
     private AclConstants() {
     }

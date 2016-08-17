@@ -125,6 +125,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             egressAclDhcpv6AllowClientTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
             egressAclDhcpDropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
             egressAclDhcpv6DropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
+            egressAclIcmpv6AllowAll(dpid, lportTag, addOrRemove);
+            egressAclIcmpv6DropRouterAdvts(dpid, lportTag, addOrRemove);
         }
         programArpRule(dpid, allowedAddresses, lportTag, addOrRemove);
         programEgressAclFixedConntrackRule(dpid, allowedAddresses, lportTag, action, addOrRemove);
@@ -230,7 +232,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void egressAclDhcpv6DropServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove) {
-        List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV6,
+        List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag);
 
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -238,6 +240,42 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
         String flowName = "Egress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Drop_";
         syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
+                0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Add rule to allow all ICMPv6 traffic from the VM port.
+     *
+     * @param dpId the dpId
+     * @param lportTag the lport tag
+     * @param addOrRemove add/remove the flow.
+     */
+    private void egressAclIcmpv6AllowAll(BigInteger dpId, int lportTag, int addOrRemove) {
+        final List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(0, 0, lportTag);
+
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+
+        String flowName = "Egress_ICMPv6_ALL" + dpId + "_" + lportTag + "_Permit_";
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY,
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Anti-spoofing rule to block the Ipv6 Router Advts from the VM port.
+     *
+     * @param dpId the dpId
+     * @param lportTag the lport tag
+     * @param addOrRemove add/remove the flow.
+     */
+    private void egressAclIcmpv6DropRouterAdvts(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0, lportTag);
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
+        String flowName = "Egress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_RA + "_Drop_";
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_DROP_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -274,7 +312,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void egressAclDhcpv6AllowClientTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove) {
-        final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_CLIENT_PORT_IPV6,
+        final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_CLIENT_PORT_IPV6,
                 AclConstants.DHCP_SERVER_PORT_IPV6, lportTag);
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
