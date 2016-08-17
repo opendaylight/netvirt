@@ -22,9 +22,11 @@ public class ElanInterfaceUpdate extends OsgiCommandSupport {
     private String elanName;
     @Argument(index = 1, name = "interfaceName", description = "InterfaceName", required = true, multiValued = false)
     private String interfaceName;
-    @Argument(index = 2, name = "staticMacAddresses", description = "StaticMacAddresses", required = false, multiValued = true)
+    @Argument(index = 2, name = "staticMacAddresses", description = "StaticMacAddresses", required = false,
+                multiValued = true)
     private List<String> staticMacAddresses;
-    @Argument(index = 3, name = "elanInterfaceDescr", description = "ELAN Interface-Description", required = false, multiValued = false)
+    @Argument(index = 3, name = "elanInterfaceDescr", description = "ELAN Interface-Description", required = false,
+                multiValued = false)
     private String elanInterfaceDescr;
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceUpdate.class);
     private IElanService elanProvider;
@@ -34,14 +36,10 @@ public class ElanInterfaceUpdate extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() {
-        try {
-            LOG.debug("Executing updating ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t" + staticMacAddresses + "\t"
-                    + elanInterfaceDescr + "\t");
-            elanProvider.updateElanInterface(elanName, interfaceName, staticMacAddresses, elanInterfaceDescr);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    protected Object doExecute() throws Exception {
+        LOG.debug("Executing updating ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
+                + staticMacAddresses + "\t" + elanInterfaceDescr + "\t");
+        elanProvider.updateElanInterface(elanName, interfaceName, staticMacAddresses, elanInterfaceDescr);
         return null;
     }
 }
