@@ -38,6 +38,7 @@ import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteL2GwDeviceMacsFromElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteLogicalSwitchJob;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepTerminationPointListener;
@@ -305,9 +306,10 @@ public class ElanL2GatewayUtils {
      *            the elan
      * @param interfaceName
      *            the interface name
+     * @throws ElanException in case of issues creating the flow objects
      */
     public void installL2gwDeviceMacsInDpn(BigInteger dpnId, NodeId l2gwDeviceNodeId, ElanInstance elan,
-            String interfaceName) {
+            String interfaceName) throws ElanException {
         L2GatewayDevice l2gwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elan.getElanInstanceName(),
                 l2gwDeviceNodeId.getValue());
         if (l2gwDevice == null) {
@@ -329,9 +331,10 @@ public class ElanL2GatewayUtils {
      *            the elan
      * @param interfaceName
      *            the interface name
+     * @throws ElanException in case of issues creating the flow objects
      */
     public void installDmacFlowsOnDpn(BigInteger dpnId, L2GatewayDevice l2gwDevice, ElanInstance elan,
-            String interfaceName) {
+            String interfaceName) throws ElanException {
         String elanName = elan.getElanInstanceName();
 
         List<LocalUcastMacs> l2gwDeviceLocalMacs = l2gwDevice.getUcastLocalMacs();
@@ -355,8 +358,10 @@ public class ElanL2GatewayUtils {
      *            the elan
      * @param interfaceName
      *            the interface name
+     * @throws ElanException in case of issues creating the flow objects
      */
-    public void installElanL2gwDevicesLocalMacsInDpn(BigInteger dpnId, ElanInstance elan, String interfaceName) {
+    public void installElanL2gwDevicesLocalMacsInDpn(BigInteger dpnId, ElanInstance elan, String interfaceName)
+            throws ElanException {
         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevicesFromCache = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(elan.getElanInstanceName());
         if (elanL2GwDevicesFromCache != null) {
