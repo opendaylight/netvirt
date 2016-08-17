@@ -87,8 +87,6 @@
   <bean id="elanStatisticsImpl" class="org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl">
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
-    <argument ref="mdsalUtils" />
-    <argument ref="elanUtils" />
   </bean>
   <odl:rpc-implementation ref="elanStatisticsImpl" />
 
@@ -97,8 +95,6 @@
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="elanInterfaceManager" />
-    <argument ref="interfaceManager" />
-    <argument ref="elanUtils" />
   </bean>
 
   <bean id="elanInterfaceStateClusterListener"
