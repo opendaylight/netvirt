@@ -108,8 +108,8 @@ public class InterfaceStateManager {
                     addTransportZone(zone, inter.getName());
                 }
 
-            }catch(Exception e){
-                LOG.error("faild to add tunnels on port added to subnet", e);
+            } catch(Exception e){
+                LOG.error("failed to add tunnels on port added to subnet", e);
             }       
         }
     }
@@ -304,12 +304,12 @@ public class InterfaceStateManager {
         return false;
     }
 
-
     private IpAddress getNodeIP(BigInteger dpId) throws Exception {
         Node node = getPortsNode(dpId);
         String localIp = southBoundUtils.getOpenvswitchOtherConfig(node, LOCAL_IP);
         if(localIp == null){
-            throw new Exception("missing local_ip key in ovsdb:openvswitch-other-configs in operational network-topology for node: " + node.getNodeId().getValue());
+            throw new Exception("missing local_ip key in ovsdb:openvswitch-other-configs in operational"
+                    + " network-topology for node: " + node.getNodeId().getValue());
         }
 
         return new IpAddress(localIp.toCharArray());
