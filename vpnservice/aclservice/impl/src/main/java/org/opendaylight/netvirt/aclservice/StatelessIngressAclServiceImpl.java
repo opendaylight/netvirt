@@ -64,7 +64,10 @@ public class StatelessIngressAclServiceImpl extends IngressAclServiceImpl {
         Matches matches = ace.getMatches();
         AceType aceType = matches.getAceType();
         Map<String, List<MatchInfoBase>> flowMap = null;
+        Short protocol = null;
+
         if (aceType instanceof AceIp) {
+            protocol = ((AceIp)aceType).getProtocol();
             flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
         }
         if (null == flowMap) {
@@ -75,7 +78,7 @@ public class StatelessIngressAclServiceImpl extends IngressAclServiceImpl {
             List<MatchInfoBase> flowMatches = flow.getValue();
             boolean hasTcpDstMatch = AclServiceUtils.containsMatchFieldType(flowMatches,
                     NxMatchFieldType.nx_tcp_dst_with_mask);
-            if (hasTcpDstMatch || flowMatches.isEmpty()) {
+            if (hasTcpDstMatch || protocol == null) {
                 String flowName = flow.getKey() + "Ingress" + lportTag + ace.getKey().getRuleName();
                 flowMatches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
                 programAllowSynRules(dpId, flowName, flowMatches, addOrRemove);
@@ -85,7 +88,7 @@ public class StatelessIngressAclServiceImpl extends IngressAclServiceImpl {
 
     private void programAllowSynRules(BigInteger dpId, String origFlowName,
             List<MatchInfoBase> origFlowMatches, int addOrRemove) {
-        List<MatchInfoBase> flowMatches = new ArrayList<MatchInfoBase>();
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.addAll(origFlowMatches);
         flowMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN }));
         List<ActionInfo> actionsInfos = new ArrayList<>();
