@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.openstack.sfc.translator.portchain;
 import com.google.common.base.Preconditions;
 import org.opendaylight.netvirt.openstack.sfc.translator.OvsdbMdsalHelper;
 import org.opendaylight.netvirt.openstack.sfc.translator.OvsdbPortMetadata;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffDataPlaneLocatorName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SnName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
@@ -25,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.ovs.rev
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.Open;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarder.base.SffDataPlaneLocator;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarder.base.SffDataPlaneLocatorBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarder.base.SffDataPlaneLocatorKey;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarder.base.sff.data.plane.locator.DataPlaneLocatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarderBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarderKey;
@@ -59,6 +61,7 @@ public class PortPairGroupTranslator {
 
     private static final AtomicInteger counter = new AtomicInteger(0);
     private static final String SFF_DEFAULT_NAME = "sff";
+    private static final String SFF_DPL_SUFFIX = "-dpl";
 
     public static ServiceFunctionForwarderBuilder buildServiceFunctionForwarder(
             PortPairGroup portPairGroup,
@@ -137,7 +140,8 @@ public class PortPairGroupTranslator {
 
         //Set management ip, same to the ovsdb  node ip
         sffBuilder.setIpMgmtAddress(sffLocator.getIp());
-
+        sffDplBuilder.setName(new SffDataPlaneLocatorName(sffBuilder.getName().getValue() + SFF_DPL_SUFFIX));
+        sffDplBuilder.setKey(new SffDataPlaneLocatorKey(sffDplBuilder.getName()));
         sffDataPlaneLocator.add(sffDplBuilder.build());
         //set SFF key
         sffBuilder.setKey(new ServiceFunctionForwarderKey(sffBuilder.getName()));
@@ -162,22 +166,21 @@ public class PortPairGroupTranslator {
 
         //NOTE: fail mode is set to Open by default
         sfdBuilder.setFailmode(Open.class);
+        sfdList.add(sfdBuilder.build());
 
         //TODO: set interface name list
 
-        for (Iterator<ServiceFunctionDictionary> sfdItr = sffBuilder.getServiceFunctionDictionary().iterator();sfdItr
-                .hasNext();) {
-            ServiceFunctionDictionary sfd = sfdItr.next();
-            if (sfd.getName().equals(sfdBuilder.getName())) {
-                LOG.info("Existing SF dictionary {} found in SFF {}, removing the SF dictionary", sfd.getName(),
-                        sffBuilder.getName());
-                sfdItr.remove();
-                break;
-            }
-        }
-        sfdList.add(sfdBuilder.build());
-
         if (sffBuilder.getServiceFunctionDictionary() != null) {
+            for (Iterator<ServiceFunctionDictionary> sfdItr = sffBuilder.getServiceFunctionDictionary().iterator();sfdItr
+                    .hasNext();) {
+                ServiceFunctionDictionary sfd = sfdItr.next();
+                if (sfd.getName().equals(sfdBuilder.getName())) {
+                    LOG.info("Existing SF dictionary {} found in SFF {}, removing the SF dictionary", sfd.getName(),
+                            sffBuilder.getName());
+                    sfdItr.remove();
+                    break;
+                }
+            }
             sffBuilder.getServiceFunctionDictionary().addAll(sfdList);
         } else {
             sffBuilder.setServiceFunctionDictionary(sfdList);
