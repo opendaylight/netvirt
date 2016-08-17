@@ -121,6 +121,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                     AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
             ingressAclDhcpv6AllowServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove,
                     AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
+            ingressAclIcmpv6AllowedTraffic(dpid, lportTag, addOrRemove);
         }
         programArpRule(dpid, lportTag, addOrRemove);
         programIngressAclFixedConntrackRule(dpid, allowedAddresses, lportTag, action, addOrRemove);
@@ -235,7 +236,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove, Integer protoPortMatchPriority) {
-        final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV6,
+        final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag);
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -244,6 +245,43 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         String flowName =
                 "Ingress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_" + "_" + dhcpMacAddress + "_Permit_";
         syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, "ACL", 0,
+                0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Add rules to ensure that certain ICMPv6 like MLD_QUERY (130), NS (135), NA (136) are allowed into the VM.
+     *
+     * @param dpId the dpid
+     * @param lportTag the lport tag
+     * @param addOrRemove is write or delete
+     */
+    private void ingressAclIcmpv6AllowedTraffic(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+
+        // Allow ICMPv6 Multicast Listener Query packets.
+        List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_MLD_QUERY,
+                0, lportTag);
+
+        String flowName =
+                "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_MLD_QUERY + "_Permit_";
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0,
+                0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+
+        // Allow ICMPv6 Neighbor Solicitation packets.
+        matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_NS, 0, lportTag);
+
+        flowName =
+                "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NS + "_Permit_";
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0,
+                0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+
+        // Allow ICMPv6 Neighbor Advertisement packets.
+        matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_NA, 0, lportTag);
+
+        flowName =
+                "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NA + "_Permit_";
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
