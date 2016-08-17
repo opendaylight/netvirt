@@ -42,21 +42,11 @@ public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Vo
         return logicalSwitchName;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.util.concurrent.Callable#call()
-     */
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-        try {
-            LOG.debug("running logical switch deleted job for {} in {}", logicalSwitchName, hwvtepNodeId);
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(HwvtepUtils.deleteLogicalSwitch(broker, hwvtepNodeId, logicalSwitchName));
-            return futures;
-        } catch (Throwable e) {
-            LOG.error("failed to delete ls ", e);
-            return null;
-        }
+        LOG.debug("running logical switch deleted job for {} in {}", logicalSwitchName, hwvtepNodeId);
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        futures.add(HwvtepUtils.deleteLogicalSwitch(broker, hwvtepNodeId, logicalSwitchName));
+        return futures;
     }
 }
