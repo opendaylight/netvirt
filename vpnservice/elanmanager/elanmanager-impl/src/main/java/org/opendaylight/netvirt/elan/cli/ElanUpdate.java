@@ -31,13 +31,9 @@ public class ElanUpdate  extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() {
-        try {
-            LOG.debug("Updating the ElanInstance command" + "\t" + elanName + "\t" + macTimeOut + "\t" + elanDescr + "\t");
-            elanProvider.updateElanInstance(elanName, macTimeOut, elanDescr);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    protected Object doExecute() throws Exception {
+        LOG.debug("Updating the ElanInstance command" + "\t" + elanName + "\t" + macTimeOut + "\t" + elanDescr + "\t");
+        elanProvider.updateElanInstance(elanName, macTimeOut, elanDescr);
         return null;
     }
 }
