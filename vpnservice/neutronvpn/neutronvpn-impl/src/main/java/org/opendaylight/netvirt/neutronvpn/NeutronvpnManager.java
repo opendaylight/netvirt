@@ -1675,8 +1675,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                             }
                         }
                     }
-                    if (network.getAugmentation(NetworkL3Extension.class) != null
-                            && network.getAugmentation(NetworkL3Extension.class).isExternal()) {
+                    if (NeutronvpnUtils.getIsExternal(network)) {
                         nvpnNatManager.addExternalNetworkToVpn(network, vpn);
                     }
                 }
@@ -1715,7 +1714,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                     "of the one given as input", nw.getValue(), vpnId.getValue()));
                         }
                     }
-                    if (network.getAugmentation(NetworkL3Extension.class).isExternal()) {
+                    if (NeutronvpnUtils.getIsExternal(network)) {
                         nvpnNatManager.removeExternalNetworkFromVpn(network);
                     }
                 }
