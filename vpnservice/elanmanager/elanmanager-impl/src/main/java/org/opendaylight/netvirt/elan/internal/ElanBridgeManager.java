@@ -214,7 +214,7 @@ public class ElanBridgeManager {
     public boolean addBridge(Node ovsdbNode, String bridgeName, String mac) {
         boolean rv = true;
         if (!southboundUtils.isBridgeOnOvsdbNode(ovsdbNode, bridgeName)
-                || southboundUtils.getBridgeFromConfig(ovsdbNode, bridgeName) == null) {
+                && southboundUtils.getBridgeFromConfig(ovsdbNode, bridgeName) == null) {
             Class<? extends DatapathTypeBase> dpType = null;
             if (isUserSpaceEnabled()) {
                 dpType = DatapathTypeNetdev.class;
