@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_a7583733",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-08-17T05:20:21Z",
+      "side": 1,
+      "message": "Change it to\n\nif (interfaceList !\u003d null \u0026\u0026 AclClusterUtil.isEntityOwner())",
+      "range": {
+        "startLine": 67,
+        "startChar": 8,
+        "endLine": 67,
+        "endChar": 68
+      },
+      "revId": "415b9214579349e43d0356ebd41c394b722bf680",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_875b7b2d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-08-17T05:20:21Z",
+      "side": 1,
+      "message": "Change it to\n\nif (interfaceList !\u003d null \u0026\u0026 AclClusterUtil.isEntityOwner())",
+      "range": {
+        "startLine": 72,
+        "startChar": 12,
+        "endLine": 72,
+        "endChar": 67
+      },
+      "revId": "415b9214579349e43d0356ebd41c394b722bf680",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
