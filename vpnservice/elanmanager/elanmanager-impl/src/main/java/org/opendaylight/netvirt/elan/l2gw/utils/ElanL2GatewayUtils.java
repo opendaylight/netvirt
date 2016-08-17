@@ -285,7 +285,7 @@ public class ElanL2GatewayUtils {
             if (ls != null) {
                 // Logical switch name is Elan name
                 String elanName = getElanFromLogicalSwitch(ls.getHwvtepNodeName().getValue());
-                return elanUtils.getElanInstanceByName(elanName);
+                return ElanUtils.getElanInstanceByName(broker, elanName);
             } else {
                 String macAddress = localUcastMac.getMacEntryKey().getValue();
                 LOG.error("Could not find logical_switch for {} being added/deleted", macAddress);
@@ -518,7 +518,7 @@ public class ElanL2GatewayUtils {
             LOG.trace("No L2 gateway devices in Elan [{}] cache.", elanName);
             return;
         }
-        final ElanInstance elan = elanUtils.getElanInstanceByName(elanName);
+        final ElanInstance elan = ElanUtils.getElanInstanceByName(broker, elanName);
         if (elan == null) {
             LOG.error("Could not find Elan by name: {}", elanName);
             return;
@@ -1030,7 +1030,7 @@ public class ElanL2GatewayUtils {
                 elanName);
 
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        ElanInstance elan = elanUtils.getElanInstanceByName(elanName);
+        ElanInstance elan = ElanUtils.getElanInstanceByName(broker, elanName);
         if (elan == null) {
             LOG.error("Could not find Elan by name: {}", elanName);
             return futures;

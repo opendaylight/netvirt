@@ -13,7 +13,6 @@ import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.utils.ElanCLIUtils;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
@@ -99,8 +98,7 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
         if (!interfaceList.isEmpty()) {
             for (String elanInterface : interfaceList) {
                 InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterface);
-                EtreeInterface etreeInterface =
-                        ElanServiceProvider.getElanutils().getEtreeInterfaceByElanInterfaceName(elanInterface);
+                EtreeInterface etreeInterface = elanProvider.getEtreeInterfaceByElanInterfaceName(elanInterface);
                 if (interfaceInfo != null) {
                     session.getConsole().println(String.format(ElanCLIUtils.ETREE_INTERFACE_CLI_FORMAT,
                             elanInstance.getElanInstanceName() + "/" + elanInstance.getElanTag(),

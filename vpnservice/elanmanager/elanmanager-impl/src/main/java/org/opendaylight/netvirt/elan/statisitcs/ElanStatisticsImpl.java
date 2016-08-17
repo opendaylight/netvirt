@@ -42,15 +42,10 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
 
     private final DataBroker dataBroker;
     private final IInterfaceManager interfaceManager;
-    private final IMdsalApiManager mdsalMgr;
-    private final ElanUtils elanUtils;
 
-    public ElanStatisticsImpl(DataBroker dataBroker, IInterfaceManager interfaceManager, IMdsalApiManager mdsalMgr,
-                              ElanUtils elanUtils) {
+    public ElanStatisticsImpl(DataBroker dataBroker, IInterfaceManager interfaceManager) {
         this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
-        this.mdsalMgr = mdsalMgr;
-        this.elanUtils = elanUtils;
     }
 
     @Override
@@ -63,13 +58,13 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
             rpcResultBuilder = RpcResultBuilder.failed();
             return getFutureWithAppErrorMessage(rpcResultBuilder, "Interface name is not provided");
         }
-        ElanInterface elanInterface = elanUtils.getElanInterfaceByElanInterfaceName(interfaceName);
+        ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(dataBroker, interfaceName);
         if (elanInterface == null) {
             rpcResultBuilder = RpcResultBuilder.failed();
             return getFutureWithAppErrorMessage(rpcResultBuilder, String.format("Interface %s is not a ELAN interface", interfaceName));
         }
         String elanInstanceName = elanInterface.getElanInstanceName();
-        ElanInstance elanInfo = elanUtils.getElanInstanceByName(elanInstanceName);
+        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(dataBroker, elanInstanceName);
         long elanTag = elanInfo.getElanTag();
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
         ServicesInfo serviceInfo = ElanUtils.getServiceInfo(elanInstanceName, elanTag, interfaceName);

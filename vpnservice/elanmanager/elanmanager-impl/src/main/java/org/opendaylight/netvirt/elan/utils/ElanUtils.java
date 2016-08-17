@@ -293,13 +293,13 @@ public class ElanUtils {
     }
 
     // elan-instances config container
-    public ElanInstance getElanInstanceByName(String elanInstanceName) {
+    public static ElanInstance getElanInstanceByName(DataBroker broker, String elanInstanceName) {
         ElanInstance elanObj = getElanInstanceFromCache(elanInstanceName);
         if (elanObj != null) {
             return elanObj;
         }
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
-        Optional<ElanInstance> elanInstance = read(broker, LogicalDatastoreType.CONFIGURATION,
+        Optional<ElanInstance> elanInstance = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
                 elanIdentifierId);
         if (elanInstance.isPresent()) {
             return elanInstance.get();
@@ -313,13 +313,13 @@ public class ElanUtils {
     }
 
     // elan-interfaces Config Container
-    public ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName) {
+    public static ElanInterface getElanInterfaceByElanInterfaceName(DataBroker broker, String elanInterfaceName) {
         ElanInterface elanInterfaceObj = getElanInterfaceFromCache(elanInterfaceName);
         if (elanInterfaceObj != null) {
             return elanInterfaceObj;
         }
         InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
-        Optional<ElanInterface> existingElanInterface = read(broker,
+        Optional<ElanInterface> existingElanInterface = MDSALUtil.read(broker,
                 LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
         if (existingElanInterface.isPresent()) {
             return existingElanInterface.get();
@@ -327,8 +327,8 @@ public class ElanUtils {
         return null;
     }
 
-    public EtreeInterface getEtreeInterfaceByElanInterfaceName(String elanInterfaceName) {
-        ElanInterface elanInterface = getElanInterfaceByElanInterfaceName(elanInterfaceName);
+    public static EtreeInterface getEtreeInterfaceByElanInterfaceName(DataBroker broker, String elanInterfaceName) {
+        ElanInterface elanInterface = getElanInterfaceByElanInterfaceName(broker, elanInterfaceName);
         return elanInterface.getAugmentation(EtreeInterface.class);
     }
 
@@ -741,8 +741,8 @@ public class ElanUtils {
         return flowEntity;
     }
 
-    private Long getElanTag(ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
-        EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(interfaceInfo.getInterfaceName());
+    private static Long getElanTag(DataBroker broker, ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
+        EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, interfaceInfo.getInterfaceName());
         if (etreeInterface == null || etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
             return elanInfo.getElanTag();
         } else { // Leaf
@@ -875,11 +875,8 @@ public class ElanUtils {
         String elanInstanceName = elanInfo.getElanInstanceName();
         List<DpnInterfaces> elanDpns = getInvolvedDpnsInElan(elanInstanceName);
         if (elanDpns != null) {
-            Long elanTag = getElanTag(elanInfo, interfaceInfo); // TODO might be
-                                                                // bug and
-                                                                // should call
-                                                                // here just
-                                                                // elanInfo.getElanTag()
+            // TODO might be bug and should call here just elanInfo.getElanTag()
+            Long elanTag = getElanTag(broker, elanInfo, interfaceInfo);
             for (DpnInterfaces elanDpn : elanDpns) {
                 if (elanDpn.getDpId().equals(dpId)) {
                     // On the local DPN set up a direct output flow
@@ -956,7 +953,7 @@ public class ElanUtils {
 
     private void installEtreeLocalDmacFlow(long elanTag, BigInteger dpId, String ifName, String macAddress,
             String displayName, IMdsalApiManager mdsalApiManager, long ifTag, WriteTransaction writeFlowGroupTx) {
-        EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(ifName);
+        EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, ifName);
         if (etreeInterface != null) {
             if (etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
                 EtreeLeafTagName etreeTagName = getEtreeLeafTagByElanTag(elanTag);
@@ -1041,7 +1038,7 @@ public class ElanUtils {
     private void setupEtreeRemoteDmacFlow(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
             String macAddress, String displayName, String interfaceName, WriteTransaction writeFlowGroupTx) {
         Flow flowEntity;
-        EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(interfaceName);
+        EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, interfaceName);
         if (etreeInterface != null) {
             if (etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
                 EtreeLeafTagName etreeTagName = getEtreeLeafTagByElanTag(elanTag);
@@ -1511,10 +1508,10 @@ public class ElanUtils {
         itmRpcService.createTerminatingServiceActions(input);
     }
 
-    public TunnelList buildInternalTunnel(DataBroker broker) {
+    public static TunnelList buildInternalTunnel(DataBroker broker) {
         InstanceIdentifier<TunnelList> tunnelListInstanceIdentifier = InstanceIdentifier.builder(TunnelList.class)
                 .build();
-        Optional<TunnelList> tunnelList = read(broker, LogicalDatastoreType.CONFIGURATION,
+        Optional<TunnelList> tunnelList = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
                 tunnelListInstanceIdentifier);
         if (tunnelList.isPresent()) {
             return tunnelList.get();
@@ -1673,7 +1670,7 @@ public class ElanUtils {
         if (interfaceName == null) {
             isRoot = true;
         } else {
-            EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(interfaceName);
+            EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, interfaceName);
             if (etreeInterface != null) {
                 if (etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
                     isRoot = true;
@@ -2090,8 +2087,8 @@ public class ElanUtils {
         return ifExternal != null && Boolean.TRUE.equals(ifExternal.isExternal());
     }
 
-    public boolean isEtreeRootInterfaceByInterfaceName(String interfaceName) {
-        EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(interfaceName);
+    public static boolean isEtreeRootInterfaceByInterfaceName(DataBroker broker, String interfaceName) {
+        EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, interfaceName);
         if (etreeInterface != null && etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
             return true;
         }

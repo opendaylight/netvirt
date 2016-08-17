@@ -141,7 +141,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                         physAddress);
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, elanMacEntryId,
                         macEntry);
-                ElanInstance elanInstance = elanUtils.getElanInstanceByName(elanName);
+                ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
                 WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
                 elanUtils.setupMacFlows(elanInstance,
                         interfaceManager.getInterfaceInfo(interfaceName),
@@ -164,7 +164,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
      * Static MAC having been added on a wrong ELAN.
      */
     private void tryAndRemoveInvalidMacEntry(String elanName, MacEntry macEntry) {
-        ElanInstance elanInfo = elanUtils.getElanInstanceByName(elanName);
+        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
         if (elanInfo == null) {
             LOG.warn(String.format("MAC %s is been added (either statically or dynamically) for an invalid Elan %s. "
                     + "Manual cleanup may be necessary", macEntry.getMacAddress(), elanName));

@@ -88,7 +88,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
             if (macEntry != null && interfaceInfo != null) {
                 WriteTransaction deleteFlowTx = broker.newWriteOnlyTransaction();
-                elanUtils.deleteMacFlows(elanUtils.getElanInstanceByName(elanTagInfo.getName()), interfaceInfo,
+                elanUtils.deleteMacFlows(ElanUtils.getElanInstanceByName(broker, elanTagInfo.getName()), interfaceInfo,
                         macEntry, deleteFlowTx);
                 ListenableFuture<Void> result = deleteFlowTx.submit();
                 addCallBack(result, srcMacAddress);
