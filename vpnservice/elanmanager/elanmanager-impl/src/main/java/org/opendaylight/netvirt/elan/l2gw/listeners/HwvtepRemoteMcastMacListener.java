@@ -94,12 +94,8 @@ public class HwvtepRemoteMcastMacListener
     }
 
     private boolean isDataPresentInOpDs(InstanceIdentifier<RemoteMcastMacs> path) throws Exception {
-        Optional<RemoteMcastMacs> mac = null;
-        try {
-            mac = elanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, path);
-        } catch (Throwable e) {
-        }
-        if (mac == null || !mac.isPresent()) {
+        Optional<RemoteMcastMacs> mac = elanUtils.read2(LogicalDatastoreType.OPERATIONAL, path);
+        if (!mac.isPresent()) {
             return false;
         }
         if (this.expectedPhyLocatorIps != null && !this.expectedPhyLocatorIps.isEmpty()) {
@@ -120,66 +116,28 @@ public class HwvtepRemoteMcastMacListener
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
-     * getWildCardPath()
-     */
     @Override
     public InstanceIdentifier<RemoteMcastMacs> getWildCardPath() {
         return HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(nodeId,
                 logicalSwitchName, new MacAddress(ElanConstants.UNKNOWN_DMAC));
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
-     * getDataChangeListener()
-     */
     @Override
     protected ClusteredDataChangeListener getDataChangeListener() {
         return HwvtepRemoteMcastMacListener.this;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
-     * getDataChangeScope()
-     */
     @Override
     protected AsyncDataBroker.DataChangeScope getDataChangeScope() {
         return AsyncDataBroker.DataChangeScope.BASE;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
-     * remove(org.opendaylight.yangtools.yang.binding.InstanceIdentifier,
-     * org.opendaylight.yangtools.yang.binding.DataObject)
-     */
     @Override
     protected void remove(InstanceIdentifier<RemoteMcastMacs> identifier, RemoteMcastMacs deleted) {
         LOG.trace("Received Remove DataChange Notification for identifier: {}, RemoteMcastMacs: {}", identifier,
                 deleted);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
-     * update(org.opendaylight.yangtools.yang.binding.InstanceIdentifier,
-     * org.opendaylight.yangtools.yang.binding.DataObject,
-     * org.opendaylight.yangtools.yang.binding.DataObject)
-     */
     @Override
     protected void update(InstanceIdentifier<RemoteMcastMacs> identifier, RemoteMcastMacs old,
             RemoteMcastMacs newdata) {
@@ -187,14 +145,6 @@ public class HwvtepRemoteMcastMacListener
                 + "No Action Performed.", identifier, old, newdata);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataChangeListenerBase#
-     * add(org.opendaylight.yangtools.yang.binding.InstanceIdentifier,
-     * org.opendaylight.yangtools.yang.binding.DataObject)
-     */
     @Override
     protected void add(InstanceIdentifier<RemoteMcastMacs> identifier, RemoteMcastMacs mcastMac) {
         LOG.debug("Received Add DataChange Notification for identifier: {}, RemoteMcastMacs: {}", identifier, mcastMac);
@@ -205,14 +155,15 @@ public class HwvtepRemoteMcastMacListener
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch") // TODO remove when using AutoCloseables
     void runTask() {
         try {
-
             String jobKey = ElanL2GatewayUtils.getL2GatewayConnectionJobKey(nodeId.getValue(), nodeId.getValue());
-            dataStoreJobCoordinator.enqueueJob(jobKey, taskToRun, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
-        } catch (Exception e) {
-            LOG.error("Failed to handle remote mcast mac - add: {}", e);
+            dataStoreJobCoordinator.enqueueJob(jobKey, taskToRun,
+                    SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         } finally {
+            // TODO https://git.opendaylight.org/gerrit/#/c/44145/
+            // AutoCloseables.closeAndLog(this);
             try {
                 close();
             } catch (Exception e) {

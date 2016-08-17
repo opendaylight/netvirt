@@ -13,6 +13,7 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipS
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
@@ -76,18 +77,19 @@ public class ElanInterfaceStateClusteredListener extends
             if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
                 final String interfaceName = intrf.getName();
 
-                ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, new Runnable() {
-                    @Override
-                    public void run() {
-                        LOG.debug("running external tunnel update job for interface {} added", interfaceName);
+                ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, () -> {
+                    LOG.debug("running external tunnel update job for interface {} added", interfaceName);
+                    try {
                         handleExternalTunnelUpdate(interfaceName, intrf);
+                    } catch (ElanException e) {
+                        LOG.error("Failed to add Interface: " + identifier.toString());
                     }
                 });
             }
         }
     }
 
-    private void handleExternalTunnelUpdate(String interfaceName, Interface update) {
+    private void handleExternalTunnelUpdate(String interfaceName, Interface update) throws ElanException {
         ExternalTunnel externalTunnel = elanUtils.getExternalTunnel(interfaceName, LogicalDatastoreType.CONFIGURATION);
         if (externalTunnel != null) {
             LOG.debug("handling external tunnel update event for ext device dst {}  src {} ",
