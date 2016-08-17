@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_478cc335",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 6242
+      },
+      "writtenOn": "2016-08-17T07:33:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_a7583733",
+      "range": {
+        "startLine": 67,
+        "startChar": 8,
+        "endLine": 67,
+        "endChar": 68
+      },
+      "revId": "415b9214579349e43d0356ebd41c394b722bf680",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_875b7b2d",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2016-08-17T05:20:21Z",
       "side": 1,
       "message": "Change it to\n\nif (interfaceList !\u003d null \u0026\u0026 AclClusterUtil.isEntityOwner())",
+      "range": {
+        "startLine": 72,
+        "startChar": 12,
+        "endLine": 72,
+        "endChar": 67
+      },
+      "revId": "415b9214579349e43d0356ebd41c394b722bf680",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a7831703",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 6242
+      },
+      "writtenOn": "2016-08-17T07:33:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_875b7b2d",
       "range": {
         "startLine": 72,
         "startChar": 12,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_6790df43",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 6242
+      },
+      "writtenOn": "2016-08-17T07:33:45Z",
+      "side": 1,
+      "message": "using utility function AclServiceUtil.containsMatchFieldType\nwill not work as it checks for same instance object using \"\u003d\u003d\", not for instance data equality using \".equals\".",
+      "parentUuid": "7a6b29fe_c7d8d381",
+      "revId": "415b9214579349e43d0356ebd41c394b722bf680",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_e7dd0f72",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
         "patchSetId": 3
@@ -76,6 +142,24 @@
       "writtenOn": "2016-08-17T06:24:26Z",
       "side": 1,
       "message": "you can use here Utility function:\nAclServiceUtil.containsMatchFieldType",
+      "revId": "415b9214579349e43d0356ebd41c394b722bf680",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4793234f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 6242
+      },
+      "writtenOn": "2016-08-17T07:33:45Z",
+      "side": 1,
+      "message": "using utility function AclServiceUtil.containsMatchFieldType\nwill not work as it checks for same instance object using \"\u003d\u003d\", not for instance data equality using \".equals\".",
+      "parentUuid": "7a6b29fe_e7dd0f72",
       "revId": "415b9214579349e43d0356ebd41c394b722bf680",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
