@@ -281,6 +281,50 @@ public final class AclServiceUtils {
     }
 
     /**
+     * Returns the DHCPv6 match.
+     *
+     * @param srcPort the source port.
+     * @param dstPort the destination port.
+     * @param lportTag the lport tag
+     * @return list of matches.
+     */
+    public static List<MatchInfoBase> buildDhcpV6Matches(int srcPort, int dstPort, int lportTag) {
+        List<MatchInfoBase> matches = new ArrayList<>(6);
+        matches.add(new MatchInfo(MatchFieldType.eth_type,
+                new long[] { NwConstants.ETHTYPE_IPV6 }));
+        matches.add(new MatchInfo(MatchFieldType.ip_proto,
+                new long[] { IPProtocols.UDP.intValue() }));
+        matches.add(new MatchInfo(MatchFieldType.udp_dst,
+                new long[] { dstPort }));
+        matches.add(new MatchInfo(MatchFieldType.udp_src,
+                new long[] { srcPort}));
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        return matches;
+    }
+
+    /**
+     * Returns the ICMPv6 match.
+     *
+     * @param icmpType the icmpv6-type.
+     * @param icmpCode the icmpv6-code.
+     * @param lportTag the lport tag
+     * @return list of matches.
+     */
+    public static List<MatchInfoBase> buildIcmpV6Matches(int icmpType, int icmpCode, int lportTag) {
+        List<MatchInfoBase> matches = new ArrayList<>(6);
+        matches.add(new MatchInfo(MatchFieldType.eth_type,
+                new long[] { NwConstants.ETHTYPE_IPV6 }));
+        matches.add(new MatchInfo(MatchFieldType.ip_proto,
+                new long[] { IPProtocols.IPV6ICMP.intValue() }));
+        if (icmpType != 0) {
+            matches.add(new MatchInfo(MatchFieldType.icmp_v6,
+                    new long[] { icmpType, icmpCode}));
+        }
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        return matches;
+    }
+
+    /**
      * Builds the service id.
      *
      * @param interfaceName the interface name
