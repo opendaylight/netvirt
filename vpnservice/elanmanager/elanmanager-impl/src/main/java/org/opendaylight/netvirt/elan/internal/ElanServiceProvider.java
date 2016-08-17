@@ -611,9 +611,12 @@ public class ElanServiceProvider implements IElanService {
                 Long segmentationId = elanInstance.getSegmentationId();
                 interfaceName = parentRef + IfmConstants.OF_URI_SEPARATOR + segmentationId;
                 String trunkName = parentRef + IfmConstants.OF_URI_SEPARATOR + "trunk";
-                interfaceManager.createVLANInterface(trunkName, parentRef, null, null, null,
-                        IfL2vlan.L2vlanMode.Trunk, true);
-
+                // trunk interface may have been created by other vlan network
+                Interface trunkInterface = ElanUtils.getInterfaceFromConfigDS(trunkName, broker);
+                if (trunkInterface == null) {
+                    interfaceManager.createVLANInterface(trunkName, parentRef, null, null, null,
+                            IfL2vlan.L2vlanMode.Trunk, true);
+                }
                 interfaceManager.createVLANInterface(interfaceName, trunkName, null, segmentationId.intValue(), null,
                         IfL2vlan.L2vlanMode.TrunkMember, true);
             }
