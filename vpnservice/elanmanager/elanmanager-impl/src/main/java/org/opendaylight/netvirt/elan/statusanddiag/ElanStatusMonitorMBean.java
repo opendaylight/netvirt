@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.statusanddiag;
 
+import javax.management.MXBean;
+
+@MXBean
 public interface ElanStatusMonitorMBean {
 
     String acquireServiceStatus();
