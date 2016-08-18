@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_485defe8",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-18T06:24:52Z",
+      "side": 1,
+      "message": "Why was the || wrong? I think the meaning of the original code is to check beyond operational and make sure it\u0027s in config as well so that even if the bridge was in operational, if it is not in config, we add it.",
+      "revId": "09cb72980921792586b413ddf93e3a6b152df57d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
