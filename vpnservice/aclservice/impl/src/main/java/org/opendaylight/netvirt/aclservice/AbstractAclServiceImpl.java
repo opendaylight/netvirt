@@ -157,7 +157,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     private void programAclWithAllowedAddress(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
                                               int lportTag, List<Uuid> aclUuidList, Action action, int addOrRemove,
                                               String portId) {
-        programFixedRules(dpId, "", allowedAddresses, lportTag, action, addOrRemove);
+        programFixedRules(dpId, "", allowedAddresses, lportTag, portId, action, addOrRemove);
         if (action == Action.ADD || action == Action.REMOVE) {
             programAclRules(aclUuidList, dpId, lportTag, addOrRemove, portId);
         }
@@ -222,11 +222,12 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param dhcpMacAddress the dhcp mac address.
      * @param allowedAddresses the allowed addresses
      * @param lportTag the lport tag
+     * @param portId the portId
      * @param action add/modify/remove action
      * @param addOrRemove addorRemove
      */
     protected abstract void programFixedRules(BigInteger dpid, String dhcpMacAddress,
-            List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action, int addOrRemove);
+            List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove);
 
     /**
      * Programs the acl custom rules.
