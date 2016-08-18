@@ -22,6 +22,30 @@
       "revId": "d115bc161fe0d562c23ae5d041778590616ca88d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b7a4dea6",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/resources/org/opendaylight/blueprint/dhcpservice-impl.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-08-18T16:45:17Z",
+      "side": 1,
+      "message": "It will be in the default path mentioned in commit msg, like other files. All this does is give a custom name instead of module-name_container-name.xml",
+      "parentUuid": "7a6b29fe_dc542123",
+      "range": {
+        "startLine": 29,
+        "startChar": 158,
+        "endLine": 29,
+        "endChar": 165
+      },
+      "revId": "d115bc161fe0d562c23ae5d041778590616ca88d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
