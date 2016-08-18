@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_e86ddb99",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-08-18T06:37:18Z",
+      "side": 1,
+      "message": "Obviously this exception is being thrown to ODL blueprint and we don\u0027t know what would be behavior of it. At least if we swallow the exception and log the error here, we can come to know the problem is with elanmanager-impl bundle bootup and can get it corrected.",
+      "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_88f547cd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/InterfaceAddWorkerOnElanInterface.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-08-18T06:37:18Z",
+      "side": 1,
+      "message": "Since this call method is invoked from DataStoreJobCoordinator, when exception is thrown to it, the job doesn\u0027t get retried again. If there are any exceptions while running this task, it has to be added into futures so that DJC can retry it again if it sees any failures in futures list.\nThis catch block is added to handle any unexpected exceptions like NullPointerException etc.",
+      "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_68cc2bbd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-08-18T06:37:18Z",
+      "side": 1,
+      "message": "If we throw ElanException for just not able to program ELAN remote dmac flow entry, then we end up in not programming most of the entries for the elan interface from ElanInterfaceManager#setupEntriesForElanInterface. Atleast if this exception is swallowed here with logging proper error message and then proceed with other operations. This enables L2 packets takes broadcasting path to reach the destined VM.\n\nThis is the main idea of why Exception being swallowed here.",
+      "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
