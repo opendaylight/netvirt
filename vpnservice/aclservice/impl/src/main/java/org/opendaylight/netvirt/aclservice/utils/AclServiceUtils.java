@@ -63,6 +63,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -507,6 +513,46 @@ public final class AclServiceUtils {
 
         }
         return updatedFlowMatchesMap;
+    }
+
+    public static Long getElanIdFromInterface(String elanInterfaceName,DataBroker broker) {
+        ElanInterface elanInterface = getElanInterfaceByElanInterfaceName(elanInterfaceName, broker);
+        if (null != elanInterface) {
+            ElanInstance elanInfo = getElanInstanceByName(elanInterface.getElanInstanceName(), broker);
+            return elanInfo.getElanTag();
+        }
+        return null;
+    }
+
+    public static ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName,DataBroker broker) {
+        InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
+        Optional<ElanInterface> existingElanInterface = read(broker,
+                LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
+        if (existingElanInterface.isPresent()) {
+            return existingElanInterface.get();
+        }
+        return null;
+    }
+
+    public static InstanceIdentifier<ElanInterface> getElanInterfaceConfigurationDataPathId(String interfaceName) {
+        return InstanceIdentifier.builder(ElanInterfaces.class)
+                .child(ElanInterface.class, new ElanInterfaceKey(interfaceName)).build();
+    }
+
+    // elan-instances config container
+    public static ElanInstance getElanInstanceByName(String elanInstanceName, DataBroker broker) {
+        InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
+        Optional<ElanInstance> elanInstance = read(broker, LogicalDatastoreType.CONFIGURATION,
+                elanIdentifierId);
+        if (elanInstance.isPresent()) {
+            return elanInstance.get();
+        }
+        return null;
+    }
+
+    public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
+        return InstanceIdentifier.builder(ElanInstances.class)
+                .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
     }
 
     private static List<MatchInfoBase> updateAAPMatches(boolean isSourceIpMacMatch, List<MatchInfoBase> flows,

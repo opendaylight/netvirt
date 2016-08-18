@@ -105,18 +105,9 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
     }
 
-    /**
-     * Program the default anti-spoofing rule and the conntrack rules.
-     *
-     * @param dpid the dpid
-     * @param dhcpMacAddress the dhcp mac address.
-     * @param allowedAddresses the allowed addresses
-     * @param lportTag the lport tag
-     * @param addOrRemove addorRemove
-     */
     @Override
     protected void programFixedRules(BigInteger dpid, String dhcpMacAddress,
-            List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action, int addOrRemove) {
+            List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove) {
         LOG.info("programFixedRules :  adding default rules.");
 
         if (action == Action.ADD || action == Action.REMOVE) {
@@ -126,17 +117,9 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             egressAclDhcpv6DropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
         }
         programArpRule(dpid, allowedAddresses, lportTag, addOrRemove);
-        programEgressAclFixedConntrackRule(dpid, allowedAddresses, lportTag, action, addOrRemove);
+        programEgressAclFixedConntrackRule(dpid, allowedAddresses, lportTag, portId, action, addOrRemove);
     }
 
-    /**
-     * Programs the custom flows.
-     *
-     * @param aclUuidList the list of acl uuid to be applied
-     * @param dpId the dpId
-     * @param lportTag the lport tag
-     * @param addOrRemove whether to delete or add flow
-     */
     @Override
     protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove, String
             portId) {
@@ -172,7 +155,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
                 flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, false);
             } else if (aceAttr.getRemoteGroupId() != null) {
                 flowMap = AclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap,
-                        false);
+                    false);
             }
         }
         if (null == flowMap) {
@@ -185,11 +168,12 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             flowName += "Egress" + lportTag + ace.getKey().getRuleName();
             flows.add(AclServiceUtils.buildLPortTagMatch(lportTag));
             flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-                    new long[] {AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
+                new long[] {AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
 
+            Long elanId = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
             List<ActionInfo> actionsInfos = new ArrayList<>();
             actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                new String[] {"1", "0", "0", "255"}, 2));
+                new String[] {"1", "0", elanId.toString(), "255"}, 2));
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
             syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY,
@@ -293,10 +277,11 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param conntrackState the conntrack state of the packets thats should be
      *        send
      * @param conntrackMask the conntrack mask
+     * @param portId the portId
      * @param addOrRemove whether to add or remove the flow
      */
     private void programConntrackRecircRules(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
-            Integer priority, String flowId, int conntrackState, int conntrackMask, int addOrRemove) {
+            Integer priority, String flowId, int conntrackState, int conntrackMask, String portId, int addOrRemove) {
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             IpPrefixOrAddress attachIp = allowedAddress.getIpAddress();
             String attachMac = allowedAddress.getMacAddress().getValue();
@@ -307,10 +292,12 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             matches.add(new MatchInfo(MatchFieldType.eth_src, new String[] {attachMac}));
             matches.addAll(AclServiceUtils.buildIpMatches(attachIp, MatchFieldType.ipv4_source));
 
+            Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
             List<InstructionInfo> instructions = new ArrayList<>();
             List<ActionInfo> actionsInfos = new ArrayList<>();
             actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                    new String[] {"0", "0", "0", Short.toString(NwConstants.INGRESS_ACL_FILTER_TABLE)}, 2));
+                    new String[] {"0", "0", elanTag.toString(), Short.toString(
+                        NwConstants.INGRESS_ACL_FILTER_TABLE)}, 2));
             instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
             String flowName = "Egress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_"
@@ -351,12 +338,14 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param dpid the dp id
      * @param allowedAddresses the allowed addresses
      * @param lportTag the lport tag
+     * @param portId the portId
+     * @param action the action
      * @param write whether to add or remove the flow.
      */
     private void programEgressAclFixedConntrackRule(BigInteger dpid, List<AllowedAddressPairs> allowedAddresses,
-            int lportTag, Action action, int write) {
+            int lportTag, String portId, Action action, int write) {
         programConntrackRecircRules(dpid, allowedAddresses, AclConstants.CT_STATE_UNTRACKED_PRIORITY,
-            "Untracked",AclConstants.UNTRACKED_CT_STATE,AclConstants.UNTRACKED_CT_STATE_MASK, write );
+            "Untracked",AclConstants.UNTRACKED_CT_STATE,AclConstants.UNTRACKED_CT_STATE_MASK, portId, write );
         LOG.info("programEgressAclFixedConntrackRule :  default connection tracking rule are added.");
     }
 }
