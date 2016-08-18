@@ -64,7 +64,7 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
             return;
         }
         for (String deviceName : devices.keySet()) {
-            session.getConsole().println("device "+ devices.get(deviceName));
+            session.getConsole().println("device " + devices.get(deviceName));
         }
     }
 
