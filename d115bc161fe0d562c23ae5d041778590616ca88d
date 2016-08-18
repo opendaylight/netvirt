@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_dc542123",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/resources/org/opendaylight/blueprint/dhcpservice-impl.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-18T15:55:15Z",
+      "side": 1,
+      "message": "does the file get found in the config directory or does it need to be in the /etc root?",
+      "range": {
+        "startLine": 29,
+        "startChar": 158,
+        "endLine": 29,
+        "endChar": 165
+      },
+      "revId": "d115bc161fe0d562c23ae5d041778590616ca88d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
