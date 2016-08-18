@@ -113,6 +113,7 @@
     <argument ref="dataBroker" />
     <argument ref="vpnInterfaceManager" />
     <argument ref="vpnSubnetRouteHandler" />
+    <argument ref="interfaceRpc" />
   </bean>
 
   <bean id="vpnSubnetRouteHandler"
