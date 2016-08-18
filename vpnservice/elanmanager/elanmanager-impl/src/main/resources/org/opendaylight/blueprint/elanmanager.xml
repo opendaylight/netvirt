@@ -124,6 +124,7 @@
     <argument ref="elanInterfaceManager" />
     <argument ref="elanStatusMonitor" />
     <argument ref="elanUtils" />
+    <argument ref="entityOwnershipService" />
   </bean>
   <service ref="elanService" odl:type="default" interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
 

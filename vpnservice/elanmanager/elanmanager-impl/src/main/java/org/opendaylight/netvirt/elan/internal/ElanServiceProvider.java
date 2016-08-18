@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.elan.internal;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,12 +18,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.exceptions.InterfaceAlreadyExistsException;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -61,6 +65,8 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+
 public class ElanServiceProvider implements IElanService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanServiceProvider.class);
@@ -79,7 +85,7 @@ public class ElanServiceProvider implements IElanService {
                                ElanInstanceManager elanInstanceManager, ElanBridgeManager bridgeMgr,
                                DataBroker dataBroker,
                                ElanInterfaceManager elanInterfaceManager,
-                               ElanStatusMonitor elanStatusMonitor, ElanUtils elanUtils) {
+                               ElanStatusMonitor elanStatusMonitor, ElanUtils elanUtils, EntityOwnershipService entityOwnershipService) {
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
         this.elanInstanceManager = elanInstanceManager;
@@ -88,6 +94,13 @@ public class ElanServiceProvider implements IElanService {
         this.elanStatusMonitor = elanStatusMonitor;
         this.elanUtils = elanUtils;
         elanInterfaceManager.setElanUtils(elanUtils);
+        try {
+            EntityOwnerUtils.registerEntityCandidateForOwnerShip(entityOwnershipService,
+                    HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                    null/*listener*/);
+        } catch (CandidateAlreadyRegisteredException e) {
+            LOG.error("failed to register the entity");
+        }
     }
 
     public void init() {
