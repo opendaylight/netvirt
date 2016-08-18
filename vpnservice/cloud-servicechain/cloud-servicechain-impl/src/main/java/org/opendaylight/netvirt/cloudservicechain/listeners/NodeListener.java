@@ -57,7 +57,10 @@ public class NodeListener extends AbstractDataChangeListener<Node> implements Au
         super(Node.class);
         this.broker = db;
         this.mdsalMgr = mdsalManager;
-        registerListener(db);
+    }
+
+    public void init() {
+        registerListener(broker);
     }
 
     private void registerListener(final DataBroker db) {
