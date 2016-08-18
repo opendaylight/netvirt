@@ -37,14 +37,14 @@ public class ElanMacTableGet extends OsgiCommandSupport {
         try {
             LOG.debug("Executing updating ElanInterface command" + "\t");
             Collection<MacEntry> macTables = elanProvider.getElanMacTable(elanName);
-            if(!macTables.isEmpty()) {
+            if (!macTables.isEmpty()) {
                 SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yy:HH:mm:ss");
                 session.getConsole().println(getMacTableHeaderOutput());
                 session.getConsole().println(elanName);
-                for(MacEntry mac : macTables) {
+                for (MacEntry mac : macTables) {
                     boolean isStatic = mac.isIsStaticAddress();
                     session.getConsole().println(String.format(ElanCLIUtils.MAC_TABLE_CLI_FORMAT, "", mac.getInterface(), mac.getMacAddress().getValue(), ""));
-                    session.getConsole().println(String.format(ElanCLIUtils.MAC_TABLE_CLI_FORMAT, "", isStatic, "", isStatic? "-" : formatter.format(new Date(mac.getControllerLearnedForwardingEntryTimestamp().longValue()))));
+                    session.getConsole().println(String.format(ElanCLIUtils.MAC_TABLE_CLI_FORMAT, "", isStatic, "", isStatic ? "-" : formatter.format(new Date(mac.getControllerLearnedForwardingEntryTimestamp().longValue()))));
                 }
             }
         } catch (Exception e) {

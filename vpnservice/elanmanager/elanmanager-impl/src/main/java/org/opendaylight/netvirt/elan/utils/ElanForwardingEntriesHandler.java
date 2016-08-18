@@ -32,7 +32,7 @@ public class ElanForwardingEntriesHandler {
     private final DataBroker broker;
     private ElanUtils elanUtils;
 
-    public ElanForwardingEntriesHandler(DataBroker dataBroker){
+    public ElanForwardingEntriesHandler(DataBroker dataBroker) {
         this.broker = dataBroker;
     }
 

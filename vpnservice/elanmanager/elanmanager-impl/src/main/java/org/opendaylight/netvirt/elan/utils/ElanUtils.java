@@ -288,6 +288,13 @@ public class ElanUtils {
         Futures.addCallback(tx.submit(), DEFAULT_CALLBACK);
     }
 
+    public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
+            InstanceIdentifier<T> path, FutureCallback<Void> callback) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.delete(datastoreType, path);
+        Futures.addCallback(tx.submit(), callback);
+    }
+
     public static InstanceIdentifier<ElanInstance> getElanInstanceIdentifier() {
         return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class).build();
     }
@@ -542,6 +549,17 @@ public class ElanUtils {
         return null;
     }
 
+    public ElanDpnInterfaces getElanDpnInterfacesList() {
+        InstanceIdentifier<ElanDpnInterfaces> elanDpnInterfaceId = InstanceIdentifier.builder(ElanDpnInterfaces.class)
+                .build();
+        Optional<ElanDpnInterfaces> existingElanDpnInterfaces = read(broker,
+                LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
+        if (existingElanDpnInterfaces.isPresent()) {
+            return existingElanDpnInterfaces.get();
+        }
+        return null;
+    }
+
     /**
      * This method is useful get all ELAN participating CSS dpIds to install
      * program remote dmac entries and updating remote bc groups for tor
@@ -595,17 +613,6 @@ public class ElanUtils {
         return isDpIdPresent;
     }
 
-    public ElanDpnInterfaces getElanDpnInterfacesList() {
-        InstanceIdentifier<ElanDpnInterfaces> elanDpnInterfaceId = InstanceIdentifier.builder(ElanDpnInterfaces.class)
-                .build();
-        Optional<ElanDpnInterfaces> existingElanDpnInterfaces = read(broker,
-                LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
-        if (existingElanDpnInterfaces.isPresent()) {
-            return existingElanDpnInterfaces.get();
-        }
-        return null;
-    }
-
     public ElanForwardingTables getElanForwardingList() {
         InstanceIdentifier<ElanForwardingTables> elanForwardingTableId = InstanceIdentifier
                 .builder(ElanForwardingTables.class).build();
@@ -634,19 +641,19 @@ public class ElanUtils {
         return null;
     }
 
-    public static long getElanLocalBCGID(long elanTag) {
+    public static long getElanLocalBCGId(long elanTag) {
         return ElanConstants.ELAN_GID_MIN + (elanTag % ElanConstants.ELAN_GID_MIN * 2 - 1);
     }
 
-    public static long getElanRemoteBCGID(long elanTag) {
+    public static long getElanRemoteBCGId(long elanTag) {
         return ElanConstants.ELAN_GID_MIN + elanTag % ElanConstants.ELAN_GID_MIN * 2;
     }
 
-    public static long getEtreeLeafLocalBCGID(long etreeLeafTag) {
+    public static long getEtreeLeafLocalBCGId(long etreeLeafTag) {
         return ElanConstants.ELAN_GID_MIN + (etreeLeafTag % ElanConstants.ELAN_GID_MIN * 2 - 1);
     }
 
-    public static long getEtreeLeafRemoteBCGID(long etreeLeafTag) {
+    public static long getEtreeLeafRemoteBCGId(long etreeLeafTag) {
         return ElanConstants.ELAN_GID_MIN + etreeLeafTag % ElanConstants.ELAN_GID_MIN * 2;
     }
 
@@ -1292,13 +1299,6 @@ public class ElanUtils {
                 String.format("%s.%s", elanInstanceName, interfaceName), serviceIndex, priority,
                 NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
         return serviceInfo;
-    }
-
-    public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
-            InstanceIdentifier<T> path, FutureCallback<Void> callback) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.delete(datastoreType, path);
-        Futures.addCallback(tx.submit(), callback);
     }
 
     public static <T extends DataObject> void syncWrite(DataBroker broker, LogicalDatastoreType datastoreType,

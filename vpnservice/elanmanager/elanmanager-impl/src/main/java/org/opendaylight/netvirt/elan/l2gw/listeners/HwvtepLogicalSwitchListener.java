@@ -53,10 +53,10 @@ public class HwvtepLogicalSwitchListener extends
     /** The l2 gateway device. */
     private L2GatewayDevice l2GatewayDevice;
 
-    /** The default vlan id. */
+    // The default vlan id
     private Integer defaultVlanId;
 
-    /** Id of L2 Gateway connection responsible for this logical switch creation */
+    // Id of L2 Gateway connection responsible for this logical switch creation
     private Uuid l2GwConnId;
 
     private final DataBroker broker;
@@ -183,7 +183,8 @@ public class HwvtepLogicalSwitchListener extends
                     logicalSwitchNew.getHwvtepNodeName().getValue(), l2GatewayDevice, l2GwConnId);
 
             LogicalSwitchAddedJob logicalSwitchAddedWorker = new LogicalSwitchAddedJob(broker, elanL2GatewayUtils,
-                    elanUtils, elanL2GatewayMulticastUtils, logicalSwitchName, physicalDevice, elanDevice, defaultVlanId);
+                    elanUtils, elanL2GatewayMulticastUtils, logicalSwitchName, physicalDevice, elanDevice,
+                    defaultVlanId);
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, logicalSwitchAddedWorker.getJobKey() ,
                     "create vlan mappings and mcast configurations",
                     logicalSwitchAddedWorker);

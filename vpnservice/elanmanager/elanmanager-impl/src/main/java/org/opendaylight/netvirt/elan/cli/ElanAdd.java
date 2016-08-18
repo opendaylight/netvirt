@@ -35,7 +35,7 @@ public class ElanAdd extends OsgiCommandSupport {
     protected Object doExecute() {
         try {
             LOG.debug("Executing create ElanInstance command" + "\t" + elanName + "\t" + macTimeOut + "\t" + elanDescr + "\t");
-            if(elanName.length()<= MAX_LENGTH) {
+            if (elanName.length() <= MAX_LENGTH) {
                 boolean isSuccess = elanProvider.createElanInstance(elanName, macTimeOut, elanDescr);
                 if (isSuccess) {
                     session.getConsole().println("Elan Instance is created successfully");
