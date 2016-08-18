@@ -78,7 +78,7 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         ElanInstance elanInstance = createElanInstance(input);
         // Create ELAN interface and IETF interfaces for the physical network
         elanService.createExternalElanNetwork(elanInstance);
-        if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
+        if (NeutronvpnUtils.getIsExternal(input)) {
             nvpnNatManager.addExternalNetwork(input);
             NeutronvpnUtils.addToNetworkCache(input);
         }
@@ -101,7 +101,7 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
             elanService.deleteExternalElanNetwork(elanInstance);
             deleteElanInstance(elanInstanceName);
         }
-        if (input.getAugmentation(NetworkL3Extension.class).isExternal()) {
+        if (NeutronvpnUtils.getIsExternal(input)) {
             nvpnNatManager.removeExternalNetwork(input);
             NeutronvpnUtils.removeFromNetworkCache(input);
         }
@@ -114,7 +114,7 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
                     update);
         }
 
-        if (update.getAugmentation(NetworkL3Extension.class).isExternal()) {
+        if (NeutronvpnUtils.getIsExternal(update)) {
             NeutronvpnUtils.addToNetworkCache(update);
         }
 

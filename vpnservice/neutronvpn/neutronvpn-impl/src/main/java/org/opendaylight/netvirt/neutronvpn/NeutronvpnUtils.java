@@ -53,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
@@ -670,14 +671,14 @@ public class NeutronvpnUtils {
     protected static boolean lock(LockManagerService lockManager, String lockName) {
         //synchronized (NeutronvpnUtils.class) {
             if (locks.get(lockName) != null) {
-				synchronized(locks) {
-					if (locks.get(lockName) != null) {
-						locks.get(lockName).getRight().incrementAndGet();
-					} else {
-						locks.putIfAbsent(lockName, new ImmutablePair<ReadWriteLock, AtomicInteger>(
-							new ReentrantReadWriteLock(), new AtomicInteger(0)));
-					}
-				}
+                synchronized(locks) {
+                    if (locks.get(lockName) != null) {
+                        locks.get(lockName).getRight().incrementAndGet();
+                    } else {
+                        locks.putIfAbsent(lockName, new ImmutablePair<ReadWriteLock, AtomicInteger>(
+                            new ReentrantReadWriteLock(), new AtomicInteger(0)));
+                    }
+                }
                 try {
                     locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
                 } catch (InterruptedException e) {
@@ -710,9 +711,9 @@ public class NeutronvpnUtils {
                     return false;
                 }
                 if (0 == locks.get(lockName).getRight().decrementAndGet()) {
-					synchronized(locks) {
-						locks.remove(lockName);
-					}
+                    synchronized(locks) {
+                        locks.remove(lockName);
+                    }
                 }
             }
         //}
@@ -841,6 +842,11 @@ public class NeutronvpnUtils {
         InstanceIdentifier<VpnPortipToPort> id = InstanceIdentifier.builder(NeutronVpnPortipPortData.class).child
                 (VpnPortipToPort.class, new VpnPortipToPortKey(fixedIp, vpnName)).build();
         return id;
+    }
+
+    static Boolean getIsExternal(Network network) {
+        return network.getAugmentation(NetworkL3Extension.class) != null
+                && network.getAugmentation(NetworkL3Extension.class).isExternal();
     }
 
     static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {
