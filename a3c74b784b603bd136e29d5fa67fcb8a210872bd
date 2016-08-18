@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_689b8b67",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-08-18T07:29:06Z",
+      "side": 1,
+      "message": "I think that the outcome is that the bundle will fail to start, and this is probably what we want here?",
+      "parentUuid": "7a6b29fe_e86ddb99",
+      "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_88f547cd",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/InterfaceAddWorkerOnElanInterface.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-08-18T06:37:18Z",
       "side": 1,
       "message": "Since this call method is invoked from DataStoreJobCoordinator, when exception is thrown to it, the job doesn\u0027t get retried again. If there are any exceptions while running this task, it has to be added into futures so that DJC can retry it again if it sees any failures in futures list.\nThis catch block is added to handle any unexpected exceptions like NullPointerException etc.",
+      "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_28919347",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/InterfaceAddWorkerOnElanInterface.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-08-18T07:29:06Z",
+      "side": 1,
+      "message": "Peri, DSJC calling code is:\ntry {\n                futures \u003d jobEntry.getMainWorker().call();\n            } catch (Exception e){\n                LOG.error(\"Exception when executing jobEntry: {}, exception: {}\", jobEntry, e.getStackTrace());\n                e.printStackTrace();\n            }\n\nSo it seems more reasonable that the caller of the task, i.e., DSJC, will decide what to do with a NPE, and not the task itself. With the current exception swallowing, DSJC can\u0027t even be aware of that.",
+      "parentUuid": "7a6b29fe_88f547cd",
       "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
