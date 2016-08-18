@@ -78,6 +78,7 @@ public class DhcpManager {
         if (config.isControllerDhcpEnabled()) {
             dhcpInterfaceEventListener = new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager);
             dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager);
+            logger.info("DHCP Service initialized");
         }
     }
 
@@ -88,6 +89,7 @@ public class DhcpManager {
         if (dhcpInterfaceConfigListener != null) {
             dhcpInterfaceConfigListener.close();
         }
+        logger.info("DHCP Service closed");
     }
 
     public int setLeaseDuration(int leaseDuration) {
