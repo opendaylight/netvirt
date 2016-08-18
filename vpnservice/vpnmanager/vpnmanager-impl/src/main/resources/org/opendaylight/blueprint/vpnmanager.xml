@@ -99,11 +99,12 @@
 
   <bean id="arpNotificationHandler"
         class="org.opendaylight.netvirt.vpnmanager.ArpNotificationHandler">
-    <argument ref="vpnInterfaceManager" />
     <argument ref="dataBroker" />
+    <argument ref="vpnInterfaceManager" />
     <argument ref="elanService" />
     <argument ref="idManagerService" />
     <argument ref="odlArputilService" />
+    <argument ref="odlInterfaceRpcService" />
   </bean>
   <service ref="arpNotificationHandler" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener" />
