@@ -58,7 +58,8 @@ public class OvsdbMdsalHelper {
         return getOvsdbPortMetadata(ingressPort, ovsdbTopology);
     }
     public OvsdbPortMetadata getOvsdbPortMetadata(Uuid ingressPort, Topology ovsdbTopology) {
-        LOG.info("Extract ovsdb port details for neutron port {}", ingressPort.getValue());
+        LOG.debug("Extract ovsdb port details for neutron port {} from Topology {}",
+                ingressPort.getValue(), ovsdbTopology);
         OvsdbPortMetadata ovsdbPortMetadata = new OvsdbPortMetadata();
         OvsdbBridgeAugmentation bridgeAugmentation = null;
         if (ovsdbTopology != null) {
@@ -69,14 +70,17 @@ public class OvsdbMdsalHelper {
                         OvsdbTerminationPointAugmentation tpAugmentation
                                 = tp.getAugmentation(OvsdbTerminationPointAugmentation.class);
                         List<InterfaceExternalIds> externalIds = tpAugmentation.getInterfaceExternalIds();
-                        for (InterfaceExternalIds externalId : externalIds) {
-                            if(externalId.getExternalIdValue().equals(ingressPort.getValue())) {
-                                ovsdbPortMetadata.setOvsdbPort(tpAugmentation);
+                        if (externalIds != null ) {
+                            for (InterfaceExternalIds externalId : externalIds) {
+                                if(externalId.getExternalIdValue().equals(ingressPort.getValue())) {
+                                    LOG.info("OVSDB port found for neutron port {} : {}", ingressPort, tpAugmentation);
+                                    ovsdbPortMetadata.setOvsdbPort(tpAugmentation);
+                                    break;
+                                }
+                            }
+                            if (ovsdbPortMetadata.getOvsdbPort() != null) {
                                 break;
                             }
-                        }
-                        if (ovsdbPortMetadata.getOvsdbPort() != null) {
-                            break;
                         }
                     }
                 }
@@ -109,7 +113,7 @@ public class OvsdbMdsalHelper {
         } else {
             LOG.warn("OVSDB Operational topology not avaialble.");
         }
-        LOG.info("Neutron port's {} respective Ovsdb metadata {}", ovsdbPortMetadata);
+        LOG.info("Neutron port's {} respective Ovsdb metadata {}", ingressPort, ovsdbPortMetadata);
         return ovsdbPortMetadata;
     }
 
