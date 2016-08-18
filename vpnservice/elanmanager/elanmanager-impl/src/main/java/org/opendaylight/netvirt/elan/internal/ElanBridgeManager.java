@@ -34,7 +34,6 @@ public class ElanBridgeManager {
 
     public static final String PROVIDER_MAPPINGS_KEY = "provider_mappings";
     private static final String INTEGRATION_BRIDGE = "br-int";
-    private static final String EXTERNAL_BRIDGE = "br-ex";
     private static final String INT_SIDE_PATCH_PORT_SUFFIX = "-expatch";
     private static final String EX_SIDE_PATCH_PORT_SUFFIX = "-patch";
 
@@ -176,8 +175,6 @@ public class ElanBridgeManager {
 
         try {
             createIntegrationBridge(ovsdbNode, generateIntBridgeMac);
-            //TODO: Get rid of this:
-            createExternalBridge(ovsdbNode);
         } catch (Exception e) {
             LOG.error("Error creating bridge on " + ovsdbNode, e);
         }
@@ -188,15 +185,6 @@ public class ElanBridgeManager {
         if (!addBridge(ovsdbNode, INTEGRATION_BRIDGE,
                 generateIntBridgeMac ? generateRandomMac() : null)) {
             LOG.warn("Integration Bridge Creation failed");
-            return false;
-        }
-        return true;
-    }
-
-    private boolean createExternalBridge(Node ovsdbNode) {
-        LOG.debug("ElanBridgeManager.createExternalBridge, skipping if exists");
-        if (!addBridge(ovsdbNode, EXTERNAL_BRIDGE, null)) {
-            LOG.warn("External Bridge Creation failed");
             return false;
         }
         return true;
