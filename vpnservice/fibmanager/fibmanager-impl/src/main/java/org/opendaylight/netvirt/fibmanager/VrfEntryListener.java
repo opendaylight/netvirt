@@ -223,7 +223,6 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
         }
         LOG.debug("REMOVE: Removed Fib Entry rd {} prefix {} nexthop {} label {}",
                 rd, vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(), vrfEntry.getLabel());
-        leakRouteIfNeeded(identifier, vrfEntry, NwConstants.DEL_FLOW);
     }
 
     @Override
