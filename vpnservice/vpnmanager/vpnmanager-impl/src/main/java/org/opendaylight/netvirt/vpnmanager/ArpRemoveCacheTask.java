@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -20,11 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -34,17 +28,17 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 
-public class ArpremovechacheTask implements Callable<List<ListenableFuture<Void>>> {
+public class ArpRemoveCacheTask implements Callable<List<ListenableFuture<Void>>> {
     DataBroker dataBroker;
     String fixedip;
     String vpnName;
     String interfaceName;
     String rd;
     InstanceIdentifier<VpnPortipToPort> id;
-    private static final Logger LOG = LoggerFactory.getLogger(ArpremovechacheTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ArpRemoveCacheTask.class);
 
-    public ArpremovechacheTask(DataBroker dataBroker, String fixedip, String vpnName, String interfaceName, String rd,
-                               InstanceIdentifier<VpnPortipToPort> id) {
+    public ArpRemoveCacheTask(DataBroker dataBroker, String fixedip, String vpnName, String interfaceName, String rd,
+                              InstanceIdentifier<VpnPortipToPort> id) {
         super();
         this.fixedip = fixedip;
         this.vpnName = vpnName;
@@ -57,31 +51,32 @@ public class ArpremovechacheTask implements Callable<List<ListenableFuture<Void>
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-        synchronized ((vpnName + fixedip).intern()) {
-            deleteAdjacencies(fixedip, vpnName, interfaceName, tx);
-            tx.delete(LogicalDatastoreType.OPERATIONAL, id);
-            CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
-            try {
-                futures.get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Error writing to datastore {}", e);
-            }
+        removeMipAdjacency(fixedip, vpnName, interfaceName, tx);
+        VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, fixedip);
+        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        try {
+            futures.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error writing to datastore {}", e);
         }
         return null;
     }
 
- public void deleteAdjacencies(String fixedip, String vpnName, String interfaceName, WriteTransaction tx) {
-       InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-       InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
-       Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
-       if (adjacencies.isPresent()) {
-           InstanceIdentifier <Adjacency> adid = vpnIfId.augmentation(Adjacencies.class).child(Adjacency.class, new AdjacencyKey(iptoprefix(fixedip)));
-           tx.delete(LogicalDatastoreType.CONFIGURATION, adid);
-           LOG.info("deleting the adjacencies for vpn {} interface {}", vpnName, interfaceName);
+    private void removeMipAdjacency(String fixedip, String vpnName, String interfaceName, WriteTransaction tx) {
+        synchronized (interfaceName.intern()) {
+            InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
+            InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
+            Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
+            if (adjacencies.isPresent()) {
+                InstanceIdentifier<Adjacency> adid = vpnIfId.augmentation(Adjacencies.class).child(Adjacency.class,
+                        new AdjacencyKey(iptoprefix(fixedip)));
+                tx.delete(LogicalDatastoreType.CONFIGURATION, adid);
+                LOG.info("deleting the adjacencies for vpn {} interface {}", vpnName, interfaceName);
+            }
         }
- }
+    }
 
-    private String iptoprefix(String ip){
+    private String iptoprefix(String ip) {
         return new StringBuilder(ip).append(ArpConstants.PREFIX).toString();
 
     }
