@@ -19,16 +19,16 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-public class ArpaddchacheTask implements Callable<List<ListenableFuture<Void>>> {
+public class ArpAddCacheTask implements Callable<List<ListenableFuture<Void>>> {
     InetAddress srcInetAddr;
     MacAddress srcMacAddress;
     String vpnName;
     String interfaceName;
     DelayQueue<MacEntry> macEntryQueue;
-    private static final Logger LOG = LoggerFactory.getLogger(ArpaddchacheTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ArpAddCacheTask.class);
 
-    public ArpaddchacheTask(InetAddress srcInetAddr, MacAddress srcMacAddress, String vpnName, String interfaceName,
-                            DelayQueue<MacEntry> macEntryQueue) {
+    public ArpAddCacheTask(InetAddress srcInetAddr, MacAddress srcMacAddress, String vpnName, String interfaceName,
+                           DelayQueue<MacEntry> macEntryQueue) {
         super();
         this.srcInetAddr = srcInetAddr;
         this.srcMacAddress = srcMacAddress;
@@ -46,8 +46,10 @@ public class ArpaddchacheTask implements Callable<List<ListenableFuture<Void>>> 
         return futures;
     }
 
-    public  void addOrUpdateMacEntryToQueue(String vpnName, MacAddress macAddress,InetAddress InetAddress, String interfaceName) {
-        MacEntry newMacEntry = new MacEntry(ArpConstants.ARP_CACHE_TIMEOUT_MILLIS,vpnName,macAddress, InetAddress,interfaceName );
+    private void addOrUpdateMacEntryToQueue(String vpnName, MacAddress macAddress,InetAddress InetAddress, String
+            interfaceName) {
+        MacEntry newMacEntry = new MacEntry(ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, vpnName, macAddress, InetAddress,
+                interfaceName);
         if (!macEntryQueue.contains(newMacEntry)) {
             LOG.info("Adding ARP cache");
             macEntryQueue.offer(newMacEntry);
