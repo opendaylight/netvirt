@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_8296bb4a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-08-19T09:39:32Z",
+      "side": 1,
+      "message": "Shall we rename this to getElanTagFromInterface to keep it uniform and the reference variables as elanTag ?",
+      "range": {
+        "startLine": 518,
+        "startChar": 23,
+        "endLine": 518,
+        "endChar": 45
+      },
+      "revId": "90104d38f48c020e8cea8179af6eae988a65179b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
