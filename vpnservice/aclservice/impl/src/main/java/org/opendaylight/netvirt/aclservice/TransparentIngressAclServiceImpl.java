@@ -34,7 +34,7 @@ public class TransparentIngressAclServiceImpl extends IngressAclServiceImpl {
 
     @Override
     protected void programFixedRules(BigInteger dpid, String dhcpMacAddress, List<AllowedAddressPairs> allowedAddresses,
-            int lportTag, Action action, int addOrRemove) {
+            int lportTag, String portId, Action action, int addOrRemove) {
     }
 
     @Override
