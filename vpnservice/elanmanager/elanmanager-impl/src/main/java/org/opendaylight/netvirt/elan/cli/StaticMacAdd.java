@@ -21,7 +21,8 @@ public class StaticMacAdd extends OsgiCommandSupport {
     private String elanName;
     @Argument(index = 1, name = "interfaceName", description = "InterfaceName", required = true, multiValued = false)
     private String interfaceName;
-    @Argument(index = 2, name = "staticMacAddress", description = "StaticMacAddress", required = true, multiValued = false)
+    @Argument(index = 2, name = "staticMacAddress", description = "StaticMacAddress", required = true,
+            multiValued = false)
     private String staticMacAddress;
     private static final Logger LOG = LoggerFactory.getLogger(StaticMacAdd.class);
     private IElanService elanProvider;
@@ -31,13 +32,10 @@ public class StaticMacAdd extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() {
-        try {
-            LOG.debug("Executing create ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t" + staticMacAddress + "\t");
-            elanProvider.addStaticMacAddress(elanName, interfaceName, staticMacAddress);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    protected Object doExecute() throws Exception {
+        LOG.debug("Executing create ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
+                + staticMacAddress + "\t");
+        elanProvider.addStaticMacAddress(elanName, interfaceName, staticMacAddress);
         return null;
     }
 }

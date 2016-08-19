@@ -19,7 +19,6 @@ import org.opendaylight.genius.interfacemanager.globals.VlanInterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius._interface.statistics.rev150824.ResultCode;
