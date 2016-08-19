@@ -746,15 +746,30 @@ public class NeutronvpnUtils {
         VpnPortipToPortBuilder builder = new VpnPortipToPortBuilder().setKey(new VpnPortipToPortKey(fixedIp, vpnName)
         ).setVpnName(vpnName).setPortFixedip(fixedIp).setPortName(portName).setMacAddress(macAddress).setSubnetIp
                 (isSubnetIp).setConfig(isConfig).setLearnt(isLearnt);
-        MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
-        logger.debug("Neutron port with fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to " +
-                "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress, isSubnetIp);
+        try {
+            synchronized ((vpnName + fixedIp).intern()) {
+                MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
+            }
+            logger.trace("Neutron port with fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to " +
+                    "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress, isSubnetIp);
+        } catch (Exception e) {
+            logger.error("Failure while creating VPNPortFixedIpToPort map for vpn {} - fixedIP {}", vpnName, fixedIp,
+                    e);
+        }
     }
 
     protected static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp) {
         InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(vpnName, fixedIp);
-        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
-        logger.debug("Neutron router port with fixedIp: {}, vpn {} removed from VpnPortipToPort DS", fixedIp, vpnName);
+        try {
+            synchronized ((vpnName + fixedIp).intern()) {
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
+            }
+            logger.trace("Neutron router port with fixedIp: {}, vpn {} removed from VpnPortipToPort DS", fixedIp,
+                    vpnName);
+        } catch (Exception e) {
+            logger.error("Failure while removing VPNPortFixedIpToPort map for vpn {} - fixedIP {}", vpnName, fixedIp,
+                    e);
+        }
     }
 
     public static void addToNetworkCache(Network network) {
