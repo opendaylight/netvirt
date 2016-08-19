@@ -10,7 +10,10 @@ package org.opendaylight.netvirt.aclservice.listeners;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -28,6 +31,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEventListener> implements
         ClusteredDataTreeChangeListener<Acl> {
 
@@ -35,15 +39,25 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
     private final AclServiceManager aclServiceManager;
     private final DataBroker dataBroker;
 
+    @Inject
     public AclEventListener(final AclServiceManager aclServiceManager, DataBroker dataBroker) {
         super(Acl.class, AclEventListener.class);
         this.aclServiceManager = aclServiceManager;
         this.dataBroker = dataBroker;
     }
 
+    @PostConstruct
+    // TODO new interface Lifecyle
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+    }
+
+    @Override
+    @PreDestroy
+    // TODO make AsyncDataTreeChangeListenerBase implement new interface Lifecyle
+    public void close() throws Exception {
+        super.close();
     }
 
     @Override

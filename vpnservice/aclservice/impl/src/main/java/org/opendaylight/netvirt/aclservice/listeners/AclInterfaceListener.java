@@ -8,7 +8,10 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import java.util.List;
-
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -27,6 +30,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interface, AclInterfaceListener>
         implements ClusteredDataTreeChangeListener<Interface> {
     private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceListener.class);
@@ -34,15 +38,23 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     private final AclServiceManager aclServiceManager;
     private final DataBroker dataBroker;
 
+    @Inject
     public AclInterfaceListener(final AclServiceManager aclServiceManager, final DataBroker dataBroker) {
         super(Interface.class, AclInterfaceListener.class);
         this.aclServiceManager = aclServiceManager;
         this.dataBroker = dataBroker;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+    }
+
+    @PreDestroy
+    @Override
+    public void close() throws Exception {
+        super.close();
     }
 
     @Override
@@ -62,8 +74,8 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
 
         InterfaceAcl aclInPortAfter = portAfter.getAugmentation(InterfaceAcl.class);
         InterfaceAcl aclInPortBefore = portBefore.getAugmentation(InterfaceAcl.class);
-        if ((aclInPortAfter != null && aclInPortAfter.isPortSecurityEnabled())
-                || (aclInPortBefore != null && aclInPortBefore.isPortSecurityEnabled())) {
+        if (aclInPortAfter != null && aclInPortAfter.isPortSecurityEnabled()
+                || aclInPortBefore != null && aclInPortBefore.isPortSecurityEnabled()) {
             String interfaceId = portAfter.getName();
             AclInterface aclInterface = null;
             if (aclInPortBefore == null) {
