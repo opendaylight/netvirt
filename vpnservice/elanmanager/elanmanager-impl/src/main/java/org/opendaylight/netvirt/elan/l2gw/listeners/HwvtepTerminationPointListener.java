@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.genius.utils.hwvtep.HACacheUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,6 +122,10 @@ public class HwvtepTerminationPointListener
 
     @Override
     protected void remove(InstanceIdentifier<TerminationPoint> identifier, TerminationPoint del) {
+        String nodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (HACacheUtils.isHAEnabledDevice(nodeId)) {
+            return;
+        }
         LOG.trace("physical locator removed {}", identifier);
         teps.remove(identifier);
     }
@@ -133,6 +138,10 @@ public class HwvtepTerminationPointListener
 
     @Override
     protected void add(InstanceIdentifier<TerminationPoint> identifier, final TerminationPoint add) {
+        String nodeIdVal = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (HACacheUtils.isHAEnabledDevice(nodeIdVal)) {
+            return;
+        }
         final HwvtepPhysicalPortAugmentation portAugmentation =
                 add.getAugmentation(HwvtepPhysicalPortAugmentation.class);
         if (portAugmentation != null) {

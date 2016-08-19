@@ -16,6 +16,8 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataCh
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.genius.utils.hwvtep.HACacheUtils;
+import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
@@ -73,6 +75,10 @@ public class DhcpHwvtepListener extends AbstractDataChangeListener<Node> impleme
     @Override
     protected void remove(InstanceIdentifier<Node> identifier,
             Node del) {
+        String nodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (HACacheUtils.isHAEnabledDevice(nodeId)) {
+            return;
+        }
         logger.trace("Received Hwvtep remove DCN {}", del);
         HwvtepGlobalAugmentation hwvtepNode = del.getAugmentation(HwvtepGlobalAugmentation.class);
         if (hwvtepNode == null) {

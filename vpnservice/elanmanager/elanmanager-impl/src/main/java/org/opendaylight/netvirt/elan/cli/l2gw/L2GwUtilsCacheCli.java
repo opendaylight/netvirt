@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.elan.cli.l2gw;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
@@ -16,6 +17,7 @@ import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
+import org.opendaylight.genius.utils.hwvtep.HACacheUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +51,9 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
                 case L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME:
                     dumpL2GwCache();
                     break;
+                case HACacheUtils.HA_CACHE_NAME:
+                    dumpHACache();
+                    break;
             }
         } catch (Exception e) {
         }
@@ -56,6 +61,13 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
         return null;
     }
 
+    private void dumpHACache() {
+        System.out.println("HA enabled nodes");
+        Map<String,String> cache = (Map<String,String>)CacheUtil.getCache(HACacheUtils.HA_CACHE_NAME);
+        for (String key : cache.keySet()) {
+            System.out.println(key);
+        }
+    }
     private void dumpL2GwCache() {
         ConcurrentMap<String, L2GatewayDevice> devices = (ConcurrentMap<String, L2GatewayDevice>) CacheUtil
                 .getCache(L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME);

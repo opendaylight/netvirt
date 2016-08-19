@@ -22,11 +22,15 @@ import java.util.stream.Collectors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Class L2GatewayDevice.
  */
 public class L2GatewayDevice {
+
+    Logger LOG = LoggerFactory.getLogger(L2GatewayDevice.class);
 
     /** The device name. */
     String deviceName;
@@ -80,7 +84,7 @@ public class L2GatewayDevice {
      * @param nodeId
      *            the new hwvtep node id
      */
-    public void setHwvtepNodeId(String nodeId) {
+    public synchronized void setHwvtepNodeId(String nodeId) {
         this.hwvtepNodeId = nodeId;
     }
 
@@ -197,6 +201,9 @@ public class L2GatewayDevice {
 
     public void setConnected(boolean connected) {
         this.connected.set(connected);
+        if (false == connected && hwvtepNodeId != null) {
+            LOG.error("Device disconnected {}",hwvtepNodeId);
+        }
     }
 
     /*
@@ -294,7 +301,9 @@ public class L2GatewayDevice {
 
         StringBuilder builder = new StringBuilder();
         builder.append("L2GatewayDevice [deviceName=").append(deviceName).append(", hwvtepNodeId=").append(hwvtepNodeId)
-                .append(", tunnelIps=").append(lstTunnelIps).append(", l2GatewayIds=").append(l2GatewayIds)
+                .append(", tunnelIps=").append(lstTunnelIps)
+                .append(", connected=").append(connected)
+                .append(", l2GatewayIds=").append(l2GatewayIds)
                 .append(", ucastLocalMacs=").append(lstMacs).append("]");
         return builder.toString();
     }

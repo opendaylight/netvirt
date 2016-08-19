@@ -18,6 +18,7 @@ import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.genius.utils.hwvtep.HACacheUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -55,6 +56,10 @@ public class HwvtepLocalUcastMacListener extends
 
     @Override
     protected void remove(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs macRemoved) {
+        String nodeIdVal = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (HACacheUtils.isHAEnabledDevice(nodeIdVal)) {
+            return;
+        }
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         String macAddress = macRemoved.getMacEntryKey().getValue();
 
@@ -89,6 +94,10 @@ public class HwvtepLocalUcastMacListener extends
 
     @Override
     protected void add(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs macAdded) {
+        String nodeIdVal = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (HACacheUtils.isHAEnabledDevice(nodeIdVal)) {
+            return;
+        }
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         String macAddress = macAdded.getMacEntryKey().getValue();
 

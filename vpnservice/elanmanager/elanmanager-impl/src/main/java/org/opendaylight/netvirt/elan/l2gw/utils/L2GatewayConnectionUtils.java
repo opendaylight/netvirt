@@ -279,6 +279,9 @@ public class L2GatewayConnectionUtils {
     }
 
     protected static boolean isLastL2GwConnBeingDeleted(L2GatewayDevice l2GwDevice) {
+        if (l2GwDevice.getL2GatewayIds() == null) {
+            return true;
+        }
         return (l2GwDevice.getL2GatewayIds().size() == 1);
     }
 }
