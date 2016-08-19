@@ -8,7 +8,10 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import java.util.List;
-
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -29,6 +32,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<Interface,
         AclInterfaceStateListener> implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable {
 
@@ -45,15 +49,23 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
      * Initialize the member variables.
      * @param aclServiceManger the AclServiceManager instance.
      */
+    @Inject
     public AclInterfaceStateListener(AclServiceManager aclServiceManger, DataBroker dataBroker) {
         super(Interface.class, AclInterfaceStateListener.class);
         this.aclServiceManger = aclServiceManger;
         this.dataBroker = dataBroker;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+    }
+
+    @PreDestroy
+    @Override
+    public void close() throws Exception {
+        super.close();
     }
 
     @Override

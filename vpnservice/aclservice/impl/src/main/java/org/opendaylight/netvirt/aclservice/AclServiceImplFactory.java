@@ -7,6 +7,10 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
@@ -15,7 +19,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Singleton
 public class AclServiceImplFactory implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceImplFactory.class);
@@ -25,6 +29,7 @@ public class AclServiceImplFactory implements AutoCloseable {
     private IMdsalApiManager mdsalManager;
     private SecurityGroupMode securityGroupMode;
 
+    @Inject
     public AclServiceImplFactory(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclserviceConfig config) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -39,10 +44,12 @@ public class AclServiceImplFactory implements AutoCloseable {
                 .create(AclserviceConfig.class);
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
     }
 
+    @PreDestroy
     @Override
     public void close() throws Exception {
         LOG.info("{} close", getClass().getSimpleName());
