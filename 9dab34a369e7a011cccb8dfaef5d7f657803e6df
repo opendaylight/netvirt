@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_1f404855",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestModule.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-08-19T07:14:54Z",
+      "side": 1,
+      "message": "This has been merged, any chance you could rework this patch to use it?",
+      "revId": "9dab34a369e7a011cccb8dfaef5d7f657803e6df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
