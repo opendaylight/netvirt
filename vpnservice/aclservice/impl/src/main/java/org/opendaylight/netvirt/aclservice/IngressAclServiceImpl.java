@@ -101,18 +101,9 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
     }
 
-    /**
-     * Program the default anti-spoofing rule and the conntrack rules.
-     *
-     * @param dpid the dpid
-     * @param dhcpMacAddress the dhcp mac address.
-     * @param allowedAddresses the allowed addresses
-     * @param lportTag the lport tag
-     * @param addOrRemove add or remove the flow
-     */
     @Override
     protected void programFixedRules(BigInteger dpid, String dhcpMacAddress, List<AllowedAddressPairs> allowedAddresses,
-            int lportTag, Action action, int addOrRemove) {
+            int lportTag, String portId, Action action, int addOrRemove) {
         LOG.info("programFixedRules :  adding default rules.");
 
         if (action == Action.ADD || action == Action.REMOVE) {
@@ -123,17 +114,9 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             ingressAclIcmpv6AllowedTraffic(dpid, lportTag, addOrRemove);
         }
         programArpRule(dpid, lportTag, addOrRemove);
-        programIngressAclFixedConntrackRule(dpid, allowedAddresses, lportTag, action, addOrRemove);
+        programIngressAclFixedConntrackRule(dpid, allowedAddresses, portId, action, addOrRemove);
     }
 
-    /**
-     * Programs the custom flows.
-     *
-     * @param aclUuidList the list of SG uuid to be applied
-     * @param dpId the dpId
-     * @param lportTag the lport tag
-     * @param addOrRemove whether to delete or add flow
-     */
     @Override
     protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove, String
             portId) {
@@ -188,9 +171,10 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
                     new long[] {AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
 
+            Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
             List<ActionInfo> actionsInfos = new ArrayList<>();
             actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                new String[] {"1", "0", "0", "255"}, 2));
+                new String[] {"1", "0", elanTag.toString(), "255"}, 2));
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
             syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY,
@@ -233,7 +217,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove, Integer protoPortMatchPriority) {
-        final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_SERVER_PORT_IPV6,
+        final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag);
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -293,10 +277,11 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param conntrackState the conntrack state of the packets thats should be
      *        send
      * @param conntrackMask the conntrack mask
+     * @param portId the portId
      * @param addOrRemove whether to add or remove the flow
      */
     private void programConntrackRecircRules(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
-            Integer priority, String flowId, int conntrackState, int conntrackMask, int addOrRemove) {
+            Integer priority, String flowId, int conntrackState, int conntrackMask, String portId, int addOrRemove) {
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             IpPrefixOrAddress attachIp = allowedAddress.getIpAddress();
             String attachMac = allowedAddress.getMacAddress().getValue();
@@ -310,8 +295,10 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             List<InstructionInfo> instructions = new ArrayList<>();
             List<ActionInfo> actionsInfos = new ArrayList<>();
 
+            Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
             actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                    new String[] {"0", "0", "0", Short.toString(NwConstants.EGRESS_ACL_FILTER_TABLE)}, 2));
+                    new String[] {"0", "0", elanTag.toString(), Short.toString(
+                        NwConstants.EGRESS_ACL_FILTER_TABLE)}, 2));
             instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
             String flowName = "Ingress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_"
                     + String.valueOf(attachIp.getValue()) + "_" + flowId;
@@ -380,13 +367,13 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      *
      * @param dpid the dp id
      * @param allowedAddresses the allowed addresses
-     * @param lportTag the lport tag
+     * @param portId the portId
      * @param write whether to add or remove the flow.
      */
     private void programIngressAclFixedConntrackRule(BigInteger dpid, List<AllowedAddressPairs> allowedAddresses,
-            int lportTag, Action action, int write) {
+            String portId, Action action, int write) {
         programConntrackRecircRules(dpid, allowedAddresses, AclConstants.CT_STATE_UNTRACKED_PRIORITY,
-            "Untracked", AclConstants.UNTRACKED_CT_STATE, AclConstants.UNTRACKED_CT_STATE_MASK, write);
+            "Untracked", AclConstants.UNTRACKED_CT_STATE, AclConstants.UNTRACKED_CT_STATE_MASK, portId, write);
         programConntrackTrackedRule(dpid, allowedAddresses, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Tracked",
                 AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK, write);
         LOG.info("programIngressAclFixedConntrackRule :  default connection tracking rule are added.");
