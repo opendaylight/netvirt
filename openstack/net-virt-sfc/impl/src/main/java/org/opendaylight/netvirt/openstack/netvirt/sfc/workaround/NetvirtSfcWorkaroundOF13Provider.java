@@ -43,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ConnectionInfo;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.osgi.framework.ServiceReference;
@@ -319,9 +320,9 @@ public class NetvirtSfcWorkaroundOF13Provider implements INetvirtSfcOF13Provider
         Ip ip = sfcUtils.getSffIp(serviceFunctionForwarder);
         Node ovsdbNode = southbound.readOvsdbNode(bridgeNode);
         if (ovsdbNode != null) {
-            localIp = getLocalip(ovsdbNode);
+            localIp = getRemoteIp(ovsdbNode);
         }
-        LOG.info("isSffOnBridge: {}: {}, localIp: {}, sff ip: {}",
+        LOG.info("isSffOnBridge: {}: {}, localIp/remoteIp: {}, sff ip: {}",
                 bridgeNode.getNodeId().getValue(),
                 localIp.equals(String.valueOf(ip.getIp().getValue())),
                 localIp, ip.getIp().getValue());
@@ -342,6 +343,20 @@ public class NetvirtSfcWorkaroundOF13Provider implements INetvirtSfcOF13Provider
             localIp = "";
         }
         return localIp;
+    }
+
+    private String getRemoteIp(Node ovsdbNode) {
+        Preconditions.checkNotNull(ovsdbNode, "The ovsdbNode was null");
+        String ip = null;
+        OvsdbNodeAugmentation ovsdbNodeAugmentation = ovsdbNode.getAugmentation(OvsdbNodeAugmentation.class);
+        if (ovsdbNodeAugmentation != null && ovsdbNodeAugmentation.getConnectionInfo() != null) {
+            ip = ovsdbNodeAugmentation.getConnectionInfo().getRemoteIp().getIpv4Address().getValue();
+        }
+        if (ip == null) {
+            LOG.warn("remote_ip was not found for node: {}", ovsdbNode);
+            ip = "";
+        }
+        return ip;
     }
 
     private boolean isSfOnBridge(Node bridgeNode, ServiceFunction serviceFunction) {
