@@ -104,7 +104,7 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
             for (MacEntry macEntry: expiredMacEntries) {
                 LOG.info("Removing the ARP cache for"+macEntry);
                 InstanceIdentifier<VpnPortipToPort> id = getVpnPortipToPortInstanceOpDataIdentifier(macEntry.getIpAddress().getHostAddress(),macEntry.getVpnName());
-                Optional<VpnPortipToPort> vpnPortipToPort = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                Optional<VpnPortipToPort> vpnPortipToPort = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
                 if (vpnPortipToPort.isPresent()) {
                     VpnPortipToPort vpnPortipToPortold = vpnPortipToPort.get();
                     String fixedip = vpnPortipToPortold.getPortFixedip();

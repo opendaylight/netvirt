@@ -16,6 +16,7 @@ import java.util.EventListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -703,7 +704,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    protected void updateVpnInterface(Uuid vpnId, Uuid oldVpnId, Port port) {
+    protected void updateVpnInterface(Uuid vpnId, Uuid oldVpnId, Port port, boolean  isBeingAssociated) {
         if (vpnId == null || port == null) {
             return;
         }
@@ -719,7 +720,34 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 VpnInterface vpnIf = vpnIfBuilder.setVpnInstanceName(vpnId.getValue()).build();
                 isLockAcquired = NeutronvpnUtils.lock(lockManager, infName);
                 LOG.debug("Updating vpn interface {}", vpnIf);
-                MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
+                InstanceIdentifier<Adjacencies> path = vpnIfIdentifier.augmentation(Adjacencies.class);
+                Optional<Adjacencies> optAdjacencies = NeutronvpnUtils.read(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, path);
+                if (optAdjacencies.isPresent()) {
+                    List<Adjacency> adjacencies = optAdjacencies.get().getAdjacency();
+                    if (!adjacencies.isEmpty() && !isBeingAssociated) {
+                        LOG.trace("Router dissasociate from old {} to new {} Vpn",oldVpnId,vpnId);
+                        Iterator<Adjacency> adjIt = adjacencies.iterator();
+                        while (adjIt.hasNext()) {
+                            Adjacency adjElem = adjIt.next();
+                            String mipToQuery = adjElem.getIpAddress().split("/")[0];
+                            InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(oldVpnId.getValue(), mipToQuery);
+                            Optional<VpnPortipToPort> optionalVpnPort = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+                            if (optionalVpnPort.isPresent() && optionalVpnPort.get().isLearnt()) {
+                                InstanceIdentifier<Adjacency> adjacencyIdentifier = InstanceIdentifier.builder(VpnInterfaces.class).
+                                        child(VpnInterface.class, new VpnInterfaceKey(vpnIf.getName())).augmentation(Adjacencies.class)
+                                        .child(Adjacency.class, new AdjacencyKey(mipToQuery + "/32")).build();
+                                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, adjacencyIdentifier);
+                                removeVpnPortFixedIpToPort(oldVpnId.getValue(),mipToQuery);
+                                LOG.trace("Removed the adjacency {} for VPN Interface {}",mipToQuery,vpnIf.getName());
+                            }
+
+                        }
+                    }
+                }
+                if(!isBeingAssociated) {
+                    MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
+                }
 
                 List<FixedIps> ips = port.getFixedIps();
                 for (FixedIps ip : ips) {
@@ -1246,7 +1274,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         if (portList != null) {
             for (Uuid port : sn.getPortList()) {
                 LOG.debug("Updating vpn-interface for port {}", port.getValue());
-                updateVpnInterface(vpnId, oldVpnId, NeutronvpnUtils.getNeutronPort(dataBroker, port));
+                updateVpnInterface(vpnId, oldVpnId, NeutronvpnUtils.getNeutronPort(dataBroker, port), isBeingAssociated);
             }
         }
     }
