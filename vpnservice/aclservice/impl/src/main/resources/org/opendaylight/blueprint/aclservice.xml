@@ -64,10 +64,4 @@
     <argument ref="aclServiceManager" />
     <argument ref="dataBroker" />
   </bean>
-  <bean id="aclEventListener"
-    class="org.opendaylight.netvirt.aclservice.listeners.AclEventListener"
-    init-method="start" destroy-method="close">
-    <argument ref="aclServiceManager" />
-    <argument ref="dataBroker" />
-  </bean>
 </blueprint>

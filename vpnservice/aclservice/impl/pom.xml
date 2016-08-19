@@ -65,7 +65,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>utils.config</artifactId>
       <version>${vpns.ovsdb.version}</version>
     </dependency>
-    
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <!-- TODO If overall proposed direction of this Gerrit is +1 by everyone,
+           then move this to odl-parent <dependencyManagement> or in fact how
+           about just ALWAYS having this EVERYWHERE as a <depenency> - what's the harm? -->
+      <version>1</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -107,6 +114,32 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                 </artifact>
               </artifacts>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <!-- TODO If overall proposed direction of this Gerrit is +1 by everyone, then move this to odl-parent -->
+        <groupId>org.apache.aries.blueprint</groupId>
+        <artifactId>blueprint-maven-plugin</artifactId>
+        <version>1.4.0</version>
+        <configuration>
+          <scanPaths>
+            <scanPath>org.opendaylight</scanPath>
+          </scanPaths>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <!-- https://stackoverflow.com/questions/38825386/blueprint-maven-plugin-runtimeexception -->
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-finder-shaded</artifactId>
+            <version>4.5</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <goals>
+              <goal>blueprint-generate</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
