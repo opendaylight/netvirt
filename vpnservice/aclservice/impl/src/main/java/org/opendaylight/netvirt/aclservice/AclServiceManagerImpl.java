@@ -9,7 +9,8 @@ package org.opendaylight.netvirt.aclservice;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -17,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class AclServiceManagerImpl implements AclServiceManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceManagerImpl.class);
@@ -26,6 +28,7 @@ public class AclServiceManagerImpl implements AclServiceManager {
     /**
      * Initialize the ACL service listener list.
      */
+    @Inject
     public AclServiceManagerImpl(final IngressAclServiceImpl ingressAclService,
             final EgressAclServiceImpl egressAclService) {
         addAclServiceListner(ingressAclService);
