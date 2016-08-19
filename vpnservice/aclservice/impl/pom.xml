@@ -70,6 +70,15 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>elanmanager-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
+    <dependency>
+      <!-- TODO Remove when https://git.opendaylight.org/gerrit/#/c/44502/ is merged -->
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
+      <!-- <scope>provided is wrong here, and causes "Missing Constraint: Import-Package: javax.inject",
+           because javax.inject.Inject & Co. are @Retention(RUNTIME).  As bnd generates a MANIFEST.MF with import-package,
+           you must have <bundle>wrap:mvn:javax.inject/javax.inject/{{VERSION}} in respective features.xml -->
+    </dependency>
   </dependencies>
 
   <build>
@@ -110,6 +119,54 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                   <classifier>config</classifier>
                 </artifact>
               </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <!-- TODO If overall proposed direction of this Gerrit is +1 by everyone,
+             then move both the blueprint-maven-plugin and the maven-antrun-plugin to odl-parent and remove from here -->
+        <groupId>org.apache.aries.blueprint</groupId>
+        <artifactId>blueprint-maven-plugin</artifactId>
+        <version>1.4.0</version>
+        <configuration>
+          <scanPaths>
+            <scanPath>org.opendaylight</scanPath>
+          </scanPaths>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <!-- https://stackoverflow.com/questions/38825386/blueprint-maven-plugin-runtimeexception -->
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-finder-shaded</artifactId>
+            <version>4.5</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <goals>
+              <goal>blueprint-generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Remove then when upgrading blueprint-maven-plugin to 1.5.0,
+           and use <configuration><generatedDir>org/opendaylight/blueprint/
+           see https://issues.apache.org/jira/browse/ARIES-1597 -->
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <tasks>
+                <echo>Moving autowire.xml to org/opendaylight/blueprint</echo>
+                <move file="${basedir}/target/generated-resources/OSGI-INF/blueprint/autowire.xml"
+                      todir="${basedir}/target/generated-resources/org/opendaylight/blueprint" />
+              </tasks>
             </configuration>
           </execution>
         </executions>
