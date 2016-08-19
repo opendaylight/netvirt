@@ -52,12 +52,6 @@
     <argument ref="aclServiceManager" />
     <argument ref="dataBroker" />
   </bean>
-  <bean id="aclEventListener"
-    class="org.opendaylight.netvirt.aclservice.listeners.AclEventListener"
-    init-method="start" destroy-method="close">
-    <argument ref="aclServiceManager" />
-    <argument ref="dataBroker" />
-  </bean>
   <bean id="aclClusterUtil"
     class="org.opendaylight.netvirt.aclservice.utils.AclClusterUtil"
     init-method="start" destroy-method="close">
