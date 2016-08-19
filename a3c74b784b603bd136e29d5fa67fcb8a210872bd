@@ -108,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_f8eda226",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/InterfaceAddWorkerOnElanInterface.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-19T15:57:25Z",
+      "side": 1,
+      "message": "Read this and am therefore leaving it unchanged as proposed.",
+      "parentUuid": "7a6b29fe_bf2154fd",
+      "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_68cc2bbd",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 2
@@ -137,6 +155,24 @@
       "side": 1,
       "message": "To be more elaborate: When internal transport is not established between DPN\u0027s, but elan interface is created on those DPN\u0027s then it is expected that exception is thrown from getInternalTunnelItmEgressAction(...) and program the remote dmac entry with empty instruction by swallowing the exception and proceed with programming other ELAN flows/groups for this specific elan interface.\nWhen ITM is created later between these DPNs, then remote dmac and remote bc group is updated with appropriate actions through Interface state DCN handling. \nHope now you understand why this exception is swallowed here.",
       "parentUuid": "7a6b29fe_68cc2bbd",
+      "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_98de2e6c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-19T15:57:25Z",
+      "side": 1,
+      "message": "OK, thanks for your review and comment.  I\u0027ve changed it back to a LOG.error instead of rethrow in that case!  The LOG.error now correctly logs the root cause exception, and has a better message.",
+      "parentUuid": "7a6b29fe_9f1c58c3",
       "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
