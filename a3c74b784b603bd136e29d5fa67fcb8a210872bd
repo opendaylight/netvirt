@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_7f27bc12",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-08-19T04:46:15Z",
+      "side": 1,
+      "message": "I am not sure what is the behavior of ODL bootup sequence now. Previously when we throw exceptions from DCN Handling (or) yang notification listeners, then the entire DCN and Yang notification handling thread gets terminated and then there won\u0027t be any DCN or Yang notifications for any applications.\nSo we have to see it doesn\u0027t start only elan  bundle (if exception is thrown from here) and proceed with starting other bundles.",
+      "parentUuid": "7a6b29fe_689b8b67",
+      "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_88f547cd",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/InterfaceAddWorkerOnElanInterface.java",
         "patchSetId": 2
@@ -72,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_bf2154fd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/InterfaceAddWorkerOnElanInterface.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-08-19T04:46:15Z",
+      "side": 1,
+      "message": "Okay. I am fine with throwing Exception to DSJC here.",
+      "parentUuid": "7a6b29fe_28919347",
+      "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_68cc2bbd",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 2
@@ -83,6 +119,24 @@
       "writtenOn": "2016-08-18T06:37:18Z",
       "side": 1,
       "message": "If we throw ElanException for just not able to program ELAN remote dmac flow entry, then we end up in not programming most of the entries for the elan interface from ElanInterfaceManager#setupEntriesForElanInterface. Atleast if this exception is swallowed here with logging proper error message and then proceed with other operations. This enables L2 packets takes broadcasting path to reach the destined VM.\n\nThis is the main idea of why Exception being swallowed here.",
+      "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9f1c58c3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-08-19T04:46:15Z",
+      "side": 1,
+      "message": "To be more elaborate: When internal transport is not established between DPN\u0027s, but elan interface is created on those DPN\u0027s then it is expected that exception is thrown from getInternalTunnelItmEgressAction(...) and program the remote dmac entry with empty instruction by swallowing the exception and proceed with programming other ELAN flows/groups for this specific elan interface.\nWhen ITM is created later between these DPNs, then remote dmac and remote bc group is updated with appropriate actions through Interface state DCN handling. \nHope now you understand why this exception is swallowed here.",
+      "parentUuid": "7a6b29fe_68cc2bbd",
       "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
