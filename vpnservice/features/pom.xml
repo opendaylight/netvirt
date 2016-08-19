@@ -334,6 +334,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <artifactId>ovsdb-ui-bundle</artifactId>
       <version>${ovsdb.version}</version>
     </dependency>
+    <dependency>
+      <!-- TODO Remove when https://git.opendaylight.org/gerrit/#/c/44502/ is merged -->
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
+    </dependency>
   </dependencies>
 
   <!--
