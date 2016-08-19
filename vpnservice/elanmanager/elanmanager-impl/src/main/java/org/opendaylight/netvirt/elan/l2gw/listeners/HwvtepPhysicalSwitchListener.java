@@ -40,6 +40,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.genius.utils.hwvtep.HACacheUtils;
+import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,6 +124,10 @@ public class HwvtepPhysicalSwitchListener
     @Override
     protected void remove(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
             PhysicalSwitchAugmentation phySwitchDeleted) {
+        String nodeIdVal = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (HACacheUtils.isHAEnabledDevice(nodeIdVal)) {
+            return;
+        }
         NodeId nodeId = getNodeId(identifier);
         String psName = phySwitchDeleted.getHwvtepNodeName().getValue();
         LOG.info("Received physical switch {} removed event for node {}", psName, nodeId.getValue());
@@ -159,6 +165,10 @@ public class HwvtepPhysicalSwitchListener
     @Override
     protected void update(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
             PhysicalSwitchAugmentation phySwitchBefore, PhysicalSwitchAugmentation phySwitchAfter) {
+        String nodeIdVal = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (HACacheUtils.isHAEnabledDevice(nodeIdVal)) {
+            return;
+        }
         NodeId nodeId = getNodeId(identifier);
         if (LOG.isTraceEnabled()) {
             LOG.trace(
@@ -196,6 +206,13 @@ public class HwvtepPhysicalSwitchListener
     @Override
     protected void add(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
             final PhysicalSwitchAugmentation phySwitchAdded) {
+        String nodeIdVal = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+
+        if (HANodeListener.isHANode(dataBroker, phySwitchAdded)) {
+            HACacheUtils.addDeviceToCache(nodeIdVal);
+            return;
+        }
+
         NodeId nodeId = getNodeId(identifier);
         final String psName = phySwitchAdded.getHwvtepNodeName().getValue();
         LOG.info("Received physical switch {} added event received for node {}", psName, nodeId.getValue());

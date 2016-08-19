@@ -29,6 +29,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.genius.utils.hwvtep.HACacheUtils;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -197,6 +199,10 @@ public class HwvtepRemoteMcastMacListener
      */
     @Override
     protected void add(InstanceIdentifier<RemoteMcastMacs> identifier, RemoteMcastMacs mcastMac) {
+        String nodeIdVal = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (HACacheUtils.isHAEnabledDevice(nodeIdVal)) {
+            return;
+        }
         LOG.debug("Received Add DataChange Notification for identifier: {}, RemoteMcastMacs: {}", identifier, mcastMac);
         // No isDataPresentInOpDs check is done as assuming all the expected phy
         // locator ips will be available during add

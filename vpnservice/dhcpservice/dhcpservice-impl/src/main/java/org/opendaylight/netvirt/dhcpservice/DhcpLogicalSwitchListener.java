@@ -19,6 +19,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.genius.utils.hwvtep.HACacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
@@ -83,6 +84,10 @@ public class DhcpLogicalSwitchListener extends AbstractDataChangeListener<Logica
     @Override
     protected void remove(InstanceIdentifier<LogicalSwitches> identifier,
             LogicalSwitches del) {
+        String nodeIdVal = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (HACacheUtils.isHAEnabledDevice(nodeIdVal)) {
+            return;
+        }
         logger.trace("Received LogicalSwitch remove DCN");
         String elanInstanceName = del.getHwvtepNodeName().getValue();
         ConcurrentMap<String, L2GatewayDevice> devices = L2GatewayCacheUtils.getCache();
@@ -130,6 +135,10 @@ public class DhcpLogicalSwitchListener extends AbstractDataChangeListener<Logica
     @Override
     protected void add(InstanceIdentifier<LogicalSwitches> identifier,
             LogicalSwitches add) {
+        String nodeIdVal = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (HACacheUtils.isHAEnabledDevice(nodeIdVal)) {
+            return;
+        }
         logger.trace("Received LogicalSwitch add DCN");
         String elanInstanceName = add.getHwvtepNodeName().getValue();
         ConcurrentMap<String, L2GatewayDevice> devices  = L2GatewayCacheUtils.getCache();

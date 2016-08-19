@@ -20,6 +20,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.genius.utils.hwvtep.HACacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -70,6 +71,10 @@ public class DhcpUCastMacListener extends AsyncClusteredDataChangeListenerBase<L
     @Override
     protected void remove(InstanceIdentifier<LocalUcastMacs> identifier,
             LocalUcastMacs del) {
+        String nodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (HACacheUtils.isHAEnabledDevice(nodeId)) {
+            return;
+        }
         // Flow removal for table 18 is handled in Neutron Port delete.
         //remove the new CR-DHCP
         NodeId torNodeId = identifier.firstKeyOf(Node.class).getNodeId();
@@ -99,6 +104,10 @@ public class DhcpUCastMacListener extends AsyncClusteredDataChangeListenerBase<L
     @Override
     protected void add(InstanceIdentifier<LocalUcastMacs> identifier,
             LocalUcastMacs add) {
+        String nodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (HACacheUtils.isHAEnabledDevice(nodeId)) {
+            return;
+        }
         NodeId torNodeId = identifier.firstKeyOf(Node.class).getNodeId();
         InstanceIdentifier<LogicalSwitches> logicalSwitchRef = (InstanceIdentifier<LogicalSwitches>) add.getLogicalSwitchRef().getValue();
         Optional<LogicalSwitches> logicalSwitchOptional = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, logicalSwitchRef);

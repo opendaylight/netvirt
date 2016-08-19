@@ -80,7 +80,7 @@ public class L2GatewayDevice {
      * @param nodeId
      *            the new hwvtep node id
      */
-    public void setHwvtepNodeId(String nodeId) {
+    public synchronized void setHwvtepNodeId(String nodeId) {
         this.hwvtepNodeId = nodeId;
     }
 
