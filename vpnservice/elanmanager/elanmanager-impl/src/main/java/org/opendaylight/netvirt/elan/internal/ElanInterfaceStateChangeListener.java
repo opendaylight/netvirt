@@ -15,7 +15,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;

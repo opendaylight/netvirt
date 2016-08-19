@@ -34,25 +34,23 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
     String elanName;
 
     @Override
-    protected Object doExecute() {
-        try {
-            if (cacheName == null) {
-                session.getConsole().println("Available caches");
-                session.getConsole().println(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
-                session.getConsole().println(L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME);
-                return null;
-            }
-            switch (cacheName) {
-                case ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME:
-                    dumpElanL2GwCache();
-                    break;
-                case L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME:
-                    dumpL2GwCache();
-                    break;
-            }
-        } catch (Exception e) {
+    protected Object doExecute() throws Exception {
+        if (cacheName == null) {
+            session.getConsole().println("Available caches");
+            session.getConsole().println(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
+            session.getConsole().println(L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME);
+            return null;
         }
-
+        switch (cacheName) {
+            case ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME:
+                dumpElanL2GwCache();
+                break;
+            case L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME:
+                dumpL2GwCache();
+                break;
+            default:
+                session.getConsole().println("Unknown cache name: " + cacheName);
+        }
         return null;
     }
 

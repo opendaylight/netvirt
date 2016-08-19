@@ -28,13 +28,9 @@ public class ElanMacTableFlush extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() {
-        try {
-            LOG.debug("Executing create ElanInstance command" + "\t" + elanName + "\t");
-            elanProvider.flushMACTable(elanName);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    protected Object doExecute() throws Exception {
+        LOG.debug("Executing create ElanInstance command" + "\t" + elanName + "\t");
+        elanProvider.flushMACTable(elanName);
         return null;
     }
 }

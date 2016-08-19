@@ -31,20 +31,16 @@ public class EtreeInterfaceDelete extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() {
-        try {
-            LOG.debug("Deleting EtreeInterface command" + "\t" + etreeName + "\t" + interfaceName + "\t");
-            ElanInterface existingInterface =
-                    elanProvider.getElanInterfaceByElanInterfaceName(interfaceName);
-            if (existingInterface == null || existingInterface.getAugmentation(EtreeInterface.class) == null) {
-                session.getConsole()
-                        .println("Etree interface doesn't exist or isn't configured as etree: " + interfaceName);
-            }
-            elanProvider.deleteEtreeInterface(etreeName, interfaceName);
-            session.getConsole().println("Deleted the Etree interface succesfully");
-        } catch (Exception e) {
-            e.printStackTrace();
+    protected Object doExecute() throws Exception {
+        LOG.debug("Deleting EtreeInterface command" + "\t" + etreeName + "\t" + interfaceName + "\t");
+        ElanInterface existingInterface =
+                elanProvider.getElanInterfaceByElanInterfaceName(interfaceName);
+        if (existingInterface == null || existingInterface.getAugmentation(EtreeInterface.class) == null) {
+            session.getConsole()
+                    .println("Etree interface doesn't exist or isn't configured as etree: " + interfaceName);
         }
+        elanProvider.deleteEtreeInterface(etreeName, interfaceName);
+        session.getConsole().println("Deleted the Etree interface succesfully");
         return null;
     }
 }
