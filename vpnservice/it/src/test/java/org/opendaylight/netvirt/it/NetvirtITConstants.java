@@ -36,10 +36,8 @@ public final class NetvirtITConstants {
     public static final String INTEGRATION_BRIDGE_NAME = "br-int";
     public static final String OPENFLOW_CONNECTION_PROTOCOL = "tcp";
 
-
     public enum DefaultFlow {
-
-        DHCP_EXTERNAL_TUNNEL("DHCPTableMissFlowForExternalTunnel",NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL),
+        DHCP_EXTERNAL_TUNNEL("DHCPTableMissFlowForExternalTunnel", NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL),
         DHCP("DHCPTableMissFlow", NwConstants.DHCP_TABLE),
         IPV6("IPv6TableMissFlow", NwConstants.IPV6_TABLE);
 
