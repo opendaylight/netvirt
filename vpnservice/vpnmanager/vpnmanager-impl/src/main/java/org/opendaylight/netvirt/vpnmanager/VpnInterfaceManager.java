@@ -1762,61 +1762,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
     }
 
-    public void addMIPAdjacency(String vpnName,String vpnInterface, org.opendaylight.yang.gen.v1.urn.ietf.params.xml
-            .ns.yang.ietf.inet.types.rev130715.IpAddress prefix){
-
-        LOG.trace("Adding {} adjacency to VPN Interface {} ",prefix,vpnInterface);
-        InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
-        InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
-        Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
-        String nextHopIpAddr = null;
-        String nextHopMacAddress = null;
-        String ip = prefix.getIpv4Address().getValue();
-        if (adjacencies.isPresent()) {
-            List<Adjacency> adjacencyList = adjacencies.get().getAdjacency();
-            ip = VpnUtil.getIpPrefix(ip);
-            for (Adjacency adjacs : adjacencyList) {
-                if (adjacs.getMacAddress() != null && !adjacs.getMacAddress().isEmpty()) {
-                    nextHopIpAddr = adjacs.getIpAddress();
-                    nextHopMacAddress = adjacs.getMacAddress();
-                    break;
-                }
-            }
-            if (nextHopMacAddress != null && ip != null) {
-                String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
-                long label =
-                        VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                                VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ip));
-                String nextHopIp = nextHopIpAddr.split("/")[0];
-                Adjacency newAdj = new AdjacencyBuilder().setIpAddress(ip).setKey
-                        (new AdjacencyKey(ip)).setNextHopIpList(Arrays.asList(nextHopIp)).build();
-                adjacencyList.add(newAdj);
-                Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
-                VpnInterface newVpnIntf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(vpnInterface)).
-                        setName(vpnInterface).setVpnInstanceName(vpnName).addAugmentation(Adjacencies.class, aug).build();
-                VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId, newVpnIntf);
-                LOG.debug(" Successfully stored subnetroute Adjacency into VpnInterface {}", vpnInterface);
-            }
-        }
-
-    }
-
-    public void removeMIPAdjacency(String vpnName, String vpnInterface, org.opendaylight.yang.gen.v1.urn.ietf.params
-            .xml.ns.yang.ietf.inet.types.rev130715.IpAddress prefix) {
-        String ip = VpnUtil.getIpPrefix(prefix.getIpv4Address().getValue());
-        LOG.trace("Removing {} adjacency from Old VPN Interface {} ",ip,vpnInterface);
-        InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
-        InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
-        Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, path);
-        if (adjacencies.isPresent()) {
-            InstanceIdentifier<Adjacency> adjacencyIdentifier = InstanceIdentifier.builder(VpnInterfaces.class).
-                    child(VpnInterface.class, new VpnInterfaceKey(vpnInterface)).augmentation(Adjacencies.class)
-                    .child(Adjacency.class, new AdjacencyKey(ip)).build();
-            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, adjacencyIdentifier);
-            LOG.trace("Successfully Deleted Adjacency into VpnInterface {}", vpnInterface);
-        }
-    }
-
     void notifyTaskIfRequired(String intfName) {
         Runnable notifyTask = vpnIntfMap.remove(intfName);
         if (notifyTask == null) {
