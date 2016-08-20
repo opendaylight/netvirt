@@ -121,11 +121,12 @@ public class InterVpnLinkUtil {
      */
     public static void installLPortDispatcherTableFlow(DataBroker broker, IMdsalApiManager mdsalManager,
                                                        InterVpnLink interVpnLink, List<BigInteger> dpnList,
-                                                       Uuid vpnUuidOtherEndpoint, Integer lPortTagOfOtherEndpoint) {
+                                                       Uuid vpnUuidOtherEndpoint, Long lPortTagOfOtherEndpoint) {
         long vpnId = VpnUtil.getVpnId(broker, vpnUuidOtherEndpoint.getValue());
         for ( BigInteger dpnId : dpnList ) {
             // insert into LPortDispatcher table
-            Flow lPortDispatcherFlow = buildLPortDispatcherFlow(interVpnLink.getName(), vpnId, lPortTagOfOtherEndpoint);
+            Flow lPortDispatcherFlow = buildLPortDispatcherFlow(interVpnLink.getName(), vpnId,
+                    lPortTagOfOtherEndpoint.intValue());
             mdsalManager.installFlow(dpnId, lPortDispatcherFlow);
         }
     }
@@ -139,7 +140,7 @@ public class InterVpnLinkUtil {
     * @param lportTag DataPlane identifier of the LogicalPort.
     * @return the Flow ready to be installed
     */
-   public static Flow buildLPortDispatcherFlow(String interVpnLinkName, long vpnId, Integer lportTag) {
+   public static Flow buildLPortDispatcherFlow(String interVpnLinkName, long vpnId, int lportTag) {
        LOG.info("Inter-vpn-link : buildLPortDispatcherFlow. vpnId {}   lportTag {} ", vpnId, lportTag);
        List<MatchInfo> matches = Arrays.asList(new MatchInfo(MatchFieldType.metadata,
                                                               new BigInteger[] {
