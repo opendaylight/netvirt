@@ -274,7 +274,7 @@ public class VpnUtil {
     }
 
     //FIXME: Implement caches for DS reads
-    static VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName) {
+    public static VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName) {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
                 new VpnInstanceKey(vpnInstanceName)).build();
         Optional<VpnInstance> vpnInstance = read(broker, LogicalDatastoreType.CONFIGURATION, id);

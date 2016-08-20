@@ -31,7 +31,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
     private final VpnInterfaceManager vpnInterfaceMgr;
-    private final IFibManager fibManager;
+    private IFibManager fibManager;
 
     public VpnRpcServiceImpl(final DataBroker dataBroker, final IdManagerService idManager,
                              final VpnInterfaceManager vpnIfaceMgr, final IFibManager fibManager) {
@@ -40,6 +40,11 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         this.vpnInterfaceMgr = vpnIfaceMgr;
         this.fibManager = fibManager;
     }
+
+    public void setFibManager(IFibManager fibMgr) {
+        this.fibManager = fibMgr;
+    }
+
 
     /**
      * to generate label for the given ip prefix from the associated VPN

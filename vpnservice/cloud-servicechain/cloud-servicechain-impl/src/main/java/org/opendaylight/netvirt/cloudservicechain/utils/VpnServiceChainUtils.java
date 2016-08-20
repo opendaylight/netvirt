@@ -433,9 +433,16 @@ public class VpnServiceChainUtils {
                 if ( addOrRemove == NwConstants.ADD_FLOW ) {
                     VpnToPseudoPortTag newValue =
                         new VpnToPseudoPortTagBuilder().setKey(key).setVrfId(rd).setLportTag((long) lportTag).build();
+                    logger.debug("Adding lportTag={} to VpnToLportTag map for VPN with rd={}", lportTag, rd);
                     MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, path, newValue);
                 } else {
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, path);
+                    logger.debug("Removing VpnToLportTag map entry for VPN with rd={}", rd);
+                    try {
+                        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, path);
+                    } catch ( Exception e ) {
+                        // It may throw Exception if 'path' does not exist, but we dont care
+                        logger.debug("Error when removing {}", path, e);
+                    }
                 }
 
             }
