@@ -45,7 +45,7 @@ module inter-vpn-link {
       }
 
       leaf lport-tag {
-          type uint16;
+          type uint32;
 
       }
   }
