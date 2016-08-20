@@ -225,7 +225,7 @@ public class LBaaSHandler extends AbstractHandler
      */
     @Override
     public void notifyNode(Node node, Action type) {
-        LOG.debug("notifyNode: Node {} update {} from Controller's inventory Service", node, type);
+        LOG.trace("notifyNode: Node {} update {} from Controller's inventory Service", node, type);
         Preconditions.checkNotNull(loadBalancerProvider);
 
         for (NeutronLoadBalancer neutronLB: neutronLBCache.getAllNeutronLoadBalancers()) {
