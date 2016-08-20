@@ -250,7 +250,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNetVirt() throws InterruptedException {
         try (DockerOvs ovs = new DockerOvs()) {
-            ovs.logState(0);
+            ovs.logState(0, "testNetVirt");
             ConnectionInfo connectionInfo = SouthboundUtils
                     .getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
@@ -273,7 +273,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                     .getTerminationPointOfBridge(nodeInfo.bridgeNode, NetvirtITConstants.PORT_NAME);
             assertNotNull("Did not find " + NetvirtITConstants.PORT_NAME, terminationPointOfBridge);
 
-            ovs.logState(0);
+            ovs.logState(0, "testNetVirt");
             nodeInfo.disconnect();
         } catch (Exception e) {
             LOG.error("testNetVirt: Exception thrown by OvsDocker.OvsDocker()", e);

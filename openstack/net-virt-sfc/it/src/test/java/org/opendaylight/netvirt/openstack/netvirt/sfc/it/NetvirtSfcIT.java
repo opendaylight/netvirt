@@ -600,7 +600,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
      * sets the table offset and verifies the correct flow is programmed with the offset.
      */
     @Test
-    public void testNetvirtSfcPipeline() throws InterruptedException {
+    public void testNetvirtSfcPipeline() throws Exception {
         short netvirtTableOffset = 1;
         testModelPut(netvirtProvidersConfigBuilder(netvirtTableOffset), NetvirtProvidersConfig.class);
 
