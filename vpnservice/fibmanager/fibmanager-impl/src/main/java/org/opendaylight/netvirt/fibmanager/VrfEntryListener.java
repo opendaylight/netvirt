@@ -574,7 +574,7 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
                 List<BigInteger> targetDpns =
                         ( vpnIs1stEndpoint ) ? vpnLinkState.get().getFirstEndpointState().getDpId()
                                 : vpnLinkState.get().getSecondEndpointState().getDpId();
-                int lportTag =
+                Long lportTag =
                         ( vpnIs1stEndpoint ) ? vpnLinkState.get().getSecondEndpointState().getLportTag()
                                 : vpnLinkState.get().getFirstEndpointState().getLportTag();
 
@@ -582,7 +582,7 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
                     List<ActionInfo> actionsInfos = Arrays.asList(new ActionInfo(ActionType.pop_mpls, new String[]{}));
 
                     BigInteger[] metadata = new BigInteger[] {
-                            MetaDataUtil.getMetaDataForLPortDispatcher(lportTag, ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
+                            MetaDataUtil.getMetaDataForLPortDispatcher(lportTag.intValue(), ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
                             MetaDataUtil.getMetaDataMaskForLPortDispatcher()
                     };
                     List<InstructionInfo> instructions =
@@ -636,12 +636,12 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
                 vpnIsFirstEndpoint ? interVpnLinkState.get().getFirstEndpointState().getDpId()
                         : interVpnLinkState.get().getSecondEndpointState().getDpId();
 
-        Integer otherEndpointlportTag =
+        Long otherEndpointlportTag =
                 vpnIsFirstEndpoint ? interVpnLinkState.get().getSecondEndpointState().getLportTag()
                         : interVpnLinkState.get().getFirstEndpointState().getLportTag();
 
         BigInteger[] metadata = new BigInteger[] {
-                MetaDataUtil.getMetaDataForLPortDispatcher(otherEndpointlportTag,
+                MetaDataUtil.getMetaDataForLPortDispatcher(otherEndpointlportTag.intValue(),
                         ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
                 MetaDataUtil.getMetaDataMaskForLPortDispatcher()
         };
