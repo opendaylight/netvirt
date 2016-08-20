@@ -25,7 +25,7 @@ import java.io.IOException;
  */
 public class PingableNeutronNetItUtil extends NeutronNetItUtil {
 
-    private static final int DEFAULT_WAIT = 5000;
+    private static final int DEFAULT_WAIT = 30 * 1000;
     private DockerOvs dockerOvs;
 
     public PingableNeutronNetItUtil(DockerOvs dockerOvs, SouthboundUtils southboundUtils, String tenantId) {
@@ -34,7 +34,7 @@ public class PingableNeutronNetItUtil extends NeutronNetItUtil {
     }
 
     public PingableNeutronNetItUtil(DockerOvs dockerOvs, SouthboundUtils southboundUtils, String tenantId,
-                                                        String segId, String macPfx, String ipPfx, String cidr) {
+                                    String segId, String macPfx, String ipPfx, String cidr) {
         super(southboundUtils, tenantId, segId, macPfx, ipPfx, cidr);
         this.dockerOvs = dockerOvs;
     }

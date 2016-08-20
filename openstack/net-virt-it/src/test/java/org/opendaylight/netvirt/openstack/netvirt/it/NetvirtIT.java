@@ -59,6 +59,7 @@ import org.opendaylight.netvirt.utils.netvirt.it.utils.PingableNeutronNetItUtil;
 import org.opendaylight.netvirt.utils.neutron.utils.NeutronUtils;
 import org.opendaylight.ovsdb.lib.notation.Version;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
+import org.opendaylight.ovsdb.utils.mdsal.utils.NotifyingDataChangeListener;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.ItConstants;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.NodeInfo;
@@ -75,6 +76,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
@@ -181,6 +183,12 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.controller.configpusherfeature.internal.FeatureConfigPusher",
                         LogLevel.ERROR.name()),
+                editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.apache.aries.blueprint.container.ServiceRecipe",
+                        LogLevel.WARN.name()),
+                editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.opendaylight.yangtools.yang.parser.repo.YangTextSchemaContextResolver",
+                        LogLevel.WARN.name()),
                 super.getLoggingOption());
     }
 
@@ -327,7 +335,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     // This is an extra test for local testing and testNetVirt covers this is more detail
     @Ignore
     @Test
-    public void testAddDeleteOvsdbNodeWithTableOffset() throws InterruptedException {
+    public void testAddDeleteOvsdbNodeWithTableOffset() throws Exception {
         LOG.info("testAddDeleteOvsdbNodeWithTableOffset enter");
         NetvirtProvidersProvider.setTableOffset((short)1);
         ConnectionInfo connectionInfo = SouthboundUtils.getConnectionInfo(addressStr, portStr);
@@ -402,6 +410,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
      * @throws InterruptedException
      */
     @Test
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNetVirt() throws InterruptedException {
         LOG.info("testNetVirt: starting test");
         try(DockerOvs ovs = new DockerOvs()) {
@@ -422,7 +431,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             assertEquals("did not find all expected flows in static pipeline",
                     staticPipeline.size(), staticPipelineFound.size());
 
-            southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, NetvirtITConstants.PORT_NAME, "internal", null, null, 0L);
+            southboundUtils.addTerminationPoint(nodeInfo.bridgeNode,
+                    NetvirtITConstants.PORT_NAME, "internal", null, null, 0L);
             Thread.sleep(1000);
             OvsdbTerminationPointAugmentation ovsdbTerminationPointAugmentation =
                     southbound.getTerminationPointOfBridge(nodeInfo.bridgeNode, NetvirtITConstants.PORT_NAME);
@@ -435,6 +445,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     }
 
     @Test
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNetVirtFixedSG() throws InterruptedException {
         final Version minSGOvsVersion = Version.fromString("1.10.2");
         final String portName = "sg1";
@@ -445,14 +456,16 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         final String dhcpPortId ="521e29d6-67b8-4b3c-8633-027d21195115";
 
         try(DockerOvs ovs = new DockerOvs()) {
-            ConnectionInfo connectionInfo = SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
+            ConnectionInfo connectionInfo =
+                    SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
             LOG.info("testNetVirtFixedSG: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
 
             //TBD: This should be a utility function
             // Verify the minimum version required for this test
-            OvsdbNodeAugmentation ovsdbNodeAugmentation = nodeInfo.ovsdbNode.getAugmentation(OvsdbNodeAugmentation.class);
+            OvsdbNodeAugmentation ovsdbNodeAugmentation =
+                    nodeInfo.ovsdbNode.getAugmentation(OvsdbNodeAugmentation.class);
             Assert.assertNotNull(ovsdbNodeAugmentation);
             assertNotNull(ovsdbNodeAugmentation.getOvsVersion());
             String ovsVersion = ovsdbNodeAugmentation.getOvsVersion();
@@ -489,7 +502,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             Thread.sleep(1000);
 
             String flowId = "Egress_DHCP_Client"  + "_Permit_";
-            nvItUtils.verifyFlowByFields(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
+            nvItUtils.verifyFlowByFields(nodeInfo.datapathId, flowId,
+                    pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
 
             testDefaultSG(nport, nodeInfo.datapathId, nn, tenantId, portId);
             Thread.sleep(1000);
@@ -506,7 +520,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     }
 
     private void testDefaultSG(NeutronPort nport, long datapathId, NeutronNetwork nn, String tenantId, String portId)
-            throws InterruptedException {
+            throws Exception {
         INeutronSecurityGroupCRUD ineutronSecurityGroupCRUD =
                 (INeutronSecurityGroupCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityGroupCRUD.class, this);
         assertNotNull("Could not find ineutronSecurityGroupCRUD Service", ineutronSecurityGroupCRUD);
@@ -574,32 +588,45 @@ public class NetvirtIT extends AbstractMdsalTestBase {
      * @throws InterruptedException if we're interrupted while waiting for some mdsal operation to complete
      */
     @Test
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNeutronNet() throws InterruptedException {
         LOG.warn("testNeutronNet: starting test");
         try(DockerOvs ovs = new DockerOvs()) {
-            ConnectionInfo connectionInfo = SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
+            ovs.logState(0, "idle");
+            ConnectionInfo connectionInfo = SouthboundUtils
+                    .getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
+            LOG.info("testNeutronNet: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
 
             // Create the objects
-            PingableNeutronNetItUtil net = new PingableNeutronNetItUtil(ovs, southboundUtils, UUID.randomUUID().toString());
+            PingableNeutronNetItUtil net =
+                    new PingableNeutronNetItUtil(ovs, southboundUtils, UUID.randomUUID().toString());
             net.create();
             net.createPort(nodeInfo.bridgeNode, "dhcp", "network:dhcp");
             net.createPort(nodeInfo.bridgeNode, "vm1");
             net.createPort(nodeInfo.bridgeNode, "vm2");
 
-            //Thread.sleep(5000);
+            InstanceIdentifier<TerminationPoint> tpIid =
+                    southboundUtils.createTerminationPointInstanceIdentifier(nodeInfo.bridgeNode, "vm2");
+            final NotifyingDataChangeListener portOperationalListener =
+                    new NotifyingDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                            NotifyingDataChangeListener.BIT_CREATE, tpIid, null);
+            portOperationalListener.registerDataChangeListener(dataBroker);
+            portOperationalListener.waitForCreation(10000);
+            Thread.sleep(30000);
+            ovs.logState(0, "after ports");
 
             // Check flows created for all ports
             for (NeutronNetItUtil.PortInfo portInfo : net.portInfoByName.values()) {
                 nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "DropFilter_" + portInfo.ofPort,
                         pipelineOrchestrator.getTable(Service.CLASSIFIER), 5000);
                 nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "LocalMac_" + net.segId + "_" + portInfo.ofPort
-                                            + "_" + portInfo.mac, pipelineOrchestrator.getTable(Service.CLASSIFIER), 5000);
+                        + "_" + portInfo.mac, pipelineOrchestrator.getTable(Service.CLASSIFIER), 5000);
                 nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "ArpResponder_" + net.segId + "_" + portInfo.ip,
                                             pipelineOrchestrator.getTable(Service.ARP_RESPONDER), 5000);
                 nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "UcastOut_" + net.segId + "_" + portInfo.ofPort
-                                            + "_" + portInfo.mac, pipelineOrchestrator.getTable(Service.L2_FORWARDING), 5000);
+                        + "_" + portInfo.mac, pipelineOrchestrator.getTable(Service.L2_FORWARDING), 5000);
             }
 
             for (NeutronNetItUtil.PortInfo portInfo : net.portInfoByName.values()) {
@@ -607,15 +634,17 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 if (portInfo.name.equals("dhcp")) {
                     continue;
                 }
-                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Ingress_ARP_" + net.segId + "_" + portInfo.ofPort + "_",
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId,
+                        "Ingress_ARP_" + net.segId + "_" + portInfo.ofPort + "_",
                         pipelineOrchestrator.getTable(Service.INGRESS_ACL), 5000);
-                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Egress_Allow_VM_IP_MAC_" + portInfo.ofPort
-                                + portInfo.mac + "_Permit_", pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
-                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Egress_ARP_" + net.segId + "_" + portInfo.ofPort + "_",
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId,
+                        "Egress_ARP_" + net.segId + "_" + portInfo.ofPort + "_",
                         pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
-                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Egress_DHCP_Server_" + portInfo.ofPort + "_DROP_",
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId,
+                        "Egress_DHCP_Server_" + portInfo.ofPort + "_DROP_",
                         pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
-                nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Egress_DHCPv6_Server_" + portInfo.ofPort + "_DROP_",
+                nvItUtils.verifyFlowByFields(nodeInfo.datapathId,
+                        "Egress_DHCPv6_Server_" + portInfo.ofPort + "_DROP_",
                         pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
             }
 
@@ -624,10 +653,12 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                     pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
             nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Egress_DHCPv6_Client_Permit_",
                     pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
-            nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Ingress_DHCPv6_Server" + net.segId + "_"
-                    + net.macFor(1) + "_Permit_", pipelineOrchestrator.getTable(Service.INGRESS_ACL), 5000);
-            nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Ingress_DHCP_Server" + net.segId + "_"
-                    + net.macFor(1) + "_Permit_", pipelineOrchestrator.getTable(Service.INGRESS_ACL), 5000);
+            nvItUtils.verifyFlowByFields(nodeInfo.datapathId,
+                    "Ingress_DHCPv6_Server" + net.segId + "_" + net.macFor(1) + "_Permit_",
+                    pipelineOrchestrator.getTable(Service.INGRESS_ACL), 5000);
+            nvItUtils.verifyFlowByFields(nodeInfo.datapathId,
+                    "Ingress_DHCP_Server" + net.segId + "_" + net.macFor(1) + "_Permit_",
+                    pipelineOrchestrator.getTable(Service.INGRESS_ACL), 5000);
 
             // Check l2 broadcast flows
             nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "TunnelFloodOut_" + net.segId,
@@ -637,11 +668,15 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "TunnelMiss_" + net.segId,
                     pipelineOrchestrator.getTable(Service.L2_FORWARDING), 5000);
 
-
+            ovs.logState(0, "after ports 2");
             net.preparePortForPing("vm1");
             net.preparePortForPing("vm2");
-            net.ping("vm1", "vm2");
 
+            LOG.info("wait for stuff to catch up");
+            Thread.sleep(60000);
+            ovs.logState(0, "after preparePortForPing");
+            net.ping("vm1", "vm2");
+            ovs.logState(0, "after ping");
             net.destroy();
             nodeInfo.disconnect();
         } catch (Exception e) {
@@ -652,6 +687,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
     @Test
     @Ignore //For now....fails every once in a while on connect. TODO: fix it
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void twoNodes() throws InterruptedException {
 
         System.getProperties().setProperty(ItConstants.DOCKER_COMPOSE_FILE_NAME, "two_dockers-ovs-2.5.1.yml");
