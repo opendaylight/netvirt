@@ -35,16 +35,17 @@ import org.opendaylight.netvirt.it.NetvirtITConstants.DefaultFlow;
 import org.opendaylight.netvirt.utils.netvirt.it.utils.FlowITUtil;
 import org.opendaylight.netvirt.utils.netvirt.it.utils.NetITUtil;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
+import org.opendaylight.ovsdb.utils.mdsal.utils.NotifyingDataChangeListener;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.NodeInfo;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.OvsdbItUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ConnectionInfo;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
@@ -64,16 +65,11 @@ import org.slf4j.LoggerFactory;
 @ExamReactorStrategy(PerClass.class)
 public class NetvirtIT extends AbstractMdsalTestBase {
     private static final Logger LOG = LoggerFactory.getLogger(NetvirtIT.class);
-
     private static OvsdbItUtils itUtils;
     private static MdsalUtils mdsalUtils = null;
     private static SouthboundUtils southboundUtils;
     private static org.opendaylight.netvirt.utils.netvirt.it.utils.SouthboundUtils nvSouthboundUtils;
     private static FlowITUtil flowITUtil;
-    private static String addressStr;
-    private static String portStr;
-    private static String connectionType;
-    private static String controllerStr;
     private static AtomicBoolean setup = new AtomicBoolean(false);
     private static final String NETVIRT_TOPOLOGY_ID = "netvirt:1";
     @Inject @Filter(timeout = 60000)
@@ -187,10 +183,10 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
     private void getProperties() {
         Properties props = System.getProperties();
-        addressStr = props.getProperty(NetvirtITConstants.SERVER_IPADDRESS);
-        portStr = props.getProperty(NetvirtITConstants.SERVER_PORT, NetvirtITConstants.DEFAULT_SERVER_PORT);
-        connectionType = props.getProperty(NetvirtITConstants.CONNECTION_TYPE, "active");
-        controllerStr = props.getProperty(NetvirtITConstants.CONTROLLER_IPADDRESS, "0.0.0.0");
+        String addressStr = props.getProperty(NetvirtITConstants.SERVER_IPADDRESS);
+        String portStr = props.getProperty(NetvirtITConstants.SERVER_PORT, NetvirtITConstants.DEFAULT_SERVER_PORT);
+        String connectionType = props.getProperty(NetvirtITConstants.CONNECTION_TYPE, "active");
+        String controllerStr = props.getProperty(NetvirtITConstants.CONTROLLER_IPADDRESS, "0.0.0.0");
         String userSpaceEnabled = props.getProperty(NetvirtITConstants.USERSPACE_ENABLED, "no");
         LOG.info("setUp: Using the following properties: mode= {}, ip:port= {}:{}, controller ip: {}, "
                         + "userspace.enabled: {}",
@@ -228,12 +224,19 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         LOG.info("Validating default flows");
         for (DefaultFlow defaultFlow : DefaultFlow.values()) {
             try {
-                flowITUtil.verifyFlowByFields(datapathId, defaultFlow.getFlowId(), defaultFlow.getTableId(), timeout);
+                //flowITUtil.verifyFlowByFields(datapathId, defaultFlow.getFlowId(), defaultFlow.getTableId(), timeout);
+                flowITUtil.verifyFlowById(datapathId, defaultFlow.getFlowId(), defaultFlow.getTableId());
             } catch (Exception e) {
                 LOG.error("Failed to verify flow id : {}", defaultFlow.getFlowId());
                 fail("Failed to verify flow id : " + defaultFlow.getFlowId());
             }
         }
+    }
+
+    private void addLocalIp(NodeInfo nodeInfo) {
+        Map<String, String> otherConfigs = Maps.newHashMap();
+        otherConfigs.put("local_ip", "10.1.1.1");
+        assertTrue(nvSouthboundUtils.addOpenVSwitchOtherConfig(nodeInfo.ovsdbNode, otherConfigs));
     }
 
     /**
@@ -250,30 +253,18 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNetVirt() throws InterruptedException {
         try (DockerOvs ovs = new DockerOvs()) {
-            ovs.logState(0);
+            ovs.logState(0, "idle");
             ConnectionInfo connectionInfo = SouthboundUtils
                     .getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
-
-            Map<String, String> otherConfigs = Maps.newHashMap();
-            otherConfigs.put("local_ip", "10.1.1.1");
-            assertTrue(nvSouthboundUtils.addOpenVSwitchOtherConfig(nodeInfo.ovsdbNode, otherConfigs));
+            LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
+            addLocalIp(nodeInfo);
 
             //validate default flows
             validateDefaultFlows(nodeInfo.datapathId, 2 * 60 * 1000);
+            ovs.logState(0, "default flows");
 
-            LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
-
-            southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, NetvirtITConstants.PORT_NAME,
-                    "internal", null, null, 0L);
-            Thread.sleep(1000);
-
-            OvsdbTerminationPointAugmentation terminationPointOfBridge = southboundUtils
-                    .getTerminationPointOfBridge(nodeInfo.bridgeNode, NetvirtITConstants.PORT_NAME);
-            assertNotNull("Did not find " + NetvirtITConstants.PORT_NAME, terminationPointOfBridge);
-
-            ovs.logState(0);
             nodeInfo.disconnect();
         } catch (Exception e) {
             LOG.error("testNetVirt: Exception thrown by OvsDocker.OvsDocker()", e);
@@ -292,13 +283,17 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     public void testNeutronNet() throws InterruptedException {
         LOG.warn("testNeutronNet: starting test");
         try (DockerOvs ovs = new DockerOvs()) {
+            ovs.logState(0, "idle");
             ConnectionInfo connectionInfo = SouthboundUtils
                     .getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
+            LOG.info("testNeutronNet: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
+            addLocalIp(nodeInfo);
 
             //validate default flows
             validateDefaultFlows(nodeInfo.datapathId, 2 * 60 * 1000);
+            ovs.logState(0, "default flows");
 
             //create the neutron objects
             NetITUtil net = new NetITUtil(ovs, southboundUtils, mdsalUtils);
@@ -306,11 +301,20 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             String port1 = net.createPort(nodeInfo.bridgeNode);
             String port2 = net.createPort(nodeInfo.bridgeNode);
 
-            Thread.sleep(1000);
+            InstanceIdentifier<TerminationPoint> tpIid =
+                    southboundUtils.createTerminationPointInstanceIdentifier(nodeInfo.bridgeNode, port2);
+            final NotifyingDataChangeListener portOperationalListener =
+                    new NotifyingDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                            NotifyingDataChangeListener.BIT_CREATE, tpIid, null);
+            portOperationalListener.registerDataChangeListener(dataBroker);
 
             //ovs interface configuration for running the ping test
             net.preparePortForPing(port1);
             net.preparePortForPing(port2);
+
+            portOperationalListener.waitForCreation(10000);
+            Thread.sleep(10000);
+            ovs.logState(0, "after ports");
 
             //run the ping test
             net.ping(port1, port2);

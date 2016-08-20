@@ -600,7 +600,8 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
      * sets the table offset and verifies the correct flow is programmed with the offset.
      */
     @Test
-    public void testNetvirtSfcPipeline() throws InterruptedException {
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void testNetvirtSfcPipeline() throws Exception {
         short netvirtTableOffset = 1;
         testModelPut(netvirtProvidersConfigBuilder(netvirtTableOffset), NetvirtProvidersConfig.class);
 
@@ -620,6 +621,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
      * @throws InterruptedException
      */
     @Test
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNetvirtSfcAll() throws Exception {
         if (userSpaceEnabled.equals("yes")) {
             LOG.info("testNetvirtSfcAll: skipping test because userSpaceEnabled {}", userSpaceEnabled);

@@ -119,6 +119,8 @@ public class NetvirtItUtils {
         return found;
     }
 
+    private static final int FLOW_WAIT = 30 * 1000;
+
     /**
      * Verify <strong>by flow id</strong> that the given flow was installed in a table. This method will wait 10
      * seconds for the flows to appear in each of the md-sal CONFIGURATION and OPERATIONAL data stores
@@ -127,7 +129,7 @@ public class NetvirtItUtils {
      * @param table integer value of table
      * @throws InterruptedException if interrupted while waiting for flow to appear in mdsal
      */
-    public void verifyFlow(long datapathId, String flowId, short table) throws InterruptedException {
+    public void verifyFlow(long datapathId, String flowId, short table) throws Exception {
         org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder nodeBuilder =
                 FlowUtils.createNodeBuilder(datapathId);
         FlowBuilder flowBuilder =
@@ -136,23 +138,31 @@ public class NetvirtItUtils {
         InstanceIdentifier<Flow> iid = FlowUtils.createFlowPath(flowBuilder, nodeBuilder);
 
         NotifyingDataChangeListener waitForIt = new NotifyingDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                iid, null);
+                NotifyingDataChangeListener.BIT_CREATE, iid, null);
         waitForIt.registerDataChangeListener(dataBroker);
-        waitForIt.waitForCreation(10000);
+        waitForIt.waitForCreation(FLOW_WAIT);
 
         Flow flow = FlowUtils.getFlow(flowBuilder, nodeBuilder,
                         dataBroker.newReadOnlyTransaction(), LogicalDatastoreType.CONFIGURATION);
         assertNotNull("Could not find flow in config: " + flowBuilder.build() + "--" + nodeBuilder.build(), flow);
 
-        waitForIt = new NotifyingDataChangeListener(LogicalDatastoreType.OPERATIONAL, iid, null);
+        waitForIt.close();
+        waitForIt = new NotifyingDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                NotifyingDataChangeListener.BIT_CREATE, iid, null);
         waitForIt.registerDataChangeListener(dataBroker);
-        waitForIt.waitForCreation(10000);
+        waitForIt.waitForCreation(FLOW_WAIT);
 
         flow = FlowUtils.getFlow(flowBuilder, nodeBuilder,
                         dataBroker.newReadOnlyTransaction(), LogicalDatastoreType.OPERATIONAL);
         assertNotNull("Could not find flow in operational: " + flowBuilder.build() + "--" + nodeBuilder.build(),
                 flow);
+        waitForIt.close();
     }
+
+    /*public void verifyFlowByFields(long datapathId, String flowId, short tableId, int waitFor)
+            throws Exception {
+        verifyFlow(datapathId, flowId, tableId);
+    }*/
 
     /**
      * Verify that a flow in CONFIGURATION exists also in OPERATIONAL. This is done by looking up the flow in
@@ -163,7 +173,7 @@ public class NetvirtItUtils {
      * @param waitFor Retry every second for waitFor milliseconds
      * @throws InterruptedException if interrupted while waiting for flow to appear in mdsal
      */
-    public void verifyFlowByFields(long datapathId, String flowId, short tableId, int waitFor) throws InterruptedException {
+    public void verifyFlowByFields(long datapathId, String flowId, short tableId, int waitFor) throws Exception {
         long start = System.currentTimeMillis();
         do {
             try {
@@ -186,7 +196,7 @@ public class NetvirtItUtils {
      * @param tableId integer value of table
      * @throws InterruptedException if interrupted while waiting for flow to appear in mdsal
      */
-    public void verifyFlowByFields(long datapathId, String flowId, short tableId) throws InterruptedException {
+    public void verifyFlowByFields(long datapathId, String flowId, short tableId) throws Exception {
         org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder nodeBuilder =
                 FlowUtils.createNodeBuilder(datapathId);
         FlowBuilder flowBuilder =
@@ -195,7 +205,7 @@ public class NetvirtItUtils {
         InstanceIdentifier<Flow> iid = FlowUtils.createFlowPath(flowBuilder, nodeBuilder);
 
         NotifyingDataChangeListener waitForIt = new NotifyingDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                iid, null);
+                NotifyingDataChangeListener.BIT_CREATE, iid, null);
         waitForIt.registerDataChangeListener(dataBroker);
         waitForIt.waitForCreation(10000);
 
@@ -203,6 +213,7 @@ public class NetvirtItUtils {
                 dataBroker.newReadOnlyTransaction(), LogicalDatastoreType.CONFIGURATION);
         assertNotNull("Could not read flow " + flowId + " from configuration", configFlow);
 
+        waitForIt.close();
         Table table = FlowUtils.getTable(nodeBuilder, tableId, dataBroker.newReadOnlyTransaction(),
                                                                                     LogicalDatastoreType.OPERATIONAL);
         assertNotNull("Could not read table " + tableId + " from operational", table);
@@ -210,8 +221,7 @@ public class NetvirtItUtils {
         List<Flow> flows = table.getFlow();
         Assert.assertNotNull("No flows found for table", flows);
 
-
-        for(Flow opFlow : flows) {
+        for (Flow opFlow : flows) {
             if (checkFlowsEqual(configFlow, opFlow)) {
                 return;
             }
@@ -223,7 +233,7 @@ public class NetvirtItUtils {
         Integer configPrio = configFlow.getPriority();
         Integer opPrio = opFlow.getPriority();
         if (!Objects.equals(configPrio == null ? DEFAULT_PRIORITY : configPrio,
-                                                    opPrio == null ? DEFAULT_PRIORITY : opPrio)) {
+                opPrio == null ? DEFAULT_PRIORITY : opPrio)) {
             return false;
         }
         return areMatchesEqual(configFlow.getMatch(), opFlow.getMatch());

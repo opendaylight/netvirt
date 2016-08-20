@@ -60,10 +60,8 @@ import org.slf4j.LoggerFactory;
  * Flow utils for NetvirtIT
  */
 public class FlowITUtil {
-
     private static final Logger LOG = LoggerFactory.getLogger(FlowITUtil.class);
     private static final String OPENFLOW = "openflow";
-
     private DataBroker dataBroker;
 
     public FlowITUtil(DataBroker dataBroker) {
@@ -160,7 +158,7 @@ public class FlowITUtil {
     }
 
     private Table getTable(NodeBuilder nodeBuilder, short table,
-                                 ReadOnlyTransaction readTx, final LogicalDatastoreType store) {
+                           ReadOnlyTransaction readTx, final LogicalDatastoreType store) {
         try {
             Optional<Table> data = readTx.read(store, this.createTablePath(nodeBuilder, table)).get();
             if (data.isPresent()) {
@@ -182,7 +180,7 @@ public class FlowITUtil {
      * @param table integer value of table
      * @throws InterruptedException if interrupted while waiting for flow to appear in mdsal
      */
-    public void verifyFlowById(long datapathId, String flowId, short table) throws InterruptedException {
+    public void verifyFlowById(long datapathId, String flowId, short table) throws Exception {
         org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder nodeBuilder =
                 this.createNodeBuilder(datapathId);
         FlowBuilder flowBuilder =
@@ -191,7 +189,7 @@ public class FlowITUtil {
         InstanceIdentifier<Flow> iid = this.createFlowPath(flowBuilder, nodeBuilder);
 
         NotifyingDataChangeListener waitForIt = new NotifyingDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                iid, null);
+                NotifyingDataChangeListener.BIT_CREATE, iid, null);
         waitForIt.registerDataChangeListener(dataBroker);
         waitForIt.waitForCreation(10000);
 
@@ -199,7 +197,9 @@ public class FlowITUtil {
                 dataBroker.newReadOnlyTransaction(), LogicalDatastoreType.CONFIGURATION);
         assertNotNull("Could not find flow in config: " + flowBuilder.build() + "--" + nodeBuilder.build(), flow);
 
-        waitForIt = new NotifyingDataChangeListener(LogicalDatastoreType.OPERATIONAL, iid, null);
+        waitForIt.close();
+        waitForIt = new NotifyingDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                NotifyingDataChangeListener.BIT_CREATE, iid, null);
         waitForIt.registerDataChangeListener(dataBroker);
         waitForIt.waitForCreation(10000);
 
@@ -207,6 +207,7 @@ public class FlowITUtil {
                 dataBroker.newReadOnlyTransaction(), LogicalDatastoreType.OPERATIONAL);
         assertNotNull("Could not find flow in operational: " + flowBuilder.build() + "--" + nodeBuilder.build(),
                 flow);
+        waitForIt.close();
     }
 
     /**
@@ -218,17 +219,19 @@ public class FlowITUtil {
      * @param waitFor Retry every second for waitFor milliseconds
      * @throws InterruptedException if interrupted while waiting for flow to appear in mdsal
      */
-    public void verifyFlowByFields(long datapathId, String flowId, short tableId, int waitFor) throws InterruptedException {
+    public void verifyFlowByFields(long datapathId, String flowId, short tableId, int waitFor)
+            throws InterruptedException {
         long start = System.currentTimeMillis();
         int i = 0;
         do {
             try {
                 i++;
-                LOG.warn("DEBUG ODED : VERIFY FLOW {}", i);
+                LOG.info("verifyFlowByFields(try {}) datapathId: {}, flowId: {}, tableId: {}",
+                        i, datapathId, flowId, tableId);
                 verifyFlowByFields(datapathId, flowId, tableId);
                 return;
             } catch (AssertionError e) {
-                if((System.currentTimeMillis() - start) >= waitFor) {
+                if ((System.currentTimeMillis() - start) >= waitFor) {
                     throw e;
                 }
                 Thread.sleep(1000);
@@ -267,7 +270,6 @@ public class FlowITUtil {
 
         List<Flow> flows = table.getFlow();
         Assert.assertNotNull("No flows found for table", flows);
-
 
         for(Flow opFlow : flows) {
             if (checkFlowsEqual(configFlow, opFlow)) {
@@ -421,5 +423,4 @@ public class FlowITUtil {
         }
 
     }
-
 }
