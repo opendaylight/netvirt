@@ -29,10 +29,6 @@ public class CloudServiceChainConstants {
     public static final String VPN_PSEUDO_SCF2VPN_FLOWID_PREFIX = "VpnPseudoPort.Scf2Vpn";
     public static final String ELAN_TO_SCF_L2_FLOWID_PREFIX = "ElanPseudoPort.Elan2Scf";
     public static final String SCF_TO_ELAN_L2_FLOWID_PREFIX = "ElanPseudoPort.Scf2Elan";
-    public static final String SCF_L3VPN_IDPOOL_NAME = "l3vpnscf";
-    public static final long SCF_L3VPN_ID_POOL_START = 20000;
-    public static final long SCF_L3VPN_ID_POOL_END = 65535;
-    public static final long ETHERTYPE_IPV4 = 0x0800L;
     public static final long INVALID_VPN_TAG = -1;
 
 }
