@@ -113,22 +113,13 @@ public class NeutronSecurityRuleListener
             isDirectionIngress = securityRule.getDirection().equals(DirectionIngress.class);
         }
         if (securityRule.getPortRangeMax() != null) {
-            if (isDirectionIngress) {
-                sourcePortRangeBuilder.setUpperPort(new PortNumber(securityRule.getPortRangeMax()));
-            } else {
-                destinationPortRangeBuilder.setUpperPort(new PortNumber(securityRule.getPortRangeMax()));
-            }
+            destinationPortRangeBuilder.setUpperPort(new PortNumber(securityRule.getPortRangeMax()));
+
         }
         if (securityRule.getPortRangeMin() != null) {
-            if (isDirectionIngress) {
-                sourcePortRangeBuilder.setLowerPort(new PortNumber(securityRule.getPortRangeMin()));
-                // set source port range if lower port is specified as it is mandatory parameter in acl model
-                aceIpBuilder.setSourcePortRange(sourcePortRangeBuilder.build());
-            } else {
-                destinationPortRangeBuilder.setLowerPort(new PortNumber(securityRule.getPortRangeMin()));
-                // set destination port range if lower port is specified as it is mandatory parameter in acl model
-                aceIpBuilder.setDestinationPortRange(destinationPortRangeBuilder.build());
-            }
+            destinationPortRangeBuilder.setLowerPort(new PortNumber(securityRule.getPortRangeMin()));
+            // set destination port range if lower port is specified as it is mandatory parameter in acl model
+            aceIpBuilder.setDestinationPortRange(destinationPortRangeBuilder.build());
         }
         aceIpBuilder = handleRemoteIpPrefix(securityRule, aceIpBuilder, isDirectionIngress);
         if (securityRule.getRemoteGroupId() != null) {
