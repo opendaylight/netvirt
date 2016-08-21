@@ -1143,7 +1143,7 @@ public class NatUtil {
         InstanceIdentifier<VpnPortipToPort> portIpInst = InstanceIdentifier.builder(NeutronVpnPortipPortData.class)
                 .child(VpnPortipToPort.class, new VpnPortipToPortKey(gatewayIp.getIpv4Address().getValue(), vpnName))
                 .build();
-        Optional<VpnPortipToPort> portIpToPortOpt = read(broker, LogicalDatastoreType.CONFIGURATION, portIpInst);
+        Optional<VpnPortipToPort> portIpToPortOpt = read(broker, LogicalDatastoreType.OPERATIONAL, portIpInst);
         if (!portIpToPortOpt.isPresent()) {
             LOG.trace("No resolution was found to GW ip {} in subnet {}", gatewayIp, subnetId.getValue());
             return null;
