@@ -673,9 +673,10 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             net.preparePortForPing("vm2");
 
             LOG.info("wait for stuff to catch up");
-            Thread.sleep(60000);
+            Thread.sleep(30000);
             ovs.logState(0, "after preparePortForPing");
             net.ping("vm1", "vm2");
+            LOG.info("after ping");
             ovs.logState(0, "after ping");
             net.destroy();
             nodeInfo.disconnect();
