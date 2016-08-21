@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_6e50a85e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-08-21T11:02:39Z",
+      "side": 1,
+      "message": "General comment about @SuppressWarning(\"checkstyle:IllegalCatch\"). IMO, if we reached a situation where in a single class you have 4 of these, it\u0027s a red flag, and it means that the checkstyle rules shouldn\u0027t enforce this.",
+      "revId": "701f438b943c1fa2bfa227636fc45a89181b598d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
