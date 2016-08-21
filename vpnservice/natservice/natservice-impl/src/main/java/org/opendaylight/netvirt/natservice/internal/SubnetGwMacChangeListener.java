@@ -38,7 +38,7 @@ public class SubnetGwMacChangeListener
     }
 
     public void start() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
     @Override
