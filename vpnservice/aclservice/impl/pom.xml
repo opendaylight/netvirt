@@ -105,8 +105,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <configuration>
               <artifacts>
                 <artifact>
-                  <file>${project.build.directory}/classes/initial/aclservice.cfg</file>
-                  <type>cfg</type>
+                  <file>${project.build.directory}/classes/initial/netvirt-aclservice-config.xml</file>
+                  <type>xml</type>
                   <classifier>config</classifier>
                 </artifact>
               </artifacts>

@@ -20,6 +20,7 @@ module aclservice-config {
                 enum "stateful";
                 enum "learn";
             }
+            default "stateful";
         }
     }
 }
