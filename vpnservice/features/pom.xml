@@ -265,7 +265,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>aclservice-impl</artifactId>
       <version>${project.version}</version>
-      <type>cfg</type>
+      <type>xml</type>
       <classifier>config</classifier>
     </dependency>
     <dependency>
@@ -319,6 +319,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>cloud-servicechain-impl</artifactId>
       <version>${cloud-servicechain.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>cloud-servicechain-impl</artifactId>
+      <version>${cloud-servicechain.version}</version>
+      <classifier>config</classifier>
+      <type>xml</type>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

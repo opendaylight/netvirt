@@ -10,29 +10,15 @@
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
 
   <odl:clustered-app-config id="aclserviceConfig"
-                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig">
-    <!--<odl:default-config><![CDATA[
-    <aclservice-config xmlns="urn:opendaylight:netvirt:aclservice-config">
-      <security-group-mode>stateless</security-group-mode>
-    </aclservice-config>
-  ]]></odl:default-config>-->
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig"
+                            default-config-file-name="netvirt-aclservice-config.xml">
   </odl:clustered-app-config>
-
-  <!--<cm:property-placeholder persistent-id="org.opendaylight.netvirt.aclservice" update-strategy="none">
-    <cm:default-properties>
-      <cm:property name="security-group-mode" value="stateless"/>
-    </cm:default-properties>
-  </cm:property-placeholder>-->
 
   <bean id="aclServiceFactory"
     class="org.opendaylight.netvirt.aclservice.AclServiceImplFactory" init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalManager" />
     <argument ref="aclserviceConfig" />
-    <!--<property name="securityGroupMode" value="${security-group-mode}"/>-->
-    <!--<cm:managed-properties persistent-id="org.opendaylight.netvirt.aclservice"
-                           update-strategy="component-managed"
-                           update-method="updateConfigParameter"/>-->
   </bean>
   <bean id="ingressAclService"
     class="org.opendaylight.netvirt.aclservice.AclServiceImplFactory" factory-ref="aclServiceFactory" factory-method="createIngressAclServiceImpl">

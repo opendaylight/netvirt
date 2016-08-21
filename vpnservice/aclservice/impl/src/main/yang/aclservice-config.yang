@@ -19,6 +19,7 @@ module aclservice-config {
                 enum "stateless";
                 enum "stateful";
             }
+            default "stateful";
         }
     }
 }
