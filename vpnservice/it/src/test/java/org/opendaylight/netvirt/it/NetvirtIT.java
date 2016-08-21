@@ -14,13 +14,21 @@ import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
+import static org.ops4j.pax.exam.CoreOptions.when;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 import static org.ops4j.pax.exam.MavenUtils.asInProject;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
+import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.DEBUG;
+import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.ERROR;
+import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.INFO;
+import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.TRACE;
+import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.WARN;
 
 import com.google.common.collect.Maps;
+import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,7 +58,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
-import org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel;
 import org.ops4j.pax.exam.options.MavenUrlReference;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -110,11 +117,11 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                         mavenBundle("org.opendaylight.netvirt", "utils.mdsal-openflow")
                                 .version(asInProject())
                                 .type("jar")),
-//                wrappedBundle(
-//                        mavenBundle("org.opendaylight.netvirt", "utils.config")
-//                                .version(asInProject())
-//                                .type("jar")),
                 configureConsole().startLocalConsole(),
+                when(Boolean.getBoolean("sgm.transparent")).useOptions(
+                        replaceConfigurationFile(
+                                "etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml",
+                                new File("src/test/resources/initial/netvirt-aclservice-config.xml"))),
                 vmOption("-javaagent:../jars/org.jacoco.agent.jar=destfile=../../jacoco-it.exec"),
                 keepRuntimeFolder()
         };
@@ -125,35 +132,38 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         return composite(
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         logConfiguration(NetvirtIT.class),
-                        LogLevel.INFO.name()),
+                        INFO.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.netvirt",
-                        LogLevel.TRACE.name()),
+                        TRACE.name()),
+                editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils",
+                        TRACE.name()),
                 /*editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.openflowplugin.impl",
-                        LogLevel.DEBUG.name()),*/
+                        DEBUG.name()),*/
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.openflowjava.protocol.impl.util.ListDeserializer",
-                        LogLevel.ERROR.name()),
+                        ERROR.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.controller.configpusherfeature.internal.FeatureConfigPusher",
-                        LogLevel.ERROR.name()),
+                        ERROR.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.apache.aries.blueprint.container.ServiceRecipe",
-                        LogLevel.WARN.name()),
+                        WARN.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.yangtools.yang.parser.repo.YangTextSchemaContextResolver",
-                        LogLevel.WARN.name()),
+                        WARN.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.netvirt.fibmanager.FibNodeCapableListener",
-                        LogLevel.DEBUG.name()),
+                        DEBUG.name()),
                 super.getLoggingOption());
     }
 
     @Before
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void setup() throws InterruptedException {
+    public void setup() throws Exception {
         if (setup.get()) {
             LOG.info("Skipping setUp, already initialized");
             return;
@@ -175,7 +185,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         assertNotNull("mdsalUtils should not be null", mdsalUtils);
         southboundUtils = new SouthboundUtils(mdsalUtils);
         nvSouthboundUtils = new org.opendaylight.netvirt.utils.netvirt.it.utils.SouthboundUtils(mdsalUtils);
-        assertTrue("Did not find " + NETVIRT_TOPOLOGY_ID, this.getNetvirtTopology());
+        assertTrue("Did not find " + NETVIRT_TOPOLOGY_ID, getNetvirtTopology());
         flowITUtil = new FlowITUtil(dataBroker);
 
         setup.set(true);
@@ -193,28 +203,23 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 connectionType, addressStr, portStr, controllerStr, userSpaceEnabled);
     }
 
-    private Boolean getNetvirtTopology() {
+    private Boolean getNetvirtTopology() throws Exception {
         LOG.info("getNetvirtTopology: looking for {}...", NETVIRT_TOPOLOGY_ID);
         Boolean found = false;
         TopologyId topologyId = new TopologyId(NETVIRT_TOPOLOGY_ID);
         InstanceIdentifier<Topology> path =
                 InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, new TopologyKey(topologyId));
-        for (int i = 0; i < 60; ++i) {
-            Topology topology = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, path);
-            if (topology != null) {
-                LOG.info("getNetvirtTopology: found {}...", NETVIRT_TOPOLOGY_ID);
-                found = Boolean.valueOf(true);
-                break;
-            }
-
-            LOG.info("getNetvirtTopology: still looking ({})...", i);
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException var7) {
-                LOG.warn("Interrupted while waiting for {}", "netvirt:1", var7);
-            }
+        final NotifyingDataChangeListener netvirtTopologyListener =
+                new NotifyingDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                        NotifyingDataChangeListener.BIT_CREATE, path, null);
+        netvirtTopologyListener.registerDataChangeListener(dataBroker);
+        netvirtTopologyListener.waitForCreation(60000);
+        Topology topology = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, path);
+        if (topology != null) {
+            LOG.info("getNetvirtTopology: found {}...", NETVIRT_TOPOLOGY_ID);
+            found = true;
         }
+        netvirtTopologyListener.close();
 
         return found;
     }
@@ -261,7 +266,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
             addLocalIp(nodeInfo);
 
-            //validate default flows
             validateDefaultFlows(nodeInfo.datapathId, 2 * 60 * 1000);
             ovs.logState(0, "default flows");
 
@@ -291,11 +295,9 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             LOG.info("testNeutronNet: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
             addLocalIp(nodeInfo);
 
-            //validate default flows
             validateDefaultFlows(nodeInfo.datapathId, 2 * 60 * 1000);
             ovs.logState(0, "default flows");
 
-            //create the neutron objects
             NetITUtil net = new NetITUtil(ovs, southboundUtils, mdsalUtils);
             net.createNetworkAndSubnet();
             String port1 = net.createPort(nodeInfo.bridgeNode);
@@ -308,18 +310,16 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                             NotifyingDataChangeListener.BIT_CREATE, tpIid, null);
             portOperationalListener.registerDataChangeListener(dataBroker);
 
-            //ovs interface configuration for running the ping test
             net.preparePortForPing(port1);
             net.preparePortForPing(port2);
 
             portOperationalListener.waitForCreation(10000);
-            Thread.sleep(10000);
+            Thread.sleep(30000);
             ovs.logState(0, "after ports");
 
-            //run the ping test
             net.ping(port1, port2);
+            ovs.logState(0, "after ping");
 
-            //clean the neutron object and disconnect from odl
             net.destroy();
             nodeInfo.disconnect();
         } catch (Exception e) {
