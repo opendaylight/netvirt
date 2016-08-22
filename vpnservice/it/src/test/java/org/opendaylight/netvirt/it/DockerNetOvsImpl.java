@@ -1,0 +1,98 @@
+/*
+ * Copyright (c) 2016 Red Hat, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.opendaylight.netvirt.it;
+
+import java.io.IOException;
+import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
+import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
+import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+
+public class DockerNetOvsImpl extends AbstractNetOvs {
+    DockerNetOvsImpl(final DockerOvs dockerOvs, final Boolean isUserSpace, final MdsalUtils mdsalUtils,
+                     final Neutron neutron, SouthboundUtils southboundUtils) {
+        super(dockerOvs, isUserSpace, mdsalUtils, neutron, southboundUtils);
+    }
+
+    @Override
+    public String createPort(Node bridgeNode) throws InterruptedException, IOException {
+        PortInfo portInfo = buildPortInfo();
+
+        // userspace requires adding vm port as a special tap port
+        // kernel mode uses the port as created by ovs
+        if (isUserSpace) {
+            dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "tuntap", "add", portInfo.name, "mode", "tap");
+        }
+
+        neutron.createPort(portInfo, "compute:None");
+        addTerminationPoint(portInfo, bridgeNode, "internal");
+        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "link", "set", "dev", portInfo.name, "address", portInfo.mac);
+        portInfoByName.put(portInfo.name, portInfo);
+
+        return portInfo.name;
+    }
+
+    @Override
+    public void preparePortForPing(String portName) throws InterruptedException, IOException {
+        String nsName = "ns-" + portName;
+        PortInfo portInfo = portInfoByName.get(portName);
+        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "add", nsName);
+        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "link", "set", portName, "netns", nsName);
+        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "exec", nsName, "ip", "addr",
+                "add", "dev", portName, portInfo.ip + "/24");
+        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "exec", nsName, "ip", "link",
+                "set", "dev", portName, "up");
+        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "exec", nsName, "ip", "route",
+                "add", "default", "via", portInfo.ip);
+    }
+
+    /**
+     * Ping from one port to the other.
+     *
+     * @param fromPort name of the port to ping from. This is the name you used for createPort.
+     * @param toPort   name of the port to ping to. This is the name you used for createPort.
+     * @throws IOException          if an IO error occurs with one of the spawned procs
+     * @throws InterruptedException because we sleep
+     */
+    public void ping(String fromPort, String toPort) throws InterruptedException, IOException {
+        PortInfo portInfo = portInfoByName.get(toPort);
+        pingIp(fromPort, portInfo.ip);
+    }
+
+    /**
+     * Ping from one port to an IP address.
+     *
+     * @param fromPort name of the port to ping from. This is the name you used for createPort.
+     * @param ip       The IP address to ping
+     * @throws IOException          if an IO error occurs with one of the spawned procs
+     * @throws InterruptedException because we sleep
+     */
+    public void pingIp(String fromPort, String ip) throws IOException, InterruptedException {
+        String fromNs = "ns-" + fromPort;
+        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "exec", fromNs, "ping", "-c", "4", ip);
+    }
+
+    @Override
+    public void logState(int dockerInstance, String logText) throws IOException, InterruptedException {
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "link");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "addr");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "route");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "list");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", "ns-vm1", "ip", "link");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", "ns-vm1", "ip", "addr");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", "ns-vm1", "ip", "route");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", "ns-vm2", "ip", "link");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", "ns-vm2", "ip", "addr");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", "ns-vm2", "ip", "route");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-vsctl", "show");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-ofctl", "-OOpenFlow13", "show", "br-int");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-ofctl", "-OOpenFlow13", "dump-flows", "br-int");
+        //dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-appctl", "fdb/show", "br-int");
+        //ovs-appctl -t /var/run/openvswitch/ovs-vswitchd.12.ctl fdb/show br-int
+    }
+}

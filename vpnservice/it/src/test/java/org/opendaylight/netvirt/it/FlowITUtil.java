@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.utils.netvirt.it.utils;
+package org.opendaylight.netvirt.it;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -56,9 +56,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Flow utils for NetvirtIT
- */
 public class FlowITUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FlowITUtil.class);
     private static final String OPENFLOW = "openflow";
@@ -68,23 +65,25 @@ public class FlowITUtil {
         this.dataBroker = dataBroker;
     }
 
-    private final static Class[] MATCH_AUGMENTATIONS = {GeneralAugMatchNodesNodeTableFlow.class,
-            GeneralAugMatchNotifUpdateFlowStats.class,
-            GeneralAugMatchNotifPacketIn.class,
-            GeneralAugMatchNotifSwitchFlowRemoved.class,
-            GeneralAugMatchRpcAddFlow.class,
-            GeneralAugMatchRpcRemoveFlow.class,
-            GeneralAugMatchRpcUpdateFlowOriginal.class,
-            GeneralAugMatchRpcUpdateFlowUpdated.class};
+    private static final Class[] MATCH_AUGMENTATIONS = {
+        GeneralAugMatchNodesNodeTableFlow.class,
+        GeneralAugMatchNotifUpdateFlowStats.class,
+        GeneralAugMatchNotifPacketIn.class,
+        GeneralAugMatchNotifSwitchFlowRemoved.class,
+        GeneralAugMatchRpcAddFlow.class,
+        GeneralAugMatchRpcRemoveFlow.class,
+        GeneralAugMatchRpcUpdateFlowOriginal.class,
+        GeneralAugMatchRpcUpdateFlowUpdated.class};
 
-    private final static Class[] EXT_LIST_AUGMENTATIONS = {NxAugMatchNodesNodeTableFlow.class,
-            NxAugMatchNotifUpdateFlowStats.class,
-            NxAugMatchNotifPacketIn.class,
-            NxAugMatchNotifSwitchFlowRemoved.class,
-            NxAugMatchRpcAddFlow.class,
-            NxAugMatchRpcRemoveFlow.class,
-            NxAugMatchRpcUpdateFlowOriginal.class,
-            NxAugMatchRpcUpdateFlowUpdated.class};
+    private static final Class[] EXT_LIST_AUGMENTATIONS = {
+        NxAugMatchNodesNodeTableFlow.class,
+        NxAugMatchNotifUpdateFlowStats.class,
+        NxAugMatchNotifPacketIn.class,
+        NxAugMatchNotifSwitchFlowRemoved.class,
+        NxAugMatchRpcAddFlow.class,
+        NxAugMatchRpcRemoveFlow.class,
+        NxAugMatchRpcUpdateFlowOriginal.class,
+        NxAugMatchRpcUpdateFlowUpdated.class};
 
     private static Integer DEFAULT_PRIORITY = new Integer(32768);
 
@@ -125,7 +124,7 @@ public class FlowITUtil {
             if (data.isPresent()) {
                 return data.get();
             }
-        } catch (InterruptedException|ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to get flow {}", flowBuilder.getFlowName(), e);
         }
 
@@ -164,7 +163,7 @@ public class FlowITUtil {
             if (data.isPresent()) {
                 return data.get();
             }
-        } catch (InterruptedException|ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to get table {}", table, e);
         }
 
@@ -222,12 +221,12 @@ public class FlowITUtil {
     public void verifyFlowByFields(long datapathId, String flowId, short tableId, int waitFor)
             throws InterruptedException {
         long start = System.currentTimeMillis();
-        int i = 0;
+        int cnt = 0;
         do {
             try {
-                i++;
+                cnt++;
                 LOG.info("verifyFlowByFields(try {}) datapathId: {}, flowId: {}, tableId: {}",
-                        i, datapathId, flowId, tableId);
+                        cnt, datapathId, flowId, tableId);
                 verifyFlowByFields(datapathId, flowId, tableId);
                 return;
             } catch (AssertionError e) {
@@ -271,7 +270,7 @@ public class FlowITUtil {
         List<Flow> flows = table.getFlow();
         Assert.assertNotNull("No flows found for table", flows);
 
-        for(Flow opFlow : flows) {
+        for (Flow opFlow : flows) {
             if (checkFlowsEqual(configFlow, opFlow)) {
                 return;
             }
@@ -308,19 +307,21 @@ public class FlowITUtil {
             return false;
         }
 
-        if (!Objects.equals(m1.getInPort(), m2.getInPort())) { return false; }
-        if (!Objects.equals(m1.getInPhyPort(), m2.getInPhyPort())) { return false; }
-        if (!Objects.equals(m1.getMetadata(), m2.getMetadata())) { return false; }
-        if (!Objects.equals(m1.getTunnel(), m2.getTunnel())) { return false; }
-        if (!Objects.equals(m1.getEthernetMatch(), m2.getEthernetMatch())) { return false; }
-        if (!Objects.equals(m1.getVlanMatch(), m2.getVlanMatch())) { return false; }
-        if (!Objects.equals(m1.getIpMatch(), m2.getIpMatch())) { return false; }
-        if (!Objects.equals(m1.getLayer3Match(), m2.getLayer3Match())) { return false; }
-        if (!Objects.equals(m1.getLayer4Match(), m2.getLayer4Match())) { return false; }
-        if (!Objects.equals(m1.getIcmpv4Match(), m2.getIcmpv4Match())) { return false; }
-        if (!Objects.equals(m1.getIcmpv6Match(), m2.getIcmpv6Match())) { return false; }
-        if (!Objects.equals(m1.getProtocolMatchFields(), m2.getProtocolMatchFields())) { return false; }
-        if (!Objects.equals(m1.getTcpFlagsMatch(), m2.getTcpFlagsMatch())) { return false; }
+        if (!Objects.equals(m1.getInPort(), m2.getInPort())
+                || !Objects.equals(m1.getInPhyPort(), m2.getInPhyPort())
+                || !Objects.equals(m1.getMetadata(), m2.getMetadata())
+                || !Objects.equals(m1.getTunnel(), m2.getTunnel())
+                || !Objects.equals(m1.getEthernetMatch(), m2.getEthernetMatch())
+                || !Objects.equals(m1.getVlanMatch(), m2.getVlanMatch())
+                || !Objects.equals(m1.getIpMatch(), m2.getIpMatch())
+                || !Objects.equals(m1.getLayer3Match(), m2.getLayer3Match())
+                || !Objects.equals(m1.getLayer4Match(), m2.getLayer4Match())
+                || !Objects.equals(m1.getIcmpv4Match(), m2.getIcmpv4Match())
+                || !Objects.equals(m1.getIcmpv6Match(), m2.getIcmpv6Match())
+                || !Objects.equals(m1.getProtocolMatchFields(), m2.getProtocolMatchFields())
+                || !Objects.equals(m1.getTcpFlagsMatch(), m2.getTcpFlagsMatch())) {
+            return false;
+        }
 
         MatchAugmentationIterator it = new MatchAugmentationIterator(m1);
         List<AllMatchesGrouping> side1Matches = Lists.newArrayList();
@@ -330,7 +331,7 @@ public class FlowITUtil {
         }
 
         it = new MatchAugmentationIterator(m2);
-        while(null != (aug = it.next())) {
+        while (null != (aug = it.next())) {
             if (!isMatchInList(aug, side1Matches)) {
                 return false;
             }
@@ -347,32 +348,35 @@ public class FlowITUtil {
         if (obj1 == null || obj2 == null) {
             return false;
         }
-        if (!Objects.equals(obj1.getNxmOfEthSrc(), obj2.getNxmOfEthSrc())) { return false; }
-        if (!Objects.equals(obj1.getNxmOfArpOp(), obj2.getNxmOfArpOp())) { return false; }
-        if (!Objects.equals(obj1.getNxmOfUdpDst(), obj2.getNxmOfUdpDst())) { return false; }
-        if (!Objects.equals(obj1.getNxmNxNshc3(), obj2.getNxmNxNshc3())) { return false; }
-        if (!Objects.equals(obj1.getNxmNxCtZone(), obj2.getNxmNxCtZone())) { return false; }
-        if (!Objects.equals(obj1.getNxmNxArpSha(), obj2.getNxmNxArpSha())) { return false; }
-        if (!Objects.equals(obj1.getNxmOfIcmpType(), obj2.getNxmOfIcmpType())) { return false; }
-        if (!Objects.equals(obj1.getNxmNxNshc1(), obj2.getNxmNxNshc1())) { return false; }
-        if (!Objects.equals(obj1.getNxmOfArpSpa(), obj2.getNxmOfArpSpa())) { return false; }
-        if (!Objects.equals(obj1.getNxmNxTunIpv4Dst(), obj2.getNxmNxTunIpv4Dst())) { return false; }
-        if (!Objects.equals(obj1.getNxmOfTcpSrc(), obj2.getNxmOfTcpSrc())) { return false; }
-        if (!Objects.equals(obj1.getNxmNxNshc4(), obj2.getNxmNxNshc4())) { return false; }
-        if (!Objects.equals(obj1.getNxmOfArpTpa(), obj2.getNxmOfArpTpa())) { return false; }
-        if (!Objects.equals(obj1.getNxmOfTcpDst(), obj2.getNxmOfTcpDst())) { return false; }
-        if (!Objects.equals(obj1.getNxmNxNsi(), obj2.getNxmNxNsi())) { return false; }
-        if (!Objects.equals(obj1.getNxmNxNshc2(), obj2.getNxmNxNshc2())) { return false; }
-        if (!Objects.equals(obj1.getNxmNxArpTha(), obj2.getNxmNxArpTha())) { return false; }
-        if (!Objects.equals(obj1.getNxmNxReg(), obj2.getNxmNxReg())) { return false; }
-        if (!Objects.equals(obj1.getNxmOfIpSrc(), obj2.getNxmOfIpSrc())) { return false; }
-        if (!Objects.equals(obj1.getNxmOfEthType(), obj2.getNxmOfEthType())) { return false; }
-        if (!Objects.equals(obj1.getNxmOfEthDst(), obj2.getNxmOfEthDst())) { return false; }
-        if (!Objects.equals(obj1.getNxmOfUdpSrc(), obj2.getNxmOfUdpSrc())) { return false; }
-        if (!Objects.equals(obj1.getNxmNxCtState(), obj2.getNxmNxCtState())) { return false; }
-        if (!Objects.equals(obj1.getNxmNxTunIpv4Src(), obj2.getNxmNxTunIpv4Src())) { return false; }
-        if (!Objects.equals(obj1.getNxmOfIpDst(), obj2.getNxmOfIpDst())) { return false; }
-        if (!Objects.equals(obj1.getNxmNxNsp(), obj2.getNxmNxNsp())) { return false; }
+
+        if (!Objects.equals(obj1.getNxmOfEthSrc(), obj2.getNxmOfEthSrc())
+                || !Objects.equals(obj1.getNxmOfArpOp(), obj2.getNxmOfArpOp())
+                || !Objects.equals(obj1.getNxmOfUdpDst(), obj2.getNxmOfUdpDst())
+                || !Objects.equals(obj1.getNxmNxNshc3(), obj2.getNxmNxNshc3())
+                || !Objects.equals(obj1.getNxmNxCtZone(), obj2.getNxmNxCtZone())
+                || !Objects.equals(obj1.getNxmNxArpSha(), obj2.getNxmNxArpSha())
+                || !Objects.equals(obj1.getNxmOfIcmpType(), obj2.getNxmOfIcmpType())
+                || !Objects.equals(obj1.getNxmNxNshc1(), obj2.getNxmNxNshc1())
+                || !Objects.equals(obj1.getNxmOfArpSpa(), obj2.getNxmOfArpSpa())
+                || !Objects.equals(obj1.getNxmNxTunIpv4Dst(), obj2.getNxmNxTunIpv4Dst())
+                || !Objects.equals(obj1.getNxmOfTcpSrc(), obj2.getNxmOfTcpSrc())
+                || !Objects.equals(obj1.getNxmNxNshc4(), obj2.getNxmNxNshc4())
+                || !Objects.equals(obj1.getNxmOfArpTpa(), obj2.getNxmOfArpTpa())
+                || !Objects.equals(obj1.getNxmOfTcpDst(), obj2.getNxmOfTcpDst())
+                || !Objects.equals(obj1.getNxmNxNsi(), obj2.getNxmNxNsi())
+                || !Objects.equals(obj1.getNxmNxNshc2(), obj2.getNxmNxNshc2())
+                || !Objects.equals(obj1.getNxmNxArpTha(), obj2.getNxmNxArpTha())
+                || !Objects.equals(obj1.getNxmNxReg(), obj2.getNxmNxReg())
+                || !Objects.equals(obj1.getNxmOfIpSrc(), obj2.getNxmOfIpSrc())
+                || !Objects.equals(obj1.getNxmOfEthType(), obj2.getNxmOfEthType())
+                || !Objects.equals(obj1.getNxmOfEthDst(), obj2.getNxmOfEthDst())
+                || !Objects.equals(obj1.getNxmOfUdpSrc(), obj2.getNxmOfUdpSrc())
+                || !Objects.equals(obj1.getNxmNxCtState(), obj2.getNxmNxCtState())
+                || !Objects.equals(obj1.getNxmNxTunIpv4Src(), obj2.getNxmNxTunIpv4Src())
+                || !Objects.equals(obj1.getNxmOfIpDst(), obj2.getNxmOfIpDst())
+                || !Objects.equals(obj1.getNxmNxNsp(), obj2.getNxmNxNsp())) {
+            return false;
+        }
 
         return true;
     }
@@ -381,7 +385,7 @@ public class FlowITUtil {
 
         Match myMatch;
 
-        public MatchAugmentationIterator(Match match) {
+        MatchAugmentationIterator(Match match) {
             this.myMatch = match;
         }
 
@@ -402,7 +406,7 @@ public class FlowITUtil {
 
                         ExtensionList extList = extListList.get(extListListIdx);
 
-                        while(extListAugmentationIdx < EXT_LIST_AUGMENTATIONS.length) {
+                        while (extListAugmentationIdx < EXT_LIST_AUGMENTATIONS.length) {
                             Augmentation res = extList.getExtension().getAugmentation(
                                     EXT_LIST_AUGMENTATIONS[extListAugmentationIdx]);
                             ++extListAugmentationIdx;

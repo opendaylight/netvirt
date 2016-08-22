@@ -27,16 +27,20 @@ public class PingableNeutronNetItUtil extends NeutronNetItUtil {
 
     private static final int DEFAULT_WAIT = 30 * 1000;
     private DockerOvs dockerOvs;
+    private final Boolean isUserSpace;
 
-    public PingableNeutronNetItUtil(DockerOvs dockerOvs, SouthboundUtils southboundUtils, String tenantId) {
+    public PingableNeutronNetItUtil(DockerOvs dockerOvs, SouthboundUtils southboundUtils, String tenantId,
+                                    Boolean isUserSpace) {
         super(southboundUtils, tenantId);
         this.dockerOvs = dockerOvs;
+        this.isUserSpace = isUserSpace;
     }
 
     public PingableNeutronNetItUtil(DockerOvs dockerOvs, SouthboundUtils southboundUtils, String tenantId,
-                                    String segId, String macPfx, String ipPfx, String cidr) {
+                                    String segId, String macPfx, String ipPfx, String cidr, Boolean isUserSpace) {
         super(southboundUtils, tenantId, segId, macPfx, ipPfx, cidr);
         this.dockerOvs = dockerOvs;
+        this.isUserSpace = isUserSpace;
     }
 
     /**
@@ -56,10 +60,17 @@ public class PingableNeutronNetItUtil extends NeutronNetItUtil {
 
         PortInfo portInfo = buildPortInfo(portName);
 
-        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "tuntap", "add", portInfo.name, "mode", "tap");
-        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "link", "set", "dev", portInfo.name, "address", portInfo.mac);
+        if (isUserSpace) {
+            dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "tuntap", "add", portInfo.name, "mode", "tap");
+            dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "link", "set", "dev",
+                    portInfo.name, "address", portInfo.mac);
 
-        doCreatePort(bridge, portInfo, owner, "tap", secGroups);
+            doCreatePort(bridge, portInfo, owner, "tap", secGroups);
+        } else {
+            doCreatePort(bridge, portInfo, owner, "internal", secGroups);
+            dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "link", "set", "dev",
+                    portInfo.name, "address", portInfo.mac);
+        }
     }
 
     /**
@@ -80,11 +91,13 @@ public class PingableNeutronNetItUtil extends NeutronNetItUtil {
         dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "add", nsName);
         dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "link", "set", portName, "netns", nsName);
         dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "exec", nsName, "ip", "addr",
-                                                                        "add", "dev", portName, portInfo.ip + "/24");
+                "add", "dev", portName, portInfo.ip + "/24");
         dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "exec", nsName, "ip", "link",
-                                                                        "set", "dev", portName, "up");
+                "set", "dev", "lo", "up");
+        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "exec", nsName, "ip", "link",
+                "set", "dev", portName, "up");
         dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "exec", nsName, "ip", "route",
-                                                                        "add", "default", "via", portInfo.ip);
+                "add", "default", "via", portInfo.ip);
     }
 
     /**
@@ -117,6 +130,6 @@ public class PingableNeutronNetItUtil extends NeutronNetItUtil {
         }
 
         String fromNs = "ns-" + fromPort;
-        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "exec", fromNs, "ping", "-c", "4", ip);
+        dockerOvs.runInContainer(0, DEFAULT_WAIT, 0, "ip", "netns", "exec", fromNs, "ping", "-c", "4", ip);
     }
 }
