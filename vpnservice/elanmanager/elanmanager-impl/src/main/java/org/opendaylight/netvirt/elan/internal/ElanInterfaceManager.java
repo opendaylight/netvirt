@@ -696,7 +696,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             setupTerminateServiceTable(elanInstance, dpId, writeFlowGroupTx);
             setupUnknownDMacTable(elanInstance, dpId, writeFlowGroupTx);
             // update the remote-DPNs remoteBC group entry with Tunnels
-            setElanBCGrouponOtherDpns(elanInstance, elanInstance.getElanTag().longValue(), dpId, writeFlowGroupTx);
+            if(ElanUtils.isVxlan(elanInstance)) {
+                setElanBCGrouponOtherDpns(elanInstance, elanInstance.getElanTag().longValue(), dpId, writeFlowGroupTx);
+            }
             /*
              * Install remote DMAC flow. This is required since this DPN is
              * added later to the elan instance and remote DMACs of other
