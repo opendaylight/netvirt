@@ -16,6 +16,24 @@
       "revId": "701f438b943c1fa2bfa227636fc45a89181b598d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b64a16c3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-22T14:03:00Z",
+      "side": 1,
+      "message": "Guy Sela, may I disagree with you? IMHO catch (Exception e) IS typically a bad practice (although arguably less bad than catch (Throwable e) \u0026 catch (RuntimeException e), which are even worse and definitely almost always wrong, unless intentionally written by someone who really knows what they\u0027re doing).  Having 4 of these in here IMHO is a sign of: 1. read() badly written; see my @Deprecated and read2(); 2. getInternalTunnelItmEgressAction(), getExternalTunnelItmEgressAction() etc. or whatever it calls, which Periyasamy saw fail and wanted to catch, is badly written and should have a throws ...Exception for what can go wrong in it.\n\nShould you nevertheless feel strongly that the ODL Checkstyle rules should be changed to not flag up catch (Exception e) every anymore (but keep catch Throwable \u0026 RuntimeException!), could I suggest that you raise this on dev list, with ref to this, for all to have a chance to chime in? If there is wider agreement, let\u0027s change it, of course.",
+      "parentUuid": "7a6b29fe_6e50a85e",
+      "revId": "701f438b943c1fa2bfa227636fc45a89181b598d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
