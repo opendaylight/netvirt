@@ -55,6 +55,7 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -1585,8 +1586,9 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         // TODO (eperefr): This is a limitation to be stated in docs. When configuring static route to go to
         // another VPN, there can only be one nexthop or, at least, the nexthop to the interVpnLink should be in
         // first place.
-        InterVpnLink interVpnLink = VpnUtil.getInterVpnLinkByEndpointIp(dataBroker, nextHop);
-        if ( interVpnLink != null ) {
+        Optional<InterVpnLink> optInterVpnLink = InterVpnLinkUtil.getInterVpnLinkByEndpointIp(dataBroker, nextHop);
+        if ( optInterVpnLink.isPresent() ) {
+            InterVpnLink interVpnLink = optInterVpnLink.get();
             // If the nexthop is the endpoint of Vpn2, then prefix must be advertised to Vpn1 in DC-GW, with nexthops
             // pointing to the DPNs where Vpn1 is instantiated. LFIB in these DPNS must have a flow entry, with lower
             // priority, where if Label matches then sets the lportTag of the Vpn2 endpoint and goes to LportDispatcher
@@ -1599,7 +1601,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnUuid);
             long newLabel = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                     VpnUtil.getNextHopLabelKey(dstVpnRd, destination));
-            VpnUtil.leakRoute(dataBroker, bgpManager, interVpnLink, srcVpnUuid, dstVpnUuid, destination, newLabel);
+            InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, interVpnLink, srcVpnUuid, dstVpnUuid, destination, newLabel);
         } else {
             if (rd != null) {
                 addPrefixToBGP(rd, destination, nextHop, label, null);
