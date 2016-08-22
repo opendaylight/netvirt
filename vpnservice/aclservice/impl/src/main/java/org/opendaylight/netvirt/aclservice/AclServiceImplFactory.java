@@ -48,10 +48,10 @@ public class AclServiceImplFactory implements AutoCloseable {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
-    public IngressAclServiceImpl createIngressAclServiceImpl() {
+    public AbstractIngressAclServiceImpl createIngressAclServiceImpl() {
         LOG.info("creating ingress acl service using mode {}", securityGroupMode);
         if (securityGroupMode == null || securityGroupMode == SecurityGroupMode.Stateful) {
-            return new IngressAclServiceImpl(dataBroker, mdsalManager);
+            return new StatefulIngressAclServiceImpl(dataBroker, mdsalManager);
         } else if (securityGroupMode == SecurityGroupMode.Stateless) {
             return new StatelessIngressAclServiceImpl(dataBroker, mdsalManager);
         } else if (securityGroupMode == SecurityGroupMode.Transparent) {
@@ -61,10 +61,10 @@ public class AclServiceImplFactory implements AutoCloseable {
         }
     }
 
-    public EgressAclServiceImpl createEgressAclServiceImpl() {
+    public AbstractEgressAclServiceImpl createEgressAclServiceImpl() {
         LOG.info("creating egress acl service using mode {}", securityGroupMode);
         if (securityGroupMode == null || securityGroupMode == SecurityGroupMode.Stateful) {
-            return new EgressAclServiceImpl(dataBroker, mdsalManager);
+            return new StatefulEgressAclServiceImpl(dataBroker, mdsalManager);
         } else if (securityGroupMode == SecurityGroupMode.Stateless) {
             return new StatelessEgressAclServiceImpl(dataBroker, mdsalManager);
         } else if (securityGroupMode == SecurityGroupMode.Transparent) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright (c) 2016 HPE, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -23,19 +23,13 @@ import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
-import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.AceType;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LearnIngressAclServiceImpl extends IngressAclServiceImpl {
+public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(LearnIngressAclServiceImpl.class);
 
@@ -50,40 +44,23 @@ public class LearnIngressAclServiceImpl extends IngressAclServiceImpl {
     }
 
     @Override
-    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
-            List<AllowedAddressPairs> syncAllowedAddresses) {
-        SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
-        if (!aceAttr.getDirection().equals(DirectionIngress.class)) {
-            return;
-        }
-        Matches matches = ace.getMatches();
-        AceType aceType = matches.getAceType();
-        Map<String, List<MatchInfoBase>> flowMap = null;
-        if (aceType instanceof AceIp) {
-            flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
-        }
-        if (null == flowMap) {
-            LOG.error("Failed to apply ACL {} lportTag {}", ace.getKey(), lportTag);
-            return;
-        }
+    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
+            Map<String, List<MatchInfoBase>> flowMap, String flowName) {
+        List<MatchInfoBase> flowMatches = flowMap.get(flowName);
+        flowMatches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        addLearnActions(flowMatches, actionsInfos);
 
-        // The flow map contains list of flows if port range is selected.
-        for (Map.Entry<String, List<MatchInfoBase>> flow : flowMap.entrySet()) {
-            List<MatchInfoBase> flowMatches = flow.getValue();
-            flowMatches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
-            List<ActionInfo> actionsInfos = new ArrayList<>();
-            addLearnActions(flowMatches, actionsInfos);
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit,
+                new String[] {Short.toString(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE)}));
 
-            actionsInfos.add(new ActionInfo(ActionType.nx_resubmit,
-                    new String[] {Short.toString(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE)}));
+        List<InstructionInfo> instructions = new ArrayList<>();
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
-            List<InstructionInfo> instructions = new ArrayList<>();
-            instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-
-            String flowName = flow.getKey() + "Ingress" + lportTag + ace.getKey().getRuleName();
-            syncFlow(dpId, NwConstants.EGRESS_LEARN2_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
-                    AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
-        }
+        String flowNameAdded = flowName + "Ingress" + lportTag + ace.getKey().getRuleName();
+        syncFlow(dpId, NwConstants.EGRESS_LEARN2_TABLE, flowNameAdded, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+        return flowName;
     }
 
     /*
