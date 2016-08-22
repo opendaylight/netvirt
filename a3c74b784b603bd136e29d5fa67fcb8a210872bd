@@ -193,6 +193,24 @@
       "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_961c3ac3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1766,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-22T14:03:00Z",
+      "side": 1,
+      "message": "Oups, of course. Done now - as well as in the 3rd place place.  Sorry I initially just blindly reacted to your review in 1 place instead of adjusting all 3 - thanks for catching it.",
+      "parentUuid": "7a6b29fe_9073a214",
+      "revId": "a3c74b784b603bd136e29d5fa67fcb8a210872bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
