@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.it;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -14,7 +15,6 @@ import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
-import static org.ops4j.pax.exam.CoreOptions.when;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 import static org.ops4j.pax.exam.MavenUtils.asInProject;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
@@ -40,8 +40,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.mdsal.it.base.AbstractMdsalTestBase;
 import org.opendaylight.netvirt.it.NetvirtITConstants.DefaultFlow;
-import org.opendaylight.netvirt.utils.netvirt.it.utils.FlowITUtil;
-import org.opendaylight.netvirt.utils.netvirt.it.utils.NetITUtil;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.mdsal.utils.NotifyingDataChangeListener;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
@@ -75,12 +73,13 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static OvsdbItUtils itUtils;
     private static MdsalUtils mdsalUtils = null;
     private static SouthboundUtils southboundUtils;
-    private static org.opendaylight.netvirt.utils.netvirt.it.utils.SouthboundUtils nvSouthboundUtils;
+    private static org.opendaylight.netvirt.it.SouthboundUtils nvSouthboundUtils;
     private static FlowITUtil flowITUtil;
     private static AtomicBoolean setup = new AtomicBoolean(false);
     private static final String NETVIRT_TOPOLOGY_ID = "netvirt:1";
     @Inject @Filter(timeout = 60000)
     private static DataBroker dataBroker = null;
+    private static String userSpaceEnabled;
 
     @Override
     public MavenUrlReference getFeatureRepo() {
@@ -118,10 +117,10 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                                 .version(asInProject())
                                 .type("jar")),
                 configureConsole().startLocalConsole(),
-                when(System.getProperty("sgm").equals("transparent")).useOptions(
+                //when(System.getProperty("sgm").equals("transparent")).useOptions(
                         replaceConfigurationFile(
                                 "etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml",
-                                new File("src/test/resources/initial/netvirt-aclservice-config.xml"))),
+                                new File("src/test/resources/initial/netvirt-aclservice-config.xml")),//),
                 vmOption("-javaagent:../jars/org.jacoco.agent.jar=destfile=../../jacoco-it.exec"),
                 keepRuntimeFolder()
         };
@@ -184,7 +183,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         mdsalUtils = new MdsalUtils(dataBroker);
         assertNotNull("mdsalUtils should not be null", mdsalUtils);
         southboundUtils = new SouthboundUtils(mdsalUtils);
-        nvSouthboundUtils = new org.opendaylight.netvirt.utils.netvirt.it.utils.SouthboundUtils(mdsalUtils);
+        nvSouthboundUtils = new org.opendaylight.netvirt.it.SouthboundUtils(mdsalUtils);
         assertTrue("Did not find " + NETVIRT_TOPOLOGY_ID, getNetvirtTopology());
         flowITUtil = new FlowITUtil(dataBroker);
 
@@ -197,7 +196,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         String portStr = props.getProperty(NetvirtITConstants.SERVER_PORT, NetvirtITConstants.DEFAULT_SERVER_PORT);
         String connectionType = props.getProperty(NetvirtITConstants.CONNECTION_TYPE, "active");
         String controllerStr = props.getProperty(NetvirtITConstants.CONTROLLER_IPADDRESS, "0.0.0.0");
-        String userSpaceEnabled = props.getProperty(NetvirtITConstants.USERSPACE_ENABLED, "no");
+        userSpaceEnabled = props.getProperty(NetvirtITConstants.USERSPACE_ENABLED, "no");
         LOG.info("setUp: Using the following properties: mode= {}, ip:port= {}:{}, controller ip: {}, "
                         + "userspace.enabled: {}",
                 connectionType, addressStr, portStr, controllerStr, userSpaceEnabled);
@@ -229,8 +228,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         LOG.info("Validating default flows");
         for (DefaultFlow defaultFlow : DefaultFlow.values()) {
             try {
-                //flowITUtil.verifyFlowByFields(datapathId, defaultFlow.getFlowId(), defaultFlow.getTableId(), timeout);
-                flowITUtil.verifyFlowById(datapathId, defaultFlow.getFlowId(), defaultFlow.getTableId());
+                flowITUtil.verifyFlowByFields(datapathId, defaultFlow.getFlowId(), defaultFlow.getTableId(), timeout);
+                //flowITUtil.verifyFlowById(datapathId, defaultFlow.getFlowId(), defaultFlow.getTableId());
             } catch (Exception e) {
                 LOG.error("Failed to verify flow id : {}", defaultFlow.getFlowId());
                 fail("Failed to verify flow id : " + defaultFlow.getFlowId());
@@ -259,8 +258,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     public void testNetVirt() throws InterruptedException {
         try (DockerOvs ovs = new DockerOvs()) {
             ovs.logState(0, "idle");
-            ConnectionInfo connectionInfo = SouthboundUtils
-                    .getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
+            ConnectionInfo connectionInfo =
+                    SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
             LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
@@ -287,21 +286,32 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     public void testNeutronNet() throws InterruptedException {
         LOG.warn("testNeutronNet: starting test");
         try (DockerOvs ovs = new DockerOvs()) {
-            ovs.logState(0, "idle");
-            ConnectionInfo connectionInfo = SouthboundUtils
-                    .getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
+            Neutron neutron = new Neutron(mdsalUtils);
+            NetOvs netOvs;
+            Boolean isUserSpace = userSpaceEnabled.equals("yes");
+            LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
+            if (ovs.usingExternalDocker()) {
+                netOvs = new RealNetOvsImpl(ovs, isUserSpace, mdsalUtils, neutron, southboundUtils);
+            } else {
+                netOvs = new DockerNetOvsImpl(ovs, isUserSpace, mdsalUtils, neutron, southboundUtils);
+            }
+
+            netOvs.logState(0, "idle");
+            ConnectionInfo connectionInfo =
+                    SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
             LOG.info("testNeutronNet: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
             addLocalIp(nodeInfo);
 
             validateDefaultFlows(nodeInfo.datapathId, 2 * 60 * 1000);
-            ovs.logState(0, "default flows");
+            netOvs.logState(0, "default flows");
 
-            NetITUtil net = new NetITUtil(ovs, southboundUtils, mdsalUtils);
-            net.createNetworkAndSubnet();
-            String port1 = net.createPort(nodeInfo.bridgeNode);
-            String port2 = net.createPort(nodeInfo.bridgeNode);
+            neutron.createNetwork();
+            neutron.createSubnet();
+
+            String port1 = netOvs.createPort(nodeInfo.bridgeNode);
+            String port2 = netOvs.createPort(nodeInfo.bridgeNode);
 
             InstanceIdentifier<TerminationPoint> tpIid =
                     southboundUtils.createTerminationPointInstanceIdentifier(nodeInfo.bridgeNode, port2);
@@ -310,17 +320,18 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                             NotifyingDataChangeListener.BIT_CREATE, tpIid, null);
             portOperationalListener.registerDataChangeListener(dataBroker);
 
-            net.preparePortForPing(port1);
-            net.preparePortForPing(port2);
+            netOvs.preparePortForPing(port1);
+            netOvs.preparePortForPing(port2);
 
             portOperationalListener.waitForCreation(10000);
             Thread.sleep(30000);
-            ovs.logState(0, "after ports");
+            netOvs.logState(0, "after ports");
 
-            net.ping(port1, port2);
-            ovs.logState(0, "after ping");
+            int rc = netOvs.ping(port1, port2);
+            netOvs.logState(0, "after ping");
+            assertEquals("Ping failed rc: " + rc, 0, rc);
 
-            net.destroy();
+            netOvs.destroy();
             nodeInfo.disconnect();
         } catch (Exception e) {
             LOG.error("testNeutronNet: Exception thrown by OvsDocker.OvsDocker()", e);
