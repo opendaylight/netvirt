@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.bgpmanager.api;
 
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.bgpmanager;
 import java.util.Collection;
 import java.util.List;
 
@@ -99,4 +100,7 @@ public interface IBgpManager {
     void sendNotificationEvent(String pfx, int code, int subcode);
     void setqBGPrestartTS(long qBGPrestartTS);
     void bgpRestarted();
+    void startBgpAlarmsTask();
+    void stopBgpAlarmsTask();
+    BgpManager getBgpManager();
 }
