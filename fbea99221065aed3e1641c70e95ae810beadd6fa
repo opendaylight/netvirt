@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_76423e3f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-22T12:56:38Z",
+      "side": 1,
+      "message": "corresponding change needs to be made in vpnmanager.xml blueprint.",
+      "revId": "fbea99221065aed3e1641c70e95ae810beadd6fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d686b264",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-22T12:56:38Z",
+      "side": 1,
+      "message": "just make this:\n\nLOG.warn(\"Could not advertise route [vpn\u003d{}, prefix\u003d{}, label\u003d{}, nexthops\u003d{}] to BGP. Reason: \", vpnRd, destination, label, nexthopList, e;\n\nnotice there is not a {} for the e. logger will automatically append the exception",
+      "revId": "fbea99221065aed3e1641c70e95ae810beadd6fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_367e066c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-22T12:56:38Z",
+      "side": 1,
+      "message": "don\u0027t include this last {}",
+      "revId": "fbea99221065aed3e1641c70e95ae810beadd6fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
