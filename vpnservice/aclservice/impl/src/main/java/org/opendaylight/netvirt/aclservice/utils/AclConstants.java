@@ -26,6 +26,7 @@ public final class AclConstants {
     public static final Integer PROTO_IPV6_ALLOWED_PRIORITY = 63010;
     public static final Integer PROTO_DHCP_SERVER_MATCH_PRIORITY = 63010;
     public static final Integer PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY = 63010;
+    public static final Integer PROTO_ARP_TRAFFIC_MATCH_PRIORITY = 63010;
     public static final Integer PROTO_MATCH_PRIORITY = 61010;
     public static final Integer PREFIX_MATCH_PRIORITY = 61009;
     public static final Integer PROTO_PREFIX_MATCH_PRIORITY = 61008;
