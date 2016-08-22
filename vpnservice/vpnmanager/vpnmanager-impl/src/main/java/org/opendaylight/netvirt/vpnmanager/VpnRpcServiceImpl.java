@@ -7,10 +7,14 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.SettableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
+import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
@@ -21,9 +25,11 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Future;
 
 public class VpnRpcServiceImpl implements VpnRpcService {
@@ -32,13 +38,15 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     private final IdManagerService idManager;
     private final VpnInterfaceManager vpnInterfaceMgr;
     private IFibManager fibManager;
+    private IBgpManager bgpManager;
 
     public VpnRpcServiceImpl(final DataBroker dataBroker, final IdManagerService idManager,
-                             final VpnInterfaceManager vpnIfaceMgr, final IFibManager fibManager) {
+                             final VpnInterfaceManager vpnIfaceMgr, final IFibManager fibManager, IBgpManager bgpManager) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.vpnInterfaceMgr = vpnIfaceMgr;
         this.fibManager = fibManager;
+        this.bgpManager = bgpManager;
     }
 
     public void setFibManager(IFibManager fibMgr) {
@@ -142,10 +150,33 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             return result;
         }
 
-        InterVpnLink interVpnLink = VpnUtil.getInterVpnLinkByEndpointIp(dataBroker, nexthop);
-        if ( interVpnLink != null ) {
-            // A static route pointing to an InterVpnLink endpoint: just write the VrfEntry
-            fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, destination, Arrays.asList(nexthop), label.intValue(), RouteOrigin.STATIC, null);
+        Optional<InterVpnLink> interVpnLink = InterVpnLinkUtil.getInterVpnLinkByEndpointIp(dataBroker, nexthop);
+        if ( interVpnLink.isPresent() ) {
+            // A static route pointing to an InterVpnLink endpoint: write the VrfEntry and inform DC-GW
+            LOG.debug("addStaticRoute: Writing FibEntry to DS:  vpnRd={}, prefix={}, label={}, nexthop={} (interVpnLink)",
+                    vpnRd, destination, label, nexthop);
+            fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, destination, Arrays.asList(nexthop), label.intValue(),
+                    RouteOrigin.STATIC, null);
+
+            // The nexthop list to advertise to BGP contains the list of IPs of those DPNs where the
+            // endpoint has been instantiated
+            List<String> nexthopList = new ArrayList<String>();
+            List<BigInteger> dpns = InterVpnLinkUtil.getVpnLinkEndpointDPNsByIp(dataBroker, nexthop);
+            for ( BigInteger dpnId : dpns ) {
+                nexthopList.add(InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId));
+            }
+            try {
+                LOG.debug("addStaticRoute:advertise IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
+                        vpnRd, destination, label, nexthopList);
+                bgpManager.advertisePrefix(vpnRd, destination, nexthopList, label.intValue());
+            } catch (Exception e) {
+                String errMsg = "Could not advertise route [vpn=" + vpnRd + ", prefix=" + destination + ", label="
+                        + label + ", nexthops=" + nexthopList + ", ] to BGP. Reason: " + e;
+                LOG.warn("Could not advertise route [vpn={}, prefix={}, label={}, nexthops={}] to BGP. Reason: ",
+                        vpnRd, destination, label, nexthopList, e);
+                result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(ErrorType.APPLICATION, errMsg)
+                        .build());
+            }
         } else {
             vpnInterfaceMgr.addExtraRoute(destination, nexthop, vpnRd, null /*routerId */, label.intValue(),
                                           null /* intfName */);
@@ -199,10 +230,14 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             return result;
         }
 
-        InterVpnLink interVpnLink = VpnUtil.getInterVpnLinkByEndpointIp(dataBroker, nexthop);
-        if ( interVpnLink != null ) {
-            // A static route pointing to an InterVpnLink endpoint: just remove the VrfEntry from DS
+        Optional<InterVpnLink> optVpnLink = InterVpnLinkUtil.getInterVpnLinkByEndpointIp(dataBroker, nexthop);
+        if ( optVpnLink.isPresent() ) {
             fibManager.removeOrUpdateFibEntry(dataBroker,  vpnRd, destination, nexthop, null);
+            try {
+                bgpManager.withdrawPrefix(vpnRd, destination);
+            } catch (Exception e) {
+                LOG.warn("Could not withdraw route [vpn={}  prefix={}] to BGP. Reason:", vpnRd, destination, e);
+            }
         } else {
             vpnInterfaceMgr.delExtraRoute(destination, nexthop, vpnRd, null /*routerId*/, null /*intfName*/);
         }
