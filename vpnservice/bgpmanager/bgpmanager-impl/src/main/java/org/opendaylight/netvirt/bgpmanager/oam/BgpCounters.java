@@ -17,6 +17,7 @@ import java.net.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,11 @@ public class BgpCounters extends TimerTask {
     public static BgpCountersBroadcaster bgpStatsBroadcaster = null;
     public MBeanServer bgpStatsServer = null;
     public  Map <String, String> countersMap = new HashMap<String, String>();
+    private String bgpSdncMip = "127.0.0.1";
+
+    public BgpCounters(String mipAddress) {
+        bgpSdncMip = mipAddress;
+    }
 
     @Override
     public void run () {
@@ -77,10 +83,10 @@ public class BgpCounters extends TimerTask {
         }
     }
 
-    public static void fetchCmdOutputs (String filename, String cmdName) throws  IOException  {
+    public void fetchCmdOutputs (String filename, String cmdName) throws  IOException  {
         Socket socket;
         int serverPort = 2605;
-        String serverName = BgpConstants.DEFAULT_BGP_HOST_NAME;
+        String serverName = bgpSdncMip;
         int sockTimeout = 2;
         PrintWriter out_to_socket;
         BufferedReader in_from_socket;
@@ -265,7 +271,7 @@ public class BgpCounters extends TimerTask {
         }
     }
 
-    public boolean validate(final String ip){
+    public static boolean validate(final String ip){
         if (ip == null || ip.equals("")) {
             return false;
         }
@@ -490,7 +496,7 @@ public class BgpCounters extends TimerTask {
         resetFile("cmd_ip_bgp_vpnv4_all.txt");
     }
 
-    public void resetFile(String fileName) {
+    public static void resetFile(String fileName) {
         File fileHndl = (new File(fileName));
         PrintWriter writer;
         boolean success;
@@ -506,6 +512,55 @@ public class BgpCounters extends TimerTask {
             }
         }
 
+    }
+
+    public static Map<String, String> parse_ip_bgp_vpnv4_all_summary(Map<String, String> countMap) {
+        File file = new File("cmd_ip_bgp_vpnv4_all_summary.txt");
+        Scanner scanner;
+        String lineFromFile;
+        List<String> inputStrs = new ArrayList<String>();
+        int i = 0;
+        boolean startEntries = false;
+        String[] result;
+        String StrIP;
+
+        try {
+            scanner = new Scanner(file);
+        } catch (IOException e) {
+            LOGGER.trace("Could not process the file " + file.getAbsolutePath());
+            return null;
+        }
+        while (scanner.hasNextLine()) {
+
+            lineFromFile = scanner.nextLine();
+            inputStrs.add(lineFromFile);
+        }
+        String str;
+        while (i < inputStrs.size()) {
+            str = inputStrs.get(i);
+            LOGGER.trace("str is:: {}", str);
+            if (str.contains("State/PfxRcd")) {
+                startEntries = true;
+            } else if (startEntries == true) {
+                result = str.split("\\s+");
+                try {
+                    StrIP = result[0].trim();
+                    LOGGER.trace("strIP " + StrIP);
+
+                    if (!validate(StrIP)) {
+                        break;
+                    }
+                    String state_pfxRcvd = result[9];
+                    countMap.put(StrIP, state_pfxRcvd);
+                } catch (Exception e) {
+                    LOGGER.trace("Exception {} caught while processing ip bgp vpnv4 all summary command output, e");
+                    i++;
+                    continue;
+                }
+            }
+            i++;
+        }
+        return countMap;
     }
 
 }

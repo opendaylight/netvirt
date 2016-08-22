@@ -7,16 +7,12 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+
 import org.apache.thrift.TException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmBroadcaster;
-import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmErrorCodes;
-import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
+import org.opendaylight.netvirt.bgpmanager.oam.*;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -32,6 +28,9 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     private final BgpAlarmBroadcaster qbgpAlarmProducer;
     private final FibDSWriter fibDSWriter;
     private long qBGPrestartTS = 0;
+    public Timer bgpAlarmsTimer;
+    public BgpAlarms bgpAlarms;
+    public BgpCounters bgpCounters;
 
     public BgpManager(final DataBroker dataBroker,
                       final BgpConfigurationManager bcm,
@@ -192,7 +191,6 @@ public class BgpManager implements AutoCloseable, IBgpManager {
             // BgpAlarmErrorCodes enum class.
             return;
         }
-        qbgpAlarmProducer.sendBgpAlarmInfo(pfx, code, subcode);
     }
 
     public FibDSWriter getFibWriter() {
@@ -207,8 +205,14 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         return BgpConfigurationManager.getConfigPort();
     }
 
+
+
     public void bgpRestarted() {
         bcm.bgpRestarted();
+    }
+
+    public BgpManager getBgpManager() {
+        return this;
     }
 
     public boolean isBgpConnected() {
@@ -247,5 +251,6 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     public long getStaleCleanupTime() {
         return bcm.getStaleCleanupTime();
     }
+
 
 }
