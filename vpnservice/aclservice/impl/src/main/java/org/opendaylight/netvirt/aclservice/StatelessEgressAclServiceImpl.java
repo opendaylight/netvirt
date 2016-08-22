@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -51,8 +52,8 @@ public class StatelessEgressAclServiceImpl extends EgressAclServiceImpl {
     }
 
     @Override
-    protected void programFixedRules(BigInteger dpid, String dhcpMacAddress, List<AllowedAddressPairs> allowedAddresses,
-            int lportTag, String portId, Action action, int addOrRemove) {
+    protected void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
+            List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove) {
     }
 
     @Override
