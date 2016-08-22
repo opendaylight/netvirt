@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -116,7 +117,7 @@ public class InterVpnLinkListener extends AbstractDataChangeListener<InterVpnLin
 
         int numberOfDpns = Integer.getInteger(NBR_OF_DPNS_PROPERTY_NAME, 1);
         // Create VpnLink state
-        InstanceIdentifier<InterVpnLinkState> vpnLinkStateIid = VpnUtil.getInterVpnLinkStateIid(add.getName());
+        InstanceIdentifier<InterVpnLinkState> vpnLinkStateIid = InterVpnLinkUtil.getInterVpnLinkStateIid(add.getName());
         InterVpnLinkState vpnLinkState = new InterVpnLinkStateBuilder().setInterVpnLinkName(add.getName()).build();
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid, vpnLinkState);
 
@@ -249,8 +250,8 @@ public class InterVpnLinkListener extends AbstractDataChangeListener<InterVpnLin
             long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                                              VpnUtil.getNextHopLabelKey(dstVpnRd, vrfEntry.getDestPrefix()));
 
-            VpnUtil.leakRoute(dataBroker, bgpManager, vpnLink, srcVpnUuid, dstVpnUuid,
-                              vrfEntry.getDestPrefix(), label);
+            InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, srcVpnUuid, dstVpnUuid, vrfEntry.getDestPrefix(),
+                                       label);
         }
     }
 
@@ -274,7 +275,7 @@ public class InterVpnLinkListener extends AbstractDataChangeListener<InterVpnLin
                 long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                                                   VpnUtil.getNextHopLabelKey(vpn1Rd, vrfEntry.getDestPrefix()));
 
-                VpnUtil.leakRoute(dataBroker, bgpManager, vpnLink, vpn2Uuid, vpn1Uuid, vrfEntry.getDestPrefix(),
+                InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, vpn2Uuid, vpn1Uuid, vrfEntry.getDestPrefix(),
                                   label, RouteOrigin.value(vrfEntry.getOrigin()));
             }
         }
@@ -284,7 +285,7 @@ public class InterVpnLinkListener extends AbstractDataChangeListener<InterVpnLin
     private boolean checkVpnAvailability(InterVpnLinkKey key, Uuid vpnId) {
         Preconditions.checkNotNull(vpnId);
 
-        List<InterVpnLink> interVpnLinks = VpnUtil.getAllInterVpnLinks(dataBroker);
+        List<InterVpnLink> interVpnLinks = InterVpnLinkUtil.getAllInterVpnLinks(dataBroker);
         if ( interVpnLinks != null ) {
             for (InterVpnLink interVpnLink : interVpnLinks) {
                 if (!key.equals(interVpnLink.getKey())
@@ -319,14 +320,20 @@ public class InterVpnLinkListener extends AbstractDataChangeListener<InterVpnLin
         VpnUtil.removeVrfEntriesByOrigin(dataBroker, rd2, RouteOrigin.INTERVPN);
         VpnUtil.removeVrfEntriesByNexthop(dataBroker, rd2, del.getFirstEndpoint().getIpAddress().getValue());
 
-        InterVpnLinkState interVpnLinkState = VpnUtil.getInterVpnLinkState(dataBroker, del.getName());
-        Long firstEndpointLportTag = interVpnLinkState.getFirstEndpointState().getLportTag();
-        Long secondEndpointLportTag = interVpnLinkState.getSecondEndpointState().getLportTag();
-        removeVpnLinkEndpointFlows(del.getName(), rd1, vpn1Uuid, interVpnLinkState.getFirstEndpointState().getDpId(),
-                secondEndpointLportTag.intValue(),
-                del.getSecondEndpoint().getIpAddress().getValue());
-        removeVpnLinkEndpointFlows(del.getName(), rd2, vpn2Uuid, interVpnLinkState.getSecondEndpointState().getDpId(),
-                firstEndpointLportTag.intValue(), del.getFirstEndpoint().getIpAddress().getValue());
+        Optional<InterVpnLinkState> optIVpnLinkState = InterVpnLinkUtil.getInterVpnLinkState(dataBroker, del.getName());
+        if ( optIVpnLinkState.isPresent() ) {
+            InterVpnLinkState interVpnLinkState = optIVpnLinkState.get();
+            Long firstEndpointLportTag = interVpnLinkState.getFirstEndpointState().getLportTag();
+            Long secondEndpointLportTag = interVpnLinkState.getSecondEndpointState().getLportTag();
+            removeVpnLinkEndpointFlows(del.getName(), rd1, vpn1Uuid,
+                    interVpnLinkState.getFirstEndpointState().getDpId(),
+                    secondEndpointLportTag.intValue(),
+                    del.getSecondEndpoint().getIpAddress().getValue());
+            removeVpnLinkEndpointFlows(del.getName(), rd2, vpn2Uuid,
+                    interVpnLinkState.getSecondEndpointState().getDpId(),
+                    firstEndpointLportTag.intValue(),
+                    del.getFirstEndpoint().getIpAddress().getValue());
+        }
 
         // Release idManager with LPortTag associated to endpoints
         LOG.debug("Releasing InterVpnLink {} endpoints LportTags", del.getName());
@@ -342,7 +349,7 @@ public class InterVpnLinkListener extends AbstractDataChangeListener<InterVpnLin
         // Remove it in that case.
 
         // Removing the InterVpnLinkState
-        InstanceIdentifier<InterVpnLinkState> interVpnLinkStateIid = VpnUtil.getInterVpnLinkStateIid(del.getName());
+        InstanceIdentifier<InterVpnLinkState> interVpnLinkStateIid = InterVpnLinkUtil.getInterVpnLinkStateIid(del.getName());
         VpnUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, interVpnLinkStateIid);
     }
 
