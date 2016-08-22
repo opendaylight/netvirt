@@ -103,7 +103,7 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
                                                                 .build();
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.merge(LogicalDatastoreType.CONFIGURATION,
-                 VpnUtil.getInterVpnLinkStateIid(interVpnLinkState.getInterVpnLinkName()), newInterVpnLinkState, true);
+                 InterVpnLinkUtil.getInterVpnLinkStateIid(interVpnLinkState.getInterVpnLinkName()), newInterVpnLinkState, true);
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
         return futures;
     }
