@@ -118,7 +118,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                                 .version(asInProject())
                                 .type("jar")),
                 configureConsole().startLocalConsole(),
-                when(System.getProperty("sgm").equals("transparent")).useOptions(
+                when("transparent".equals(System.getProperty("sgm"))).useOptions(
                         replaceConfigurationFile(
                                 "etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml",
                                 new File("src/test/resources/initial/netvirt-aclservice-config.xml"))),
