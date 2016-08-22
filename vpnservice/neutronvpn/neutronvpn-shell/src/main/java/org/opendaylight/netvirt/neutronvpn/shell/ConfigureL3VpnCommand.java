@@ -92,19 +92,19 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                             deleteL3VpnCLI();
                             break;
                         default:
-                            System.out.println("Invalid argument.");
-                            System.out.println(getHelp(""));
+                            session.getConsole().println("Invalid argument.");
+                            session.getConsole().println(getHelp(""));
                             break;
                     }
                 } else {
-                    System.out.println("Too few arguments");
-                    System.out.println(getHelp(""));
+                    session.getConsole().println("Too few arguments");
+                    session.getConsole().println(getHelp(""));
                 }
             } else {
-                System.out.println("neutronvpnservice not initialized");
+                session.getConsole().println("neutronvpnservice not initialized");
             }
         } else {
-            System.out.println("rpcProviderRegistryService not initialized");
+            session.getConsole().println("rpcProviderRegistryService not initialized");
         }
         return null;
     }
@@ -112,26 +112,26 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
     public void createL3VpnCLI() {
 
         if (vid == null) {
-            System.out.println("Please supply a valid VPN ID");
-            System.out.println(getHelp("create"));
+            session.getConsole().println("Please supply a valid VPN ID");
+            session.getConsole().println(getHelp("create"));
             return;
         }
 
         if (rd == null) {
-            System.out.println("Please supply a valid RD");
-            System.out.println(getHelp("create"));
+            session.getConsole().println("Please supply a valid RD");
+            session.getConsole().println(getHelp("create"));
             return;
         }
 
         if (irt == null) {
-            System.out.println("Please supply a valid list of import RTs separated by {,}");
-            System.out.println(getHelp("create"));
+            session.getConsole().println("Please supply a valid list of import RTs separated by {,}");
+            session.getConsole().println(getHelp("create"));
             return;
         }
 
         if (ert == null) {
-            System.out.println("Please supply a valid list of export RTs separated by {,}");
-            System.out.println(getHelp("create"));
+            session.getConsole().println("Please supply a valid list of export RTs separated by {,}");
+            session.getConsole().println(getHelp("create"));
             return;
         }
 
@@ -156,16 +156,16 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                     neutronvpnService.createL3VPN(new CreateL3VPNInputBuilder().setL3vpn(l3vpns).build());
             RpcResult<CreateL3VPNOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
-                System.out.println("L3VPN created successfully");
+                session.getConsole().println("L3VPN created successfully");
                 Logger.trace("createl3vpn: {}", result);
             } else {
-                System.out.println("error populating createL3VPN : " + result.get().getErrors());
-                System.out.println(getHelp("create"));
+                session.getConsole().println("error populating createL3VPN : " + result.get().getErrors());
+                session.getConsole().println(getHelp("create"));
             }
         } catch (InterruptedException | ExecutionException e) {
             Logger.error("error populating createL3VPN", e);
-            System.out.println("error populating createL3VPN : " + e.getMessage());
-            System.out.println(getHelp("create"));
+            session.getConsole().println("error populating createL3VPN : " + e.getMessage());
+            session.getConsole().println(getHelp("create"));
         }
 
         try {
@@ -183,15 +183,15 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
 
         } catch (Exception e) {
             Logger.error("error in adding subnet to VPN", e);
-            System.out.println("error in adding subnet to VPN : " + e.getMessage());
+            session.getConsole().println("error in adding subnet to VPN : " + e.getMessage());
         }
     }
 
     public void deleteL3VpnCLI() {
 
         if (vid == null) {
-            System.out.println("Please supply a valid VPN ID");
-            System.out.println(getHelp("delete"));
+            session.getConsole().println("Please supply a valid VPN ID");
+            session.getConsole().println(getHelp("delete"));
             return;
         }
         Uuid vpnid = new Uuid(vid);
@@ -204,7 +204,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
             }
         } catch (Exception e) {
             Logger.error("error in deleting subnet from VPN", e);
-            System.out.println("error in deleting subnet from VPN : " + e.getMessage());
+            session.getConsole().println("error in deleting subnet from VPN : " + e.getMessage());
         }
 
         try {
@@ -215,16 +215,16 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                     neutronvpnService.deleteL3VPN(new DeleteL3VPNInputBuilder().setId(vpnIdList).build());
             RpcResult<DeleteL3VPNOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
-                System.out.println("L3VPN deleted successfully");
+                session.getConsole().println("L3VPN deleted successfully");
                 Logger.trace("deletel3vpn: {}", result);
             } else {
-                System.out.println("error populating deleteL3VPN : " + result.get().getErrors());
-                System.out.println(getHelp("delete"));
+                session.getConsole().println("error populating deleteL3VPN : " + result.get().getErrors());
+                session.getConsole().println(getHelp("delete"));
             }
         } catch (InterruptedException | ExecutionException e) {
             Logger.error("error populating deleteL3VPN", e);
-            System.out.println("error populating deleteL3VPN : " + e.getMessage());
-            System.out.println(getHelp("delete"));
+            session.getConsole().println("error populating deleteL3VPN : " + e.getMessage());
+            session.getConsole().println(getHelp("delete"));
         }
     }
 
