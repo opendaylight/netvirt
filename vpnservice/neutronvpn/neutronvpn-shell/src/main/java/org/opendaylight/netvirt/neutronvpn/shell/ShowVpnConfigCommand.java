@@ -35,7 +35,7 @@ public class ShowVpnConfigCommand extends OsgiCommandSupport {
         }
 
         for (String p : neutronVpnManager.showVpnConfigCLI(vuuid)) {
-            System.out.println(p);
+            session.getConsole().println(p);
         }
         return null;
     }

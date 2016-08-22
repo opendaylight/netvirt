@@ -54,7 +54,7 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
     protected Object doExecute() throws Exception {
         try {
             if ((defaultDomain == null) && (leaseDuration == null)) {
-                System.out.println(getHelp());
+                session.getConsole().println(getHelp());
                 return null;
             }
             Integer currLeaseDuration = defLeaseDuration;
@@ -81,7 +81,7 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
             dcBuilder.setConfigs(configList);
             write(iid, dcBuilder.build());
         } catch (Exception e) {
-            System.out.println("Failed to configure. Try again");
+            session.getConsole().println("Failed to configure. Try again");
             Logger.error ("Failed to configure DHCP parameters",e);
         }
         return null;
