@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -122,22 +123,22 @@ public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node> i
         public List<ListenableFuture<Void>> call() throws Exception {
             List<ListenableFuture<Void>> result = new ArrayList<ListenableFuture<Void>>();
 
-            List<InterVpnLink> allInterVpnLinks = VpnUtil.getAllInterVpnLinks(broker);
+            List<InterVpnLink> allInterVpnLinks = InterVpnLinkUtil.getAllInterVpnLinks(broker);
             for ( InterVpnLink interVpnLink : allInterVpnLinks ) {
-                InterVpnLinkState interVpnLinkState = VpnUtil.getInterVpnLinkState(broker, interVpnLink.getName());
-                if ( interVpnLinkState == null ) {
+                Optional<InterVpnLinkState> optIVpnLinkState =
+                        InterVpnLinkUtil.getInterVpnLinkState(broker, interVpnLink.getName());
+                if ( !optIVpnLinkState.isPresent() ) {
                     LOG.warn("Could not find State info for InterVpnLink={}", interVpnLink.getName());
                     continue;
                 }
 
+                InterVpnLinkState interVpnLinkState = optIVpnLinkState.get();
                 if ( interVpnLinkState.getFirstEndpointState().getDpId().contains(dpnId)
                      || interVpnLinkState.getSecondEndpointState().getDpId().contains(dpnId) ) {
                     // InterVpnLink affected by Node DOWN.
                     // Lets move the InterVpnLink to some other place. Basically, remove it and create it again
                     InstanceIdentifier<InterVpnLink> interVpnLinkIid =
-                        InstanceIdentifier.builder(InterVpnLinks.class)
-                                          .child(InterVpnLink.class, new InterVpnLinkKey(interVpnLink.getName()))
-                                          .build();
+                            InterVpnLinkUtil.getInterVpnLinkPath(interVpnLink.getName());
                     // Remove it
                     MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinkIid);
                     // Create it again, but first we have to wait for everything to be removed from dataplane
