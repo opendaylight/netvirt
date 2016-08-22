@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -101,9 +102,24 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
     }
 
+    /**
+     * Program conntrack rules.
+     *
+     * @param dpid the dpid
+     * @param dhcpMacAddress the dhcp mac address.
+     * @param allowedAddresses the allowed addresses
+     * @param lportTag the lport tag
+     * @param addOrRemove add or remove the flow
+     */
     @Override
-    protected void programFixedRules(BigInteger dpid, String dhcpMacAddress, List<AllowedAddressPairs> allowedAddresses,
-            int lportTag, String portId, Action action, int addOrRemove) {
+    protected void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
+            List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove) {
+        programIngressAclFixedConntrackRule(dpid, allowedAddresses, portId, action, addOrRemove);
+    }
+
+    @Override
+    protected void programGeneralFixedRules(BigInteger dpid, String dhcpMacAddress,
+            List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action, int addOrRemove) {
         LOG.info("programFixedRules :  adding default rules.");
 
         if (action == Action.ADD || action == Action.REMOVE) {
@@ -114,7 +130,6 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             ingressAclIcmpv6AllowedTraffic(dpid, lportTag, addOrRemove);
         }
         programArpRule(dpid, lportTag, addOrRemove);
-        programIngressAclFixedConntrackRule(dpid, allowedAddresses, portId, action, addOrRemove);
     }
 
     @Override
@@ -358,7 +373,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
         String flowName = "Ingress_ARP_" + dpId + "_" + lportTag;
-        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName,
+                AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 

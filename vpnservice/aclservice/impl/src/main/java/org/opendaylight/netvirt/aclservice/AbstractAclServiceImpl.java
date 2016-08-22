@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
@@ -157,7 +158,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     private void programAclWithAllowedAddress(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
                                               int lportTag, List<Uuid> aclUuidList, Action action, int addOrRemove,
                                               String portId) {
-        programFixedRules(dpId, "", allowedAddresses, lportTag, portId, action, addOrRemove);
+        programGeneralFixedRules(dpId, "", allowedAddresses, lportTag, action, addOrRemove);
+        programSpecificFixedRules(dpId, "", allowedAddresses, lportTag, portId, action, addOrRemove);
         if (action == Action.ADD || action == Action.REMOVE) {
             programAclRules(aclUuidList, dpId, lportTag, addOrRemove, portId);
         }
@@ -216,17 +218,30 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected abstract void unbindService(String interfaceName);
 
     /**
-     * Program the default anti-spoofing rule and the conntrack rules.
+     * Program the default anti-spoofing rules.
      *
      * @param dpid the dpid
      * @param dhcpMacAddress the dhcp mac address.
      * @param allowedAddresses the allowed addresses
      * @param lportTag the lport tag
-     * @param portId the portId
      * @param action add/modify/remove action
      * @param addOrRemove addorRemove
      */
-    protected abstract void programFixedRules(BigInteger dpid, String dhcpMacAddress,
+    protected abstract void programGeneralFixedRules(BigInteger dpid, String dhcpMacAddress,
+            List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action, int addOrRemove);
+
+    /**
+     * Program the default specific rules.
+     *
+     * @param dpid the dpid
+     * @param dhcpMacAddress the dhcp mac address.
+     * @param allowedAddresses the allowed addresses
+     * @param lportTag the lport tag
+     * @param portId the port id
+     * @param action add/modify/remove action
+     * @param addOrRemove addorRemove
+     */
+    protected abstract void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove);
 
     /**
@@ -236,6 +251,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param dpId the dpId
      * @param lportTag the lport tag
      * @param addOrRemove whether to delete or add flow
+     * @param portId the port id
      * @return program succeeded
      */
     protected abstract boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove,
@@ -248,6 +264,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param lportTag the lport tag
      * @param addOrRemove whether to delete or add flow
      * @param ace rule to be program
+     * @param portId the port id
+     * @param syncAllowedAddresses the allowed addresses
      */
     protected abstract void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
                                            List<AllowedAddressPairs> syncAllowedAddresses);
@@ -330,4 +348,5 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
         return oper;
     }
+
 }
