@@ -44,15 +44,9 @@ public class LearnIngressAclServiceImpl extends IngressAclServiceImpl {
     }
 
     @Override
-    protected void programFixedRules(BigInteger dpid, String dhcpMacAddress, List<AllowedAddressPairs> allowedAddresses,
-            int lportTag, String portId, Action action, int addOrRemove) {
-        LOG.info("programFixedRules :  adding default rules.");
+    protected void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
+            List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove) {
 
-        ingressAclDhcpAllowServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove,
-                AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
-        ingressAclDhcpv6AllowServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove,
-                AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
-        programArpRule(dpid, lportTag, addOrRemove);
     }
 
     @Override
@@ -80,6 +74,9 @@ public class LearnIngressAclServiceImpl extends IngressAclServiceImpl {
             List<ActionInfo> actionsInfos = new ArrayList<>();
             addLearnActions(flowMatches, actionsInfos);
 
+            actionsInfos.add(new ActionInfo(ActionType.nx_resubmit,
+                    new String[] {Short.toString(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE)}));
+
             List<InstructionInfo> instructions = new ArrayList<>();
             instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
@@ -105,46 +102,12 @@ public class LearnIngressAclServiceImpl extends IngressAclServiceImpl {
             addTcpLearnActions(actionsInfos);
         } else if (isUdp) {
             addUdpLearnActions(actionsInfos);
-        } else if (actionsInfos.isEmpty()) {
-            addAllowAllLearnActions(actionsInfos);
         } else {
             addOtherProtocolsLearnActions(actionsInfos);
         }
     }
 
     private void addOtherProtocolsLearnActions(List<ActionInfo> actionsInfos) {
-        String[][] flowMod = new String[5][];
-
-        flowMod[0] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
-                Integer.toString(NwConstants.ETHTYPE_IPV4),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
-        flowMod[1] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getFlowModHeaderLen() };
-        flowMod[2] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_DST.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getFlowModHeaderLen() };
-        flowMod[3] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
-        flowMod[4] = new String[] {
-                NwConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), AclConstants.LEARN_MATCH_REG_VALUE,
-                NwConstants.NxmOfFieldType.NXM_NX_REG0.getHexType(), "8" };
-
-        String[] header = new String[] {
-                AclConstants.getGlobalConf(AclConstants.SECURITY_GROUP_UDP_IDLE_TO_KEY, "60"),
-                AclConstants.getGlobalConf(AclConstants.SECURITY_GROUP_UDP_HARD_TO_KEY, "60"),
-                AclConstants.PROTO_MATCH_PRIORITY.toString(),
-                AclConstants.COOKIE_ACL_BASE.toString(), "0",
-                Short.toString(NwConstants.INGRESS_LEARN_TABLE), "0", "0" };
-        actionsInfos.add(new ActionInfo(ActionType.learn, header, flowMod));
-    }
-
-    private void addAllowAllLearnActions(List<ActionInfo> actionsInfos) {
         String[][] flowMod = new String[5][];
 
         flowMod[0] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),

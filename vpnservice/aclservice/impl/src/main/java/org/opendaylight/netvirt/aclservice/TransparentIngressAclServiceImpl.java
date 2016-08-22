@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.aclservice;
 
 import java.math.BigInteger;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -33,8 +34,8 @@ public class TransparentIngressAclServiceImpl extends IngressAclServiceImpl {
     }
 
     @Override
-    protected void programFixedRules(BigInteger dpid, String dhcpMacAddress, List<AllowedAddressPairs> allowedAddresses,
-            int lportTag, String portId, Action action, int addOrRemove) {
+    protected void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
+            List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove) {
     }
 
     @Override

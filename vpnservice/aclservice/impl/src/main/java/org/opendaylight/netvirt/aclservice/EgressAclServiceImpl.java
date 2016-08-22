@@ -105,9 +105,24 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
     }
 
+    /**
+     * Program conntrack rules.
+     *
+     * @param dpid the dpid
+     * @param dhcpMacAddress the dhcp mac address.
+     * @param allowedAddresses the allowed addresses
+     * @param lportTag the lport tag
+     * @param addOrRemove addorRemove
+     */
     @Override
-    protected void programFixedRules(BigInteger dpid, String dhcpMacAddress,
+    protected void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove) {
+        programEgressAclFixedConntrackRule(dpid, allowedAddresses, lportTag, portId, action, addOrRemove);
+    }
+
+    @Override
+    protected void programGeneralFixedRules(BigInteger dpid, String dhcpMacAddress,
+            List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action, int addOrRemove) {
         LOG.info("programFixedRules :  adding default rules.");
 
         if (action == Action.ADD || action == Action.REMOVE) {
@@ -119,7 +134,6 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             egressAclIcmpv6DropRouterAdvts(dpid, lportTag, addOrRemove);
         }
         programArpRule(dpid, allowedAddresses, lportTag, addOrRemove);
-        programEgressAclFixedConntrackRule(dpid, allowedAddresses, lportTag, portId, action, addOrRemove);
     }
 
     @Override
@@ -200,7 +214,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
         String flowName = "Egress_DHCP_Server_v4" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Drop_";
-        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
+                AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -221,7 +236,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
         String flowName = "Egress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Drop_";
-        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0,
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
+                AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -366,7 +382,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
 
             String flowName = "Egress_ARP_" + dpId + "_" + attachMac;
-            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
+                    AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         }
     }

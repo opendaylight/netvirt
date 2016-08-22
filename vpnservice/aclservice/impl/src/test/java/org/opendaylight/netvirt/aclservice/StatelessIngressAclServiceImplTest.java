@@ -105,9 +105,9 @@ public class StatelessIngressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubTcpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 80);
         assertEquals(true, testedService.applyAcl(ai));
-        assertEquals(1, installFlowValueSaver.getNumOfInvocations());
+        assertEquals(7, installFlowValueSaver.getNumOfInvocations());
 
-        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(0).get(0);
+        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(6).get(0);
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
@@ -120,9 +120,9 @@ public class StatelessIngressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubAllowAllInterface(sgUuid, "if_name");
         assertEquals(true, testedService.applyAcl(ai));
-        assertEquals(1, installFlowValueSaver.getNumOfInvocations());
+        assertEquals(7, installFlowValueSaver.getNumOfInvocations());
 
-        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(0).get(0);
+        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(6).get(0);
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
         AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0).getActionInfos(),
                 ActionType.nx_resubmit, "" + NwConstants.EGRESS_LPORT_DISPATCHER_TABLE);
@@ -133,15 +133,15 @@ public class StatelessIngressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubTcpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 84);
         assertEquals(true, testedService.applyAcl(ai));
-        assertEquals(2, installFlowValueSaver.getNumOfInvocations());
-        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(0).get(0);
+        assertEquals(8, installFlowValueSaver.getNumOfInvocations());
+        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(6).get(0);
         // should have been 80-83 will be fixed as part of the port range support
         // https://bugs.opendaylight.org/show_bug.cgi?id=6200
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65532");
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
 
-        FlowEntity secondRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(1).get(0);
+        FlowEntity secondRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(7).get(0);
         AclServiceTestUtils.verifyMatchInfo(secondRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "84", "65535");
         AclServiceTestUtils.verifyMatchInfo(secondRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
@@ -152,7 +152,7 @@ public class StatelessIngressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubUdpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 80);
         assertEquals(true, testedService.applyAcl(ai));
-        assertEquals(0, installFlowValueSaver.getNumOfInvocations());
+        assertEquals(6, installFlowValueSaver.getNumOfInvocations());
     }
 
     @Test
@@ -160,8 +160,8 @@ public class StatelessIngressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubTcpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 80);
         assertEquals(true, testedService.removeAcl(ai));
-        assertEquals(1, removeFlowValueSaver.getNumOfInvocations());
-        FlowEntity firstSynFlow = (FlowEntity) removeFlowValueSaver.getInvocationParams(0).get(0);
+        assertEquals(7, removeFlowValueSaver.getNumOfInvocations());
+        FlowEntity firstSynFlow = (FlowEntity) removeFlowValueSaver.getInvocationParams(6).get(0);
         AclServiceTestUtils.verifyMatchInfo(firstSynFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
         AclServiceTestUtils.verifyMatchInfo(firstSynFlow.getMatchInfoList(), MatchFieldType.tcp_flags,
