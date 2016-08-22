@@ -21,6 +21,11 @@ import static org.ops4j.pax.exam.MavenUtils.asInProject;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.DEBUG;
+import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.ERROR;
+import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.INFO;
+import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.TRACE;
+import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.WARN;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -81,7 +86,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
-import org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel;
 import org.ops4j.pax.exam.options.MavenUrlReference;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -104,6 +108,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static String portStr;
     private static String connectionType;
     private static String controllerStr;
+    private static String userSpaceEnabled = "";
     private static AtomicBoolean setup = new AtomicBoolean(false);
     private static MdsalUtils mdsalUtils = null;
     private static Southbound southbound = null;
@@ -162,33 +167,27 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     @Override
     public Option getLoggingOption() {
         return composite(
-                //editConfigurationFilePut(NetvirtITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
-                //        "log4j.logger.org.opendaylight.controller",
-                //        LogLevel.TRACE.name()),
-                //editConfigurationFilePut(NetvirtITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
-                //        "log4j.logger.org.opendaylight.ovsdb",
-                //        LogLevel.TRACE.name()),
-                //editConfigurationFilePut(NetvirtITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
-                //        "log4j.logger.org.opendaylight.ovsdb.lib",
-                //        LogLevel.INFO.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         logConfiguration(NetvirtIT.class),
-                        LogLevel.INFO.name()),
+                        INFO.name()),
                 editConfigurationFilePut(NetvirtITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.netvirt",
-                        LogLevel.DEBUG.name()),
+                        DEBUG.name()),
+                editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils",
+                        TRACE.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.openflowjava.protocol.impl.util.ListDeserializer",
-                        LogLevel.ERROR.name()),
+                        ERROR.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.controller.configpusherfeature.internal.FeatureConfigPusher",
-                        LogLevel.ERROR.name()),
+                        ERROR.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.apache.aries.blueprint.container.ServiceRecipe",
-                        LogLevel.WARN.name()),
+                        WARN.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.yangtools.yang.parser.repo.YangTextSchemaContextResolver",
-                        LogLevel.WARN.name()),
+                        WARN.name()),
                 super.getLoggingOption());
     }
 
@@ -204,7 +203,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         portStr = props.getProperty(NetvirtITConstants.SERVER_PORT, NetvirtITConstants.DEFAULT_SERVER_PORT);
         connectionType = props.getProperty(NetvirtITConstants.CONNECTION_TYPE, "active");
         controllerStr = props.getProperty(NetvirtITConstants.CONTROLLER_IPADDRESS, "0.0.0.0");
-        String userSpaceEnabled = props.getProperty(NetvirtITConstants.USERSPACE_ENABLED, "no");
+        userSpaceEnabled = props.getProperty(NetvirtITConstants.USERSPACE_ENABLED, "no");
         LOG.info("setUp: Using the following properties: mode= {}, ip:port= {}:{}, controller ip: {}, " +
                 "userspace.enabled: {}",
                 connectionType, addressStr, portStr, controllerStr, userSpaceEnabled);
@@ -592,18 +591,20 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     public void testNeutronNet() throws InterruptedException {
         LOG.warn("testNeutronNet: starting test");
         try(DockerOvs ovs = new DockerOvs()) {
-            ovs.logState(0, "idle");
+            logState(null, ovs, 0, "idle");
             ConnectionInfo connectionInfo = SouthboundUtils
                     .getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
             LOG.info("testNeutronNet: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
 
+            Boolean isUserSpace = userSpaceEnabled.equals("yes");
+            LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
             // Create the objects
             PingableNeutronNetItUtil net =
-                    new PingableNeutronNetItUtil(ovs, southboundUtils, UUID.randomUUID().toString());
+                    new PingableNeutronNetItUtil(ovs, southboundUtils, UUID.randomUUID().toString(), isUserSpace);
             net.create();
-            net.createPort(nodeInfo.bridgeNode, "dhcp", "network:dhcp");
+            //net.createPort(nodeInfo.bridgeNode, "dhcp", "network:dhcp");
             net.createPort(nodeInfo.bridgeNode, "vm1");
             net.createPort(nodeInfo.bridgeNode, "vm2");
 
@@ -615,7 +616,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             portOperationalListener.registerDataChangeListener(dataBroker);
             portOperationalListener.waitForCreation(10000);
             Thread.sleep(30000);
-            ovs.logState(0, "after ports");
+            logState(net, ovs, 0, "after ports");
 
             // Check flows created for all ports
             for (NeutronNetItUtil.PortInfo portInfo : net.portInfoByName.values()) {
@@ -668,16 +669,16 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "TunnelMiss_" + net.segId,
                     pipelineOrchestrator.getTable(Service.L2_FORWARDING), 5000);
 
-            ovs.logState(0, "after ports 2");
+            logState(net, ovs, 0, "after ports 2");
             net.preparePortForPing("vm1");
             net.preparePortForPing("vm2");
 
             LOG.info("wait for stuff to catch up");
             Thread.sleep(30000);
-            ovs.logState(0, "after preparePortForPing");
+            logState(net, ovs, 0, "after preparePortForPing");
             net.ping("vm1", "vm2");
             LOG.info("after ping");
-            ovs.logState(0, "after ping");
+            logState(net, ovs, 0, "after ping");
             net.destroy();
             nodeInfo.disconnect();
         } catch (Exception e) {
@@ -709,4 +710,28 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
     }
 
+    public void logState(PingableNeutronNetItUtil net, DockerOvs dockerOvs, int dockerInstance, String logText)
+            throws IOException, InterruptedException {
+        if (dockerOvs.usingExternalDocker()) {
+            return;
+        }
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "link");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "addr");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "route");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "list");
+
+        if (net != null) {
+            for (String key : net.portInfoByName.keySet()) {
+                String ns = "ns-" + key;
+                dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", ns, "ip", "link");
+                dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", ns, "ip", "addr");
+                dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", ns, "ip", "route");
+            }
+        }
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-vsctl", "show");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-ofctl", "-OOpenFlow13", "show", "br-int");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-ofctl", "-OOpenFlow13", "dump-flows", "br-int");
+        //dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-appctl", "fdb/show", "br-int");
+        //ovs-appctl -t /var/run/openvswitch/ovs-vswitchd.12.ctl fdb/show br-int
+    }
 }
