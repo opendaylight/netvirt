@@ -46,8 +46,10 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpCounters;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouter;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouterException;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpSyncHandle;
@@ -104,7 +106,9 @@ public class BgpConfigurationManager {
     private static BgpRouter bgpRouter;
     private static BgpThriftService updateServer;
     private BgpCounters bgpCounters;
+    private BgpAlarms bgpAlarms;
     private Timer bgpCountersTimer;
+    private Timer bgpAlarmsTimer;
     private static final String DEF_LOGFILE = "/var/log/bgp_debug.log";
     private static final String DEF_LOGLEVEL = "errors";
     private static final String UPDATE_PORT = "bgp.thrift.service.port";
@@ -114,6 +118,7 @@ public class BgpConfigurationManager {
     private static final String DEF_CHOST = "127.0.0.1";
     private static final String DEF_CPORT = "7644";
     private static final String SDNC_BGP_MIP = "sdnc_bgp_mip";
+    private static final String BGP_SDNC_MIP = "bgp_sdnc_mip";
     private static final String CLUSTER_CONF_FILE = "/cluster/etc/cluster.conf";
     private static final Timer ipActivationCheckTimer = new Timer();
     private static final int STALE_FIB_WAIT = 60;
@@ -124,6 +129,7 @@ public class BgpConfigurationManager {
     private long CfgReplayEndTime = 0;
     private long StaleCleanupTime = 0;
 
+    public String getBgpSdncMipIp() { return readThriftIpForCommunication(BGP_SDNC_MIP);}
     public long getStaleCleanupTime() {
         return StaleCleanupTime;
     }
@@ -170,6 +176,7 @@ public class BgpConfigurationManager {
     private static final int BGP_RESTART_ROUTE_SYNC_SEC = 360;
 
     static String odlThriftIp = "127.0.0.1";
+    static String bgpThriftIp = "127.0.0.1";
     private static String cHostStartup;
     private static String cPortStartup;
     private static CountDownLatch initer = new CountDownLatch(1);
@@ -212,7 +219,8 @@ public class BgpConfigurationManager {
         ClearBgpCli.setHostAddr(cHostStartup);
         LOG.info("UpdateServer at localhost:" + uPort + " ConfigServer at "
                 + cHostStartup + ":" + cPortStartup);
-        readOdlThriftIpForBgpCommunication();
+        odlThriftIp = readThriftIpForCommunication(SDNC_BGP_MIP);
+        bgpThriftIp = readThriftIpForCommunication(BGP_SDNC_MIP);
         registerCallbacks();
 
         LOG.info("BGP Configuration manager initialized");
@@ -443,6 +451,9 @@ public class BgpConfigurationManager {
                     if (getBgpCounters() == null) {
                         startBgpCountersTask();
                     }
+                    if (getBgpAlarms() == null) {
+                        startBgpAlarmsTask();
+                    }
                 } catch (BgpRouterException bre) {
                     if (bre.getErrorCode() == BgpRouterException.BGP_ERR_ACTIVE) {
                         LOG.error(yangObj + "Add requested when BGP is already active");
@@ -485,6 +496,9 @@ public class BgpConfigurationManager {
                 }
                 if (getBgpCounters() != null) {
                     stopBgpCountersTask();
+                }
+                if (getBgpAlarms() != null) {
+                    stopBgpAlarmsTask();
                 }
             }
         }
@@ -1291,11 +1305,10 @@ public class BgpConfigurationManager {
         }
     }
 
-    public void readOdlThriftIpForBgpCommunication() {
+    public String readThriftIpForCommunication( String mipAddr) {
         File f = new File(CLUSTER_CONF_FILE);
         if (!f.exists()) {
-            odlThriftIp = "127.0.0.1";
-            return;
+            return  DEF_CHOST;
         }
         BufferedReader br = null;
         try {
@@ -1303,10 +1316,9 @@ public class BgpConfigurationManager {
                     new FileInputStream(f)));
             String line = br.readLine();
             while (line != null) {
-                if (line.contains(SDNC_BGP_MIP)) {
+                if (line.contains(mipAddr)) {
                     line = line.trim();
-                    odlThriftIp = line.substring(line.lastIndexOf(" ") + 1);
-                    break;
+                    return line.substring(line.lastIndexOf(" ") + 1);
                 }
                 line = br.readLine();
             }
@@ -1317,6 +1329,7 @@ public class BgpConfigurationManager {
             } catch (Exception ignore) {
             }
         }
+        return DEF_CHOST;
     }
 
     public boolean isIpAvailable(String odlip) {
@@ -1623,6 +1636,10 @@ public class BgpConfigurationManager {
 
             if (getBgpCounters() == null) {
                 startBgpCountersTask();
+            }
+
+            if (getBgpAlarms() == null) {
+                startBgpAlarmsTask();
             }
 
             Logging l = config.getLogging();
@@ -2051,12 +2068,15 @@ public class BgpConfigurationManager {
     public  void setBgpCountersTimer (Timer t) {
         bgpCountersTimer = t;
     }
+    public  void setBgpAlarmsTimer (Timer t) {
+        bgpAlarmsTimer = t;
+    }
 
     public void startBgpCountersTask() {
         if (getBgpCounters() == null) {
 
             try {
-                bgpCounters = new BgpCounters();
+                bgpCounters = new BgpCounters(bgpConfigurationManager.getBgpSdncMipIp());
                 setBgpCountersTimer(new Timer(true));
                 getBgpCountersTimer().scheduleAtFixedRate(bgpCounters, 0, 120 * 1000);
 
@@ -2083,4 +2103,34 @@ public class BgpConfigurationManager {
             bgpCounters = null;
         }
     }
+    public void startBgpAlarmsTask() {
+        if (getBgpAlarms() == null) {
+            try {
+                bgpAlarms = new BgpAlarms(this);
+                setBgpAlarmsTimer(new Timer(true));
+                getBgpAlarmsTimer().scheduleAtFixedRate(bgpAlarms, 0, 60 * 1000);
+                LOG.info("Bgp Alarms task scheduled for every minute.");
+            } catch (Exception e) {
+                System.out.println("Could not start the timertask for Bgp Alarms.");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void stopBgpAlarmsTask() {
+        Timer t = getBgpAlarmsTimer();
+        if (getBgpAlarms() != null) {
+            t.cancel();
+            setBgpAlarmsTimer(null);
+            bgpAlarms = null;
+        }
+    }
+    public Timer getBgpAlarmsTimer() {
+        return bgpAlarmsTimer;
+    }
+
+    public BgpAlarms getBgpAlarms() {
+        return bgpAlarms;
+    }
+
 }

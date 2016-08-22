@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.bgpmanager.api;
 
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.bgpmanager;
 import java.util.Collection;
 import java.util.List;
 
