@@ -548,23 +548,25 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 elanIdentifierId);
         long elanTag = elanInstance.get().getElanTag();
 
-        // find the subnet to which this port is associated
-        FixedIps ip = port.getFixedIps().get(0);
-        subnetId = ip.getSubnetId();
-        subnetmap = nvpnManager.updateSubnetmapNodeWithPorts(subnetId, port.getUuid(), null);
-        if (subnetmap != null) {
-            vpnId = subnetmap.getVpnId();
-        }
-        if (vpnId != null) {
-            try {
-                isLockAcquired = NeutronvpnUtils.lock(lockManager, lockName);
-                checkAndPublishPortAddNotification(subnetmap.getSubnetIp(), subnetId, port.getUuid(), elanTag);
-                LOG.debug("Port added to subnet notification sent");
-            } catch (Exception e) {
-                LOG.error("Port added to subnet notification failed", e);
-            } finally {
-                if (isLockAcquired) {
-                    NeutronvpnUtils.unlock(lockManager, lockName);
+        if (!port.getFixedIps().isEmpty()) {
+            // find the subnet to which this port is associated
+            FixedIps ip = port.getFixedIps().get(0);
+            subnetId = ip.getSubnetId();
+            subnetmap = nvpnManager.updateSubnetmapNodeWithPorts(subnetId, port.getUuid(), null);
+            if (subnetmap != null) {
+                vpnId = subnetmap.getVpnId();
+            }
+            if (vpnId != null) {
+                try {
+                    isLockAcquired = NeutronvpnUtils.lock(lockManager, lockName);
+                    checkAndPublishPortAddNotification(subnetmap.getSubnetIp(), subnetId, port.getUuid(), elanTag);
+                    LOG.debug("Port added to subnet notification sent");
+                } catch (Exception e) {
+                    LOG.error("Port added to subnet notification failed", e);
+                } finally {
+                    if (isLockAcquired) {
+                        NeutronvpnUtils.unlock(lockManager, lockName);
+                    }
                 }
             }
         }
