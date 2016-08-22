@@ -23,7 +23,7 @@ public class ShowNeutronPortsCommand extends OsgiCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
         for (String p : neutronVpnManager.showNeutronPortsCLI()) {
-            System.out.println(p);
+            session.getConsole().println(p);
         }
         return null;
     }

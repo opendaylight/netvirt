@@ -23,7 +23,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
         for (String p : fibManager.printFibEntries()) {
-            System.out.println(p);
+            session.getConsole().println(p);
         }
         return null;
     }

@@ -41,17 +41,17 @@ public class DhcpShowCommand extends OsgiCommandSupport {
             DhcpConfig dhcpConfig = read(iid);
             if (dhcpConfig == null || dhcpConfig.getConfigs() == null) {
                 //TODO: Should we print the defaults?
-                System.out.println("Failed to get DHCP Configuration. Try again");
+                session.getConsole().println("Failed to get DHCP Configuration. Try again");
                 return null;
             }
             if (!dhcpConfig.getConfigs().isEmpty()) {
                 leaseDuration = dhcpConfig.getConfigs().get(0).getLeaseDuration();
                 defDomain = dhcpConfig.getConfigs().get(0).getDefaultDomain();
             }
-            System.out.println("Lease Duration: " + ((leaseDuration != null) ? leaseDuration:86400));
-            System.out.println("Default Domain: " + ((defDomain != null) ? defDomain:"openstacklocal"));
+            session.getConsole().println("Lease Duration: " + ((leaseDuration != null) ? leaseDuration:86400));
+            session.getConsole().println("Default Domain: " + ((defDomain != null) ? defDomain:"openstacklocal"));
         } catch (Exception e) {
-            System.out.println("Failed to fetch configuration parameters. Try again");
+            session.getConsole().println("Failed to fetch configuration parameters. Try again");
             Logger.error("Failed to fetch DHCP parameters",e);
         }
         return null;

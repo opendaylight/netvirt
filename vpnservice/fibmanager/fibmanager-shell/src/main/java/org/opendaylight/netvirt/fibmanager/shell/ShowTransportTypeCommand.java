@@ -23,12 +23,12 @@ public class ShowTransportTypeCommand extends OsgiCommandSupport {
     protected Object doExecute() throws Exception {
         String displayFormat = "%-16s %-16s";
         String cacheVal = fibManager.getReqTransType();
-        System.out.println(String.format(displayFormat, "Service Name", "Transport Type"));
-        System.out.println("----------------------------------------------");
-        System.out.println(String.format(displayFormat, "ELAN" , "VXLAN"));
-        System.out.println(String.format(displayFormat, "L3VPN", cacheVal));
+        session.getConsole().println(String.format(displayFormat, "Service Name", "Transport Type"));
+        session.getConsole().println("----------------------------------------------");
+        session.getConsole().println(String.format(displayFormat, "ELAN" , "VXLAN"));
+        session.getConsole().println(String.format(displayFormat, "L3VPN", cacheVal));
 
-        System.out.println("----------------------------------------------------------------------------------------------------------------------");
+        session.getConsole().println("----------------------------------------------------------------------------------------------------------------------");
 
         return null;
     }
