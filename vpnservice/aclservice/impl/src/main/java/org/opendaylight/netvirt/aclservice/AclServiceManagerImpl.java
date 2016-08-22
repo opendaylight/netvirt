@@ -28,8 +28,8 @@ public class AclServiceManagerImpl implements AclServiceManager {
      * @param ingressAclService ingress acl service
      * @param egressAclService egress acl service
      */
-    public AclServiceManagerImpl(final IngressAclServiceImpl ingressAclService,
-            final EgressAclServiceImpl egressAclService) {
+    public AclServiceManagerImpl(final AbstractIngressAclServiceImpl ingressAclService,
+            final AbstractEgressAclServiceImpl egressAclService) {
         addAclServiceListner(ingressAclService);
         addAclServiceListner(egressAclService);
 

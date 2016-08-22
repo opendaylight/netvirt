@@ -9,8 +9,10 @@ package org.opendaylight.netvirt.aclservice;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -25,12 +27,19 @@ import org.slf4j.LoggerFactory;
  * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress
  * and vice versa.
  */
-public class TransparentIngressAclServiceImpl extends IngressAclServiceImpl {
+public class TransparentIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransparentIngressAclServiceImpl.class);
 
     public TransparentIngressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager) {
         super(dataBroker, mdsalManager);
+    }
+
+    @Override
+    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
+            Map<String, List<MatchInfoBase>> flowMap, String flowName) {
+        // Not in use here. programAceRule function is overridden.
+        return null;
     }
 
     @Override
