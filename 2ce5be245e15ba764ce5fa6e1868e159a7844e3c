@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_16f82ae4",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpAlarms.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5987
+      },
+      "writtenOn": "2016-08-22T12:58:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_53911451",
+      "revId": "2ce5be245e15ba764ce5fa6e1868e159a7844e3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_3384580b",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpJMXAlarmAgent.java",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_76debe6e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpJMXAlarmAgent.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5987
+      },
+      "writtenOn": "2016-08-22T12:58:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_3384580b",
+      "revId": "2ce5be245e15ba764ce5fa6e1868e159a7844e3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_13879c10",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpJMXAlarmAgent.java",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2016-08-22T11:07:05Z",
       "side": 1,
       "message": "checkstyle requires spaces between if and (. there are other places through the files with the same issues.",
+      "revId": "2ce5be245e15ba764ce5fa6e1868e159a7844e3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_56d90282",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpJMXAlarmAgent.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5987
+      },
+      "writtenOn": "2016-08-22T12:58:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_13879c10",
       "revId": "2ce5be245e15ba764ce5fa6e1868e159a7844e3c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
