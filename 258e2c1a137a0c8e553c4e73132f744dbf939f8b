@@ -16,6 +16,24 @@
       "revId": "258e2c1a137a0c8e553c4e73132f744dbf939f8b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bf9f89b3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/LearnEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-23T06:49:08Z",
+      "side": 1,
+      "message": "You are right!\nI am refactoring the code to use remote SG in the base of all ACL types.\nPlease review https://git.opendaylight.org/gerrit/44531",
+      "parentUuid": "7a6b29fe_d33b649a",
+      "revId": "258e2c1a137a0c8e553c4e73132f744dbf939f8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
