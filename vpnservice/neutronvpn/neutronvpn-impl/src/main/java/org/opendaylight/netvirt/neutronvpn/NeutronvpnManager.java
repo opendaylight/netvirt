@@ -7,18 +7,16 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.EventListener;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -50,7 +48,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksOutputBuilder;
@@ -122,6 +119,9 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.SettableFuture;
 
 public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, EventListener {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronvpnManager.class);
@@ -198,7 +198,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     builder.setRouterInterfaceFixedIps(null);
                 }
                 subnetmap = builder.build();
-                handleExternalSubnetPorts(subnetmap);
                 isLockAcquired = NeutronvpnUtils.lock(lockManager, subnetId.getValue());
                 LOG.debug("Creating/Updating subnetMap node for FixedIps: {} ", subnetId.getValue());
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
@@ -248,7 +247,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
 
             subnetmap = builder.build();
-            handleExternalSubnetPorts(subnetmap);
             isLockAcquired = NeutronvpnUtils.lock(lockManager, subnetId.getValue());
             LOG.debug("Creating/Updating subnetMap node: {} ", subnetId.getValue());
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
@@ -759,29 +757,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
         } catch (Exception ex) {
             LOG.error("Updation of vpninterface {} failed due to {}", infName, ex);
-        } finally {
-            if (isLockAcquired) {
-                NeutronvpnUtils.unlock(lockManager, infName);
-            }
-        }
-    }
-
-
-    protected void createVpnInterface(Uuid vpnId, String infName) {
-        if (vpnId == null || infName == null) {
-            return;
-        }
-
-        boolean isLockAcquired = false;
-        InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
-        VpnInterface vpnIf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
-                .setName(infName).setVpnInstanceName(vpnId.getValue()).build();
-        try {
-            isLockAcquired = NeutronvpnUtils.lock(lockManager, infName);
-            LOG.debug("Creating vpn interface {}", vpnIf);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
-        } catch (Exception ex) {
-            LOG.error("Creation of vpninterface {} failed due to {}", infName, ex);
         } finally {
             if (isLockAcquired) {
                 NeutronvpnUtils.unlock(lockManager, infName);
@@ -2249,33 +2224,5 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected void dissociatefixedIPFromFloatingIP(String fixedNeutronPortName) {
         floatingIpMapListener.dissociatefixedIPFromFloatingIP(fixedNeutronPortName);
-    }
-
-    private void handleExternalSubnetPorts(Subnetmap subnetmap) {
-        Uuid routerId = subnetmap.getRouterId();
-        Uuid subnetId = subnetmap.getId();
-        if (routerId == null) {
-            LOG.trace("No router attached to subnet {}", subnetId);
-            return;
-        }
-
-        InstanceIdentifier<Routers> routersIdentifier = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
-        Optional<Routers> optionalRouters = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                routersIdentifier);
-        if (!optionalRouters.isPresent() || optionalRouters.get().getNetworkId() == null) {
-            LOG.trace("No external network attached to router {} subnet {}", routerId, subnetId);
-            return;
-        }
-
-        Uuid extNetId = optionalRouters.get().getNetworkId();
-        Collection<String> extElanInterfaces = elanService.getExternalElanInterfaces(extNetId.getValue());
-        if (extElanInterfaces == null || extElanInterfaces.isEmpty()) {
-            LOG.trace("No external ports attached to subnet {}", subnetmap.getId());
-            return;
-        }
-
-        for (String elanInterface : extElanInterfaces) {
-            createVpnInterface(subnetmap.getVpnId(), elanInterface);
-        }
     }
 }
