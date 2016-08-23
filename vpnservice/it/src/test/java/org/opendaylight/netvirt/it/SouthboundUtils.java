@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.utils.netvirt.it.utils;
+package org.opendaylight.netvirt.it;
 
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class SouthboundUtils {
     private static final Logger LOG = LoggerFactory.getLogger(SouthboundUtils.class);
     private final MdsalUtils mdsalUtils;
-    private final TopologyId OVSDB_TOPOLOGY_ID = new TopologyId(new Uri("ovsdb:1"));
+    private static final TopologyId OVSDB_TOPOLOGY_ID = new TopologyId(new Uri("ovsdb:1"));
 
     public SouthboundUtils(MdsalUtils mdsalUtils) {
         this.mdsalUtils = mdsalUtils;
