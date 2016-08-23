@@ -8,7 +8,9 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
-import org.apache.karaf.shell.commands.*;
+import org.apache.karaf.shell.commands.Argument;
+import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;

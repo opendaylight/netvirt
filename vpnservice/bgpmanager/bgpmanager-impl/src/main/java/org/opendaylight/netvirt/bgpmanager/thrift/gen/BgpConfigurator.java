@@ -17,7 +17,7 @@ import org.apache.thrift.protocol.TProtocolException;
 import org.apache.thrift.EncodingUtils;
 import org.apache.thrift.TException;
 import org.apache.thrift.async.AsyncMethodCallback;
-import org.apache.thrift.server.AbstractNonblockingServer.*;
+import org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;

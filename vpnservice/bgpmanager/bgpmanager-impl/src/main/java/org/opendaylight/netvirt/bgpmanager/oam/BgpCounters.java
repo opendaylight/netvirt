@@ -11,10 +11,26 @@ package org.opendaylight.netvirt.bgpmanager.oam;
 import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
-import java.net.*;
-import java.util.*;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -29,7 +45,7 @@ public class BgpCounters extends TimerTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(BgpCounters.class);
     public static BgpCountersBroadcaster bgpStatsBroadcaster = null;
     public MBeanServer bgpStatsServer = null;
-    public  Map <String, String> countersMap = new HashMap<String, String>();
+    public Map<String, String> countersMap = new HashMap<String, String>();
 
     @Override
     public void run () {
@@ -77,7 +93,7 @@ public class BgpCounters extends TimerTask {
         }
     }
 
-    public static void fetchCmdOutputs (String filename, String cmdName) throws  IOException  {
+    public static void fetchCmdOutputs (String filename, String cmdName) throws IOException {
         Socket socket;
         int serverPort = 2605;
         String serverName = BgpConstants.DEFAULT_BGP_HOST_NAME;
