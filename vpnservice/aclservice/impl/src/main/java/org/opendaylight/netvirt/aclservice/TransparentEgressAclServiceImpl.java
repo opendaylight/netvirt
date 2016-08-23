@@ -9,8 +9,10 @@ package org.opendaylight.netvirt.aclservice;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -22,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * Provides the transparent implementation for egress (w.r.t VM) ACL service.
  *
  */
-public class TransparentEgressAclServiceImpl extends EgressAclServiceImpl {
+public class TransparentEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransparentEgressAclServiceImpl.class);
 
@@ -40,6 +42,13 @@ public class TransparentEgressAclServiceImpl extends EgressAclServiceImpl {
     protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
             List<AllowedAddressPairs> syncAllowedAddresses) {
         LOG.debug("transparent egress acl service - do nothing");
+    }
+
+    @Override
+    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
+            Map<String, List<MatchInfoBase>> flowMap, String flowName) {
+        // Not in use here. programAceRule function is overridden.
+        return null;
     }
 
 }
