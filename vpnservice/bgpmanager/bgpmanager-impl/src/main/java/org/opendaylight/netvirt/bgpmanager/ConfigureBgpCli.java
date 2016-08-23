@@ -9,17 +9,18 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import java.net.InetAddress;
+import java.util.List;
 
-import org.apache.karaf.shell.commands.*;
+import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.*;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.*;
 
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.*;
 
 @Command(scope = "odl", name = "configure-bgp", description = "")
 public class ConfigureBgpCli extends OsgiCommandSupport {
