@@ -8,21 +8,23 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
-import org.apache.karaf.shell.commands.*;
+import org.apache.karaf.shell.commands.Argument;
+import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 
-@Command(scope = "odl", name = "bgp-connect", 
+@Command(scope = "odl", name = "bgp-connect",
          description = "Add or delete client connection to BGP Config Server")
 public class Connect extends OsgiCommandSupport {
     private static final String HOST = "--host";
     private static final String PORT = "--port";
 
-    @Argument(name="add|del", description="The desired operation", 
+    @Argument(name="add|del", description="The desired operation",
               required=true, multiValued = false)
     String action = null;
 
-    @Option(name=HOST, aliases={"-h"}, 
+    @Option(name=HOST, aliases={"-h"},
             description="IP address of the server", 
             required=false, multiValued=false)
     String host = null;

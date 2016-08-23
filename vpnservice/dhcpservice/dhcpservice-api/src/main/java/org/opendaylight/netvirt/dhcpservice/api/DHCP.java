@@ -29,7 +29,13 @@ import org.opendaylight.controller.liblldp.PacketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.*;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.BOOTREPLY;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.DHCP_MAX_SIZE;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.DHCP_MIN_SIZE;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.DHCP_NOOPT_HDR_SIZE;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.HTYPE_ETHER;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.MAGIC_COOKIE;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.OPT_MESSAGE_TYPE;
 
 public class DHCP extends Packet {
     protected static final Logger logger = LoggerFactory
