@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_bfd78922",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2290,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-23T07:43:50Z",
+      "side": 1,
+      "message": "Usually instance of MdsalUtils class is used to wrap the read and to get rid of the \"Optional\" wrapping.",
+      "revId": "79433fe14acf7d80561af26c48c0865225d6a694",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
