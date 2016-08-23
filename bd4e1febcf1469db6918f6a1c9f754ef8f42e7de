@@ -16,6 +16,24 @@
       "revId": "bd4e1febcf1469db6918f6a1c9f754ef8f42e7de",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6578bec4",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceManagerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-23T15:34:22Z",
+      "side": 1,
+      "message": "You are right. I tested the change on Stateful, thats why it worked :)",
+      "parentUuid": "7a6b29fe_250b6626",
+      "revId": "bd4e1febcf1469db6918f6a1c9f754ef8f42e7de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
