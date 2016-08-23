@@ -11,6 +11,8 @@
     interface="org.opendaylight.controller.sal.binding.api.NotificationProviderService" />
   <reference id="rpcRegistry"
     interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry" />
+  <reference id="ovsdbInventoryService"
+    interface="org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryService" />
 
   <odl:rpc-service id="salFlowService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService" />
@@ -26,6 +28,7 @@
     <argument ref="packetProcessingService" />
     <argument ref="salFlowService" />
     <argument value="0" />
+    <argument ref="ovsdbInventoryService" />
   </bean>
 
 </blueprint>
