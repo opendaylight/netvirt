@@ -8,16 +8,20 @@
 
 package org.opendaylight.netvirt.bgpmanager.thrift.client;
 
-import java.util.*;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
-import org.opendaylight.netvirt.bgpmanager.thrift.gen.*;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpConfigurator;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.Routes;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class BgpRouter {
     private static TTransport transport;
