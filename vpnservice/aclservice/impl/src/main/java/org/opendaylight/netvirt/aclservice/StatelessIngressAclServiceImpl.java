@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress
  * and vice versa.
  */
-public class StatelessIngressAclServiceImpl extends IngressAclServiceImpl {
+public class StatelessIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatelessIngressAclServiceImpl.class);
 
@@ -53,6 +53,13 @@ public class StatelessIngressAclServiceImpl extends IngressAclServiceImpl {
     @Override
     protected void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove) {
+    }
+
+    @Override
+    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
+            Map<String, List<MatchInfoBase>> flowMap, String flowName) {
+        // Not in use here. programAceRule function is overridden.
+        return null;
     }
 
     @Override
@@ -101,4 +108,5 @@ public class StatelessIngressAclServiceImpl extends IngressAclServiceImpl {
         String oper = getOperAsString(addOrRemove);
         LOG.debug("{} allow syn packet flow {}", oper, flowName);
     }
+
 }
