@@ -13,10 +13,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
-import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
-import static org.ops4j.pax.exam.MavenUtils.asInProject;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
@@ -85,7 +82,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     public MavenUrlReference getFeatureRepo() {
         return maven()
                 .groupId("org.opendaylight.netvirt")
-                .artifactId("vpnservice-features")
+                .artifactId("it-features")
                 .classifier("features")
                 .type("xml")
                 .versionAsInProject();
@@ -112,10 +109,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
     private Option[] getOtherOptions() {
         return new Option[] {
-                wrappedBundle(
-                        mavenBundle("org.opendaylight.netvirt", "utils.mdsal-openflow")
-                                .version(asInProject())
-                                .type("jar")),
                 configureConsole().startLocalConsole(),
                 //when("transparent".equals(System.getProperty("sgm"))).useOptions(
                         replaceConfigurationFile(
