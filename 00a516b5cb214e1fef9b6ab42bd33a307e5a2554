@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_0b591836",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/ElanAdd.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-08-24T12:00:57Z",
+      "side": 1,
+      "message": "General question here:\nLet\u0027s say that the ELAN creation failed. Will the CLI user see the full stacktrace or just the exception message? \nIf the latter, this is a big mistake in my opinion, because it will make troubleshooting harder. One example: You got an NPE, will the user only see NPE without an opportunity to see where did the NPE stemmed from?",
+      "revId": "00a516b5cb214e1fef9b6ab42bd33a307e5a2554",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
