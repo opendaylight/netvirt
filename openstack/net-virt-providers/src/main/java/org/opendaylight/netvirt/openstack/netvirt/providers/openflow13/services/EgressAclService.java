@@ -444,8 +444,13 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                 matchBuilder = MatchUtils.addRemoteIpv6Prefix(matchBuilder,null,
                         new Ipv6Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()));
             } else {
-                matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,null,
-                        new Ipv4Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()));
+                // Fix: Bug 6473
+                // IP match removed if CIDR created as 0.0.0.0/0 in openstack security rule
+                if (!portSecurityRule.getSecurityRuleRemoteIpPrefix().contains("/0")) {
+                    matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,null,
+                            new Ipv4Prefix(portSecurityRule
+                                           .getSecurityRuleRemoteIpPrefix()));
+                 }
             }
         }
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
@@ -478,7 +483,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
 
     private void addTcpSynMatch(MatchBuilder matchBuilder) {
         if (!securityServicesManager.isConntrackEnabled()) {
-            MatchUtils.createTcpSynWithProtoMatch(matchBuilder);
+            MatchUtils.createTcpProtoSynMatch(matchBuilder);
         }
     }
 
