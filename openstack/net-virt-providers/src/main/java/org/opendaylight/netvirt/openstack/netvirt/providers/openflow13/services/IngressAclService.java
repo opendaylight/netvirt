@@ -224,24 +224,24 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                                          write,Constants.PROTO_DHCP_SERVER_MATCH_PRIORITY);
         ingressAclDhcpv6AllowServerTraffic(dpid, segmentationId,dhcpMacAddress, attachMac,
                                            write,Constants.PROTO_DHCP_SERVER_MATCH_PRIORITY);
-        addTcpSynFlagMatch(dpid, segmentationId, attachMac, write,
-                                           Constants.PROTO_TCP_SYN_MATCH_PRIORITY);
-
         if (securityServicesManager.isConntrackEnabled()) {
             programIngressAclFixedConntrackRule(dpid, segmentationId, attachMac, localPort, write);
+        } else {
+            // add rule to drop tcp syn packets from the vm
+            addTcpSynFlagMatchDrop(dpid, segmentationId, attachMac, write,
+                                                Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
         }
         programArpRule(dpid, segmentationId, localPort, attachMac, write);
     }
 
-    private void addTcpSynFlagMatch(Long dpidLong, String segmentationId, String srcMac,
-                              boolean write, Integer protoTcpSynMatchPriority) {
+    private void addTcpSynFlagMatchDrop(Long dpidLong, String segmentationId, String srcMac,
+                              boolean write, Integer priority) {
+        String flowId = "Ingress_TCP_" + segmentationId + "_" + srcMac + "_DROP_";
         MatchBuilder matchBuilder = new MatchBuilder();
-        String flowId = "Ingress_TCP_" + segmentationId + "_" + srcMac + "_";
         flowId = flowId + "_";
         matchBuilder = MatchUtils.createTcpSynWithProtoMatch(matchBuilder);
-        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoTcpSynMatchPriority,
-                                                                  matchBuilder, getTable());
-        addPipelineInstruction(flowBuilder, null, false);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, priority, matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, true);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
         syncFlow(flowBuilder, nodeBuilder, write);
         }
@@ -426,9 +426,13 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                         new Ipv6Prefix(portSecurityRule
                                        .getSecurityRuleRemoteIpPrefix()),null);
             } else {
-                matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
-                        new Ipv4Prefix(portSecurityRule
+                // Fix: Bug 6473
+                // IP match removed if CIDR created as 0.0.0.0/0 in openstack security rule
+                if (!portSecurityRule.getSecurityRuleRemoteIpPrefix().contains("/0")) {
+                    matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
+                            new Ipv4Prefix(portSecurityRule
                                        .getSecurityRuleRemoteIpPrefix()),null);
+                }
             }
         }
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
@@ -461,7 +465,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
 
     private void addTcpSynMatch(MatchBuilder matchBuilder) {
         if (!securityServicesManager.isConntrackEnabled()) {
-            MatchUtils.createTcpSynWithProtoMatch(matchBuilder);
+            MatchUtils.createTcpProtoSynMatch(matchBuilder);
         }
     }
 
