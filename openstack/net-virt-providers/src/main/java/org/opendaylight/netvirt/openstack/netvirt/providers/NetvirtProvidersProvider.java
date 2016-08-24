@@ -19,7 +19,6 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipL
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
-import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
@@ -45,15 +44,13 @@ public class NetvirtProvidersProvider implements AutoCloseable {
     private final NotificationProviderService notificationProviderService;
     private final PacketProcessingService packetProcessingService;
     private final SalFlowService salFlowService;
-    private final OvsdbInventoryService ovsdbInventoryService;
 
     public NetvirtProvidersProvider(final DataBroker dataBroker,
                                     final EntityOwnershipService eos,
                                     final NotificationProviderService notificationProviderService,
                                     final PacketProcessingService packetProcessingService,
                                     final SalFlowService salFlowService,
-                                    final short tableOffset,
-                                    final OvsdbInventoryService ovsdbInventoryService) {
+                                    final short tableOffset) {
         LOG.info("NetvirtProvidersProvider");
         NetvirtProvidersProvider.dataBroker = dataBroker;
         this.notificationProviderService = notificationProviderService;
@@ -62,9 +59,6 @@ public class NetvirtProvidersProvider implements AutoCloseable {
         this.salFlowService = salFlowService;
         this.packetProcessingService = packetProcessingService;
         setTableOffset(tableOffset);
-        this.ovsdbInventoryService = ovsdbInventoryService;
-
-        assert(ovsdbInventoryService != null);
     }
 
     public static boolean isMasterProviderInstance() {
