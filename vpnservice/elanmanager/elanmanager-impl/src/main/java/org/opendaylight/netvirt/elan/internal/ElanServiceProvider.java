@@ -539,10 +539,10 @@ public class ElanServiceProvider implements IElanService {
                 String origPortName = origProviderMappping.get(physicalNetworkName);
                 String updatedPortName = updatedProviderMappping.get(physicalNetworkName);
                 if (origPortName != null && !origPortName.equals(updatedPortName)) {
-                    deleteExternalElanNetwork(elanInstance, getExtInterfaceName(origNode, physicalNetworkName));
+                    deleteExternalElanNetwork(elanInstance, bridgeMgr.getProviderInterfaceName(origNode, physicalNetworkName));
                 }
                 if (updatedPortName != null && !updatedPortName.equals(origPortName)) {
-                    createExternalElanNetwork(elanInstance, getExtInterfaceName(updatedNode, updatedPortName));
+                    createExternalElanNetwork(elanInstance, bridgeMgr.getProviderInterfaceName(updatedNode, updatedPortName));
                 }
             }
         }
@@ -646,22 +646,6 @@ public class ElanServiceProvider implements IElanService {
         LOG.debug("Deleting IETF interface {}", interfaceName);
     }
 
-    private String getExtInterfaceName(Node node, String physicalNetworkName) {
-        if (physicalNetworkName == null) {
-            return null;
-        }
-
-        String providerMappingValue = bridgeMgr.getProviderMappingValue(node, physicalNetworkName);
-        if (providerMappingValue == null) {
-            LOG.trace("No provider mapping found for physicalNetworkName {} node {}", physicalNetworkName,
-                    node.getNodeId().getValue());
-            return null;
-        }
-
-        return bridgeMgr.southboundUtils.getDataPathId(node) + IfmConstants.OF_URI_SEPARATOR
-                + bridgeMgr.getIntBridgePortNameFor(node, providerMappingValue);
-    }
-
     private void handleExternalElanNetworks(Node node, BiFunction<ElanInstance, String, Void> function) {
         if (!bridgeMgr.isIntegrationBridge(node)) {
             return;
@@ -674,7 +658,7 @@ public class ElanServiceProvider implements IElanService {
         }
 
         for (ElanInstance elanInstance : elanInstances) {
-            String interfaceName = getExtInterfaceName(node, elanInstance.getPhysicalNetworkName());
+            String interfaceName = bridgeMgr.getProviderInterfaceName(node, elanInstance.getPhysicalNetworkName());
             if (interfaceName != null) {
                 function.apply(elanInstance, interfaceName);
             }
@@ -697,7 +681,7 @@ public class ElanServiceProvider implements IElanService {
 
         for (Node node : nodes) {
             if (bridgeMgr.isIntegrationBridge(node)) {
-                String interfaceName = getExtInterfaceName(node, elanInstance.getPhysicalNetworkName());
+                String interfaceName = bridgeMgr.getProviderInterfaceName(node, elanInstance.getPhysicalNetworkName());
                 function.apply(elanInstance, interfaceName);
             }
         }

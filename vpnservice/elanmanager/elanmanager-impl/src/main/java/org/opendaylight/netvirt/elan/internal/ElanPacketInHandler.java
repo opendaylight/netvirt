@@ -143,7 +143,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                         macEntry);
                 ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
                 WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
-                elanUtils.setupMacFlows(elanInstance,
+                elanUtils.setupLocalMacFlows(elanInstance,
                         interfaceManager.getInterfaceInfo(interfaceName),
                         elanInstance.getMacTimeout(), macAddress, flowWritetx);
                 flowWritetx.submit();

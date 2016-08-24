@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -24,6 +25,7 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipS
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -40,8 +42,10 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
+import org.opendaylight.netvirt.elan.internal.ElanBridgeManager;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
+import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
@@ -171,6 +175,7 @@ public class ElanUtils {
     private ElanL2GatewayUtils elanL2GatewayUtils;
     private ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private L2GatewayConnectionUtils l2GatewayConnectionUtils;
+    private ElanBridgeManager bridgeManager;
 
     public static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
@@ -187,12 +192,13 @@ public class ElanUtils {
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanInstanceManager elanInstanceManager,
                      OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService,
                      ElanInterfaceManager elanInterfaceManager,
-                     EntityOwnershipService entityOwnershipService) {
+                     EntityOwnershipService entityOwnershipService, ElanBridgeManager bridgeManager) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.elanInstanceManager = elanInstanceManager;
         this.interfaceManagerRpcService = interfaceManagerRpcService;
         this.itmRpcService = itmRpcService;
+        this.bridgeManager = bridgeManager;
 
         elanL2GatewayMulticastUtils =
                 new ElanL2GatewayMulticastUtils(broker, elanInstanceManager, elanInterfaceManager, this);
@@ -719,7 +725,18 @@ public class ElanUtils {
             LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
                     writeFlowGroupTx);
-            setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, mdsalManager,
+            setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, true, mdsalManager,
+                    broker, writeFlowGroupTx);
+        }
+    }
+
+    public void setupLocalMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, long macTimeout,
+                              String macAddress, WriteTransaction writeFlowGroupTx) throws ElanException {
+        synchronized (macAddress) {
+            LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
+            setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
+                    writeFlowGroupTx);
+            setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, false, mdsalManager,
                     broker, writeFlowGroupTx);
         }
     }
@@ -899,51 +916,56 @@ public class ElanUtils {
     }
 
     private void setupOrigDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
-            IMdsalApiManager mdsalApiManager, DataBroker broker, WriteTransaction writeFlowGroupTx)
-            throws ElanException {
+                                    boolean configureRemoteFlows, IMdsalApiManager mdsalApiManager,
+                                    DataBroker broker, WriteTransaction writeFlowGroupTx)
+                                    throws ElanException {
         BigInteger dpId = interfaceInfo.getDpId();
         String ifName = interfaceInfo.getInterfaceName();
         long ifTag = interfaceInfo.getInterfaceTag();
         String elanInstanceName = elanInfo.getElanInstanceName();
+
+        Long elanTag = getElanTag(broker, elanInfo, interfaceInfo);
+
+        setupLocalDmacFlow(elanTag, dpId, ifName, macAddress, elanInstanceName, mdsalApiManager, ifTag,
+                writeFlowGroupTx);
+        LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} mand mac address:{} "
+                                    + "on dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, dpId);
+
+        if (!configureRemoteFlows) {
+            return;
+        }
+
         List<DpnInterfaces> elanDpns = getInvolvedDpnsInElan(elanInstanceName);
-        if (elanDpns != null) {
-            // TODO might be bug and should call here just elanInfo.getElanTag()
-            Long elanTag = getElanTag(broker, elanInfo, interfaceInfo);
-            for (DpnInterfaces elanDpn : elanDpns) {
-                if (elanDpn.getDpId().equals(dpId)) {
-                    // On the local DPN set up a direct output flow
-                    setupLocalDmacFlow(elanTag, dpId, ifName, macAddress, elanInstanceName, mdsalApiManager, ifTag,
-                            writeFlowGroupTx);
-                    LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} mand mac address:{} "
-                            + "on dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, dpId);
-                } else {
-                    // Check for the Remote DPN present in Inventory Manager
-                    if (isDpnPresent(elanDpn.getDpId())) {
-                        // For remote DPNs a flow is needed to indicate that
-                        // packets of this ELAN going to this MAC
-                        // need to be forwarded through the appropiated ITM
-                        // tunnel
-                        setupRemoteDmacFlow(elanDpn.getDpId(), // srcDpn (the
-                                                               // remote DPN in
-                                                               // this case)
-                                dpId, // dstDpn (the local DPN)
-                                interfaceInfo.getInterfaceTag(), // lportTag of
-                                                                 // the local
-                                                                 // interface
-                                elanTag, // identifier of the Elan
-                                macAddress, // MAC to be programmed in remote
-                                            // DPN
-                                elanInstanceName, writeFlowGroupTx, ifName);
-                        LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address:{} on"
-                                + " dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress,
-                                elanDpn.getDpId());
-                    }
-                }
+        if (elanDpns == null) {
+            return;
+        }
+
+        for (DpnInterfaces elanDpn : elanDpns) {
+
+            if (elanDpn.getDpId().equals(dpId)) {
+                continue;
             }
 
-            // TODO: Make sure that the same is performed against the
-            // ElanDevices.
+            // Check for the Remote DPN present in Inventory Manager
+            if (!isDpnPresent(elanDpn.getDpId())) {
+                continue;
+            }
+
+            // For remote DPNs a flow is needed to indicate that
+            // packets of this ELAN going to this MAC
+            // need to be forwarded through the appropiated ITM
+            // tunnel
+            setupRemoteDmacFlow(elanDpn.getDpId(), // srcDpn (the remote DPN in this case)
+                    dpId, // dstDpn (the local DPN)
+                    interfaceInfo.getInterfaceTag(), // lportTag of the local interface
+                    elanTag, // identifier of the Elan
+                    macAddress, // MAC to be programmed in remote DPN
+                    elanInstanceName, writeFlowGroupTx, ifName, elanInfo);
+            LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address:{} on"
+                        + " dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, elanDpn.getDpId());
         }
+
+        // TODO: Make sure that the same is performed against the ElanDevices.
     }
 
     private void setupOrigDmacFlowsonRemoteDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
@@ -956,7 +978,7 @@ public class ElanUtils {
             if (remoteFE.getDpId().equals(dstDpId)) {
                 // Check for the Remote DPN present in Inventory Manager
                 setupRemoteDmacFlow(dstDpId, dpId, interfaceInfo.getInterfaceTag(), elanTag, macAddress,
-                        elanInstanceName, writeFlowTx, interfaceInfo.getInterfaceName());
+                        elanInstanceName, writeFlowTx, interfaceInfo.getInterfaceName(), elanInfo);
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address {} on"
                             + " dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, remoteFE.getDpId());
@@ -1060,16 +1082,17 @@ public class ElanUtils {
     }
 
     public void setupRemoteDmacFlow(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
-            String macAddress, String displayName, WriteTransaction writeFlowGroupTx, String interfaceName)
+            String macAddress, String displayName, WriteTransaction writeFlowGroupTx, String interfaceName, ElanInstance elanInstance)
             throws ElanException {
-        Flow flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName);
+        Flow flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName, elanInstance);
         mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
         setupEtreeRemoteDmacFlow(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName, interfaceName,
-                writeFlowGroupTx);
+                writeFlowGroupTx, elanInstance);
     }
 
     private void setupEtreeRemoteDmacFlow(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
-            String macAddress, String displayName, String interfaceName, WriteTransaction writeFlowGroupTx) throws ElanException {
+                                String macAddress, String displayName, String interfaceName,
+                                WriteTransaction writeFlowGroupTx, ElanInstance elanInstance) throws ElanException {
         Flow flowEntity;
         EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, interfaceName);
         if (etreeInterface != null) {
@@ -1080,7 +1103,7 @@ public class ElanUtils {
                             + " seems like it belongs to Etree but etreeTagName from elanTag " + elanTag + " is null.");
                 } else {
                     flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTag,
-                            etreeTagName.getEtreeLeafTag().getValue(), macAddress, displayName);
+                            etreeTagName.getEtreeLeafTag().getValue(), macAddress, displayName, elanInstance);
                     mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
                 }
             }
@@ -1110,7 +1133,7 @@ public class ElanUtils {
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
     public Flow buildRemoteDmacFlowEntry(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
-            String macAddress, String displayName) throws ElanException {
+            String macAddress, String displayName, ElanInstance elanInstance) throws ElanException {
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
@@ -1120,7 +1143,19 @@ public class ElanUtils {
 
         // List of Action for the provided Source and Destination DPIDs
         try {
-            List<Action> actions = getInternalTunnelItmEgressAction(srcDpId, destDpId, lportTag);
+            List<Action> actions = null;
+            if(isVlan(elanInstance)) {
+                String physnet = elanInstance.getPhysicalNetworkName();
+                long segId = elanInstance.getSegmentationId();
+                String interfaceName = bridgeManager.getProviderInterfaceName(srcDpId, physnet);
+                if (null == interfaceName) {
+                    LOG.error("buildRemoteDmacFlowEntry: Could not find interfaceName for {} {}", srcDpId, physnet);
+                }
+                interfaceName += ":" + segId;
+                actions = getEgressActionsForInterface(interfaceName, null);
+            } else {
+                actions = getInternalTunnelItmEgressAction(srcDpId, destDpId, lportTag);
+            }
             mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         } catch (Exception e) {
             LOG.error("Could not get egress actions to add to flow for srcDpId=" + srcDpId + ", destDpId=" + destDpId

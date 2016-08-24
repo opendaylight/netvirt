@@ -82,6 +82,7 @@
     <argument ref="itmRpcService" />
     <argument ref="elanInterfaceManager" />
     <argument ref="entityOwnershipService" />
+    <argument ref="elanBridgeManager" />
   </bean>
 
   <bean id="elanStatisticsImpl" class="org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl">
