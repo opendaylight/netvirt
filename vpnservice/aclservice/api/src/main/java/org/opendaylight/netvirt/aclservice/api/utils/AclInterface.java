@@ -36,6 +36,9 @@ public class AclInterface {
     /** The allowed address pairs. */
     List<AllowedAddressPairs> allowedAddressPairs;
 
+    /** The port is marked for delete. */
+    Boolean isMarkedForDelete;
+
     /**
      * Checks if is port security enabled.
      *
@@ -153,6 +156,22 @@ public class AclInterface {
         this.allowedAddressPairs = allowedAddressPairs;
     }
 
+    /**
+     * Retrieve isMarkedForDelete.
+     * @return the whether it is marked for delete
+     */
+    public Boolean isMarkedForDelete() {
+        return isMarkedForDelete;
+    }
+
+    /**
+     * Sets isMarkedForDelete.
+     * @param isMarkedForDelete boolean value
+     */
+    public void setIsMarkedForDelete(Boolean isMarkedForDelete) {
+        this.isMarkedForDelete = isMarkedForDelete;
+    }
+
     /* (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
@@ -166,6 +185,7 @@ public class AclInterface {
         result = prime * result + ((lportTag == null) ? 0 : lportTag.hashCode());
         result = prime * result + ((securityGroups == null) ? 0 : securityGroups.hashCode());
         result = prime * result + ((allowedAddressPairs == null) ? 0 : allowedAddressPairs.hashCode());
+        result = prime * result + ((isMarkedForDelete == null) ? 0 : isMarkedForDelete.hashCode());
         return result;
     }
 
@@ -226,6 +246,13 @@ public class AclInterface {
         } else if (!allowedAddressPairs.equals(other.allowedAddressPairs)) {
             return false;
         }
+        if (isMarkedForDelete == null) {
+            if (other.isMarkedForDelete != null) {
+                return false;
+            }
+        } else if (!isMarkedForDelete.equals(other.isMarkedForDelete)) {
+            return false;
+        }
         return true;
     }
 
@@ -236,6 +263,6 @@ public class AclInterface {
     public String toString() {
         return "AclInterface [portSecurityEnabled=" + portSecurityEnabled + ", interfaceId=" + interfaceId
                 + ", lportTag=" + lportTag + ", dpId=" + dpId + ", securityGroups=" + securityGroups
-                + ", allowedAddressPairs=" + allowedAddressPairs + "]";
+                + ", allowedAddressPairs=" + allowedAddressPairs + ", isMarkedForDelete=" + isMarkedForDelete + "]";
     }
 }
