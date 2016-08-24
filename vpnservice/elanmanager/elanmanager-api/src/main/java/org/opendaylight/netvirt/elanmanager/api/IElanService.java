@@ -58,8 +58,6 @@ public interface IElanService extends IEtreeService {
 
     void deleteExternalElanNetworks(Node node);
 
-    String getExternalElanInterface(String elanInstanceName, BigInteger dpnId);
-
     Collection<String> getExternalElanInterfaces(String elanInstanceName);
 
     boolean isExternalInterface(String interfaceName);
