@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_f0876bd5",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-08-24T12:05:55Z",
+      "side": 1,
+      "message": "should we allow subnet addition without a valid gatewayIp. once a subnet is added, we never verify if the gateway ip is available, so the npe is just skipped here and propagated in other places.",
+      "revId": "fd012e54adada07214e21646bd4ba105714fd22a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
