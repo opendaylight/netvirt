@@ -1290,13 +1290,15 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         String oldVpnName = original.getVpnInstanceName();
         String newVpnName = update.getVpnInstanceName();
         BigInteger dpnId = update.getDpnId();
-        List<Adjacency> oldAdjs = original.getAugmentation(Adjacencies.class).getAdjacency();
-        List<Adjacency> newAdjs = update.getAugmentation(Adjacencies.class).getAdjacency();
-        if (oldAdjs == null) {
-            oldAdjs = new ArrayList<>();
+        List<Adjacency> oldAdjsList = new ArrayList<>();
+        List<Adjacency> newAdjsList = new ArrayList<>();
+        Adjacencies oldAdjs = original.getAugmentation(Adjacencies.class);
+        Adjacencies newAdjs = update.getAugmentation(Adjacencies.class);
+        if (oldAdjs != null) {
+            oldAdjsList = oldAdjs.getAdjacency();
         }
-        if (newAdjs == null) {
-            newAdjs = new ArrayList<>();
+        if (newAdjs != null) {
+            newAdjsList = newAdjs.getAdjacency();
         }
         //handles switching between <internal VPN - external VPN>
         if (!oldVpnName.equals(newVpnName)) {
@@ -1306,16 +1308,16 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
         //handle both addition and removal of adjacencies
         //currently, new adjacency may be an extra route
-        if (!oldAdjs.equals(newAdjs)) {
-            for (Adjacency adj : newAdjs) {
-                if (oldAdjs.contains(adj)) {
-                    oldAdjs.remove(adj);
+        if (!oldAdjsList.equals(newAdjsList)) {
+            for (Adjacency adj : newAdjsList) {
+                if (oldAdjsList.contains(adj)) {
+                    oldAdjsList.remove(adj);
                 } else {
                     // add new adjacency - right now only extra route will hit this path
                     addNewAdjToVpnInterface(identifier, adj, dpnId);
                 }
             }
-            for (Adjacency adj : oldAdjs) {
+            for (Adjacency adj : oldAdjsList) {
                 delAdjFromVpnInterface(identifier, adj, dpnId);
             }
         }
