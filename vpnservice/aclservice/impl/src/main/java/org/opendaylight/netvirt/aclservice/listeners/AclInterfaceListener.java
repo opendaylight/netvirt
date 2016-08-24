@@ -54,6 +54,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
 
     @Override
     protected void remove(InstanceIdentifier<Interface> key, Interface port) {
+        AclInterfaceCacheUtil.removeAclInterfaceFromCache(port.getName());
     }
 
     @Override
