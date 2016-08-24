@@ -74,7 +74,10 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             if (aclList != null) {
                 AclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
             }
-            AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
+            boolean isInterfacePresent = AclServiceUtils.getInterface(dataBroker, interfaceId).isPresent();
+            if (!isInterfacePresent) {
+                AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
+            }
         }
     }
 
