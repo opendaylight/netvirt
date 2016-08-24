@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_3a69c425",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/NetvirtProvidersProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-08-24T00:04:36Z",
+      "side": 1,
+      "message": "You might not need to specify OvsdbInventoryService as input in the java file. Changes in netvirt-provider.xml would be sufficient.",
+      "revId": "d1813a9cb40a67d04fa4ad91861d15661bf345a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ba64b449",
+        "filename": "openstack/net-virt-providers/src/main/resources/org/opendaylight/blueprint/netvirt-provider.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-08-24T00:04:36Z",
+      "side": 1,
+      "message": "This is not needed, I think. I did a quick test without the change in this line, the bundle does wait for dependency specifying in line 14-15",
+      "revId": "d1813a9cb40a67d04fa4ad91861d15661bf345a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
