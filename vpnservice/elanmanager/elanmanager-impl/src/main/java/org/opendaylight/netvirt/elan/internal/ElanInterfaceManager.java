@@ -539,7 +539,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         PhysAddress physAddress = macEntry.getMacAddress();
                         elanUtils.setupRemoteDmacFlow(interfaceInfo.getDpId(), remoteInterface.getDpId(),
                                 remoteInterface.getInterfaceTag(), elanInstance.getElanTag(), physAddress.getValue(),
-                                elanInstance.getElanInstanceName(), writeFlowGroupTx, remoteIf);
+                                elanInstance.getElanInstanceName(), writeFlowGroupTx, remoteIf, elanInstance);
                     }
                 }
             }
