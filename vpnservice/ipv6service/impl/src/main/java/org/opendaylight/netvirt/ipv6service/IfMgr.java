@@ -195,7 +195,7 @@ public class IfMgr {
 
         // Save the gateway ipv6 address in its fully expanded format. We always store the v6Addresses
         // in expanded form and are used during Neighbor Discovery Support.
-        if (gatewayIp.getIpv6Address() != null) {
+        if (gatewayIp != null) {
             Ipv6Address addr = new Ipv6Address(InetAddresses
                     .forString(gatewayIp.getIpv6Address().getValue()).getHostAddress());
             gatewayIp = new IpAddress(addr);
@@ -575,7 +575,7 @@ public class IfMgr {
             return null;
         }
         for (VirtualSubnet snet : intf.getSubnets()) {
-            if (snet.getGatewayIp().getIpv6Address() != null) {
+            if (snet.getIpVersion().equals(Ipv6Constants.IP_VERSION_V6)) {
                 return intf;
             }
         }
