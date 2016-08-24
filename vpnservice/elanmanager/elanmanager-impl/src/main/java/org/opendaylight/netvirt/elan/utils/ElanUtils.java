@@ -7,11 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -30,6 +26,7 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -143,6 +140,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagNameKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -150,6 +148,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdenti
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class ElanUtils {
 
@@ -2094,4 +2098,40 @@ public class ElanUtils {
         }
         return false;
     }
+
+    /**
+     * Add Mac Address to ElanInterfaceForwardingEntries and ElanForwardingTables
+     * Install SMAC and DMAC flows
+     */
+    public void addMacEntryToDsAndSetupFlows(IInterfaceManager interfaceManager, String interfaceName, String macAddress, String elanName, WriteTransaction tx, WriteTransaction flowWritetx, int macTimeOut) {
+        LOG.trace("Adding mac address {} and interface name {} to ElanInterfaceForwardingEntries and ElanForwardingTables DS", macAddress, interfaceName);
+        BigInteger timeStamp = new BigInteger(String.valueOf((long)System.currentTimeMillis()));
+        PhysAddress physAddress = new PhysAddress(macAddress);
+        MacEntry macEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress).setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp).setIsStaticAddress(false).build();
+        InstanceIdentifier<MacEntry> macEntryId = ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+        tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry);
+        InstanceIdentifier<MacEntry> elanMacEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
+        tx.put(LogicalDatastoreType.OPERATIONAL, elanMacEntryId, macEntry);
+        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
+        setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), macTimeOut, macAddress, flowWritetx);
+    }
+
+    /**
+     * Remove Mac Address from ElanInterfaceForwardingEntries and ElanForwardingTables
+     * Remove SMAC and DMAC flows
+     */
+    public void deleteMacEntryFromDsAndRemoveFlows(IInterfaceManager interfaceManager, String interfaceName, String macAddress, String elanName, WriteTransaction tx, WriteTransaction deleteFlowTx) {
+        LOG.trace("Deleting mac address {} and interface name {} from ElanInterfaceForwardingEntries and ElanForwardingTables DS", macAddress, interfaceName);
+        PhysAddress physAddress = new PhysAddress(macAddress);
+        MacEntry macEntry = getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
+        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
+        if(macEntry != null && interfaceInfo != null) {
+            deleteMacFlows(ElanUtils.getElanInstanceByName(broker, elanName), interfaceInfo, macEntry, deleteFlowTx);
+        }
+        InstanceIdentifier<MacEntry> macEntryIdForElanInterface =  ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+        InstanceIdentifier<MacEntry> macEntryIdForElanInstance  =  ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
+        tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
+        tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInstance);
+    }
+
 }
