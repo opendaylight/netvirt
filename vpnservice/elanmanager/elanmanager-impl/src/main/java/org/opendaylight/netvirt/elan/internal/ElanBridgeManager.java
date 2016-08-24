@@ -10,11 +10,15 @@ package org.opendaylight.netvirt.elan.internal;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
@@ -368,5 +372,54 @@ public class ElanBridgeManager {
         }
 
         return Optional.of(valueMap);
+    }
+
+    public Node getBridgeNode(BigInteger dpId) {
+        List<Node> ovsdbNodes = southboundUtils.getOvsdbNodes();
+        if (null == ovsdbNodes) {
+            LOG.debug("Could not find any (?) ovsdb nodes");
+            return null;
+        }
+
+        for (Node node : ovsdbNodes) {
+            if(!isIntegrationBridge(node)) {
+                continue;
+            }
+
+            long nodeDpid = southboundUtils.getDataPathId(node);
+            if (dpId.equals(BigInteger.valueOf(nodeDpid))) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
+    public String getProviderInterfaceName(BigInteger dpId, String physicalNetworkName) {
+        Node brNode;
+
+        brNode = getBridgeNode(dpId);
+        if (brNode == null) {
+            LOG.debug("Could not find bridge node for {}", dpId);
+            return null;
+        }
+
+        return getProviderInterfaceName(brNode, physicalNetworkName);
+    }
+
+    public String getProviderInterfaceName(Node bridgeNode, String physicalNetworkName) {
+        if (physicalNetworkName == null) {
+            return null;
+        }
+
+        String providerMappingValue = getProviderMappingValue(bridgeNode, physicalNetworkName);
+        if (providerMappingValue == null) {
+            LOG.trace("No provider mapping found for physicalNetworkName {} node {}", physicalNetworkName,
+                    bridgeNode.getNodeId().getValue());
+            return null;
+        }
+
+        return southboundUtils.getDataPathId(bridgeNode) + IfmConstants.OF_URI_SEPARATOR
+                + getIntBridgePortNameFor(bridgeNode, providerMappingValue);
     }
 }
