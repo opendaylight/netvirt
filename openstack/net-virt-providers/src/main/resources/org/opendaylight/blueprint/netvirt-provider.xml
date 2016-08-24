@@ -28,7 +28,6 @@
     <argument ref="packetProcessingService" />
     <argument ref="salFlowService" />
     <argument value="0" />
-    <argument ref="ovsdbInventoryService" />
   </bean>
 
 </blueprint>
