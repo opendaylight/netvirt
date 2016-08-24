@@ -100,7 +100,7 @@ public class Ipv6ServiceInterfaceEventListener
                 Uuid portId = new Uuid(iface.getName());
                 VirtualPort port = ifMgr.obtainV6Interface(portId);
                 if (port == null) {
-                    LOG.info("Port {} not found, skipping.", port);
+                    LOG.info("Port {} not found, skipping.", portId);
                     return;
                 }
 
