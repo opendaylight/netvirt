@@ -143,9 +143,14 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                         macEntry);
                 ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
                 WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
-                elanUtils.setupMacFlows(elanInstance,
-                        interfaceManager.getInterfaceInfo(interfaceName),
-                        elanInstance.getMacTimeout(), macAddress, flowWritetx);
+
+                boolean isVlanOrFlatProviderIface = ( ElanUtils.isVlan(elanInstance)
+                                                && interfaceName.endsWith(":" + elanInstance.getSegmentationId()) )
+                                             || ElanUtils.isFlat(elanInstance);
+
+                elanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName),
+                                        elanInstance.getMacTimeout(), macAddress,
+                                        !isVlanOrFlatProviderIface, flowWritetx);
                 flowWritetx.submit();
 
                 BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
