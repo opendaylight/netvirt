@@ -114,6 +114,14 @@
     <argument ref="elanUtils" />
   </bean>
 
+  <bean id="elanVpnPortIpToPortListener"
+    class="org.opendaylight.netvirt.elan.internal.ElanVpnPortIpToPortListener"
+    init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
+    <argument ref="elanUtils" />
+  </bean>
+
   <bean id="elanService" class="org.opendaylight.netvirt.elan.internal.ElanServiceProvider"
     init-method="init">
     <argument ref="idManagerService" />
