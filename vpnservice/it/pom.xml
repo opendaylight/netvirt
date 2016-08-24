@@ -48,12 +48,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
-      <artifactId>netvirt-it-utils</artifactId>
-      <version>${vpnservice.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-jacoco-listeners</artifactId>
       <scope>test</scope>
