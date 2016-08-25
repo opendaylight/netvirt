@@ -123,7 +123,6 @@ public class StatelessEgressAclServiceImplTest {
         assertEquals(8, installFlowValueSaver.getNumOfInvocations());
 
         FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(7).get(0);
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
         AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0).getActionInfos(),
                 ActionType.nx_resubmit, "" + NwConstants.LPORT_DISPATCHER_TABLE);
     }
