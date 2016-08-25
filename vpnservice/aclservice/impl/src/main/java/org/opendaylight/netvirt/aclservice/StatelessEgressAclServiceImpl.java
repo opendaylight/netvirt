@@ -86,22 +86,25 @@ public class StatelessEgressAclServiceImpl extends AbstractEgressAclServiceImpl 
         for (Map.Entry<String, List<MatchInfoBase>> flow : flowMap.entrySet()) {
             String flowName = flow.getKey();
             List<MatchInfoBase> flowMatches = flow.getValue();
-            boolean hasTcpDstMatch = AclServiceUtils.containsMatchFieldType(flowMatches,
-                    NxMatchFieldType.nx_tcp_dst_with_mask);
-            if (hasTcpDstMatch || protocol == null) {
+            boolean hasTcpMatch = AclServiceUtils.containsMatchFieldType(flowMatches,
+                    NxMatchFieldType.nx_tcp_dst_with_mask) || AclServiceUtils.containsMatchFieldType(flowMatches,
+                            NxMatchFieldType.nx_tcp_src_with_mask);
+            if (hasTcpMatch || protocol == null) {
                 flowName += "Egress" + lportTag + ace.getKey().getRuleName();
                 flowMatches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
 
-                programAllowSynRules(dpId, flowName, flowMatches, addOrRemove);
+                programAllowSynRules(dpId, flowName, flowMatches, addOrRemove, protocol);
             }
         }
     }
 
     private void programAllowSynRules(BigInteger dpId, String origFlowName,
-            List<MatchInfoBase> origFlowMatches, int addFlow) {
+            List<MatchInfoBase> origFlowMatches, int addFlow, Short protocol) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.addAll(origFlowMatches);
-        flowMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN }));
+        if (new Short((short) NwConstants.IP_PROT_TCP).equals(protocol)) {
+            flowMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN }));
+        }
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
