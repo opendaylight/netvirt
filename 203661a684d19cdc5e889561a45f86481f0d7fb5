@@ -16,6 +16,24 @@
       "revId": "203661a684d19cdc5e889561a45f86481f0d7fb5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_861fda6b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-08-25T10:29:13Z",
+      "side": 1,
+      "message": "It mostly happend like interface and interface state, but yes you are right,there is chance. Also if we remove a vm which is already shutdown, cache is not cleared.\nI have added a new field to ensure both delete are to be invoked for a clearing the cache.",
+      "parentUuid": "7a6b29fe_9c3570f9",
+      "revId": "203661a684d19cdc5e889561a45f86481f0d7fb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
