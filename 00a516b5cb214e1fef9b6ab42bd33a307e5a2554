@@ -16,6 +16,24 @@
       "revId": "00a516b5cb214e1fef9b6ab42bd33a307e5a2554",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9ccbb01d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/ElanAdd.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-08-25T04:55:40Z",
+      "side": 1,
+      "message": "Sela, It will be full stacktrace. Moreover these commands are used only by developers and not by cloud administrators. Since elaninstance/elaninterface is created whenever neutron network/port is created from openstack.",
+      "parentUuid": "7a6b29fe_0b591836",
+      "revId": "00a516b5cb214e1fef9b6ab42bd33a307e5a2554",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
