@@ -12,6 +12,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.opendaylight.controller.liblldp.EtherTypes;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -19,56 +21,55 @@ import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.packet.ARP;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ArpUtils {
     private static final Logger s_logger = LoggerFactory.getLogger(ArpUtils.class);
-    
+
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, long groupId, byte[] abySenderMAC,
             byte[] abySenderIpAddress, byte[] abyTargetIpAddress) {
         return createArpRequestInput(dpnId, groupId, abySenderMAC, abySenderIpAddress, abyTargetIpAddress, null);
     }
-    
+
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, byte[] abySenderMAC,
             byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress) {
-        return createArpRequestInput(dpnId, null, abySenderMAC, abySenderIpAddress, abyTargetIpAddress, ingress);
+        return createArpRequestInput(dpnId, null, abySenderMAC, (byte[]) null, abySenderIpAddress, abyTargetIpAddress,
+                ingress, new ArrayList<ActionInfo>());
     }
 
-    public static byte[] getMacInBytes(String macAddress){
-        String[] macAddressParts = macAddress.split(":");
-
-        // convert hex string to byte values
-        byte[] macAddressBytes = new byte[6];
-        for(int i=0; i<6; i++){
-            Integer hex = Integer.parseInt(macAddressParts[i], 16);
-            macAddressBytes[i] = hex.byteValue();
-        }
-        
-        return macAddressBytes;
-    }
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, Long groupId, byte[] abySenderMAC,
             byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress) {
+        List<ActionInfo> lstActionInfo = new ArrayList<ActionInfo>();
+        return createArpRequestInput(dpnId, groupId, abySenderMAC, null, abySenderIpAddress, abyTargetIpAddress,
+                ingress, lstActionInfo);
+    }
+
+    public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, Long groupId, byte[] abySenderMAC,
+            byte[] abyTargetMAC, byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress,
+            List<ActionInfo> lstActionInfo) {
 
         s_logger.info(
-                "SubnetRoutePacketInHandler: sendArpRequest dpnId {}, groupId {}, senderIPAddress {}, targetIPAddress {}",
-                dpnId, groupId, toStringIpAddress(abySenderIpAddress), toStringIpAddress(abyTargetIpAddress));
+                "SubnetRoutePacketInHandler: sendArpRequest dpnId {}, actions {},"
+                        + " groupId {}, senderIPAddress {}, targetIPAddress {}",
+                dpnId, lstActionInfo, groupId, toStringIpAddress(abySenderIpAddress),
+                toStringIpAddress(abyTargetIpAddress));
         if (abySenderIpAddress != null) {
             byte[] arpPacket;
             byte[] ethPacket;
-            List<ActionInfo> lstActionInfo;
 
-            arpPacket = createARPPacket(ARP.REQUEST, abySenderMAC, abySenderIpAddress, VpnConstants.MAC_Broadcast,
-                    abyTargetIpAddress);
+            byte[] targetMac = abyTargetMAC != null ? abyTargetMAC : VpnConstants.MAC_Broadcast;
+            arpPacket = createARPPacket(ARP.REQUEST, abySenderMAC, abySenderIpAddress, targetMac, abyTargetIpAddress);
             ethPacket = createEthernetPacket(abySenderMAC, VpnConstants.EthernetDestination_Broadcast, arpPacket);
-            lstActionInfo = new ArrayList<ActionInfo>();
             if (groupId != null) {
                 lstActionInfo.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));
             }
             if (ingress != null) {
-                return MDSALUtil.getPacketOut(lstActionInfo, ethPacket, dpnId.longValue(), ingress);
+                return MDSALUtil.getPacketOutFromController(lstActionInfo, ethPacket, dpnId.longValue(), ingress);
             } else {
                 return MDSALUtil.getPacketOutDefault(lstActionInfo, ethPacket, dpnId);
             }
@@ -76,6 +77,19 @@ public class ArpUtils {
             s_logger.info("SubnetRoutePacketInHandler: Unable to send ARP request because client port has no IP  ");
             return null;
         }
+    }
+
+    public static byte[] getMacInBytes(String macAddress) {
+        String[] macAddressParts = macAddress.split(":");
+
+        // convert hex string to byte values
+        byte[] macAddressBytes = new byte[6];
+        for (int i = 0; i < 6; i++) {
+            Integer hex = Integer.parseInt(macAddressParts[i], 16);
+            macAddressBytes[i] = hex.byteValue();
+        }
+
+        return macAddressBytes;
     }
 
     private static String toStringIpAddress(byte[] ipAddress) {
@@ -132,5 +146,4 @@ public class ArpUtils {
 
         return rawArpPkt;
     }
-
 }
