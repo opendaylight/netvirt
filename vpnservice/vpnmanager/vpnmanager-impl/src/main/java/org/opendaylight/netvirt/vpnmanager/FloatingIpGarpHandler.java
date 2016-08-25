@@ -9,21 +9,28 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.vpnmanager.utilities.VpnManagerCounters;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetPortFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetPortFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetPortFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
@@ -71,6 +78,7 @@ public class FloatingIpGarpHandler extends AsyncDataTreeChangeListenerBase<Route
     @Override
     protected void update(InstanceIdentifier<RouterPorts> key, RouterPorts dataObjectModificationBefore,
             RouterPorts dataObjectModificationAfter) {
+        VpnManagerCounters.garp_update_notification.inc();
         sendGarpForFloatingIps(dataObjectModificationAfter);
     }
 
@@ -86,6 +94,7 @@ public class FloatingIpGarpHandler extends AsyncDataTreeChangeListenerBase<Route
     private void sendGarpForIp(RouterPorts dataObjectModificationAfter, IpAddress ip) {
         if (ip.getIpv4Address() == null) {
             LOG.warn("Faild to send GARP for IP. recieved IPv6.");
+            VpnManagerCounters.garp_sent_ipv6.inc();
             return;
         }
         Port floatingIpPort = VpnUtil.getNeutronPortForFloatingIp(dataBroker, ip);
@@ -94,27 +103,36 @@ public class FloatingIpGarpHandler extends AsyncDataTreeChangeListenerBase<Route
         Collection<String> interfaces = elanService.getExternalElanInterfaces(extNet);
         for (String externalInterface:interfaces) {
             sendGarpOnInterface(ip, floatingIpMac, externalInterface);
-            
         }
     }
 
     private void sendGarpOnInterface(IpAddress ip, MacAddress floatingIpMac, String externalInterface) {
-        GetPortFromInterfaceInput getPortFromInterfaceInput = new GetPortFromInterfaceInputBuilder().setIntfName(externalInterface).build();
-        Future<RpcResult<GetPortFromInterfaceOutput>> interfacePort = intfRpc.getPortFromInterface(getPortFromInterfaceInput);
         try {
+            GetPortFromInterfaceInput getPortFromInterfaceInput = new GetPortFromInterfaceInputBuilder()
+                    .setIntfName(externalInterface).build();
+            Future<RpcResult<GetPortFromInterfaceOutput>> interfacePort = intfRpc
+                    .getPortFromInterface(getPortFromInterfaceInput);
+            if (interfacePort == null || !interfacePort.get().isSuccessful()) {
+                VpnManagerCounters.garp_interface_rpc_failed.inc();
+                return;
+            }
             BigInteger dpId = interfacePort.get().getResult().getDpid();
-            String portName = interfacePort.get().getResult().getPortname();
-            NodeConnectorRef ingress = MDSALUtil.getNodeConnRef(dpId, portName);
+            String portId = interfacePort.get().getResult().getPortno().toString();
+            NodeConnectorRef ingress = MDSALUtil.getNodeConnRef(dpId, portId);
             byte[] ipBytes = InetAddresses.forString(ip.getIpv4Address().getValue()).getAddress();
-            TransmitPacketInput arpRequestInput = ArpUtils.createArpRequestInput(dpId, ArpUtils.getMacInBytes(floatingIpMac.getValue()), ipBytes, ipBytes, ingress);
+            List<ActionInfo> actionList = new ArrayList<ActionInfo>();
+            actionList.add(new ActionInfo(ActionType.output, new String[]{portId}));
+
+            byte[] floatingMac = ArpUtils.getMacInBytes(floatingIpMac.getValue());
+            TransmitPacketInput arpRequestInput = ArpUtils.createArpRequestInput(dpId, null,
+                    floatingMac, VpnConstants.MAC_Broadcast, ipBytes, ipBytes, ingress, actionList);
             packetService.transmitPacket(arpRequestInput);
-        } catch (InterruptedException e) {
+            VpnManagerCounters.garp_sent.inc();
+        } catch (InterruptedException|ExecutionException e) {
             LOG.warn("Faild to send GARP. rpc call getPortFromInterface did not return with a value.");
-        } catch (ExecutionException e) {
-            LOG.warn("Faild to send GARP. rpc call getPortFromInterface did not return with a value.");
+            VpnManagerCounters.garp_sent_failed.inc();
         }
     }
-
 
     @Override
     protected void add(InstanceIdentifier<RouterPorts> key, RouterPorts dataObjectModification) {
