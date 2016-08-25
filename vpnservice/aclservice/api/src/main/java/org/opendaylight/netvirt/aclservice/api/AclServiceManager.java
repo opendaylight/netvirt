@@ -18,6 +18,11 @@ public interface AclServiceManager {
         REMOVE
     }
 
+    enum MatchCriteria {
+        MATCH_SOURCE,
+        MATCH_DESTINATION
+    }
+
     void addAclServiceListner(AclServiceListener aclServiceListner);
 
     void removeAclServiceListner(AclServiceListener aclServiceListner);
