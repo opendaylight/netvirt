@@ -13,15 +13,16 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -114,12 +115,12 @@ public class NodeListener extends AbstractDataChangeListener<Node> implements Au
 
         logger.debug("Installing L3VPN to ELAN default Fallback flow in LPortDispatcher table");
         BigInteger[] metadataToMatch = new BigInteger[] {
-                MetaDataUtil.getServiceIndexMetaData(NwConstants.L3VPN_SERVICE_INDEX),
+                MetaDataUtil.getServiceIndexMetaData(ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
                 MetaDataUtil.METADATA_MASK_SERVICE_INDEX
         };
         List<MatchInfo> matches = Arrays.asList(new MatchInfo(MatchFieldType.metadata, metadataToMatch));
 
-        BigInteger metadataToWrite = MetaDataUtil.getServiceIndexMetaData(NwConstants.ELAN_SERVICE_INDEX);
+        BigInteger metadataToWrite = MetaDataUtil.getServiceIndexMetaData(ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX));
         int instructionKey = 0;
         List<Instruction> instructions =
                 Arrays.asList(MDSALUtil.buildAndGetWriteMetadaInstruction(metadataToWrite,
