@@ -99,18 +99,16 @@ public class FloatingIpGarpHandler extends AsyncDataTreeChangeListenerBase<Route
     }
 
     private void sendGarpOnInterface(IpAddress ip, MacAddress floatingIpMac, String externalInterface) {
-        GetPortFromInterfaceInput getPortFromInterfaceInput = new GetPortFromInterfaceInputBuilder().setIntfName(externalInterface).build();
-        Future<RpcResult<GetPortFromInterfaceOutput>> interfacePort = intfRpc.getPortFromInterface(getPortFromInterfaceInput);
         try {
+            GetPortFromInterfaceInput getPortFromInterfaceInput = new GetPortFromInterfaceInputBuilder().setIntfName(externalInterface).build();
+            Future<RpcResult<GetPortFromInterfaceOutput>> interfacePort = intfRpc.getPortFromInterface(getPortFromInterfaceInput);
             BigInteger dpId = interfacePort.get().getResult().getDpid();
             String portName = interfacePort.get().getResult().getPortname();
             NodeConnectorRef ingress = MDSALUtil.getNodeConnRef(dpId, portName);
             byte[] ipBytes = InetAddresses.forString(ip.getIpv4Address().getValue()).getAddress();
             TransmitPacketInput arpRequestInput = ArpUtils.createArpRequestInput(dpId, ArpUtils.getMacInBytes(floatingIpMac.getValue()), ipBytes, ipBytes, ingress);
             packetService.transmitPacket(arpRequestInput);
-        } catch (InterruptedException e) {
-            LOG.warn("Faild to send GARP. rpc call getPortFromInterface did not return with a value.");
-        } catch (ExecutionException e) {
+        } catch (InterruptedException|ExecutionException e) {
             LOG.warn("Faild to send GARP. rpc call getPortFromInterface did not return with a value.");
         }
     }
