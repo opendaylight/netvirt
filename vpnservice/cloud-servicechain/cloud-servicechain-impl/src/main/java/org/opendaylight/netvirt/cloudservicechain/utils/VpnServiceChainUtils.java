@@ -28,6 +28,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
@@ -232,7 +233,7 @@ public class VpnServiceChainUtils {
                                                         int addOrRemove) {
         logger.info("buildLPortDispFlowForScf vpnId={} dpId={} lportTag={} addOrRemove={} ",
                     vpnId, dpId, lportTag, addOrRemove);
-        List<MatchInfo> matches = buildMatchOnLportTagAndSI(lportTag, NwConstants.L3VPN_SERVICE_INDEX);
+        List<MatchInfo> matches = buildMatchOnLportTagAndSI(lportTag, ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX));
         List<Instruction> instructions = buildSetVrfTagAndGotoFibInstructions(vpnId.intValue());
 
         String flowRef = getScfToL3VpnLportDispatcherFlowRef(lportTag);
@@ -307,7 +308,7 @@ public class VpnServiceChainUtils {
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata,
                 new BigInteger[]{
-                       MetaDataUtil.getMetaDataForLPortDispatcher(lportTag, NwConstants.SCF_SERVICE_INDEX),
+                       MetaDataUtil.getMetaDataForLPortDispatcher(lportTag, ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME, NwConstants.SCF_SERVICE_INDEX)),
                        MetaDataUtil.getMetaDataMaskForLPortDispatcher()
                 }));
 
@@ -386,7 +387,7 @@ public class VpnServiceChainUtils {
      */
     public static FlowEntity buildLportFlowDispForVpnToScf(BigInteger dpId, Integer lportTag, int scfTag,
                                                            short gotoTableId) {
-        List<MatchInfo> matches = buildMatchOnLportTagAndSI(lportTag, NwConstants.SCF_SERVICE_INDEX);
+        List<MatchInfo> matches = buildMatchOnLportTagAndSI(lportTag, ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME, NwConstants.SCF_SERVICE_INDEX));
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] {
                 VpnServiceChainUtils.getMetadataSCF(scfTag), CloudServiceChainConstants.METADATA_MASK_SCF_WRITE
@@ -458,7 +459,7 @@ public class VpnServiceChainUtils {
      * @return
      */
     public static Flow buildLPortDispFlowForVpntoVpn(Integer dstLportTag, Integer vpnTag) {
-        List<MatchInfo> matches = buildMatchOnLportTagAndSI(dstLportTag, NwConstants.L3VPN_SERVICE_INDEX);
+        List<MatchInfo> matches = buildMatchOnLportTagAndSI(dstLportTag, ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX));
         List<Instruction> instructions = buildSetVrfTagAndGotoFibInstructions(vpnTag);
         String flowRef = getL3VpnToL3VpnLportDispFlowRef(dstLportTag, vpnTag);
         Flow result = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
@@ -600,7 +601,7 @@ public class VpnServiceChainUtils {
      */
     public static String getL3VpnToScfLportDispatcherFlowRef(Integer lportTag) {
         return new StringBuffer(64).append(CloudServiceChainConstants.VPN_PSEUDO_VPN2SCF_FLOWID_PREFIX).append(lportTag)
-                                   .append(NwConstants.FLOWID_SEPARATOR).append(NwConstants.SCF_SERVICE_INDEX)
+                                   .append(NwConstants.FLOWID_SEPARATOR).append(ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME, NwConstants.SCF_SERVICE_INDEX))
                                    .append(NwConstants.FLOWID_SEPARATOR)
                                    .append(CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY).toString();
     }
@@ -614,7 +615,7 @@ public class VpnServiceChainUtils {
      */
     public static String getScfToL3VpnLportDispatcherFlowRef(Integer lportTag) {
         return new StringBuffer().append(CloudServiceChainConstants.VPN_PSEUDO_SCF2VPN_FLOWID_PREFIX).append(lportTag)
-                                 .append(NwConstants.FLOWID_SEPARATOR).append(NwConstants.L3VPN_SERVICE_INDEX)
+                                 .append(NwConstants.FLOWID_SEPARATOR).append(ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX))
                                  .append(NwConstants.FLOWID_SEPARATOR)
                                  .append(CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY).toString();
     }
