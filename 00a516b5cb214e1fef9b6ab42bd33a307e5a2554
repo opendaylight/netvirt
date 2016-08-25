@@ -34,6 +34,24 @@
       "revId": "00a516b5cb214e1fef9b6ab42bd33a307e5a2554",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5c547820",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/ElanAdd.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-08-25T07:03:01Z",
+      "side": 1,
+      "message": "Yeah I know it will be used by developers, this is why it\u0027s important to have a full stacktrace:) So great, understood.",
+      "parentUuid": "7a6b29fe_9ccbb01d",
+      "revId": "00a516b5cb214e1fef9b6ab42bd33a307e5a2554",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
