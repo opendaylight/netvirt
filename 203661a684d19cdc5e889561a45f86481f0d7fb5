@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_9c3570f9",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-25T07:03:56Z",
+      "side": 1,
+      "message": "Can it possibly happen that the InterfaceState is removed before the Interface is removed?\nIn this case the cache will never be cleaned",
+      "revId": "203661a684d19cdc5e889561a45f86481f0d7fb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
