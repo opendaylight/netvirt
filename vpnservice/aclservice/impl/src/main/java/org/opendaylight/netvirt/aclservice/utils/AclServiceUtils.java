@@ -30,6 +30,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
@@ -435,28 +436,41 @@ public final class AclServiceUtils {
      * Builds the ip matches.
      *
      * @param ipPrefixOrAddress the ip prefix or address
-     * @param ipv4MatchType the ipv4 match type
+     * @param matchCriteria the source_ip or destination_ip used for the match
      * @return the list
      */
     public static List<MatchInfoBase> buildIpMatches(IpPrefixOrAddress ipPrefixOrAddress,
-            MatchFieldType ipv4MatchType) {
+                                                     MatchCriteria matchCriteria) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4}));
         IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
+        MatchFieldType matchFieldType;
         if (ipPrefix != null) {
             if (ipPrefix.getIpv4Prefix().getValue() != null) {
+                flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4}));
                 String[] ipaddressValues = ipPrefix.getIpv4Prefix().getValue().split("/");
-                flowMatches.add(new MatchInfo(ipv4MatchType, new String[] {ipaddressValues[0], ipaddressValues[1]}));
+                matchFieldType = (matchCriteria == MatchCriteria.MATCH_SOURCE)
+                        ? MatchFieldType.ipv4_source : MatchFieldType.ipv4_destination;
+                flowMatches.add(new MatchInfo(matchFieldType, new String[] {ipaddressValues[0], ipaddressValues[1]}));
             } else {
-                // Handle IPv6
+                matchFieldType = (matchCriteria == MatchCriteria.MATCH_SOURCE)
+                        ? MatchFieldType.ipv6_source : MatchFieldType.ipv6_destination;
+                flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV6}));
+                flowMatches.add(new MatchInfo(matchFieldType, new String[] {ipPrefix.getIpv6Prefix().getValue()}));
             }
         } else {
             IpAddress ipAddress = ipPrefixOrAddress.getIpAddress();
             if (ipAddress.getIpv4Address() != null) {
-                flowMatches
-                        .add(new MatchInfo(ipv4MatchType, new String[] {ipAddress.getIpv4Address().getValue(), "32"}));
+                matchFieldType = (matchCriteria == MatchCriteria.MATCH_SOURCE)
+                        ? MatchFieldType.ipv4_source : MatchFieldType.ipv4_destination;
+                flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4}));
+                flowMatches.add(new MatchInfo(matchFieldType,
+                        new String[] {ipAddress.getIpv4Address().getValue(), "32"}));
             } else {
-                // Handle IPv6
+                matchFieldType = (matchCriteria == MatchCriteria.MATCH_SOURCE)
+                        ? MatchFieldType.ipv6_source : MatchFieldType.ipv6_destination;
+                flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV6}));
+                flowMatches.add(new MatchInfo(matchFieldType,
+                        new String[] {ipAddress.getIpv6Address().getValue() + "/128" }));
             }
         }
         return flowMatches;
@@ -603,9 +617,9 @@ public final class AclServiceUtils {
                                                         AllowedAddressPairs aap) {
         List<MatchInfoBase> matchInfoBaseList;
         if (isSourceIpMacMatch) {
-            matchInfoBaseList = AclServiceUtils.buildIpMatches(aap.getIpAddress(), MatchFieldType.ipv4_source);
+            matchInfoBaseList = AclServiceUtils.buildIpMatches(aap.getIpAddress(), MatchCriteria.MATCH_SOURCE);
         } else {
-            matchInfoBaseList = AclServiceUtils.buildIpMatches(aap.getIpAddress(), MatchFieldType.ipv4_destination);
+            matchInfoBaseList = AclServiceUtils.buildIpMatches(aap.getIpAddress(), MatchCriteria.MATCH_DESTINATION);
         }
         matchInfoBaseList.addAll(flows);
         return matchInfoBaseList;

@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Sets;
@@ -38,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -470,6 +472,19 @@ public class NeutronvpnUtils {
     }
 
     /**
+     * Gets the IPv6 Link Local Address corresponding to the MAC Address.
+     *
+     * @param macAddress the mac address
+     * @return the allowed address pairs for acl service which includes the MAC + IPv6LLA
+     */
+    protected static AllowedAddressPairs updateIPv6LinkLocalAddressForAclService(MacAddress macAddress) {
+        IpAddress ipv6LinkLocalAddress = getIpv6LinkLocalAddressFromMac(macAddress);
+        return getAclAllowedAddressPairs(macAddress,
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress(
+                        ipv6LinkLocalAddress.getValue()));
+    }
+
+    /**
      * Gets the allowed address pairs for acl service.
      *
      * @param portAllowedAddressPairs the port allowed address pairs
@@ -576,6 +591,8 @@ public class NeutronvpnUtils {
         }
         List<AllowedAddressPairs> aclAllowedAddressPairs = NeutronvpnUtils.getAllowedAddressPairsForAclService(
                 port.getMacAddress(), port.getFixedIps());
+        // Update the allowed address pair with the IPv6 LLA that is auto configured on the port.
+        aclAllowedAddressPairs.add(NeutronvpnUtils.updateIPv6LinkLocalAddressForAclService(port.getMacAddress()));
         List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs>
             portAllowedAddressPairs = port.getAllowedAddressPairs();
         if (portAllowedAddressPairs != null) {
@@ -1025,5 +1042,47 @@ public class NeutronvpnUtils {
         } catch (InterruptedException | ExecutionException e) {
             logger.debug("Exception when trying to release ID into the pool", idKey, e);
         }
+    }
+
+    protected static IpAddress getIpv6LinkLocalAddressFromMac(MacAddress mac) {
+        byte[] octets = bytesFromHexString(mac.getValue());
+
+        /* As per the RFC2373, steps involved to generate a LLA include
+           1. Convert the 48 bit MAC address to 64 bit value by inserting 0xFFFE
+              between OUI and NIC Specific part.
+           2. Invert the Universal/Local flag in the OUI portion of the address.
+           3. Use the prefix "FE80::/10" along with the above 64 bit Interface
+              identifier to generate the IPv6 LLA. */
+
+        StringBuffer interfaceID = new StringBuffer();
+        short u8byte = (short) (octets[0] & 0xff);
+        u8byte ^= 1 << 1;
+        interfaceID.append(Integer.toHexString(0xFF & u8byte));
+        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[1]), 2, "0"));
+        interfaceID.append(":");
+        interfaceID.append(Integer.toHexString(0xFF & octets[2]));
+        interfaceID.append("ff:fe");
+        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[3]), 2, "0"));
+        interfaceID.append(":");
+        interfaceID.append(Integer.toHexString(0xFF & octets[4]));
+        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[5]), 2, "0"));
+
+        Ipv6Address ipv6LLA = new Ipv6Address("fe80:0:0:0:" + interfaceID.toString());
+        IpAddress ipAddress = new IpAddress(ipv6LLA.getValue().toCharArray());
+        return ipAddress;
+    }
+
+    protected static byte[] bytesFromHexString(String values) {
+        String target = "";
+        if (values != null) {
+            target = values;
+        }
+        String[] octets = target.split(":");
+
+        byte[] ret = new byte[octets.length];
+        for (int i = 0; i < octets.length; i++) {
+            ret[i] = Integer.valueOf(octets[i], 16).byteValue();
+        }
+        return ret;
     }
 }
