@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_cfeba576",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-08-26T04:27:16Z",
+      "side": 1,
+      "message": "your are missing VpnManagerCounters class",
+      "range": {
+        "startLine": 90,
+        "startChar": 19,
+        "endLine": 90,
+        "endChar": 31
+      },
+      "revId": "105e5ed8705d3f75e8d9a4b7c40d95963c903788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
