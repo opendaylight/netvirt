@@ -19,17 +19,19 @@ public class RealNetOvsImpl extends AbstractNetOvs {
     private static final Logger LOG = LoggerFactory.getLogger(RealNetOvsImpl.class);
 
     RealNetOvsImpl(final DockerOvs dockerOvs, final Boolean isUserSpace, final MdsalUtils mdsalUtils,
-                   final Neutron neutron, SouthboundUtils southboundUtils) {
-        super(dockerOvs, isUserSpace, mdsalUtils, neutron, southboundUtils);
+                   SouthboundUtils southboundUtils) {
+        super(dockerOvs, isUserSpace, mdsalUtils, southboundUtils);
     }
 
     @Override
-    public String createPort(Node bridgeNode) throws InterruptedException, IOException {
-        PortInfo portInfo = buildPortInfo();
+    public String createPort(int ovsInstance, Node bridgeNode, String networkName)
+            throws InterruptedException, IOException {
+        PortInfo portInfo = buildPortInfo(0);
 
-        neutron.createPort(portInfo, "compute:None");
+        NeutronPort neutronPort = new NeutronPort(mdsalUtils, getNetworkId(networkName), getSubnetId(networkName));
+        neutronPort.createPort(portInfo, "compute:None");
         addTerminationPoint(portInfo, bridgeNode, "internal");
-        portInfoByName.put(portInfo.name, portInfo);
+        putPortInfo(portInfo);
 
         return portInfo.name;
     }

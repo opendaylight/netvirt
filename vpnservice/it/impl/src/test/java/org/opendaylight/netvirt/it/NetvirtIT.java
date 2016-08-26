@@ -17,6 +17,7 @@ import static org.ops4j.pax.exam.CoreOptions.vmOption;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
 import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.DEBUG;
 import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.ERROR;
@@ -26,11 +27,13 @@ import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.WARN;
 
 import com.google.common.collect.Maps;
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -40,6 +43,7 @@ import org.opendaylight.netvirt.it.NetvirtITConstants.DefaultFlow;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.mdsal.utils.NotifyingDataChangeListener;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
+import org.opendaylight.ovsdb.utils.ovsdb.it.utils.ItConstants;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.NodeInfo;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.OvsdbItUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
@@ -53,6 +57,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.options.MavenUrlReference;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -110,11 +115,14 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private Option[] getOtherOptions() {
         return new Option[] {
                 configureConsole().startLocalConsole(),
+                // hardcode to use transparent for now.
                 //when("transparent".equals(System.getProperty("sgm"))).useOptions(
                         replaceConfigurationFile(
                                 "etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml",
                                 new File("src/test/resources/initial/netvirt-aclservice-config.xml")),//),
                 vmOption("-javaagent:../jars/org.jacoco.agent.jar=destfile=../../jacoco-it.exec"),
+                vmOption("-Xmx2048m"),
+                //vmOption("-XX:MaxPermSize=m"),
                 keepRuntimeFolder()
         };
     }
@@ -122,6 +130,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     @Override
     public Option getLoggingOption() {
         return composite(
+                logLevel(LogLevelOption.LogLevel.INFO),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         logConfiguration(NetvirtIT.class),
                         INFO.name()),
@@ -150,6 +159,10 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                         "log4j.logger.org.opendaylight.netvirt.fibmanager.FibNodeCapableListener",
                         DEBUG.name()),
                 super.getLoggingOption());
+                // TODO trying to get console logged to karaf.log, but doesn't work.
+                // wondering if the test stops and the log isn't flushed?
+                //editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                //        "log4j.rootLogger", "INFO, async, stdout, osgi:*"));
     }
 
     @Before
@@ -230,9 +243,15 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
     }
 
-    private void addLocalIp(NodeInfo nodeInfo) {
+    private void addLocalIp(NodeInfo nodeInfo, int instance) {
         Map<String, String> otherConfigs = Maps.newHashMap();
-        otherConfigs.put("local_ip", "10.1.1.1");
+        otherConfigs.put("local_ip", "172.17.0." + (instance + 1));
+        assertTrue(nvSouthboundUtils.addOpenVSwitchOtherConfig(nodeInfo.ovsdbNode, otherConfigs));
+    }
+
+    private void addLocalIp(NodeInfo nodeInfo, String ip) {
+        Map<String, String> otherConfigs = Maps.newHashMap();
+        otherConfigs.put("local_ip", ip);
         assertTrue(nvSouthboundUtils.addOpenVSwitchOtherConfig(nodeInfo.ovsdbNode, otherConfigs));
     }
 
@@ -256,7 +275,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
             LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
-            addLocalIp(nodeInfo);
+            addLocalIp(nodeInfo, 1);
 
             validateDefaultFlows(nodeInfo.datapathId, 2 * 60 * 1000);
             ovs.logState(0, "default flows");
@@ -268,6 +287,9 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
     }
 
+    private static final String NETWORK1_NAME = "net1";
+    private static final String NETWORK1_SEGID = "101";
+    private static final String NETWORK1_IPPFX = "10.1.1.";
 
     /**
      * Test a basic neutron use case. This test constructs a Neutron network, subnet, and two "vm" ports
@@ -277,51 +299,21 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNeutronNet() throws InterruptedException {
-        LOG.warn("testNeutronNet: starting test");
+        int ovs1 = 0;
         try (DockerOvs ovs = new DockerOvs()) {
-            Neutron neutron = new Neutron(mdsalUtils);
-            NetOvs netOvs;
             Boolean isUserSpace = userSpaceEnabled.equals("yes");
             LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
-            if (ovs.usingExternalDocker()) {
-                netOvs = new RealNetOvsImpl(ovs, isUserSpace, mdsalUtils, neutron, southboundUtils);
-            } else {
-                netOvs = new DockerNetOvsImpl(ovs, isUserSpace, mdsalUtils, neutron, southboundUtils);
-            }
+            NetOvs netOvs = getNetOvs(ovs, isUserSpace);
 
-            netOvs.logState(0, "idle");
-            ConnectionInfo connectionInfo =
-                    SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
-            NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
-            nodeInfo.connect();
-            LOG.info("testNeutronNet: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
-            addLocalIp(nodeInfo);
+            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
 
-            validateDefaultFlows(nodeInfo.datapathId, 2 * 60 * 1000);
-            netOvs.logState(0, "default flows");
+            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
 
-            neutron.createNetwork();
-            neutron.createSubnet();
-
-            String port1 = netOvs.createPort(nodeInfo.bridgeNode);
-            String port2 = netOvs.createPort(nodeInfo.bridgeNode);
-
-            InstanceIdentifier<TerminationPoint> tpIid =
-                    southboundUtils.createTerminationPointInstanceIdentifier(nodeInfo.bridgeNode, port2);
-            final NotifyingDataChangeListener portOperationalListener =
-                    new NotifyingDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                            NotifyingDataChangeListener.BIT_CREATE, tpIid, null);
-            portOperationalListener.registerDataChangeListener(dataBroker);
-
-            netOvs.preparePortForPing(port1);
-            netOvs.preparePortForPing(port2);
-
-            portOperationalListener.waitForCreation(10000);
-            Thread.sleep(30000);
-            netOvs.logState(0, "after ports");
+            String port1 = addPort(netOvs, nodeInfo, ovs1);
+            String port2 = addPort(netOvs, nodeInfo, ovs1);
 
             int rc = netOvs.ping(port1, port2);
-            netOvs.logState(0, "after ping");
+            netOvs.logState(ovs1, "node 1 after ping");
             assertEquals("Ping failed rc: " + rc, 0, rc);
 
             netOvs.destroy();
@@ -330,5 +322,83 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             LOG.error("testNeutronNet: Exception thrown by OvsDocker.OvsDocker()", e);
             fail("testNeutronNet: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
         }
+    }
+
+    // This test requires ovs kernel modules to be loaded which is not in jenkins yet.
+    @Ignore
+    @Test
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void testNeutronNetTwoNodes() throws InterruptedException {
+        int ovs1 = 1;
+        int ovs2 = 2;
+        System.getProperties().setProperty(ItConstants.DOCKER_COMPOSE_FILE_NAME, "two_ovs-2.5.0-hwvtep.yml");
+        try (DockerOvs ovs = new DockerOvs()) {
+            Boolean isUserSpace = userSpaceEnabled.equals("yes");
+            LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
+            NetOvs netOvs = getNetOvs(ovs, isUserSpace);
+
+            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
+            NodeInfo nodeInfo2 = connectOvs(netOvs, ovs2, ovs);
+
+            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
+
+            String port1 = addPort(netOvs, nodeInfo, ovs1);
+            String port2 = addPort(netOvs, nodeInfo2, ovs2);
+
+            int rc = netOvs.ping(port1, port2);
+            netOvs.logState(ovs1, "node 1 after ping");
+            netOvs.logState(ovs2, "node 2 after ping");
+            assertEquals("Ping failed rc: " + rc, 0, rc);
+
+            netOvs.destroy();
+            nodeInfo.disconnect();
+        } catch (Exception e) {
+            LOG.error("testNeutronNet: Exception thrown by OvsDocker.OvsDocker()", e);
+            fail("testNeutronNet: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
+        }
+    }
+
+    private NetOvs getNetOvs(DockerOvs ovs, Boolean isUserSpace) {
+        NetOvs netOvs;
+        if (ovs.usingExternalDocker()) {
+            netOvs = new RealNetOvsImpl(ovs, isUserSpace, mdsalUtils, southboundUtils);
+        } else {
+            netOvs = new DockerNetOvsImpl(ovs, isUserSpace, mdsalUtils, southboundUtils);
+        }
+        return netOvs;
+    }
+
+    private NodeInfo connectOvs(NetOvs netOvs, int ovsInstance, DockerOvs ovs) throws Exception {
+        netOvs.logState(ovsInstance, "node " + 1 + " idle");
+        ConnectionInfo connectionInfo =
+                SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(ovsInstance), ovs.getOvsdbPort(ovsInstance));
+        NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
+        nodeInfo.connect();
+        LOG.info("testNeutronNetTwoNodes: node {} should be connected: {}",
+                ovsInstance, nodeInfo.ovsdbNode.getNodeId());
+        addLocalIp(nodeInfo, netOvs.getInstanceIp(ovsInstance));
+
+        validateDefaultFlows(nodeInfo.datapathId, 2 * 60 * 1000);
+        netOvs.logState(ovsInstance, "node " + ovsInstance + " default flows");
+        return nodeInfo;
+    }
+
+    private String addPort(NetOvs netOvs, NodeInfo nodeInfo, int ovsInstance) throws IOException, InterruptedException {
+        String port = netOvs.createPort(ovsInstance, nodeInfo.bridgeNode, NETWORK1_NAME);
+        LOG.info("Created port: {}", netOvs.getPortInfo(port));
+
+        InstanceIdentifier<TerminationPoint> tpIid =
+                southboundUtils.createTerminationPointInstanceIdentifier(nodeInfo.bridgeNode, port);
+        final NotifyingDataChangeListener portOperationalListener =
+                new NotifyingDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                        NotifyingDataChangeListener.BIT_CREATE, tpIid, null);
+        portOperationalListener.registerDataChangeListener(dataBroker);
+
+        netOvs.preparePortForPing(port);
+
+        portOperationalListener.waitForCreation(10000);
+        Thread.sleep(30000);
+        netOvs.logState(ovsInstance, "node " + ovsInstance + " after ports");
+        return port;
     }
 }
