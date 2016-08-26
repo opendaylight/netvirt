@@ -17,13 +17,24 @@ public class PortInfo {
     public long ofPort;
     public String macPfx = "f4:00:00:0f:00:";
     public String ipPfx = "10.0.0.";
+    private NeutronPort neutronPort;
+    protected int ovsInstance;
 
-    public PortInfo(long ofPort) {
+    PortInfo(int ovsInstance, long ofPort) {
+        this.ovsInstance = ovsInstance;
         this.ofPort = ofPort;
         this.ip = ipFor(ofPort);
         this.mac = macFor(ofPort);
         this.id = UUID.randomUUID().toString();
         this.name = "tap" + id.substring(0, 11);
+    }
+
+    public void setNeutronPort(NeutronPort neutronPort) {
+        this.neutronPort = neutronPort;
+    }
+
+    public NeutronPort getNeutronPort() {
+        return neutronPort;
     }
 
     /**
@@ -33,7 +44,7 @@ public class PortInfo {
      * @return the mac address
      */
     public String macFor(long portNum) {
-        return macPfx + String.format("%02x", 5 - portNum);
+        return macPfx + String.format("%02x", portNum);
     }
 
     /**
@@ -44,5 +55,15 @@ public class PortInfo {
      */
     public String ipFor(long portNum) {
         return ipPfx + portNum;
+    }
+
+    @Override
+    public String toString() {
+        return "PortInfo [name=" + name
+                + ", ofPort=" + ofPort
+                + ", id=" + id
+                + ", mac=" + mac
+                + ", ip=" + ip
+                + "]";
     }
 }
