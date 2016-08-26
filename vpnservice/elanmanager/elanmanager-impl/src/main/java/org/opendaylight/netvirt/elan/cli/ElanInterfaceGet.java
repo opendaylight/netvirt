@@ -40,36 +40,31 @@ public class ElanInterfaceGet extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() {
-        try {
-            LOG.debug("Executing Get ElanInterface command for the corresponding Elan Instance"
-                    + "\t" + elanName + "\t");
-            if (elanName != null) {
-                ElanInstance elanInstance = elanProvider.getElanInstance(elanName);
-                List<String> elanInterfaces = elanProvider.getElanInterfaces(elanName);
-                if (elanInterfaces == null) {
-                    session.getConsole().println("No Elan Interfaces present for ELan Instance:" + elanName);
-                    return null;
-                }
-                session.getConsole().println(getElanInterfaceHeaderOutput());
-                displayInterfaces(elanInstance, elanInterfaces);
-
-            } else {
-                List<ElanInstance> elanInstances = elanProvider.getElanInstances();
-                if (!elanInstances.isEmpty()) {
-                    session.getConsole().println(getElanInterfaceHeaderOutput());
-                    for (ElanInstance elanInstance : elanInstances) {
-                        List<String> elanInterfaces = elanProvider
-                                .getElanInterfaces(elanInstance.getElanInstanceName());
-                        displayInterfaces(elanInstance, elanInterfaces);
-                        session.getConsole().println("\n");
-                    }
-                }
-
+    protected Object doExecute() throws Exception {
+        LOG.debug("Executing Get ElanInterface command for the corresponding Elan Instance"
+                + "\t" + elanName + "\t");
+        if (elanName != null) {
+            ElanInstance elanInstance = elanProvider.getElanInstance(elanName);
+            List<String> elanInterfaces = elanProvider.getElanInterfaces(elanName);
+            if (elanInterfaces == null) {
+                session.getConsole().println("No Elan Interfaces present for ELan Instance:" + elanName);
+                return null;
             }
-        } catch (Exception e) {
-            LOG.error("Elan Instance failed to get {}", e);
-            e.printStackTrace();
+            session.getConsole().println(getElanInterfaceHeaderOutput());
+            displayInterfaces(elanInstance, elanInterfaces);
+
+        } else {
+            List<ElanInstance> elanInstances = elanProvider.getElanInstances();
+            if (!elanInstances.isEmpty()) {
+                session.getConsole().println(getElanInterfaceHeaderOutput());
+                for (ElanInstance elanInstance : elanInstances) {
+                    List<String> elanInterfaces = elanProvider
+                            .getElanInterfaces(elanInstance.getElanInstanceName());
+                    displayInterfaces(elanInstance, elanInterfaces);
+                    session.getConsole().println("\n");
+                }
+            }
+
         }
         return null;
     }

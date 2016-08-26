@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.elan.internal;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -64,8 +64,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
 
 public class ElanServiceProvider implements IElanService {
 
