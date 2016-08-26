@@ -39,6 +39,7 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
+import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
@@ -270,6 +271,11 @@ public class ElanUtils {
         Future<RpcResult<Void>> result = idManager.releaseId(releaseIdInput);
     }
 
+    /**
+     * @deprecated Consider using {@link #read2(LogicalDatastoreType, InstanceIdentifier)} with proper exception handling instead
+     */
+    @Deprecated
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path) {
         ReadOnlyTransaction tx = broker != null ? broker.newReadOnlyTransaction()
@@ -280,9 +286,22 @@ public class ElanUtils {
             result = checkedFuture.get();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            tx.close();
         }
 
         return result;
+    }
+
+    public <T extends DataObject> Optional<T> read2(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path)
+            throws ReadFailedException {
+        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
+        try {
+            CheckedFuture<Optional<T>, ReadFailedException> checkedFuture = tx.read(datastoreType, path);
+            return checkedFuture.checkedGet();
+        } finally {
+            tx.close();
+        }
     }
 
     public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
@@ -692,9 +711,10 @@ public class ElanUtils {
      *            the mac address
      * @param writeFlowGroupTx
      *            the flow group tx
+     * @throws ElanException in case of issues creating the flow objects
      */
     public void setupMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, long macTimeout,
-            String macAddress, WriteTransaction writeFlowGroupTx) {
+            String macAddress, WriteTransaction writeFlowGroupTx) throws ElanException {
         synchronized (macAddress) {
             LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
@@ -705,7 +725,7 @@ public class ElanUtils {
     }
 
     public void setupDMacFlowonRemoteDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo, BigInteger dstDpId,
-            String macAddress, WriteTransaction writeFlowTx) {
+            String macAddress, WriteTransaction writeFlowTx) throws ElanException {
         synchronized (macAddress) {
             LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
             setupOrigDmacFlowsonRemoteDpn(elanInfo, interfaceInfo, dstDpId, macAddress, writeFlowTx);
@@ -879,7 +899,8 @@ public class ElanUtils {
     }
 
     private void setupOrigDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
-            IMdsalApiManager mdsalApiManager, DataBroker broker, WriteTransaction writeFlowGroupTx) {
+            IMdsalApiManager mdsalApiManager, DataBroker broker, WriteTransaction writeFlowGroupTx)
+            throws ElanException {
         BigInteger dpId = interfaceInfo.getDpId();
         String ifName = interfaceInfo.getInterfaceName();
         long ifTag = interfaceInfo.getInterfaceTag();
@@ -926,7 +947,7 @@ public class ElanUtils {
     }
 
     private void setupOrigDmacFlowsonRemoteDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
-            BigInteger dstDpId, String macAddress, WriteTransaction writeFlowTx) {
+            BigInteger dstDpId, String macAddress, WriteTransaction writeFlowTx) throws ElanException {
         BigInteger dpId = interfaceInfo.getDpId();
         String elanInstanceName = elanInfo.getElanInstanceName();
         List<DpnInterfaces> remoteFEs = getInvolvedDpnsInElan(elanInstanceName);
@@ -1039,7 +1060,8 @@ public class ElanUtils {
     }
 
     public void setupRemoteDmacFlow(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
-            String macAddress, String displayName, WriteTransaction writeFlowGroupTx, String interfaceName) {
+            String macAddress, String displayName, WriteTransaction writeFlowGroupTx, String interfaceName)
+            throws ElanException {
         Flow flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName);
         mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
         setupEtreeRemoteDmacFlow(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName, interfaceName,
@@ -1047,7 +1069,7 @@ public class ElanUtils {
     }
 
     private void setupEtreeRemoteDmacFlow(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
-            String macAddress, String displayName, String interfaceName, WriteTransaction writeFlowGroupTx) {
+            String macAddress, String displayName, String interfaceName, WriteTransaction writeFlowGroupTx) throws ElanException {
         Flow flowEntity;
         EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, interfaceName);
         if (etreeInterface != null) {
@@ -1084,9 +1106,11 @@ public class ElanUtils {
      * @param displayName
      *            display Name
      * @return the flow remote Dmac
+     * @throws ElanException in case of issues creating the flow objects
      */
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public Flow buildRemoteDmacFlowEntry(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
-            String macAddress, String displayName) {
+            String macAddress, String displayName) throws ElanException {
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
@@ -1099,7 +1123,8 @@ public class ElanUtils {
             List<Action> actions = getInternalTunnelItmEgressAction(srcDpId, destDpId, lportTag);
             mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         } catch (Exception e) {
-            LOG.error("Interface Not Found exception");
+            LOG.error("Could not get egress actions to add to flow for srcDpId=" + srcDpId + ", destDpId=" + destDpId
+                    + ", lportTag=" + lportTag, e);
         }
 
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
@@ -1606,9 +1631,10 @@ public class ElanUtils {
      *            MAC to be installed in remoteDpId's DMAC table
      * @param displayName
      *            the display name
+     * @throws ElanException in case of issues creating the flow objects
      */
     public void installDmacFlowsToInternalRemoteMac(BigInteger localDpId, BigInteger remoteDpId, long lportTag,
-            long elanTag, String macAddress, String displayName) {
+            long elanTag, String macAddress, String displayName) throws ElanException {
         Flow flow = buildDmacFlowForInternalRemoteMac(localDpId, remoteDpId, lportTag, elanTag, macAddress,
                 displayName);
         mdsalManager.installFlow(remoteDpId, flow);
@@ -1637,10 +1663,11 @@ public class ElanUtils {
      *            the interface name
      *
      * @return the dmac flows
+     * @throws ElanException in case of issues creating the flow objects
      */
     public List<ListenableFuture<Void>> installDmacFlowsToExternalRemoteMac(BigInteger dpnId,
             String extDeviceNodeId, Long elanTag, Long vni, String macAddress, String displayName,
-            String interfaceName) {
+            String interfaceName) throws ElanException {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         synchronized (macAddress) {
             Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId, elanTag, vni, macAddress,
@@ -1657,7 +1684,7 @@ public class ElanUtils {
 
     private void installEtreeDmacFlowsToExternalRemoteMac(BigInteger dpnId, String extDeviceNodeId, Long elanTag,
             Long vni, String macAddress, String displayName, String interfaceName,
-            List<ListenableFuture<Void>> futures) {
+            List<ListenableFuture<Void>> futures) throws ElanException {
         EtreeLeafTagName etreeLeafTag = getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {
             buildEtreeDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId, elanTag, macAddress, futures,
@@ -1669,7 +1696,7 @@ public class ElanUtils {
 
     private void buildEtreeDmacFlowForExternalRemoteMac(BigInteger dpnId, String extDeviceNodeId, Long vni,
             String macAddress, String displayName, String interfaceName, List<ListenableFuture<Void>> futures,
-            EtreeLeafTagName etreeLeafTag) {
+            EtreeLeafTagName etreeLeafTag) throws ElanException {
         boolean isRoot = false;
         if (interfaceName == null) {
             isRoot = true;
@@ -1726,16 +1753,18 @@ public class ElanUtils {
      * @param displayName
      *            the display name
      * @return the flow
+     * @throws ElanException in case of issues creating the flow objects
      */
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public Flow buildDmacFlowForExternalRemoteMac(BigInteger dpId, String extDeviceNodeId, long elanTag,
-            Long vni, String dstMacAddress, String displayName) {
+            Long vni, String dstMacAddress, String displayName) throws ElanException {
         List<MatchInfo> mkMatches = buildMatchesForElanTagShFlagAndDstMac(elanTag, /* shFlag */ false, dstMacAddress);
         List<Instruction> mkInstructions = new ArrayList<>();
         try {
             List<Action> actions = getExternalTunnelItmEgressAction(dpId, new NodeId(extDeviceNodeId), vni);
             mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         } catch (Exception e) {
-            LOG.error("Could not get Egress Actions for DpId={}  externalNode={}", dpId, extDeviceNodeId);
+            LOG.error("Could not get Egress Actions for DpId=" + dpId + ", externalNode=" + extDeviceNodeId, e);
         }
 
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
@@ -1803,9 +1832,11 @@ public class ElanUtils {
      * @param displayName
      *            the display name
      * @return the flow
+     * @throws ElanException in case of issues creating the flow objects
      */
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public Flow buildDmacFlowForInternalRemoteMac(BigInteger localDpId, BigInteger remoteDpId, long lportTag,
-            long elanTag, String macAddress, String displayName) {
+            long elanTag, String macAddress, String displayName) throws ElanException {
         List<MatchInfo> mkMatches = buildMatchesForElanTagShFlagAndDstMac(elanTag, /* shFlag */ false, macAddress);
 
         List<Instruction> mkInstructions = new ArrayList<>();
@@ -1815,8 +1846,8 @@ public class ElanUtils {
             List<Action> actions = getInternalTunnelItmEgressAction(localDpId, remoteDpId, lportTag);
             mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         } catch (Exception e) {
-            LOG.error("Could not get Egress Actions for localDpId={}  remoteDpId={}   lportTag={}", localDpId,
-                    remoteDpId, lportTag);
+            LOG.error("Could not get Egress Actions for localDpId=" + localDpId + ", remoteDpId="
+                    + remoteDpId + ", lportTag=" + lportTag, e);
         }
 
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
@@ -1851,10 +1882,12 @@ public class ElanUtils {
      *            Indicates if flows must be installed or removed.
      * @param interfaceName
      *            the interface name
+     * @throws ElanException in case of issues creating the flow objects
      * @see org.opendaylight.genius.mdsalutil.MDSALUtil.MdsalOp
      */
     public void setupDmacFlowsToExternalRemoteMac(BigInteger dpId, String extNodeId, Long elanTag, Long vni,
-            String macAddress, String elanInstanceName, MdsalOp addOrRemove, String interfaceName) {
+            String macAddress, String elanInstanceName, MdsalOp addOrRemove, String interfaceName)
+            throws ElanException {
         if (addOrRemove == MdsalOp.CREATION_OP) {
             installDmacFlowsToExternalRemoteMac(dpId, extNodeId, elanTag, vni, macAddress, elanInstanceName,
                     interfaceName);

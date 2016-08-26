@@ -16,6 +16,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
@@ -85,8 +86,12 @@ public class ElanInterfaceStateChangeListener
                 if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                     InternalTunnel internalTunnel = getTunnelState(interfaceName);
                     if (internalTunnel != null) {
-                        elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
-                                internalTunnel.getDestinationDPN());
+                        try {
+                            elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
+                                    internalTunnel.getDestinationDPN());
+                        } catch (ElanException e) {
+                            LOG.error("Failed to update interface: " + identifier.toString(), e);
+                        }
                     }
                 }
             }
@@ -103,8 +108,12 @@ public class ElanInterfaceStateChangeListener
                 if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
                     InternalTunnel internalTunnel = getTunnelState(interfaceName);
                     if (internalTunnel != null) {
-                        elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
-                            internalTunnel.getDestinationDPN());
+                        try {
+                            elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
+                                internalTunnel.getDestinationDPN());
+                        } catch (ElanException e) {
+                            LOG.error("Failed to add interface: " + identifier.toString(), e);
+                        }
                     }
                 }
             }
