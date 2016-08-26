@@ -23,7 +23,8 @@ import org.opendaylight.controller.liblldp.NetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.*;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.OPT_END;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.OPT_PAD;
 
 public class DHCPOptions {
     protected static final Logger logger = LoggerFactory

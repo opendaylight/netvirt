@@ -8,22 +8,24 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
-import org.apache.karaf.shell.commands.*;
+import org.apache.karaf.shell.commands.Argument;
+import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 
-@Command(scope = "odl", name = "bgp-misc", 
+@Command(scope = "odl", name = "bgp-misc",
          description = "Add or delete miscellaneous BGP config options")
 public class Misc extends OsgiCommandSupport {
     private static final String LF = "--log-file";
     private static final String LL = "--log-level";
     private static final String SP = "--stalepath-time";
 
-    @Argument(name="add|del", description="The desired operation", 
+    @Argument(name="add|del", description="The desired operation",
               required=true, multiValued = false)
     private String action = null;
 
-    @Option(name=LF, aliases={"-f"}, 
+    @Option(name=LF, aliases={"-f"},
             description="Log file name", 
             required=false, multiValued=false)
     private String file = null;
