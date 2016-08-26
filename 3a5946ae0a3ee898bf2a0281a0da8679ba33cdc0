@@ -16,6 +16,24 @@
       "revId": "3a5946ae0a3ee898bf2a0281a0da8679ba33cdc0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d5b336e7",
+        "filename": "vpnservice/aclservice/impl/src/main/resources/org/opendaylight/blueprint/aclservice.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-26T14:43:25Z",
+      "side": 1,
+      "message": "AFAIK only by plastering @Named(\"mdsalManager\") everywhere you @Inject IMdsalApiManager in the code.  IMHO that\u0027s MUCH worse than having it match once in the  BP XML, because: a) it\u0027s ugly and verbose in Java (where readability matters);  b) people will forget, and wonder, and blame @Inject for not working.  We should keep it the annotated Java code as simple as possible, to motivate people to switch? I\u0027d therefore suggest to keep this as is.  c) It\u0027s... \"Spring\"-y; not proper general DI; you would never do this with Guice or Dagger etc.  @Named is intended for disambiguation if you bound several implementations to the same interface; not matching one, like Spring does.  Thoughts from others?\n\nWhat you could do is proposed that IMdsalApiManager is renamed?  Not that impossible... make a new Mdsal(Api)Manager and keep but @Deprecate IMdsalApiManager.  The problem is that it\u0027s a stupid name anyway .. that thing really is more of a FlowManager?  Perhaps we should not have that discussion in this Gerrit thought.",
+      "parentUuid": "7a6b29fe_75c6a269",
+      "revId": "3a5946ae0a3ee898bf2a0281a0da8679ba33cdc0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
