@@ -161,7 +161,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 super.getLoggingOption());
                 // TODO trying to get console logged to karaf.log, but doesn't work.
                 // wondering if the test stops and the log isn't flushed?
-                //,editConfigurationFilePut("etc/org.ops4j.pax.logging.cfg", "log4j.rootLogger", "INFO, async, stdout, osgi:*"));
+                //editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                //        "log4j.rootLogger", "INFO, async, stdout, osgi:*"));
     }
 
     @Before
@@ -286,9 +287,9 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
     }
 
-    private final String NETWORK1_NAME = "net1";
-    private final String NETWORK1_SEGID = "101";
-    private final String NETWORK1_IPPFX = "10.1.1.";
+    private static final String NETWORK1_NAME = "net1";
+    private static final String NETWORK1_SEGID = "101";
+    private static final String NETWORK1_IPPFX = "10.1.1.";
 
     /**
      * Test a basic neutron use case. This test constructs a Neutron network, subnet, and two "vm" ports
