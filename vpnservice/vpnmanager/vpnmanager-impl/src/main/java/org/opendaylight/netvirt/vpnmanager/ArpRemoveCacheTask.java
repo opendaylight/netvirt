@@ -7,77 +7,47 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.DelayQueue;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 
 public class ArpRemoveCacheTask implements Callable<List<ListenableFuture<Void>>> {
-    DataBroker dataBroker;
-    String fixedip;
-    String vpnName;
-    String interfaceName;
-    String rd;
-    InstanceIdentifier<VpnPortipToPort> id;
+    private InetAddress srcInetAddr;
+    private MacAddress srcMacAddress;
+    private String vpnName;
+    private String interfaceName;
+    private DelayQueue<MacEntry> macEntryQueue;
     private static final Logger LOG = LoggerFactory.getLogger(ArpRemoveCacheTask.class);
 
-    public ArpRemoveCacheTask(DataBroker dataBroker, String fixedip, String vpnName, String interfaceName, String rd,
-                              InstanceIdentifier<VpnPortipToPort> id) {
+    public ArpRemoveCacheTask(InetAddress srcInetAddr, MacAddress srcMacAddress, String vpnName, String interfaceName,
+            DelayQueue<MacEntry> macEntryQueue) {
         super();
-        this.fixedip = fixedip;
+        this.srcInetAddr = srcInetAddr;
+        this.srcMacAddress = srcMacAddress;
         this.vpnName = vpnName;
         this.interfaceName = interfaceName;
-        this.rd = rd;
-        this.dataBroker = dataBroker;
-        this.id = id;
+        this.macEntryQueue = macEntryQueue;
     }
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-        removeMipAdjacency(fixedip, vpnName, interfaceName, tx);
-        VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, fixedip);
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
-        try {
-            futures.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore {}", e);
-        }
-        return null;
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        removeMacEntryFromQueue(vpnName,srcMacAddress, srcInetAddr, interfaceName);
+        return futures;
     }
 
-    private void removeMipAdjacency(String fixedip, String vpnName, String interfaceName, WriteTransaction tx) {
-        synchronized (interfaceName.intern()) {
-            InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-            InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
-            Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
-            if (adjacencies.isPresent()) {
-                InstanceIdentifier<Adjacency> adid = vpnIfId.augmentation(Adjacencies.class).child(Adjacency.class,
-                        new AdjacencyKey(iptoprefix(fixedip)));
-                tx.delete(LogicalDatastoreType.CONFIGURATION, adid);
-                LOG.info("deleting the adjacencies for vpn {} interface {}", vpnName, interfaceName);
-            }
+    private void removeMacEntryFromQueue(String vpnName, MacAddress macAddress,InetAddress InetAddress, String interfaceName) {
+        MacEntry newMacEntry = new MacEntry(ArpConstants.ARP_CACHE_TIMEOUT_MILLIS,vpnName,macAddress, InetAddress,interfaceName);
+        if (macEntryQueue.contains(newMacEntry)) {
+            macEntryQueue.remove(newMacEntry);
         }
-    }
-
-    private String iptoprefix(String ip) {
-        return new StringBuilder(ip).append(ArpConstants.PREFIX).toString();
-
     }
 }
