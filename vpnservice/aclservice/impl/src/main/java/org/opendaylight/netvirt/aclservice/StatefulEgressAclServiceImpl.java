@@ -25,6 +25,7 @@ import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
+import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -105,10 +106,9 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             String attachMac = allowedAddress.getMacAddress().getValue();
 
             List<MatchInfoBase> matches = new ArrayList<>();
-            matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4}));
             matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
             matches.add(new MatchInfo(MatchFieldType.eth_src, new String[] {attachMac}));
-            matches.addAll(AclServiceUtils.buildIpMatches(attachIp, MatchFieldType.ipv4_source));
+            matches.addAll(AclServiceUtils.buildIpMatches(attachIp, MatchCriteria.MATCH_SOURCE));
 
             Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
             List<InstructionInfo> instructions = new ArrayList<>();
