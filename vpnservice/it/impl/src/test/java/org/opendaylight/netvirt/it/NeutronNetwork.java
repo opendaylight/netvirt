@@ -48,6 +48,7 @@ public class NeutronNetwork {
     String getNetworkId() {
         return networkId;
     }
+
     String getSubnetId() {
         return subnetId;
     }
