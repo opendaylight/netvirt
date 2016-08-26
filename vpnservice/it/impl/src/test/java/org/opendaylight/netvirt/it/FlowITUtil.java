@@ -272,6 +272,8 @@ public class FlowITUtil {
 
         for (Flow opFlow : flows) {
             if (checkFlowsEqual(configFlow, opFlow)) {
+                LOG.info("verifyFlowByFields datapathId: {}, flowId: {}, tableId: {}",
+                        datapathId, flowId, tableId);
                 return;
             }
         }

@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.it;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
@@ -19,21 +20,23 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
     private static final Logger LOG = LoggerFactory.getLogger(DockerNetOvsImpl.class);
 
     DockerNetOvsImpl(final DockerOvs dockerOvs, final Boolean isUserSpace, final MdsalUtils mdsalUtils,
-                     final Neutron neutron, SouthboundUtils southboundUtils) {
-        super(dockerOvs, isUserSpace, mdsalUtils, neutron, southboundUtils);
+                     final SouthboundUtils southboundUtils) {
+        super(dockerOvs, isUserSpace, mdsalUtils, southboundUtils);
     }
 
     @Override
-    public String createPort(Node bridgeNode) throws InterruptedException, IOException {
-        PortInfo portInfo = buildPortInfo();
+    public String createPort(int ovsInstance, Node bridgeNode, String networkName)
+            throws InterruptedException, IOException {
+        PortInfo portInfo = buildPortInfo(ovsInstance);
 
         // userspace requires adding vm port as a special tap port
         // kernel mode uses the port as created by ovs
         if (isUserSpace) {
-            dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "tuntap", "add", portInfo.name, "mode", "tap");
+            dockerOvs.runInContainer(DEFAULT_WAIT, ovsInstance, "ip", "tuntap", "add", portInfo.name, "mode", "tap");
         }
 
-        neutron.createPort(portInfo, "compute:None");
+        NeutronPort neutronPort = new NeutronPort(mdsalUtils, getNetworkId(networkName), getSubnetId(networkName));
+        neutronPort.createPort(portInfo, "compute:None");
         // Not sure if tap really matters. ovs 2.4.0 fails anyways because group chaining
         // is only supported in 2.5.0
         if (isUserSpace) {
@@ -41,7 +44,9 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
         } else {
             addTerminationPoint(portInfo, bridgeNode, "internal");
         }
-        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "link", "set", "dev", portInfo.name, "address", portInfo.mac);
+        dockerOvs.runInContainer(DEFAULT_WAIT, ovsInstance,
+                "ip", "link", "set", "dev", portInfo.name, "address", portInfo.mac);
+        portInfo.setNeutronPort(neutronPort);
         portInfoByName.put(portInfo.name, portInfo);
 
         return portInfo.name;
@@ -51,13 +56,13 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
     public void preparePortForPing(String portName) throws InterruptedException, IOException {
         String nsName = "ns-" + portName;
         PortInfo portInfo = portInfoByName.get(portName);
-        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "add", nsName);
-        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "link", "set", portName, "netns", nsName);
-        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "exec", nsName, "ip", "addr",
+        dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "add", nsName);
+        dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "link", "set", portName, "netns", nsName);
+        dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "exec", nsName, "ip", "addr",
                 "add", "dev", portName, portInfo.ip + "/24");
-        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "exec", nsName, "ip", "link",
+        dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "exec", nsName, "ip", "link",
                 "set", "dev", portName, "up");
-        dockerOvs.runInContainer(DEFAULT_WAIT, 0, "ip", "netns", "exec", nsName, "ip", "route",
+        dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "exec", nsName, "ip", "route",
                 "add", "default", "via", portInfo.ip);
     }
 
@@ -84,18 +89,20 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
      */
     public int pingIp(String fromPort, String ip) throws IOException, InterruptedException {
         String fromNs = "ns-" + fromPort;
-        return dockerOvs.runInContainer(0, DEFAULT_WAIT, 0, "ip", "netns", "exec", fromNs, "ping", "-c", "4", ip);
+        PortInfo portInfo = portInfoByName.get(fromPort);
+        return dockerOvs.runInContainer(0, DEFAULT_WAIT, portInfo.ovsInstance,
+                "ip", "netns", "exec", fromNs, "ping", "-c", "4", ip);
     }
 
     @Override
     public void logState(int dockerInstance, String logText) throws IOException, InterruptedException {
-
         dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "link");
         dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "addr");
         dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "route");
         dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "list");
-        for (String key : portInfoByName.keySet()) {
-            String ns = "ns-" + key;
+        PortInfo portInfo = getPortInfoByOvsInstance(dockerInstance);
+        if (portInfo != null) {
+            String ns = "ns-" + portInfo.name;
             dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", ns, "ip", "link");
             dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", ns, "ip", "addr");
             dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", ns, "ip", "route");
@@ -108,5 +115,23 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
                 "br-int");
         //dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-appctl", "fdb/show", "br-int");
         //ovs-appctl -t /var/run/openvswitch/ovs-vswitchd.12.ctl fdb/show br-int
+    }
+
+    @Override
+    public String getInstanceIp(int ovsInstance) throws InterruptedException, IOException {
+        StringBuilder capturedStdout = new StringBuilder();
+        dockerOvs.runInContainer(0, 5000, capturedStdout, ovsInstance, "ip", "-o", "addr");
+
+        String ip = "";
+        for (String line : capturedStdout.toString().split("\\n")) {
+            if (line.contains("eth0")) {
+                String[] split = line.split("\\s+");
+                String[] ipnet = split[3].split(Pattern.quote("/"));
+                ip = ipnet[0];
+                LOG.info("ovs: {}, split: {}, ipnet: {}, ip: {}", ovsInstance, split, ipnet, ip);
+                break;
+            }
+        }
+        return ip;
     }
 }
