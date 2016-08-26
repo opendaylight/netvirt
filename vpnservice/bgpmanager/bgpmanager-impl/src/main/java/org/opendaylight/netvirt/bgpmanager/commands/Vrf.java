@@ -8,23 +8,26 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
-import org.apache.karaf.shell.commands.*;
+import org.apache.karaf.shell.commands.Argument;
+import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
-import java.util.*;
 
-@Command(scope = "odl", name = "bgp-vrf", 
+import java.util.List;
+
+@Command(scope = "odl", name = "bgp-vrf",
          description = "Add or delete BGP VRFs")
 public class Vrf extends OsgiCommandSupport {
     private static final String RD = "--rd";
     private static final String IR = "--import-rts";
     private static final String ER = "--export-rts";
 
-    @Argument(name="add|del", description="The desired operation", 
+    @Argument(name="add|del", description="The desired operation",
               required=true, multiValued = false)
     private String action = null;
 
-    @Option(name=RD, aliases={"-r"}, 
+    @Option(name=RD, aliases={"-r"},
             description="Route distinguisher", 
             required=false, multiValued=false)
     private String rd = null;

@@ -8,11 +8,13 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
-import org.apache.karaf.shell.commands.*;
+import org.apache.karaf.shell.commands.Argument;
+import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 
-@Command(scope = "odl", name = "bgp-rtr", 
+@Command(scope = "odl", name = "bgp-rtr",
          description = "Add or delete BGP router instance")
 public class Router extends OsgiCommandSupport {
     private static final String AS = "--as-number";
@@ -20,11 +22,11 @@ public class Router extends OsgiCommandSupport {
     private static final String SP = "--stale-path-time";
     private static final String FB = "--f-bit";
 
-    @Argument(name="add|del", description="The desired operation", 
+    @Argument(name="add|del", description="The desired operation",
               required=true, multiValued = false)
     private String action = null;
 
-    @Option(name=AS, aliases={"-a"}, 
+    @Option(name=AS, aliases={"-a"},
             description="AS number", 
             required=false, multiValued=false)
     private String asNum = null;

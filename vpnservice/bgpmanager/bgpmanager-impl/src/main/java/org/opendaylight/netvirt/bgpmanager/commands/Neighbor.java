@@ -8,13 +8,15 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
-import org.apache.karaf.shell.commands.*;
+import org.apache.karaf.shell.commands.Argument;
+import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 
-@Command(scope = "odl", name = "bgp-nbr", 
+@Command(scope = "odl", name = "bgp-nbr",
          description = "Add or delete BGP neighbor")
 public class Neighbor extends OsgiCommandSupport {
     private static final String IP = "--ip-address";
@@ -23,11 +25,11 @@ public class Neighbor extends OsgiCommandSupport {
     private static final String US = "--update-source";
     private static final String AF = "--address-family";
    
-    @Argument(index=0, name="add|del", description="The desired operation", 
+    @Argument(index=0, name="add|del", description="The desired operation",
               required=true, multiValued = false)
     String action = null;
 
-    @Option(name=IP, aliases = {"-i"}, 
+    @Option(name=IP, aliases = {"-i"},
             description="Neighbor's IP address", 
             required=false, multiValued=false)
     String nbrIp = null; 
