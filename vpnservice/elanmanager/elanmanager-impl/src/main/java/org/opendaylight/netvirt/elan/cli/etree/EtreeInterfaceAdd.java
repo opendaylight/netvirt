@@ -41,7 +41,7 @@ public class EtreeInterfaceAdd extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() {
+    protected Object doExecute() throws Exception {
         EtreeInterfaceType inputType = null;
         for (EtreeInterfaceType type : EtreeInterfaceType.values()) {
             if (interfaceType.equals(type.getName())) {
@@ -65,14 +65,11 @@ public class EtreeInterfaceAdd extends OsgiCommandSupport {
             }
         }
 
-        try {
-            LOG.debug("Executing create EtreeInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
-                    + interfaceType + "\t" + staticMacAddresses + "\t" + elanInterfaceDescr + "\t");
-            elanProvider.addEtreeInterface(elanName, interfaceName, inputType, staticMacAddresses, elanInterfaceDescr);
-            session.getConsole().println("Created etree interface successfully");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        LOG.debug("Executing create EtreeInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
+                + interfaceType + "\t" + staticMacAddresses + "\t" + elanInterfaceDescr + "\t");
+        elanProvider.addEtreeInterface(elanName, interfaceName, inputType, staticMacAddresses, elanInterfaceDescr);
+        session.getConsole().println("Created etree interface successfully");
+
         return null;
     }
 }

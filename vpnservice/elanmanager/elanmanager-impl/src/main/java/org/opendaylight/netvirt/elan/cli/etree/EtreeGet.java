@@ -32,40 +32,37 @@ public class EtreeGet extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() {
-        try {
-            LOG.debug("Executing Get EtreeInstance command" + "\t" + etreeName + "\t");
-            if (etreeName != null) {
-                ElanInstance elanInstance = elanProvider.getElanInstance(etreeName);
-                if (elanInstance == null || elanInstance.getAugmentation(EtreeInstance.class) == null) {
-                    session.getConsole().println("No Etree Instance present with name:" + etreeName);
-                } else {
-                    session.getConsole().println(getEtreeHeaderOutput());
-                    session.getConsole().println(String.format(ElanCLIUtils.ETREE_CLI_FORMAT, elanInstance.getElanInstanceName(),
-                            elanInstance.getMacTimeout(), elanInstance.getElanTag(), elanInstance.getDescription()));
-                }
-
+    protected Object doExecute() throws Exception {
+        LOG.debug("Executing Get EtreeInstance command" + "\t" + etreeName + "\t");
+        if (etreeName != null) {
+            ElanInstance elanInstance = elanProvider.getElanInstance(etreeName);
+            if (elanInstance == null || elanInstance.getAugmentation(EtreeInstance.class) == null) {
+                session.getConsole().println("No Etree Instance present with name:" + etreeName);
             } else {
-                List<ElanInstance> elanInstanceList = elanProvider.getElanInstances();
-                if (elanInstanceList != null && !elanInstanceList.isEmpty()) {
-                    session.getConsole().println(getEtreeHeaderOutput());
-                    for (ElanInstance elanInstance : elanInstanceList) {
-                        if (elanInstance.getAugmentation(EtreeInstance.class) != null) {
-                            session.getConsole().println(String.format(ElanCLIUtils.ETREE_CLI_FORMAT,
-                                    elanInstance.getElanInstanceName(), elanInstance.getMacTimeout(),
-                                    elanInstance.getElanTag(),
-                                    elanInstance.getAugmentation(EtreeInstance.class).getEtreeLeafTagVal().getValue(),
-                                    elanInstance.getDescription()));
-                        }
-                    }
-                } else {
-                    session.getConsole().println("No Etree Instances are present");
-                }
-
+                session.getConsole().println(getEtreeHeaderOutput());
+                session.getConsole()
+                        .println(String.format(ElanCLIUtils.ETREE_CLI_FORMAT, elanInstance.getElanInstanceName(),
+                                elanInstance.getMacTimeout(), elanInstance.getElanTag(),
+                                elanInstance.getDescription()));
             }
-        } catch (Exception e) {
-            LOG.error("Elan Instance failed to get {}", e);
-            e.printStackTrace();
+
+        } else {
+            List<ElanInstance> elanInstanceList = elanProvider.getElanInstances();
+            if (elanInstanceList != null && !elanInstanceList.isEmpty()) {
+                session.getConsole().println(getEtreeHeaderOutput());
+                for (ElanInstance elanInstance : elanInstanceList) {
+                    if (elanInstance.getAugmentation(EtreeInstance.class) != null) {
+                        session.getConsole().println(String.format(ElanCLIUtils.ETREE_CLI_FORMAT,
+                                elanInstance.getElanInstanceName(), elanInstance.getMacTimeout(),
+                                elanInstance.getElanTag(),
+                                elanInstance.getAugmentation(EtreeInstance.class).getEtreeLeafTagVal().getValue(),
+                                elanInstance.getDescription()));
+                    }
+                }
+            } else {
+                session.getConsole().println("No Etree Instances are present");
+            }
+
         }
         return null;
     }

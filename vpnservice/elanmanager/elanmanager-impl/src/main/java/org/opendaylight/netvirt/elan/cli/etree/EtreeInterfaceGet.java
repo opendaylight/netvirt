@@ -47,40 +47,35 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
     }*/
 
     @Override
-    protected Object doExecute() {
-        try {
-            LOG.debug("Executing Get EtreeInterface command for the corresponding Etree Instance" + "\t" + etreeName
-                    + "\t");
-            if (etreeName != null) {
-                ElanInstance elanInstance = elanProvider.getElanInstance(etreeName);
-                if (elanInstance == null || elanInstance.getAugmentation(EtreeInstance.class) == null) {
-                    session.getConsole().println("Etree instance doesn't exist or isn't configured as etree: " + etreeName);
-                    return null;
-                }
-                List<String> elanInterfaces = elanProvider.getElanInterfaces(etreeName);
-                if (elanInterfaces == null) {
-                    session.getConsole().println("No Etree Interfaces present for ELan Instance:" + etreeName);
-                    return null;
-                }
-                session.getConsole().println(getEtreeInterfaceHeaderOutput());
-                displayInterfaces(elanInstance, elanInterfaces);
-
-            } else {
-                List<ElanInstance> elanInstances = elanProvider.getElanInstances();
-                if (!elanInstances.isEmpty()) {
-                    session.getConsole().println(getEtreeInterfaceHeaderOutput());
-                    for (ElanInstance elanInstance : elanInstances) {
-                        List<String> elanInterfaces =
-                                elanProvider.getElanInterfaces(elanInstance.getElanInstanceName());
-                        displayInterfaces(elanInstance, elanInterfaces);
-                        session.getConsole().println("\n");
-                    }
-                }
-
+    protected Object doExecute() throws Exception {
+        LOG.debug("Executing Get EtreeInterface command for the corresponding Etree Instance" + "\t" + etreeName
+                + "\t");
+        if (etreeName != null) {
+            ElanInstance elanInstance = elanProvider.getElanInstance(etreeName);
+            if (elanInstance == null || elanInstance.getAugmentation(EtreeInstance.class) == null) {
+                session.getConsole().println("Etree instance doesn't exist or isn't configured as etree: " + etreeName);
+                return null;
             }
-        } catch (Exception e) {
-            LOG.error("Elan Instance failed to get {}", e);
-            e.printStackTrace();
+            List<String> elanInterfaces = elanProvider.getElanInterfaces(etreeName);
+            if (elanInterfaces == null) {
+                session.getConsole().println("No Etree Interfaces present for ELan Instance:" + etreeName);
+                return null;
+            }
+            session.getConsole().println(getEtreeInterfaceHeaderOutput());
+            displayInterfaces(elanInstance, elanInterfaces);
+
+        } else {
+            List<ElanInstance> elanInstances = elanProvider.getElanInstances();
+            if (!elanInstances.isEmpty()) {
+                session.getConsole().println(getEtreeInterfaceHeaderOutput());
+                for (ElanInstance elanInstance : elanInstances) {
+                    List<String> elanInterfaces =
+                            elanProvider.getElanInterfaces(elanInstance.getElanInstanceName());
+                    displayInterfaces(elanInstance, elanInterfaces);
+                    session.getConsole().println("\n");
+                }
+            }
+
         }
         return null;
     }

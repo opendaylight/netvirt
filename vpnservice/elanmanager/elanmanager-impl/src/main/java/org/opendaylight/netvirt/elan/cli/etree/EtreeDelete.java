@@ -28,18 +28,13 @@ public class EtreeDelete extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() {
-        try {
-            LOG.debug("Executing the Deletion of EtreeInstance command" + "\t" + etreeName + "\t");
-            boolean isSuccess = elanProvider.deleteEtreeInstance(etreeName);
-            if (isSuccess) {
-                session.getConsole().println("Etree Instance deleted successfully");
-            } else {
-                session.getConsole().println("Etree Instance failed to delete");
-            }
-        } catch (Exception e) {
-            LOG.error("Failed to delete Etree Instance {}", e);
-            e.printStackTrace();
+    protected Object doExecute() throws Exception {
+        LOG.debug("Executing the Deletion of EtreeInstance command" + "\t" + etreeName + "\t");
+        boolean isSuccess = elanProvider.deleteEtreeInstance(etreeName);
+        if (isSuccess) {
+            session.getConsole().println("Etree Instance deleted successfully");
+        } else {
+            session.getConsole().println("Etree Instance failed to delete");
         }
         return null;
     }
