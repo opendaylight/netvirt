@@ -29,30 +29,63 @@ public class AbstractNetOvs implements NetOvs {
     protected final DockerOvs dockerOvs;
     protected final Boolean isUserSpace;
     protected final MdsalUtils mdsalUtils;
-    public final Neutron neutron;
     private final SouthboundUtils southboundUtils;
     protected static final int DEFAULT_WAIT = 30 * 1000;
     protected Map<String, PortInfo> portInfoByName = new HashMap<>();
+    protected Map<String, NeutronNetwork> neutronNetworkByName = new HashMap<>();
 
     AbstractNetOvs(final DockerOvs dockerOvs, final Boolean isUserSpace, final MdsalUtils mdsalUtils,
-                   final Neutron neutron, SouthboundUtils southboundUtils) {
+                   SouthboundUtils southboundUtils) {
         this.dockerOvs = dockerOvs;
         this.isUserSpace = isUserSpace;
         this.mdsalUtils = mdsalUtils;
-        this.neutron = neutron;
         this.southboundUtils = southboundUtils;
         LOG.info("{} isUserSpace: {}, usingExternalDocker: {}",
                 getClass().getSimpleName(), isUserSpace, dockerOvs.usingExternalDocker());
     }
 
-    protected PortInfo buildPortInfo() {
+    public String createNetwork(String networkName, String segId, String ipPfx) {
+        NeutronNetwork neutronNetwork = new NeutronNetwork(mdsalUtils, segId, ipPfx);
+        neutronNetwork.createNetwork(networkName);
+        neutronNetwork.createSubnet(networkName + "subnet");
+        putNeutronNetwork(networkName, neutronNetwork);
+        return networkName;
+    }
+
+    public void putNeutronNetwork(String networkName, NeutronNetwork neutronNetwork) {
+        neutronNetworkByName.put(networkName, neutronNetwork);
+    }
+
+    protected NeutronNetwork getNeutronNetwork(String networkName) {
+        return neutronNetworkByName.get(networkName);
+    }
+
+    protected String getNetworkId(String name) {
+        return neutronNetworkByName.get(name).getNetworkId();
+    }
+
+    protected String getSubnetId(String name) {
+        return neutronNetworkByName.get(name).getSubnetId();
+    }
+
+    protected PortInfo buildPortInfo(int ovsInstance) {
         long idx = portInfoByName.size() + 1;
-        return new PortInfo(idx);
+        return new PortInfo(ovsInstance, idx);
+    }
+
+    protected void putPortInfo(PortInfo portInfo) {
+        portInfoByName.put(portInfo.name, portInfo);
     }
 
     @Override
-    public String createPort(Node bridgeNode) throws InterruptedException, IOException {
+    public String createPort(int ovsInstance, Node bridgeNode, String networkName)
+            throws InterruptedException, IOException {
         return null;
+    }
+
+    @Override
+    public PortInfo getPortInfo(String portName) {
+        return portInfoByName.get(portName);
     }
 
     @Override
@@ -77,8 +110,11 @@ public class AbstractNetOvs implements NetOvs {
         }
         portInfoByName.clear();
 
-        neutron.deleteSubnet();
-        neutron.deleteNetwork();
+        for (NeutronNetwork neutronNetwork : neutronNetworkByName.values()) {
+            neutronNetwork.deleteSubnet();
+            neutronNetwork.deleteNetwork();
+        }
+        neutronNetworkByName.clear();
     }
 
     @Override
@@ -98,6 +134,21 @@ public class AbstractNetOvs implements NetOvs {
     }
 
     @Override
-    public void logState(int dockerInstance, String logText) throws IOException, InterruptedException {
+    public void logState(int dockerInstance, String logText) throws InterruptedException, IOException {
+    }
+
+    @Override
+    public String getInstanceIp(int ovsInstance) throws InterruptedException, IOException {
+        return null;
+    }
+
+    protected PortInfo getPortInfoByOvsInstance(int ovsInstance) {
+        PortInfo portInfoFound = null;
+        for (PortInfo portInfo : portInfoByName.values()) {
+            if (ovsInstance == portInfo.ovsInstance) {
+                portInfoFound = portInfo;
+            }
+        }
+        return portInfoFound;
     }
 }

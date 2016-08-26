@@ -11,7 +11,11 @@ import java.io.IOException;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 
 public interface NetOvs {
-    String createPort(Node bridgeNode) throws InterruptedException, IOException;
+    String createNetwork(String networkName, String segId, String ipPfx);
+
+    String createPort(int ovsInstance, Node bridgeNode, String networkName) throws InterruptedException, IOException;
+
+    PortInfo getPortInfo(String portName);
 
     void deletePort(String uuid);
 
@@ -22,4 +26,6 @@ public interface NetOvs {
     int ping(String fromPort, String toPort) throws InterruptedException, IOException;
 
     void logState(int dockerInstance, String logText) throws IOException, InterruptedException;
+
+    String getInstanceIp(int ovsInstance) throws InterruptedException, IOException;
 }
