@@ -2136,9 +2136,9 @@ public class ElanUtils {
      * Add Mac Address to ElanInterfaceForwardingEntries and ElanForwardingTables
      * Install SMAC and DMAC flows
      */
-    public void addMacEntryToDsAndSetupFlows(IInterfaceManager interfaceManager, String interfaceName, String macAddress, String elanName, WriteTransaction tx, WriteTransaction flowWritetx, int macTimeOut) {
+    public void addMacEntryToDsAndSetupFlows(IInterfaceManager interfaceManager, String interfaceName, String macAddress, String elanName, WriteTransaction tx, WriteTransaction flowWritetx, int macTimeOut) throws ElanException {
         LOG.trace("Adding mac address {} and interface name {} to ElanInterfaceForwardingEntries and ElanForwardingTables DS", macAddress, interfaceName);
-        BigInteger timeStamp = new BigInteger(String.valueOf((long)System.currentTimeMillis()));
+        BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
         PhysAddress physAddress = new PhysAddress(macAddress);
         MacEntry macEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress).setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp).setIsStaticAddress(false).build();
         InstanceIdentifier<MacEntry> macEntryId = ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
