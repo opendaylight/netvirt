@@ -604,7 +604,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             PingableNeutronNetItUtil net =
                     new PingableNeutronNetItUtil(ovs, southboundUtils, UUID.randomUUID().toString(), isUserSpace);
             net.create();
-            //net.createPort(nodeInfo.bridgeNode, "dhcp", "network:dhcp");
+            net.createPort(nodeInfo.bridgeNode, "dhcp", "network:dhcp");
             net.createPort(nodeInfo.bridgeNode, "vm1");
             net.createPort(nodeInfo.bridgeNode, "vm2");
 
