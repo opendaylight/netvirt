@@ -40,12 +40,8 @@ public class CacheElanInstanceListener implements ClusteredDataTreeChangeListene
     private void registerListener() {
         final DataTreeIdentifier<ElanInstance> treeId =
                 new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, getWildcardPath());
-        try {
-            LOG.trace("Registering on path: {}", treeId);
-            registration = broker.registerDataTreeChangeListener(treeId, CacheElanInstanceListener.this);
-        } catch (final Exception e) {
-            LOG.warn("CacheInterfaceConfigListener registration failed", e);
-        }
+        LOG.trace("Registering on path: {}", treeId);
+        registration = broker.registerDataTreeChangeListener(treeId, CacheElanInstanceListener.this);
     }
 
     protected InstanceIdentifier<ElanInstance> getWildcardPath() {
