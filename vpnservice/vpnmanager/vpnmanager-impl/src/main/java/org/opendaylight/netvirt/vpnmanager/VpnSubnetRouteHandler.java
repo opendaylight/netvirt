@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.TaskState;
@@ -60,15 +61,17 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
     private final IBgpManager bgpManager;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final IdManagerService idManager;
+    private LockManagerService lockManager;
 
     public VpnSubnetRouteHandler(final DataBroker dataBroker, final SubnetOpDpnManager subnetOpDpnManager,
                                  final IBgpManager bgpManager, final VpnInterfaceManager vpnIntfManager,
-                                 final IdManagerService idManager) {
+                                 final IdManagerService idManager, LockManagerService lockManagerService) {
         this.dataBroker = dataBroker;
         this.subOpDpnManager = subnetOpDpnManager;
         this.bgpManager = bgpManager;
         this.vpnInterfaceManager = vpnIntfManager;
         this.idManager = idManager;
+        this.lockManager = lockManagerService;
     }
 
     @Override
@@ -89,7 +92,8 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
 
         logger.info("onSubnetAddedToVpn: Subnet " + subnetId.getValue() + " being added to vpn");
         //TODO(vivek): Change this to use more granularized lock at subnetId level
-        synchronized (this) {
+        try {
+            VpnUtil.lockSubnet(lockManager, subnetId.getValue());
             try {
                 Subnetmap subMap = null;
 
@@ -191,6 +195,10 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                         And also advertise the subnet route entry via BGP.
                         */
                         int label = getLabel(rd, subnetIp);
+                        if (label == 0) {
+                            logger.error("Unable to fetch label from Id Manager. Bailing out of handling addition of subnet {} to vpn {}", subnetIp, vpnName);
+                            return;
+                        }
                         addSubnetRouteToFib(rd, subnetIp, nhDpnId, vpnName, elanTag, label);
                         advertiseSubnetRouteToBgp(rd, subnetIp, nhDpnId, vpnName, elanTag, label);
                         subOpBuilder.setRouteAdvState(TaskState.Done);
@@ -211,7 +219,10 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 logger.error("Creation of SubnetOpDataEntry for subnet " +
                         subnetId.getValue() + " failed {}", ex);
             } finally {
+                VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
+        } catch (Exception e) {
+            logger.error("Unable to handle subnet {} added to vpn {} {}", subnetIp, vpnName, e);
         }
     }
 
@@ -224,7 +235,8 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         }
         logger.info("onSubnetDeletedFromVpn: Subnet " + subnetId.getValue() + " being removed from vpn");
         //TODO(vivek): Change this to use more granularized lock at subnetId level
-        synchronized (this) {
+        try {
+            VpnUtil.lockSubnet(lockManager, subnetId.getValue());
             try {
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
                     child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
@@ -280,7 +292,10 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 logger.error("Removal of SubnetOpDataEntry for subnet " +
                         subnetId.getValue() + " failed {}" + ex);
             } finally {
+                VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
+        } catch (Exception e) {
+            logger.error("Unable to handle subnet {} removed to vpn {} {}", notification.getSubnetIp(), notification.getVpnName(), e);
         }
     }
 
@@ -325,7 +340,8 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
 
         logger.info("onPortAddedToSubnet: Port " + portId.getValue() + " being added to subnet " + subnetId.getValue());
         //TODO(vivek): Change this to use more granularized lock at subnetId level
-        synchronized (this) {
+        try {
+            VpnUtil.lockSubnet(lockManager, subnetId.getValue());
             try {
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
                     child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
@@ -384,6 +400,10 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                         // Write the Subnet Route Entry to FIB
                         // Advertise BGP Route here and set route_adv_state to DONE
                         int label = getLabel(rd, subnetIp);
+                        if (label == 0) {
+                            logger.error("Unable to fetch label from Id Manager. Bailing out of handling addition of port {} to subnet {} in vpn {}", portId.getValue(), subnetIp, vpnName);
+                            return;
+                        }
                         addSubnetRouteToFib(rd, subnetIp, nhDpnId, vpnName, elanTag, label);
                         advertiseSubnetRouteToBgp(rd, subnetIp, nhDpnId, vpnName, elanTag, label);
                         subOpBuilder.setRouteAdvState(TaskState.Done);
@@ -400,7 +420,10 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 logger.error("Creation of SubnetOpDataEntry for subnet " +
                         subnetId.getValue() + " failed {}", ex);
             } finally {
+                VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
+        } catch (Exception e) {
+            logger.error("Unable to handle port {} added to subnet {} {}", portId.getValue(), subnetId.getValue(), e);
         }
     }
 
@@ -411,7 +434,8 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
 
         logger.info("onPortRemovedFromSubnet: Port " + portId.getValue() + " being removed from subnet " + subnetId.getValue());
         //TODO(vivek): Change this to use more granularized lock at subnetId level
-        synchronized (this) {
+        try {
+            VpnUtil.lockSubnet(lockManager, subnetId.getValue());
             try {
                 PortOpDataEntry portOpEntry = subOpDpnManager.removePortOpDataEntry(portId.getValue());
                 if (portOpEntry == null) {
@@ -468,6 +492,10 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                                 // Advertise the new NexthopIP to BGP for this subnet
                                 //withdrawSubnetRoutefromBgp(rd, subnetIp);
                                 int label = getLabel(rd, subnetIp);
+                                if (label == 0) {
+                                    logger.error("Unable to fetch label from Id Manager. Bailing out of handling removal  of port {} from subnet {} in vpn {}", portId.getValue(), subnetIp, vpnName);
+                                    return;
+                                }
                                 addSubnetRouteToFib(rd, subnetIp, nhDpnId, vpnName, elanTag, label);
                                 advertiseSubnetRouteToBgp(rd, subnetIp, nhDpnId, vpnName, elanTag, label);
                                 subOpBuilder.setRouteAdvState(TaskState.Done);
@@ -487,29 +515,32 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 logger.error("Creation of SubnetOpDataEntry for subnet " +
                         subnetId.getValue() + " failed {}" + ex);
             } finally {
+                VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
+        } catch (Exception e) {
+            logger.error("Unable to handle port {} removed from subnet {} {}", portId.getValue(), subnetId.getValue(), e);
         }
     }
 
     public void onInterfaceUp(BigInteger dpnId, String intfName) {
         logger.info("onInterfaceUp: Port " + intfName);
         //TODO(vivek): Change this to use more granularized lock at subnetId level
-        synchronized (this) {
-            SubnetToDpn subDpn = null;
-            PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(intfName);
-            if (portOpEntry == null) {
-                logger.info("onInterfaceUp: Port " + intfName  + "is part of a subnet not in VPN, ignoring");
-                return;
+        SubnetToDpn subDpn = null;
+        PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(intfName);
+        if (portOpEntry == null) {
+            logger.info("onInterfaceUp: Port " + intfName  + "is part of a subnet not in VPN, ignoring");
+            return;
+        }
+        if ((dpnId == null) || (dpnId == BigInteger.ZERO)) {
+            dpnId = portOpEntry.getDpnId();
+            if (dpnId == null) {
+                logger.error("onInterfaceUp: Unable to determine the DPNID for port " + intfName);
+            return;
             }
-
-            if ((dpnId == null) || (dpnId == BigInteger.ZERO)) {
-                dpnId = portOpEntry.getDpnId();
-                if (dpnId == null) {
-                    logger.error("onInterfaceUp: Unable to determine the DPNID for port " + intfName);
-                    return;
-                }
-            }
-            Uuid subnetId = portOpEntry.getSubnetId();
+        }
+        Uuid subnetId = portOpEntry.getSubnetId();
+        try {
+            VpnUtil.lockSubnet(lockManager, subnetId.getValue());
             try {
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
                     child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
@@ -544,12 +575,16 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                         // Write the Subnet Route Entry to FIB
                         // Advertise BGP Route here and set route_adv_state to DONE
                         int label = getLabel(rd, subnetIp);
+                        if (label == 0) {
+                            logger.error("Unable to fetch label from Id Manager. Bailing out of handling interface up event for port {} for subnet {} in vpn {}", intfName, subnetIp, vpnName);
+                            return;
+                        }
                         addSubnetRouteToFib(rd, subnetIp, nhDpnId, vpnName, elanTag, label);
                         advertiseSubnetRouteToBgp(rd, subnetIp, nhDpnId, vpnName, elanTag, label);
                         subOpBuilder.setRouteAdvState(TaskState.Done);
                     } catch (Exception ex) {
                         logger.error("onInterfaceUp: Advertising NextHopDPN " + nhDpnId + " information for subnet " +
-                          subnetId.getValue() + " to BGP failed {}" + ex);
+                                subnetId.getValue() + " to BGP failed {}" + ex);
                     }
                 }
                 SubnetOpDataEntry subOpEntry = subOpBuilder.build();
@@ -559,24 +594,28 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 logger.error("Creation of SubnetOpDataEntry for subnet " +
                         subnetId.getValue() + " failed {}" + ex);
             } finally {
+                VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
+        } catch (Exception e) {
+            logger.error("Unable to handle interface up event for port {} in subnet {} {}", portOpEntry.getPortId(), subnetId.getValue(), e);
         }
     }
 
     public void onInterfaceDown(final BigInteger dpnId, final String interfaceName) {
         logger.info("onInterfaceDown: Port " + interfaceName);
         //TODO(vivek): Change this to use more granularized lock at subnetId level
-        synchronized (this) {
-            PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(interfaceName);
-            if (portOpEntry == null) {
-                logger.info("onInterfaceDown: Port " + interfaceName  + "is part of a subnet not in VPN, ignoring");
-                return;
-            }
-            if ((dpnId  == null) ||(dpnId == BigInteger.ZERO)) {
-                logger.error("onInterfaceDown: Unable to determine the DPNID for port " + interfaceName);
-                return;
-            }
-            Uuid subnetId = portOpEntry.getSubnetId();
+        PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(interfaceName);
+        if (portOpEntry == null) {
+            logger.info("onInterfaceDown: Port " + interfaceName  + "is part of a subnet not in VPN, ignoring");
+            return;
+        }
+        if ((dpnId  == null) ||(dpnId == BigInteger.ZERO)) {
+            logger.error("onInterfaceDown: Unable to determine the DPNID for port " + interfaceName);
+            return;
+        }
+        Uuid subnetId = portOpEntry.getSubnetId();
+        try {
+            VpnUtil.lockSubnet(lockManager, subnetId.getValue());
             try {
                 logger.debug("onInterfaceDown: Updating the SubnetOpDataEntry node for subnet: " +  subnetId.getValue());
                 boolean last = subOpDpnManager.removeInterfaceFromDpn(subnetId, dpnId, interfaceName);
@@ -624,6 +663,10 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                                 // Best effort Withdrawal of route from BGP for this subnet
                                 //withdrawSubnetRoutefromBgp(rd, subnetIp);
                                 int label = getLabel(rd, subnetIp);
+                                if (label == 0) {
+                                    logger.error("Unable to fetch label from Id Manager. Bailing out of handling interface down event for port {} in subnet {} for vpn {}", interfaceName, subnetIp, vpnName);
+                                    return;
+                                }
                                 addSubnetRouteToFib(rd, subnetIp, nhDpnId, vpnName, elanTag, label);
                                 advertiseSubnetRouteToBgp(rd, subnetIp, nhDpnId, vpnName, elanTag, label);
                                 subOpBuilder.setRouteAdvState(TaskState.Done);
@@ -642,7 +685,10 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 logger.error("Creation of SubnetOpDataEntry for subnet " +
                         subnetId.getValue() + " failed {}" + ex);
             } finally {
+                VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
+        } catch (Exception e) {
+            logger.error("Unable to handle interface down event for port {} in subnet {} {}", portOpEntry.getPortId(), subnetId.getValue(), e);
         }
     }
 

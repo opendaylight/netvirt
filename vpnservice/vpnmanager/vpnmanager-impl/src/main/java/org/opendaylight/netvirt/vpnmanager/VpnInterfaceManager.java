@@ -579,7 +579,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 return;
             }
 
-            List<VpnInstance> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
+            List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
 
             LOG.trace("NextHops for interface {} are {}", interfaceName, nextHops);
             for (Adjacency nextHop : nextHops) {
@@ -624,8 +624,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             interfaceName, null,false, rd, writeOperTxn);
                     addPrefixToBGP(rd, nextHop.getIpAddress(), nextHopIp, label, writeConfigTxn);
                     //TODO: ERT - check for VPNs importing my route
-                    for (VpnInstance vpn : vpnsToImportRoute) {
-                        String vpnRd = vpn.getIpv4Family().getRouteDistinguisher();
+                    for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
+                        String vpnRd = vpn.getVrfId();
                         if (vpnRd != null) {
                             LOG.debug("Exporting route with rd {} prefix {} nexthop {} label {} to VPN {}", vpnRd, nextHop.getIpAddress(), nextHopIp, label, vpn);
                             fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, nextHop.getIpAddress(), Arrays.asList(nextHopIp), (int) label,
@@ -641,88 +641,88 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    private List<VpnInstance> getVpnsImportingMyRoute(final String vpnName) {
-        List<VpnInstance> vpnsToImportRoute = new ArrayList<>();
+    private List<VpnInstanceOpDataEntry> getVpnsImportingMyRoute(final String vpnName) {
+        List<VpnInstanceOpDataEntry> vpnsToImportRoute = new ArrayList<>();
 
-        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
-                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
-        Optional<VpnInstance> optVpnInstance = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-        final VpnInstance vpnInstance;
-        if (optVpnInstance.isPresent()) {
-            vpnInstance = optVpnInstance.get();
-        } else {
-            LOG.debug("Could not retrieve vpn instance {} to check for vpns importing the routes", vpnName);
+        final String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+        final VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+        if (vpnInstanceOpDataEntry == null) {
+            LOG.debug("Could not retrieve vpn instance op data for {} to check for vpns importing the routes", vpnName);
             return vpnsToImportRoute;
         }
 
-        Predicate<VpnInstance> excludeVpn = new Predicate<VpnInstance>() {
+        Predicate<VpnInstanceOpDataEntry> excludeVpn = new Predicate<VpnInstanceOpDataEntry>() {
             @Override
-            public boolean apply(VpnInstance input) {
+            public boolean apply(VpnInstanceOpDataEntry input) {
+                if (input.getVpnInstanceName() == null) {
+                    LOG.error("Received vpn instance without identity");
+                    return false;
+                }
                 return !input.getVpnInstanceName().equals(vpnName);
             }
         };
 
-        Predicate<VpnInstance> matchRTs = new Predicate<VpnInstance>() {
+        Predicate<VpnInstanceOpDataEntry> matchRTs = new Predicate<VpnInstanceOpDataEntry>() {
             @Override
-            public boolean apply(VpnInstance input) {
-                Iterable<String> commonRTs = intersection(getRts(vpnInstance, VpnTarget.VrfRTType.ExportExtcommunity),
+            public boolean apply(VpnInstanceOpDataEntry input) {
+                Iterable<String> commonRTs = intersection(getRts(vpnInstanceOpDataEntry, VpnTarget.VrfRTType.ExportExtcommunity),
                         getRts(input, VpnTarget.VrfRTType.ImportExtcommunity));
                 return Iterators.size(commonRTs.iterator()) > 0;
             }
         };
 
-        Function<VpnInstance, String> toInstanceName = new Function<VpnInstance, String>() {
+        Function<VpnInstanceOpDataEntry, String> toInstanceName = new Function<VpnInstanceOpDataEntry, String>() {
             @Override
-            public String apply(VpnInstance vpnInstance) {
+            public String apply(VpnInstanceOpDataEntry vpnInstance) {
                 //return vpnInstance.getVpnInstanceName();
-                return vpnInstance.getIpv4Family().getRouteDistinguisher();
+                return vpnInstance.getVrfId();
             }
         };
 
-        vpnsToImportRoute = FluentIterable.from(VpnUtil.getAllVpnInstances(dataBroker)).
+        vpnsToImportRoute = FluentIterable.from(VpnUtil.getAllVpnInstanceOpData(dataBroker)).
                 filter(excludeVpn).
                 filter(matchRTs).toList();
         return vpnsToImportRoute;
     }
 
-    private List<VpnInstance> getVpnsExportingMyRoute(final String vpnName) {
-        List<VpnInstance> vpnsToExportRoute = new ArrayList<>();
+    private List<VpnInstanceOpDataEntry> getVpnsExportingMyRoute(final String vpnName) {
+        List<VpnInstanceOpDataEntry> vpnsToExportRoute = new ArrayList<>();
 
-        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
-                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
-        Optional<VpnInstance> optVpnInstance = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-        final VpnInstance vpnInstance;
-        if (optVpnInstance.isPresent()) {
-            vpnInstance = optVpnInstance.get();
-        } else {
-            LOG.debug("Could not retrieve vpn instance {} to check for vpns exporting the routes", vpnName);
+        String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+        final VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+        if (vpnInstanceOpDataEntry == null) {
+            LOG.debug("Could not retrieve vpn instance op data for {} to check for vpns exporting the routes", vpnName);
             return vpnsToExportRoute;
         }
 
-        Predicate<VpnInstance> excludeVpn = new Predicate<VpnInstance>() {
+        Predicate<VpnInstanceOpDataEntry> excludeVpn = new Predicate<VpnInstanceOpDataEntry>() {
             @Override
-            public boolean apply(VpnInstance input) {
+            public boolean apply(VpnInstanceOpDataEntry input) {
+                if (input.getVpnInstanceName() == null) {
+                    LOG.error("Received vpn instance without identity");
+                    return false;
+                }
                 return !input.getVpnInstanceName().equals(vpnName);
             }
         };
 
-        Predicate<VpnInstance> matchRTs = new Predicate<VpnInstance>() {
+        Predicate<VpnInstanceOpDataEntry> matchRTs = new Predicate<VpnInstanceOpDataEntry>() {
             @Override
-            public boolean apply(VpnInstance input) {
-                Iterable<String> commonRTs = intersection(getRts(vpnInstance, VpnTarget.VrfRTType.ImportExtcommunity),
+            public boolean apply(VpnInstanceOpDataEntry input) {
+                Iterable<String> commonRTs = intersection(getRts(vpnInstanceOpDataEntry, VpnTarget.VrfRTType.ImportExtcommunity),
                         getRts(input, VpnTarget.VrfRTType.ExportExtcommunity));
                 return Iterators.size(commonRTs.iterator()) > 0;
             }
         };
 
-        Function<VpnInstance, String> toInstanceName = new Function<VpnInstance, String>() {
+        Function<VpnInstanceOpDataEntry, String> toInstanceName = new Function<VpnInstanceOpDataEntry, String>() {
             @Override
-            public String apply(VpnInstance vpnInstance) {
+            public String apply(VpnInstanceOpDataEntry vpnInstance) {
                 return vpnInstance.getVpnInstanceName();
             }
         };
 
-        vpnsToExportRoute = FluentIterable.from(VpnUtil.getAllVpnInstances(dataBroker)).
+        vpnsToExportRoute = FluentIterable.from(VpnUtil.getAllVpnInstanceOpData(dataBroker)).
                 filter(excludeVpn).
                 filter(matchRTs).toList();
         return vpnsToExportRoute;
@@ -738,25 +738,20 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         };
     }
 
-    private List<String> getRts(VpnInstance vpnInstance, VpnTarget.VrfRTType rtType) {
+    private List<String> getRts(VpnInstanceOpDataEntry vpnInstance, VpnTarget.VrfRTType rtType) {
         String name = vpnInstance.getVpnInstanceName();
         List<String> rts = new ArrayList<>();
-        VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
-        if (vpnConfig == null) {
-            LOG.trace("vpn config is not available for {}", name);
-            return rts;
-        }
-        VpnTargets targets = vpnConfig.getVpnTargets();
+        org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnTargets targets = vpnInstance.getVpnTargets();
         if (targets == null) {
             LOG.trace("vpn targets not available for {}", name);
             return rts;
         }
-        List<VpnTarget> vpnTargets = targets.getVpnTarget();
+        List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget> vpnTargets = targets.getVpnTarget();
         if (vpnTargets == null) {
             LOG.trace("vpnTarget values not available for {}", name);
             return rts;
         }
-        for (VpnTarget target : vpnTargets) {
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget target : vpnTargets) {
             //TODO: Check for RT type is Both
             if(target.getVrfRTType().equals(rtType) ||
                     target.getVrfRTType().equals(VpnTarget.VrfRTType.Both)) {
@@ -766,7 +761,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         return rts;
     }
-
+    
     private List<String> getExportRts(VpnInstance vpnInstance) {
         List<String> exportRts = new ArrayList<>();
         VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
@@ -788,7 +783,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         String rd = null;
         if(vpnInstance.isPresent()) {
             VpnInstance instance = vpnInstance.get();
-            VpnAfConfig config = instance.getIpv4Family();
+            org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig config = instance.getIpv4Family();
             rd = config.getRouteDistinguisher();
         }
         return rd;
@@ -964,10 +959,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     void handleVpnsExportingRoutes(String vpnName, String vpnRd) {
-        List<VpnInstance> vpnsToExportRoute = getVpnsExportingMyRoute(vpnName);
-        for (VpnInstance vpn : vpnsToExportRoute) {
-            String rd = vpn.getIpv4Family().getRouteDistinguisher();
-            List<VrfEntry> vrfEntries = VpnUtil.getAllVrfEntries(dataBroker, vpn.getIpv4Family().getRouteDistinguisher());
+        List<VpnInstanceOpDataEntry> vpnsToExportRoute = getVpnsExportingMyRoute(vpnName);
+        for (VpnInstanceOpDataEntry vpn : vpnsToExportRoute) {
+            String rd = vpn.getVrfId();
+            List<VrfEntry> vrfEntries = VpnUtil.getAllVrfEntries(dataBroker, vpn.getVrfId());
             WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
             if (vrfEntries != null) {
                 for (VrfEntry vrfEntry : vrfEntries) {
@@ -982,7 +977,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         for (String nh : nextHops) {
                             if (route != null) {
                                 LOG.info("Importing subnet route fib entry rd {} prefix {} nexthop {} label {} to vpn {}", vpnRd, prefix, nh, label, vpn.getVpnInstanceName());
-                                importSubnetRouteForNewVpn(rd, prefix, nh, (int)label, route, writeConfigTxn);
+                                importSubnetRouteForNewVpn(vpnRd, prefix, nh, (int)label, route, writeConfigTxn);
                             } else {
                                 LOG.info("Importing fib entry rd {} prefix {} nexthop {} label {} to vpn {}", vpnRd, prefix, nh, label, vpn.getVpnInstanceName());
                                 fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, prefix, Arrays.asList(nh), (int)label,
@@ -995,7 +990,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 }
                 writeConfigTxn.submit();
             } else {
-                LOG.info("No vrf entries to import from vpn {} with rd {}", vpn.getVpnInstanceName(), vpn.getIpv4Family().getRouteDistinguisher());
+                LOG.info("No vrf entries to import from vpn {} with rd {}", vpn.getVpnInstanceName(), vpn.getVrfId());
             }
         }
     }
@@ -1159,12 +1154,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             fibManager.removeOrUpdateFibEntry(dataBroker, vpnName, nextHop.getIpAddress(), nh, writeConfigTxn);
                         }
                     } else {
-                        List<VpnInstance> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
+                        List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
                         for (String nh : nhList) {
                             //IRT: remove routes from other vpns importing it
                             removePrefixFromBGP(rd, nextHop.getIpAddress(), nh, writeConfigTxn);
-                            for (VpnInstance vpn : vpnsToImportRoute) {
-                                String vpnRd = vpn.getIpv4Family().getRouteDistinguisher();
+                            for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
+                                String vpnRd = vpn.getVrfId();
                                 if (vpnRd != null) {
                                     LOG.info("Removing Exported route with rd {} prefix {} from VPN {}", vpnRd, nextHop.getIpAddress(), vpn.getVpnInstanceName());
                                     fibManager.removeOrUpdateFibEntry(dataBroker, vpnRd, nextHop.getIpAddress(), nh, writeConfigTxn);
@@ -1339,7 +1334,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    public synchronized void addSubnetRouteFibEntryToDS(String rd, String vpnName, String prefix, String nextHop, int label,
+    public void addSubnetRouteFibEntryToDS(String rd, String vpnName, String prefix, String nextHop, int label,
                                                         long elantag, BigInteger dpnId, WriteTransaction writeTxn) {
         SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
         RouteOrigin origin = RouteOrigin.STATIC; // Only case when a route is considered as directly connected
@@ -1367,15 +1362,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
         }
 
-        List<VpnInstance> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
+        List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
         if (vpnsToImportRoute.size() > 0) {
             VrfEntry importingVrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(Arrays.asList(nextHop))
                     .setLabel((long) label).setOrigin(RouteOrigin.SELF_IMPORTED.getValue())
                     .addAugmentation(SubnetRoute.class, route).build();
             List<VrfEntry> importingVrfEntryList = Arrays.asList(importingVrfEntry);
-            for (VpnInstance vpnInstance : vpnsToImportRoute) {
+            for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
                 LOG.info("Exporting subnet route rd {} prefix {} nexthop {} label {} to vpn {}", rd, prefix, nextHop, label, vpnInstance.getVpnInstanceName());
-                String importingRd = vpnInstance.getIpv4Family().getRouteDistinguisher();
+                String importingRd = vpnInstance.getVrfId();
                 InstanceIdentifier<VrfTables> importingVrfTableId = InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(importingRd)).build();
                 VrfTables importingVrfTable = new VrfTablesBuilder().setRouteDistinguisher(importingRd).setVrfEntry(importingVrfEntryList).build();
                 if (writeTxn != null) {
@@ -1408,11 +1403,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    public synchronized void deleteSubnetRouteFibEntryFromDS(String rd, String prefix, String vpnName){
+    public void deleteSubnetRouteFibEntryFromDS(String rd, String prefix, String vpnName){
         fibManager.removeFibEntry(dataBroker, rd, prefix, null);
-        List<VpnInstance> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
-        for (VpnInstance vpnInstance : vpnsToImportRoute) {
-            String importingRd = vpnInstance.getIpv4Family().getRouteDistinguisher();
+        List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
+        for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
+            String importingRd = vpnInstance.getVrfId();
             LOG.info("Deleting imported subnet route rd {} prefix {} from vpn {}", rd, prefix, vpnInstance.getVpnInstanceName());
             fibManager.removeFibEntry(dataBroker, importingRd, prefix, null);
         }
@@ -1432,7 +1427,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             long label =
                     VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                             VpnUtil.getNextHopLabelKey(rd, prefix));
-
+            if (label == 0) {
+                LOG.error("Unable to fetch label from Id Manager. Bailing out of adding new adjacency {} to vpn interface {} for vpn {}", adj.getIpAddress(), currVpnIntf.getName(), currVpnIntf.getVpnInstanceName());
+                return;
+            }
             List<Adjacency> adjacencies;
             if (optAdjacencies.isPresent()) {
                 adjacencies = optAdjacencies.get().getAdjacency();
@@ -1557,6 +1555,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnUuid);
             long newLabel = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                     VpnUtil.getNextHopLabelKey(dstVpnRd, destination));
+            if (newLabel == 0) {
+                LOG.error("Unable to fetch label from Id Manager. Bailing out of adding intervpnlink route for destination {}", destination);
+                return;
+            }
             InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, interVpnLink, srcVpnUuid, dstVpnUuid, destination, newLabel);
         } else {
             if (rd != null) {
