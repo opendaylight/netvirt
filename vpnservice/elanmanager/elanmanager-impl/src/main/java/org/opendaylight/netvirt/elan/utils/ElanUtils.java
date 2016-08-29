@@ -7,6 +7,11 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +20,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -150,12 +154,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-
 public class ElanUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanUtils.class);
@@ -272,7 +270,10 @@ public class ElanUtils {
     }
 
     /**
-     * @deprecated Consider using {@link #read2(LogicalDatastoreType, InstanceIdentifier)} with proper exception handling instead
+     * Read utility.
+     *
+     * @deprecated Consider using {@link #read2(LogicalDatastoreType, InstanceIdentifier)} with proper exception
+     *             handling instead
      */
     @Deprecated
     @SuppressWarnings("checkstyle:IllegalCatch")
@@ -1069,7 +1070,8 @@ public class ElanUtils {
     }
 
     private void setupEtreeRemoteDmacFlow(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
-            String macAddress, String displayName, String interfaceName, WriteTransaction writeFlowGroupTx) throws ElanException {
+            String macAddress, String displayName, String interfaceName, WriteTransaction writeFlowGroupTx)
+            throws ElanException {
         Flow flowEntity;
         EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, interfaceName);
         if (etreeInterface != null) {
@@ -2134,37 +2136,46 @@ public class ElanUtils {
 
     /**
      * Add Mac Address to ElanInterfaceForwardingEntries and ElanForwardingTables
-     * Install SMAC and DMAC flows
+     * Install SMAC and DMAC flows.
      */
-    public void addMacEntryToDsAndSetupFlows(IInterfaceManager interfaceManager, String interfaceName, String macAddress, String elanName, WriteTransaction tx, WriteTransaction flowWritetx, int macTimeOut) throws ElanException {
-        LOG.trace("Adding mac address {} and interface name {} to ElanInterfaceForwardingEntries and ElanForwardingTables DS", macAddress, interfaceName);
+    public void addMacEntryToDsAndSetupFlows(IInterfaceManager interfaceManager, String interfaceName,
+            String macAddress, String elanName, WriteTransaction tx, WriteTransaction flowWritetx, int macTimeOut)
+            throws ElanException {
+        LOG.trace("Adding mac address {} and interface name {} to ElanInterfaceForwardingEntries and "
+            + "ElanForwardingTables DS", macAddress, interfaceName);
         BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
         PhysAddress physAddress = new PhysAddress(macAddress);
-        MacEntry macEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress).setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp).setIsStaticAddress(false).build();
-        InstanceIdentifier<MacEntry> macEntryId = ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+        MacEntry macEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
+                .setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp)
+                .setIsStaticAddress(false).build();
+        InstanceIdentifier<MacEntry> macEntryId = ElanUtils
+                .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
         tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry);
         InstanceIdentifier<MacEntry> elanMacEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
         tx.put(LogicalDatastoreType.OPERATIONAL, elanMacEntryId, macEntry);
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
-        setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), macTimeOut, macAddress, flowWritetx);
+        setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), macTimeOut, macAddress,
+                flowWritetx);
     }
 
     /**
      * Remove Mac Address from ElanInterfaceForwardingEntries and ElanForwardingTables
-     * Remove SMAC and DMAC flows
+     * Remove SMAC and DMAC flows.
      */
-    public void deleteMacEntryFromDsAndRemoveFlows(IInterfaceManager interfaceManager, String interfaceName, String macAddress, String elanName, WriteTransaction tx, WriteTransaction deleteFlowTx) {
-        LOG.trace("Deleting mac address {} and interface name {} from ElanInterfaceForwardingEntries and ElanForwardingTables DS", macAddress, interfaceName);
+    public void deleteMacEntryFromDsAndRemoveFlows(IInterfaceManager interfaceManager, String interfaceName,
+            String macAddress, String elanName, WriteTransaction tx, WriteTransaction deleteFlowTx) {
+        LOG.trace("Deleting mac address {} and interface name {} from ElanInterfaceForwardingEntries "
+                + "and ElanForwardingTables DS", macAddress, interfaceName);
         PhysAddress physAddress = new PhysAddress(macAddress);
         MacEntry macEntry = getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
-        if(macEntry != null && interfaceInfo != null) {
+        if (macEntry != null && interfaceInfo != null) {
             deleteMacFlows(ElanUtils.getElanInstanceByName(broker, elanName), interfaceInfo, macEntry, deleteFlowTx);
         }
-        InstanceIdentifier<MacEntry> macEntryIdForElanInterface =  ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
-        InstanceIdentifier<MacEntry> macEntryIdForElanInstance  =  ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
-        tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
-        tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInstance);
+        tx.delete(LogicalDatastoreType.OPERATIONAL,
+                ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress));
+        tx.delete(LogicalDatastoreType.OPERATIONAL,
+                ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress));
     }
 
 }

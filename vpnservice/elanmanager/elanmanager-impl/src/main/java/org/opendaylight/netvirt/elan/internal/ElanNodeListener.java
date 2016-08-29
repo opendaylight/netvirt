@@ -102,9 +102,9 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.ELAN_DMAC_TABLE }));
 
         List<MatchInfo> mkMatches = new ArrayList<>();
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE, getTableMissFlowRef(NwConstants.ELAN_SMAC_TABLE),
-            0, "ELAN sMac Table Miss Flow", 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_SMAC,
-            mkMatches, mkInstructions);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE,
+                getTableMissFlowRef(NwConstants.ELAN_SMAC_TABLE), 0, "ELAN sMac Table Miss Flow", 0, 0,
+                ElanConstants.COOKIE_ELAN_KNOWN_SMAC, mkMatches, mkInstructions);
         mdsalManager.installFlow(flowEntity);
     }
 
@@ -112,11 +112,12 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         List<MatchInfo> mkMatches = new ArrayList<>();
 
         List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.ELAN_UNKNOWN_DMAC_TABLE }));
+        mkInstructions.add(
+                new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.ELAN_UNKNOWN_DMAC_TABLE }));
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, getTableMissFlowRef(NwConstants.ELAN_DMAC_TABLE),
-            0, "ELAN dMac Table Miss Flow", 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC,
-            mkMatches, mkInstructions);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE,
+                getTableMissFlowRef(NwConstants.ELAN_DMAC_TABLE), 0, "ELAN dMac Table Miss Flow", 0, 0,
+                ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches, mkInstructions);
         mdsalManager.installFlow(flowEntity);
     }
 

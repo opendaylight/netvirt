@@ -26,7 +26,8 @@ public class InterfaceRemoveWorkerOnElanInterface implements Callable<List<Liste
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceRemoveWorkerOnElanInterface.class);
 
     public InterfaceRemoveWorkerOnElanInterface(String interfaceName, ElanInstance elanInfo,
-                                                InterfaceInfo interfaceInfo, boolean isInterfaceStateRemoved, ElanInterfaceManager dataChangeListener, boolean isLastElanInterface) {
+            InterfaceInfo interfaceInfo, boolean isInterfaceStateRemoved, ElanInterfaceManager dataChangeListener,
+            boolean isLastElanInterface) {
         this.interfaceName = interfaceName;
         this.elanInfo = elanInfo;
         this.interfaceInfo = interfaceInfo;
@@ -38,14 +39,16 @@ public class InterfaceRemoveWorkerOnElanInterface implements Callable<List<Liste
     @Override
     public String toString() {
         return "InterfaceRemoveWorkerOnElanInterface [key=" + interfaceName + ", elanInfo=" + elanInfo
-            + ", interfaceInfo=" + interfaceInfo + ", isInterfaceStateRemoved=" + isInterfaceStateRemoved + ", isLastElanInterface=" + isLastElanInterface + "]";
+                + ", interfaceInfo=" + interfaceInfo + ", isInterfaceStateRemoved=" + isInterfaceStateRemoved
+                + ", isLastElanInterface=" + isLastElanInterface + "]";
     }
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         try {
-            dataChangeListener.removeEntriesForElanInterface(futures, elanInfo, interfaceInfo, interfaceName, isInterfaceStateRemoved, isLastElanInterface);
+            dataChangeListener.removeEntriesForElanInterface(futures, elanInfo, interfaceInfo, interfaceName,
+                    isInterfaceStateRemoved, isLastElanInterface);
         } catch (Exception e) {
             LOG.error("Error while processing {} for {}, error {}", interfaceName, elanInfo, e);
         }

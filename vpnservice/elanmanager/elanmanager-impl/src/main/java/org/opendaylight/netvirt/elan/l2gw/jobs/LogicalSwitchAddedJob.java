@@ -74,7 +74,8 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         try {
-            LOG.debug("running logical switch added job for {} {}", logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
+            LOG.debug("running logical switch added job for {} {}", logicalSwitchName,
+                    elanL2GwDevice.getHwvtepNodeId());
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             String elan = ElanL2GatewayUtils.getElanFromLogicalSwitch(logicalSwitchName);
 
@@ -87,16 +88,13 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
             List<IpAddress> expectedPhyLocatorIps = Lists.newArrayList();
             HwvtepRemoteMcastMacListener list = new HwvtepRemoteMcastMacListener(broker,
                     elanUtils, logicalSwitchName, elanL2GwDevice, expectedPhyLocatorIps,
-                new Callable<List<ListenableFuture<Void>>>() {
-                    @Override
-                    public List<ListenableFuture<Void>> call() {
-                        LOG.info("adding remote ucast macs for {} {}", logicalSwitchName,
-                            elanL2GwDevice.getHwvtepNodeId());
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        futures.add(elanL2GatewayUtils.installElanMacsInL2GatewayDevice(
-                            logicalSwitchName, elanL2GwDevice));
-                        return futures;
-                    }
+                () -> {
+                    LOG.info("adding remote ucast macs for {} {}", logicalSwitchName,
+                        elanL2GwDevice.getHwvtepNodeId());
+                    List<ListenableFuture<Void>> futures1 = new ArrayList<>();
+                    futures1.add(elanL2GatewayUtils.installElanMacsInL2GatewayDevice(
+                        logicalSwitchName, elanL2GwDevice));
+                    return futures1;
                 });
 
             return futures;
