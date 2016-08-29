@@ -1164,4 +1164,16 @@ public class NatUtil {
         return portIpToPortOpt.get().getMacAddress();
     }
 
+    public static String getMacForFloatingIP(DataBroker broker, String externalIp, String vpnName) {
+        InstanceIdentifier<VpnPortipToPort> portIpInst = InstanceIdentifier.builder(NeutronVpnPortipPortData.class)
+                .child(VpnPortipToPort.class, new VpnPortipToPortKey(externalIp, vpnName))
+                .build();
+        Optional<VpnPortipToPort> portIpToPortOpt = read(broker, LogicalDatastoreType.OPERATIONAL, portIpInst);
+        if (!portIpToPortOpt.isPresent()) {
+            LOG.trace("No MAC resolution was found to external IP {}", externalIp);
+            return null;
+        }
+
+        return portIpToPortOpt.get().getMacAddress();
+    }
 }

@@ -9,10 +9,14 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -22,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
-
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,15 +47,16 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
     private static final Logger LOG = LoggerFactory.getLogger(ArpScheduler.class);
     private final DataBroker dataBroker;
     private final OdlInterfaceRpcService intfRpc;
+    private final IMdsalApiManager mdsalManager;
     private ScheduledExecutorService executorService;
-    private ScheduledFuture<?> scheduledResult;
     private  volatile static ArpScheduler arpScheduler = null;
     private static DelayQueue<MacEntry> macEntryQueue = new DelayQueue<MacEntry>();
 
-    public ArpScheduler(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceRpc) {
+    public ArpScheduler(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceRpc, final IMdsalApiManager mdsalManager) {
         super(VpnPortipToPort.class, ArpScheduler.class);
         this.dataBroker = dataBroker;
         this.intfRpc = interfaceRpc;
+        this.mdsalManager = mdsalManager;
     }
 
     public void start() {
@@ -70,7 +74,7 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
     private void scheduleExpiredEntryDrainerTask() {
         LOG.info("Scheduling expired entry drainer task");
         ExpiredEntryDrainerTask expiredEntryDrainerTask = new ExpiredEntryDrainerTask();
-        scheduledResult = executorService.scheduleAtFixedRate(expiredEntryDrainerTask, ArpConstants.NO_DELAY, ArpConstants.PERIOD, TimeUnit.MILLISECONDS);
+        executorService.scheduleAtFixedRate(expiredEntryDrainerTask, ArpConstants.NO_DELAY, ArpConstants.PERIOD, TimeUnit.MILLISECONDS);
     }
 
     private ThreadFactory getThreadFactory(String threadNameFormat) {
@@ -136,7 +140,9 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
             VpnPortipToPort dataObjectModificationAfter) {
         try {
             InetAddress srcInetAddr = InetAddress.getByName(value.getPortFixedip());
-            MacAddress srcMacAddress = MacAddress.getDefaultInstance(value.getMacAddress());
+            String oldMacAddress = value.getMacAddress();
+            MacAddress srcMacAddress = MacAddress.getDefaultInstance(oldMacAddress);
+            String newMacAddress = dataObjectModificationAfter.getMacAddress();
             String vpnName =  value.getVpnName();
             String interfaceName =  value.getPortName();
             Boolean islearnt = value.isLearnt();
@@ -144,6 +150,13 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
                 DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
                 coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
                         new ArpAddCacheTask(srcInetAddr, srcMacAddress, vpnName, interfaceName, macEntryQueue));
+            } else if (dataObjectModificationAfter.isSubnetIp() && ! oldMacAddress.equalsIgnoreCase(newMacAddress)) {
+                WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+                VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName,
+                        oldMacAddress, writeTx, NwConstants.DEL_FLOW);
+                VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName,
+                        newMacAddress, writeTx, NwConstants.ADD_FLOW);
+                writeTx.submit();
             }
         } catch (Exception e) {
             LOG.error("Error in deserializing packet {} with exception {}", value, e);
@@ -155,7 +168,8 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
     protected void add(InstanceIdentifier<VpnPortipToPort> identifier, VpnPortipToPort value) {
         try {
             InetAddress srcInetAddr = InetAddress.getByName(value.getPortFixedip());
-            MacAddress srcMacAddress = MacAddress.getDefaultInstance(value.getMacAddress());
+            String macAddress = value.getMacAddress();
+            MacAddress srcMacAddress = MacAddress.getDefaultInstance(macAddress);
             String vpnName =  value.getVpnName();
             String interfaceName =  value.getPortName();
             Boolean islearnt = value.isLearnt();
@@ -163,7 +177,12 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
             {
                 DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
                 coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(),vpnName),
-                        new ArpAddCacheTask(srcInetAddr, srcMacAddress, vpnName,interfaceName, macEntryQueue));
+                        new ArpAddCacheTask(srcInetAddr, srcMacAddress, vpnName, interfaceName, macEntryQueue));
+            } else if (value.isSubnetIp()) {
+                WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+                VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName,
+                        macAddress, writeTx, NwConstants.ADD_FLOW);
+                writeTx.submit();
             }
         }
         catch (Exception e) {
@@ -175,7 +194,8 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
     protected void remove(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort value) {
         try {
             InetAddress srcInetAddr = InetAddress.getByName(value.getPortFixedip());
-            MacAddress srcMacAddress = MacAddress.getDefaultInstance(value.getMacAddress());
+            String macAddress = value.getMacAddress();
+            MacAddress srcMacAddress = MacAddress.getDefaultInstance(macAddress);
             String vpnName =  value.getVpnName();
             String interfaceName =  value.getPortName();
             Boolean islearnt = value.isLearnt();
@@ -183,6 +203,11 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
                 DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
                 coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(),vpnName),
                         new ArpRemoveCacheTask(srcInetAddr, srcMacAddress, vpnName,interfaceName, macEntryQueue));
+            } else if (value.isSubnetIp()) {
+                WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+                VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName,
+                        macAddress, writeTx, NwConstants.DEL_FLOW);
+                writeTx.submit();
             }
         } catch (Exception e) {
             LOG.error("Error in deserializing packet {} with exception {}", value, e);

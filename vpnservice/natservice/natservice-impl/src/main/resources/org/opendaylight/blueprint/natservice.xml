@@ -18,6 +18,8 @@
              interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
   <reference id="neutronvpnManager"
              interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
+  <reference id="vpnManager"
+             interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -95,6 +97,7 @@
     <argument ref="fibRpcService" />
     <argument ref="floatingIPListener" />
     <argument ref="fibManager" />
+    <argument ref="vpnManager" />
   </bean>
   <service ref="vpnFloatingIpHandler"
            interface="org.opendaylight.netvirt.natservice.internal.FloatingIPHandler" />

@@ -12,11 +12,14 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -29,6 +32,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -56,6 +60,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private final IBgpManager bgpManager;
     private final FibRpcService fibService;
     private final FloatingIPListener floatingIPListener;
+    private final IVpnManager vpnManager;
     private final IFibManager fibManager;
     static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final String FLOWID_PREFIX = "NAT.";
@@ -65,7 +70,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                 final IBgpManager bgpManager,
                                 final FibRpcService fibService,
                                 final FloatingIPListener floatingIPListener,
-                                final IFibManager fibManager) {
+                                final IFibManager fibManager,
+                                final IVpnManager vpnManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.vpnService = vpnService;
@@ -73,6 +79,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         this.fibService = fibService;
         this.floatingIPListener = floatingIPListener;
         this.fibManager = fibManager;
+        this.vpnManager = vpnManager;
     }
 
     @Override
@@ -119,6 +126,12 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                             .setIpAddress(externalIp + "/32").setServiceId(label).setInstruction(customInstructions).build();
                     //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
                     Future<RpcResult<Void>> future = fibService.createFibEntry(input);
+                    WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+                    String macAddress = NatUtil.getMacForFloatingIP(dataBroker, externalIp, vpnName);
+                    if (macAddress != null) {
+                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, macAddress, writeTx, NwConstants.ADD_FLOW);
+                    }
+                    writeTx.submit();
                     return JdkFutureAdapters.listenInPoolThread(future);
                 } else {
                     String errMsg = String.format("Could not retrieve the label for prefix %s in VPN %s, %s", externalIp, vpnName, result.getErrors());
@@ -155,6 +168,13 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     networkId, externalIp, routerId);
             return;
         }
+        //Remove floating mac from mymac table
+        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+        String macAddress = NatUtil.getMacForFloatingIP(dataBroker, externalIp, vpnName);
+        if (macAddress != null) {
+            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, macAddress, writeTx, NwConstants.DEL_FLOW);
+        }
+        writeTx.submit();
         //Remove Prefix from BGP
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
         NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", LOG);
