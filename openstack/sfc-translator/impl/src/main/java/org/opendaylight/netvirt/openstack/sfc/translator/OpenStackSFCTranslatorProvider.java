@@ -22,16 +22,20 @@ import org.slf4j.LoggerFactory;
 public class OpenStackSFCTranslatorProvider implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(OpenStackSFCTranslatorProvider.class);
 
+    private static BundleContext bundleContext;
     private final DataBroker dataBroker;
     private final RenderedServicePathService rspService;
+    private final OpenstackSfcTranslatorConfig openstackSfcTranslatorConfig;
 
     public OpenStackSFCTranslatorProvider(
             final DataBroker dataBroker,
             final RenderedServicePathService rspService,
             final OpenstackSfcTranslatorConfig openstackSfcTranslatorConfig,
-            final BundleContext bundleContext) {
+            BundleContext bundleContext) {
         this.dataBroker = dataBroker;
         this.rspService = rspService;
+        this.openstackSfcTranslatorConfig = openstackSfcTranslatorConfig;
+        this.bundleContext = bundleContext;
     }
 
     //This method will be called by blueprint, during bundle initialization.
@@ -41,6 +45,9 @@ public class OpenStackSFCTranslatorProvider implements AutoCloseable {
         new NeutronPortPairListener(dataBroker);
         new NeutronPortPairGroupListener(dataBroker);
         new NeutronPortChainListener(dataBroker, rspService);
+        if (this.rspService == null) {
+            LOG.warn("RenderedServicePath Service is not available. Translation layer might not work as expected.");
+        }
     }
 
     @Override

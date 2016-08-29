@@ -19,6 +19,7 @@ import org.opendaylight.netvirt.openstack.sfc.translator.SfcMdsalHelper;
 import org.opendaylight.netvirt.openstack.sfc.translator.flowclassifier.FlowClassifierTranslator;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.CreateRenderedPathInput;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.CreateRenderedPathOutput;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.DeleteRenderedPathInput;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.RenderedServicePathService;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunctionBuilder;
@@ -45,7 +46,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,7 +56,6 @@ import java.util.concurrent.ThreadFactory;
  * OpenDaylight Neutron Port Chain yang models data change listener
  */
 public class NeutronPortChainListener extends DelegatingDataTreeListener<PortChain> {
-
     private static final Logger LOG = LoggerFactory.getLogger(NeutronPortChainListener.class);
 
     private static final InstanceIdentifier<PortChain> portChainIid =
@@ -65,7 +64,7 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
     private final SfcMdsalHelper sfcMdsalHelper;
     private final NeutronMdsalHelper neutronMdsalHelper;
     private final OvsdbMdsalHelper ovsdbMdsalHelper;
-    private final RenderedServicePathService rspService;
+    private RenderedServicePathService rspService;
 
     public NeutronPortChainListener(DataBroker db, RenderedServicePathService rspService) {
         super(db,new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, portChainIid));
@@ -85,7 +84,16 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
      */
     @Override
     public void remove(InstanceIdentifier<PortChain> path, PortChain deletedPortChain) {
-        sfcMdsalHelper.removeServiceFunctionChain(PortChainTranslator.getSFCKey(deletedPortChain));
+        if(this.rspService != null) {
+            DeleteRenderedPathInput deleteRenderedPathInput =
+                    PortChainTranslator.buildDeleteRenderedServicePathInput(PortChainTranslator
+                    .getSFPKey(deletedPortChain));
+            if (deleteRenderedPathInput != null ) {
+                this.rspService.deleteRenderedPath(deleteRenderedPathInput);
+            }
+        }
+        sfcMdsalHelper.deleteServiceFunctionPath(PortChainTranslator.getSFPKey(deletedPortChain));
+        sfcMdsalHelper.deleteServiceFunctionChain(PortChainTranslator.getSFCKey(deletedPortChain));
     }
 
     /**
@@ -259,7 +267,7 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
 
         if (this.rspService != null) {
             // Build Create Rendered Service Path input
-            CreateRenderedPathInput rpInput = PortChainTranslator.buildRenderedServicePathInput(sfp);
+            CreateRenderedPathInput rpInput = PortChainTranslator.buildCreateRenderedServicePathInput(sfp);
 
             //Call Create Rendered Service Path RPC call
             if (rpInput != null) {
