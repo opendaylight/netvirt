@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -29,7 +28,6 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipS
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -49,7 +47,6 @@ import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.internal.ElanBridgeManager;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
-import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
@@ -1093,9 +1090,10 @@ public class ElanUtils {
     }
 
     public void setupRemoteDmacFlow(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
-            String macAddress, String displayName, WriteTransaction writeFlowGroupTx, String interfaceName, ElanInstance elanInstance)
-            throws ElanException {
-        Flow flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName, elanInstance);
+            String macAddress, String displayName, WriteTransaction writeFlowGroupTx, String interfaceName,
+            ElanInstance elanInstance) throws ElanException {
+        Flow flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName,
+                elanInstance);
         mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
         setupEtreeRemoteDmacFlow(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName, interfaceName,
                 writeFlowGroupTx, elanInstance);
@@ -1155,10 +1153,11 @@ public class ElanUtils {
         // List of Action for the provided Source and Destination DPIDs
         try {
             List<Action> actions = null;
-            if(isVlan(elanInstance) || isFlat(elanInstance)) {
+            if (isVlan(elanInstance) || isFlat(elanInstance)) {
                 String interfaceName = getExternalElanInterface(elanInstance.getElanInstanceName(), srcDpId);
                 if (null == interfaceName) {
-                    LOG.error("buildRemoteDmacFlowEntry: Could not find interfaceName for {} {}", srcDpId, elanInstance);
+                    LOG.error("buildRemoteDmacFlowEntry: Could not find interfaceName for {} {}", srcDpId,
+                            elanInstance);
                 }
                 actions = getEgressActionsForInterface(interfaceName, null);
             } else {

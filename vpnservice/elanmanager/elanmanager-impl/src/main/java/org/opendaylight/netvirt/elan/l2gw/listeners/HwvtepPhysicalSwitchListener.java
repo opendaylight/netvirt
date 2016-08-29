@@ -85,12 +85,6 @@ public class HwvtepPhysicalSwitchListener
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opendaylight.vpnservice.datastoreutils.
-     * AsyncDataTreeChangeListenerBase#getWildCardPath()
-     */
     @Override
     protected InstanceIdentifier<PhysicalSwitchAugmentation> getWildCardPath() {
         return InstanceIdentifier.create(NetworkTopology.class)
@@ -98,25 +92,11 @@ public class HwvtepPhysicalSwitchListener
                 .augmentation(PhysicalSwitchAugmentation.class);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opendaylight.vpnservice.datastoreutils.
-     * AsyncDataTreeChangeListenerBase#getDataTreeChangeListener()
-     */
     @Override
     protected HwvtepPhysicalSwitchListener getDataTreeChangeListener() {
         return HwvtepPhysicalSwitchListener.this;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opendaylight.vpnservice.datastoreutils.
-     * AsyncDataTreeChangeListenerBase#remove(org.opendaylight.yangtools.yang.
-     * binding.InstanceIdentifier,
-     * org.opendaylight.yangtools.yang.binding.DataObject)
-     */
     @Override
     protected void remove(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
             PhysicalSwitchAugmentation phySwitchDeleted) {
@@ -145,15 +125,6 @@ public class HwvtepPhysicalSwitchListener
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opendaylight.vpnservice.datastoreutils.
-     * AsyncDataTreeChangeListenerBase#update(org.opendaylight.yangtools.yang.
-     * binding.InstanceIdentifier,
-     * org.opendaylight.yangtools.yang.binding.DataObject,
-     * org.opendaylight.yangtools.yang.binding.DataObject)
-     */
     @Override
     protected void update(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
             PhysicalSwitchAugmentation phySwitchBefore, PhysicalSwitchAugmentation phySwitchAfter) {
@@ -179,14 +150,6 @@ public class HwvtepPhysicalSwitchListener
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opendaylight.vpnservice.datastoreutils.
-     * AsyncDataTreeChangeListenerBase#add(org.opendaylight.yangtools.yang.
-     * binding.InstanceIdentifier,
-     * org.opendaylight.yangtools.yang.binding.DataObject)
-     */
     @Override
     protected void add(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
             final PhysicalSwitchAugmentation phySwitchAdded) {
@@ -321,12 +284,4 @@ public class HwvtepPhysicalSwitchListener
                 && phySwitchAfter.getTunnelIps() != null && !phySwitchAfter.getTunnelIps().isEmpty();
     }
 
-    @Override
-    public void close() {
-        try {
-            super.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

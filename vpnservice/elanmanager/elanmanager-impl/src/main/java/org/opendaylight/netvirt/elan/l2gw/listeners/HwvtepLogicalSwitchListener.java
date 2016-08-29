@@ -166,15 +166,8 @@ public class HwvtepLogicalSwitchListener extends
                 + "No Action Performed.", identifier, logicalSwitchOld, logicalSwitchNew);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase#
-     * add(org.opendaylight.yangtools.yang.binding.InstanceIdentifier,
-     * org.opendaylight.yangtools.yang.binding.DataObject)
-     */
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<LogicalSwitches> identifier, LogicalSwitches logicalSwitchNew) {
         LOG.debug("Received Add DataChange Notification for identifier: {}, LogicalSwitches: {}", identifier,
                 logicalSwitchNew);
@@ -188,14 +181,15 @@ public class HwvtepLogicalSwitchListener extends
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, logicalSwitchAddedWorker.getJobKey() ,
                     "create vlan mappings and mcast configurations",
                     logicalSwitchAddedWorker);
-        } catch (Exception e) {
-            LOG.error("Failed to handle HwVTEPLogicalSwitch - add: {}", e);
+        } catch (RuntimeException e) {
+            LOG.error("Failed to handle HwVTEPLogicalSwitch - add for: {}", identifier, e);
         } finally {
             try {
                 // This listener is specific to handle a specific logical
                 // switch, hence closing it.
                 LOG.trace("Closing LogicalSwitches listener for node: {}, logicalSwitch: {}", nodeId.getValue(),
                         logicalSwitchName);
+                // TODO use https://git.opendaylight.org/gerrit/#/c/44145/ when merged, and remove @SuppressWarnings
                 close();
             } catch (Exception e) {
                 LOG.warn("Failed to close HwVTEPLogicalSwitchListener: {}", e);
