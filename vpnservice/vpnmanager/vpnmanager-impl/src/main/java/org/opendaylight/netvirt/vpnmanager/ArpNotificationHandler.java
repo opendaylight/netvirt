@@ -354,7 +354,11 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     } else {
                         nextHopIp = ip.split("/")[0];
                     }
-                    Adjacency newAdj = new AdjacencyBuilder().setIpAddress(ip).setMacAddress(newIntMac).setKey
+                    if (label == 0) {
+                        LOG.error("Unable to fetch label from Id Manager. Bailing out of adding MIP adjacency {} to vpn interface {} for vpn {}", ip, vpnInterface, vpnName);
+                        return;
+                    }
+                    Adjacency newAdj = new AdjacencyBuilder().setIpAddress(ip).setKey
                             (new AdjacencyKey(ip)).setNextHopIpList(Arrays.asList(nextHopIp)).build();
                     adjacencyList.add(newAdj);
                     Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
