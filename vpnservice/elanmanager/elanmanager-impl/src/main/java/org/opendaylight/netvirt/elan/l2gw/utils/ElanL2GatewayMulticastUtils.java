@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
@@ -100,19 +101,18 @@ public class ElanL2GatewayMulticastUtils {
      *            the elan to be updated
      * @return the listenable future
      */
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public ListenableFuture<Void> updateRemoteMcastMacOnElanL2GwDevices(String elanName) {
-        SettableFuture<Void> future = SettableFuture.create();
-        future.set(null);
         try {
             WriteTransaction transaction = broker.newWriteOnlyTransaction();
             for (L2GatewayDevice device : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).values()) {
                 prepareRemoteMcastMacUpdateOnDevice(transaction, elanName, device);
             }
             return transaction.submit();
-        } catch (Throwable e) {
+        } catch (RuntimeException e) {
             LOG.error("Failed to configure mcast mac on elan " + elanName, e);
+            return Futures.immediateFailedCheckedFuture(e);
         }
-        return future;
     }
 
     public void scheduleMcastMacUpdateJob(String elanName, L2GatewayDevice device) {

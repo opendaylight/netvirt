@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Arrays;
 import org.opendaylight.controller.liblldp.NetUtils;
+import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -21,6 +22,7 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
+import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -151,11 +153,10 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
                 elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
                         Arrays.asList(physAddress));
-            } catch (Exception e) {
-                LOG.trace("Failed to decode packet: {}", e);
+            } catch (ElanException | PacketException e) {
+                LOG.trace("Failed to decode packet: {}", notification, e);
             }
         }
-
     }
 
     /*

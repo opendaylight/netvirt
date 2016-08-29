@@ -53,28 +53,20 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
     }
 
     private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), ElanNodeListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("ElanNodeListener: DataChange listener registration fail!", e);
-            throw new IllegalStateException("ElanNodeListener: registration Listener failed.", e);
-        }
+        listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+            getWildCardPath(), ElanNodeListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
     }
 
     private InstanceIdentifier<Node> getWildCardPath() {
         return InstanceIdentifier.create(Nodes.class).child(Node.class);
     }
 
-
     @Override
     protected void remove(InstanceIdentifier<Node> identifier, Node del) {
-
     }
 
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
-
     }
 
     @Override
@@ -129,6 +121,5 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         if (listenerRegistration != null) {
             listenerRegistration.close();
         }
-
     }
 }

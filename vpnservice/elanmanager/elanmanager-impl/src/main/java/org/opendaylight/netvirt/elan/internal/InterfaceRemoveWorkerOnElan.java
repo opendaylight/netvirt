@@ -12,18 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class InterfaceRemoveWorkerOnElan implements Callable<List<ListenableFuture<Void>>> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(InterfaceRemoveWorkerOnElan.class);
+
     private String key;
     private ElanInstance elanInfo;
     private String interfaceName;
     private InterfaceInfo interfaceInfo;
     private boolean isInterfaceStateRemoved;
     private ElanInterfaceManager dataChangeListener;
-    private static final Logger LOG = LoggerFactory.getLogger(InterfaceRemoveWorkerOnElan.class);
 
     public InterfaceRemoveWorkerOnElan(String key, ElanInstance elanInfo, String interfaceName,
             InterfaceInfo interfaceInfo, boolean isInterfaceStateRemoved, ElanInterfaceManager dataChangeListener) {
@@ -44,13 +47,14 @@ public class InterfaceRemoveWorkerOnElan implements Callable<List<ListenableFutu
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         try {
             dataChangeListener.removeElanInterface(futures, elanInfo, interfaceName, interfaceInfo,
                     isInterfaceStateRemoved);
         } catch (Exception e) {
-            LOG.error("Error while processing {} for {}, error {}", key, interfaceName, e);
+            throw new ElanException("Error while processing " + key + " for " + interfaceName, e);
         }
         return futures;
     }

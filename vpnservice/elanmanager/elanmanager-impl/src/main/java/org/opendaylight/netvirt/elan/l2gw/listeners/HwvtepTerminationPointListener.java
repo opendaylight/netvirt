@@ -96,21 +96,18 @@ public class HwvtepTerminationPointListener
     }
 
     protected void registerListener() {
-        try {
-            lstnerRegistration = this.broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
-                            new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class)
-                    .child(TerminationPoint.class), this, DataChangeScope.BASE);
-        } catch (final Exception e) {
-            LOG.error("Hwvtep LocalUcasMacs DataChange listener registration failed !", e);
-            throw new IllegalStateException("Hwvtep LocalUcasMacs DataChange listener registration failed .", e);
-        }
+        lstnerRegistration = this.broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
+                        new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class)
+                .child(TerminationPoint.class), this, DataChangeScope.BASE);
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void close() throws Exception {
         if (lstnerRegistration != null) {
             try {
+                // TODO use https://git.opendaylight.org/gerrit/#/c/44145/ when merged, and remove @SuppressWarnings
                 lstnerRegistration.close();
             } catch (final Exception e) {
                 LOG.error("Error when cleaning up DataChangeListener.", e);
