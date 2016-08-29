@@ -12,18 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class InterfaceAddWorkerOnElan implements Callable<List<ListenableFuture<Void>>> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(InterfaceAddWorkerOnElan.class);
+
     private String key;
     private ElanInterface elanInterface;
     private ElanInstance elanInstance;
     private InterfaceInfo interfaceInfo;
     private ElanInterfaceManager dataChangeListener;
-    private static final Logger LOG = LoggerFactory.getLogger(InterfaceAddWorkerOnElan.class);
 
     public InterfaceAddWorkerOnElan(String key, ElanInterface elanInterface, InterfaceInfo interfaceInfo,
                                     ElanInstance elanInstance, ElanInterfaceManager dataChangeListener) {
@@ -43,12 +46,13 @@ public class InterfaceAddWorkerOnElan implements Callable<List<ListenableFuture<
 
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         try {
             dataChangeListener.addElanInterface(futures, elanInterface, interfaceInfo, elanInstance);
         } catch (Exception e) {
-            LOG.error("Error while processing {} for {}, error {}", key, elanInterface, e);
+            throw new ElanException("Error while processing " + key + " for " + elanInterface, e);
         }
         return futures;
     }
