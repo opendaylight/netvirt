@@ -83,7 +83,8 @@ public class ElanServiceProvider implements IElanService {
                                ElanInstanceManager elanInstanceManager, ElanBridgeManager bridgeMgr,
                                DataBroker dataBroker,
                                ElanInterfaceManager elanInterfaceManager,
-                               ElanStatusMonitor elanStatusMonitor, ElanUtils elanUtils, EntityOwnershipService entityOwnershipService) {
+                               ElanStatusMonitor elanStatusMonitor, ElanUtils elanUtils,
+                               EntityOwnershipService entityOwnershipService) {
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
         this.elanInstanceManager = elanInstanceManager;

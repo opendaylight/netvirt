@@ -698,7 +698,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             setupTerminateServiceTable(elanInstance, dpId, writeFlowGroupTx);
             setupUnknownDMacTable(elanInstance, dpId, writeFlowGroupTx);
             // update the remote-DPNs remoteBC group entry with Tunnels
-            if(ElanUtils.isVxlan(elanInstance)) {
+            if (ElanUtils.isVxlan(elanInstance)) {
                 setElanBCGrouponOtherDpns(elanInstance, elanInstance.getElanTag().longValue(), dpId, writeFlowGroupTx);
             }
             /*
@@ -710,7 +710,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             programRemoteDmacFlow(elanInstance, interfaceInfo, writeFlowGroupTx);
         }
         // bind the Elan service to the Interface
-        bindService(elanInstance, ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceInfo.getInterfaceName()), tx);
+        bindService(elanInstance,
+                ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceInfo.getInterfaceName()), tx);
     }
 
     public void installEntriesForFirstInterfaceonDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
@@ -961,7 +962,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     // Install DMAC entry on dst DPN
-    public void installDMacAddressTables(ElanInstance elanInfo, InterfaceInfo interfaceInfo, BigInteger dstDpId) throws ElanException {
+    public void installDMacAddressTables(ElanInstance elanInfo, InterfaceInfo interfaceInfo, BigInteger dstDpId)
+            throws ElanException {
         String interfaceName = interfaceInfo.getInterfaceName();
         ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
         if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
