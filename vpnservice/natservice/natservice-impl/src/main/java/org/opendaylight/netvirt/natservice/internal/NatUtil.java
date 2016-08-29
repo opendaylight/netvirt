@@ -1088,6 +1088,16 @@ public class NatUtil {
 
     public static Port getNeutronPortForFloatingIp(DataBroker broker,
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress targetIP) {
+      return getNeutronPortForIp(broker, targetIP, NeutronConstants.DEVICE_OWNER_FLOATING_IP);
+    }
+
+    public static Port getNeutronPortForRouterGetewayIp(DataBroker broker,
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress targetIP) {
+      return getNeutronPortForIp(broker, targetIP, NeutronConstants.DEVICE_OWNER_GATEWAY_INF);
+    }
+
+    public static Port getNeutronPortForIp(DataBroker broker,
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress targetIP, String deviceType) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports>
         portsIdentifier = InstanceIdentifier
                 .create(Neutron.class)
@@ -1100,7 +1110,7 @@ public class NatUtil {
         }
 
         for (Port port : portsOptional.get().getPort()) {
-            if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(port.getDeviceOwner()) && port.getFixedIps() != null) {
+            if (deviceType.equals(port.getDeviceOwner()) && port.getFixedIps() != null) {
                 for (FixedIps ip : port.getFixedIps()) {
                     if (Objects.equals(ip.getIpAddress(), targetIP)) {
                         return port;
