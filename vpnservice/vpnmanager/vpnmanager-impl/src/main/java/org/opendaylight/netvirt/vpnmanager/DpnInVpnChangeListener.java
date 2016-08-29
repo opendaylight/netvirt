@@ -7,19 +7,21 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveDpnEvent;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add.dpn.event.AddEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -27,16 +29,37 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
+
 public class DpnInVpnChangeListener implements OdlL3vpnListener {
     private static final Logger LOG = LoggerFactory.getLogger(DpnInVpnChangeListener.class);
     private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalManager;
 
-    public DpnInVpnChangeListener(DataBroker dataBroker) {
+    public DpnInVpnChangeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager) {
         this.dataBroker = dataBroker;
+        this.mdsalManager = mdsalManager;
     }
 
     public void onAddDpnEvent(AddDpnEvent notification) {
+        AddEventData addEventData = notification.getAddEventData();
+        String vpnName = addEventData.getVpnName();
+        BigInteger dpId = addEventData.getDpnId();
+        setupSubnetGwMacEntriesOnDpn(vpnName, dpId, NwConstants.ADD_FLOW);
+    }
 
+    private void setupSubnetGwMacEntriesOnDpn(String vpnName, BigInteger dpId, int addOrRemove) {
+        Optional<List<String>> macAddressesOptional = VpnUtil.getAllSubnetGatewayMacAddressesforVpn(dataBroker, vpnName);
+        if (!macAddressesOptional.isPresent()) {
+            return;
+        }
+        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+        for (String gwMacAddress: macAddressesOptional.get()) {
+            VpnUtil.addGwMacIntoTx(mdsalManager, gwMacAddress, writeTx, addOrRemove, vpnId, dpId);
+        }
+        writeTx.submit();
     }
 
     public void onRemoveDpnEvent(RemoveDpnEvent notification) {
@@ -75,6 +98,7 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                 }
             }
         }
+        setupSubnetGwMacEntriesOnDpn(vpnName, dpnId, NwConstants.DEL_FLOW);
     }
 
     protected void deleteDpn(Collection<VpnToDpnList> vpnToDpnList, String rd, WriteTransaction writeTxn) {

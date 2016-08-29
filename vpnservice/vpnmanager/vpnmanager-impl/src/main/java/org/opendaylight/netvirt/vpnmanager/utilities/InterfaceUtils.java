@@ -16,6 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
@@ -130,6 +131,20 @@ public class InterfaceUtils {
       return optInterface.get();
     }
     return null;
+  }
+
+  public static Optional<String> getMacAddressForInterface(DataBroker dataBroker, String interfaceName) {
+      Optional<String> macAddressOptional = Optional.absent();
+      InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
+              buildStateInterfaceId(interfaceName);
+      Optional<Interface> ifStateOptional = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
+      if (ifStateOptional.isPresent()) {
+          PhysAddress macAddress = ifStateOptional.get().getPhysAddress();
+          if (macAddress != null) {
+              macAddressOptional = Optional.of(macAddress.getValue());
+          }
+      }
+      return macAddressOptional;
   }
 
   public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> getInterfaceIdentifier(String interfaceName) {

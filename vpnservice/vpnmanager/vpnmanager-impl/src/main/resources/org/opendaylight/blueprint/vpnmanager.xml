@@ -31,6 +31,7 @@
   <bean id="dpnInVpnChangeListener"
         class="org.opendaylight.netvirt.vpnmanager.DpnInVpnChangeListener">
     <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
   </bean>
   <service ref="dpnInVpnChangeListener" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener" />
@@ -77,6 +78,7 @@
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="odlInterfaceRpcService" />
+    <argument ref="mdsalUtils" />
   </bean>
 
   <bean id="floatingIpGarpHandler"
@@ -104,7 +106,7 @@
     <argument ref="elanService" />
     <argument ref="idManagerService" />
     <argument ref="odlArputilService" />
-    <argument ref="arpScheduler" /> 
+    <argument ref="arpScheduler" />
   </bean>
   <service ref="arpNotificationHandler" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener" />

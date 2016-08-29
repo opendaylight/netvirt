@@ -121,6 +121,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neu
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListBuilder;
@@ -526,7 +527,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
                         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(
                                 MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
-                        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));
+                        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_GW_MAC_TABLE, ++instructionKey));
 
                         BoundServices
                                 serviceInfo =
@@ -540,11 +541,31 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                         return futures;
                     }
                 });
+        setupGwMacIfExternalVpn(dpId, vpnInterfaceName, vpnId, writeConfigTxn, NwConstants.ADD_FLOW);
         makeArpFlow(dpId, NwConstants.L3VPN_SERVICE_INDEX, lPortTag, vpnInterfaceName,
                 vpnId, ArpReplyOrRequest.REQUEST, NwConstants.ADD_FLOW, writeInvTxn);
         makeArpFlow(dpId, NwConstants.L3VPN_SERVICE_INDEX, lPortTag, vpnInterfaceName,
                 vpnId, ArpReplyOrRequest.REPLY, NwConstants.ADD_FLOW, writeInvTxn);
 
+    }
+
+    private void setupGwMacIfExternalVpn(BigInteger dpnId, String interfaceName, long vpnId,
+            WriteTransaction writeConfigTxn, int addOrRemove) {
+        InstanceIdentifier<VpnIds> vpnIdsInstanceIdentifier = VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId);
+        Optional<VpnIds> vpnIdsOptional = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
+        if (vpnIdsOptional.isPresent() && vpnIdsOptional.get().isExternalVpn()) {
+            Optional<String> gwMacAddressOptional = InterfaceUtils.getMacAddressForInterface(dataBroker, interfaceName);
+            if (!gwMacAddressOptional.isPresent()) {
+                return;
+            }
+            String gwMacAddress = gwMacAddressOptional.get();
+            FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpnId, gwMacAddress, vpnId);
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+            	mdsalManager.addFlowToTx(flowEntity, writeConfigTxn);
+            } else if (addOrRemove == NwConstants.DEL_FLOW) {
+            	mdsalManager.removeFlowToTx(flowEntity, writeConfigTxn);
+            }
+        }
     }
 
     private void processVpnInterfaceAdjacencies(BigInteger dpnId, String vpnName, String interfaceName,
@@ -805,7 +826,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         Flow flow = flowEntity.getFlowBuilder().build();
         String flowId = flowEntity.getFlowId();
         FlowKey flowKey = new FlowKey( new FlowId(flowId));
-        Node nodeDpn = buildDpnNode(dpId);
+        Node nodeDpn = VpnUtil.buildDpnNode(dpId);
 
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
@@ -828,14 +849,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 mdsalManager.removeFlow(flowEntity);
             }
         }
-    }
-
-    //TODO: How to handle the below code, its a copy paste from MDSALManager.java
-    private Node buildDpnNode(BigInteger dpnId) {
-        NodeId nodeId = new NodeId("openflow:" + dpnId);
-        Node nodeDpn = new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
-
-        return nodeDpn;
     }
 
     private String getRouteDistinguisher(String vpnName) {
@@ -1265,6 +1278,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     });
         }
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnInstanceName);
+        setupGwMacIfExternalVpn(dpId, vpnInterfaceName, vpnId, writeConfigTxn, NwConstants.DEL_FLOW);
         makeArpFlow(dpId, l3vpn_service_index, lPortTag, vpnInterfaceName,
                 vpnId, ArpReplyOrRequest.REQUEST, NwConstants.DEL_FLOW, writeInvTxn);
         makeArpFlow(dpId, l3vpn_service_index, lPortTag, vpnInterfaceName,

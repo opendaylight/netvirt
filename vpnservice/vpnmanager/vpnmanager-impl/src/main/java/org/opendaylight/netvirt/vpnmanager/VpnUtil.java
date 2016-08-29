@@ -35,10 +35,18 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.InstructionType;
+import org.opendaylight.genius.mdsalutil.MatchFieldType;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -53,6 +61,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanTagNameMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagNameKey;
@@ -112,9 +122,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -530,7 +543,7 @@ public class VpnUtil {
 
     }
 
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds>
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds>
         getVpnIdToVpnInstanceIdentifier(long vpnId) {
         return InstanceIdentifier.builder(VpnIdToVpnInstance.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds.class,
@@ -1180,5 +1193,76 @@ public class VpnUtil {
         InstanceIdentifier<Routers> routerInstanceIndentifier = InstanceIdentifier.builder(ExtRouters.class).child
                 (Routers.class, new RoutersKey(routerId)).build();
         return routerInstanceIndentifier;
+    }
+
+    static Optional<List<String>> getAllSubnetGatewayMacAddressesforVpn(DataBroker broker, String vpnName) {
+        Optional<List<String>> macAddressesOptional = Optional.absent();
+        List<String> macAddresses = new ArrayList<>();
+        Optional<Subnetmaps> subnetMapsData = read(broker, LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
+        if (subnetMapsData.isPresent()) {
+            List<Subnetmap> subnetMapList = subnetMapsData.get().getSubnetmap();
+            if (subnetMapList != null && !subnetMapList.isEmpty()) {
+                for (Subnetmap subnet: subnetMapList) {
+                    if (subnet.getVpnId().equals(Uuid.getDefaultInstance(vpnName))) {
+                        macAddresses.add(subnet.getRouterIntfMacAddress());
+                    }
+                }
+            }
+            if (!macAddresses.isEmpty()) {
+                return Optional.of(macAddresses);
+            }
+        }
+        return macAddressesOptional;
+    }
+
+    static InstanceIdentifier<Subnetmaps> buildSubnetMapsWildCardPath() {
+        return InstanceIdentifier.create(Subnetmaps.class);
+    }
+
+    static void setupSubnetMacIntoVpnInstance(DataBroker dataBroker, IMdsalApiManager mdsalManager,
+            String vpnName, String srcMacAddress, WriteTransaction writeTx, int addOrRemove) {
+        long vpnId = getVpnId(dataBroker, vpnName);
+        List<BigInteger> dpIds = getDpnsOnVpn(dataBroker, vpnName);
+        if (dpIds == null || dpIds.isEmpty()) {
+            return;
+        }
+        for (BigInteger dpId: dpIds) {
+            addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpId);
+        }
+    }
+
+    static void addGwMacIntoTx(IMdsalApiManager mdsalManager, String srcMacAddress, WriteTransaction writeTx,
+            int addOrRemove, long vpnId, BigInteger dpId) {
+        FlowEntity flowEntity = buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            mdsalManager.addFlowToTx(flowEntity, writeTx);
+        } else {
+            mdsalManager.removeFlowToTx(flowEntity, writeTx);
+        }
+    }
+
+    public static FlowEntity buildL3vpnGatewayFlow(BigInteger dpId, String gwMacAddress, long vpnId) {
+        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
+                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+        mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { gwMacAddress }));
+        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+        mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_FIB_TABLE }));
+        String flowId = getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
+                flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
+        return flowEntity;
+    }
+
+    private static String getL3VpnGatewayFlowRef(short l3GwMacTable, BigInteger dpId, long vpnId, String gwMacAddress) {
+        return gwMacAddress+NwConstants.FLOWID_SEPARATOR+vpnId+NwConstants.FLOWID_SEPARATOR+dpId+NwConstants.FLOWID_SEPARATOR+l3GwMacTable;
+    }
+
+    //TODO: How to handle the below code, its a copy paste from MDSALManager.java
+    public static Node buildDpnNode(BigInteger dpnId) {
+        NodeId nodeId = new NodeId("openflow:" + dpnId);
+        Node nodeDpn = new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
+
+        return nodeDpn;
     }
 }
