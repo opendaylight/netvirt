@@ -239,7 +239,7 @@ public class BgpConfigurationManager {
         if (Integer.getInteger("batch.wait.time") != null) {
             BgpUtil.batchInterval = Integer.getInteger("batch.wait.time");
         }
-        BgpUtil.registerWithBatchManager(new BgpVrfBatchHandler());
+        BgpUtil.registerWithBatchManager(new DefaultBatchHandler(dataBroker, LogicalDatastoreType.CONFIGURATION, BgpUtil.batchSize, BgpUtil.batchInterval));
 
         GlobalEventExecutor.INSTANCE.execute(new Runnable() {
             @Override
