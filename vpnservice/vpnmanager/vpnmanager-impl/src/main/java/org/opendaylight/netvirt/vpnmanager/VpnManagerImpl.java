@@ -12,7 +12,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
@@ -29,15 +32,18 @@ public class VpnManagerImpl implements IVpnManager {
     private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnInstanceListener vpnInstanceListener;
     private final IdManagerService idManager;
+    private final IMdsalApiManager mdsalManager;
 
     public VpnManagerImpl(final DataBroker dataBroker,
                           final IdManagerService idManagerService,
                           final VpnInstanceListener vpnInstanceListener,
-                          final VpnInterfaceManager vpnInterfaceManager) {
+                          final VpnInterfaceManager vpnInterfaceManager,
+                          final IMdsalApiManager mdsalManager) {
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnInstanceListener = vpnInstanceListener;
         this.idManager = idManagerService;
+        this.mdsalManager = mdsalManager;
     }
 
     public void start() {
@@ -118,5 +124,10 @@ public class VpnManagerImpl implements IVpnManager {
     @Override
     public long getArpCacheTimeoutMillis() {
         return ArpConstants.ARP_CACHE_TIMEOUT_MILLIS;
+    }
+
+    @Override
+    public void setupSubnetMacIntoVpnInstance(String vpnName, String srcMacAddress, WriteTransaction writeTx, int addOrRemove) {
+        VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName, srcMacAddress, writeTx, addOrRemove);
     }
 }
