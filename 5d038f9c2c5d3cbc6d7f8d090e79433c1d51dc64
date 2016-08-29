@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_90e5493a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-08-29T08:59:21Z",
+      "side": 1,
+      "message": "OK so just rename the parameter to hasTcpSrcOrDstMatch or hasTcpMatch or something :)\nBy the way when you define the SG you also say ingress/egress which implies src or dst, no? This file is the egress ACL so wouldn\u0027t it need only one direction?",
+      "parentUuid": "7a6b29fe_b07b258b",
+      "revId": "5d038f9c2c5d3cbc6d7f8d090e79433c1d51dc64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_69a89120",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
         "patchSetId": 1
