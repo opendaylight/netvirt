@@ -868,8 +868,7 @@ public class ElanL2GatewayUtils {
 
         WriteTransaction transaction = broker.newWriteOnlyTransaction();
         for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712
-                .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice
-                .getInterfaces()) {
+                 .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.getInterfaces()) {
             NodeId physicalSwitchNodeId = HwvtepSouthboundUtils.createManagedNodeId(nodeId,
                     hwVtepDevice.getDeviceName());
             TerminationPoint portTerminationPoint = HwvtepUtils.getPhysicalPortTerminationPoint(broker,
@@ -942,7 +941,7 @@ public class ElanL2GatewayUtils {
 
         WriteTransaction transaction = broker.newWriteOnlyTransaction();
         for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712
-                .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.getInterfaces()) {
+                 .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.getInterfaces()) {
             String phyPortName = deviceInterface.getInterfaceName();
             if (deviceInterface.getSegmentationIds() != null && !deviceInterface.getSegmentationIds().isEmpty()) {
                 for (Integer vlanId : deviceInterface.getSegmentationIds()) {
