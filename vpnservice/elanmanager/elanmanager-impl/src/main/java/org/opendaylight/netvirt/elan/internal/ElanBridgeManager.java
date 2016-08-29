@@ -175,11 +175,11 @@ public class ElanBridgeManager {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void ensureBridgesExist(Node ovsdbNode, boolean generateIntBridgeMac) {
-
         try {
             createIntegrationBridge(ovsdbNode, generateIntBridgeMac);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOG.error("Error creating bridge on " + ovsdbNode, e);
         }
     }
@@ -382,7 +382,7 @@ public class ElanBridgeManager {
         }
 
         for (Node node : ovsdbNodes) {
-            if(!isIntegrationBridge(node)) {
+            if (!isIntegrationBridge(node)) {
                 continue;
             }
 
