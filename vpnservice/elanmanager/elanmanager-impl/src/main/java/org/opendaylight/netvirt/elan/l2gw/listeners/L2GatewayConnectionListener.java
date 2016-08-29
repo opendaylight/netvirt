@@ -40,7 +40,9 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListene
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void close() throws Exception {
+        // TODO use https://git.opendaylight.org/gerrit/#/c/44145/ when merged, and remove @SuppressWarnings
         if (listenerRegistration != null) {
             try {
                 listenerRegistration.close();
@@ -53,16 +55,10 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListene
     }
 
     private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                    InstanceIdentifier.create(Neutron.class).child(L2gatewayConnections.class)
-                            .child(L2gatewayConnection.class),
-                    L2GatewayConnectionListener.this, DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("Neutron Manager L2 Gateway Connection DataChange listener registration fail!", e);
-            throw new IllegalStateException(
-                    "Neutron Manager L2 Gateway Connection DataChange listener registration failed.", e);
-        }
+        listenerRegistration = db.registerDataChangeListener(
+                LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
+                        .child(L2gatewayConnections.class).child(L2gatewayConnection.class),
+                L2GatewayConnectionListener.this, DataChangeScope.SUBTREE);
     }
 
     @Override
