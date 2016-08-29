@@ -12,41 +12,65 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.utils.batching.ResourceHandler;
+import org.opendaylight.genius.utils.batching.SubTransaction;
+import org.opendaylight.genius.utils.batching.SubTransactionImpl;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import java.util.List;
 
 public class BgpVrfBatchHandler implements ResourceHandler {
 
     public void update(WriteTransaction tx, LogicalDatastoreType datastoreType,
-                       final InstanceIdentifier identifier, final Object original, final Object update) {
+                       final InstanceIdentifier identifier, final Object original, final Object update, List<SubTransaction> transactionObjects) {
         if ((update != null) && !(update instanceof DataObject)) {
             return;
         }
         if (datastoreType != getDatastoreType()) {
             return;
         }
+
+        SubTransaction subTransaction = new SubTransactionImpl();
+            subTransaction.setAction(SubTransaction.UPDATE);
+            subTransaction.setInstance(update);
+            subTransaction.setInstanceIdentifier(identifier);
+            transactionObjects.add(subTransaction);
+
         tx.merge(datastoreType, identifier, (DataObject) update, true);
     }
 
     public void create(WriteTransaction tx, final LogicalDatastoreType datastoreType,
-                       final InstanceIdentifier identifier, final Object data) {
+                       final InstanceIdentifier identifier, final Object data, List<SubTransaction> transactionObjects) {
         if ((data != null) && !(data instanceof DataObject)) {
             return;
         }
         if (datastoreType != getDatastoreType()) {
             return;
         }
+
+        SubTransaction subTransaction = new SubTransactionImpl();
+            subTransaction.setAction(SubTransaction.CREATE);
+            subTransaction.setInstance(data);
+            subTransaction.setInstanceIdentifier(identifier);
+            transactionObjects.add(subTransaction);
+
         tx.put(datastoreType, identifier, (DataObject) data, true);
     }
 
     public void delete(WriteTransaction tx, final LogicalDatastoreType datastoreType,
-                       final InstanceIdentifier identifier, final Object data) {
+                       final InstanceIdentifier identifier, final Object data, List<SubTransaction> transactionObjects) {
         if ((data != null) && !(data instanceof DataObject)) {
             return;
         }
         if (datastoreType != getDatastoreType()) {
             return;
         }
+
+        SubTransaction subTransaction = new SubTransactionImpl();
+            subTransaction.setAction(SubTransaction.DELETE);
+            subTransaction.setInstanceIdentifier(identifier);
+            transactionObjects.add(subTransaction);
+
         tx.delete(datastoreType, identifier);
     }
 

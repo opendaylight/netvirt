@@ -241,9 +241,13 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         for ( VrfEntry vrfEntry : srcVpnRemoteVrfEntries ) {
             long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                                              VpnUtil.getNextHopLabelKey(dstVpnRd, vrfEntry.getDestPrefix()));
-
-            InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, srcVpnUuid, dstVpnUuid, vrfEntry.getDestPrefix(),
-                                       label);
+            if (label == 0) {
+                LOG.error("Unable to fetch label from Id Manager. Bailing out of leaking routes for InterVpnLink {} rd {} prefix {}",
+                                vpnLink.getName(), dstVpnRd, vrfEntry.getDestPrefix());
+                continue;
+            }
+            InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, srcVpnUuid, dstVpnUuid,
+                                  vrfEntry.getDestPrefix(), label);
         }
     }
 
@@ -267,8 +271,13 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                                                   VpnUtil.getNextHopLabelKey(vpn1Rd, vrfEntry.getDestPrefix()));
 
+                if (label == 0) {
+                    LOG.error("Unable to fetch label from Id Manager. Bailing out of leaking extra routes for InterVpnLink {} rd {} prefix {}",
+                                    vpnLink.getName(), vpn1Rd, vrfEntry.getDestPrefix());
+                    continue;
+                }
                 InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, vpn2Uuid, vpn1Uuid, vrfEntry.getDestPrefix(),
-                                  label, RouteOrigin.value(vrfEntry.getOrigin()));
+                        label, RouteOrigin.value(vrfEntry.getOrigin()));
             }
         }
 
