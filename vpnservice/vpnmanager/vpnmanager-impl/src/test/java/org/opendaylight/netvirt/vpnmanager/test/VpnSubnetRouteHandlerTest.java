@@ -39,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpDataBuilder;
@@ -178,6 +179,7 @@ public class VpnSubnetRouteHandlerTest {
     @Mock
     VpnInterfaceManager vpnInterfaceManager;
     @Mock IdManagerService idManager;
+    @Mock LockManagerService lockManager;
     @Mock SubnetOpDpnManager subnetOpDpnManager;
 
     VpnSubnetRouteHandler vpnSubnetRouteHandler;
@@ -206,7 +208,7 @@ public class VpnSubnetRouteHandlerTest {
         setupMocks();
 
         vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, subnetOpDpnManager, bgpManager,
-                vpnInterfaceManager, idManager);
+                vpnInterfaceManager, idManager, lockManager);
         Future<RpcResult<AllocateIdOutput>> idOutputOptional =
                 RpcResultBuilder.success(allocateIdOutput).buildFuture();
 
