@@ -8,11 +8,9 @@
 
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -161,9 +159,8 @@ public class HwvtepPhysicalSwitchListener
             PhysicalSwitchAugmentation phySwitchBefore, PhysicalSwitchAugmentation phySwitchAfter) {
         NodeId nodeId = getNodeId(identifier);
         if (LOG.isTraceEnabled()) {
-            LOG.trace(
-                    "Received PhysicalSwitch Update Event for node {}: PhysicalSwitch Before: {}, PhysicalSwitch After: {}",
-                    nodeId.getValue(), phySwitchBefore, phySwitchAfter);
+            LOG.trace("Received PhysicalSwitch Update Event for node {}: PhysicalSwitch Before: {}, "
+                    + "PhysicalSwitch After: {}", nodeId.getValue(), phySwitchBefore, phySwitchAfter);
         }
         String psName = phySwitchBefore.getHwvtepNodeName().getValue();
         LOG.info("Received physical switch {} update event for node {}", psName, nodeId.getValue());
@@ -172,13 +169,10 @@ public class HwvtepPhysicalSwitchListener
             final L2GatewayDevice l2GwDevice = updateL2GatewayCache(psName, phySwitchAfter);
 
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
-                    "handling Physical Switch add", new Callable<List<ListenableFuture<Void>>>() {
-                        @Override
-                        public List<ListenableFuture<Void>> call() throws Exception {
-                            handleAdd(l2GwDevice);
-                            return Collections.emptyList();
-                        }
-                    });
+                "handling Physical Switch add", () -> {
+                    handleAdd(l2GwDevice);
+                    return Collections.emptyList();
+                });
         } else {
             LOG.debug("Other updates in physical switch {} for node {}", psName, nodeId.getValue());
             // TODO: handle tunnel ip change
@@ -202,14 +196,11 @@ public class HwvtepPhysicalSwitchListener
 
         final L2GatewayDevice l2GwDevice = updateL2GatewayCache(psName, phySwitchAdded);
 
-        ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_NAME, "handling Physical Switch add",
-                new Callable<List<ListenableFuture<Void>>>() {
-                    @Override
-                    public List<ListenableFuture<Void>> call() throws Exception {
-                        handleAdd(l2GwDevice);
-                        return Collections.emptyList();
-                    }
-                });
+        ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
+            "handling Physical Switch add", () -> {
+                handleAdd(l2GwDevice);
+                return Collections.emptyList();
+            });
     }
 
     /**
@@ -327,15 +318,9 @@ public class HwvtepPhysicalSwitchListener
     private boolean isTunnelIpNewlyConfigured(PhysicalSwitchAugmentation phySwitchBefore,
             PhysicalSwitchAugmentation phySwitchAfter) {
         return (phySwitchBefore.getTunnelIps() == null || phySwitchBefore.getTunnelIps().isEmpty())
-                && (phySwitchAfter.getTunnelIps() != null && !phySwitchAfter.getTunnelIps().isEmpty());
+                && phySwitchAfter.getTunnelIps() != null && !phySwitchAfter.getTunnelIps().isEmpty();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opendaylight.vpnservice.datastoreutils.
-     * AsyncDataTreeChangeListenerBase#close()
-     */
     @Override
     public void close() {
         try {
