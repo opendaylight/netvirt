@@ -59,6 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -282,6 +283,16 @@ public class VpnUtil {
             return optVpnInstances.get().getVpnInstance();
         } else {
             return Collections.emptyList();
+        }
+    }
+
+    static List<VpnInstanceOpDataEntry> getAllVpnInstanceOpData(DataBroker broker) {
+        InstanceIdentifier<VpnInstanceOpData> id = InstanceIdentifier.builder(VpnInstanceOpData.class).build();
+        Optional<VpnInstanceOpData> vpnInstanceOpDataOptional = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        if (vpnInstanceOpDataOptional.isPresent()) {
+            return vpnInstanceOpDataOptional.get().getVpnInstanceOpDataEntry();
+        } else {
+            return new ArrayList<VpnInstanceOpDataEntry>();
         }
     }
 
@@ -1293,5 +1304,41 @@ public class VpnUtil {
         Node nodeDpn = new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
 
         return nodeDpn;
+    }
+
+    public static void lockSubnet(LockManagerService lockManager, String subnetId) {
+        TryLockInput input = new TryLockInputBuilder().setLockName(subnetId).setTime(3000L).setTimeUnit(TimeUnits.Milliseconds).build();
+        Future<RpcResult<Void>> result = lockManager.tryLock(input);
+        try {
+            if ((result != null) && (result.get().isSuccessful())) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Acquired lock for {}", subnetId);
+                }
+            } else {
+                throw new RuntimeException(String.format("Unable to getLock for subnet %s", subnetId));
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Unable to getLock for subnet {}", subnetId);
+            throw new RuntimeException(String.format("Unable to getLock for subnet %s", subnetId), e.getCause());
+        }
+    }
+
+    public static void unlockSubnet(LockManagerService lockManager, String subnetId) {
+        UnlockInput input = new UnlockInputBuilder().setLockName(subnetId).build();
+        Future<RpcResult<Void>> result = lockManager.unlock(input);
+        try {
+            if ((result != null) && (result.get().isSuccessful())) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Unlocked {}", subnetId);
+                }
+            } else {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Unable to unlock subnet {}", subnetId);
+                }
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Unable to unlock subnet {}", subnetId);
+            throw new RuntimeException(String.format("Unable to unlock subnetId %s", subnetId), e.getCause());
+        }
     }
 }

@@ -92,6 +92,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -239,7 +240,7 @@ public class BgpConfigurationManager {
         if (Integer.getInteger("batch.wait.time") != null) {
             BgpUtil.batchInterval = Integer.getInteger("batch.wait.time");
         }
-        BgpUtil.registerWithBatchManager(new BgpVrfBatchHandler());
+        BgpUtil.registerWithBatchManager(new DefaultBatchHandler(dataBroker, LogicalDatastoreType.CONFIGURATION, BgpUtil.batchSize, BgpUtil.batchInterval));
 
         GlobalEventExecutor.INSTANCE.execute(new Runnable() {
             @Override
