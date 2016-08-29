@@ -1173,5 +1173,4 @@ public class NatUtil {
 
         return portIpToPortOpt.get().getMacAddress();
     }
-
 }

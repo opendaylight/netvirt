@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.vpnmanager.api;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 
 import java.math.BigInteger;
@@ -36,4 +39,6 @@ public interface IVpnManager {
      * @return The list of DPNs
      */
     List<BigInteger> getDpnsOnVpn(String vpnInstanceName);
+    void setupSubnetMacIntoVpnInstance(String vpnName, String srcMacAddress,
+            WriteTransaction writeTx, int addOrRemove);
 }
