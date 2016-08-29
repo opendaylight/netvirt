@@ -27,6 +27,8 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService" />
   <odl:rpc-service id="packetProcessingService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
+  <odl:rpc-service id="lockManagerService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService" />
 
   <bean id="dpnInVpnChangeListener"
         class="org.opendaylight.netvirt.vpnmanager.DpnInVpnChangeListener">
@@ -125,6 +127,7 @@
     <argument ref="bgpmanager" />
     <argument ref="vpnInterfaceManager" />
     <argument ref="idManagerService" />
+    <argument ref="lockManagerService" />
   </bean>
   <service ref="vpnSubnetRouteHandler" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnListener" />
