@@ -12,6 +12,8 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev1
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfpName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.CreateRenderedPathInput;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.CreateRenderedPathInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.DeleteRenderedPathInput;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.DeleteRenderedPathInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChain;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChainBuilder;
@@ -21,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev1407
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.service.function.chain.SfcServiceFunctionKey;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.service.function.paths.ServiceFunctionPath;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.service.function.paths.ServiceFunctionPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.service.function.paths.ServiceFunctionPathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.port.chain.attributes.ChainParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.chains.PortChain;
 import org.slf4j.Logger;
@@ -86,7 +89,7 @@ public class PortChainTranslator {
         return sfpBuilder.build();
     }
 
-    public static CreateRenderedPathInput buildRenderedServicePathInput(ServiceFunctionPath sfp) {
+    public static CreateRenderedPathInput buildCreateRenderedServicePathInput(ServiceFunctionPath sfp) {
         CreateRenderedPathInputBuilder rpInputBuilder = new CreateRenderedPathInputBuilder();
         rpInputBuilder.setName(sfp.getName().getValue());
         rpInputBuilder.setSymmetric(sfp.isSymmetric());
@@ -94,7 +97,16 @@ public class PortChainTranslator {
         return rpInputBuilder.build();
     }
 
+    public static DeleteRenderedPathInput buildDeleteRenderedServicePathInput(ServiceFunctionPathKey sfpKey) {
+        DeleteRenderedPathInputBuilder rpInputBuilder = new DeleteRenderedPathInputBuilder();
+        rpInputBuilder.setName(sfpKey.getName().getValue());
+        return rpInputBuilder.build();
+    }
     public static ServiceFunctionChainKey getSFCKey(PortChain portChain) {
         return new ServiceFunctionChainKey(new SfcName(portChain.getName()));
+    }
+
+    public static ServiceFunctionPathKey getSFPKey(PortChain portChain) {
+        return new ServiceFunctionPathKey(new SfpName(SFP_NAME_PREFIX + portChain.getName()));
     }
 }

@@ -75,6 +75,12 @@ public class SfcMdsalHelper {
     }
 
     //Service Function
+    public ServiceFunction readServiceFunction(ServiceFunctionKey sfKey) {
+        InstanceIdentifier<ServiceFunction> sfIid = getSFPath(sfKey);
+        LOG.info("Read Service Function {} from config data store at {}",sfKey, sfIid);
+        return mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, sfIid);
+    }
+
     public void addServiceFunction(ServiceFunction sf) {
         InstanceIdentifier<ServiceFunction> sfIid = getSFPath(sf.getKey());
         LOG.info("Write Service Function {} to config data store at {}",sf, sfIid);
@@ -92,6 +98,50 @@ public class SfcMdsalHelper {
         LOG.info("Remove Service Function {} from config data store at {}",sfKey, sfIid);
         mdsalUtils.delete(LogicalDatastoreType.CONFIGURATION, sfIid);
     }
+
+    //Service Function Forwarder
+    public ServiceFunctionForwarder readServiceFunctionForwarder(ServiceFunctionForwarderKey sffKey) {
+        InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sffKey);
+        LOG.info("Read Service Function Forwarder from config data store at {}", sffIid);
+        return mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, sffIid);
+    }
+
+    public void addServiceFunctionForwarder(ServiceFunctionForwarder sff) {
+        InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sff.getKey());
+        LOG.info("Write Service Function Forwarder {} to config data store at {}",sff, sffIid);
+        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sffIid, sff);
+    }
+
+    public void deleteServiceFunctionForwarder(ServiceFunctionForwarderKey sffKey) {
+        InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sffKey);
+        LOG.info("Delete Service Function Forwarder from config data store at {}", sffIid);
+        mdsalUtils.delete(LogicalDatastoreType.CONFIGURATION, sffIid);
+    }
+
+    public void addServiceFunctionChain(ServiceFunctionChain sfc) {
+        InstanceIdentifier<ServiceFunctionChain> sfcIid = getSFCPath(sfc.getKey());
+        LOG.info("Write Service Function Chain {} to config data store at {}",sfc, sfcIid);
+        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sfcIid, sfc);
+    }
+
+    public void deleteServiceFunctionChain(ServiceFunctionChainKey sfcKey) {
+        InstanceIdentifier<ServiceFunctionChain> sfcIid = getSFCPath(sfcKey);
+        LOG.info("Remove Service Function Chain {} from config data store at {}",sfcKey, sfcIid);
+        mdsalUtils.delete(LogicalDatastoreType.CONFIGURATION, sfcIid);
+    }
+
+    public void addServiceFunctionPath(ServiceFunctionPath sfp) {
+        InstanceIdentifier<ServiceFunctionPath> sfpIid = getSFPPath(sfp.getKey());
+        LOG.info("Write Service Function Path {} to config data store at {}",sfp, sfpIid);
+        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sfpIid, sfp);
+    }
+
+    public void deleteServiceFunctionPath(ServiceFunctionPathKey sfpKey) {
+        InstanceIdentifier<ServiceFunctionPath> sfpIid = getSFPPath(sfpKey);
+        LOG.info("Delete Service Function Path from config data store at {}", sfpIid);
+        mdsalUtils.delete(LogicalDatastoreType.CONFIGURATION, sfpIid);
+    }
+
     private InstanceIdentifier<Acl> getAclPath(AclKey aclKey) {
         return accessListIid.builder().child(Acl.class, aclKey).build();
     }
@@ -126,30 +176,6 @@ public class SfcMdsalHelper {
             }
         }
         return null;
-    }
-
-    public void addServiceFunctionForwarder(ServiceFunctionForwarder sff) {
-        InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sff.getKey());
-        LOG.info("Write Service Function Forwarder {} to config data store at {}",sff, sffIid);
-        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sffIid, sff);
-    }
-
-    public void addServiceFunctionChain(ServiceFunctionChain sfc) {
-        InstanceIdentifier<ServiceFunctionChain> sfcIid = getSFCPath(sfc.getKey());
-        LOG.info("Write Service Function Chain {} to config data store at {}",sfc, sfcIid);
-        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sfcIid, sfc);
-    }
-
-    public void removeServiceFunctionChain(ServiceFunctionChainKey sfcKey) {
-        InstanceIdentifier<ServiceFunctionChain> sfcIid = getSFCPath(sfcKey);
-        LOG.info("Remove Service Function Chain {} from config data store at {}",sfcKey, sfcIid);
-        mdsalUtils.delete(LogicalDatastoreType.CONFIGURATION, sfcIid);
-    }
-
-    public void addServiceFunctionPath(ServiceFunctionPath sfp) {
-        InstanceIdentifier<ServiceFunctionPath> sfpIid = getSFPPath(sfp.getKey());
-        LOG.info("Write Service Function Path {} to config data store at {}",sfp, sfpIid);
-        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sfpIid, sfp);
     }
 
     private <D extends DataObject> void mdsalPutWrapper(LogicalDatastoreType dataStore, InstanceIdentifier<D> iid, D data) {

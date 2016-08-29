@@ -51,7 +51,7 @@ public class FlowClassifierTranslator {
         return buildAcl(flowClassifier, null);
     }
     public static Acl buildAcl(SfcFlowClassifier flowClassifier, String rspName) {
-        LOG.info("OpenStack Networkgin SFC pushed Flow classfier : {}", flowClassifier);
+        LOG.info("OpenStack Networking SFC pushed Flow classifier : {}", flowClassifier);
         AclBuilder aclBuilder = new AclBuilder();
         AccessListEntriesBuilder accessListEntriesBuilder = new AccessListEntriesBuilder();
         AceBuilder aceBuilder = new AceBuilder();
@@ -83,10 +83,10 @@ public class FlowClassifierTranslator {
             }
             if (flowClassifier.getEthertype() == EthertypeV4.class) {
                 AceIpv4Builder aceIpv4Builder = new AceIpv4Builder();
-                if (sourceIp.getIpv4Prefix() != null ) {
+                if (sourceIp != null && sourceIp.getIpv4Prefix() != null ) {
                     aceIpv4Builder.setSourceIpv4Network(sourceIp.getIpv4Prefix());
                 }
-                if (destinationIp.getIpv4Prefix() != null) {
+                if (destinationIp != null && destinationIp.getIpv4Prefix() != null) {
                     aceIpv4Builder.setDestinationIpv4Network(destinationIp.getIpv4Prefix());
                 }
                 aceIpBuilder.setAceIpVersion(aceIpv4Builder.build());
@@ -94,10 +94,10 @@ public class FlowClassifierTranslator {
             }
             if (flowClassifier.getEthertype() == EthertypeV6.class) {
                 AceIpv6Builder aceIpv6Builder = new AceIpv6Builder();
-                if (sourceIp.getIpv6Prefix() != null ) {
+                if (sourceIp != null && sourceIp.getIpv6Prefix() != null ) {
                     aceIpv6Builder.setSourceIpv6Network(sourceIp.getIpv6Prefix());
                 }
-                if (destinationIp.getIpv6Prefix() != null) {
+                if (sourceIp != null && destinationIp.getIpv6Prefix() != null) {
                     aceIpv6Builder.setDestinationIpv6Network(destinationIp.getIpv6Prefix());
                 }
                 aceIpBuilder.setAceIpVersion(aceIpv6Builder.build());
@@ -162,7 +162,7 @@ public class FlowClassifierTranslator {
         aclBuilder.setAccessListEntries(accessListEntriesBuilder.build());
         aclBuilder.setKey(new AclKey(aclBuilder.getAclName(),aclBuilder.getAclType()));
 
-        LOG.info("Translated ACL Flow classfier : {}", aclBuilder);
+        LOG.info("Translated ACL Flow classfier : {}", aclBuilder.toString());
 
         return aclBuilder.build();
     }
