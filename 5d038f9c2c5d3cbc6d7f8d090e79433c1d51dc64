@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_b07b258b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-29T08:36:32Z",
+      "side": 1,
+      "message": "No, it depends on the range of the ports. When you define SG you doesn\u0027t tell it to match on src or on dst, you give it only ports range. fro mthis range the odl knows if it is src-range or dst-range or both. For both cases I need to do the same.",
+      "parentUuid": "7a6b29fe_a965891f",
+      "revId": "5d038f9c2c5d3cbc6d7f8d090e79433c1d51dc64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_69a89120",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-08-25T13:16:06Z",
       "side": 1,
       "message": "shouldn\u0027t the protocol be TCP here? (not just not-null?)",
+      "revId": "5d038f9c2c5d3cbc6d7f8d090e79433c1d51dc64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_106db9cc",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-29T08:36:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_69a89120",
       "revId": "5d038f9c2c5d3cbc6d7f8d090e79433c1d51dc64",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
