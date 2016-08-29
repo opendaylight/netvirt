@@ -14,6 +14,8 @@ import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
+import static org.ops4j.pax.exam.CoreOptions.when;
+import static org.ops4j.pax.exam.OptionUtils.combine;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
@@ -33,7 +35,6 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -101,25 +102,33 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     @Configuration
     @Override
     public Option[] config() {
-        Option[] ovsProps = super.config();
-        Option[] propertiesOptions = DockerOvs.getSysPropOptions();
-        Option[] otherOptions = getOtherOptions();
-        Option[] options = new Option[ovsProps.length + propertiesOptions.length + otherOptions.length];
-        System.arraycopy(ovsProps, 0, options, 0, ovsProps.length);
-        System.arraycopy(propertiesOptions, 0, options, ovsProps.length, propertiesOptions.length);
-        System.arraycopy(otherOptions, 0, options, ovsProps.length + propertiesOptions.length,
-                otherOptions.length);
-        return options;
+        Option[] tempOptions = combine(super.config(), DockerOvs.getSysPropOptions());
+        return combine(tempOptions, getOtherOptions());
     }
 
     private Option[] getOtherOptions() {
         return new Option[] {
                 configureConsole().startLocalConsole(),
-                // hardcode to use transparent for now.
-                //when("transparent".equals(System.getProperty("sgm"))).useOptions(
+                // Use transparent as the default
+                when("transparent".equals(System.getProperty("sgm", "transparent"))).useOptions(
                         replaceConfigurationFile(
                                 "etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml",
-                                new File("src/test/resources/initial/netvirt-aclservice-config.xml")),//),
+                                new File("src/test/resources/initial/netvirt-aclservice-config-transparent.xml"))),
+                when("learn".equals(System.getProperty("sgm"))).useOptions(
+                        replaceConfigurationFile(
+                                "etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml",
+                                new File("src/test/resources/initial/netvirt-aclservice-config-learn.xml"))),
+                when("stateful".equals(System.getProperty("sgm"))).useOptions(
+                        replaceConfigurationFile(
+                                "etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml",
+                                new File("src/test/resources/initial/netvirt-aclservice-config-stateful.xml"))),
+                when("stateless".equals(System.getProperty("sgm"))).useOptions(
+                        replaceConfigurationFile(
+                                "etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml",
+                                new File("src/test/resources/initial/netvirt-aclservice-config-stateless.xml"))),
+                // Add our own logging.cfg so we can log to a single karaf.log file
+                replaceConfigurationFile("etc/org.ops4j.pax.logging.cfg",
+                        new File("src/test/resources/org.ops4j.pax.logging.cfg")),
                 vmOption("-javaagent:../jars/org.jacoco.agent.jar=destfile=../../jacoco-it.exec"),
                 vmOption("-Xmx2048m"),
                 //vmOption("-XX:MaxPermSize=m"),
@@ -127,6 +136,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         };
     }
 
+    // This won't get used when we use our own logging.cfg file set in getOtherOptions
+    // but we keep it for reference.
     @Override
     public Option getLoggingOption() {
         return composite(
@@ -325,7 +336,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     }
 
     // This test requires ovs kernel modules to be loaded which is not in jenkins yet.
-    @Ignore
+    //@Ignore
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNeutronNetTwoNodes() throws InterruptedException {
