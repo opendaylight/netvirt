@@ -34,6 +34,24 @@
       "revId": "e2787a4aaf2660d46e34611f749f001ef1f5ff68",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2134e548",
+        "filename": "vpnservice/aclservice/impl/src/main/resources/org/opendaylight/blueprint/aclservice.xml",
+        "patchSetId": 9
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-08-30T07:51:02Z",
+      "side": 1,
+      "message": "You can look at the XML which the blueprint-maven-plugin generates from the annotations (you\u0027ll find it\u0027s like the previously hand-written XML); the generated and the remaining hand-written BP XML autom. get merged (at run-time, not build-time)",
+      "parentUuid": "7a6b29fe_81ecd9f4",
+      "revId": "e2787a4aaf2660d46e34611f749f001ef1f5ff68",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
