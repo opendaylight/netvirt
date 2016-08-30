@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_972d3bab",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-30T15:43:41Z",
+      "side": 1,
+      "message": "I\u0027ll rename.\nthe direction has nothing to do with ports range,\nit only defines the direction of the traffic to be checked by ACL. Both tcp_des and tcp_src can be applied to both directions.",
+      "parentUuid": "7a6b29fe_90e5493a",
+      "revId": "5d038f9c2c5d3cbc6d7f8d090e79433c1d51dc64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_69a89120",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessEgressAclServiceImpl.java",
         "patchSetId": 1
