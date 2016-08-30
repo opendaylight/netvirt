@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import java.util.Arrays;
@@ -103,7 +104,7 @@ public class ElanServiceChainUtils {
             List<MatchInfo> matches = Arrays.asList(
                     new MatchInfo(MatchFieldType.metadata,
                             new BigInteger[] { MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
-                                    NwConstants.SCF_SERVICE_INDEX),
+                                    ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME, NwConstants.SCF_SERVICE_INDEX)),
                                     MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
             int instructionKey = 0;
             List<Instruction> instructions = Arrays.asList(
@@ -145,7 +146,7 @@ public class ElanServiceChainUtils {
             List<MatchInfo> matches = Arrays.asList(
                     new MatchInfo(MatchFieldType.metadata,
                             new BigInteger[] { MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
-                                    NwConstants.ELAN_SERVICE_INDEX),
+                                    ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX)),
                                     MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
             int instructionKey = 0;
             List<Instruction> instructions = Arrays.asList(
@@ -220,7 +221,7 @@ public class ElanServiceChainUtils {
     public static List<Instruction> buildSetLportTagAndGotoLportDispInstructions(long lportTag) {
         int instructionKey = 0;
         BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher((int) lportTag,
-                NwConstants.SCF_SERVICE_INDEX);
+                ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME, NwConstants.SCF_SERVICE_INDEX));
         List<Instruction> result =
                 Arrays.asList(MDSALUtil.buildAndGetWriteMetadaInstruction(metadata,
                         MetaDataUtil.getMetaDataMaskForLPortDispatcher(),

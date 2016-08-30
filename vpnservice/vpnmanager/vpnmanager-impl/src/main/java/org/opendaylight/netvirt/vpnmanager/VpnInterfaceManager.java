@@ -531,18 +531,18 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                         BoundServices
                                 serviceInfo =
                                 InterfaceUtils.getBoundServices(String.format("%s.%s.%s", "vpn",vpnInstanceName, vpnInterfaceName),
-                                        NwConstants.L3VPN_SERVICE_INDEX, priority,
+                                        ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX), priority,
                                         NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
                         writeTxn.put(LogicalDatastoreType.CONFIGURATION,
-                                InterfaceUtils.buildServiceId(vpnInterfaceName, NwConstants.L3VPN_SERVICE_INDEX), serviceInfo, true);
+                                InterfaceUtils.buildServiceId(vpnInterfaceName, ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)), serviceInfo, true);
                         List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
                         futures.add(writeTxn.submit());
                         return futures;
                     }
                 });
-        makeArpFlow(dpId, NwConstants.L3VPN_SERVICE_INDEX, lPortTag, vpnInterfaceName,
+        makeArpFlow(dpId, ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX), lPortTag, vpnInterfaceName,
                 vpnId, ArpReplyOrRequest.REQUEST, NwConstants.ADD_FLOW, writeInvTxn);
-        makeArpFlow(dpId, NwConstants.L3VPN_SERVICE_INDEX, lPortTag, vpnInterfaceName,
+        makeArpFlow(dpId, ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX), lPortTag, vpnInterfaceName,
                 vpnId, ArpReplyOrRequest.REPLY, NwConstants.ADD_FLOW, writeInvTxn);
 
     }
@@ -1256,7 +1256,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                             WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                             writeTxn.delete(LogicalDatastoreType.CONFIGURATION,
                                     InterfaceUtils.buildServiceId(vpnInterfaceName,
-                                            NwConstants.L3VPN_SERVICE_INDEX));
+                                            ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)));
 
                             List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
                             futures.add(writeTxn.submit());
