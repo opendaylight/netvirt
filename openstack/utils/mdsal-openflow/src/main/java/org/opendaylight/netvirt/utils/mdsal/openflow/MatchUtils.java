@@ -587,6 +587,25 @@ public class MatchUtils {
     }
 
     /**
+     * Adds tcp syn match to the matchbuilder.
+     *
+     * @param matchBuilder the match builder
+     * @return matchBuilder match builder
+     */
+    public static MatchBuilder addTcpSynMatch(MatchBuilder matchBuilder) {
+
+        // TCP Protocol Match
+        IpMatchBuilder ipMatch = new IpMatchBuilder(); // ipv4 version
+        ipMatch.setIpProtocol((short) 6);
+        matchBuilder.setIpMatch(ipMatch.build());
+
+        TcpFlagsMatchBuilder tcpFlagsMatch = new TcpFlagsMatchBuilder();
+        tcpFlagsMatch.setTcpFlags(TCP_SYN);
+        matchBuilder.setTcpFlagsMatch(tcpFlagsMatch.build());
+        return matchBuilder;
+    }
+
+    /**
      * Create tcp proto syn match.
      *
      * @param matchBuilder the match builder
