@@ -267,6 +267,7 @@ public class IfMgr {
         fixedIp = new IpAddress(addr);
 
         VirtualPort intf = vintfs.get(portId);
+        boolean newIntf = false;
         if (intf == null) {
             intf = new VirtualPort();
             if (intf != null) {
@@ -282,9 +283,7 @@ public class IfMgr {
                     .setRouterIntfFlag(true)
                     .setDeviceOwner(deviceOwner);
             intf.setPeriodicTimer();
-            LOG.debug("start the periodic RA Timer for routerIntf {}, int {}s", portId,
-                       Ipv6Constants.PERIODIC_RA_INTERVAL);
-            transmitUnsolicitedRA(intf);
+            newIntf = true;
             MacAddress ifaceMac = MacAddress.getDefaultInstance(macAddress);
             Ipv6Address llAddr = ipv6Utils.getIpv6LinkLocalAddressFromMac(ifaceMac);
             /* A new router interface is created. This is basically triggered when an
@@ -315,6 +314,11 @@ public class IfMgr {
 
         vrouterv6IntfMap.put(networkId, intf);
         programIcmpv6NSPuntFlowForAddress(intf, fixedIp.getIpv6Address(), Ipv6Constants.ADD_FLOW);
+
+        if (newIntf) {
+            LOG.debug("start the periodic RA Timer for routerIntf {}", portId);
+            transmitUnsolicitedRA(intf);
+        }
         return;
     }
 
