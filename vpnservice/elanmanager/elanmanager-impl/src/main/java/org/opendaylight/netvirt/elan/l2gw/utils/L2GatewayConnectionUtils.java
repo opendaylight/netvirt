@@ -62,7 +62,7 @@ public class L2GatewayConnectionUtils {
     }
 
     public static boolean isGatewayAssociatedToL2Device(L2GatewayDevice l2GwDevice) {
-        return (l2GwDevice.getL2GatewayIds().size() > 0);
+        return l2GwDevice.getL2GatewayIds().size() > 0;
     }
 
     public static L2gateway getNeutronL2gateway(DataBroker broker, Uuid l2GatewayId) {
@@ -109,7 +109,7 @@ public class L2GatewayConnectionUtils {
         List<L2gatewayConnection> l2GwConnections = null;
         List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
         if (allL2GwConns != null) {
-            l2GwConnections = new ArrayList<L2gatewayConnection>();
+            l2GwConnections = new ArrayList<>();
             for (Uuid l2GatewayId : l2GatewayIds) {
                 for (L2gatewayConnection l2GwConn : allL2GwConns) {
                     if (l2GwConn.getL2gatewayId().equals(l2GatewayId)) {
@@ -188,8 +188,8 @@ public class L2GatewayConnectionUtils {
                     new DisAssociateHwvtepFromElanJob(broker, elanL2GatewayUtils, elanL2GatewayMulticastUtils,
                             elanL2GwDevice, elanInstance,
                             l2Device, defaultVlan, isLastL2GwConnDeleted);
-            ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, disAssociateHwvtepToElanJob.getJobKey(), "remove l2gw connection job ",
-                    disAssociateHwvtepToElanJob);
+            ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, disAssociateHwvtepToElanJob.getJobKey(),
+                    "remove l2gw connection job ", disAssociateHwvtepToElanJob);
         }
     }
 
@@ -228,18 +228,18 @@ public class L2GatewayConnectionUtils {
                 LogicalSwitches logicalSwitch = HwvtepUtils.getLogicalSwitch(broker, LogicalDatastoreType.OPERATIONAL,
                         hwvtepNodeId, elanName);
                 if (logicalSwitch == null) {
-                    HwvtepLogicalSwitchListener hwVTEPLogicalSwitchListener =
-                            new HwvtepLogicalSwitchListener(broker, elanL2GatewayUtils,
-                                    entityOwnershipService, elanUtils, elanL2GatewayMulticastUtils, l2GatewayDevice, elanName, l2Device, defaultVlan, l2GwConnId);
+                    HwvtepLogicalSwitchListener hwVTEPLogicalSwitchListener = new HwvtepLogicalSwitchListener(broker,
+                            elanL2GatewayUtils, entityOwnershipService, elanUtils, elanL2GatewayMulticastUtils,
+                            l2GatewayDevice, elanName, l2Device, defaultVlan, l2GwConnId);
                     hwVTEPLogicalSwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
                     createLogicalSwitch = true;
                 } else {
                     addL2DeviceToElanL2GwCache(elanName, l2GatewayDevice, l2GwConnId);
                     createLogicalSwitch = false;
                 }
-                AssociateHwvtepToElanJob associateHwvtepToElanJob =
-                        new AssociateHwvtepToElanJob(broker, elanL2GatewayUtils, elanUtils,
-                                elanL2GatewayMulticastUtils, l2GatewayDevice, elanInstance, l2Device, defaultVlan, createLogicalSwitch);
+                AssociateHwvtepToElanJob associateHwvtepToElanJob = new AssociateHwvtepToElanJob(broker,
+                        elanL2GatewayUtils, elanUtils, elanL2GatewayMulticastUtils, l2GatewayDevice, elanInstance,
+                        l2Device, defaultVlan, createLogicalSwitch);
 
                 ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, associateHwvtepToElanJob.getJobKey() ,
                         "create logical switch in hwvtep topo",
@@ -275,10 +275,10 @@ public class L2GatewayConnectionUtils {
     }
 
     private static boolean isL2GwDeviceConnected(L2GatewayDevice l2GwDevice) {
-        return (l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null && l2GwDevice.isConnected());
+        return l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null && l2GwDevice.isConnected();
     }
 
     protected static boolean isLastL2GwConnBeingDeleted(L2GatewayDevice l2GwDevice) {
-        return (l2GwDevice.getL2GatewayIds().size() == 1);
+        return l2GwDevice.getL2GatewayIds().size() == 1;
     }
 }

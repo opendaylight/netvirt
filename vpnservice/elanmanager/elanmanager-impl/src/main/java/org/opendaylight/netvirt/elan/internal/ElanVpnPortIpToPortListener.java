@@ -7,10 +7,10 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -26,11 +26,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 public class ElanVpnPortIpToPortListener extends
         AsyncDataTreeChangeListenerBase<VpnPortipToPort, ElanVpnPortIpToPortListener> {
-    private static final Logger logger = LoggerFactory.getLogger(ElanVpnPortIpToPortListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanVpnPortIpToPortListener.class);
     private final DataBroker broker;
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
@@ -46,9 +44,10 @@ public class ElanVpnPortIpToPortListener extends
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
+    @Override
     public void close() throws Exception {
         super.close();
-        logger.debug("ElanVpnPortIpToPort Listener Closed");
+        LOG.debug("ElanVpnPortIpToPort Listener Closed");
     }
 
     @Override
@@ -62,10 +61,10 @@ public class ElanVpnPortIpToPortListener extends
         String interfaceName = dataObjectModification.getPortName();
         boolean isLearnt = dataObjectModification.isLearnt();
         if (!isLearnt) {
-            logger.trace("Not learnt mac {}. Not performing action", macAddress);
+            LOG.trace("Not learnt mac {}. Not performing action", macAddress);
             return;
         }
-        logger.trace("Removing mac address {} from interface {} ", macAddress, interfaceName);
+        LOG.trace("Removing mac address {} from interface {} ", macAddress, interfaceName);
         DataStoreJobCoordinator.getInstance().enqueueJob(buildJobKey(macAddress, interfaceName),
                 new StaticMacRemoveWorker(macAddress, interfaceName));
     }
@@ -81,17 +80,17 @@ public class ElanVpnPortIpToPortListener extends
         boolean isLearntNew = dataObjectModificationAfter.isLearnt();
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         if (oldMac.equals(newMac) && oldInterfaceName.equals(newInterfaceName)) {
-            logger.trace("No change in Mac Address {} and InterfaceName {}. No actions performed", newMac,
+            LOG.trace("No change in Mac Address {} and InterfaceName {}. No actions performed", newMac,
                     newInterfaceName);
             return;
         }
         if (isLearntOld) {
-            logger.trace("Removing mac address {} from interface {} due to update event", oldMac, oldInterfaceName);
+            LOG.trace("Removing mac address {} from interface {} due to update event", oldMac, oldInterfaceName);
             coordinator.enqueueJob(buildJobKey(oldMac, oldInterfaceName), new StaticMacRemoveWorker(oldMac,
                     oldInterfaceName));
         }
         if (isLearntNew) {
-            logger.trace("Adding mac address {} to interface {} due to update event", newMac, newInterfaceName);
+            LOG.trace("Adding mac address {} to interface {} due to update event", newMac, newInterfaceName);
             coordinator.enqueueJob(buildJobKey(newMac, newInterfaceName), new StaticMacAddWorker(newMac,
                     newInterfaceName));
         }
@@ -103,7 +102,7 @@ public class ElanVpnPortIpToPortListener extends
         String interfaceName = dataObjectModification.getPortName();
         boolean isLearnt = dataObjectModification.isLearnt();
         if (isLearnt) {
-            logger.trace("Adding mac address {} to interface {} ", macAddress, interfaceName);
+            LOG.trace("Adding mac address {} to interface {} ", macAddress, interfaceName);
             DataStoreJobCoordinator.getInstance().enqueueJob(buildJobKey(macAddress, interfaceName),
                     new StaticMacAddWorker(macAddress, interfaceName));
         }
@@ -115,9 +114,10 @@ public class ElanVpnPortIpToPortListener extends
     }
 
     private class StaticMacAddWorker implements Callable<List<ListenableFuture<Void>>> {
-        String macAddress, interfaceName;
+        String macAddress;
+        String interfaceName;
 
-        public StaticMacAddWorker(String macAddress, String interfaceName) {
+        StaticMacAddWorker(String macAddress, String interfaceName) {
             this.macAddress = macAddress;
             this.interfaceName = interfaceName;
         }
@@ -129,11 +129,11 @@ public class ElanVpnPortIpToPortListener extends
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
             if (elanInterface == null) {
-                logger.debug("ElanInterface Not present for interfaceName {} for add event", interfaceName);
+                LOG.debug("ElanInterface Not present for interfaceName {} for add event", interfaceName);
                 return futures;
             }
-            elanUtils.addMacEntryToDsAndSetupFlows(interfaceManager, interfaceName, macAddress, elanInterface.getElanInstanceName(), tx,
-                    flowWritetx, ElanConstants.STATIC_MAC_TIMEOUT);
+            elanUtils.addMacEntryToDsAndSetupFlows(interfaceManager, interfaceName, macAddress,
+                    elanInterface.getElanInstanceName(), tx, flowWritetx, ElanConstants.STATIC_MAC_TIMEOUT);
             futures.add(tx.submit());
             futures.add(flowWritetx.submit());
             return futures;
@@ -141,9 +141,10 @@ public class ElanVpnPortIpToPortListener extends
     }
 
     private class StaticMacRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
-        String macAddress, interfaceName;
+        String macAddress;
+        String interfaceName;
 
-        public StaticMacRemoveWorker(String macAddress, String interfaceName) {
+        StaticMacRemoveWorker(String macAddress, String interfaceName) {
             this.macAddress = macAddress;
             this.interfaceName = interfaceName;
         }
@@ -155,7 +156,7 @@ public class ElanVpnPortIpToPortListener extends
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
             if (elanInterface == null) {
-                logger.debug("ElanInterface Not present for interfaceName {} for delete event", interfaceName);
+                LOG.debug("ElanInterface Not present for interfaceName {} for delete event", interfaceName);
                 return futures;
             }
             elanUtils.deleteMacEntryFromDsAndRemoveFlows(interfaceManager, interfaceName, macAddress,
@@ -167,7 +168,7 @@ public class ElanVpnPortIpToPortListener extends
     }
 
     private String buildJobKey(String mac, String interfaceName) {
-        return "ENTERPRISEMACJOB"+ mac + interfaceName;
+        return "ENTERPRISEMACJOB" + mac + interfaceName;
     }
 
 
