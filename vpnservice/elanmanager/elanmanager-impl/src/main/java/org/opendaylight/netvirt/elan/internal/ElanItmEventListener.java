@@ -7,21 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-//import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-//import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-//import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-//import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-//import org.opendaylight.vpnservice.mdsalutil.AbstractDataChangeListener;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.TunnelsState;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.itm.op.rev150701.tunnels_state.StateTunnelList;
-//import org.opendaylight.yangtools.concepts.ListenerRegistration;
-//import org.opendaylight.yangtools.yang.binding.DataObject;
-//import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-//
-//import java.math.BigInteger;
-
 public class ElanItmEventListener{
 
 }
@@ -71,10 +56,13 @@ public class ElanItmEventListener{
 //    }
 //
 //    @Override
-//    protected void update(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList original, StateTunnelList update) {
+//    protected void update(InstanceIdentifier<StateTunnelList> identifier,
+//        StateTunnelList original, StateTunnelList update) {
+//
 //        BigInteger srcDpId = update.getSourceDPN();
 //        BigInteger dstDpId = update.getDestinationDPN();
-//        logger.trace("ITM Tunnel state event changed from :{} to :{} for transportZone:{}",original.isLogicalTunnelState(), update.isLogicalTunnelState(), update.getLogicalTunnelGroupName());
+//        logger.trace("ITM Tunnel state event changed from :{} to :{} for transportZone:{}",
+//            original.isLogicalTunnelState(), update.isLogicalTunnelState(), update.getLogicalTunnelGroupName());
 //
 //        if(update.isLogicalTunnelState()) {
 //            logger.trace("ITM Tunnel State is Up b/w srcDpn: {} and dstDpn: {}", srcDpId, dstDpId);
@@ -86,7 +74,8 @@ public class ElanItmEventListener{
 //    protected void add(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList add) {
 //        BigInteger srcDpId =  add.getSourceDPN();
 //        BigInteger dstDpId = add.getDestinationDPN();
-//        logger.trace("ITM Tunnel state event:{} for transportZone:{} of {}", add.isLogicalTunnelState(), add.getLogicalTunnelGroupName());
+//        logger.trace("ITM Tunnel state event:{} for transportZone:{} of {}", add.isLogicalTunnelState(),
+//            add.getLogicalTunnelGroupName());
 //
 //        if(add.isLogicalTunnelState()) {
 //            logger.trace("ITM Tunnel State is Up b/w srcDpn: {} and dstDpn: {}", srcDpId, dstDpId);

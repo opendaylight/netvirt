@@ -322,8 +322,8 @@ public class ElanL2GatewayMulticastUtils {
      */
     public List<ListenableFuture<Void>> handleMcastForElanL2GwDeviceDelete(ElanInstance elanInstance,
             L2GatewayDevice l2GatewayDevice) {
-        ListenableFuture<Void> updateMcastMacsFuture = updateMcastMacsForAllElanDevices(elanInstance.getElanInstanceName(),
-                l2GatewayDevice, false/* updateThisDevice */);
+        ListenableFuture<Void> updateMcastMacsFuture = updateMcastMacsForAllElanDevices(
+                elanInstance.getElanInstanceName(), l2GatewayDevice, false/* updateThisDevice */);
         ListenableFuture<Void> deleteRemoteMcastMacFuture = deleteRemoteMcastMac(
                 new NodeId(l2GatewayDevice.getHwvtepNodeId()), elanInstance.getElanInstanceName());
         return Lists.newArrayList(updateMcastMacsFuture, deleteRemoteMcastMacFuture);

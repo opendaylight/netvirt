@@ -60,7 +60,8 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
         ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(dataBroker, interfaceName);
         if (elanInterface == null) {
             rpcResultBuilder = RpcResultBuilder.failed();
-            return getFutureWithAppErrorMessage(rpcResultBuilder, String.format("Interface %s is not a ELAN interface", interfaceName));
+            return getFutureWithAppErrorMessage(rpcResultBuilder,
+                    String.format("Interface %s is not a ELAN interface", interfaceName));
         }
         String elanInstanceName = elanInterface.getElanInstanceName();
         ElanInstance elanInfo = ElanUtils.getElanInstanceByName(dataBroker, elanInstanceName);
@@ -74,20 +75,26 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
 //            //tableId = interfaceManager.getTableIdForService(interfaceName, serviceInfo);
 //        } catch (InterfaceNotFoundException | InterfaceServiceNotFoundException e) {
 //            rpcResultBuilder = RpcResultBuilder.failed();
-//            return getFutureWithAppErrorMessage(rpcResultBuilder, String.format("Interface %s or Service %s doesn't exist", interfaceName, serviceInfo));
+//            return getFutureWithAppErrorMessage(rpcResultBuilder,
+//                String.format("Interface %s or Service %s doesn't exist", interfaceName, serviceInfo));
 //        }
         if (!interfaceInfo.isOperational()) {
             LOG.debug("interface {} is down and returning with no statistics", interfaceName);
             rpcResultBuilder = RpcResultBuilder.success();
-            return Futures.immediateFuture(rpcResultBuilder.withResult(new GetElanInterfaceStatisticsOutputBuilder().setStatResult(new StatResultBuilder()
-                .setStatResultCode(ResultCode.NotFound).setByteRxCount(0L).setByteTxCount(0L).setPacketRxCount(0L)
-                .setPacketTxCount(0L).build()).build()).build());
+            return Futures
+                    .immediateFuture(rpcResultBuilder.withResult(new GetElanInterfaceStatisticsOutputBuilder()
+                            .setStatResult(
+                                    new StatResultBuilder().setStatResultCode(ResultCode.NotFound).setByteRxCount(0L)
+                                            .setByteTxCount(0L).setPacketRxCount(0L).setPacketTxCount(0L).build())
+                            .build()).build());
         }
         rpcResultBuilder = RpcResultBuilder.success();
-        return Futures.immediateFuture(rpcResultBuilder.withResult(queryforElanInterfaceStatistics(tableId, elanInstanceName, interfaceInfo)).build());
+        return Futures.immediateFuture(rpcResultBuilder
+                .withResult(queryforElanInterfaceStatistics(tableId, elanInstanceName, interfaceInfo)).build());
     }
 
-    private GetElanInterfaceStatisticsOutput queryforElanInterfaceStatistics(short tableId, String elanInstanceName, InterfaceInfo interfaceInfo) {
+    private GetElanInterfaceStatisticsOutput queryforElanInterfaceStatistics(short tableId, String elanInstanceName,
+            InterfaceInfo interfaceInfo) {
         BigInteger dpId = interfaceInfo.getDpId();
         List<MatchInfo> matches = null;
         String interfaceName = interfaceInfo.getInterfaceName();
@@ -96,23 +103,29 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
             matches = InterfaceServiceUtil.getMatchInfoForVlanLPort(dpId, interfaceInfo.getPortNo(),
                 InterfaceServiceUtil.getVlanId(interfaceName, dataBroker), vlanInterfaceInfo.isVlanTransparent());
         } else {
-            matches = InterfaceServiceUtil.getLPortDispatcherMatches(ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX),
+            matches = InterfaceServiceUtil.getLPortDispatcherMatches(
+                    ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX),
                     interfaceInfo.getInterfaceTag());
         }
         long groupId = interfaceInfo.getGroupId();
-        Set<Object> statRequestKeys = InterfaceServiceUtil.getStatRequestKeys(dpId, tableId, matches, String.format("%s.%s", elanInstanceName, interfaceName), groupId);
+        Set<Object> statRequestKeys = InterfaceServiceUtil.getStatRequestKeys(dpId, tableId, matches,
+                String.format("%s.%s", elanInstanceName, interfaceName), groupId);
         // StatisticsInfo statsInfo = new StatisticsInfo(statRequestKeys);
-//        org.opendaylight.vpnservice.ericsson.mdsalutil.statistics.StatResult statResult = mdsalMgr.queryForStatistics(interfaceName, statsInfo);
+//        org.opendaylight.vpnservice.ericsson.mdsalutil.statistics.StatResult statResult
+//            = mdsalMgr.queryForStatistics(interfaceName, statsInfo);
 //        ResultCode resultCode = ResultCode.Success;
 //        if (!statResult.isComplete()) {
 //            resultCode = ResultCode.Incomplete;
 //        }
 
-        //StatValue ingressFlowStats = statResult.getStatResult(InterfaceServiceUtil.getFlowStatisticsKey(dpId, tableId, matches, elanInstanceName));
+        //StatValue ingressFlowStats = statResult.getStatResult(InterfaceServiceUtil
+//            .getFlowStatisticsKey(dpId, tableId, matches, elanInstanceName));
         //StatValue groupStats = statResult.getStatResult(InterfaceServiceUtil.getGroupStatisticsKey(dpId, groupId));
-//        return new GetElanInterfaceStatisticsOutputBuilder().setStatResult(new StatResultBuilder().setStatResultCode(resultCode)
+//      return new GetElanInterfaceStatisticsOutputBuilder().setStatResult(new
+//          StatResultBuilder().setStatResultCode(resultCode)
 //                .setByteRxCount(ingressFlowStats.getByteCount()).setPacketRxCount(ingressFlowStats.getPacketCount())
-//                .setByteTxCount(groupStats.getByteCount()).setPacketTxCount(groupStats.getPacketCount()).build()).build();
+//                .setByteTxCount(groupStats.getByteCount()).setPacketTxCount(groupStats.getPacketCount()).build())
+//                .build();
         return null;
     }
 
