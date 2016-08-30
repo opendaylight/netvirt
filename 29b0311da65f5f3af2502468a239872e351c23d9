@@ -34,6 +34,24 @@
       "revId": "29b0311da65f5f3af2502468a239872e351c23d9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_019d6959",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 904,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-08-30T06:41:48Z",
+      "side": 1,
+      "message": "Both remote dmac flow entries matches on elantag and eth_dst, but with different action in the flow instruction and it is just about how we construct flow object. I don\u0027t see a need of this code which is duplicate.",
+      "parentUuid": "7a6b29fe_61d09d1f",
+      "revId": "29b0311da65f5f3af2502468a239872e351c23d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
