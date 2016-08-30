@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_81ecd9f4",
+        "filename": "vpnservice/aclservice/impl/src/main/resources/org/opendaylight/blueprint/aclservice.xml",
+        "patchSetId": 9
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-08-30T06:01:07Z",
+      "side": 1,
+      "message": "How does this config is injected to the AclNodeListener?",
+      "revId": "e2787a4aaf2660d46e34611f749f001ef1f5ff68",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
