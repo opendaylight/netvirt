@@ -155,7 +155,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                 ipaddress = vmIp.getIpAddress();
                 try {
                     InetAddress address = InetAddress.getByName(ipaddress);
-                    if ((isIpv6 && (address instanceof Inet4Address)) || (!isIpv6 && address instanceof Inet6Address)) {
+                    if (isIpv6 && address instanceof Inet4Address || !isIpv6 && address instanceof Inet6Address) {
                         LOG.debug("programPortSecurityRule: Remote vmIP {} does not match with "
                                 + "SecurityRuleEthertype {}.", ipaddress, securityRuleEtherType);
                         return;
@@ -244,8 +244,10 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             programEgressAclFixedConntrackRule(dpid, segmentationId, localPort, attachedMac, write);
         } else {
             // add rule to drop tcp syn packets from the vm
-            addTcpSynFlagMatchDrop(dpid, segmentationId, attachedMac, write,
+            addTcpSynFlagMatchIpv4Drop(dpid, segmentationId, attachedMac, write,
                                                          Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
+            addTcpSynFlagMatchIpv6Drop(dpid, segmentationId, attachedMac, write,
+                Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
         }
         // add rule to drop the DHCP server traffic originating from the vm.
         egressAclDhcpDropServerTrafficfromVm(dpid, localPort, write,
@@ -254,12 +256,26 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                                                Constants.PROTO_DHCP_CLIENT_SPOOF_MATCH_PRIORITY_DROP);
     }
 
-    private void addTcpSynFlagMatchDrop(Long dpidLong, String segmentationId, String srcMac,
+    private void addTcpSynFlagMatchIpv4Drop(Long dpidLong, String segmentationId, String srcMac,
                                   boolean write, Integer priority) {
-        String flowName = "Egress_TCP_" + segmentationId + "_" + srcMac + "_DROP_";
+        String flowName = "Egress_TCP_Ipv4" + segmentationId + "_" + srcMac + "_DROP_";
         MatchBuilder matchBuilder = new MatchBuilder();
         flowName = flowName + "_";
-        matchBuilder = MatchUtils.createTcpSynWithProtoMatch(matchBuilder);
+        matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,srcMac,null,MatchUtils.ETHERTYPE_IPV4);
+        matchBuilder = MatchUtils.addTcpSynMatch(matchBuilder);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowName, priority, matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, true);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        syncFlow(flowBuilder, nodeBuilder, write);
+    }
+
+    private void addTcpSynFlagMatchIpv6Drop(Long dpidLong, String segmentationId, String srcMac,
+                                        boolean write, Integer priority) {
+        String flowName = "Egress_TCP_Ipv6" + segmentationId + "_" + srcMac + "_DROP_";
+        MatchBuilder matchBuilder = new MatchBuilder();
+        flowName = flowName + "_";
+        matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,srcMac,null);
+        matchBuilder = MatchUtils.addTcpSynMatch(matchBuilder);
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowName, priority, matchBuilder, getTable());
         addPipelineInstruction(flowBuilder, null, true);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);

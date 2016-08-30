@@ -146,7 +146,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                 ipaddress = vmIp.getIpAddress();
                 try {
                     InetAddress address = InetAddress.getByName(vmIp.getIpAddress());
-                    if ((isIpv6 && (address instanceof Inet4Address)) || (!isIpv6 && address instanceof Inet6Address)) {
+                    if (isIpv6 && address instanceof Inet4Address || !isIpv6 && address instanceof Inet6Address) {
                         LOG.debug("programPortSecurityRule: Remote vmIP {} does not match "
                                 + "with SecurityRuleEthertype {}.", ipaddress, securityRuleEtherType);
                         return;
@@ -228,23 +228,39 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             programIngressAclFixedConntrackRule(dpid, segmentationId, attachMac, localPort, write);
         } else {
             // add rule to drop tcp syn packets from the vm
-            addTcpSynFlagMatchDrop(dpid, segmentationId, attachMac, write,
+            addTcpSynFlagMatchIpv4Drop(dpid, segmentationId, attachMac, write,
                                                 Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
+            addTcpSynFlagMatchIpv6Drop(dpid, segmentationId, attachMac, write,
+                Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
         }
         programArpRule(dpid, segmentationId, localPort, attachMac, write);
     }
 
-    private void addTcpSynFlagMatchDrop(Long dpidLong, String segmentationId, String srcMac,
+    private void addTcpSynFlagMatchIpv4Drop(Long dpidLong, String segmentationId, String dstMac,
                               boolean write, Integer priority) {
-        String flowId = "Ingress_TCP_" + segmentationId + "_" + srcMac + "_DROP_";
+        String flowId = "Ingress_TCP_Ipv4" + segmentationId + "_" + dstMac + "_DROP_";
         MatchBuilder matchBuilder = new MatchBuilder();
         flowId = flowId + "_";
-        matchBuilder = MatchUtils.createTcpSynWithProtoMatch(matchBuilder);
+        matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,null,dstMac,MatchUtils.ETHERTYPE_IPV4);
+        matchBuilder = MatchUtils.addTcpSynMatch(matchBuilder);
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, priority, matchBuilder, getTable());
         addPipelineInstruction(flowBuilder, null, true);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
         syncFlow(flowBuilder, nodeBuilder, write);
-        }
+    }
+
+    private void addTcpSynFlagMatchIpv6Drop(Long dpidLong, String segmentationId, String dstMac,
+                                            boolean write, Integer priority) {
+        String flowId = "Ingress_TCP_Ipv6" + segmentationId + "_" + dstMac + "_DROP_";
+        MatchBuilder matchBuilder = new MatchBuilder();
+        flowId = flowId + "_";
+        matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,null,dstMac);
+        matchBuilder = MatchUtils.addTcpSynMatch(matchBuilder);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, priority, matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, true);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        syncFlow(flowBuilder, nodeBuilder, write);
+    }
 
     private void programArpRule(Long dpid, String segmentationId, long localPort, String attachMac, boolean write) {
         MatchBuilder matchBuilder = new MatchBuilder();
