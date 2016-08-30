@@ -55,6 +55,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.SubnetsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.Vteps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.VtepsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
@@ -83,7 +87,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InterfaceStateToTransportZoneTest {
+public class ToTransportZoneTest {
 
     private static final String PHYS_PORT_NAME = "tap12345-67";
 
@@ -103,7 +107,9 @@ public class InterfaceStateToTransportZoneTest {
     
     private static final IpAddress OVS_IP_2 = new IpAddress("10.0.0.2".toCharArray());
     
-    private static final String VTEP_PORT = "tunnel_port"; 
+    private static final String VTEP_PORT = "tunnel_port";
+
+    private static final String ROUTER_ID = "10345678-1234-1234-1234-123456789012"; 
 
     @Mock
     private DataBroker dataBroker;
@@ -125,6 +131,8 @@ public class InterfaceStateToTransportZoneTest {
     private List<Vteps> expectedVteps = new ArrayList<>();
     
     InterfaceStateToTransportZoneListener interfaceStateToTransportZoneChangeListener;
+    
+    NeutronRouterDpnsToTransportZoneListener neutronRouterDpnsToTransportZoneListener;
 
     private Network network;
 
@@ -153,6 +161,7 @@ public class InterfaceStateToTransportZoneTest {
         when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
         thenReturn(Futures.immediateCheckedFuture(Optional.absent()));
         interfaceStateToTransportZoneChangeListener = new InterfaceStateToTransportZoneListener(dataBroker, nVpnMgr);
+        neutronRouterDpnsToTransportZoneListener = new NeutronRouterDpnsToTransportZoneListener(dataBroker, nVpnMgr);
     }
     
     @After
@@ -254,6 +263,27 @@ public class InterfaceStateToTransportZoneTest {
         interfaceStateToTransportZoneChangeListener.add(InstanceIdentifier.create(Interface.class), intBuilder.build());
     }
     
+    @Test
+    public void addRouter() throws Exception {
+        when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
+        thenReturn(Futures.immediateCheckedFuture(Optional.absent()));
+        RouterDpnListBuilder intBuilder = new RouterDpnListBuilder();
+        RouterDpnList routerDpnList = buildRouterDpnList();
+        expectedVteps.add(buildVtep(BigInteger.valueOf(DPN_ID), new IpAddress(OVS_IP.toCharArray()), VTEP_PORT));
+        expectedVteps.add(buildVtep(DPN_ID_2, OVS_IP_2, VTEP_PORT));
+        neutronRouterDpnsToTransportZoneListener.add(InstanceIdentifier.create(RouterDpnList.class), routerDpnList);
+    }
+    
+    private RouterDpnList buildRouterDpnList() {
+        RouterDpnListBuilder routerDpnBuilder = new RouterDpnListBuilder();
+        routerDpnBuilder.setRouterId(ROUTER_ID);
+        List<DpnVpninterfacesList> list = new ArrayList<DpnVpninterfacesList>();
+        list.add(new DpnVpninterfacesListBuilder().setDpnId(BigInteger.valueOf(DPN_ID)).build());
+        list.add(new DpnVpninterfacesListBuilder().setDpnId(DPN_ID_2).build());
+        routerDpnBuilder.setDpnVpninterfacesList(list);
+        return routerDpnBuilder.build();
+    }
+
     private Network buildNetwork(Class<? extends NetworkTypeBase> networkType) {
         NetworkBuilder builder = new NetworkBuilder();
         NetworkProviderExtensionBuilder augBuilder = new NetworkProviderExtensionBuilder();

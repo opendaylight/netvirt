@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
@@ -37,6 +38,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.Vteps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.VtepsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
@@ -54,19 +58,22 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InterfaceStateManager {
+import com.google.common.base.Optional;
 
-    private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateManager.class);
+public class ToTransportZoneManagerManager {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ToTransportZoneManagerManager.class);
     private static final String OF_URI_SEPARATOR = ":";
     private static final String TUNNEL_PORT = "tunnel_port";
     private static final String LOCAL_IP = "local_ip";
+    private static final String ALL_SUBNETS = "0.0.0.0/0";
 
     private DataBroker dataBroker;
     private NeutronvpnManager nvManager;
     private MdsalUtils mdsalUtils;
     private SouthboundUtils southBoundUtils;
 
-    public InterfaceStateManager(DataBroker dbx, NeutronvpnManager nvManager) {
+    public ToTransportZoneManagerManager(DataBroker dbx, NeutronvpnManager nvManager) {
         this.dataBroker = dbx;
         this.nvManager = nvManager;
         this.mdsalUtils = new MdsalUtils(dbx);
@@ -97,14 +104,11 @@ public class InterfaceStateManager {
                 InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class).child(TransportZone.class, new TransportZoneKey(port.getNetworkId().getValue()));
                 TransportZone zone = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, inst);
 
-                if (zone != null) {
-                    if (!currentPortNodeTepPresent(zone, dpnId)) {
-                        addVtep(zone, subnetIp, port, dpnId);
-                        addTransportZone(zone, inter.getName());
-                    }
-                }else{
-                    zone = createZone(subnetIp, port.getNetworkId().getValue());
-                    addVtep(zone, subnetIp, port, dpnId);
+                if (zone == null) {
+                    zone = createZone(subnetIp, "neutron interface " + port.getNetworkId().getValue());
+                }
+                
+                if (addVtep(zone, subnetIp, dpnId) > 0){
                     addTransportZone(zone, inter.getName());
                 }
 
@@ -112,6 +116,45 @@ public class InterfaceStateManager {
                 LOG.error("failed to add tunnels on port added to subnet", e);
             }       
         }
+    }
+    
+    public void updateTrasportZone(RouterDpnList routerDpnList) {
+        try{
+            InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class).child(TransportZone.class, new TransportZoneKey(routerDpnList.getRouterId()));
+            TransportZone zone = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, inst);
+            
+            String subnetIp = ALL_SUBNETS;
+            
+            if (zone == null) {
+                zone = createZone(subnetIp, routerDpnList.getRouterId());
+            }
+            int addedTeps = 0;
+            for(DpnVpninterfacesList dpnVpninterfacesList : routerDpnList.getDpnVpninterfacesList()){
+                BigInteger dpnId = dpnVpninterfacesList.getDpnId();
+                addedTeps += addVtep(zone, subnetIp, dpnId);
+            }
+            if (addedTeps > 0){
+                addTransportZone(zone, "router " + routerDpnList.getRouterId());
+            }
+        }catch (Exception e) {
+            LOG.error("failed to add tunnels on router added", e);
+        }
+    }
+    
+    public boolean isAutoTunnelConfigEnabled() {
+        Optional<NeutronvpnConfig> nvsConfig = MDSALDataStoreUtils.read(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
+                .create(NeutronvpnConfig.class));
+        Boolean useTZ = true;
+        if (nvsConfig.isPresent()) {
+            useTZ = nvsConfig.get().isUseTransportZone() == null ? true : nvsConfig.get().isUseTransportZone();
+        }
+        if (useTZ) {
+            LOG.info("using automatic tunnel configuration");
+        } else {
+            LOG.info("don't use automatic tunnel configuration");
+        }
+        return useTZ;
     }
 
 
@@ -228,26 +271,30 @@ public class InterfaceStateManager {
         }
 
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, zones);
-        LOG.info("updating transport zone {} due to interface state {} handling", zone.getZoneName(), interName);
+        LOG.info("updating transport zone {} due to {} handling", zone.getZoneName(), interName);
     }
 
-    private void addVtep(TransportZone zone, String subnetIp, Port port, BigInteger dpId) throws Exception {
+    private int addVtep(TransportZone zone, String subnetIp, BigInteger dpnId) throws Exception {
 
         Subnets subnets = findSubnets(zone.getSubnets(), subnetIp);
+        
+        for(Vteps existingVtep : subnets.getVteps()){
+            if(existingVtep.getDpnId() == dpnId){
+                return 0;
+            }
+        }
 
-        IpAddress nodeIp =  getNodeIP(dpId);
+        IpAddress nodeIp =  getNodeIP(dpnId);
 
         VtepsBuilder vtepsBuilder = new VtepsBuilder();
-        vtepsBuilder.setDpnId(dpId);
+        vtepsBuilder.setDpnId(dpnId);
         vtepsBuilder.setIpAddress(nodeIp);
         vtepsBuilder.setPortname(TUNNEL_PORT);
 
         subnets.getVteps().add(vtepsBuilder.build());
-
+        
+        return 1;
     }
-
-
-
 
     // search for relevant subnets for the given subnetIP, add one if it is necessary
     private Subnets findSubnets(List<Subnets> subnets, String subnetIp) {
@@ -277,31 +324,6 @@ public class InterfaceStateManager {
         subnetsBuilder.setVteps(new ArrayList<Vteps>());
         retSubnet = subnetsBuilder.build();
         return retSubnet;
-    }
-
-    /**
-     * check if the node (TEP) is already exist in the TZ 
-     * @param zone
-     * @param dpId
-     * @return
-     * @throws Exception
-     */
-    private boolean currentPortNodeTepPresent(TransportZone zone, BigInteger dpId) throws Exception {
-        List<Subnets> subnetsList = zone.getSubnets();
-        if(subnetsList!=null){
-            for (Subnets subnet : subnetsList) {
-                List<Vteps> vtepsList = subnet.getVteps();
-                if(vtepsList!=null && !vtepsList.isEmpty()) {
-                    for (Vteps vteps : vtepsList) {
-                        BigInteger dpnID = vteps.getDpnId();
-                        if(dpnID.equals(dpId)){
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     private IpAddress getNodeIP(BigInteger dpId) throws Exception {
