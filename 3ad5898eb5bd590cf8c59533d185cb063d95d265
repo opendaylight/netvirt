@@ -94,6 +94,30 @@
       "revId": "3ad5898eb5bd590cf8c59533d185cb063d95d265",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_978ed8ce",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1150,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-31T10:00:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_57956085",
+      "range": {
+        "startLine": 1150,
+        "startChar": 0,
+        "endLine": 1150,
+        "endChar": 16
+      },
+      "revId": "3ad5898eb5bd590cf8c59533d185cb063d95d265",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
