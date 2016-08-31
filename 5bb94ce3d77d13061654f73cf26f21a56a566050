@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_97a53849",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-31T10:01:53Z",
+      "side": 1,
+      "message": "Will open bug to track",
+      "parentUuid": "7a6b29fe_172ac82b",
+      "revId": "5bb94ce3d77d13061654f73cf26f21a56a566050",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_54af1e2a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 7
