@@ -70,6 +70,30 @@
       "revId": "3ad5898eb5bd590cf8c59533d185cb063d95d265",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_57956085",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1150,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-31T06:18:09Z",
+      "side": 1,
+      "message": "I was hoping to avoid that since flat is completely busted (first time I\u0027m looking at it is today) and every change+ validation is at least a 20 minute cycle but I guess I can just go ahead and do it.",
+      "parentUuid": "7a6b29fe_d7897076",
+      "range": {
+        "startLine": 1150,
+        "startChar": 0,
+        "endLine": 1150,
+        "endChar": 16
+      },
+      "revId": "3ad5898eb5bd590cf8c59533d185cb063d95d265",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
