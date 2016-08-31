@@ -170,7 +170,7 @@ public class ExternalNetworkGroupInstaller {
                 extInterface, dpId);
         List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
         listBucketInfo.add(new BucketInfo(actionList));
-        return MDSALUtil.buildGroupEntity(dpId, groupId, subnetName, GroupTypes.GroupIndirect, listBucketInfo);
+        return MDSALUtil.buildGroupEntity(dpId, groupId, subnetName, GroupTypes.GroupAll, listBucketInfo);
     }
 
     private GroupEntity buildEmptyExtNetGroupEntity(String subnetName, long groupId, String extInterface) {
@@ -180,6 +180,6 @@ public class ExternalNetworkGroupInstaller {
             return null;
         }
 
-        return MDSALUtil.buildGroupEntity(dpId, groupId, subnetName, GroupTypes.GroupIndirect, new ArrayList<BucketInfo>());
+        return MDSALUtil.buildGroupEntity(dpId, groupId, subnetName, GroupTypes.GroupAll, new ArrayList<BucketInfo>());
     }
 }
