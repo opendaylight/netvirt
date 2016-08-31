@@ -16,7 +16,11 @@ public enum NatServiceCounters {
     remove_external_network_group, //
     subnetmap_add, //
     subnetmap_remove, //
-    subnetmap_update;
+    subnetmap_update, //
+    port_not_found_for_floating, //
+    garp_sent, //
+    garp_sent_ipv6, //
+    garp_sent_failed;
 
     private OccurenceCounter counter;
 
