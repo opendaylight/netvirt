@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_b71b1472",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-31T05:25:20Z",
+      "side": 1,
+      "message": "I don\u0027t understand. That is exactly what this whole fix is about. Or I don\u0027t understand this comment.",
+      "parentUuid": "7a6b29fe_74b21a95",
+      "revId": "5bb94ce3d77d13061654f73cf26f21a56a566050",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_54af1e2a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2016-08-31T02:35:47Z",
       "side": 1,
       "message": "isn\u0027t true here for configureRemoteFlows argument ?",
+      "revId": "5bb94ce3d77d13061654f73cf26f21a56a566050",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_57128057",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-31T05:25:20Z",
+      "side": 1,
+      "message": ";-) Wow. Can\u0027t believe that one. Thanks.",
+      "parentUuid": "7a6b29fe_54af1e2a",
       "revId": "5bb94ce3d77d13061654f73cf26f21a56a566050",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
