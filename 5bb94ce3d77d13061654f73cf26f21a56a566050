@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_576720e9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-08-31T06:04:02Z",
+      "side": 1,
+      "message": "I meant why do we want to program both SMAC/DMAC flow entries (and also updating mac entry in data store with vlan provider interface) for MAC address on VLAN provider interface which is already learned/statically added on access port of VM. So it is sufficient to program smac on compute node from where it received packet_in from table 50 via vlan provider interface, it avoids unnecessary punting afterwards.\n\nBut for unknown mac addresses, we have to program both smac and dmac flow entries (i.e. for physical devices behind vlan provider network).",
+      "parentUuid": "7a6b29fe_b71b1472",
+      "revId": "5bb94ce3d77d13061654f73cf26f21a56a566050",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_54af1e2a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 7
