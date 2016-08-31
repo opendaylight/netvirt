@@ -11,7 +11,10 @@ package org.opendaylight.netvirt.aclservice.listeners;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -41,11 +44,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 /**
  * Listener to handle flow capable node updates.
  */
+@Singleton
 @SuppressWarnings("deprecation")
 public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, AclNodeListener>
         implements AutoCloseable {
@@ -70,6 +72,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
      * @param dataBroker the data broker
      * @param config aclservice configuration
      */
+    @Inject
     public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker, AclserviceConfig config) {
         super(FlowCapableNode.class, AclNodeListener.class);
 
@@ -78,6 +81,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         this.config = config;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         if (config != null) {
@@ -87,41 +91,22 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         LOG.info("AclserviceConfig: {}", this.config);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase#
-     * getWildCardPath()
-     */
+    @PreDestroy
+    @Override
+    public void close() throws Exception {
+        super.close();
+    }
+
     @Override
     protected InstanceIdentifier<FlowCapableNode> getWildCardPath() {
         return InstanceIdentifier.create(Nodes.class).child(Node.class).augmentation(FlowCapableNode.class);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase#
-     * remove(org.opendaylight.yangtools.yang.binding.InstanceIdentifier,
-     * org.opendaylight.yangtools.yang.binding.DataObject)
-     */
     @Override
     protected void remove(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         // do nothing
-
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase#
-     * update(org.opendaylight.yangtools.yang.binding.InstanceIdentifier,
-     * org.opendaylight.yangtools.yang.binding.DataObject,
-     * org.opendaylight.yangtools.yang.binding.DataObject)
-     */
     @Override
     protected void update(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModificationBefore,
             FlowCapableNode dataObjectModificationAfter) {
@@ -129,14 +114,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase#
-     * add(org.opendaylight.yangtools.yang.binding.InstanceIdentifier,
-     * org.opendaylight.yangtools.yang.binding.DataObject)
-     */
     @Override
     protected void add(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         LOG.trace("FlowCapableNode Added: key: {}", key);
@@ -639,13 +616,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         return String.valueOf(tableId);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase#
-     * getDataTreeChangeListener()
-     */
     @Override
     protected AclNodeListener getDataTreeChangeListener() {
         return AclNodeListener.this;
