@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_b7b79439",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-31T06:09:26Z",
+      "side": 1,
+      "message": "So the logic would look like this (just to confirm we understand each other)?\n\nif this is a vlan/flat provider interface:\n    program local smac\n    if the mac doesn\u0027t exist in cache\n         program local dmac\n\nI\u0027d like to defer this till after the release if that\u0027s OK with you. It\u0027s running late and there is still the issue of flat provider networks which is not going well at all, to say the least.",
+      "parentUuid": "7a6b29fe_576720e9",
+      "revId": "5bb94ce3d77d13061654f73cf26f21a56a566050",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_54af1e2a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 7
