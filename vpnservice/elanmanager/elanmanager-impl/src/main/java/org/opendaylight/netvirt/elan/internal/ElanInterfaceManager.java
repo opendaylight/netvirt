@@ -321,7 +321,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     for (MacEntry macEntry : macEntries) {
                         LOG.debug("removing the  mac-entry:{} present on elanInterface:{}",
                                 macEntry.getMacAddress().getValue(), interfaceName);
-                        if (!isLastElanInterface) {
+                        InstanceIdentifier<MacTable> elanMacTableId = ElanUtils.getElanMacTableOperationalDataPath(elanName);
+                        Optional<MacTable> existingElanMacTable =
+                                elanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, elanMacTableId);
+                        if (!isLastElanInterface && existingElanMacTable.isPresent()) {
                             tx.delete(LogicalDatastoreType.OPERATIONAL,
                                     ElanUtils.getMacEntryOperationalDataPath(elanName, macEntry.getMacAddress()));
                         }
