@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Andre Fredette <afredette@redhat.com>
+Submitted-by: Andre Fredette <afredette@redhat.com>
+Submitted-at: Wed, 31 Aug 2016 13:58:40 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/44886
+Project: netvirt
+Branch: refs/heads/stable/boron
