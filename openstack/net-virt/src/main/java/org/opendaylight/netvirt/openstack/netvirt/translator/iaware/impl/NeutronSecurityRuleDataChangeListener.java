@@ -150,7 +150,7 @@ public class NeutronSecurityRuleDataChangeListener implements ClusteredDataChang
                     rule.getRemoteIpPrefix().getIpv4Prefix().getValue():rule.getRemoteIpPrefix().getIpv6Prefix().getValue());
         }
         if (rule.getProtocol() != null) {
-            answer.setSecurityRuleProtocol(PROTOCOL_MAP.get(rule.getProtocol()));
+            answer.setSecurityRuleProtocol(PROTOCOL_MAP.get(rule.getProtocol().getIdentityref()));
         }
         if (rule.getEthertype() != null) {
             answer.setSecurityRuleEthertype(ETHERTYPE_MAP.get(rule
