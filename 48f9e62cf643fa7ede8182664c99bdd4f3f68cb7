@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_88a51549",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1090,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-31T20:29:39Z",
+      "side": 1,
+      "message": "Any reason that the IpAddress is fully qualified rather than just using IpAddress? I realize it is that way all through the file but it should not be needed.",
+      "revId": "48f9e62cf643fa7ede8182664c99bdd4f3f68cb7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_48af7d2a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1091,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-31T20:29:39Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "48f9e62cf643fa7ede8182664c99bdd4f3f68cb7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c86a6ded",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-31T20:29:39Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "48f9e62cf643fa7ede8182664c99bdd4f3f68cb7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_08baa56d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-08-31T20:29:39Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "48f9e62cf643fa7ede8182664c99bdd4f3f68cb7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
