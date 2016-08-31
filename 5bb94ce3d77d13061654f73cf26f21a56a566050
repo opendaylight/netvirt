@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_74b21a95",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-08-31T02:35:47Z",
+      "side": 1,
+      "message": "when macEntry is already learned/statically added on another interface (example: VM port) and  relearning same mac on vlan provider interface, mac entry is deleted on actual ingress interface and recreated with vlan provider interface as the ingress interface for this mac.\nIn this case, just program the smac flow entry and return it.",
+      "revId": "5bb94ce3d77d13061654f73cf26f21a56a566050",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_54af1e2a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-08-31T02:35:47Z",
+      "side": 1,
+      "message": "isn\u0027t true here for configureRemoteFlows argument ?",
+      "revId": "5bb94ce3d77d13061654f73cf26f21a56a566050",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
