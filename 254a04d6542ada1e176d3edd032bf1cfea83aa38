@@ -22,6 +22,30 @@
       "revId": "254a04d6542ada1e176d3edd032bf1cfea83aa38",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fa01f305",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-08-31T10:51:03Z",
+      "side": 1,
+      "message": "Honestly, we are moments before release and I still have not validated flat networks. I know this seams trivial but a full cycle of making a change and testing it is at least 20 minutes due to stack.sh and everything else. I will make this change if I can get to it but this is what we had discussed in yesterday\u0027s upstream and it works.",
+      "parentUuid": "7a6b29fe_d71fb06a",
+      "range": {
+        "startLine": 148,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 48
+      },
+      "revId": "254a04d6542ada1e176d3edd032bf1cfea83aa38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
