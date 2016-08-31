@@ -33,6 +33,8 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService" />
   <odl:rpc-service id="fibRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService" />
+  <odl:rpc-service id="odlArputilService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService" />
 
   <bean id="subnetmapListener"
         class="org.opendaylight.netvirt.natservice.internal.SubnetmapListener"
@@ -95,6 +97,7 @@
     <argument ref="fibRpcService" />
     <argument ref="floatingIPListener" />
     <argument ref="fibManager" />
+    <argument ref="odlArputilService" />
   </bean>
   <service ref="vpnFloatingIpHandler"
            interface="org.opendaylight.netvirt.natservice.internal.FloatingIPHandler" />
