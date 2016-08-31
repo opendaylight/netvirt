@@ -46,6 +46,30 @@
       "revId": "3ad5898eb5bd590cf8c59533d185cb063d95d265",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d7897076",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1150,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-08-31T06:13:04Z",
+      "side": 1,
+      "message": "So could you move the actual impl. to ElanUtils and call it from ElanServiceProvider?",
+      "parentUuid": "7a6b29fe_f728ec87",
+      "range": {
+        "startLine": 1150,
+        "startChar": 0,
+        "endLine": 1150,
+        "endChar": 16
+      },
+      "revId": "3ad5898eb5bd590cf8c59533d185cb063d95d265",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
