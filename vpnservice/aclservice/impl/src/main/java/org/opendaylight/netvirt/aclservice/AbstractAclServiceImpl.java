@@ -66,6 +66,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.error("port cannot be null");
             return false;
         }
+        if (port.getSecurityGroups() == null) {
+            LOG.error("port security groups cannot be null");
+            return false;
+        }
         BigInteger dpId = port.getDpId();
         if (dpId == null || port.getLPortTag() == null) {
             LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
@@ -137,6 +141,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     private void syncRemoteAclRules(List<Uuid> aclUuidList, int action, String currentPortId,
                                     List<AllowedAddressPairs> syncAllowedAddresses) {
+        if (aclUuidList == null) {
+            LOG.warn("security groups are null");
+            return;
+        }
         for (Uuid remoteAclId : aclUuidList) {
             Set<AclInterface> portSet = AclDataUtil.getRemoteAclInterfaces(remoteAclId);
             if (portSet == null) {
