@@ -121,6 +121,7 @@
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
     <argument ref="elanUtils" />
+    <argument ref="mdsalUtils" />
   </bean>
 
   <bean id="elanService" class="org.opendaylight.netvirt.elan.internal.ElanServiceProvider"
