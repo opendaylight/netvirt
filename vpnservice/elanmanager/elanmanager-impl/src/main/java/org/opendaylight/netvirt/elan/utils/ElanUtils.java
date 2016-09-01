@@ -7,11 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -32,6 +28,8 @@ import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -148,12 +146,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class ElanUtils {
 
@@ -596,7 +603,7 @@ public class ElanUtils {
      *            the elan instance name
      * @return list of dpIds
      */
-    public List<BigInteger> getParticipatingDPNsInElanInstance(String elanInstanceName) {
+    public List<BigInteger> getParticipatingDpnsInElanInstance(String elanInstanceName) {
         List<BigInteger> dpIds = new ArrayList<>();
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanInstanceName);
         Optional<ElanDpnInterfacesList> existingElanDpnInterfaces = read(broker,
@@ -1041,6 +1048,10 @@ public class ElanUtils {
             String macAddress, long elanTag) {
         return new StringBuffer().append(tableId).append(elanTag).append(dpId).append(remoteDpId).append(macAddress)
                 .toString();
+    }
+
+    public static String getKnownDynamicmacFlowRef(short tableId, BigInteger dpId, String macAddress, long elanTag) {
+        return new StringBuffer().append(tableId).append(elanTag).append(dpId).append(macAddress).toString();
     }
 
     private static String getKnownDynamicmacFlowRef(short elanDmacTable, BigInteger dpId, String extDeviceNodeId,
@@ -2174,6 +2185,39 @@ public class ElanUtils {
         return false;
     }
 
+    public static void handleRouterEntitiesFlows(IMdsalApiManager mdsalManager, Long elanTag, String displayName,
+            String macAddress, WriteTransaction writeTx, int addOrRemove, List<BigInteger> dpnIds) {
+        LOG.info("YAIR - in setup... ");
+        for (BigInteger dpId : dpnIds) {
+            LOG.info("YAIR - creating flow for dpId {}", dpId);
+            FlowEntity flowEntity = buildDmacFlowForRouterEntitiesMac(dpId, macAddress, displayName, elanTag);
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                mdsalManager.addFlowToTx(flowEntity, writeTx);
+            } else {
+                mdsalManager.removeFlowToTx(flowEntity, writeTx);
+            }
+        }
+    }
+
+    public static FlowEntity buildDmacFlowForRouterEntitiesMac(BigInteger dpId, String dstMacAddress,
+            String displayName, long elanTag) {
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        matches.add(new MatchInfo(MatchFieldType.metadata,
+                new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
+        matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
+        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<ActionInfo> actions = new ArrayList<ActionInfo>();
+        actions.add(new ActionInfo(ActionType.nx_resubmit,
+                new String[] { String.valueOf(NwConstants.LPORT_DISPATCHER_TABLE) }));
+
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actions));
+        String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, dstMacAddress, elanTag);
+        FlowEntity flow  = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, flowId, 20, displayName, 0, 0,
+                ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)),
+                matches, instructions);
+        return flow;
+    }
+
     /**
      * Add Mac Address to ElanInterfaceForwardingEntries and ElanForwardingTables
      * Install SMAC and DMAC flows.
@@ -2232,6 +2276,31 @@ public class ElanUtils {
         }
 
         LOG.trace("Elan {} does not have any external interace attached to DPN {}", elanInstanceName, dpnId);
+        return null;
+    }
+
+    public Port getNeutronPort(DataBroker broker, String portName) {
+        LOG.info("YAIR trying to find port name {}", portName);
+        InstanceIdentifier<Ports> portsIdentifier = InstanceIdentifier
+            .create(Neutron.class).child(Ports.class);
+        Optional<Ports> portsOptional = read(
+            broker, LogicalDatastoreType.CONFIGURATION, portsIdentifier);
+        if (!portsOptional.isPresent() || portsOptional.get().getPort() == null) {
+            LOG.trace("No neutron ports found");
+            LOG.info("YAIR no ports..");
+            return null;
+        }
+
+        for (Port port : portsOptional.get().getPort()) {
+            LOG.info("YAIR port is {} with uuid {}", port, port.getUuid());
+            // TODO if
+            if (port.getUuid().getValue().equals(portName)) {
+                LOG.info("YAIR found port {}", port);
+                return port;
+            }
+        }
+
+        LOG.info("YAIR no port found");
         return null;
     }
 }

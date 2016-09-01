@@ -8,23 +8,31 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class ElanVpnPortIpToPortListener extends
         AsyncDataTreeChangeListenerBase<VpnPortipToPort, ElanVpnPortIpToPortListener> {
@@ -32,12 +40,15 @@ public class ElanVpnPortIpToPortListener extends
     private final DataBroker broker;
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
+    private final IMdsalApiManager mdsalManager;
 
-    public ElanVpnPortIpToPortListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils) {
+    public ElanVpnPortIpToPortListener(DataBroker broker, IInterfaceManager interfaceManager,
+            ElanUtils elanUtils, final IMdsalApiManager mdsalManager) {
         super(VpnPortipToPort.class, ElanVpnPortIpToPortListener.class);
         this.broker = broker;
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
+        this.mdsalManager = mdsalManager;
     }
 
     public void init() {
@@ -58,15 +69,46 @@ public class ElanVpnPortIpToPortListener extends
     @Override
     protected void remove(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort dataObjectModification) {
         String macAddress = dataObjectModification.getMacAddress();
-        String interfaceName = dataObjectModification.getPortName();
+        String portName = dataObjectModification.getPortName();
         boolean isLearnt = dataObjectModification.isLearnt();
         if (!isLearnt) {
             LOG.trace("Not learnt mac {}. Not performing action", macAddress);
             return;
+        } else if (dataObjectModification.isSubnetIp()) {
+            Port neutronPort = elanUtils.getNeutronPort(broker, portName);
+            LOG.trace("Creating flows for VPN port {}", portName);
+            if (neutronPort == null) {
+                LOG.warn("No port for VpnPortipToPort {}", dataObjectModification);
+                return;
+            }
+
+            Uuid networkId = neutronPort.getNetworkId();
+            if (networkId == null) {
+                LOG.warn("No networkId for neutron port {}", portName);
+                return;
+            }
+
+            String elanInstanceName = networkId.getValue();
+            ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+            if (elanInstance == null) {
+                LOG.warn("Null elan instance for network {}", networkId);
+                return;
+            }
+            List<BigInteger> dpnsIdsForElanInstance = elanUtils.getParticipatingDpnsInElanInstance(elanInstanceName);
+
+            if (dpnsIdsForElanInstance == null || dpnsIdsForElanInstance.isEmpty()) {
+                LOG.warn("No DPNs for elan instance {}", elanInstance);
+                return;
+            }
+
+            WriteTransaction writeTx = broker.newWriteOnlyTransaction();
+            ElanUtils.handleRouterEntitiesFlows(mdsalManager, elanInstance.getElanTag(), elanInstanceName,
+                    macAddress, writeTx, NwConstants.DEL_FLOW, dpnsIdsForElanInstance);
+            writeTx.submit();
         }
-        LOG.trace("Removing mac address {} from interface {} ", macAddress, interfaceName);
-        DataStoreJobCoordinator.getInstance().enqueueJob(buildJobKey(macAddress, interfaceName),
-                new StaticMacRemoveWorker(macAddress, interfaceName));
+        LOG.trace("Removing mac address {} from interface {} ", macAddress, portName);
+        DataStoreJobCoordinator.getInstance().enqueueJob(buildJobKey(macAddress, portName),
+                new StaticMacRemoveWorker(macAddress, portName));
     }
 
     @Override
@@ -99,12 +141,43 @@ public class ElanVpnPortIpToPortListener extends
     @Override
     protected void add(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort dataObjectModification) {
         String macAddress = dataObjectModification.getMacAddress();
-        String interfaceName = dataObjectModification.getPortName();
+        String portName = dataObjectModification.getPortName();
         boolean isLearnt = dataObjectModification.isLearnt();
         if (isLearnt) {
-            LOG.trace("Adding mac address {} to interface {} ", macAddress, interfaceName);
-            DataStoreJobCoordinator.getInstance().enqueueJob(buildJobKey(macAddress, interfaceName),
-                    new StaticMacAddWorker(macAddress, interfaceName));
+            LOG.trace("Adding mac address {} to interface {} ", macAddress, portName);
+            DataStoreJobCoordinator.getInstance().enqueueJob(buildJobKey(macAddress, portName),
+                    new StaticMacAddWorker(macAddress, portName));
+        } else if (dataObjectModification.isSubnetIp()) {
+            Port neutronPort = elanUtils.getNeutronPort(broker, portName);
+            LOG.trace("Creating flows for VPN port {}", portName);
+            if (neutronPort == null) {
+                LOG.warn("No port for VpnPortipToPort {}", dataObjectModification);
+                return;
+            }
+
+            Uuid networkId = neutronPort.getNetworkId();
+            if (networkId == null) {
+                LOG.warn("No networkId for neutron port {}", portName);
+                return;
+            }
+
+            String elanInstanceName = networkId.getValue();
+            ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+            if (elanInstance == null) {
+                LOG.warn("Null elan instance for network {}", networkId);
+                return;
+            }
+            List<BigInteger> dpnsIdsForElanInstance = elanUtils.getParticipatingDpnsInElanInstance(elanInstanceName);
+            
+            if (dpnsIdsForElanInstance == null || dpnsIdsForElanInstance.isEmpty()) {
+                LOG.warn("No DPNs for elan instance {}", elanInstance);
+                return;
+            }
+
+            WriteTransaction writeTx = broker.newWriteOnlyTransaction();
+            ElanUtils.handleRouterEntitiesFlows(mdsalManager, elanInstance.getElanTag(), elanInstanceName,
+                    macAddress, writeTx, NwConstants.ADD_FLOW, dpnsIdsForElanInstance);
+            writeTx.submit();
         }
     }
 
