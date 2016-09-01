@@ -611,6 +611,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             installEntriesForFirstInterfaceonDpn(elanInstance, interfaceInfo, dpnInterfaces, isFirstInterfaceInDpn, tx);
         }
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
+        if (isFirstInterfaceInDpn && ElanUtils.isVxlan(elanInstance)) {
+            //update the remote-DPNs remoteBC group entry with Tunnels
+            setElanBCGrouponOtherDpns(elanInstance, dpId);
+        }
 
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceAddWorkerOnElanInterface addWorker = new InterfaceAddWorkerOnElanInterface(interfaceName,
@@ -620,7 +624,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     void setupEntriesForElanInterface(List<ListenableFuture<Void>> futures, ElanInstance elanInstance,
             ElanInterface elanInterface, InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn)
-            throws ElanException {
+                    throws ElanException {
         String elanInstanceName = elanInstance.getElanInstanceName();
         String interfaceName = elanInterface.getName();
         WriteTransaction tx = broker.newWriteOnlyTransaction();
@@ -701,10 +705,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             // Terminating Service , UnknownDMAC Table.
             setupTerminateServiceTable(elanInstance, dpId, writeFlowGroupTx);
             setupUnknownDMacTable(elanInstance, dpId, writeFlowGroupTx);
-            // update the remote-DPNs remoteBC group entry with Tunnels
-            if (ElanUtils.isVxlan(elanInstance)) {
-                setElanBCGrouponOtherDpns(elanInstance, elanInstance.getElanTag().longValue(), dpId, writeFlowGroupTx);
-            }
             /*
              * Install remote DMAC flow. This is required since this DPN is
              * added later to the elan instance and remote DMACs of other
@@ -857,7 +857,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void setElanBCGrouponOtherDpns(ElanInstance elanInfo, long elanTag, BigInteger dpId, WriteTransaction tx) {
+    private void setElanBCGrouponOtherDpns(ElanInstance elanInfo, BigInteger dpId) {
+        int elanTag = elanInfo.getElanTag().intValue();
         long groupId = ElanUtils.getElanRemoteBCGId(elanTag);
         List<Bucket> listBucket = new ArrayList<>();
         int bucketId = 0;
@@ -886,7 +887,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                 if (!remoteListActionInfo.isEmpty()) {
                                     remoteListBucketInfo
                                             .add(MDSALUtil.buildBucket(remoteListActionInfo, MDSALUtil.GROUP_WEIGHT,
-                                                    bucketId, MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
+                                            bucketId, MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
                                     bucketId++;
                                 }
                             } catch (Exception ex) {
@@ -907,7 +908,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     }
                     Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                             MDSALUtil.buildBucketLists(remoteListBucketInfo));
-                    mdsalManager.addGroupToTx(dpnInterface.getDpId(), group, tx);
+                    mdsalManager.syncInstallGroup(dpnInterface.getDpId(), group, ElanConstants.DELAY_TIME_IN_MILLISECOND);
+                    try {
+                        Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
+                    } catch (InterruptedException e1) {
+                        LOG.warn("Error while waiting for remote BC group on other DPNs for ELAN {} to install", elanInfo);
+                    }
                 }
             }
         }
