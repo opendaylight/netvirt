@@ -66,17 +66,18 @@ public class TransportZoneNotificationUtil {
     private static final String TUNNEL_PORT = "tunnel_port";
     private static final String LOCAL_IP = "local_ip";
     private static final String ALL_SUBNETS = "0.0.0.0/0";
-
     private DataBroker dataBroker;
     private NeutronvpnManager nvManager;
     private MdsalUtils mdsalUtils;
     private SouthboundUtils southBoundUtils;
+    private final NeutronvpnConfig neutronvpnConfig;
 
     public TransportZoneNotificationUtil(DataBroker dbx, NeutronvpnManager nvManager) {
         this.dataBroker = dbx;
         this.nvManager = nvManager;
         this.mdsalUtils = new MdsalUtils(dbx);
         southBoundUtils = new SouthboundUtils(mdsalUtils);
+        this.neutronvpnConfig = nvManager.getNeutronvpnConfig();
     }
 
 
@@ -157,24 +158,14 @@ public class TransportZoneNotificationUtil {
         }
     }
 
-
-
     public boolean isAutoTunnelConfigEnabled() {
-        Optional<NeutronvpnConfig> nvsConfig = MDSALDataStoreUtils.read(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
-                .create(NeutronvpnConfig.class));
         Boolean useTZ = true;
-        if (nvsConfig.isPresent()) {
-            useTZ = nvsConfig.get().isUseTransportZone() == null ? true : nvsConfig.get().isUseTransportZone();
+        if (neutronvpnConfig != null && neutronvpnConfig.isUseTransportZone() != null) {
+            useTZ = neutronvpnConfig.isUseTransportZone();
         }
-        if (useTZ) {
-            LOG.info("using automatic tunnel configuration");
-        } else {
-            LOG.info("don't use automatic tunnel configuration");
-        }
+        LOG.info("isAutoTunnelConfigEnabled: useTz: {}, neutronvpnConfig: {}", useTZ, neutronvpnConfig);
         return useTZ;
     }
-
 
     private boolean checkIfVxlanNetwork(Port port) {
         InstanceIdentifier<Network> networkPath = InstanceIdentifier.create(Neutron.class)
