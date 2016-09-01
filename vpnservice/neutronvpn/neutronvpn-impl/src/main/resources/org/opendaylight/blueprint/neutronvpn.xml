@@ -84,6 +84,7 @@
         class="org.opendaylight.netvirt.neutronvpn.NeutronNetworkChangeListener"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
+    <argument ref="neutronvpnManager" />
     <argument ref="neutronvpnNatManager" />
     <argument ref="elanService" />
     <argument ref="odlInterfaceRpcService" />

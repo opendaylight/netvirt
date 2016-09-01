@@ -295,8 +295,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             }
             rtrList.add(routerId);
             builder.setRouterIds(rtrList);
-
-            builder.setVpnid(routerId);
+            builder.setVpnid(extNetId);
 
             Networks networkss = builder.build();
             // Add Networks object to the ExternalNetworks list
@@ -503,7 +502,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         }
 
         for (String elanInterface : extElanInterfaces) {
-            createVpnInterface(routerId, elanInterface);
+            createVpnInterface(extNetId, elanInterface);
         }
     }
 
