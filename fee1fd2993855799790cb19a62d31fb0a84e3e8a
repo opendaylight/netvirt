@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_296de3cc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/BridgeRefEntryToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-09-01T10:31:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_ce89d576",
+      "range": {
+        "startLine": 57,
+        "startChar": 12,
+        "endLine": 57,
+        "endChar": 16
+      },
+      "revId": "fee1fd2993855799790cb19a62d31fb0a84e3e8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_2e7b297c",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_a949f361",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-09-01T10:31:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_2e7b297c",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 24
+      },
+      "revId": "fee1fd2993855799790cb19a62d31fb0a84e3e8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_0e80ed44",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/TransportZoneNotificationUtil.java",
         "patchSetId": 2
@@ -59,6 +107,24 @@
       "writtenOn": "2016-09-01T07:08:14Z",
       "side": 1,
       "message": "Would appreciate addition of a TODO here to eliminate DS read. Will make it easier to track all reads when optimizing code. Would be good to have it as a Util function in neutronvpnUtils so we can make change for read in one place.",
+      "revId": "fee1fd2993855799790cb19a62d31fb0a84e3e8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_49401f34",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/TransportZoneNotificationUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-09-01T10:31:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_0e80ed44",
       "revId": "fee1fd2993855799790cb19a62d31fb0a84e3e8a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
