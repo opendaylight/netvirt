@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -60,17 +61,11 @@ public class ExternalNetworkGroupInstaller {
         Uuid networkId = subnetMap.getNetworkId();
         Uuid subnetId = subnetMap.getId();
         if (networkId == null) {
-            LOG.trace("No external network associated subnet id {}", subnetId.getValue());
+            LOG.trace("No network associated subnet id {}", subnetId.getValue());
             return;
         }
 
-        List<Uuid> routerIds = NatUtil.getRouterIdsfromNetworkId(broker, networkId);
-        if (routerIds == null || routerIds.isEmpty()) {
-            LOG.trace("No router found for network id", networkId.getValue());
-            return;
-        }
-
-        String macAddress = NatUtil.getSubnetGwMac(broker, subnetId, routerIds.get(0).getValue());
+        String macAddress = NatUtil.getSubnetGwMac(broker, subnetId, networkId.getValue());
         installExtNetGroupEntries(subnetMap, macAddress);
     }
 
@@ -104,10 +99,11 @@ public class ExternalNetworkGroupInstaller {
 
         long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetName), idManager);
 
+        LOG.info("Installing ext-net group {} entry for subnet {} with macAddress {} (extInterfaces: {})",
+                 groupId, subnetName, macAddress, Arrays.toString(extInterfaces.toArray()));
         for (String extInterface : extInterfaces) {
             GroupEntity groupEntity = buildExtNetGroupEntity(macAddress, subnetName, groupId, extInterface);
             if (groupEntity != null) {
-                LOG.trace("Install ext-net Group: id {} gw mac address {} subnet id {}", groupId, macAddress, subnetName);
                 mdsalManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
             }
         }
@@ -150,25 +146,30 @@ public class ExternalNetworkGroupInstaller {
             return null;
         }
 
-        int pos = 0;
         List<ActionInfo> actionList = new ArrayList<>();
-        if (!Strings.isNullOrEmpty(macAddress)) {
-            actionList.add(new ActionInfo(ActionType.set_field_eth_dest, new String[] { macAddress }, pos++));
-        } else {
-            LOG.trace("GW mac has not been resolved for subnet {}", subnetName);
-        }
-
+        final int setFieldEthDestActionPos = 0;
         List<ActionInfo> egressActionList = NatUtil.getEgressActionsForInterface(interfaceManager, extInterface, null,
-                pos);
-        if (egressActionList == null || egressActionList.isEmpty()) {
-            LOG.warn("No Egress actions found for interface {} subnet id {}", extInterface, subnetName);
+                setFieldEthDestActionPos + 1);
+
+        if (Strings.isNullOrEmpty(macAddress) || egressActionList == null || egressActionList.isEmpty()) {
+            if (Strings.isNullOrEmpty(macAddress)) {
+                LOG.trace("Building ext-net group {} entry with drop action since "
+                        + "GW mac has not been resolved for subnet {} extInterface {}",
+                        groupId, subnetName, extInterface);
+            } else {
+                LOG.warn("Building ext-net group {} entry with drop action since "
+                        + "no egress actions were found for subnet {} extInterface {}",
+                        groupId, subnetName, extInterface);
+            }
+            actionList.add(new ActionInfo(ActionType.drop_action, new String[] {}));
         } else {
+            LOG.trace("Building ext-net group {} entry for subnet {} extInterface {} macAddress {}",
+                      groupId, subnetName, extInterface, macAddress);
+            actionList.add(new ActionInfo(ActionType.set_field_eth_dest, new String[] { macAddress }, setFieldEthDestActionPos));
             actionList.addAll(egressActionList);
         }
 
-        LOG.trace("Build group entry for subet {} groupId {} external interface {} on DPN {}", subnetName, groupId,
-                extInterface, dpId);
-        List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+        List<BucketInfo> listBucketInfo = new ArrayList<>();
         listBucketInfo.add(new BucketInfo(actionList));
         return MDSALUtil.buildGroupEntity(dpId, groupId, subnetName, GroupTypes.GroupAll, listBucketInfo);
     }

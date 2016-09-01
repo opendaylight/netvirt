@@ -338,11 +338,6 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         return NatUtil.readVpnId(dataBroker, vpnUuid.getValue());
     }
 
-    private long getVpnId(Uuid extNwId, long routerId) {
-        long vpnId = getVpnId(extNwId);
-        return vpnId < 0 ? routerId : vpnId;
-    }
-
     private void processFloatingIPAdd(final InstanceIdentifier<IpMapping> identifier,
                                       final IpMapping mapping) {
         LOG.trace("Add event - key: {}, value: {}", identifier, mapping);
@@ -422,7 +417,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
             LOG.error("NAT flow entries will not be installed {}", mapping);
             return;
         }
-        long vpnId = getVpnId(extNwId, routerId);
+        long vpnId = getVpnId(extNwId);
         if(vpnId < 0) {
             LOG.error("No VPN associated with Ext nw {}. Unable to create SNAT table entry for fixed ip {}",
                     extNwId, mapping.getInternalIp());
@@ -454,7 +449,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
             //routerId = associatedVpnId;
         }
 
-        long vpnId = getVpnId(externalNetworkId, routerId);
+        long vpnId = getVpnId(externalNetworkId);
         if(vpnId < 0) {
             LOG.error("Unable to create SNAT table entry for fixed ip {}", internalIp);
             return;
@@ -477,7 +472,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         }
         long associatedVpnId = NatUtil.getVpnId(dataBroker, associatedVPN);
         LOG.debug("Associated VPN Id {} for router {}", associatedVpnId, routerName);
-        long vpnId = getVpnId(externalNetworkId, routerId);
+        long vpnId = getVpnId(externalNetworkId);
         if(vpnId < 0) {
             LOG.error("Unable to create SNAT table entry for fixed ip {}", internalIp);
             return;

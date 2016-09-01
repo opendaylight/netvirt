@@ -22,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
@@ -36,15 +35,17 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
     private static final Logger LOG = LoggerFactory.getLogger(NeutronNetworkChangeListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
+    private final NeutronvpnManager nvpnManager;
     private final NeutronvpnNatManager nvpnNatManager;
     private final IElanService elanService;
     private OdlInterfaceRpcService odlInterfaceRpcService;
 
-    public NeutronNetworkChangeListener(final DataBroker dataBroker, final NeutronvpnNatManager nVpnNatMgr,
-                                        final IElanService elanService,
+    public NeutronNetworkChangeListener(final DataBroker dataBroker, final NeutronvpnManager nVpnMgr,
+                                        final NeutronvpnNatManager nVpnNatMgr, final IElanService elanService,
                                         OdlInterfaceRpcService odlInterfaceRpcService) {
         super(Network.class);
         this.dataBroker = dataBroker;
+        nvpnManager = nVpnMgr;
         nvpnNatManager = nVpnNatMgr;
         this.elanService = elanService;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
@@ -85,6 +86,7 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
         elanService.createExternalElanNetwork(elanInstance);
         if (NeutronvpnUtils.getIsExternal(input)) {
             nvpnNatManager.addExternalNetwork(input);
+            nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, null, null);
             NeutronvpnUtils.addToNetworkCache(input);
         }
     }
