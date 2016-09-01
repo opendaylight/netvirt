@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_ce89d576",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/BridgeRefEntryToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-09-01T07:08:14Z",
+      "side": 1,
+      "message": "Would prefer this to be debug. INFO logs in DCNs are rarely a good idea.",
+      "range": {
+        "startLine": 57,
+        "startChar": 12,
+        "endLine": 57,
+        "endChar": 16
+      },
+      "revId": "fee1fd2993855799790cb19a62d31fb0a84e3e8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2e7b297c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-09-01T07:08:14Z",
+      "side": 1,
+      "message": "nitpick: This file was created in 2016, so 2015 is not needed",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 24
+      },
+      "revId": "fee1fd2993855799790cb19a62d31fb0a84e3e8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0e80ed44",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/TransportZoneNotificationUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-09-01T07:08:14Z",
+      "side": 1,
+      "message": "Would appreciate addition of a TODO here to eliminate DS read. Will make it easier to track all reads when optimizing code. Would be good to have it as a Util function in neutronvpnUtils so we can make change for read in one place.",
+      "revId": "fee1fd2993855799790cb19a62d31fb0a84e3e8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
