@@ -902,6 +902,7 @@ public class ElanUtils {
      *            the tunnel key
      * @return the egress actions for interface
      */
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public List<Action> getEgressActionsForInterface(String ifName, Long tunnelKey) {
         List<Action> listAction = new ArrayList<>();
         try {
@@ -917,7 +918,7 @@ public class ElanUtils {
                 List<Action> actions = rpcResult.getResult().getAction();
                 listAction = actions;
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (Exception e) {
             LOG.warn("Exception when egress actions for interface {}", ifName, e);
         }
         return listAction;
@@ -1430,19 +1431,20 @@ public class ElanUtils {
      *            tunnels, etc.
      * @return the list
      */
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public List<Action> buildItmEgressActions(String interfaceName, Long tunnelKey) {
         List<Action> result = Collections.emptyList();
-        GetEgressActionsForInterfaceInput getEgressActInput = new GetEgressActionsForInterfaceInputBuilder()
-                .setIntfName(interfaceName).setTunnelKey(tunnelKey).build();
-
-        Future<RpcResult<GetEgressActionsForInterfaceOutput>> egressActionsOutputFuture = interfaceManagerRpcService
-                .getEgressActionsForInterface(getEgressActInput);
         try {
+            GetEgressActionsForInterfaceInput getEgressActInput = new GetEgressActionsForInterfaceInputBuilder()
+                    .setIntfName(interfaceName).setTunnelKey(tunnelKey).build();
+
+            Future<RpcResult<GetEgressActionsForInterfaceOutput>> egressActionsOutputFuture = interfaceManagerRpcService
+                    .getEgressActionsForInterface(getEgressActInput);
             if (egressActionsOutputFuture.get().isSuccessful()) {
                 GetEgressActionsForInterfaceOutput egressActionsOutput = egressActionsOutputFuture.get().getResult();
                 result = egressActionsOutput.getAction();
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (Exception e) {
             LOG.error("Error in RPC call getEgressActionsForInterface {}", e);
         }
 
