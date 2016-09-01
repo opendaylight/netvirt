@@ -48,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksOutputBuilder;
@@ -131,6 +132,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private final NotificationPublishService notificationPublishService;
     private final VpnRpcService vpnRpcService;
     private final NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
+    private final NeutronvpnConfig neutronvpnConfig;
     private final IMdsalApiManager mdsalUtil;
     private final IElanService elanService;
     Boolean isExternalVpn;
@@ -144,7 +146,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             final NotificationPublishService notiPublishService, final NeutronvpnNatManager vpnNatMgr,
             final LockManagerService lockManager, final VpnRpcService vpnRpcSrv,
             final IElanService elanService,
-            final NeutronFloatingToFixedIpMappingChangeListener neutronFloatingToFixedIpMappingChangeListener) {
+            final NeutronFloatingToFixedIpMappingChangeListener neutronFloatingToFixedIpMappingChangeListener,
+            final NeutronvpnConfig neutronvpnConfig) {
         this.dataBroker = dataBroker;
         mdsalUtil = mdsalManager;
         nvpnNatManager = vpnNatMgr;
@@ -153,11 +156,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         this.elanService = elanService;
         floatingIpMapListener = neutronFloatingToFixedIpMappingChangeListener;
         this.lockManager = lockManager;
+        this.neutronvpnConfig = neutronvpnConfig;
     }
 
     @Override
     public void close() throws Exception {
         LOG.info("{} close", getClass().getSimpleName());
+    }
+
+    public NeutronvpnConfig getNeutronvpnConfig() {
+        return neutronvpnConfig;
     }
 
     protected void updateSubnetNodeWithFixedIps(Uuid subnetId, Uuid routerId,
