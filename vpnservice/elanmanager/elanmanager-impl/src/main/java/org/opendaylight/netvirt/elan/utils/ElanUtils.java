@@ -32,6 +32,8 @@ import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -596,7 +598,7 @@ public class ElanUtils {
      *            the elan instance name
      * @return list of dpIds
      */
-    public List<BigInteger> getParticipatingDPNsInElanInstance(String elanInstanceName) {
+    public List<BigInteger> getParticipatingDpnsInElanInstance(String elanInstanceName) {
         List<BigInteger> dpIds = new ArrayList<>();
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanInstanceName);
         Optional<ElanDpnInterfacesList> existingElanDpnInterfaces = read(broker,
@@ -1041,6 +1043,10 @@ public class ElanUtils {
             String macAddress, long elanTag) {
         return new StringBuffer().append(tableId).append(elanTag).append(dpId).append(remoteDpId).append(macAddress)
                 .toString();
+    }
+
+    public static String getKnownDynamicmacFlowRef(short tableId, BigInteger dpId, String macAddress, long elanTag) {
+        return new StringBuffer().append(tableId).append(elanTag).append(dpId).append(macAddress).toString();
     }
 
     private static String getKnownDynamicmacFlowRef(short elanDmacTable, BigInteger dpId, String extDeviceNodeId,
@@ -2172,6 +2178,54 @@ public class ElanUtils {
             return true;
         }
         return false;
+    }
+
+    public void handleDmacRedirectToDispatcherFlows(Long elanTag, String displayName,
+            String macAddress, int addOrRemove, List<BigInteger> dpnIds) {
+        for (BigInteger dpId : dpnIds) {
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                WriteTransaction writeTx = broker.newWriteOnlyTransaction();
+                mdsalManager.addFlowToTx(buildDmacRedirectToDispatcherFlow(dpId, macAddress, displayName, elanTag),
+                        writeTx);
+                writeTx.submit();
+            } else {
+                String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, macAddress, elanTag);
+                mdsalManager.removeFlow(dpId, MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, flowId));
+            }
+        }
+    }
+
+    public static FlowEntity buildDmacRedirectToDispatcherFlow(BigInteger dpId, String dstMacAddress,
+            String displayName, long elanTag) {
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        matches.add(new MatchInfo(MatchFieldType.metadata,
+                new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
+        matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
+        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<ActionInfo> actions = new ArrayList<ActionInfo>();
+        actions.add(new ActionInfo(ActionType.nx_resubmit,
+                new String[] { String.valueOf(NwConstants.LPORT_DISPATCHER_TABLE) }));
+
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actions));
+        String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, dstMacAddress, elanTag);
+        FlowEntity flow  = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, flowId, 20, displayName, 0, 0,
+                ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)),
+                matches, instructions);
+        return flow;
+    }
+
+    public static FlowEntity buildDmacRedirectToDispatcherFlowMacNoActions(BigInteger dpId, String dstMacAddress,
+            String displayName, long elanTag) {
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        matches.add(new MatchInfo(MatchFieldType.metadata,
+                new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
+        matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
+
+        String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, dstMacAddress, elanTag);
+        FlowEntity flow  = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, flowId, 20, displayName, 0, 0,
+                ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)),
+                matches, new ArrayList<InstructionInfo>());
+        return flow;
     }
 
     /**
