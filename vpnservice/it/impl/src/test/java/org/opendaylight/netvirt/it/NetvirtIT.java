@@ -254,13 +254,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
     }
 
-    private void addLocalIp(NodeInfo nodeInfo, int instance) {
-        Map<String, String> otherConfigs = Maps.newHashMap();
-        otherConfigs.put("local_ip", "172.17.0." + (instance + 1));
-        assertTrue(nvSouthboundUtils.addOpenVSwitchOtherConfig(nodeInfo.ovsdbNode, otherConfigs));
-    }
-
     private void addLocalIp(NodeInfo nodeInfo, String ip) {
+        LOG.info("addlocalIp: nodeinfo: {}, local_ip: {}", nodeInfo.ovsdbNode.getNodeId(), ip);
         Map<String, String> otherConfigs = Maps.newHashMap();
         otherConfigs.put("local_ip", ip);
         assertTrue(nvSouthboundUtils.addOpenVSwitchOtherConfig(nodeInfo.ovsdbNode, otherConfigs));
@@ -279,17 +274,13 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNetVirt() throws InterruptedException {
+        int ovs1 = 1;
         try (DockerOvs ovs = new DockerOvs()) {
-            ovs.logState(0, "idle");
-            ConnectionInfo connectionInfo =
-                    SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
-            NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
-            nodeInfo.connect();
-            LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
-            addLocalIp(nodeInfo, 1);
+            Boolean isUserSpace = userSpaceEnabled.equals("yes");
+            LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
+            NetOvs netOvs = getNetOvs(ovs, isUserSpace);
 
-            validateDefaultFlows(nodeInfo.datapathId, 2 * 60 * 1000);
-            ovs.logState(0, "default flows");
+            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
 
             nodeInfo.disconnect();
         } catch (Exception e) {
@@ -310,7 +301,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNeutronNet() throws InterruptedException {
-        int ovs1 = 0;
+        int ovs1 = 1;
         try (DockerOvs ovs = new DockerOvs()) {
             Boolean isUserSpace = userSpaceEnabled.equals("yes");
             LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
@@ -336,7 +327,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     }
 
     // This test requires ovs kernel modules to be loaded which is not in jenkins yet.
-    //@Ignore
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNeutronNetTwoNodes() throws InterruptedException {
@@ -357,9 +347,12 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             String port2 = addPort(netOvs, nodeInfo2, ovs2);
 
             int rc = netOvs.ping(port1, port2);
+            LOG.info("Ping status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
             netOvs.logState(ovs1, "node 1 after ping");
             netOvs.logState(ovs2, "node 2 after ping");
-            assertEquals("Ping failed rc: " + rc, 0, rc);
+            if (!isUserSpace) {
+                assertEquals("Ping failed rc: " + rc, 0, rc);
+            }
 
             netOvs.destroy();
             nodeInfo.disconnect();
@@ -385,9 +378,10 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(ovsInstance), ovs.getOvsdbPort(ovsInstance));
         NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
         nodeInfo.connect();
-        LOG.info("testNeutronNetTwoNodes: node {} should be connected: {}",
+        LOG.info("connectOvs: node {} should be connected: {}",
                 ovsInstance, nodeInfo.ovsdbNode.getNodeId());
-        addLocalIp(nodeInfo, netOvs.getInstanceIp(ovsInstance));
+        String localIp = netOvs.getInstanceIp(ovsInstance);
+        addLocalIp(nodeInfo, localIp);
 
         validateDefaultFlows(nodeInfo.datapathId, 2 * 60 * 1000);
         netOvs.logState(ovsInstance, "node " + ovsInstance + " default flows");
