@@ -21,7 +21,7 @@ public class NeutronRouterDpnsToTransportZoneListener extends AsyncDataTreeChang
     NeutronRouterDpnsToTransportZoneListener> implements
     ClusteredDataTreeChangeListener<RouterDpnList>, AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BridgeRefEntryToTransportZoneListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronRouterDpnsToTransportZoneListener.class);
 
     private TransportZoneNotificationUtil ism;
 
