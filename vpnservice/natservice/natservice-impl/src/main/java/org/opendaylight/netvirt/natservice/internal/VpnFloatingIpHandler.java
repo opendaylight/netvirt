@@ -91,7 +91,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     public void onAddFloatingIp(final BigInteger dpnId, final String routerId,
                                 Uuid networkId, final String interfaceName, final String externalIp,
                                 final String internalIp) {
-        final String vpnName = getAssociatedVPN(networkId, routerId);
+        final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         if (vpnName == null) {
             LOG.info("No VPN associated with ext nw {} to handle add floating ip configuration {} in router {}",
                     networkId, externalIp, routerId);
@@ -177,7 +177,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     @Override
     public void onRemoveFloatingIp(final BigInteger dpnId, String routerId, Uuid networkId, final String externalIp,
                                    String internalIp, final long label) {
-        final String vpnName = getAssociatedVPN(networkId, routerId);
+        final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         if (vpnName == null) {
             LOG.info("No VPN associated with ext nw {} to handle remove floating ip configuration {} in router {}",
                     networkId, externalIp, routerId);
@@ -240,7 +240,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(label).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
-        ListenableFuture<RpcResult<Void>> labelFuture = Futures.transform(JdkFutureAdapters.listenInPoolThread(future),
+        ListenableFuture<RpcResult<Void>> labelFuture = Futures.transform(JdkFutureAdapters.listenInPoolThread(future), 
             new AsyncFunction<RpcResult<Void>, RpcResult<Void>>() {
 
             @Override
@@ -353,11 +353,6 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         mdsalManager.removeFlow(dpnId, flowEntity);
 
         LOG.debug("LFIB Entry for dpID : {} label : {} removed successfully {}",dpnId, serviceId);
-    }
-
-    private String getAssociatedVPN(Uuid networkId, String routerId) {
-        String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
-        return vpnName != null ? vpnName : routerId;
     }
 
     private void sendGarpOnInterface(String interfaceName, final IpAddress floatingIpAddress, final String routerId) {
