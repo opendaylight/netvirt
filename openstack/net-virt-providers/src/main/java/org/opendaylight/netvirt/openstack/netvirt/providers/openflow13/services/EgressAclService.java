@@ -258,9 +258,8 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
 
     private void addTcpSynFlagMatchIpv4Drop(Long dpidLong, String segmentationId, String srcMac,
                                   boolean write, Integer priority) {
-        String flowName = "Egress_TCP_Ipv4" + segmentationId + "_" + srcMac + "_DROP_";
+        String flowName = "Egress_TCP_Ipv4_" + segmentationId + "_" + srcMac + "_DROP";
         MatchBuilder matchBuilder = new MatchBuilder();
-        flowName = flowName + "_";
         matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,srcMac,null,MatchUtils.ETHERTYPE_IPV4);
         matchBuilder = MatchUtils.addTcpSynMatch(matchBuilder);
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowName, priority, matchBuilder, getTable());
@@ -271,9 +270,8 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
 
     private void addTcpSynFlagMatchIpv6Drop(Long dpidLong, String segmentationId, String srcMac,
                                         boolean write, Integer priority) {
-        String flowName = "Egress_TCP_Ipv6" + segmentationId + "_" + srcMac + "_DROP_";
+        String flowName = "Egress_TCP_Ipv6_" + segmentationId + "_" + srcMac + "_DROP";
         MatchBuilder matchBuilder = new MatchBuilder();
-        flowName = flowName + "_";
         matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,srcMac,null);
         matchBuilder = MatchUtils.addTcpSynMatch(matchBuilder);
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowName, priority, matchBuilder, getTable());
@@ -430,16 +428,16 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         }
 
         /* Custom TCP Match */
-        if (portSecurityRule.getSecurityRulePortMin().equals(portSecurityRule.getSecurityRulePortMax())) {
-            flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_";
-            matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.TCP_SHORT, 0,
-                                                     portSecurityRule.getSecurityRulePortMin());
-        } else {
-            /* All TCP Match */
-            if (portSecurityRule.getSecurityRulePortMin().equals(PORT_RANGE_MIN)
+        if (portSecurityRule.getSecurityRulePortMin() != null && portSecurityRule.getSecurityRulePortMax() != null) {
+            if (portSecurityRule.getSecurityRulePortMin().equals(portSecurityRule.getSecurityRulePortMax())) {
+                flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_";
+                matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.TCP_SHORT, 0,
+                        portSecurityRule.getSecurityRulePortMin());
+            } else if (portSecurityRule.getSecurityRulePortMin().equals(PORT_RANGE_MIN)
                     && portSecurityRule.getSecurityRulePortMax().equals(PORT_RANGE_MAX)) {
+                /* All TCP Match */
                 flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_"
-                            + portSecurityRule.getSecurityRulePortMax() + "_";
+                        + portSecurityRule.getSecurityRulePortMax() + "_";
                 matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.TCP_SHORT, 0, 0);
             } else {
                 portRange = true;
@@ -644,16 +642,16 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         }
 
         /* Custom UDP Match */
-        if (portSecurityRule.getSecurityRulePortMin().equals(portSecurityRule.getSecurityRulePortMax())) {
-            flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_";
-            matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 0,
-                                                     portSecurityRule.getSecurityRulePortMin());
-        } else {
-            /* All UDP Match */
-            if (portSecurityRule.getSecurityRulePortMin().equals(PORT_RANGE_MIN)
+        if (portSecurityRule.getSecurityRulePortMin() != null && portSecurityRule.getSecurityRulePortMax() != null) {
+            if (portSecurityRule.getSecurityRulePortMin().equals(portSecurityRule.getSecurityRulePortMax())) {
+                flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_";
+                matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 0,
+                        portSecurityRule.getSecurityRulePortMin());
+            } else if (portSecurityRule.getSecurityRulePortMin().equals(PORT_RANGE_MIN)
                     && portSecurityRule.getSecurityRulePortMax().equals(PORT_RANGE_MAX)) {
+                /* All UDP Match */
                 flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_"
-                    + portSecurityRule.getSecurityRulePortMax() + "_";
+                        + portSecurityRule.getSecurityRulePortMax() + "_";
                 matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 0, 0);
             } else {
                 portRange = true;
@@ -756,7 +754,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
      */
     private void egressAclDhcpDropServerTrafficfromVm(Long dpidLong, long localPort,
                                                       boolean write, Integer priority) {
-        String flowName = "Egress_DHCP_Server" + "_" + localPort + "_DROP_";
+        String flowName = "Egress_DHCP_Server_" + localPort + "_DROP";
         MatchBuilder matchBuilder = new MatchBuilder();
         MatchUtils.createInPortMatch(matchBuilder, dpidLong, localPort);
         MatchUtils.createDhcpMatch(matchBuilder, DHCP_SOURCE_PORT, DHCP_DESTINATION_PORT);
@@ -777,7 +775,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
     private void egressAclDhcpv6DropServerTrafficfromVm(Long dpidLong, long localPort,
                                                         boolean write, Integer priority) {
 
-        String flowName = "Egress_DHCPv6_Server" + "_" + localPort + "_DROP_";
+        String flowName = "Egress_DHCPv6_Server_" + "_" + localPort + "_DROP";
         MatchBuilder matchBuilder = new MatchBuilder();
         MatchUtils.createInPortMatch(matchBuilder, dpidLong, localPort);
         MatchUtils.createDhcpv6Match(matchBuilder, DHCPV6_SOURCE_PORT, DHCPV6_DESTINATION_PORT);
