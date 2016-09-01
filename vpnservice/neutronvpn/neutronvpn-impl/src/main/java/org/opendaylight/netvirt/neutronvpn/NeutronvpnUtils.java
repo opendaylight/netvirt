@@ -10,10 +10,12 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
 import java.util.Iterator;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,6 +51,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
@@ -122,11 +127,11 @@ public class NeutronvpnUtils {
             .put(NetworkTypeVxlan.class, SegmentTypeVxlan.class)
             .build();
 
-    public static ConcurrentHashMap<Uuid, Network> networkMap = new ConcurrentHashMap<Uuid, Network>();
-    public static ConcurrentHashMap<Uuid, Router> routerMap = new ConcurrentHashMap<Uuid, Router>();
-    public static ConcurrentHashMap<Uuid, Port> portMap = new ConcurrentHashMap<Uuid, Port>();
-    public static ConcurrentHashMap<Uuid, Subnet> subnetMap = new ConcurrentHashMap<Uuid, Subnet>();
-    public static Map<IpAddress, Set<Uuid>> subnetGwIpMap = new ConcurrentHashMap<IpAddress, Set<Uuid>>();
+    public static ConcurrentHashMap<Uuid, Network> networkMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Uuid, Router> routerMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Uuid, Port> portMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Uuid, Subnet> subnetMap = new ConcurrentHashMap<>();
+    public static Map<IpAddress, Set<Uuid>> subnetGwIpMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, QosPolicy> qosPolicyMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, HashMap<Uuid, Port>> qosPortsMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, HashMap<Uuid, Network>> qosNetworksMap = new ConcurrentHashMap<>();
@@ -318,7 +323,7 @@ public class NeutronvpnUtils {
      */
     protected static boolean isPortSecurityEnabled(Port port) {
         PortSecurityExtension portSecurity = port.getAugmentation(PortSecurityExtension.class);
-        return (portSecurity != null && portSecurity.isPortSecurityEnabled() != null);
+        return portSecurity != null && portSecurity.isPortSecurityEnabled() != null;
     }
 
     /**
@@ -515,7 +520,7 @@ public class NeutronvpnUtils {
         List<Uuid> addedGroups = getSecurityGroupsDelta(newSecurityGroups, origSecurityGroups);
         List<Uuid> deletedGroups = getSecurityGroupsDelta(origSecurityGroups, newSecurityGroups);
         List<Uuid> updatedSecurityGroups =
-                (aclInterfaceSecurityGroups != null) ? new ArrayList<>(aclInterfaceSecurityGroups) : new ArrayList<>();
+                aclInterfaceSecurityGroups != null ? new ArrayList<>(aclInterfaceSecurityGroups) : new ArrayList<>();
         if (addedGroups != null) {
             updatedSecurityGroups.addAll(addedGroups);
         }
@@ -539,7 +544,7 @@ public class NeutronvpnUtils {
             List<FixedIps> origFixedIps, List<FixedIps> newFixedIps) {
         List<FixedIps> addedFixedIps = getFixedIpsDelta(newFixedIps, origFixedIps);
         List<FixedIps> deletedFixedIps = getFixedIpsDelta(origFixedIps, newFixedIps);
-        List<AllowedAddressPairs> updatedAllowedAddressPairs = (aclInterfaceAllowedAddressPairs != null) ?
+        List<AllowedAddressPairs> updatedAllowedAddressPairs = aclInterfaceAllowedAddressPairs != null ?
                 new ArrayList<>(aclInterfaceAllowedAddressPairs) : new ArrayList<>();
         if (deletedFixedIps != null) {
             updatedAllowedAddressPairs.removeAll(getAllowedAddressPairsForAclService(portMacAddress, deletedFixedIps));
@@ -566,7 +571,7 @@ public class NeutronvpnUtils {
                 origAllowedAddressPairs);
         List<AllowedAddressPairs> deletedAllowedAddressPairs = getAllowedAddressPairsDelta(origAllowedAddressPairs,
                 newAllowedAddressPairs);
-        List<AllowedAddressPairs> updatedAllowedAddressPairs = (aclInterfaceAllowedAddressPairs != null) ?
+        List<AllowedAddressPairs> updatedAllowedAddressPairs = aclInterfaceAllowedAddressPairs != null ?
                 new ArrayList<>(aclInterfaceAllowedAddressPairs) : new ArrayList<>();
         if (addedAllowedAddressPairs != null) {
             updatedAllowedAddressPairs.addAll(addedAllowedAddressPairs);
@@ -970,7 +975,7 @@ public class NeutronvpnUtils {
         NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
         return npe != null && supportedNetworkTypes.contains(npe.getNetworkType());
     }
-    
+
     static boolean isNetworkOfType(Network network, Class<? extends NetworkTypeBase> type) {
         NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
         return npe != null && type.isAssignableFrom(npe.getNetworkType());
@@ -1012,6 +1017,27 @@ public class NeutronvpnUtils {
         return Optional.absent();
     }
 
+
+    public static Set<RouterDpnList> getAllRouterDpnList(DataBroker broker, BigInteger dpid) {
+        Set<RouterDpnList> ret = new HashSet<>();
+        InstanceIdentifier<NeutronRouterDpns> routerDpnId =
+                InstanceIdentifier.create(NeutronRouterDpns.class);
+        Optional<NeutronRouterDpns> neutronRouterDpnsOpt = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, routerDpnId);
+        if (neutronRouterDpnsOpt.isPresent()) {
+            NeutronRouterDpns neutronRouterDpns = neutronRouterDpnsOpt.get();
+            List<RouterDpnList> routerDpnLists = neutronRouterDpns.getRouterDpnList();
+            for (RouterDpnList routerDpnList : routerDpnLists) {
+                if (routerDpnList.getDpnVpninterfacesList() != null) {
+                    for (DpnVpninterfacesList dpnInterfaceList : routerDpnList.getDpnVpninterfacesList()) {
+                        if (dpnInterfaceList.getDpnId().equals(dpid)) {
+                            ret.add(routerDpnList);
+                        }
+                    }
+                }
+            }
+        }
+        return ret;
+    }
 
     protected static Integer getUniqueRDId(IdManagerService idManager, String poolName, String idKey) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
