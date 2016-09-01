@@ -37,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -575,6 +576,11 @@ public class ElanServiceProvider implements IElanService {
     @Override
     public ElanInterface getElanInterfaceByElanInterfaceName(String interfaceName) {
         return ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
+    }
+
+    @Override
+    public void handleRouterEntitiesFlows(String macAddress, Uuid networkId) {
+        LOG.info("YAIR inside handleRouterEntitiesFlows");
     }
 
     /**

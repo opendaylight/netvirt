@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataCh
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -71,12 +72,14 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private final NotificationPublishService notificationPublishService;
     private final NeutronSubnetGwMacResolver gwMacResolver;
     private OdlInterfaceRpcService odlInterfaceRpcService;
+    private final IElanService elanService;
 
     public NeutronPortChangeListener(final DataBroker dataBroker,
                                      final NeutronvpnManager nVpnMgr, final NeutronvpnNatManager nVpnNatMgr,
                                      final NotificationPublishService notiPublishService,
                                      final LockManagerService lockManager, NeutronSubnetGwMacResolver gwMacResolver,
-                                     final OdlInterfaceRpcService odlInterfaceRpcService) {
+                                     final OdlInterfaceRpcService odlInterfaceRpcService,
+                                     final IElanService elanService) {
         super(Port.class);
         this.dataBroker = dataBroker;
         nvpnManager = nVpnMgr;
@@ -85,6 +88,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         this.lockManager = lockManager;
         this.gwMacResolver = gwMacResolver;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
+        this.elanService = elanService;
     }
 
     public void start() {
@@ -129,6 +133,16 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             }
             if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(input.getDeviceOwner())) {
                 handleRouterGatewayUpdated(input);
+            }
+            if (NeutronConstants.DEVICE_OWNER_ROUTER_INF.equals(input.getDeviceOwner())) {
+                LOG.info("YAIR - got new router interface {} with networkId {}", input,
+                        input.getNetworkId());
+                if (input.getMacAddress() == null) {
+                    LOG.warn("No MAC for router interface {}", input);
+                    return;
+                }
+
+                elanService.handleRouterEntitiesFlows(input.getMacAddress().getValue(), input.getNetworkId());
             }
         }
         if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
