@@ -100,7 +100,7 @@ import org.slf4j.LoggerFactory;
  */
 @SuppressWarnings("deprecation")
 public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanInterface, ElanInterfaceManager>
-        implements AutoCloseable {
+implements AutoCloseable {
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
@@ -117,10 +117,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceManager.class);
 
     public ElanInterfaceManager(final DataBroker dataBroker,
-                                final IdManagerService managerService,
-                                final IMdsalApiManager mdsalApiManager,
-                                IInterfaceManager interfaceManager,
-                                final ElanForwardingEntriesHandler elanForwardingEntriesHandler) {
+            final IdManagerService managerService,
+            final IMdsalApiManager mdsalApiManager,
+            IInterfaceManager interfaceManager,
+            final ElanForwardingEntriesHandler elanForwardingEntriesHandler) {
         super(ElanInterface.class, ElanInterfaceManager.class);
         this.broker = dataBroker;
         this.idManager = managerService;
@@ -253,7 +253,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             List<Action> listAction = new ArrayList<>();
             listAction.add(new ActionInfo(ActionType.group,
                     new String[] { String.valueOf(ElanUtils.getEtreeLeafLocalBCGId(etreeTag)) }, ++actionKey)
-                            .buildAction());
+                    .buildAction());
             listBuckets.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                     MDSALUtil.WATCH_GROUP));
             bucketId++;
@@ -407,10 +407,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private void removeTheMacFlowInTheDPN(BigInteger dpId, long elanTag, BigInteger currentDpId, MacEntry mac) {
         mdsalManager
-                .removeFlow(dpId,
-                        MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
-                                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, currentDpId,
-                                        mac.getMacAddress().getValue(), elanTag)));
+        .removeFlow(dpId,
+                MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
+                        ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, currentDpId,
+                                mac.getMacAddress().getValue(), elanTag)));
     }
 
     @Override
@@ -610,6 +610,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             installEntriesForFirstInterfaceonDpn(elanInstance, interfaceInfo, dpnInterfaces, isFirstInterfaceInDpn, tx);
         }
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
+        //update the remote-DPNs remoteBC group entry with Tunnels
+        if (isFirstInterfaceInDpn) {
+            //update the remote-DPNs remoteBC group entry with Tunnels
+            setElanBCGrouponOtherDpns(elanInstance, dpId);
+        }
 
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceAddWorkerOnElanInterface addWorker = new InterfaceAddWorkerOnElanInterface(interfaceName,
@@ -619,7 +624,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     void setupEntriesForElanInterface(List<ListenableFuture<Void>> futures, ElanInstance elanInstance,
             ElanInterface elanInterface, InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn)
-            throws ElanException {
+                    throws ElanException {
         String elanInstanceName = elanInstance.getElanInstanceName();
         String interfaceName = elanInterface.getName();
         WriteTransaction tx = broker.newWriteOnlyTransaction();
@@ -639,7 +644,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             existingMacEntry.get(), tx);
                 } else {
                     elanForwardingEntriesHandler
-                            .addElanInterfaceForwardingTableList(elanInstance, interfaceName, physAddress, tx);
+                    .addElanInterfaceForwardingTableList(elanInstance, interfaceName, physAddress, tx);
                 }
 
                 if (isInterfaceOperational) {
@@ -689,7 +694,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private void installEntriesForElanInterface(ElanInstance elanInstance, InterfaceInfo interfaceInfo,
             boolean isFirstInterfaceInDpn, WriteTransaction tx, WriteTransaction writeFlowGroupTx)
-            throws ElanException {
+                    throws ElanException {
         if (!isOperational(interfaceInfo)) {
             return;
         }
@@ -856,7 +861,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void setElanBCGrouponOtherDpns(ElanInstance elanInfo, long elanTag, BigInteger dpId, WriteTransaction tx) {
+    private void setElanBCGrouponOtherDpns(ElanInstance elanInfo, BigInteger dpId) {
+        int elanTag = elanInfo.getElanTag().intValue();
         long groupId = ElanUtils.getElanRemoteBCGId(elanTag);
         List<Bucket> listBucket = new ArrayList<>();
         int bucketId = 0;
@@ -871,7 +877,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     int actionKey = 0;
                     listAction.add(new ActionInfo(ActionType.group,
                             new String[] { String.valueOf(ElanUtils.getElanLocalBCGId(elanTag)) }, ++actionKey)
-                                    .buildAction());
+                            .buildAction());
                     listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId,
                             MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
                     bucketId++;
@@ -884,8 +890,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                         dpnInterface.getDpId(), otherFes.getDpId(), elanTag);
                                 if (!remoteListActionInfo.isEmpty()) {
                                     remoteListBucketInfo
-                                            .add(MDSALUtil.buildBucket(remoteListActionInfo, MDSALUtil.GROUP_WEIGHT,
-                                                    bucketId, MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
+                                    .add(MDSALUtil.buildBucket(remoteListActionInfo, MDSALUtil.GROUP_WEIGHT,
+                                            bucketId, MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
                                     bucketId++;
                                 }
                             } catch (Exception ex) {
@@ -906,7 +912,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     }
                     Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                             MDSALUtil.buildBucketLists(remoteListBucketInfo));
-                    mdsalManager.addGroupToTx(dpnInterface.getDpId(), group, tx);
+                    mdsalManager.syncInstallGroup(dpnInterface.getDpId(), group, ElanConstants.DELAY_TIME_IN_MILLISECOND);
+                    try {
+                        Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
+                    } catch (InterruptedException e1) {
+                        LOG.warn("Error while waiting for remote BC group on other DPNs for ELAN {} to install", elanInfo);
+                    }
                 }
             }
         }
@@ -1021,7 +1032,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             List<Action> listAction = new ArrayList<>();
             listAction.add(new ActionInfo(ActionType.group,
                     new String[] { String.valueOf(ElanUtils.getEtreeLeafLocalBCGId(etreeLeafTag)) }, ++actionKey)
-                            .buildAction());
+                    .buildAction());
             listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                     MDSALUtil.WATCH_GROUP));
             bucketId++;
