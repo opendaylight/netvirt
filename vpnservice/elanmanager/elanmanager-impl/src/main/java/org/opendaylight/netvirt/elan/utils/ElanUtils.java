@@ -596,7 +596,7 @@ public class ElanUtils {
      *            the elan instance name
      * @return list of dpIds
      */
-    public List<BigInteger> getParticipatingDPNsInElanInstance(String elanInstanceName) {
+    public List<BigInteger> getParticipatingDpnsInElanInstance(String elanInstanceName) {
         List<BigInteger> dpIds = new ArrayList<>();
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanInstanceName);
         Optional<ElanDpnInterfacesList> existingElanDpnInterfaces = read(broker,
@@ -1041,6 +1041,10 @@ public class ElanUtils {
             String macAddress, long elanTag) {
         return new StringBuffer().append(tableId).append(elanTag).append(dpId).append(remoteDpId).append(macAddress)
                 .toString();
+    }
+
+    public static String getKnownDynamicmacFlowRef(short tableId, BigInteger dpId, String macAddress, long elanTag) {
+        return new StringBuffer().append(tableId).append(elanTag).append(dpId).append(macAddress).toString();
     }
 
     private static String getKnownDynamicmacFlowRef(short elanDmacTable, BigInteger dpId, String extDeviceNodeId,
@@ -2172,6 +2176,40 @@ public class ElanUtils {
             return true;
         }
         return false;
+    }
+
+    public static void setupSubnetMacIntoVpnInstance(IMdsalApiManager mdsalManager, Long elanTag, String displayName,
+            String macAddress, WriteTransaction writeTx, int addOrRemove, List<BigInteger> dpnIds) {
+        LOG.info("YAIR - in setup... ");
+        for (BigInteger dpId : dpnIds) {
+            LOG.info("YAIR - creating flow for dpId {}", dpId);
+            FlowEntity flowEntity = buildDmacFlowForRouterEntitiesMac(dpId, macAddress, displayName, elanTag);
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                mdsalManager.addFlowToTx(flowEntity, writeTx);
+            } else {
+                mdsalManager.removeFlowToTx(flowEntity, writeTx);
+            }
+        }
+    }
+
+    public static FlowEntity buildDmacFlowForRouterEntitiesMac(BigInteger dpId, String dstMacAddress,
+            String displayName, long elanTag) {
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        LOG.info("YAIR - build flow 1");
+        matches.add(new MatchInfo(MatchFieldType.metadata,
+                new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
+        matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
+        LOG.info("YAIR - build flow 2");
+        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_FIB_TABLE }));
+        LOG.info("YAIR - build flow 3");
+        String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, dstMacAddress, elanTag);
+        LOG.info("YAIR - build flow 4");
+        FlowEntity flow  = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, flowId, 20, displayName, 0, 0,
+                ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)),
+                matches, instructions);
+        LOG.info("YAIR - build flow 5 {}", flow);
+        return flow;
     }
 
     /**
