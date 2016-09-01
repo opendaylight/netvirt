@@ -37,7 +37,7 @@ public class AclInterface {
     List<AllowedAddressPairs> allowedAddressPairs;
 
     /** The port is marked for delete. */
-    Boolean isMarkedForDelete;
+    Boolean isMarkedForDelete = false;
 
     /**
      * Checks if is port security enabled.
