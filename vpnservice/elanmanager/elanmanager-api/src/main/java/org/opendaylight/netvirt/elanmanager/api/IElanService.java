@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.elanmanager.api;
 import java.util.Collection;
 import java.util.List;
 import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
@@ -62,4 +63,6 @@ public interface IElanService extends IEtreeService {
     boolean isExternalInterface(String interfaceName);
 
     ElanInterface getElanInterfaceByElanInterfaceName(String interfaceName);
+
+    void handleRouterEntitiesFlows(String macAddress, Uuid networkId, int addOrRemove);
 }
