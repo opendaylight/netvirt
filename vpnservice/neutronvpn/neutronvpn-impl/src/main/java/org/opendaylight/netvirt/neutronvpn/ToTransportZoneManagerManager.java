@@ -105,7 +105,7 @@ public class ToTransportZoneManagerManager {
                 TransportZone zone = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, inst);
 
                 if (zone == null) {
-                    zone = createZone(subnetIp, "neutron interface " + port.getNetworkId().getValue());
+                    zone = createZone(subnetIp, port.getNetworkId().getValue());
                 }
                 
                 if (addVtep(zone, subnetIp, dpnId) > 0){
@@ -279,7 +279,7 @@ public class ToTransportZoneManagerManager {
         Subnets subnets = findSubnets(zone.getSubnets(), subnetIp);
         
         for(Vteps existingVtep : subnets.getVteps()){
-            if(existingVtep.getDpnId() == dpnId){
+            if(existingVtep.getDpnId().equals(dpnId)){
                 return 0;
             }
         }
@@ -298,19 +298,16 @@ public class ToTransportZoneManagerManager {
 
     // search for relevant subnets for the given subnetIP, add one if it is necessary
     private Subnets findSubnets(List<Subnets> subnets, String subnetIp) {
-        Subnets retSubnet = null;
         for(Subnets subnet : subnets){
             IpPrefix subnetPrefix = new IpPrefix(subnetIp.toCharArray());
             if(subnet.getPrefix().equals(subnetPrefix)){
-                retSubnet = subnet;
-                break;
+                return subnet;
             }
         }
 
-        if(retSubnet == null){
-            retSubnet = newSubnets(subnetIp);
-            subnets.add(retSubnet);
-        }
+        Subnets retSubnet = newSubnets(subnetIp);
+        subnets.add(retSubnet);
+
         return retSubnet;
     }
 
