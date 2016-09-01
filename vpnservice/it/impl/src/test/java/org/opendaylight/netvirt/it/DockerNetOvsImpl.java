@@ -108,6 +108,7 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
             dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", ns, "ip", "route");
         }
         dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-vsctl", "show");
+        dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-vsctl", "list", "Open_vSwitch");
         dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-ofctl", "-OOpenFlow13", "show", "br-int");
         dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-ofctl", "-OOpenFlow13", "dump-flows", "br-int");
         dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-ofctl", "-OOpenFlow13", "dump-groups", "br-int");
