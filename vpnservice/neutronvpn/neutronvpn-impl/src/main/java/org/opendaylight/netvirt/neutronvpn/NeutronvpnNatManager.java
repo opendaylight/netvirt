@@ -296,6 +296,8 @@ public class NeutronvpnNatManager implements AutoCloseable {
             rtrList.add(routerId);
             builder.setRouterIds(rtrList);
 
+            builder.setVpnid(routerId);
+
             Networks networkss = builder.build();
             // Add Networks object to the ExternalNetworks list
             //isLockAcquired = NeutronvpnUtils.lock(lockManager, extNetId.getValue());
