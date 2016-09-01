@@ -9,6 +9,8 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -37,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -575,6 +579,27 @@ public class ElanServiceProvider implements IElanService {
     @Override
     public ElanInterface getElanInterfaceByElanInterfaceName(String interfaceName) {
         return ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
+    }
+
+    @Override
+    public void handleRouterEntitiesFlows(String macAddress, Uuid networkId, int addOrRemove) {
+        String elanInstanceName = networkId.getValue();
+        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+        if (elanInstance == null) {
+            LOG.warn("Null elan instance for network {}", networkId);
+            return;
+        }
+
+        List<BigInteger> dpnsIdsForElanInstance = elanUtils.getParticipatingDpnsInElanInstance(elanInstanceName);
+        if (dpnsIdsForElanInstance == null || dpnsIdsForElanInstance.isEmpty()) {
+            LOG.warn("No DPNs for elan instance {}", elanInstance);
+            return;
+        }
+
+        WriteTransaction writeTx = broker.newWriteOnlyTransaction();
+        elanUtils.handleRouterEntitiesFlows(elanInstance.getElanTag(), elanInstanceName, macAddress,
+                writeTx, addOrRemove, dpnsIdsForElanInstance);
+        writeTx.submit();
     }
 
     /**
