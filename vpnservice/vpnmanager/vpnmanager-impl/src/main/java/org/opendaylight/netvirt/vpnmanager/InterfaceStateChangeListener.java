@@ -197,6 +197,9 @@ public class InterfaceStateChangeListener extends AbstractDataChangeListener<Int
         }
         final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
 
+        if (update.getIfIndex() == null) {
+            return;
+        }
         final int ifIndex = update.getIfIndex();
         if (update != null && (update.getType() != null)) {
             if (!update.getType().equals(Tunnel.class)) {

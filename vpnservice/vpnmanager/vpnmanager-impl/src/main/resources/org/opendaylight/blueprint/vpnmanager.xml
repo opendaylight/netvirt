@@ -79,15 +79,6 @@
     <argument ref="odlInterfaceRpcService" />
   </bean>
 
-  <bean id="floatingIpGarpHandler"
-        class="org.opendaylight.netvirt.vpnmanager.FloatingIpGarpHandler"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="packetProcessingService" />
-    <argument ref="elanService" />
-    <argument ref="odlInterfaceRpcService" />
-  </bean>
-
   <bean id="subnetRoutePacketInHandler"
         class="org.opendaylight.netvirt.vpnmanager.SubnetRoutePacketInHandler">
     <argument ref="dataBroker" />

@@ -209,16 +209,16 @@ public class BgpConfigurationManager {
             throws InterruptedException, ExecutionException, TimeoutException {
         BgpConfigurationManager.dataBroker = dataBroker;
         BgpConfigurationManager.fibDSWriter = fibDSWriter;
-        setEntityOwnershipService(entityOwnershipService);
         this.bundleContext = bundleContext;
-        bgpRouter = BgpRouter.getInstance();
         String uPort = getProperty(UPDATE_PORT, DEF_UPORT);
         cHostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
         cPortStartup = getProperty(CONFIG_PORT, DEF_CPORT);
-        VtyshCli.setHostAddr(cHostStartup);
-        ClearBgpCli.setHostAddr(cHostStartup);
         LOG.info("UpdateServer at localhost:" + uPort + " ConfigServer at "
                 + cHostStartup + ":" + cPortStartup);
+        VtyshCli.setHostAddr(cHostStartup);
+        ClearBgpCli.setHostAddr(cHostStartup);
+        setEntityOwnershipService(entityOwnershipService);
+        bgpRouter = BgpRouter.getInstance();
         odlThriftIp = readThriftIpForCommunication(SDNC_BGP_MIP);
         bgpThriftIp = readThriftIpForCommunication(BGP_SDNC_MIP);
         registerCallbacks();
