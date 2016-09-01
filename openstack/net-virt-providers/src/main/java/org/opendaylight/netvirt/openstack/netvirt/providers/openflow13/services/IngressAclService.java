@@ -238,9 +238,8 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
 
     private void addTcpSynFlagMatchIpv4Drop(Long dpidLong, String segmentationId, String dstMac,
                               boolean write, Integer priority) {
-        String flowId = "Ingress_TCP_Ipv4" + segmentationId + "_" + dstMac + "_DROP_";
+        String flowId = "Ingress_TCP_Ipv4_" + segmentationId + "_" + dstMac + "_DROP";
         MatchBuilder matchBuilder = new MatchBuilder();
-        flowId = flowId + "_";
         matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,null,dstMac,MatchUtils.ETHERTYPE_IPV4);
         matchBuilder = MatchUtils.addTcpSynMatch(matchBuilder);
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, priority, matchBuilder, getTable());
@@ -251,9 +250,8 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
 
     private void addTcpSynFlagMatchIpv6Drop(Long dpidLong, String segmentationId, String dstMac,
                                             boolean write, Integer priority) {
-        String flowId = "Ingress_TCP_Ipv6" + segmentationId + "_" + dstMac + "_DROP_";
+        String flowId = "Ingress_TCP_Ipv6_" + segmentationId + "_" + dstMac + "_DROP";
         MatchBuilder matchBuilder = new MatchBuilder();
-        flowId = flowId + "_";
         matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,null,dstMac);
         matchBuilder = MatchUtils.addTcpSynMatch(matchBuilder);
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, priority, matchBuilder, getTable());
@@ -411,16 +409,16 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         }
 
         /* Custom TCP Match*/
-        if (portSecurityRule.getSecurityRulePortMin().equals(portSecurityRule.getSecurityRulePortMax())) {
-            flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_";
-            matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.TCP_SHORT, 0,
-                                                     portSecurityRule.getSecurityRulePortMin());
-        } else {
-            /* All TCP Match */
-            if (portSecurityRule.getSecurityRulePortMin().equals(PORT_RANGE_MIN)
-                    && portSecurityRule.getSecurityRulePortMax().equals(PORT_RANGE_MAX)) {
+        if (portSecurityRule.getSecurityRulePortMin() != null && portSecurityRule.getSecurityRulePortMax() != null) {
+            if (portSecurityRule.getSecurityRulePortMin().equals(portSecurityRule.getSecurityRulePortMax())) {
+                flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_";
+                matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.TCP_SHORT, 0,
+                        portSecurityRule.getSecurityRulePortMin());
+            } else if (portSecurityRule.getSecurityRulePortMin().equals(PORT_RANGE_MIN)
+                        && portSecurityRule.getSecurityRulePortMax().equals(PORT_RANGE_MAX)) {
+                /* All TCP Match */
                 flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_"
-                    + portSecurityRule.getSecurityRulePortMax() + "_";
+                        + portSecurityRule.getSecurityRulePortMax() + "_";
                 matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.TCP_SHORT, 0, 0);
             } else {
                 portRange = true;
@@ -511,16 +509,16 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         }
 
         /* Custom UDP Match */
-        if (portSecurityRule.getSecurityRulePortMin().equals(portSecurityRule.getSecurityRulePortMax())) {
-            flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_";
-            matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 0,
-                                                     portSecurityRule.getSecurityRulePortMin());
-        } else {
-            /* All UDP Match */
-            if (portSecurityRule.getSecurityRulePortMin().equals(PORT_RANGE_MIN)
+        if (portSecurityRule.getSecurityRulePortMin() != null && portSecurityRule.getSecurityRulePortMax() != null) {
+            if (portSecurityRule.getSecurityRulePortMin().equals(portSecurityRule.getSecurityRulePortMax())) {
+                flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_";
+                matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 0,
+                        portSecurityRule.getSecurityRulePortMin());
+            } else if (portSecurityRule.getSecurityRulePortMin().equals(PORT_RANGE_MIN)
                     && portSecurityRule.getSecurityRulePortMax().equals(PORT_RANGE_MAX)) {
+                /* All UDP Match */
                 flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_"
-                    + portSecurityRule.getSecurityRulePortMax() + "_";
+                        + portSecurityRule.getSecurityRulePortMax() + "_";
                 matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 0, 0);
             } else {
                 portRange = true;
@@ -707,7 +705,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,dhcpMacAddress,attachMac,
                                                              MatchUtils.ETHERTYPE_IPV4);
         MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 67, 68);
-        String flowId = "Ingress_DHCP_Server" + segmentationId + "_" + dhcpMacAddress + "_Permit_";
+        String flowId = "Ingress_DHCP_Server_" + segmentationId + "_" + dhcpMacAddress + "_Permit";
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
         addPipelineInstruction(flowBuilder, null, false);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
@@ -731,7 +729,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,dhcpMacAddress,attachMac,
                                                              MatchUtils.ETHERTYPE_IPV6);
         MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 547, 546);
-        String flowId = "Ingress_DHCPv6_Server" + segmentationId + "_" + dhcpMacAddress + "_Permit_";
+        String flowId = "Ingress_DHCPv6_Server_" + segmentationId + "_" + dhcpMacAddress + "_Permit";
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
         addPipelineInstruction(flowBuilder, null, false);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);

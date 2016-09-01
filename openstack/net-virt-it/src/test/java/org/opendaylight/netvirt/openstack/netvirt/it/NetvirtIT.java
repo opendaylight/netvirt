@@ -172,7 +172,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                         INFO.name()),
                 editConfigurationFilePut(NetvirtITConstants.ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.netvirt",
-                        DEBUG.name()),
+                        TRACE.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils",
                         TRACE.name()),
@@ -413,7 +413,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     public void testNetVirt() throws InterruptedException {
         LOG.info("testNetVirt: starting test");
         try(DockerOvs ovs = new DockerOvs()) {
-            ConnectionInfo connectionInfo = SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
+            ConnectionInfo connectionInfo =
+                    SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(0), ovs.getOvsdbPort(0));
             NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
             nodeInfo.connect();
             LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
@@ -538,7 +539,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         nsrIN.setSecurityRuleDirection("ingress");
         nsrIN.setSecurityRuleEthertype("IPv4");
         nsrIN.setSecurityRuleGroupID("d3329053-bae5-4bf4-a2d1-7330f11ba5db");
-        nsrIN.setSecurityRuleProtocol("TCP");
+        nsrIN.setSecurityRuleProtocol("tcp");
         nsrIN.setSecurityRuleRemoteIpPrefix("10.0.0.0/24");
         nsrIN.setID("823faaf7-175d-4f01-a271-0bf56fb1e7e6");
         nsrIN.setSecurityRuleTenantID(tenantId);
@@ -548,7 +549,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         nsrEG.setSecurityRuleDirection("egress");
         nsrEG.setSecurityRuleEthertype("IPv4");
         nsrEG.setSecurityRuleGroupID("d3329053-bae5-4bf4-a2d1-7330f11ba5db");
-        nsrEG.setSecurityRuleProtocol("TCP");
+        nsrEG.setSecurityRuleProtocol("tcp");
         nsrEG.setSecurityRuleRemoteIpPrefix("10.0.0.0/24");
         nsrEG.setID("823faaf7-175d-4f01-a271-0bf56fb1e7e1");
         nsrEG.setSecurityRuleTenantID(tenantId);
@@ -570,10 +571,18 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
         LOG.info("Neutron ports have been added");
         Thread.sleep(10000);
-        String flowId = "Egress_IP" + nn.getProviderSegmentationID() + "_" + nport.getMacAddress() + "_Permit_";
+        String flowId = "Egress_TCP_" + nn.getProviderSegmentationID() + "_"
+                + nport.getMacAddress() + "_10.0.0.0/24_Permit";
         nvItUtils.verifyFlowByFields(datapathId, flowId, pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
 
-        flowId = "Ingress_IP" + nn.getProviderSegmentationID() + "_" + nport.getMacAddress() + "_Permit_";
+        flowId = "Egress_TCP_Ipv4_" + nn.getProviderSegmentationID() + "_" + nport.getMacAddress() + "_DROP";
+        nvItUtils.verifyFlowByFields(datapathId, flowId, pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
+
+        flowId = "Ingress_TCP_" + nn.getProviderSegmentationID() + "_"
+                + nport.getMacAddress() + "_10.0.0.0/24_Permit";
+        nvItUtils.verifyFlowByFields(datapathId, flowId, pipelineOrchestrator.getTable(Service.INGRESS_ACL), 5000);
+
+        flowId = "Ingress_TCP_Ipv4_" + nn.getProviderSegmentationID() + "_" + nport.getMacAddress() + "_DROP";
         nvItUtils.verifyFlowByFields(datapathId, flowId, pipelineOrchestrator.getTable(Service.INGRESS_ACL), 5000);
 
         ineutronSecurityGroupCRUD.removeNeutronSecurityGroup(neutronSG.getID());
@@ -641,12 +650,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 nvItUtils.verifyFlowByFields(nodeInfo.datapathId,
                         "Egress_ARP_" + net.segId + "_" + portInfo.ofPort + "_",
                         pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
-                nvItUtils.verifyFlowByFields(nodeInfo.datapathId,
-                        "Egress_DHCP_Server_" + portInfo.ofPort + "_DROP_",
-                        pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
-                nvItUtils.verifyFlowByFields(nodeInfo.datapathId,
-                        "Egress_DHCPv6_Server_" + portInfo.ofPort + "_DROP_",
-                        pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
             }
 
             // Check ingress/egress acl flows for DHCP
@@ -655,10 +658,10 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             nvItUtils.verifyFlowByFields(nodeInfo.datapathId, "Egress_DHCPv6_Client_Permit_",
                     pipelineOrchestrator.getTable(Service.EGRESS_ACL), 5000);
             nvItUtils.verifyFlowByFields(nodeInfo.datapathId,
-                    "Ingress_DHCPv6_Server" + net.segId + "_" + net.macFor(1) + "_Permit_",
+                    "Ingress_DHCPv6_Server_" + net.segId + "_" + net.macFor(1) + "_Permit",
                     pipelineOrchestrator.getTable(Service.INGRESS_ACL), 5000);
             nvItUtils.verifyFlowByFields(nodeInfo.datapathId,
-                    "Ingress_DHCP_Server" + net.segId + "_" + net.macFor(1) + "_Permit_",
+                    "Ingress_DHCP_Server_" + net.segId + "_" + net.macFor(1) + "_Permit",
                     pipelineOrchestrator.getTable(Service.INGRESS_ACL), 5000);
 
             // Check l2 broadcast flows
