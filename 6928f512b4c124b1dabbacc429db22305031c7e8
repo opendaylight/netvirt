@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_c36a4eed",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/BridgeRefEntryToTransportZoneListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-09-01T06:04:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_c39c0e12",
+      "revId": "6928f512b4c124b1dabbacc429db22305031c7e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_239ea207",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/BridgeRefEntryToTransportZoneListener.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-09-01T05:55:11Z",
       "side": 1,
       "message": "use please instance of MdsalUtils that presents in ToTransportZoneManager",
+      "revId": "6928f512b4c124b1dabbacc429db22305031c7e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_236ce207",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/BridgeRefEntryToTransportZoneListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-09-01T06:04:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_239ea207",
       "revId": "6928f512b4c124b1dabbacc429db22305031c7e8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -64,6 +100,24 @@
       "writtenOn": "2016-09-01T05:55:11Z",
       "side": 1,
       "message": "Please add init-method also here",
+      "revId": "6928f512b4c124b1dabbacc429db22305031c7e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_43af5e2a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/org/opendaylight/blueprint/neutronvpn.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-09-01T06:04:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_e3be6a64",
       "revId": "6928f512b4c124b1dabbacc429db22305031c7e8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
