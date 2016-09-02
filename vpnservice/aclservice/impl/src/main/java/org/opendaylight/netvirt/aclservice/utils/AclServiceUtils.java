@@ -445,7 +445,7 @@ public final class AclServiceUtils {
         IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
         MatchFieldType matchFieldType;
         if (ipPrefix != null) {
-            if (ipPrefix.getIpv4Prefix().getValue() != null) {
+            if (ipPrefix.getIpv4Prefix() != null) {
                 flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4}));
                 String[] ipaddressValues = ipPrefix.getIpv4Prefix().getValue().split("/");
                 matchFieldType = (matchCriteria == MatchCriteria.MATCH_SOURCE)
