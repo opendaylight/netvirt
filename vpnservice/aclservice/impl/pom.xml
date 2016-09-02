@@ -37,11 +37,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>sal-binding-broker-impl</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.neutron</groupId>
-      <artifactId>model</artifactId>
-      <version>${neutron.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.opendaylight.genius</groupId>
       <artifactId>mdsalutil-api</artifactId>
       <version>${genius.version}</version>
@@ -50,16 +45,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <groupId>org.opendaylight.genius</groupId>
       <artifactId>interfacemanager-api</artifactId>
       <version>${genius.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.ovsdb</groupId>
-      <artifactId>southbound-api</artifactId>
-      <version>${vpns.ovsdb.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>neutronvpn-api</artifactId>
-      <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
@@ -81,6 +66,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>inject.guice.testutils</artifactId>
       <version>${infrautils.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.googlecode.java-ipv6</groupId>
+      <artifactId>java-ipv6</artifactId>
+      <version>0.16</version>
+    </dependency>
 
     <!-- Dependencies used only by code under src/test (<scope>test) -->
     <dependency>
@@ -96,36 +86,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.google.truth</groupId>
-      <artifactId>truth</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.java-ipv6</groupId>
-      <artifactId>java-ipv6</artifactId>
-      <version>0.16</version>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.xtend</groupId>
-      <artifactId>org.eclipse.xtend.lib</artifactId>
-      <scope>test</scope>
-    </dependency>
-<!--
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-library</artifactId>
-      <scope>test</scope>
-    </dependency>
- -->
-    <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>sal-binding-broker-impl</artifactId>
       <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -188,52 +151,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         </executions>
       </plugin>
       <plugin>
-        <!-- TODO If overall proposed direction of this Gerrit is +1 by everyone,
-             then move both the blueprint-maven-plugin and the maven-antrun-plugin to odl-parent and remove from here -->
         <groupId>org.apache.aries.blueprint</groupId>
         <artifactId>blueprint-maven-plugin</artifactId>
-        <version>1.4.0</version>
-        <configuration>
-          <scanPaths>
-            <scanPath>org.opendaylight</scanPath>
-          </scanPaths>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <!-- https://stackoverflow.com/questions/38825386/blueprint-maven-plugin-runtimeexception -->
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-finder-shaded</artifactId>
-            <version>4.5</version>
-          </dependency>
-        </dependencies>
-        <executions>
-          <execution>
-            <goals>
-              <goal>blueprint-generate</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <!-- Remove then when upgrading blueprint-maven-plugin to 1.5.0,
-           and use <configuration><generatedDir>org/opendaylight/blueprint/
-           see https://issues.apache.org/jira/browse/ARIES-1597 -->
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <tasks>
-                <echo>Moving autowire.xml to org/opendaylight/blueprint</echo>
-                <move file="${basedir}/target/generated-resources/OSGI-INF/blueprint/autowire.xml"
-                      todir="${basedir}/target/generated-resources/org/opendaylight/blueprint" />
-              </tasks>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
