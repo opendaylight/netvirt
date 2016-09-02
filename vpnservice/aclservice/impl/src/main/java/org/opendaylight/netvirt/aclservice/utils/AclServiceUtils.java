@@ -445,7 +445,7 @@ public final class AclServiceUtils {
         IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
         MatchFieldType matchFieldType;
         if (ipPrefix != null) {
-            if (ipPrefix.getIpv4Prefix().getValue() != null) {
+            if (ipPrefix.getIpv4Prefix() != null) {
                 flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4}));
                 String[] ipaddressValues = ipPrefix.getIpv4Prefix().getValue().split("/");
                 matchFieldType = (matchCriteria == MatchCriteria.MATCH_SOURCE)
@@ -513,6 +513,7 @@ public final class AclServiceUtils {
         }
         Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
         MatchInfoBase ipv4Match = new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4});
+        MatchInfoBase ipv6Match = new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV6});
         for (String flowName : flowMatchesMap.keySet()) {
             List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
             for (AclInterface port : interfaceList) {
@@ -525,21 +526,37 @@ public final class AclServiceUtils {
                 for (AllowedAddressPairs aap : allowedAddressPair) {
                     List<MatchInfoBase> matchInfoBaseList;
                     String flowId;
-                    if (flows.contains(ipv4Match)) {
+                    if (flows.contains(ipv4Match) && isIPv4Address(aap)) {
                         matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                         flowId = flowName + "_ipv4_remoteACL_interface_aap_" + aap.getKey();
-                    } else {
-                        // TODO: handle AAP matches for ipv6
-                        matchInfoBaseList = flows;
+                        updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
+                    } else if (flows.contains(ipv6Match) && !isIPv4Address(aap)) {
+                        matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                         flowId = flowName + "_ipv6_remoteACL_interface_aap_" +  aap.getKey();
+                        updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                     }
-                    updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                 }
 
             }
 
         }
         return updatedFlowMatchesMap;
+    }
+
+    private static boolean isIPv4Address(AllowedAddressPairs aap) {
+        IpPrefixOrAddress ipPrefixOrAddress = aap.getIpAddress();
+        IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
+        if (ipPrefix != null) {
+            if (ipPrefix.getIpv4Prefix() != null) {
+                return true;
+            }
+        } else {
+            IpAddress ipAddress = ipPrefixOrAddress.getIpAddress();
+            if (ipAddress.getIpv4Address() != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static Map<String, List<MatchInfoBase>> getFlowForAllowedAddresses(List<AllowedAddressPairs>
@@ -552,21 +569,22 @@ public final class AclServiceUtils {
         }
         Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
         MatchInfoBase ipv4Match = new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4});
+        MatchInfoBase ipv6Match = new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV6});
         for (String flowName : flowMatchesMap.keySet()) {
             List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
             // iterate over allow address pair and update match type
             for (AllowedAddressPairs aap : syncAllowedAddresses) {
                 List<MatchInfoBase> matchInfoBaseList;
                 String flowId;
-                if (flows.contains(ipv4Match)) {
+                if (flows.contains(ipv4Match) && isIPv4Address(aap)) {
                     matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                     flowId = flowName + "_ipv4_remoteACL_interface_aap_" + aap.getKey();
-                } else {
-                    // TODO: handle AAP matches for ipv6
-                    matchInfoBaseList = flows;
+                    updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
+                } else if (flows.contains(ipv6Match) && !isIPv4Address(aap)) {
+                    matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                     flowId = flowName + "_ipv6_remoteACL_interface_aap_" + aap.getKey();
+                    updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                 }
-                updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
             }
 
         }

@@ -326,7 +326,7 @@ public class IfMgr {
         LOG.debug("updateRouterIntf portId {}, fixedIpsList {} ", portId, fixedIpsList);
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
-            LOG.error("Update Router interface failed. Could not get router interface details {}", portId);
+            LOG.warn("Update Router interface failed. Could not get router interface details {}", portId);
             return;
         }
 
@@ -433,7 +433,7 @@ public class IfMgr {
 
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
-            LOG.error("Update Host interface failed. Could not get Host interface details {}", portId);
+            LOG.warn("Update Host interface failed. Could not get Host interface details {}", portId);
             return;
         }
 
