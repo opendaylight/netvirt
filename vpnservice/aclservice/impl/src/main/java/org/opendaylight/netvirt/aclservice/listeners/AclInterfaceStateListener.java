@@ -43,6 +43,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     public static final String EXTERNAL_ID_INTERFACE_ID = "iface-id";
 
     private final AclServiceManager aclServiceManger;
+    private final AclClusterUtil aclClusterUtil;
     private final DataBroker dataBroker;
 
     /**
@@ -50,9 +51,11 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
      * @param aclServiceManger the AclServiceManager instance.
      */
     @Inject
-    public AclInterfaceStateListener(AclServiceManager aclServiceManger, DataBroker dataBroker) {
+    public AclInterfaceStateListener(AclServiceManager aclServiceManger, AclClusterUtil aclClusterUtil,
+            DataBroker dataBroker) {
         super(Interface.class, AclInterfaceStateListener.class);
         this.aclServiceManger = aclServiceManger;
+        this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
     }
 
@@ -79,7 +82,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
         if (aclInterface != null && aclInterface.getPortSecurityEnabled() != null
                 && aclInterface.isPortSecurityEnabled()) {
-            if (AclClusterUtil.isEntityOwner()) {
+            if (aclClusterUtil.isEntityOwner()) {
                 aclServiceManger.notify(aclInterface, null, Action.REMOVE);
             }
             List<Uuid> aclList = aclInterface.getSecurityGroups();
@@ -93,7 +96,6 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     @Override
     protected void update(InstanceIdentifier<Interface> key, Interface dataObjectModificationBefore,
                           Interface dataObjectModificationAfter) {
-        // TODO Auto-generated method stub
     }
 
     @Override
@@ -105,7 +107,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             if (aclList != null) {
                 AclDataUtil.addAclInterfaceMap(aclList, aclInterface);
             }
-            if (AclClusterUtil.isEntityOwner()) {
+            if (aclClusterUtil.isEntityOwner()) {
                 aclServiceManger.notify(aclInterface, null, Action.ADD);
             }
         }

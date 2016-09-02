@@ -36,12 +36,15 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceListener.class);
 
     private final AclServiceManager aclServiceManager;
+    private final AclClusterUtil aclClusterUtil;
     private final DataBroker dataBroker;
 
     @Inject
-    public AclInterfaceListener(final AclServiceManager aclServiceManager, final DataBroker dataBroker) {
+    public AclInterfaceListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil,
+            DataBroker dataBroker) {
         super(Interface.class, AclInterfaceListener.class);
         this.aclServiceManager = aclServiceManager;
+        this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
     }
 
@@ -94,7 +97,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
                     .Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(
                     dataBroker, portAfter.getName());
-            if (AclClusterUtil.isEntityOwner() && interfaceState != null && interfaceState.getOperStatus()
+            if (aclClusterUtil.isEntityOwner() && interfaceState != null && interfaceState.getOperStatus()
                     .equals(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
                             .interfaces.state.Interface.OperStatus.Up)) {
                 aclServiceManager.notify(aclInterface, oldAclInterface, AclServiceManager.Action.UPDATE);
