@@ -117,7 +117,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     @Override
     protected void programGeneralFixedRules(BigInteger dpid, String dhcpMacAddress,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action, int addOrRemove) {
-        LOG.info("programFixedRules :  adding default rules.");
+        LOG.info("programFixedRules : {} default rules.", (action == Action.ADD) ? "adding" : "removing");
 
         if (action == Action.ADD || action == Action.REMOVE) {
             ingressAclDhcpAllowServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove,
