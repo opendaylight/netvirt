@@ -122,6 +122,11 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove, String
             portId) {
         LOG.trace("Applying custom rules DpId {}, lportTag {}", dpId, lportTag);
+        if (aclUuidList == null || dpId == null) {
+            LOG.warn("one of the egress acl parameters can not be null. sg {}, dpId {}",
+                    aclUuidList, dpId);
+            return false;
+        }
         for (Uuid sgUuid :aclUuidList ) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
             if (null == acl) {
