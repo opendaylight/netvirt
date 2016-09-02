@@ -433,7 +433,7 @@ public class IfMgr {
 
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
-            LOG.error("Update Host interface failed. Could not get Host interface details {}", portId);
+            LOG.warn("Update Host interface failed. Could not get Host interface details {}", portId);
             return;
         }
 
