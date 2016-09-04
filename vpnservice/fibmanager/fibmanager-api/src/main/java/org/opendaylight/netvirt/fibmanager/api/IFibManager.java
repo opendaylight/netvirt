@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.fibmanager.api;
 import com.google.common.util.concurrent.FutureCallback;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-
 import java.math.BigInteger;
 import java.util.List;
 
