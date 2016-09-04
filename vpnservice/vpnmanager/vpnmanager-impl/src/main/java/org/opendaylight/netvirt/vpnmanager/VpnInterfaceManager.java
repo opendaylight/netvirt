@@ -96,6 +96,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterfaceVrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterfaceVrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEventBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
@@ -222,6 +225,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 LOG.error("Unable to retrieve dpnId from interface operational data store for interface {}. ", interfaceName, e);
                 return;
             }
+        } else if (vpnInterface.isIsRouterInterface()) {
+            createVpnInterfaceForRouter(vpnInterface, interfaceName);
+
         } else {
             LOG.info("Handling addition of VPN interface {} skipped as interfaceState is not available", interfaceName);
         }
@@ -1060,8 +1066,24 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                     });
 
-        }else{
-            LOG.warn("VPN interface {} was unavailable in operational data store to handle remove event", interfaceName);
+        } else if (vpnInterface.isIsRouterInterface()) {
+
+            List<Adjacency> adjsList = new ArrayList<>();
+            Adjacencies adjs = vpnInterface.getAugmentation(Adjacencies.class);
+            if (adjs != null) {
+                adjsList = adjs.getAdjacency();
+                for (Adjacency adj : adjsList) {
+                    if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
+                        String primaryInterfaceIp = adj.getIpAddress();
+                        String prefix = VpnUtil.getIpPrefix(primaryInterfaceIp);
+                        fibManager.removeFibEntry(dataBroker, vpnInterface.getVpnInstanceName(), prefix, null);
+                        return;
+                    }
+                }
+            }
+        } else {
+            LOG.warn("VPN interface {} was unavailable in operational data store to handle remove event",
+                    interfaceName);
         }
     }
 
@@ -1652,6 +1674,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     getRouterId(routerName),
                     builder.build(), true);
         }
+        final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, vpnInterfaceName);
     }
 
     protected void removeFromNeutronRouterDpnsMap(String routerName, String vpnInterfaceName, WriteTransaction writeOperTxn) {
@@ -1720,4 +1743,58 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         executorService.execute(notifyTask);
     }
+
+    protected void createVpnInterfaceForRouter(VpnInterface vpnInterface, String interfaceName) {
+        if (vpnInterface == null) {
+            return;
+        }
+        String vpnName = vpnInterface.getVpnInstanceName();
+        String rd = getRouteDistinguisher(vpnName);
+        List<Adjacency> adjs = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, interfaceName);
+        if (adjs == null) {
+            LOG.info("VPN Interface {} of router addition failed as adjacencies for "
+                    + "this vpn interface could not be obtained", interfaceName);
+            return;
+        }
+        if (rd == null || rd.isEmpty()) {
+            rd = vpnName;
+        }
+        for (Adjacency adj : adjs) {
+            if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
+                String primaryInterfaceIp = adj.getIpAddress();
+                String macAddress = adj.getMacAddress();
+                String prefix = VpnUtil.getIpPrefix(primaryInterfaceIp);
+
+                long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                        VpnUtil.getNextHopLabelKey((rd == null) ? vpnName : rd, prefix));
+
+                RouterInterfaceVrfEntry routerInt = new RouterInterfaceVrfEntryBuilder().setUuid(vpnName)
+                        .setMacAddress(macAddress).setIpAddress(primaryInterfaceIp).build();
+
+                VrfEntry vrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
+                        .setNextHopAddressList(Arrays.asList(primaryInterfaceIp)).setLabel(label)
+                        .setOrigin(RouteOrigin.SELF_IMPORTED.getValue())
+                        .addAugmentation(RouterInterfaceVrfEntry.class, routerInt).build();
+
+                List<VrfEntry> vrfEntryList = Arrays.asList(vrfEntry);
+                InstanceIdentifierBuilder<VrfTables> idBuilder = InstanceIdentifier.builder(FibEntries.class)
+                        .child(VrfTables.class, new VrfTablesKey(rd));
+
+                WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+                InstanceIdentifier<VrfEntry> vrfEntryId = InstanceIdentifier.builder(FibEntries.class)
+                        .child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class, new VrfEntryKey(prefix))
+                        .build();
+
+                if (writeConfigTxn != null) {
+                    VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                } else {
+                    VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                }
+                return;
+            }
+        }
+        LOG.trace("VPN Interface {} of router addition failed as primary adjacency for"
+                + " this vpn interface could not be obtained", interfaceName);
+    }
 }
+
