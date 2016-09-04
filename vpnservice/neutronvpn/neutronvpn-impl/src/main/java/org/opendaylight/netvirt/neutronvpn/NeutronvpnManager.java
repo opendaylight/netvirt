@@ -604,7 +604,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    protected void createVpnInterface(Uuid vpnId, Uuid routerId, Port port, WriteTransaction wrtConfigTxn) {
+    protected void createVpnInterface(Uuid vpnId, Uuid routerId, Port port, WriteTransaction wrtConfigTxn, Boolean isRouterInterface) {
         Boolean wrtConfigTxnPresent = true;
         if (wrtConfigTxn == null) {
             wrtConfigTxnPresent = false;
@@ -614,7 +614,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         List<Adjacency> adjList = new ArrayList<>();
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
         List<FixedIps> ips = port.getFixedIps();
-
         Router rtr = null;
         if (routerId != null) {
             rtr = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
@@ -642,7 +641,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         // create vpn-interface on this neutron port
         Adjacencies adjs = new AdjacenciesBuilder().setAdjacency(adjList).build();
         VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName)).setName(infName)
-                .setVpnInstanceName(vpnId.getValue()).addAugmentation(Adjacencies.class, adjs);
+                .setVpnInstanceName(vpnId.getValue())
+                .setIsRouterInterface(isRouterInterface)
+                .addAugmentation(Adjacencies.class, adjs);
+
         VpnInterface vpnIf = vpnb.build();
         try {
             LOG.debug("Creating vpn interface {}", vpnIf);
@@ -1131,7 +1133,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         createVpnInterface(vpnId, routerId, NeutronvpnUtils.getNeutronPort(dataBroker, portId),
-                                wrtConfigTxn);
+                                wrtConfigTxn, false /* not a router iface */);
                         futures.add(wrtConfigTxn.submit());
                         return futures;
                     }
