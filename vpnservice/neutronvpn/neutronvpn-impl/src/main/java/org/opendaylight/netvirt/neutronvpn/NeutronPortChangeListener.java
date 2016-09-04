@@ -298,6 +298,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                                 routerPort.getUuid().getValue(), vpnId.getValue());
                         NeutronvpnUtils.createVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue, routerPort
                                 .getUuid().getValue(), routerPort.getMacAddress().getValue(), true, true, false);
+                        // ping responder for router interfaces
+                        nvpnManager.createVpnInterface(vpnId, routerId, routerPort, null, true);
+
                     } else {
                         LOG.info("Skip router port {} with the following address {}",
                                 routerPort.getUuid().getValue(), portIP.getIpAddress().getIpv6Address());
@@ -332,6 +335,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
                     String ipValue = portIP.getIpAddress().getIpv4Address().getValue();
                     NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue);
+                    // ping responder for router interfaces
+                    nvpnManager.deleteVpnInterface(vpnId, routerId, routerPort, null);
                 } else {
                     LOG.info("Skip router port {} with the following address {}",
                             routerPort.getUuid().getValue(), portIP.getIpAddress().getIpv6Address());
@@ -385,7 +390,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 if (vpnId != null) {
                     // create vpn-interface on this neutron port
                     LOG.debug("Adding VPN Interface for port {}", portName);
-                    nvpnManager.createVpnInterface(vpnId, routerId, port, wrtConfigTxn);
+                    nvpnManager.createVpnInterface(vpnId, routerId, port, wrtConfigTxn, false/* not a router iface */);
                     // send port added to subnet notification
                     // only sent when the port is part of a VPN
                     String elanInstanceName = port.getNetworkId().getValue();
@@ -532,7 +537,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                             nvpnManager.deleteVpnInterface(vpnIdNew, null, portupdate, wrtConfigTxn);
                             // create vpn-interface on this neutron port
                             LOG.debug("Adding VPN Interface for port {}", portupdate.getUuid().getValue());
-                            nvpnManager.createVpnInterface(vpnIdNew, null, portupdate, wrtConfigTxn);
+                            nvpnManager.createVpnInterface(vpnIdNew, null, portupdate, wrtConfigTxn, false/* not a router iface */);
                         }
                         futures.add(wrtConfigTxn.submit());
                         return futures;
