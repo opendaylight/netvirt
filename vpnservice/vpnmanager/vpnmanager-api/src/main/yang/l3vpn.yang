@@ -790,6 +790,9 @@ module l3vpn {
       leaf scheduled-for-remove {
         type boolean;
       }
+      leaf is-router-interface {
+          type boolean;
+      }
     }
   }
 

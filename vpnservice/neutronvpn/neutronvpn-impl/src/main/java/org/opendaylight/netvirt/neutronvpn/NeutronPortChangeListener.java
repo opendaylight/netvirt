@@ -256,6 +256,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             elanService.handleKnownL3DmacAddress(routerPort.getMacAddress().getValue(), infNetworkId.getValue(),
                     NwConstants.ADD_FLOW);
             if (existingVpnId == null) {
+
                 for (FixedIps portIP : routerPort.getFixedIps()) {
                     if (portIP.getIpAddress().getIpv4Address() != null) {
                         Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
@@ -273,6 +274,9 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                                 routerPort.getUuid().getValue(), vpnId.getValue());
                         NeutronvpnUtils.createVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue, routerPort
                                 .getUuid().getValue(), routerPort.getMacAddress().getValue(), true, true, false);
+                        // ping responder for router interfaces
+                        nvpnManager.createVpnInterface(vpnId, routerPort, true);
+
                     } else {
                         LOG.error("No IPv4 address assigned to port {)", routerPort.getUuid().getValue());
                     }
@@ -304,6 +308,9 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                     nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
                     String ipValue = portIP.getIpAddress().getIpv4Address().getValue();
                     NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue);
+                    // ping responder for router interfaces
+                    nvpnManager.deleteVpnInterface(vpnId, routerPort);
+
                 } else {
                     LOG.error("No IPv4 address assigned to port {)", routerPort.getUuid().getValue());
                 }
@@ -361,7 +368,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         if (vpnId != null) {
             // create vpn-interface on this neutron port
             LOG.debug("Adding VPN Interface");
-            nvpnManager.createVpnInterface(vpnId, port);
+            nvpnManager.createVpnInterface(vpnId, port, false);
             Uuid routerId = NeutronvpnUtils.getVpnMap(dataBroker, vpnId).getRouterId();
             if(routerId != null) {
                 nvpnManager.addToNeutronRouterInterfacesMap(routerId, port.getUuid().getValue());
@@ -410,7 +417,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         Uuid vpnIdup = addPortToSubnets(portupdate);
 
         if (vpnIdup != null) {
-            nvpnManager.createVpnInterface(vpnIdup, portupdate);
+            nvpnManager.createVpnInterface(vpnIdup, portupdate, false);
             Uuid routerId = NeutronvpnUtils.getVpnMap(dataBroker, vpnIdup).getRouterId();
             if(routerId != null) {
                 nvpnManager.addToNeutronRouterInterfacesMap(routerId, portupdate.getUuid().getValue());
