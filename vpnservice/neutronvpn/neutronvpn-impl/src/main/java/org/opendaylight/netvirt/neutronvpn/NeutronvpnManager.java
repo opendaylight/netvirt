@@ -611,11 +611,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    protected void createVpnInterface(Uuid vpnId, Uuid routerId, Port port, WriteTransaction wrtConfigTxn) {
+    protected void createVpnInterface(Uuid vpnId, Uuid routerId, Port port, WriteTransaction wrtConfigTxn, Boolean isRouterInterface) {
         String infName = port.getUuid().getValue();
         List<Adjacency> adjList = new ArrayList<>();
         List<FixedIps> ips = port.getFixedIps();
-
         Router rtr = null;
         if (routerId != null) {
             rtr = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
@@ -642,7 +641,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
         // create vpn-interface on this neutron port
         Adjacencies adjs = new AdjacenciesBuilder().setAdjacency(adjList).build();
-        writeVpnInterfaceToDs(vpnId, infName, adjs, wrtConfigTxn);
+        writeVpnInterfaceToDs(vpnId, infName, adjs, wrtConfigTxn, isRouterInterface);
         if (routerId != null) {
             addToNeutronRouterInterfacesMap(routerId, infName);
         }
@@ -1122,7 +1121,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         createVpnInterface(vpnId, routerId, NeutronvpnUtils.getNeutronPort(dataBroker, portId),
-                                wrtConfigTxn);
+                                wrtConfigTxn, false /* not a router iface */);
                         futures.add(wrtConfigTxn.submit());
                         return futures;
                     }
@@ -2153,7 +2152,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     private void writeVpnInterfaceToDs(Uuid vpnId, String infName, Adjacencies adjacencies,
-            WriteTransaction wrtConfigTxn) {
+            WriteTransaction wrtConfigTxn, Boolean isRouterInterface) {
         if (vpnId == null || infName == null) {
             LOG.debug("vpn id or interface is null");
             return;
@@ -2166,8 +2165,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
 
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
-        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName)).setName(infName)
-                .setVpnInstanceName(vpnId.getValue());
+        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
+                .setName(infName)
+                .setVpnInstanceName(vpnId.getValue()
+                .setIsRouterInterface(isRouterInterface));
         if (adjacencies != null) {
             vpnb.addAugmentation(Adjacencies.class, adjacencies);
         }
