@@ -625,7 +625,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    protected void createVpnInterface(Uuid vpnId, Port port) {
+    protected void createVpnInterface(Uuid vpnId, Port port, Boolean isRouterInterface) {
         boolean isLockAcquired = false;
         if (vpnId == null || port == null) {
             return;
@@ -633,7 +633,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         String infName = port.getUuid().getValue();
         List<Adjacency> adjList = new ArrayList<>();
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
-
         // find router associated to vpn
         Uuid routerId = NeutronvpnUtils.getRouterforVpn(dataBroker, vpnId);
         Router rtr = null;
@@ -668,6 +667,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
                 .setName(infName)
                 .setVpnInstanceName(vpnId.getValue())
+                .setIsRouterInterface(isRouterInterface)
                 .addAugmentation(Adjacencies.class, adjs);
         VpnInterface vpnIf = vpnb.build();
 
@@ -1183,7 +1183,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         if (portList != null) {
             for (Uuid port : sn.getPortList()) {
                 LOG.debug("adding vpn-interface for port {}", port.getValue());
-                createVpnInterface(vpnId, NeutronvpnUtils.getNeutronPort(dataBroker, port));
+                createVpnInterface(vpnId, NeutronvpnUtils.getNeutronPort(dataBroker, port), false /* not a router iface */);
                 if (routerId != null) {
                     addToNeutronRouterInterfacesMap(routerId, port.getValue());
                 }
