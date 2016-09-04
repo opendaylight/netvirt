@@ -43,6 +43,13 @@ module odl-fib {
             leaf elantag {type uint32;}
     }
 
+    augment "/odl-fib:fibEntries/odl-fib:vrfTables/odl-fib:vrfEntry" {
+        ext:augment-identifier "routerInterface";
+        leaf uuid {type string;}
+        leaf mac-address {type string;}
+        leaf ip-address {type string;}
+    }
+
     container fibEntries {
         config true;
         list vrfTables{

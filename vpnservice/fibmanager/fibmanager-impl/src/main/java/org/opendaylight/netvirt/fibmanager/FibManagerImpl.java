@@ -22,6 +22,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class FibManagerImpl implements IFibManager {
     private static final Logger LOG = LoggerFactory.getLogger(FibManagerImpl.class);
     private final NexthopManager nexthopManager;
@@ -156,4 +157,5 @@ public class FibManagerImpl implements IFibManager {
     public boolean isVPNConfigured() {
         return this.vpnmanager.isVPNConfigured();
     }
+
 }
