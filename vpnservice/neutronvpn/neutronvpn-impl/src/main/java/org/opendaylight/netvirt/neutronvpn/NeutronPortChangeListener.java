@@ -296,8 +296,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         LOG.trace("NeutronPortChangeListener Add Subnet Gateway IP {} MAC {} Interface {} VPN {}",
                                 portIP.getIpAddress().getIpv4Address(),routerPort.getMacAddress(),
                                 routerPort.getUuid().getValue(), vpnId.getValue());
-                        NeutronvpnUtils.createVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue, routerPort
-                                .getUuid().getValue(), routerPort.getMacAddress().getValue(), true, true, false);
+                        // ping responder for router interfaces
+                        nvpnManager.createVpnInterface(vpnId, routerId, routerPort, null);
+
                     } else {
                         LOG.info("Skip router port {} with the following address {}",
                                 routerPort.getUuid().getValue(), portIP.getIpAddress().getIpv6Address());
@@ -332,6 +333,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
                     String ipValue = portIP.getIpAddress().getIpv4Address().getValue();
                     NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue);
+                    // ping responder for router interfaces
+                    nvpnManager.deleteVpnInterface(vpnId, routerId, routerPort, null);
                 } else {
                     LOG.info("Skip router port {} with the following address {}",
                             routerPort.getUuid().getValue(), portIP.getIpAddress().getIpv6Address());

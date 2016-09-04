@@ -27,6 +27,7 @@ import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
@@ -611,11 +612,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    protected void createVpnInterface(Uuid vpnId, Uuid routerId, Port port, WriteTransaction wrtConfigTxn) {
+    protected void createVpnInterface(Uuid vpnId, Uuid routerId, Port port,
+                                      WriteTransaction wrtConfigTxn) {
         String infName = port.getUuid().getValue();
         List<Adjacency> adjList = new ArrayList<>();
         List<FixedIps> ips = port.getFixedIps();
-
+        Boolean isRouterInterface = false;
+        if (port.getDeviceOwner() != null) {
+            isRouterInterface = port.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF);
+        }
+        LOG.trace("createVpnInterface - isRouterInterface:{}", isRouterInterface);
         Router rtr = null;
         if (routerId != null) {
             rtr = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
@@ -638,11 +644,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
             String ipValue = ip.getIpAddress().getIpv4Address().getValue();
             NeutronvpnUtils.createVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue, infName, port
-                            .getMacAddress().getValue(), false, true, false);
+                            .getMacAddress().getValue(), isRouterInterface, true, false);
         }
         // create vpn-interface on this neutron port
         Adjacencies adjs = new AdjacenciesBuilder().setAdjacency(adjList).build();
-        writeVpnInterfaceToDs(vpnId, infName, adjs, wrtConfigTxn);
+        writeVpnInterfaceToDs(vpnId, infName, adjs, isRouterInterface, wrtConfigTxn);
         if (routerId != null) {
             addToNeutronRouterInterfacesMap(routerId, infName);
         }
@@ -2149,11 +2155,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     private void createExternalVpnInterface(Uuid vpnId, String infName) {
-        writeVpnInterfaceToDs(vpnId, infName, null, null);
+        writeVpnInterfaceToDs(vpnId, infName, null, false /* not a router iface */, null);
     }
 
     private void writeVpnInterfaceToDs(Uuid vpnId, String infName, Adjacencies adjacencies,
-            WriteTransaction wrtConfigTxn) {
+            Boolean isRouterInterface, WriteTransaction wrtConfigTxn) {
         if (vpnId == null || infName == null) {
             LOG.debug("vpn id or interface is null");
             return;
@@ -2166,8 +2172,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
 
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
-        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName)).setName(infName)
-                .setVpnInstanceName(vpnId.getValue());
+        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
+                .setName(infName)
+                .setVpnInstanceName(vpnId.getValue())
+                .setIsRouterInterface(isRouterInterface);
         if (adjacencies != null) {
             vpnb.addAugmentation(Adjacencies.class, adjacencies);
         }
