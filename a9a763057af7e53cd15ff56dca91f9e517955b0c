@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_10fac042",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-09-05T07:37:59Z",
+      "side": 1,
+      "message": "I know it\u0027s a bit silly here, but any chance you could update the Javadocs?",
+      "revId": "a9a763057af7e53cd15ff56dca91f9e517955b0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f0f6245c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-09-05T07:37:59Z",
+      "side": 1,
+      "message": "Javadocs again ;-)",
+      "revId": "a9a763057af7e53cd15ff56dca91f9e517955b0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_509718ec",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclClusterUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-09-05T07:37:59Z",
+      "side": 1,
+      "message": "This feels like it should be a more generic interface, shared by all the ownership candidate implementations (not sure how that would play out with DI though, unless we use named references everywhere).",
+      "revId": "a9a763057af7e53cd15ff56dca91f9e517955b0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_309c1c0f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclClusterUtilImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-09-05T07:37:59Z",
+      "side": 1,
+      "message": "\"throws Exception\" can be dropped here.",
+      "revId": "a9a763057af7e53cd15ff56dca91f9e517955b0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

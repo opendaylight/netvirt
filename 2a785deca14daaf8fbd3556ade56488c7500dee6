@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_b0002c35",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-09-05T07:37:59Z",
+      "side": 0,
+      "message": "I\u0027m not sure what the update semantics are here, but this shouldn\u0027t just be removed — either we need to handle it, in which case the handling needs to be implemented, or it\u0027s safe to ignore, in which case there should be a comment explaining why.",
+      "revId": "2a785deca14daaf8fbd3556ade56488c7500dee6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
