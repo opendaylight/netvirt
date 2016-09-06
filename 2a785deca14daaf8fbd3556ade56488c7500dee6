@@ -34,6 +34,24 @@
       "revId": "2a785deca14daaf8fbd3556ade56488c7500dee6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bf23d7bb",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-09-06T10:06:22Z",
+      "side": 0,
+      "message": "That\u0027s fine by me, I just wanted to ensure the TODO didn\u0027t disappear without being resolved.",
+      "parentUuid": "7a6b29fe_dfb17390",
+      "revId": "2a785deca14daaf8fbd3556ade56488c7500dee6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }

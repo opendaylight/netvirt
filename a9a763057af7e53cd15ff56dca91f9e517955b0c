@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_1f2daba8",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-09-06T10:06:22Z",
+      "side": 1,
+      "message": "That works ;-). (Not for our Sonar stats but who cares! We should fix the stats.)",
+      "parentUuid": "7a6b29fe_5ff0c366",
+      "revId": "a9a763057af7e53cd15ff56dca91f9e517955b0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_f0f6245c",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 2
@@ -101,6 +119,24 @@
       "side": 1,
       "message": "I\u0027m all for that - where (which project \u0026 module?) would you move this into?  Also, given my current experience of feeling like I\u0027m never finishing anything ;-) I\u0027d like to take this by step - let us get this change merged FIRST, which splits it nicely, and THEN let us propose this somewhere else, and use it here - would that work for you?",
       "parentUuid": "7a6b29fe_509718ec",
+      "revId": "a9a763057af7e53cd15ff56dca91f9e517955b0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9f109b5a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclClusterUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-09-06T10:06:22Z",
+      "side": 1,
+      "message": "That works for me, yes! I was thinking of somewhere else in netvirt for the time being, but we can work that out later.",
+      "parentUuid": "7a6b29fe_5fc9e324",
       "revId": "a9a763057af7e53cd15ff56dca91f9e517955b0c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
