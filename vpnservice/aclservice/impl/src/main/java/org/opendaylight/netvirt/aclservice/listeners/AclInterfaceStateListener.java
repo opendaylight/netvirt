@@ -8,8 +8,6 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import java.util.List;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
@@ -55,16 +53,10 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         this.dataBroker = dataBroker;
     }
 
-    @PostConstruct
-    public void start() {
+    @Override
+    public void init() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
-    }
-
-    @PreDestroy
-    @Override
-    public void close() throws Exception {
-        super.close();
     }
 
     @Override
