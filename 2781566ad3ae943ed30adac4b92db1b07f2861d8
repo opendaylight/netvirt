@@ -22,6 +22,30 @@
       "revId": "2781566ad3ae943ed30adac4b92db1b07f2861d8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_eae4683d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-09-06T17:26:52Z",
+      "side": 1,
+      "message": "Aswin, thank you very much for looking closely - I\u0027ve no idea how this change slipped in here - totally not intentional!  (I actually have no idea what SecurityGroupMode is here, but I didn\u0027t mean to change it; fixed now.)",
+      "parentUuid": "7a6b29fe_943fddb3",
+      "range": {
+        "startLine": 147,
+        "startChar": 58,
+        "endLine": 147,
+        "endChar": 66
+      },
+      "revId": "2781566ad3ae943ed30adac4b92db1b07f2861d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
