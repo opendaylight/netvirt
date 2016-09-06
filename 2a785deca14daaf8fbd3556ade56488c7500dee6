@@ -16,6 +16,24 @@
       "revId": "2a785deca14daaf8fbd3556ade56488c7500dee6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_dfb17390",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-09-06T09:49:42Z",
+      "side": 0,
+      "message": "Erm... I\u0027m not sure either, but... what does this have to do with the cluster util refactoring change proposed in this Gerrit?  I\u0027ve restored the original TODO and won\u0027t touch this line here. -- But how about we get this change in, so that c/42109 FINALLY can go in, and look at this problem completely separately (from a quick look, you probably do have a point; this appears to be an oversight?).",
+      "parentUuid": "7a6b29fe_b0002c35",
+      "revId": "2a785deca14daaf8fbd3556ade56488c7500dee6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }

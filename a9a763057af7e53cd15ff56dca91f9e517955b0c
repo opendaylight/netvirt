@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_5ff0c366",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-09-06T09:49:42Z",
+      "side": 1,
+      "message": "Sure, but... from where I sit, documenting this particular kind of constructor (DI) is just \"noise\", and this is the kind of completely pointless documentation which just makes source code harder to read instead of adding ANY value: \"This constructs this class and takes an aclClusterUtil which is the AclClusterUtil instance\" - duh - really?? Who would have thought.  I\u0027m therefore simply going to remove this kind of JavaDoc going forward! You asked for it! ;-)",
+      "parentUuid": "7a6b29fe_10fac042",
+      "revId": "a9a763057af7e53cd15ff56dca91f9e517955b0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_f0f6245c",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-09-05T07:37:59Z",
       "side": 1,
       "message": "Javadocs again ;-)",
+      "revId": "a9a763057af7e53cd15ff56dca91f9e517955b0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_dfdcd3e6",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-09-06T09:49:42Z",
+      "side": 1,
+      "message": "again, removed",
+      "parentUuid": "7a6b29fe_f0f6245c",
       "revId": "a9a763057af7e53cd15ff56dca91f9e517955b0c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_5fc9e324",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclClusterUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-09-06T09:49:42Z",
+      "side": 1,
+      "message": "I\u0027m all for that - where (which project \u0026 module?) would you move this into?  Also, given my current experience of feeling like I\u0027m never finishing anything ;-) I\u0027d like to take this by step - let us get this change merged FIRST, which splits it nicely, and THEN let us propose this somewhere else, and use it here - would that work for you?",
+      "parentUuid": "7a6b29fe_509718ec",
+      "revId": "a9a763057af7e53cd15ff56dca91f9e517955b0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_309c1c0f",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclClusterUtilImpl.java",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2016-09-05T07:37:59Z",
       "side": 1,
       "message": "\"throws Exception\" can be dropped here.",
+      "revId": "a9a763057af7e53cd15ff56dca91f9e517955b0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bf52b764",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclClusterUtilImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-09-06T09:49:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_309c1c0f",
       "revId": "a9a763057af7e53cd15ff56dca91f9e517955b0c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
