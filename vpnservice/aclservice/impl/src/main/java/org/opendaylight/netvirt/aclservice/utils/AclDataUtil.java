@@ -24,7 +24,6 @@ public final class AclDataUtil {
     private static Map<Uuid, List<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
 
     private AclDataUtil() {
-
     }
 
     public static synchronized void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {

@@ -17,7 +17,7 @@ public class AclInterfaceCacheUtil {
         cachedMap.put(interfaceId, aclInterface);
     }
 
-    public static synchronized void  removeAclInterfaceFromCache(String interfaceId) {
+    public static synchronized void removeAclInterfaceFromCache(String interfaceId) {
         AclInterface aclInterface = cachedMap.get(interfaceId);
         if (aclInterface.isMarkedForDelete()) {
             cachedMap.remove(interfaceId);
