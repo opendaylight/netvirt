@@ -8,21 +8,22 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
+import org.opendaylight.infrautils.inject.AbstractLifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public final class AclClusterUtil {
+public final class AclClusterUtil extends AbstractLifecycle {
+
     private static final Logger LOG = LoggerFactory.getLogger(AclClusterUtil.class);
     private static final String ACL_ENTITY_TYPE_FOR_OWNERSHIP = "netvirt-acl";
     private static final String ACL_ENTITY_NAME = "netvirt-acl";
+
     private final EntityOwnershipService entityOwnershipService;
 
     @Inject
@@ -30,7 +31,7 @@ public final class AclClusterUtil {
         this.entityOwnershipService = entityOwnershipService;
     }
 
-    @PostConstruct
+    @Override
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         try {
@@ -41,13 +42,13 @@ public final class AclClusterUtil {
         }
     }
 
-    public static boolean isEntityOwner() {
-        return EntityOwnerUtils.amIEntityOwner(ACL_ENTITY_TYPE_FOR_OWNERSHIP, ACL_ENTITY_NAME);
+    @Override
+    protected void stop() {
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
-    @PreDestroy
-    public void close() throws Exception {
-        LOG.info("{} close", getClass().getSimpleName());
+    public static boolean isEntityOwner() {
+        return EntityOwnerUtils.amIEntityOwner(ACL_ENTITY_TYPE_FOR_OWNERSHIP, ACL_ENTITY_NAME);
     }
 
 }
