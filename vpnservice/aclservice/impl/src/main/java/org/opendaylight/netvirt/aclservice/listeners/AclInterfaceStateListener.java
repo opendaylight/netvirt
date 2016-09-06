@@ -77,8 +77,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     protected void remove(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
         String interfaceId = dataObjectModification.getName();
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
-        if (aclInterface != null && aclInterface.getPortSecurityEnabled() != null
-                && aclInterface.isPortSecurityEnabled()) {
+        if (isOfInterest(aclInterface)) {
             if (AclClusterUtil.isEntityOwner()) {
                 aclServiceManger.notify(aclInterface, null, Action.REMOVE);
             }
@@ -93,14 +92,16 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     @Override
     protected void update(InstanceIdentifier<Interface> key, Interface dataObjectModificationBefore,
                           Interface dataObjectModificationAfter) {
-        // TODO Auto-generated method stub
+        /*
+         * The update is not of interest as the attributes populated from this listener will not change.
+         * The northbound updates are handled in AclInterfaceListener.
+         */
     }
 
     @Override
     protected void add(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
         AclInterface aclInterface = updateAclInterfaceCache(dataObjectModification);
-        if (aclInterface != null && aclInterface.getPortSecurityEnabled() != null
-                && aclInterface.isPortSecurityEnabled()) {
+        if (isOfInterest(aclInterface)) {
             List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
                 AclDataUtil.addAclInterfaceMap(aclList, aclInterface);
@@ -109,6 +110,11 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                 aclServiceManger.notify(aclInterface, null, Action.ADD);
             }
         }
+    }
+
+    private boolean isOfInterest(AclInterface aclInterface) {
+        return aclInterface != null && aclInterface.getPortSecurityEnabled() != null
+                && aclInterface.isPortSecurityEnabled();
     }
 
     @Override
