@@ -77,8 +77,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     protected void remove(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
         String interfaceId = dataObjectModification.getName();
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
-        if (aclInterface != null && aclInterface.getPortSecurityEnabled() != null
-                && aclInterface.isPortSecurityEnabled()) {
+        if (isOfInterest(aclInterface)) {
             if (AclClusterUtil.isEntityOwner()) {
                 aclServiceManger.notify(aclInterface, null, Action.REMOVE);
             }
@@ -93,14 +92,34 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     @Override
     protected void update(InstanceIdentifier<Interface> key, Interface dataObjectModificationBefore,
                           Interface dataObjectModificationAfter) {
-        // TODO Auto-generated method stub
+        if (!dataObjectModificationBefore.getName().equals(dataObjectModificationAfter.getName())) {
+            // If the name changed, let's just remove & re-add to KISS (because the Map in the AclInterfaceCacheUtil
+            // is keyed on the Interface name, so correctly handling that concurrently is more involved).
+            remove(key, dataObjectModificationBefore);
+            add(key, dataObjectModificationAfter);
+        } else {
+            // If the name hasn't changed, then this will do:
+            AclInterface updatedAclInterface = updateAclInterfaceCache(dataObjectModificationAfter);
+            if (isOfInterest(updatedAclInterface)) {
+/* TODO I don't understand what has to happen re. these security groups to be correct in case of an update please help!
+ *
+                List<Uuid> aclList = updatedAclInterface.getSecurityGroups();
+                if (aclList != null) {
+                    AclDataUtil.removeAclInterfaceMap(aclList, updatedAclInterface);
+                    AclDataUtil.addAclInterfaceMap(aclList, updatedAclInterface);
+                }
+*/
+                if (AclClusterUtil.isEntityOwner()) {
+                    aclServiceManger.notify(updatedAclInterface, null, Action.UPDATE);
+                }
+            }
+        }
     }
 
     @Override
     protected void add(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
         AclInterface aclInterface = updateAclInterfaceCache(dataObjectModification);
-        if (aclInterface != null && aclInterface.getPortSecurityEnabled() != null
-                && aclInterface.isPortSecurityEnabled()) {
+        if (isOfInterest(aclInterface)) {
             List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
                 AclDataUtil.addAclInterfaceMap(aclList, aclInterface);
@@ -109,6 +128,11 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                 aclServiceManger.notify(aclInterface, null, Action.ADD);
             }
         }
+    }
+
+    private boolean isOfInterest(AclInterface aclInterface) {
+        return aclInterface != null && aclInterface.getPortSecurityEnabled() != null
+                && aclInterface.isPortSecurityEnabled();
     }
 
     @Override
