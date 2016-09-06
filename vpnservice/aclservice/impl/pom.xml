@@ -71,13 +71,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
-      <!-- TODO Remove when https://git.opendaylight.org/gerrit/#/c/44502/ is merged -->
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <version>1</version>
-      <!-- <scope>provided is wrong here, and causes "Missing Constraint: Import-Package: javax.inject",
-           because javax.inject.Inject & Co. are @Retention(RUNTIME).  As bnd generates a MANIFEST.MF with import-package,
-           you must have <bundle>wrap:mvn:javax.inject/javax.inject/{{VERSION}} in respective features.xml -->
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>inject</artifactId>
+      <version>${infrautils.version}</version>
     </dependency>
   </dependencies>
 
