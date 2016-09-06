@@ -11,8 +11,6 @@ package org.opendaylight.netvirt.aclservice.listeners;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -72,20 +70,14 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         this.config = config;
     }
 
-    @PostConstruct
-    public void start() {
+    @Override
+    public void init() {
         LOG.info("{} start", getClass().getSimpleName());
         if (config != null) {
             this.securityGroupMode = config.getSecurityGroupMode();
         }
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
         LOG.info("AclserviceConfig: {}", this.config);
-    }
-
-    @PreDestroy
-    @Override
-    public void close() throws Exception {
-        super.close();
     }
 
     @Override
