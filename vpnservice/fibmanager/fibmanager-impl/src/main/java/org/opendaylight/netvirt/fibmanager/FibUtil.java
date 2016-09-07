@@ -223,10 +223,10 @@ public class FibUtil {
         InstanceIdentifier<InterVpnLinks> interVpnLinksIid = InstanceIdentifier.builder(InterVpnLinks.class).build();
 
         Optional<InterVpnLinks> interVpnLinksOpData = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
-                interVpnLinksIid);
+                                                                     interVpnLinksIid);
 
-        return ( interVpnLinksOpData.isPresent() ) ? interVpnLinksOpData.get().getInterVpnLink()
-                : new ArrayList<InterVpnLink>();
+        return interVpnLinksOpData.isPresent() ? interVpnLinksOpData.get().getInterVpnLink()
+                                               : new ArrayList<>();
     }
 
     /**

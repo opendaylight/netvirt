@@ -18,7 +18,8 @@
 
   <odl:rpc-implementation ref="fibRpcServiceImpl" />
 
-  <bean id="fibManagerImpl" class="org.opendaylight.netvirt.fibmanager.FibManagerImpl">
+  <bean id="fibManagerImpl" class="org.opendaylight.netvirt.fibmanager.FibManagerImpl" init-method="start">
+    <argument ref="dataBroker" />
     <argument ref="nexthopManager" />
     <argument ref="vfrEntryListener" />
     <argument ref="blueprintBundleContext" />
