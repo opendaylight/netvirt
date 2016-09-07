@@ -35,6 +35,7 @@ public final class NetvirtITConstants {
     public static final String PORT_NAME = "porttest";
     public static final String INTEGRATION_BRIDGE_NAME = "br-int";
     public static final String OPENFLOW_CONNECTION_PROTOCOL = "tcp";
+    public static final int GATEWAY_SUFFIX = 254;
 
     public enum DefaultFlow {
         DHCP_EXTERNAL_TUNNEL("DHCPTableMissFlowForExternalTunnel", NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL),
