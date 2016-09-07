@@ -28,7 +28,6 @@ import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.WARN;
 
 import com.google.common.collect.Maps;
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,6 +46,11 @@ import org.opendaylight.ovsdb.utils.ovsdb.it.utils.ItConstants;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.NodeInfo;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.OvsdbItUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ConnectionInfo;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -146,6 +150,9 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                         INFO.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.netvirt",
+                        TRACE.name()),
+                editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
+                        "log4j.logger.org.opendaylight.genius",
                         TRACE.name()),
                 editConfigurationFilePut(ORG_OPS4J_PAX_LOGGING_CFG,
                         "log4j.logger.org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils",
@@ -281,7 +288,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
             NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
 
-            nodeInfo.disconnect();
+            disconnectOvs(nodeInfo);
         } catch (Exception e) {
             LOG.error("testNetVirt: Exception thrown by OvsDocker.OvsDocker()", e);
             fail("testNetVirt: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
@@ -291,6 +298,12 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static final String NETWORK1_NAME = "net1";
     private static final String NETWORK1_SEGID = "101";
     private static final String NETWORK1_IPPFX = "10.1.1.";
+
+    private static final String NETWORK2_NAME = "net2";
+    private static final String NETWORK2_SEGID = "201";
+    private static final String NETWORK2_IPPFX = "20.1.1.";
+
+    private static final String ROUTER1_NAME = "router1";
 
     /**
      * Test a basic neutron use case. This test constructs a Neutron network, subnet, and two "vm" ports
@@ -310,8 +323,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
             netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
 
-            String port1 = addPort(netOvs, nodeInfo, ovs1);
-            String port2 = addPort(netOvs, nodeInfo, ovs1);
+            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME);
+            String port2 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME);
 
             int rc = netOvs.ping(port1, port2);
             LOG.info("Ping status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
@@ -320,11 +333,51 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 LOG.info("Ping status rc: {}", rc);
             }
 
-            netOvs.destroy();
-            nodeInfo.disconnect();
+            destroyOvs(netOvs);
+            disconnectOvs(nodeInfo);
         } catch (Exception e) {
             LOG.error("testNeutronNet: Exception thrown by OvsDocker.OvsDocker()", e);
             fail("testNeutronNet: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
+        }
+    }
+
+    @Test
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void testNeutronNetL3() throws InterruptedException {
+        int ovs1 = 1;
+        try (DockerOvs ovs = new DockerOvs()) {
+            Boolean isUserSpace = userSpaceEnabled.equals("yes");
+            LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
+            NetOvs netOvs = getNetOvs(ovs, isUserSpace);
+
+            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
+
+            //create 2 networks
+            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
+            netOvs.createNetwork(NETWORK2_NAME, NETWORK2_SEGID, NETWORK2_IPPFX);
+
+            //create 2 "vms" ports
+            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME);
+            String port2 = addPort(netOvs, nodeInfo, ovs1, NETWORK2_NAME);
+
+            int rc = netOvs.ping(port1, port2);
+            netOvs.logState(ovs1, "after ping without router");
+            assertTrue("Ping should fail without router", rc != 0);
+
+            //create neutron router and add the networks
+            addRouter(netOvs, ROUTER1_NAME);
+            netOvs.createRouterInterface(ROUTER1_NAME, NETWORK1_NAME);
+            netOvs.createRouterInterface(ROUTER1_NAME, NETWORK2_NAME);
+
+            rc = netOvs.ping(port1, port2);
+            netOvs.logState(ovs1, "after ping with router");
+            assertTrue("Ping with router", rc == 0);
+
+            destroyOvs(netOvs);
+            disconnectOvs(nodeInfo);
+        } catch (Exception e) {
+            LOG.error("testNeutronNetL3: Exception thrown by OvsDocker.OvsDocker()", e);
+            fail("testNeutronNetL3: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
         }
     }
 
@@ -345,8 +398,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
             netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
 
-            String port1 = addPort(netOvs, nodeInfo, ovs1);
-            String port2 = addPort(netOvs, nodeInfo2, ovs2);
+            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME);
+            String port2 = addPort(netOvs, nodeInfo2, ovs2, NETWORK1_NAME);
 
             int rc = netOvs.ping(port1, port2);
             LOG.info("Ping status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
@@ -356,11 +409,62 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                 LOG.info("Ping status rc: {}", rc);
             }
 
-            netOvs.destroy();
-            nodeInfo.disconnect();
+            destroyOvs(netOvs);
+            disconnectOvs(nodeInfo);
+            disconnectOvs(nodeInfo2);
         } catch (Exception e) {
             LOG.error("testNeutronNet: Exception thrown by OvsDocker.OvsDocker()", e);
             fail("testNeutronNet: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
+        }
+    }
+
+    // This test requires ovs kernel modules to be loaded which is not in jenkins yet.
+    @Test
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void testNeutronNetL3TwoNodes() throws InterruptedException {
+        int ovs1 = 1;
+        int ovs2 = 2;
+        System.getProperties().setProperty(ItConstants.DOCKER_COMPOSE_FILE_NAME, "two_ovs-2.5.0-hwvtep.yml");
+        try (DockerOvs ovs = new DockerOvs()) {
+            Boolean isUserSpace = userSpaceEnabled.equals("yes");
+            LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
+            NetOvs netOvs = getNetOvs(ovs, isUserSpace);
+
+            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
+            NodeInfo nodeInfo2 = connectOvs(netOvs, ovs2, ovs);
+
+            //create 2 networks
+            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
+            netOvs.createNetwork(NETWORK2_NAME, NETWORK2_SEGID, NETWORK2_IPPFX);
+
+            //create 2 "vms" ports
+            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME);
+            String port2 = addPort(netOvs, nodeInfo2, ovs2, NETWORK2_NAME);
+
+            int rc = netOvs.ping(port1, port2);
+            netOvs.logState(ovs1, "node 1 after ping without router");
+            netOvs.logState(ovs2, "node 2 after ping without router");
+            assertTrue("Ping should fail without router", rc != 0);
+
+            //create neutron router and add the networks
+            addRouter(netOvs, ROUTER1_NAME);
+            netOvs.createRouterInterface(ROUTER1_NAME, NETWORK1_NAME);
+            netOvs.createRouterInterface(ROUTER1_NAME, NETWORK2_NAME);
+
+            waitForTunnels();
+            rc = netOvs.ping(port1, port2);
+            netOvs.logState(ovs1, "node 1 after ping with router");
+            netOvs.logState(ovs2, "node 2 after ping with router");
+            if (!isUserSpace) {
+                assertTrue("Ping with router", rc == 0);
+            }
+
+            destroyOvs(netOvs);
+            disconnectOvs(nodeInfo);
+            disconnectOvs(nodeInfo2);
+        } catch (Exception e) {
+            LOG.error("testNeutronNetL3TwoNodes: Exception thrown by OvsDocker.OvsDocker()", e);
+            fail("testNeutronNetL3TwoNodes: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
         }
     }
 
@@ -375,7 +479,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     }
 
     private NodeInfo connectOvs(NetOvs netOvs, int ovsInstance, DockerOvs ovs) throws Exception {
-        netOvs.logState(ovsInstance, "node " + 1 + " idle");
+        LOG.info("connectOvs enter: netOvs {}", ovsInstance);
+        netOvs.logState(ovsInstance, "node " + ovsInstance + " idle");
         ConnectionInfo connectionInfo =
                 SouthboundUtils.getConnectionInfo(ovs.getOvsdbAddress(ovsInstance), ovs.getOvsdbPort(ovsInstance));
         NodeInfo nodeInfo = itUtils.createNodeInfo(connectionInfo, null);
@@ -387,12 +492,31 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
         validateDefaultFlows(nodeInfo.datapathId, 2 * 60 * 1000);
         netOvs.logState(ovsInstance, "node " + ovsInstance + " default flows");
+        LOG.info("connectOvs exit: netOvs {}", ovsInstance);
         return nodeInfo;
     }
 
-    private String addPort(NetOvs netOvs, NodeInfo nodeInfo, int ovsInstance) throws IOException, InterruptedException {
-        String port = netOvs.createPort(ovsInstance, nodeInfo.bridgeNode, NETWORK1_NAME);
-        LOG.info("Created port: {}", netOvs.getPortInfo(port));
+    private void disconnectOvs(NodeInfo nodeInfo) throws Exception {
+        LOG.info("disconnectOvs enter: {}", nodeInfo.ovsdbNode.getNodeId().getValue());
+        nodeInfo.disconnect();
+        Thread.sleep(5000);
+        LOG.info("disconnectOvs exit: {}", nodeInfo.ovsdbNode.getNodeId().getValue());
+    }
+
+    private void destroyOvs(NetOvs netOvs) throws InterruptedException {
+        LOG.info("destroyOvs enter");
+        netOvs.destroy();
+        // This sleep allows netvirt and genius to run properly cleanup of neutron ports
+        // and networks deleted by destroy()
+        Thread.sleep(5000);
+        LOG.info("destroyOvs exit");
+    }
+
+    private String addPort(NetOvs netOvs, NodeInfo nodeInfo, int ovsInstance, String networkName)
+            throws Exception {
+        String port = netOvs.createPort(ovsInstance, nodeInfo.bridgeNode, networkName);
+        LOG.info("addPort enter: Bridge node: {}, Created port: {} on network: {}",
+                nodeInfo.bridgeNode.getNodeId().getValue(), netOvs.getPortInfo(port), networkName);
 
         InstanceIdentifier<TerminationPoint> tpIid =
                 southboundUtils.createTerminationPointInstanceIdentifier(nodeInfo.bridgeNode, port);
@@ -404,8 +528,55 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         netOvs.preparePortForPing(port);
 
         portOperationalListener.waitForCreation(10000);
+        portOperationalListener.clear();
+        portOperationalListener.close();
+        // TODO: find better wait condition, what event indicates the port is added
+        // in the models and is ready for use
         Thread.sleep(30000);
-        netOvs.logState(ovsInstance, "node " + ovsInstance + " after ports");
+        netOvs.logState(ovsInstance, "node " + ovsInstance + " " + nodeInfo.bridgeNode.getNodeId().getValue()
+                + " after port " + netOvs.getPortInfo(port));
+        LOG.info("addPort exit: Bridge node: {}, Created port: {} on network: {}",
+                nodeInfo.bridgeNode.getNodeId().getValue(), netOvs.getPortInfo(port), networkName);
         return port;
+    }
+
+    private void addRouter(NetOvs netOvs, String routerName) throws Exception {
+        LOG.info("addRouter enter: {}", routerName);
+        String routerId = netOvs.createRouter(routerName);
+
+        //wait for VpnMap update before starting to use the router
+        InstanceIdentifier<VpnMap> vpnIid = InstanceIdentifier.builder(VpnMaps.class)
+                .child(VpnMap.class, new VpnMapKey(new Uuid(routerId)))
+                .build();
+        final NotifyingDataChangeListener vpnMapListener =
+                new NotifyingDataChangeListener(LogicalDatastoreType.CONFIGURATION,
+                        NotifyingDataChangeListener.BIT_CREATE, vpnIid, null);
+        vpnMapListener.registerDataChangeListener(dataBroker);
+        vpnMapListener.waitForCreation(10000);
+        vpnMapListener.close();
+        LOG.info("addRouter exit: {}", routerName);
+    }
+
+    private void waitForTunnels() throws InterruptedException {
+        LOG.info("waitForTunnels enter");
+        InstanceIdentifier<TunnelsState> tunIid = InstanceIdentifier.builder(TunnelsState.class).build();
+        for (int i = 0; i < 10; i++) {
+            TunnelsState tunnelsState = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, tunIid);
+            LOG.info("waitForTunnels try {}, {}", i, tunnelsState);
+            if (tunnelsState != null && tunnelsState.getStateTunnelList() != null) {
+                // TODO: add more verification to validate the two tunnels are the right ones
+                // i.e. check host ips or other parts of the model
+                if (tunnelsState.getStateTunnelList().size() == 2) {
+                    LOG.info("waitForTunnels found both tunnels");
+                    break;
+                } else {
+                    LOG.info("waitForTunnels try {}, size: {}", i, tunnelsState.getStateTunnelList().size());
+                }
+            } else {
+                Thread.sleep(1000);
+            }
+        }
+        Thread.sleep(3000);
+        LOG.info("waitForTunnels exit");
     }
 }
