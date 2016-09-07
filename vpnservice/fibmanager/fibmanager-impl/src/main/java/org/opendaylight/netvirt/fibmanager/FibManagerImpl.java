@@ -17,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,22 +27,26 @@ public class FibManagerImpl implements IFibManager {
     private final NexthopManager nexthopManager;
     private final VrfEntryListener vrfEntryListener;
     private IVpnManager vpnmanager;
+    private final DataBroker dataBroker;
 
-    public FibManagerImpl(final NexthopManager nexthopManager,
+    public FibManagerImpl(final DataBroker dataBroker,
+                          final NexthopManager nexthopManager,
                           final VrfEntryListener vrfEntryListener,
                           final BundleContext bundleContext) {
+        this.dataBroker = dataBroker;
         this.nexthopManager = nexthopManager;
         this.vrfEntryListener = vrfEntryListener;
 
-        GlobalEventExecutor.INSTANCE.execute(new Runnable() {
-            @Override
-            public void run() {
-                final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
-                        IVpnManager.class, bundleContext);
-                vpnmanager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-                LOG.info("FibManagerImpl initialized. IVpnManager={}", vpnmanager);
-            }
+        GlobalEventExecutor.INSTANCE.execute(() -> {
+            final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
+                    IVpnManager.class, bundleContext);
+            vpnmanager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+            LOG.info("FibManagerImpl initialized. IVpnManager={}", vpnmanager);
         });
+    }
+
+    public void start() {
+        InterVpnLinkCache.createInterVpnLinkCaches(this.dataBroker);  // Idempotent creation
     }
 
     @Override
