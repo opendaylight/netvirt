@@ -39,7 +39,7 @@ public class NeutronPort {
         this.subnetId = subnetId;
     }
 
-    void createPort(PortInfo portInfo, String owner) {
+    void createPort(PortInfo portInfo, String owner, String deviceId, boolean portSecurity) {
         // fixed ips
         IpAddress ipv4 = new IpAddress(new Ipv4Address(portInfo.ip));
         FixedIpsBuilder fib = new FixedIpsBuilder();
@@ -54,7 +54,7 @@ public class NeutronPort {
 
         // port security
         PortSecurityExtensionBuilder portSecurityBuilder = new PortSecurityExtensionBuilder();
-        portSecurityBuilder.setPortSecurityEnabled(true);
+        portSecurityBuilder.setPortSecurityEnabled(portSecurity);
 
         port = new PortBuilder()
                 .addAugmentation(PortSecurityExtension.class, portSecurityBuilder.build())
@@ -63,6 +63,7 @@ public class NeutronPort {
                 .setAdminStateUp(true)
                 .setName(portInfo.id)
                 .setDeviceOwner(owner)
+                .setDeviceId((deviceId != null) ? deviceId : "")
                 .setUuid(new Uuid(portInfo.id))
                 .setMacAddress(new MacAddress(portInfo.mac))
                 .setNetworkId(new Uuid(networkId))
