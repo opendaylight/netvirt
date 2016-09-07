@@ -24,12 +24,12 @@ public class RealNetOvsImpl extends AbstractNetOvs {
     }
 
     @Override
-    public String createPort(int ovsInstance, Node bridgeNode, String networkName)
+    public String createPort(int ovsInstance, Node bridgeNode, String networkName, String ipPfx)
             throws InterruptedException, IOException {
-        PortInfo portInfo = buildPortInfo(0);
+        PortInfo portInfo = buildPortInfo(0, ipPfx);
 
         NeutronPort neutronPort = new NeutronPort(mdsalUtils, getNetworkId(networkName), getSubnetId(networkName));
-        neutronPort.createPort(portInfo, "compute:None");
+        neutronPort.createPort(portInfo, "compute:None", null, true);
         addTerminationPoint(portInfo, bridgeNode, "internal");
         putPortInfo(portInfo);
 

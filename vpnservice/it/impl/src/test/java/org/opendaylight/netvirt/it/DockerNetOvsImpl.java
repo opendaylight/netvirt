@@ -25,9 +25,9 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
     }
 
     @Override
-    public String createPort(int ovsInstance, Node bridgeNode, String networkName)
+    public String createPort(int ovsInstance, Node bridgeNode, String networkName, String ipPfx)
             throws InterruptedException, IOException {
-        PortInfo portInfo = buildPortInfo(ovsInstance);
+        PortInfo portInfo = buildPortInfo(ovsInstance, ipPfx);
 
         // userspace requires adding vm port as a special tap port
         // kernel mode uses the port as created by ovs
@@ -36,7 +36,7 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
         }
 
         NeutronPort neutronPort = new NeutronPort(mdsalUtils, getNetworkId(networkName), getSubnetId(networkName));
-        neutronPort.createPort(portInfo, "compute:None");
+        neutronPort.createPort(portInfo, "compute:None", null, true);
         // Not sure if tap really matters. ovs 2.4.0 fails anyways because group chaining
         // is only supported in 2.5.0
         if (isUserSpace) {
@@ -53,7 +53,7 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
     }
 
     @Override
-    public void preparePortForPing(String portName) throws InterruptedException, IOException {
+    public void preparePortForPing(String portName, String ipPfx) throws InterruptedException, IOException {
         String nsName = "ns-" + portName;
         PortInfo portInfo = portInfoByName.get(portName);
         dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "add", nsName);
@@ -63,7 +63,7 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
         dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "exec", nsName, "ip", "link",
                 "set", "dev", portName, "up");
         dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "exec", nsName, "ip", "route",
-                "add", "default", "via", portInfo.ip);
+                "add", "default", "via", ipPfx + NetvirtITConstants.GATEWAY_SUFFIX);
     }
 
     /**

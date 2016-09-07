@@ -33,6 +33,7 @@ public class AbstractNetOvs implements NetOvs {
     protected static final int DEFAULT_WAIT = 30 * 1000;
     protected Map<String, PortInfo> portInfoByName = new HashMap<>();
     protected Map<String, NeutronNetwork> neutronNetworkByName = new HashMap<>();
+    protected Map<String, NeutronRouter> neutronRouterByName = new HashMap<>();
 
     AbstractNetOvs(final DockerOvs dockerOvs, final Boolean isUserSpace, final MdsalUtils mdsalUtils,
                    SouthboundUtils southboundUtils) {
@@ -52,8 +53,20 @@ public class AbstractNetOvs implements NetOvs {
         return networkName;
     }
 
+    @Override
+    public String createRouter(String routerName) {
+        NeutronRouter neutronRouter = new NeutronRouter(mdsalUtils);
+        neutronRouter.createRouter(routerName);
+        putNeutronRouter(routerName, neutronRouter);
+        return routerName;
+    }
+
     public void putNeutronNetwork(String networkName, NeutronNetwork neutronNetwork) {
         neutronNetworkByName.put(networkName, neutronNetwork);
+    }
+
+    public void putNeutronRouter(String routerName, NeutronRouter neutronRouter) {
+        neutronRouterByName.put(routerName, neutronRouter);
     }
 
     protected NeutronNetwork getNeutronNetwork(String networkName) {
@@ -68,9 +81,13 @@ public class AbstractNetOvs implements NetOvs {
         return neutronNetworkByName.get(name).getSubnetId();
     }
 
-    protected PortInfo buildPortInfo(int ovsInstance) {
+    protected String getRouterId(String name) {
+        return neutronRouterByName.get(name).getRouterId();
+    }
+
+    protected PortInfo buildPortInfo(int ovsInstance, String ipPfx) {
         long idx = portInfoByName.size() + 1;
-        return new PortInfo(ovsInstance, idx);
+        return new PortInfo(ovsInstance, idx, ipPfx);
     }
 
     protected void putPortInfo(PortInfo portInfo) {
@@ -78,9 +95,20 @@ public class AbstractNetOvs implements NetOvs {
     }
 
     @Override
-    public String createPort(int ovsInstance, Node bridgeNode, String networkName)
+    public String createPort(int ovsInstance, Node bridgeNode, String networkName, String ipPfx)
             throws InterruptedException, IOException {
         return null;
+    }
+
+    @Override
+    public String createRouterInterface(String routerName, String networkName, String ipPfx) {
+        PortInfo portInfo = new PortInfo(-1, NetvirtITConstants.GATEWAY_SUFFIX, ipPfx);
+
+        NeutronPort neutronPort = new NeutronPort(mdsalUtils, getNetworkId(networkName), getSubnetId(networkName));
+        neutronPort.createPort(portInfo, "network:router_interface", getRouterId(routerName), false);
+
+        portInfoByName.put(portInfo.name, portInfo);
+        return portInfo.name;
     }
 
     @Override
@@ -110,6 +138,11 @@ public class AbstractNetOvs implements NetOvs {
         }
         portInfoByName.clear();
 
+        for (NeutronRouter neutronRouter : neutronRouterByName.values()) {
+            neutronRouter.deleteRouter();
+        }
+        neutronRouterByName.clear();
+
         for (NeutronNetwork neutronNetwork : neutronNetworkByName.values()) {
             neutronNetwork.deleteSubnet();
             neutronNetwork.deleteNetwork();
@@ -118,7 +151,7 @@ public class AbstractNetOvs implements NetOvs {
     }
 
     @Override
-    public void preparePortForPing(String portName) throws InterruptedException, IOException {
+    public void preparePortForPing(String portName, String ipPfx) throws InterruptedException, IOException {
     }
 
     @Override

@@ -93,7 +93,7 @@ public class NeutronNetwork {
                 .setUuid(new Uuid(subnetId))
                 .setNetworkId(new Uuid(networkId))
                 .setCidr(new IpPrefix(cidr.toCharArray()))
-                .setGatewayIp(new IpAddress(new Ipv4Address(ipPfx + "254")))
+                .setGatewayIp(new IpAddress(new Ipv4Address(ipPfx + NetvirtITConstants.GATEWAY_SUFFIX)))
                 .setIpVersion(IpVersionV4.class)
                 .setEnableDhcp(true)
                 .build();
