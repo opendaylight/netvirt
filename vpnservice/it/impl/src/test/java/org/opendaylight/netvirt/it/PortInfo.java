@@ -7,23 +7,25 @@
  */
 package org.opendaylight.netvirt.it;
 
+import java.util.Random;
 import java.util.UUID;
 
 public class PortInfo {
     public String id;
     public String name;
     public String ip;
+    public String ipPfx;
     public String mac;
     public long ofPort;
     public String macPfx = "f4:00:00:0f:00:";
-    public String ipPfx = "10.0.0.";
     private NeutronPort neutronPort;
     protected int ovsInstance;
 
-    PortInfo(int ovsInstance, long ofPort) {
+    PortInfo(int ovsInstance, long ofPort, String ipPfx) {
         this.ovsInstance = ovsInstance;
         this.ofPort = ofPort;
-        this.ip = ipFor(ofPort);
+        this.ipPfx = ipPfx;
+        this.ip = ipFor(ipPfx, ofPort);
         this.mac = macFor(ofPort);
         this.id = UUID.randomUUID().toString();
         this.name = "tap" + id.substring(0, 11);
@@ -44,6 +46,11 @@ public class PortInfo {
      * @return the mac address
      */
     public String macFor(long portNum) {
+        //for router interface use a random number, because we could have multiple interfaces with the same "portNum".
+        if (portNum == NetvirtITConstants.GATEWAY_SUFFIX) {
+            Random rn = new Random(System.currentTimeMillis());
+            portNum = rn.nextInt(10) + 100;
+        }
         return macPfx + String.format("%02x", portNum);
     }
 
@@ -53,7 +60,7 @@ public class PortInfo {
      * @param portNum index of port created
      * @return the mac address
      */
-    public String ipFor(long portNum) {
+    public String ipFor(String ipPfx, long portNum) {
         return ipPfx + portNum;
     }
 
