@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.vpnmanager.VpnOpDataNotifier;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
@@ -81,13 +82,15 @@ public class VpnServiceTest {
         VpnInstanceBuilder builder = new VpnInstanceBuilder().setKey(new VpnInstanceKey("Vpn1")).setIpv4Family
                 (ipv4Family);
         VpnInstance instance = builder.build();
+        VpnOpDataNotifier vpnOpDataNotifier = new VpnOpDataNotifier();
+        VpnManager vpnManager = new VpnManager(dataBroker, bgpManager, vpnOpDataNotifier);
         event.created.put(createVpnId("Vpn1"), instance);
         //TODO: Need to enhance the test case to handle ds read/write ops
         //vpnManager.onDataChanged(event);
     }
 
     private InstanceIdentifier<VpnInstance> createVpnId(String name) {
-       InstanceIdentifierBuilder<VpnInstance> idBuilder = 
+       InstanceIdentifierBuilder<VpnInstance> idBuilder =
            InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class, new VpnInstanceKey(name));
        InstanceIdentifier<VpnInstance> id = idBuilder.build();
        return id;

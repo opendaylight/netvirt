@@ -52,6 +52,7 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final IBgpManager bgpManager;
+    private VpnOpDataNotifier vpnOpDataNotifier;
     private final IdManagerService idManager;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final IFibManager fibManager;
@@ -76,6 +77,11 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
         LOG.info("{} start", getClass().getSimpleName());
         listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
                 getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+    }
+
+        this.bgpManager = bgpManager;
+        this.vpnOpDataNotifier = vpnInstanceNotifier;
+        registerListener(db);
     }
 
     private InstanceIdentifier<VpnInstance> getWildCardPath() {
@@ -460,6 +466,7 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
          */
         @Override
         public void onSuccess(List<Void> voids) {
+            vpnOpDataNotifier.notifyVpnOpDataReady(vpnName);
             String rd = config.getRouteDistinguisher();
             if (rd != null) {
                 List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();

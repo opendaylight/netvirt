@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -36,11 +37,17 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
     private DataBroker broker;
     private BigInteger dpnId;
     final IMdsalApiManager mdsalManager;
+    private IFibManager fibManager;
+    private NotificationPublishService notificationsService;
 
-    public InterVpnLinkNodeAddTask(final DataBroker broker, final IMdsalApiManager mdsalMgr, final BigInteger dpnId) {
+    public InterVpnLinkNodeAddTask(final DataBroker broker, final IMdsalApiManager mdsalMgr,
+                                   final IFibManager fibManager, final NotificationPublishService notifService,
+                                   final BigInteger dpnId) {
         this.broker = broker;
         this.dpnId = dpnId;
         this.mdsalManager = mdsalMgr;
+        this.fibManager = fibManager;
+        this.notificationsService = notifService;
     }
 
     @Override
@@ -103,14 +110,16 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
                                                                 .build();
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.merge(LogicalDatastoreType.CONFIGURATION,
-                 InterVpnLinkUtil.getInterVpnLinkStateIid(interVpnLinkState.getInterVpnLinkName()), newInterVpnLinkState, true);
+                 InterVpnLinkUtil.getInterVpnLinkStateIid(interVpnLinkState.getInterVpnLinkName()),
+                                                          newInterVpnLinkState, true);
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
         return futures;
     }
 
     private void installLPortDispatcherTable(InterVpnLinkState interVpnLinkState, List<BigInteger> firstDpnList,
                                              List<BigInteger> secondDpnList) {
-        Optional<InterVpnLink> vpnLink = InterVpnLinkUtil.getInterVpnLinkByName(broker, interVpnLinkState.getKey().getInterVpnLinkName());
+        Optional<InterVpnLink> vpnLink =
+            InterVpnLinkUtil.getInterVpnLinkByName(broker, interVpnLinkState.getKey().getInterVpnLinkName());
         if (vpnLink.isPresent()) {
             Uuid firstEndpointVpnUuid = vpnLink.get().getFirstEndpoint().getVpnUuid();
             Uuid secondEndpointVpnUuid = vpnLink.get().getSecondEndpoint().getVpnUuid();
@@ -126,8 +135,10 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
             // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach
             // to Vpn2 targets. If new Vpn2 targets are added later, the Fib will be maintained in these DPNs even if
             // Vpn2 is not physically present there.
-            InterVpnLinkUtil.updateVpnToDpnMap(broker, firstDpnList, secondEndpointVpnUuid);
-            InterVpnLinkUtil.updateVpnToDpnMap(broker, secondDpnList, firstEndpointVpnUuid);
+            InterVpnLinkUtil.updateVpnFootprint(broker, fibManager, notificationsService,
+                                                secondEndpointVpnUuid.getValue(), firstDpnList);
+            InterVpnLinkUtil.updateVpnFootprint(broker, fibManager, notificationsService,
+                                               firstEndpointVpnUuid.getValue(), secondDpnList);
         }
     }
 

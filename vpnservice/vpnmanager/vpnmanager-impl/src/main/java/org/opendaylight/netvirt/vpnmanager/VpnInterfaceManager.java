@@ -148,9 +148,18 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     private final OdlArputilService arpManager;
     private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final NotificationPublishService notificationPublishService;
+    private VpnOpDataNotifier vpnOpDataNotifier;
     private ConcurrentHashMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<String, Runnable>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
+    /**
+     * Responsible for listening to data change related to VPN Interface
+     * Bind VPN Service on the interface and informs the BGP service
+     *
+     * @param db - dataBroker service reference
+     * @param bgpManager Used to advertise routes to the BGP Router
+     * @param notificationService Used to subscribe to notification events
+     */
     public VpnInterfaceManager(final DataBroker dataBroker,
                                final IBgpManager bgpManager,
                                final OdlArputilService arpManager,
@@ -244,8 +253,37 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             LOG.info("Binding vpn service to interface {} ", interfaceName);
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             if (vpnId == VpnConstants.INVALID_ID) {
-                LOG.trace("VpnInstance to VPNId mapping is not yet available, bailing out now.");
-                return;
+                vpnOpDataNotifier.waitForVpnInstanceInfo(vpnName,
+                                                         VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
+
+                vpnId = VpnUtil.getVpnId(broker, vpnName);
+                if (vpnId == VpnConstants.INVALID_ID) {
+                    LOG.error("VpnInstance to VPNId mapping not yet available for VpnName {} processing vpninterface {} " +
+                            ", bailing out now.", vpnId, interfaceName);
+                    return;
+                }
+            } else {
+                // Incase of cluster reboot , VpnId would be available already as its a configDS fetch.
+                // If VpnInstanceOpData is not be available ,wait for 180sec and retry.
+                String vpnRd = VpnUtil.getVpnRd(broker, vpnName);
+                VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(broker, vpnRd);
+                if (vpnInstanceOpDataEntry == null) {
+                    LOG.debug("VpnInstanceOpData not yet populated for vpn {} rd {}", vpnName , vpnRd);
+                    int retry = 2;
+                    while (retry > 0) {
+                        vpnOpDataNotifier.waitForVpnInstanceInfo(vpnName,
+                                                                 VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS);
+                        vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(broker, vpnRd);
+                        if (vpnInstanceOpDataEntry != null) {
+                            break;
+                        }
+                        retry--;
+                        if(retry <= 0) {
+                            LOG.error("VpnInstanceOpData not populated even after second retry for vpn {} rd {} vpninterface {}, bailing out ", vpnName, vpnRd, interfaceName);
+                            return;
+                        }
+                    }
+                }
             }
             boolean waitForVpnInterfaceOpRemoval = false;
             VpnInterface opVpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, vpnInterface.getName());
@@ -497,16 +535,33 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
     }
 
-    public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String interfaceName, boolean add) {
-        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+    private void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String interfaceName, boolean addOrRemove) {
         if (dpId == null) {
             dpId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, interfaceName);
         }
         if(!dpId.equals(BigInteger.ZERO)) {
-            if(add)
-                createOrUpdateVpnToDpnList(vpnId, dpId, interfaceName, vpnName);
-            else
-                removeOrUpdateVpnToDpnList(vpnId, dpId, interfaceName, vpnName);
+            LOG.info("VpnInterfaceManager.Modifying VpnToDpnMap: Op={}  vpnName={}  dpnId={}  ifaceName={}",
+                     (addOrRemove) ? "Adding iface to footprint" : "Removing iface from footprint",
+                     vpnName, dpId, interfaceName);
+            ModifyVpnFootprintTask modifyVpnFootprintTask =
+                new ModifyVpnFootprintTask(broker, fibManager, notificationPublishService, vpnName, dpId,
+                                           interfaceName, addOrRemove);
+            DataStoreJobCoordinator.getInstance().enqueueJob(modifyVpnFootprintTask.getDsJobCoordinatorKey(),
+                                                             modifyVpnFootprintTask);
+
+            try {
+                LOG.info("VpnInterfaceManager.modifyingVpnToDpnMap: waiting for it to finish. Operation={}",
+                         (addOrRemove) ? "Adding iface to Footprint" : "Removing iface from footprint");
+                modifyVpnFootprintTask.waitTillPersisted(VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS);
+                LOG.info("VpnInterfaceManager: new VpnToDpnMap has been persisted: vpn={} dpn={}  iface={}",
+                         vpnName, dpId, interfaceName);
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Error updating dpnToVpnList for vpn {} interface {} dpn {}", vpnName, interfaceName, dpId);
+                throw new RuntimeException(e.getMessage());
+            } catch ( TimeoutException e ) {
+                LOG.warn("The attempt of updating VpnToDpn map has not been persisted after {}ms. Vpn {} Dpn {} iface {}",
+                         VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS, vpnName, dpId, interfaceName);
+            }
         }
     }
 

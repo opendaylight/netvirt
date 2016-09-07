@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -50,11 +51,16 @@ public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node> i
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
+    private IFibManager fibManager;
+    private NotificationPublishService notificationsService;
 
-    public InterVpnLinkNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalMgr) {
+    public InterVpnLinkNodeListener(final DataBroker db, IMdsalApiManager mdsalMgr,
+                                    NotificationPublishService notifService) {
         super(Node.class);
         this.dataBroker = dataBroker;
         mdsalManager = mdsalMgr;
+        this.notificationsService = notifService;
+        registerListener(db);
     }
 
     public void start() {
@@ -87,7 +93,8 @@ public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node> i
         BigInteger dpId = new BigInteger(node[1]);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         coordinator.enqueueJob("IVpnLink" + dpId.toString(),
-                new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, dpId));
+                               new InterVpnLinkNodeAddTask(broker, mdsalManager, fibManager, notificationsService,
+                                                           dpId));
     }
 
     @Override
