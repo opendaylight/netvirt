@@ -13,7 +13,12 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 public interface NetOvs {
     String createNetwork(String networkName, String segId, String ipPfx);
 
-    String createPort(int ovsInstance, Node bridgeNode, String networkName) throws InterruptedException, IOException;
+    String createRouter(String routerName);
+
+    String createPort(int ovsInstance, Node bridgeNode, String networkName, String ipPfx) throws
+            InterruptedException, IOException;
+
+    String createRouterInterface(String routerName, String networkName, String ipPfx);
 
     PortInfo getPortInfo(String portName);
 
@@ -21,7 +26,7 @@ public interface NetOvs {
 
     void destroy();
 
-    void preparePortForPing(String portName) throws InterruptedException, IOException;
+    void preparePortForPing(String portName, String ipPfx) throws InterruptedException, IOException;
 
     int ping(String fromPort, String toPort) throws InterruptedException, IOException;
 
