@@ -75,19 +75,19 @@ public class BgpThriftService {
                 server.setServerEventHandler(new TServerEventHandler() {
                     @Override
                     public void preServe() {
-                        LOGGER.error("Bgp thrift server pre serve event");
+                        LOGGER.info("Bgp thrift server pre serve event");
                     }
 
                     @Override
                     public ServerContext createContext(TProtocol input, TProtocol output) {
-                        LOGGER.error("Bgp thrift server create context event");
+                        LOGGER.info("Bgp thrift server create context event");
                         synchronized (this) {
                             try {
                                 if (oldThriftClientContext != null) {
-                                    LOGGER.error("Bgp thrift server closing old context");
+                                    LOGGER.info("Bgp thrift server closing old context");
                                     oldThriftClientContext.getIn().getTransport().close();
                                 } else {
-                                    LOGGER.error("Bgp thrift server old context is null nothing to close");
+                                    LOGGER.info("Bgp thrift server old context is null nothing to close");
                                 }
                                 oldThriftClientContext = null;
                             } catch (Throwable ignore) {
@@ -99,12 +99,12 @@ public class BgpThriftService {
 
                     @Override
                     public void deleteContext(ServerContext serverContext, TProtocol input, TProtocol output) {
-                        LOGGER.error("Bgp thrift server delete context event");
+                        LOGGER.info("Bgp thrift server delete context event");
                         if (oldThriftClientContext == serverContext) {
-                            LOGGER.error("Bgp thrift server cleanup old context");
+                            LOGGER.info("Bgp thrift server cleanup old context");
                             oldThriftClientContext = null;
                         } else {
-                            LOGGER.error("Bgp thrift server cleanup context");
+                            LOGGER.info("Bgp thrift server cleanup context");
                         }
                     }
 
@@ -140,7 +140,7 @@ public class BgpThriftService {
         }
 
         public void onStartConfigResyncNotification() {
-            LOGGER.error("BGP (re)started");
+            LOGGER.info("BGP (re)started");
             bgpManager.setqBGPrestartTS(System.currentTimeMillis());
             try {
                 bgpManager.bgpRestarted();

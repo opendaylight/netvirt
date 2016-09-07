@@ -322,7 +322,7 @@ public class BgpConfigurationManager {
                         activateMIP();
                         bgpRestarted();
                     } else {
-                        LOG.error("Not owner: hasOwner: {}, isOwner: {}",ownershipChange.hasOwner(),
+                        LOG.info("Not owner: hasOwner: {}, isOwner: {}",ownershipChange.hasOwner(),
                                 ownershipChange.isOwner() );
                     }
                 }
@@ -1389,26 +1389,26 @@ public class BgpConfigurationManager {
             @Override
             public void run() {
                 try {
-                    LOG.error("running bgp replay task ");
+                    LOG.info("running bgp replay task ");
                     if (get() == null) {
                         String host = getConfigHost();
                         int port = getConfigPort();
                         LOG.info("connecting  to bgp host {} ", host);
 
                         boolean res = bgpRouter.connect(host, port);
-                        LOG.error("no config to push in bgp replay task ");
+                        LOG.info("no config to push in bgp replay task ");
                         return;
                     }
                     setStaleStartTime(System.currentTimeMillis());
-                    LOG.error("started creating stale fibDSWriter  map ");
+                    LOG.info("started creating stale fibDSWriter  map ");
                     createStaleFibMap();
                     setStaleEndTime(System.currentTimeMillis());
-                    LOG.error("took {} msecs for stale fibDSWriter map creation ", getStaleEndTime()- getStaleStartTime());
-                    LOG.error("started bgp config replay ");
+                    LOG.info("took {} msecs for stale fibDSWriter map creation ", getStaleEndTime()- getStaleStartTime());
+                    LOG.info("started bgp config replay ");
                     setCfgReplayStartTime(System.currentTimeMillis());
                     replay();
                     setCfgReplayEndTime(System.currentTimeMillis());
-                    LOG.error("took {} msecs for bgp replay ", getCfgReplayEndTime() - getCfgReplayStartTime());
+                    LOG.info("took {} msecs for bgp replay ", getCfgReplayEndTime() - getCfgReplayStartTime());
                     long route_sync_time = getStalePathtime(BGP_RESTART_ROUTE_SYNC_SEC, config.getAsId());
                     Thread.sleep(route_sync_time * 1000L);
                     setStaleCleanupTime(route_sync_time);
