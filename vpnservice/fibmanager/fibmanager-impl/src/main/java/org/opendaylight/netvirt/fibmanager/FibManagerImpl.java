@@ -26,22 +26,26 @@ public class FibManagerImpl implements IFibManager {
     private final NexthopManager nexthopManager;
     private final VrfEntryListener vrfEntryListener;
     private IVpnManager vpnmanager;
+    private final DataBroker dataBroker;
 
-    public FibManagerImpl(final NexthopManager nexthopManager,
+    public FibManagerImpl(final DataBroker dataBroker,
+                          final NexthopManager nexthopManager,
                           final VrfEntryListener vrfEntryListener,
                           final BundleContext bundleContext) {
+        this.dataBroker = dataBroker;
         this.nexthopManager = nexthopManager;
         this.vrfEntryListener = vrfEntryListener;
 
-        GlobalEventExecutor.INSTANCE.execute(new Runnable() {
-            @Override
-            public void run() {
-                final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
-                        IVpnManager.class, bundleContext);
-                vpnmanager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-                LOG.info("FibManagerImpl initialized. IVpnManager={}", vpnmanager);
-            }
+        GlobalEventExecutor.INSTANCE.execute(() -> {
+            final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
+                    IVpnManager.class, bundleContext);
+            vpnmanager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+            LOG.info("FibManagerImpl initialized. IVpnManager={}", vpnmanager);
         });
+    }
+
+    public void start() {
+        InterVpnLinkCache.createInterVpnLinkCaches(this.dataBroker);  // Idempotent creation
     }
 
     @Override

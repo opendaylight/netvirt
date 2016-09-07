@@ -226,8 +226,8 @@ public class FibUtil {
         Optional<InterVpnLinks> interVpnLinksOpData = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
                 interVpnLinksIid);
 
-        return ( interVpnLinksOpData.isPresent() ) ? interVpnLinksOpData.get().getInterVpnLink()
-                : new ArrayList<InterVpnLink>();
+        return interVpnLinksOpData.isPresent() ? interVpnLinksOpData.get().getInterVpnLink()
+                : new ArrayList<>();
     }
 
     /**
@@ -451,7 +451,7 @@ public class FibUtil {
         return InstanceIdentifier.builder(VpnIdToVpnInstance.class)
                 .child(VpnIds.class, new VpnIdsKey(Long.valueOf(vpnId))).build();
     }
-    
+
     public static <T extends DataObject> void syncUpdate(DataBroker broker, LogicalDatastoreType datastoreType,
                                                          InstanceIdentifier<T> path, T data) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
@@ -500,8 +500,9 @@ public class FibUtil {
             } else { // Found in MDSAL database
                 List<String> nh = entry.get().getNextHopAddressList();
                 for (String nextHop : nextHopList) {
-                    if (!nh.contains(nextHop))
+                    if (!nh.contains(nextHop)) {
                         nh.add(nextHop);
+                    }
                 }
                 VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
                         .setLabel((long) label).setOrigin(origin.getValue()).build();
