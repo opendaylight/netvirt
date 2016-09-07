@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_b8d487bd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 2191,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-07T16:26:27Z",
+      "side": 1,
+      "message": "Instead of using buildDmacRedirectToDispatcherFlowMacNoActions(...) to construct the flow object to remove it from switch, you can simply use MDSALUtil.buildFlow(short tableId, String flowId) construct the flow object and remove it from inventory config DS.",
+      "revId": "e16d6048956d3e90ce41897816cb0d86252d5b63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_98970bec",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-07T16:26:27Z",
+      "side": 1,
+      "message": "when it is being done from NeuronPortChangeListener(Northbound), there is a chance that there won\u0027t be any DPN associated with ELAN instance because there would be a delay in getting interface up event from southbound after nova VM boot. This lead to floating ip mac address getting missed out in ELAN participating DPNs.\n\nOr neutron port for floating ip address is added only after neutron port\u0027s for all VMs are added and VMs are booted ?",
+      "revId": "e16d6048956d3e90ce41897816cb0d86252d5b63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
