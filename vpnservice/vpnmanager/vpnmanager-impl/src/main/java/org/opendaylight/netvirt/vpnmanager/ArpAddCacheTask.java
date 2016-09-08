@@ -11,12 +11,11 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.DelayQueue;
-
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.util.concurrent.ListenableFuture;
 
 public class ArpAddCacheTask implements Callable<List<ListenableFuture<Void>>> {
@@ -24,35 +23,25 @@ public class ArpAddCacheTask implements Callable<List<ListenableFuture<Void>>> {
     private MacAddress srcMacAddress;
     private String vpnName;
     private String interfaceName;
-    private DelayQueue<MacEntry> macEntryQueue;
+    private DataBroker databroker;
+    private AlivenessMonitorService alivenessManager;
     private static final Logger LOG = LoggerFactory.getLogger(ArpAddCacheTask.class);
 
     public ArpAddCacheTask(InetAddress srcInetAddr, MacAddress srcMacAddress, String vpnName, String interfaceName,
-            DelayQueue<MacEntry> macEntryQueue) {
+            DataBroker databroker,AlivenessMonitorService alivenessManager) {
         super();
         this.srcInetAddr = srcInetAddr;
         this.srcMacAddress = srcMacAddress;
         this.vpnName = vpnName;
         this.interfaceName = interfaceName;
-        this.macEntryQueue = macEntryQueue;
+        this.databroker = databroker;
+        this.alivenessManager = alivenessManager;
     }
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        addOrUpdateMacEntryToQueue(vpnName,srcMacAddress, srcInetAddr, interfaceName);
+        AlivenessMonitorUtils.startArpMonitoring(alivenessManager, databroker, srcMacAddress, srcInetAddr, interfaceName, vpnName);
         return futures;
-    }
-
-    private void addOrUpdateMacEntryToQueue(String vpnName, MacAddress macAddress,InetAddress InetAddress, String
-            interfaceName) {
-        MacEntry newMacEntry = new MacEntry(ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, vpnName, macAddress, InetAddress,
-                interfaceName);
-        if (!macEntryQueue.contains(newMacEntry)) {
-            macEntryQueue.offer(newMacEntry);
-        } else {
-            macEntryQueue.remove(newMacEntry);
-            macEntryQueue.offer(newMacEntry);
-        }
     }
 }

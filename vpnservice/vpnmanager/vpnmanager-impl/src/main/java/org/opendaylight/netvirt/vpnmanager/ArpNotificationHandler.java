@@ -131,8 +131,6 @@ public class ArpNotificationHandler implements OdlArputilListener {
                                     oldPortName, oldMac, ipToQuery, srcMac.getValue());
                             return;
                         }
-                    } else {
-                        arpScheduler.refreshArpEntry(vpnPortipToPort);
                     }
                 } else {
                     synchronized ((vpnName + ipToQuery).intern()) {
@@ -233,8 +231,6 @@ public class ArpNotificationHandler implements OdlArputilListener {
                             LOG.warn("MAC Address mismatch for Interface {} having a Mac  {} , IP {} and Arp learnt Mac {}",
                                     srcInterface, oldMac, ipToQuery, srcMac.getValue());
                         }
-                    } else {
-                        arpScheduler.refreshArpEntry(vpnPortipToPort);
                     }
                 } else {
                     synchronized ((vpnName + ipToQuery).intern()) {
