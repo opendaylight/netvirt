@@ -63,10 +63,10 @@ public class ArpNotificationHandler implements OdlArputilListener {
     IdManagerService idManager;
     OdlArputilService arpManager;
     final IElanService elanService;
-    ArpScheduler arpScheduler;
+    ArpMonitoringHandler arpScheduler;
 
     public ArpNotificationHandler(DataBroker dataBroker, VpnInterfaceManager vpnIfMgr,
-            final IElanService elanService, IdManagerService idManager,OdlArputilService arpManager,ArpScheduler arpScheduler){
+            final IElanService elanService, IdManagerService idManager,OdlArputilService arpManager,ArpMonitoringHandler arpScheduler){
         this.dataBroker = dataBroker;
         vpnIfManager = vpnIfMgr;
         this.elanService = elanService;
@@ -131,8 +131,6 @@ public class ArpNotificationHandler implements OdlArputilListener {
                                     oldPortName, oldMac, ipToQuery, srcMac.getValue());
                             return;
                         }
-                    } else {
-                        arpScheduler.refreshArpEntry(vpnPortipToPort);
                     }
                 } else {
                     synchronized ((vpnName + ipToQuery).intern()) {
@@ -233,8 +231,6 @@ public class ArpNotificationHandler implements OdlArputilListener {
                             LOG.warn("MAC Address mismatch for Interface {} having a Mac  {} , IP {} and Arp learnt Mac {}",
                                     srcInterface, oldMac, ipToQuery, srcMac.getValue());
                         }
-                    } else {
-                        arpScheduler.refreshArpEntry(vpnPortipToPort);
                     }
                 } else {
                     synchronized ((vpnName + ipToQuery).intern()) {

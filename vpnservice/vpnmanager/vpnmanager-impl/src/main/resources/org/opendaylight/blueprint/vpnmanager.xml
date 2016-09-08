@@ -27,6 +27,8 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService" />
   <odl:rpc-service id="packetProcessingService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
+  <odl:rpc-service id="alivenessManager"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService" />
 
   <bean id="dpnInVpnChangeListener"
         class="org.opendaylight.netvirt.vpnmanager.DpnInVpnChangeListener">
@@ -73,12 +75,20 @@
     <argument ref="vpnInterfaceManager" />
   </bean>
 
-  <bean id="arpScheduler"
-        class="org.opendaylight.netvirt.vpnmanager.ArpScheduler"
+  <bean id="arpMonitorEventListener"
+        class="org.opendaylight.netvirt.vpnmanager.ArpMonitorEventListener">
+    <argument ref="dataBroker" />
+    <argument ref="alivenessManager" />
+  </bean>
+  <odl:notification-listener ref="arpMonitorEventListener" />
+
+  <bean id="arpMonitoringHandler"
+        class="org.opendaylight.netvirt.vpnmanager.ArpMonitoringHandler"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="mdsalUtils" />
+    <argument ref="alivenessManager" />
   </bean>
 
   <bean id="subnetRoutePacketInHandler"
@@ -97,7 +107,7 @@
     <argument ref="elanService" />
     <argument ref="idManagerService" />
     <argument ref="odlArputilService" />
-    <argument ref="arpScheduler" />
+    <argument ref="arpMonitoringHandler" />
   </bean>
   <service ref="arpNotificationHandler" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener" />
