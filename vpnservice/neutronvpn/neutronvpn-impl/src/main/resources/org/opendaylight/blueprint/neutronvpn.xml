@@ -123,6 +123,7 @@
     <argument ref="lockManagerService" />
     <argument ref="neutronSubnetGwMacResolver" />
     <argument ref="odlInterfaceRpcService" />
+    <argument ref="elanService" />
   </bean>
 
   <bean id="neutronSubnetGwMacResolver"

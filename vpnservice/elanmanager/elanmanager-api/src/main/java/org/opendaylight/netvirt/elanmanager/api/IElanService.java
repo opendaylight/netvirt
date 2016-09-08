@@ -62,4 +62,6 @@ public interface IElanService extends IEtreeService {
     boolean isExternalInterface(String interfaceName);
 
     ElanInterface getElanInterfaceByElanInterfaceName(String interfaceName);
+
+    void handleKnownL3DmacAddress(String macAddress, String elanInstanceName, int addOrRemove);
 }
