@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_6c6a2def",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1403,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-09-08T14:07:47Z",
+      "side": 1,
+      "message": "this should be debug. Old code added to debug a race condition, not providing any useful info.",
+      "range": {
+        "startLine": 1403,
+        "startChar": 20,
+        "endLine": 1403,
+        "endChar": 21
+      },
+      "revId": "2227ad7d954f7010e1082abe5d20137f46a68df7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_cc6b81ef",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1406,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-09-08T14:07:47Z",
+      "side": 1,
+      "message": "debug",
+      "range": {
+        "startLine": 1406,
+        "startChar": 24,
+        "endLine": 1406,
+        "endChar": 28
+      },
+      "revId": "2227ad7d954f7010e1082abe5d20137f46a68df7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ac472576",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1407,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-09-08T14:07:47Z",
+      "side": 1,
+      "message": "this should also be debug. though as per guidelines should\u0027t have two consecutive log statements of same severity. this can be swapped with next line.",
+      "range": {
+        "startLine": 1407,
+        "startChar": 24,
+        "endLine": 1407,
+        "endChar": 28
+      },
+      "revId": "2227ad7d954f7010e1082abe5d20137f46a68df7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ec759dcb",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1411,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-09-08T14:07:47Z",
+      "side": 1,
+      "message": "debug",
+      "range": {
+        "startLine": 1411,
+        "startChar": 24,
+        "endLine": 1411,
+        "endChar": 28
+      },
+      "revId": "2227ad7d954f7010e1082abe5d20137f46a68df7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
