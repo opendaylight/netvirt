@@ -68,12 +68,12 @@ public class ArpNotificationHandler implements OdlArputilListener {
     IdManagerService idManager;
     OdlArputilService arpManager;
     final IElanService elanService;
-    ArpScheduler arpScheduler;
+    ArpMonitoringHandler arpScheduler;
     OdlInterfaceRpcService ifaceMgrRpcService;
 
     public ArpNotificationHandler(DataBroker dataBroker, VpnInterfaceManager vpnIfMgr,
             final IElanService elanService, IdManagerService idManager, OdlArputilService arpManager,
-            ArpScheduler arpScheduler, OdlInterfaceRpcService ifaceMgrRpcService) {
+            ArpMonitoringHandler arpScheduler, OdlInterfaceRpcService ifaceMgrRpcService) {
         this.dataBroker = dataBroker;
         vpnIfManager = vpnIfMgr;
         this.elanService = elanService;
@@ -139,8 +139,6 @@ public class ArpNotificationHandler implements OdlArputilListener {
                                     oldPortName, oldMac, ipToQuery, srcMac.getValue());
                             return;
                         }
-                    } else {
-                        arpScheduler.refreshArpEntry(vpnPortipToPort);
                     }
                 } else {
                     synchronized ((vpnName + ipToQuery).intern()) {
@@ -194,6 +192,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
         Optional<Port> port = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, inst);
         if (port.isPresent()) {
             prt = port.get();
+            //TODO(Gobinath): Need to fix this as assuming port will belong to only one Subnet would be incorrect"
             Uuid subnetUUID = prt.getFixedIps().get(0).getSubnetId();
             LOG.trace("Subnet UUID for this VPN Interface is {}", subnetUUID);
             SubnetKey subnetkey = new SubnetKey(subnetUUID);
@@ -257,8 +256,6 @@ public class ArpNotificationHandler implements OdlArputilListener {
                             LOG.warn("MAC Address mismatch for Interface {} having a Mac  {} , IP {} and Arp learnt Mac {}",
                                     srcInterface, oldMac, ipToQuery, srcMac.getValue());
                         }
-                    } else {
-                        arpScheduler.refreshArpEntry(vpnPortipToPort);
                     }
                 } else {
                     synchronized ((vpnName + ipToQuery).intern()) {
@@ -371,7 +368,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
             }
         }
     }
-    
+
     private void removeMipAdjacency(String vpnName, String vpnInterface, IpAddress prefix) {
         String ip = VpnUtil.getIpPrefix(prefix.getIpv4Address().getValue());
         LOG.trace("Removing {} adjacency from Old VPN Interface {} ", ip,vpnInterface);
