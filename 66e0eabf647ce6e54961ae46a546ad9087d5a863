@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_0c3c59c7",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-09-08T12:09:05Z",
+      "side": 1,
+      "message": "Are these changes done UT?",
+      "revId": "66e0eabf647ce6e54961ae46a546ad9087d5a863",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c1150a4a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-09-08T12:09:05Z",
+      "side": 1,
+      "message": "Uuid of a port which is the name here, will not change ideally.",
+      "revId": "66e0eabf647ce6e54961ae46a546ad9087d5a863",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ec111d53",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-09-08T12:09:05Z",
+      "side": 1,
+      "message": "This class listens for the interface state change events, we are using it to identify the state of the port (up/down). The updates that can happen here is not of interest for aclservice.",
+      "revId": "66e0eabf647ce6e54961ae46a546ad9087d5a863",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
