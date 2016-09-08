@@ -16,6 +16,9 @@
              interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
   <reference id="fibManager"
              interface="org.opendaylight.netvirt.fibmanager.api.IFibManager" />
+  <reference id="neutronVpnService"
+             interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager"
+             availability="optional" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -29,6 +32,8 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
   <odl:rpc-service id="lockManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService" />
+  <odl:rpc-service id="alivenessManager"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService" />
 
   <bean id="dpnInVpnChangeListener"
         class="org.opendaylight.netvirt.vpnmanager.DpnInVpnChangeListener">
@@ -75,12 +80,21 @@
     <argument ref="vpnInterfaceManager" />
   </bean>
 
-  <bean id="arpScheduler"
-        class="org.opendaylight.netvirt.vpnmanager.ArpScheduler"
+  <bean id="arpMonitorEventListener"
+        class="org.opendaylight.netvirt.vpnmanager.ArpMonitorEventListener">
+    <argument ref="dataBroker" />
+    <argument ref="alivenessManager" />
+  </bean>
+  <odl:notification-listener ref="arpMonitorEventListener" />
+
+  <bean id="arpMonitoringHandler"
+        class="org.opendaylight.netvirt.vpnmanager.ArpMonitoringHandler"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="mdsalUtils" />
+    <argument ref="alivenessManager" />
+    <argument ref="neutronVpnService" />
   </bean>
 
   <bean id="subnetRoutePacketInHandler"
@@ -99,7 +113,7 @@
     <argument ref="elanService" />
     <argument ref="idManagerService" />
     <argument ref="odlArputilService" />
-    <argument ref="arpScheduler" />
+    <argument ref="arpMonitoringHandler" />
     <argument ref="odlInterfaceRpcService" />
   </bean>
   <service ref="arpNotificationHandler" odl:type="default"
