@@ -51,6 +51,24 @@
       "revId": "e16d6048956d3e90ce41897816cb0d86252d5b63",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e76656ec",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-09-08T14:52:37Z",
+      "side": 1,
+      "message": "Assuming there\u0027s a race problem, what do you think is the best way to solve it (what is the correct model it should listen to?)?",
+      "parentUuid": "7a6b29fe_98970bec",
+      "revId": "e16d6048956d3e90ce41897816cb0d86252d5b63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
