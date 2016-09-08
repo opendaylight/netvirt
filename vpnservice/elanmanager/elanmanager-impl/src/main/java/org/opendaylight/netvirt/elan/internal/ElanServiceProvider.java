@@ -65,6 +65,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class ElanServiceProvider implements IElanService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanServiceProvider.class);
@@ -527,28 +528,50 @@ public class ElanServiceProvider implements IElanService {
             return;
         }
 
-        Optional<Map<String, String>> origProviderMapOpt = bridgeMgr.getOpenvswitchOtherConfigMap(origNode,
+        LOG.debug("updateExternalElanNetworks, orig bridge {} . updated bridge {}", origNode, updatedNode);
+
+        Map<String, String> origProviderMappping = getMapFromOtherConfig(origNode,
                 ElanBridgeManager.PROVIDER_MAPPINGS_KEY);
-        Optional<Map<String, String>> updatedProviderMapOpt = bridgeMgr.getOpenvswitchOtherConfigMap(updatedNode,
+        Map<String, String> updatedProviderMappping = getMapFromOtherConfig(updatedNode,
                 ElanBridgeManager.PROVIDER_MAPPINGS_KEY);
-        Map<String, String> origProviderMappping = origProviderMapOpt.or(Collections.emptyMap());
-        Map<String, String> updatedProviderMappping = updatedProviderMapOpt.or(Collections.emptyMap());
+
+        boolean hasDatapathIdOnOrigNode = bridgeMgr.hasDatapathID(origNode);
+        boolean hasDatapathIdOnUpdatedNode = bridgeMgr.hasDatapathID(updatedNode);
 
         for (ElanInstance elanInstance : elanInstances) {
             String physicalNetworkName = elanInstance.getPhysicalNetworkName();
             if (physicalNetworkName != null) {
                 String origPortName = origProviderMappping.get(physicalNetworkName);
                 String updatedPortName = updatedProviderMappping.get(physicalNetworkName);
-                if (origPortName != null && !origPortName.equals(updatedPortName)) {
+                if (hasPortNameRemoved(origPortName, updatedPortName)) {
                     deleteExternalElanNetwork(elanInstance,
                             bridgeMgr.getProviderInterfaceName(origNode, physicalNetworkName));
                 }
-                if (updatedPortName != null && !updatedPortName.equals(origPortName)) {
+                if (hasPortNameUpdated(origPortName, updatedPortName)
+                        || hasDatapathIdAdded(hasDatapathIdOnOrigNode, hasDatapathIdOnUpdatedNode)) {
                     createExternalElanNetwork(elanInstance,
                             bridgeMgr.getProviderInterfaceName(updatedNode, updatedPortName));
                 }
             }
         }
+    }
+
+    private boolean hasDatapathIdAdded(boolean hasDatapathIdOnOrigNode, boolean hasDatapathIdOnUpdatedNode) {
+        return !hasDatapathIdOnOrigNode && hasDatapathIdOnUpdatedNode;
+    }
+
+    private boolean hasPortNameUpdated(String origPortName, String updatedPortName) {
+        return updatedPortName != null && !updatedPortName.equals(origPortName);
+    }
+
+    private boolean hasPortNameRemoved(String origPortName, String updatedPortName) {
+        return origPortName != null && !origPortName.equals(updatedPortName);
+    }
+
+    private Map<String, String> getMapFromOtherConfig(Node node, String otherConfigColumn) {
+        Optional<Map<String, String>> providerMapOpt = bridgeMgr.getOpenvswitchOtherConfigMap(node,
+                otherConfigColumn);
+        return providerMapOpt.or(Collections.emptyMap());
     }
 
     @Override
