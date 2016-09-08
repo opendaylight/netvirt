@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -32,6 +35,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -45,7 +49,6 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.bgp.rev130715.bgp.neighbors.bgp.neighbor.peer.address.type.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -55,12 +58,17 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
@@ -110,6 +118,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdPools;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.id.pools.IdPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.id.pools.IdPoolKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -119,6 +128,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.IfIndexesInterfaceMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetPortFromInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetPortFromInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
@@ -132,7 +144,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
@@ -1176,7 +1192,7 @@ public class VpnUtil {
         }
         return result;
     }
-    
+
     static String getAssociatedExternalNetwork(DataBroker dataBroker, String routerId) {
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerId);
         Optional<Routers> routerData = read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
@@ -1188,7 +1204,7 @@ public class VpnUtil {
         }
         return null;
     }
-    
+
     static InstanceIdentifier<Routers> buildRouterIdentifier(String routerId) {
         InstanceIdentifier<Routers> routerInstanceIndentifier = InstanceIdentifier.builder(ExtRouters.class).child
                 (Routers.class, new RoutersKey(routerId)).build();
@@ -1268,4 +1284,86 @@ public class VpnUtil {
 
         return nodeDpn;
     }
+
+    static Optional<IpAddress> getGatewayIpAddressFromInterface(String srcInterface, DataBroker dataBroker) {
+        Port port;
+        Optional <IpAddress> gatewayIp = Optional.absent();
+        Uuid portUuid = new Uuid(srcInterface);
+        InstanceIdentifier<Port> inst = InstanceIdentifier.create(Neutron.class)
+                .child(Ports.class)
+                .child(Port.class, new PortKey(portUuid));
+        Optional<Port> portOptional = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, inst);
+        if (portOptional.isPresent()) {
+            port = portOptional.get();
+            Uuid subnetUUID = port.getFixedIps().get(0).getSubnetId();
+            LOG.trace("Subnet UUID for this VPN Interface is {}", subnetUUID);
+            SubnetKey subnetkey = new SubnetKey(subnetUUID);
+            InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
+                    .child(Subnets.class)
+                    .child(Subnet.class, subnetkey);
+            Optional<Subnet> subnet = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
+            if (subnet.isPresent()) {
+                gatewayIp = Optional.of(subnet.get().getGatewayIp());
+            }
+        }
+        return gatewayIp;
+    }
+
+    static Optional<String> getGWMacAddressFromInterface(MacEntry macEntry, IpAddress gatewayIp, DataBroker dataBroker, OdlInterfaceRpcService interfaceRpc) {
+        Optional <String> gatewayMac = Optional.absent();
+        long vpnId = getVpnId(dataBroker, macEntry.getVpnName());
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds>
+        vpnIdsInstanceIdentifier = VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId);
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds> vpnIdsOptional
+        = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
+        if (!vpnIdsOptional.isPresent()) {
+            LOG.trace("VPN {} not configured", vpnId);
+            return gatewayMac;
+        }
+        org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds vpnIds = vpnIdsOptional.get();
+        if (vpnIds.isExternalVpn()) {
+            GetPortFromInterfaceOutput portResult = null;
+            try {
+                portResult = getPortFromInterface(macEntry.getInterfaceName(), interfaceRpc);
+            }
+            catch(Throwable e)
+            {
+                LOG.trace("failed to get port from interface{}", macEntry.getInterfaceName(), e);
+            }
+            checkNotNull(portResult);
+            BigInteger dpnId = portResult.getDpid();
+            Long portid = portResult.getPortno();
+            NodeConnectorRef ref = MDSALUtil.getNodeConnRef(dpnId,
+                    portid.toString());
+            InstanceIdentifier <NodeConnector> nodeConnectorId = (InstanceIdentifier<NodeConnector>) ref.getValue();
+            Optional<NodeConnector> optNc = MDSALDataStoreUtils.read(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, nodeConnectorId );
+            if(optNc.isPresent()) {
+                NodeConnector nc = optNc.get();
+                FlowCapableNodeConnector fcnc = nc.getAugmentation(FlowCapableNodeConnector.class);
+                gatewayMac = Optional.of(fcnc.getHardwareAddress().getValue());
+            }
+        } else {
+            VpnPortipToPort vpnTargetIpToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnIds.getVpnInstanceName(), gatewayIp.getIpv4Address().getValue());
+            if (vpnTargetIpToPort != null) {
+                if (vpnTargetIpToPort.isSubnetIp()) {
+                    gatewayMac = Optional.of(vpnTargetIpToPort.getMacAddress());
+                }
+            }
+        }
+        return gatewayMac;
+    }
+
+    static GetPortFromInterfaceOutput getPortFromInterface(String interfaceName, OdlInterfaceRpcService interfaceRpc) throws Throwable{
+        GetPortFromInterfaceInputBuilder getPortFromInterfaceInputBuilder = new GetPortFromInterfaceInputBuilder();
+        getPortFromInterfaceInputBuilder.setIntfName(interfaceName);
+        Future<RpcResult<GetPortFromInterfaceOutput>> portFromInterface = interfaceRpc.getPortFromInterface(getPortFromInterfaceInputBuilder.build());
+        GetPortFromInterfaceOutput result = portFromInterface.get().getResult();
+        LOG.trace("getPortFromInterface rpc result is {} ", result);
+        if (result != null) {
+            LOG.trace("getPortFromInterface rpc result is {} {} ", result.getDpid(), result.getPortno());
+        }
+        return result;
+    }
+
 }
