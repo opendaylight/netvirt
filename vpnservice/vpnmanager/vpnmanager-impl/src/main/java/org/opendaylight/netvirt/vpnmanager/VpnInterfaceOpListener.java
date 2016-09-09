@@ -14,17 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -33,14 +29,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnInterfaceOpListener extends AbstractDataChangeListener<VpnInterface> implements AutoCloseable {
+public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnInterface, VpnInterfaceOpListener>
+        implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceOpListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final VpnInterfaceManager vpnInterfaceManager;
     private ConcurrentHashMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<String, Runnable>();
@@ -52,27 +47,28 @@ public class VpnInterfaceOpListener extends AbstractDataChangeListener<VpnInterf
     }*/
 
     public VpnInterfaceOpListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager) {
-        super(VpnInterface.class);
+        super(VpnInterface.class, VpnInterfaceOpListener.class);
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
     }
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
-    private InstanceIdentifier<VpnInterface> getWildCardPath() {
+    @Override
+    protected InstanceIdentifier<VpnInterface> getWildCardPath() {
         return InstanceIdentifier.create(VpnInterfaces.class).child(VpnInterface.class);
     }
 
     @Override
+    protected VpnInterfaceOpListener getDataTreeChangeListener() {
+        return VpnInterfaceOpListener.this;
+    }
+
+    @Override
     public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
         LOG.info("{} close", getClass().getSimpleName());
     }
 

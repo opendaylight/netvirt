@@ -11,10 +11,8 @@ import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -32,41 +30,40 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.Floatingips;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.floatingips.Floatingip;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataChangeListener<Floatingip>
-        implements AutoCloseable {
+public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTreeChangeListenerBase<Floatingip,
+        NeutronFloatingToFixedIpMappingChangeListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronFloatingToFixedIpMappingChangeListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final LockManagerService lockManagerService;
 
     public NeutronFloatingToFixedIpMappingChangeListener(final DataBroker dataBroker,
                                                          final LockManagerService lockManagerService) {
-        super(Floatingip.class);
+        super(Floatingip.class, NeutronFloatingToFixedIpMappingChangeListener.class);
         this.dataBroker = dataBroker;
         this.lockManagerService = lockManagerService;
     }
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                getWildCardPath(), this, DataChangeScope.SUBTREE);
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
-    private InstanceIdentifier<Floatingip> getWildCardPath() {
+    @Override
+    protected InstanceIdentifier<Floatingip> getWildCardPath() {
         return InstanceIdentifier.create(Neutron.class).child(Floatingips.class).child(Floatingip.class);
     }
 
     @Override
+    protected NeutronFloatingToFixedIpMappingChangeListener getDataTreeChangeListener() {
+        return NeutronFloatingToFixedIpMappingChangeListener.this;
+    }
+
+    @Override
     public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
         LOG.info("{} close", getClass().getSimpleName());
     }
 

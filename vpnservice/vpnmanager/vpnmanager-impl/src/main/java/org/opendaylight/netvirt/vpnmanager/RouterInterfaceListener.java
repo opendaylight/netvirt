@@ -12,49 +12,48 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RouterInterfaceListener extends AbstractDataChangeListener<Interfaces> implements AutoCloseable {
+public class RouterInterfaceListener extends AsyncDataTreeChangeListenerBase<Interfaces, RouterInterfaceListener>
+        implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(RouterInterfaceListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final VpnInterfaceManager vpnInterfaceManager;
 
     public RouterInterfaceListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager) {
-        super(Interfaces.class);
+        super(Interfaces.class, RouterInterfaceListener.class);
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
     }
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                getWildCardPath(), this, DataChangeScope.SUBTREE);
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
-    private InstanceIdentifier<?> getWildCardPath() {
+    @Override
+    protected InstanceIdentifier<Interfaces> getWildCardPath() {
         return InstanceIdentifier.create(RouterInterfacesMap.class).child(RouterInterfaces.class).
                 child(Interfaces.class);
     }
 
     @Override
+    protected RouterInterfaceListener getDataTreeChangeListener() {
+        return RouterInterfaceListener.this;
+    }
+
+    @Override
     public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
         LOG.info("{} close", getClass().getSimpleName());
     }
 
