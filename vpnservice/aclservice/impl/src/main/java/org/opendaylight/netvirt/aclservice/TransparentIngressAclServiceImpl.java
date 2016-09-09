@@ -36,6 +36,23 @@ public class TransparentIngressAclServiceImpl extends AbstractIngressAclServiceI
     }
 
     @Override
+    protected void bindService(String interfaceName) {
+        LOG.debug("transparent ingress acl service - do nothing");
+    }
+
+    @Override
+    protected void unbindService(String interfaceName) {
+        LOG.debug("transparent ingress acl service - do nothing");
+    }
+
+    @Override
+    protected void programGeneralFixedRules(BigInteger dpid, String dhcpMacAddress,
+            List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action,
+            int addOrRemove) {
+        LOG.debug("transparent ingress acl service - do nothing");
+    }
+
+    @Override
     protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         // Not in use here. programAceRule function is overridden.
