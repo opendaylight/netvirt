@@ -13,8 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -34,16 +33,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TunnelInterfaceStateListener extends AbstractDataChangeListener<StateTunnelList>
-        implements AutoCloseable{
+public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBase<StateTunnelList,
+        TunnelInterfaceStateListener> implements AutoCloseable{
     private static final Logger LOG = LoggerFactory.getLogger(TunnelInterfaceStateListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final IBgpManager bgpManager;
     private IFibManager fibManager;
@@ -64,7 +61,7 @@ public class TunnelInterfaceStateListener extends AbstractDataChangeListener<Sta
                                         final IBgpManager bgpManager,
                                         final IFibManager fibManager,
                                         final ItmRpcService itmRpcService) {
-        super(StateTunnelList.class);
+        super(StateTunnelList.class, TunnelInterfaceStateListener.class);
         this.dataBroker = dataBroker;
         this.bgpManager = bgpManager;
         this.fibManager = fibManager;
@@ -73,20 +70,21 @@ public class TunnelInterfaceStateListener extends AbstractDataChangeListener<Sta
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
-    private InstanceIdentifier<StateTunnelList> getWildCardPath() {
+    @Override
+    protected InstanceIdentifier<StateTunnelList> getWildCardPath() {
         return InstanceIdentifier.create(TunnelsState.class).child(StateTunnelList.class);
     }
 
     @Override
+    protected TunnelInterfaceStateListener getDataTreeChangeListener() {
+        return TunnelInterfaceStateListener.this;
+    }
+
+    @Override
     public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
         LOG.info("{} close", getClass().getSimpleName());
     }
 
