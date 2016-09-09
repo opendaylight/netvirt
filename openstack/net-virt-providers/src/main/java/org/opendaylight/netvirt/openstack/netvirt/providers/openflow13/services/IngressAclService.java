@@ -133,55 +133,58 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         boolean isIpv6 = NeutronSecurityRule.ETHERTYPE_IPV6.equals(securityRuleEtherType);
         if (!isIpv6 && !NeutronSecurityRule.ETHERTYPE_IPV4.equals(securityRuleEtherType)) {
             LOG.debug("programPortSecurityRule: SecurityRuleEthertype {} does not match IPv4/v6.",
-                      securityRuleEtherType);
+                securityRuleEtherType);
             return;
         }
 
-        if (null == portSecurityRule.getSecurityRuleProtocol()) {
-            ingressAclIp(dpid, isIpv6, segmentationId, attachedMac,
-                         write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
-        } else {
-            String ipaddress = null;
-            if (null != vmIp) {
-                ipaddress = vmIp.getIpAddress();
-                try {
-                    InetAddress address = InetAddress.getByName(vmIp.getIpAddress());
-                    if (isIpv6 && address instanceof Inet4Address || !isIpv6 && address instanceof Inet6Address) {
-                        LOG.debug("programPortSecurityRule: Remote vmIP {} does not match "
-                                + "with SecurityRuleEthertype {}.", ipaddress, securityRuleEtherType);
-                        return;
-                    }
-                } catch (UnknownHostException e) {
-                    LOG.warn("Invalid IP address {}", ipaddress, e);
+
+        String ipaddress = null;
+        if (null != vmIp) {
+            ipaddress = vmIp.getIpAddress();
+            try {
+                InetAddress address = InetAddress.getByName(vmIp.getIpAddress());
+                if (isIpv6 && address instanceof Inet4Address || !isIpv6 && address instanceof Inet6Address) {
+                    LOG.debug("programPortSecurityRule: Remote vmIP {} does not match "
+                            + "with SecurityRuleEthertype {}.", ipaddress, securityRuleEtherType);
                     return;
                 }
+            } catch (UnknownHostException e) {
+                LOG.warn("Invalid IP address {}", ipaddress, e);
+                return;
             }
+        }
+        if (null == portSecurityRule.getSecurityRuleProtocol()) {
+            ingressAclIp(dpid, isIpv6, segmentationId, attachedMac,
+                portSecurityRule, ipaddress,
+                write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+        } else {
 
             switch (portSecurityRule.getSecurityRuleProtocol()) {
                 case MatchUtils.TCP:
                     LOG.debug("programPortSecurityRule: Rule matching TCP", portSecurityRule);
                     ingressAclTcp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
-                              write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 case MatchUtils.UDP:
                     LOG.debug("programPortSecurityRule: Rule matching UDP", portSecurityRule);
                     ingressAclUdp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
-                                write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 case MatchUtils.ICMP:
                 case MatchUtils.ICMPV6:
                     LOG.debug("programPortSecurityRule: Rule matching ICMP", portSecurityRule);
                     ingressAclIcmp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
-                                 write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 default:
                     LOG.info("programPortSecurityAcl: Protocol is not TCP/UDP/ICMP but other "
                             + "protocol = ", portSecurityRule.getSecurityRuleProtocol());
                     ingressOtherProtocolAclHandler(dpid, segmentationId, attachedMac, portSecurityRule,
-                              null, write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        null, write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
                     break;
             }
         }
+
     }
 
     private void ingressOtherProtocolAclHandler(Long dpidLong, String segmentationId, String dstMac,
@@ -368,6 +371,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
      * @param protoPortMatchPriority the protocol match priority.
      */
     private void ingressAclIp(Long dpidLong, boolean isIpv6, String segmentationId, String dstMac,
+                              NeutronSecurityRule portSecurityRule, String srcAddress,
                               boolean write, Integer protoPortMatchPriority ) {
         MatchBuilder matchBuilder = new MatchBuilder();
         String flowId = "Ingress_IP" + segmentationId + "_" + dstMac + "_Permit_";
@@ -375,6 +379,22 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,null,dstMac);
         } else {
             matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,null,dstMac,MatchUtils.ETHERTYPE_IPV4);
+        }
+        if (null != srcAddress) {
+            flowId = flowId + srcAddress;
+            if (isIpv6) {
+                matchBuilder = MatchUtils.addRemoteIpv6Prefix(matchBuilder,
+                        MatchUtils.iPv6PrefixFromIPv6Address(srcAddress),null);
+            } else {
+                matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
+                        MatchUtils.iPv4PrefixFromIPv4Address(srcAddress),null);
+            }
+        } else {
+            if (isIpv6) {
+                flowId = flowId + "Ipv6";
+            } else {
+                flowId = flowId + "Ipv4";
+            }
         }
         addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
