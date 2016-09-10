@@ -118,11 +118,11 @@ public class NeutronvpnNatManager implements AutoCloseable {
     private int externalNetworkChanged(Router original, Router update) {
         String orig_ext_net = null;
         String new_ext_net = null;
-        if (original.getExternalGatewayInfo() != null) {
+        if (original != null && original.getExternalGatewayInfo() != null) {
             orig_ext_net = original.getExternalGatewayInfo().getExternalNetworkId().getValue();
         }
 
-        if (update.getExternalGatewayInfo() != null) {
+        if (update != null && update.getExternalGatewayInfo() != null) {
             new_ext_net = update.getExternalGatewayInfo().getExternalNetworkId().getValue();
         }
 
