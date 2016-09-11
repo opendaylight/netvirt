@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_558ff129",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworkListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-09-11T20:11:34Z",
+      "side": 1,
+      "message": "will this code be called once the vpnToDpnList get updated?\nit seems that this listener is triggered only for Network changes which mean it will work only if the network is changed after the vpnToDpn is already populated.",
+      "revId": "b8c9d4f34be4249a5106a22209711a05bf04dfef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
