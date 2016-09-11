@@ -1285,9 +1285,17 @@ public class ElanUtils {
     public static void updateOperationalDataStore(DataBroker broker, IdManagerService idManager,
             ElanInstance elanInstanceAdded, List<String> elanInterfaces, WriteTransaction tx) {
         String elanInstanceName = elanInstanceAdded.getElanInstanceName();
+		//demo patch
+        String newElanInstanceName = elanInstanceName;
+        if (isVxlan(elanInstanceAdded)) {
+        	newElanInstanceName = elanInstanceName + "@" + elanInstanceAdded.getSegmentationId();
+        	LOG.info("updateOperationalDataStore demo patch sending " + newElanInstanceName);
+        }
+        //End demo patch
         Long elanTag = elanInstanceAdded.getElanTag();
         if (elanTag == null || elanTag == 0L) {
-            elanTag = retrieveNewElanTag(idManager, elanInstanceName);
+            elanTag = retrieveNewElanTag(idManager, newElanInstanceName);
+            LOG.info ("updateOperationalDataStore demo patch  result " + elanTag);
         }
         Elan elanInfo = new ElanBuilder().setName(elanInstanceName).setElanInterfaces(elanInterfaces)
                 .setKey(new ElanKey(elanInstanceName)).build();
