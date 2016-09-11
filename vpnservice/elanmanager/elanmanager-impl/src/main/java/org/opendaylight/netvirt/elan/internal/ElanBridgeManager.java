@@ -38,8 +38,9 @@ public class ElanBridgeManager {
 
     public static final String PROVIDER_MAPPINGS_KEY = "provider_mappings";
     private static final String INTEGRATION_BRIDGE = "br-int";
-    private static final String INT_SIDE_PATCH_PORT_SUFFIX = "-expatch";
+    private static final String INT_SIDE_PATCH_PORT_SUFFIX = "-intpatch";
     private static final String EX_SIDE_PATCH_PORT_SUFFIX = "-patch";
+    private static final int MAX_LINUX_INTERFACE_NAME_LENGTH = 15;
 
     private final MdsalUtils mdsalUtils;
     final SouthboundUtils southboundUtils;
@@ -253,13 +254,14 @@ public class ElanBridgeManager {
      * Get the name of the port in br-int for the given provider-mapping value. This is either a patch port to a bridge
      * with providerMappingValue - patch-&lt;providerMappingValue&gt; or simply a port with the same name as
      * providerMappingValue
-     * @param ovsdbNode ovsdbNode
+     * @param bridgeNode ovsdbNode
      * @param providerMappingValue this is the last part of provider_mappings=net_name:THIS
      * @return the name of the port on br-int
      */
-    public String getIntBridgePortNameFor(Node ovsdbNode, String providerMappingValue) {
+    public String getIntBridgePortNameFor(Node bridgeNode, String providerMappingValue) {
         String res = providerMappingValue;
-        if (southboundUtils.isBridgeOnOvsdbNode(ovsdbNode, providerMappingValue)) {
+        Node managingNode = southboundUtils.readOvsdbNode(bridgeNode);
+        if (managingNode != null && southboundUtils.isBridgeOnOvsdbNode(managingNode, providerMappingValue)) {
             res = getIntSidePatchPortName(providerMappingValue);
         }
 
@@ -268,13 +270,20 @@ public class ElanBridgeManager {
 
     /**
      * Get the name of the patch-port which is patched to the bridge containing
-     * interfaceName.
+     * interfaceName. Patch port name is truncated to the maximum allowed characters
      *
      * @param interfaceName The external interface
      * @return interface name
      */
-    public static String getIntSidePatchPortName(String interfaceName) {
-        return interfaceName + INT_SIDE_PATCH_PORT_SUFFIX;
+    public String getIntSidePatchPortName(String interfaceName) {
+        String patchPortName = interfaceName + INT_SIDE_PATCH_PORT_SUFFIX;
+        if (patchPortName.length() <= MAX_LINUX_INTERFACE_NAME_LENGTH) {
+            return patchPortName;
+        }
+
+        LOG.warn("Patch port {} exceeds maximum allowed length. Truncating to {} characters", patchPortName,
+                MAX_LINUX_INTERFACE_NAME_LENGTH);
+        return patchPortName.substring(0, MAX_LINUX_INTERFACE_NAME_LENGTH - 1);
     }
 
     private String getExSidePatchPortName(String physicalInterfaceName) {
