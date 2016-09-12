@@ -16,6 +16,24 @@
       "revId": "b8c9d4f34be4249a5106a22209711a05bf04dfef",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_18013006",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworkListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-09-12T11:07:53Z",
+      "side": 1,
+      "message": "Should be handled in RouterDpnChangeListener",
+      "parentUuid": "7a6b29fe_558ff129",
+      "revId": "b8c9d4f34be4249a5106a22209711a05bf04dfef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
