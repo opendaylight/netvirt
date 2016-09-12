@@ -133,7 +133,7 @@ public class IfMgr {
             List<VirtualPort> intfList = unprocessedRouterIntfs.get(rtrUuid);
 
             if (intfList == null) {
-                LOG.info("intfList is null for {}", rtrUuid);
+                LOG.info("No unprocessed interfaces for the router {}", rtrUuid);
                 return;
             }
 
@@ -216,7 +216,7 @@ public class IfMgr {
 
             List<VirtualPort> intfList = unprocessedSubnetIntfs.get(snetId);
             if (intfList == null) {
-                LOG.info("interfaces are not available for the subnet {}", snetId);
+                LOG.info("No unprocessed interfaces for the subnet {}", snetId);
                 return;
             }
             for (VirtualPort intf : intfList) {

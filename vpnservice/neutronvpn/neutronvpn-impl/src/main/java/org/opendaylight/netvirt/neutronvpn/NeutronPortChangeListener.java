@@ -274,7 +274,8 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                         NeutronvpnUtils.createVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue, routerPort
                                 .getUuid().getValue(), routerPort.getMacAddress().getValue(), true, true, false);
                     } else {
-                        LOG.error("No IPv4 address assigned to port {)", routerPort.getUuid().getValue());
+                        LOG.info("Skip router port {} with the following address {}",
+                                routerPort.getUuid().getValue(), portIP.getIpAddress().getIpv6Address());
                     }
                 }
             } else {
