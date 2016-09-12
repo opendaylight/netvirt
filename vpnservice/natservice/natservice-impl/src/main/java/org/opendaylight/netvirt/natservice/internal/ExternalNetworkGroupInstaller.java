@@ -58,6 +58,11 @@ public class ExternalNetworkGroupInstaller {
             return;
         }
 
+        if (NatUtil.isIPv6Subnet(subnetMap.getSubnetIp())) {
+            LOG.trace("Subnet id {} is not an IPv4 subnet, hence skipping.", subnetMap.getId());
+            return;
+        }
+
         Uuid networkId = subnetMap.getNetworkId();
         Uuid subnetId = subnetMap.getId();
         if (networkId == null) {
@@ -75,6 +80,10 @@ public class ExternalNetworkGroupInstaller {
 
     public void installExtNetGroupEntries(Uuid subnetId, String macAddress) {
         Subnetmap subnetMap = NatUtil.getSubnetMap(broker, subnetId);
+        if (NatUtil.isIPv6Subnet(subnetMap.getSubnetIp())) {
+            LOG.trace("Subnet-id {} is not an IPv4 subnet, hence skipping.", subnetMap.getId());
+            return;
+        }
         installExtNetGroupEntries(subnetMap, macAddress);
     }
 
