@@ -48,16 +48,14 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
 
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port port) {
-        LOG.info("Add port notification handler is invoked...");
         List<FixedIps> ipList = port.getFixedIps();
-
         for (FixedIps fixedip : ipList) {
             if (fixedip.getIpAddress().getIpv4Address() != null) {
                 continue;
             }
 
             if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
-
+                LOG.info("IPv6: Add port {} handler is invoked for a router interface.", port.getUuid());
                 // Add router interface
                 ifMgr.addRouterIntf(port.getUuid(),
                         new Uuid(port.getDeviceId()),
@@ -67,6 +65,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                         port.getMacAddress().getValue(),
                         port.getDeviceOwner());
             } else {
+                LOG.info("IPv6: Add port {} handler is invoked for a host interface.", port.getUuid());
                 // Add host interface
                 ifMgr.addHostIntf(port.getUuid(),
                         fixedip.getSubnetId(),
