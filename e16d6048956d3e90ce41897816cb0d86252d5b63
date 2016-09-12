@@ -87,6 +87,24 @@
       "revId": "e16d6048956d3e90ce41897816cb0d86252d5b63",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1501f905",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-09-12T08:48:06Z",
+      "side": 1,
+      "message": "Thank you for the response !!\nWe still have some issues with getting the floating IPs and router interfaces information. \n\nThis is needed for the L2/L3 reversal.\nFrom table 17 it will go first to the L2 pipeline instead of the L3 pipeline.\n\nWe want to pass packets for the outer interface, router GW and floating IPs to the L3 pipeline from the L2 pipeline.\nThe best way was to use the MACs that are known.\n\nthis is needed in addition to the table 19 flows, so it will work also with the reversal.\nWe will add a flag that this flows will only be installed when running with L2 before L3.",
+      "parentUuid": "7a6b29fe_f5039d3f",
+      "revId": "e16d6048956d3e90ce41897816cb0d86252d5b63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
