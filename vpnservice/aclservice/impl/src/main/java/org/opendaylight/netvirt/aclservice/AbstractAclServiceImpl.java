@@ -84,7 +84,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     @Override
     public boolean updateAcl(AclInterface portBefore, AclInterface portAfter) {
-        boolean result = false;
+        boolean result = true;
         boolean isPortSecurityEnable = portAfter.getPortSecurityEnabled();
         boolean isPortSecurityEnableBefore = portBefore.getPortSecurityEnabled();
         // if port security is changed, apply/remove Acls
