@@ -69,6 +69,24 @@
       "revId": "e16d6048956d3e90ce41897816cb0d86252d5b63",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f5039d3f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-12T04:26:41Z",
+      "side": 1,
+      "message": "You might have to do this in ElanInterfaceManager#installEntriesForFirstInterfaceonDpn by retrieving all its subnet\u0027s floating ip macs and programming it on this dpn. \n\nSimilarly you have to remove these entries inside \n            if (dpnInterfaces \u003d\u003d null || dpnInterfaces.getInterfaces() \u003d\u003d null || dpnInterfaces.getInterfaces().isEmpty()) { of ElaninterfaceManager#removeElanInterface method.\n\nBut still I don\u0027t understand the need of these macs in elan dmac table. Can you explain ?",
+      "parentUuid": "7a6b29fe_e76656ec",
+      "revId": "e16d6048956d3e90ce41897816cb0d86252d5b63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
