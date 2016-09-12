@@ -142,13 +142,15 @@ public class ExternalNetworkListener extends AbstractDataChangeListener<Networks
         Optional<VpnInstanceOpDataEntry> vpnInstOp = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (vpnInstOp.isPresent()) {
             List<VpnToDpnList> dpnListInVpn = vpnInstOp.get().getVpnToDpnList();
-            for (VpnToDpnList dpn : dpnListInVpn) {
-                BigInteger dpnId = dpn.getDpnId();
-                long vpnId = NatUtil.readVpnId(dataBroker, vpnInstOp.get().getVrfId());
-                if (create) {
-                    installDefNATRouteInDPN(dpnId, vpnId);
-                } else {
-                    removeDefNATRouteInDPN(dpnId, vpnId);
+            if (dpnListInVpn != null) {
+                for (VpnToDpnList dpn : dpnListInVpn) {
+                    BigInteger dpnId = dpn.getDpnId();
+                    long vpnId = NatUtil.readVpnId(dataBroker, vpnInstOp.get().getVrfId());
+                    if (create) {
+                        installDefNATRouteInDPN(dpnId, vpnId);
+                    } else {
+                        removeDefNATRouteInDPN(dpnId, vpnId);
+                    }
                 }
             }
         }
