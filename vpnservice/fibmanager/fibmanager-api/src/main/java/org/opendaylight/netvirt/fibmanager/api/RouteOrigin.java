@@ -14,13 +14,13 @@ package org.opendaylight.netvirt.fibmanager.api;
    */
 
 public enum RouteOrigin {
-    UNDEFINED("undefined",          "-"),
-    CONNECTED("directly connected", "c"),
-    STATIC(   "static",             "s"),
-    INTERVPN( "inter-vpn link",     "l"),
-    SELF_IMPORTED( "self imported route","selfimp"),
-    BGP(      "bgp",                "b"),
-    IGP(      "igp",                "i");
+    UNDEFINED(    "undefined",          "-"),
+    CONNECTED(    "directly connected", "c"),
+    STATIC(       "static",             "s"),
+    INTERVPN(     "inter-vpn link",    "iv"),
+    SELF_IMPORTED("self-imported",     "si"),
+    BGP(          "bgp",                "b"),
+    LOCAL(        "local",              "l");
 
 
     final String description;
@@ -41,17 +41,17 @@ public enum RouteOrigin {
             case "s":
                 origin = STATIC;
                 break;
-            case "l":
+            case "iv":
                 origin = INTERVPN;
                 break;
-            case "selfimp":
+            case "si":
                 origin = SELF_IMPORTED;
                 break;
             case "b":
                 origin = BGP;
                 break;
-            case "i":
-                origin = IGP;
+            case "l":
+                origin = LOCAL;
                 break;
         }
 
