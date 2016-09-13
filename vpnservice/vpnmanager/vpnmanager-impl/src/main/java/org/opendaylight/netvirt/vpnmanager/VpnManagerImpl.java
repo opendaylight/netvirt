@@ -17,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
@@ -59,7 +60,7 @@ public class VpnManagerImpl implements IVpnManager {
                 .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.info("Created IdPool for VPN Service");
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -95,9 +96,11 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label) {
-        LOG.info("Adding extra route with destination {}, nextHop {} and label{}", destination, nextHop, label);
-        vpnInterfaceManager.addExtraRoute(destination, nextHop, rd, routerID, label, /*intfName*/ null);
+    public void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label,
+                              RouteOrigin origin) {
+        LOG.info("Adding extra route with destination {}, nextHop {}, label{} and origin {}",
+                 destination, nextHop, label, origin);
+        vpnInterfaceManager.addExtraRoute(destination, nextHop, rd, routerID, label, origin, /*intfName*/ null);
     }
 
     @Override
