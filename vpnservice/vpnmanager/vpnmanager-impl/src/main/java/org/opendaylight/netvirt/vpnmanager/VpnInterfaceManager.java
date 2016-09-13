@@ -590,7 +590,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                             VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix), true);
                 } else {
                     //Extra route adjacency
-                    LOG.trace("Adding prefix {} and nexthopList {} as extra-route for vpn", nextHop.getIpAddress(), nextHop.getNextHopIpList(), vpnName);
+                    LOG.trace("Adding prefix {} and nextHopList {} as extra-route for vpn", nextHop.getIpAddress(), nextHop.getNextHopIpList(), vpnName);
                     writeOperTxn.merge(
                             LogicalDatastoreType.OPERATIONAL,
                             VpnUtil.getVpnToExtrarouteIdentifier(
@@ -624,7 +624,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 } else {
                     // ### add FIB route directly
                     fibManager.addOrUpdateFibEntry(dataBroker, vpnName, nextHop.getIpAddress(), Arrays.asList(nextHopIp),
-                            (int) label, RouteOrigin.STATIC, writeConfigTxn);
+                                                   (int) label, RouteOrigin.LOCAL, writeConfigTxn);  // ????
                 }
             }
         }
@@ -1402,7 +1402,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     public synchronized void addSubnetRouteFibEntryToDS(String rd, String vpnName, String prefix, String nextHop, int label,
                                                         long elantag, BigInteger dpnId, WriteTransaction writeTxn) {
         SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
-        RouteOrigin origin = RouteOrigin.STATIC; // Only case when a route is considered as directly connected
+        RouteOrigin origin = RouteOrigin.CONNECTED; // Only case when a route is considered as directly connected
         VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(Arrays.asList(nextHop))
                 .setLabel((long)label).setOrigin(origin.getValue())
                 .addAugmentation(SubnetRoute.class, route).build();
