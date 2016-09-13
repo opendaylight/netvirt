@@ -28,6 +28,8 @@ import org.opendaylight.genius.interfacemanager.exceptions.InterfaceAlreadyExist
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
@@ -79,6 +81,7 @@ public class ElanServiceProvider implements IElanService {
     private static ElanUtils elanUtils;
 
     private boolean generateIntBridgeMac = true;
+    private boolean isL2BeforeL3;
 
     public ElanServiceProvider(IdManagerService idManager, IInterfaceManager interfaceManager,
                                ElanInstanceManager elanInstanceManager, ElanBridgeManager bridgeMgr,
@@ -107,6 +110,7 @@ public class ElanServiceProvider implements IElanService {
     public void init() throws Exception {
         LOG.info("Starting ElnaServiceProvider");
         elanStatusMonitor.reportStatus("STARTING");
+        setIsL2BeforeL3();
         try {
             createIdPool();
             elanStatusMonitor.reportStatus("OPERATIONAL");
@@ -608,6 +612,10 @@ public class ElanServiceProvider implements IElanService {
 
     @Override
     public void handleKnownL3DmacAddress(String macAddress, String elanInstanceName, int addOrRemove) {
+        if (!isL2BeforeL3) {
+            LOG.trace("ELAN service is after L3VPN in the Netvirt pipeline skip known L3DMAC flows installation");
+            return;
+        }
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
         if (elanInstance == null) {
             LOG.warn("Null elan instance {}", elanInstanceName);
@@ -717,4 +725,17 @@ public class ElanServiceProvider implements IElanService {
         }
     }
 
+    private void setIsL2BeforeL3() {
+        short elanServiceRealIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME,
+                NwConstants.ELAN_SERVICE_INDEX);
+        short l3vpnServiceRealIndex = ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
+                NwConstants.L3VPN_SERVICE_INDEX);
+        if (elanServiceRealIndex < l3vpnServiceRealIndex) {
+            LOG.info("ELAN service is set before L3VPN service in the Netvirt pipeline");
+            isL2BeforeL3 = true;
+        } else {
+            LOG.info("ELAN service is set after L3VPN service in the Netvirt pipeline");
+            isL2BeforeL3 = false;
+        }
+    }
 }
