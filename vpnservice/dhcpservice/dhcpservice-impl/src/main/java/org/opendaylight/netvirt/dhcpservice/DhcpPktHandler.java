@@ -55,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.SendToController;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     private final PacketProcessingService pktService;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final IInterfaceManager interfaceManager;
+    private final DhcpserviceConfig config;
 
     private boolean computeUdpChecksum = true;
 
@@ -77,20 +79,27 @@ public class DhcpPktHandler implements PacketProcessingListener {
                           final DhcpExternalTunnelManager dhcpExternalTunnelManager,
                           final OdlInterfaceRpcService interfaceManagerRpc,
                           final PacketProcessingService pktService,
-                          final IInterfaceManager interfaceManager) {
+                          final IInterfaceManager interfaceManager,
+                          final DhcpserviceConfig config) {
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.pktService = pktService;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = broker;
         this.dhcpMgr = dhcpManager;
         this.interfaceManager = interfaceManager;
+        this.config = config;
     }
 
     //TODO: Handle this in a separate thread
     @Override
     public void onPacketReceived(PacketReceived packet) {
+        if (!config.isControllerDhcpEnabled()) {
+            return;
+        }
         Class<? extends PacketInReason> pktInReason = packet.getPacketInReason();
-        if (isPktInReasonSendtoCtrl(pktInReason)) {
+        short tableId = packet.getTableId().getValue();
+        if ( (tableId == NwConstants.DHCP_TABLE || tableId == NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL )
+                && isPktInReasonSendtoCtrl(pktInReason)) {
             byte[] inPayload = packet.getPayload();
             Ethernet ethPkt = new Ethernet();
             try {
