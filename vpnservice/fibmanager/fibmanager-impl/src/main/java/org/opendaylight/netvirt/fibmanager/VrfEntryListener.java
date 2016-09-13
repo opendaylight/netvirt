@@ -127,7 +127,6 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
     private ItmRpcService itmManager;
     private OdlInterfaceRpcService interfaceManager;
     private IdManagerService idManager;
-    private static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
     private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
     private static final int LFIB_INTERVPN_PRIORITY = 1;
     private static final BigInteger METADATA_MASK_CLEAR = new BigInteger("000000FFFFFFFFFF", 16);
@@ -668,7 +667,7 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
         int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
         String flowRef = getInterVpnFibFlowRef(interVpnLink.getName(), destination, nextHop);
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef, 0, 0,
-                COOKIE_VM_FIB_TABLE, matches, instructions);
+                NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
 
         for ( BigInteger dpId : targetDpns ) {
             mdsalManager.installFlow(dpId, flowEntity);
@@ -1554,7 +1553,7 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
         int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
         String flowRef = getFlowRef(dpId, NwConstants.L3_FIB_TABLE, rd, priority, destPrefix);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef, 0, 0,
-                COOKIE_VM_FIB_TABLE, matches, instructions);
+                NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
 
         Flow flow = flowEntity.getFlowBuilder().build();
         String flowId = flowEntity.getFlowId();
@@ -2012,7 +2011,7 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
                 getTableMissFlowRef(dpnId, NwConstants.L3_FIB_TABLE,
                         NwConstants.TABLE_MISS_FLOW),
                 NwConstants.TABLE_MISS_PRIORITY, "FIB Table Miss Flow",
-                0, 0, COOKIE_VM_FIB_TABLE,
+                0, 0, NwConstants.COOKIE_VM_FIB_TABLE,
                 matches, instructions);
 
         if (addOrRemove == NwConstants.ADD_FLOW) {

@@ -35,7 +35,6 @@ public final class DHCPMConstants {
 
     public static final short DHCP_SERVICE_PRIORITY = 1;
 
-    public static final BigInteger COOKIE_VM_INGRESS_TABLE = new BigInteger("6800001", 16);
     public static final BigInteger INVALID_DPID = new BigInteger("-1");
     public static final String DHCP_JOB_KEY_PREFIX = "DHCP_";
     public static final int RETRY_COUNT = 6;

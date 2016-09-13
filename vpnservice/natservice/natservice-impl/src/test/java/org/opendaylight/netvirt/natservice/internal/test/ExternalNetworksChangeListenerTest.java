@@ -35,6 +35,7 @@ import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.natservice.internal.ExternalNetworksChangeListener;
@@ -90,7 +91,6 @@ public class ExternalNetworksChangeListenerTest {
     @Test
     public void testSnatFlowEntity() {
         FlowEntity flowMock = mock(FlowEntity.class);
-        final short SNAT_TABLE = 40;
         final int DEFAULT_SNAT_FLOW_PRIORITY = 0;
         final String FLOWID_SEPARATOR = ".";
         String SNAT_FLOWID_PREFIX = "SNAT.";
@@ -123,11 +123,11 @@ public class ExternalNetworksChangeListenerTest {
 
 
         String flowRef =  new StringBuffer().append(SNAT_FLOWID_PREFIX).append(dpnId).append(FLOWID_SEPARATOR).
-                append(SNAT_TABLE).append(FLOWID_SEPARATOR).append(routerId).toString();
+                append(NwConstants.SNAT_TABLE).append(FLOWID_SEPARATOR).append(routerId).toString();
 
         BigInteger cookieSnat = NatUtil.getCookieSnatFlow(routerId);
         try {
-            PowerMockito.when(MDSALUtil.class, "buildFlowEntity", dpnId, SNAT_TABLE, flowRef,
+            PowerMockito.when(MDSALUtil.class, "buildFlowEntity", dpnId, NwConstants.SNAT_TABLE, flowRef,
                     DEFAULT_SNAT_FLOW_PRIORITY, flowRef, 0, 0,
                     cookieSnat, matches, instructions ).thenReturn(flowMock);
         } catch (Exception e) {
