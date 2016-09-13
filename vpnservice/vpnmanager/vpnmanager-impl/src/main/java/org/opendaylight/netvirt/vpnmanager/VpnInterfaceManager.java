@@ -38,14 +38,8 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -66,12 +60,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpResponseInput;
@@ -79,11 +67,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Se
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.LabelRouteMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
@@ -127,7 +110,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcError;
@@ -644,7 +626,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix), true);
                 } else {
                     //Extra route adjacency
-                    LOG.trace("Adding prefix {} and nexthopList {} as extra-route for vpn", nextHop.getIpAddress(), nextHop.getNextHopIpList(), vpnName);
+                    LOG.trace("Adding prefix {} and nextHopList {} as extra-route for vpn", nextHop.getIpAddress(), nextHop.getNextHopIpList(), vpnName);
                     writeOperTxn.merge(
                             LogicalDatastoreType.OPERATIONAL,
                             VpnUtil.getVpnToExtrarouteIdentifier(
@@ -665,7 +647,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 if (rd != null) {
                     addToLabelMapper(label, dpnId, nextHop.getIpAddress(), Arrays.asList(nextHopIp), vpnId,
                             interfaceName, null,false, rd, writeOperTxn);
-                    addPrefixToBGP(rd, nextHop.getIpAddress(), nextHopIp, label, writeConfigTxn);
+                    addPrefixToBGP(rd, nextHop.getIpAddress(), nextHopIp, label, RouteOrigin.LOCAL, writeConfigTxn);
                     //TODO: ERT - check for VPNs importing my route
                     for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                         String vpnRd = vpn.getVrfId();
@@ -678,7 +660,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 } else {
                     // ### add FIB route directly
                     fibManager.addOrUpdateFibEntry(dataBroker, vpnName, nextHop.getIpAddress(), Arrays.asList(nextHopIp),
-                            (int) label, RouteOrigin.STATIC, writeConfigTxn);
+                                                   (int) label, RouteOrigin.LOCAL, writeConfigTxn);
                 }
             }
         }
@@ -773,12 +755,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     private <T> Iterable<T> intersection(final Collection<T> collection1, final Collection<T> collection2) {
         final Predicate<T> inPredicate = Predicates.<T>in(collection2);
-        return new Iterable<T>() {
-            @Override
-            public Iterator<T> iterator() {
-                return Iterators.filter(collection1.iterator(), inPredicate);
-            }
-        };
+        return () -> Iterators.filter(collection1.iterator(), inPredicate);
     }
 
     private List<String> getRts(VpnInstanceOpDataEntry vpnInstance, VpnTarget.VrfRTType rtType) {
@@ -1038,10 +1015,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    private void addPrefixToBGP(String rd, String prefix, String nextHopIp, long label, WriteTransaction writeConfigTxn) {
+    private void addPrefixToBGP(String rd, String prefix, String nextHopIp, long label, RouteOrigin origin,
+                                WriteTransaction writeConfigTxn) {
         try {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
-            fibManager.addOrUpdateFibEntry(dataBroker, rd, prefix, Arrays.asList(nextHopIp), (int)label, RouteOrigin.STATIC, writeConfigTxn);
+            fibManager.addOrUpdateFibEntry(dataBroker, rd, prefix, Arrays.asList(nextHopIp), (int)label, origin,
+                                           writeConfigTxn);
             bgpManager.advertisePrefix(rd, prefix, Arrays.asList(nextHopIp), (int)label);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
         } catch(Exception e) {
@@ -1380,7 +1359,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     public void addSubnetRouteFibEntryToDS(String rd, String vpnName, String prefix, String nextHop, int label,
                                                         long elantag, BigInteger dpnId, WriteTransaction writeTxn) {
         SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
-        RouteOrigin origin = RouteOrigin.STATIC; // Only case when a route is considered as directly connected
+        RouteOrigin origin = RouteOrigin.CONNECTED; // Only case when a route is considered as directly connected
         VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(Arrays.asList(nextHop))
                 .setLabel((long)label).setOrigin(origin.getValue())
                 .addAugmentation(SubnetRoute.class, route).build();
@@ -1491,7 +1470,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf);
             for (String nh : adj.getNextHopIpList()) {
                 addExtraRoute(adj.getIpAddress(), nh, rd, currVpnIntf.getVpnInstanceName(), (int) label,
-                        currVpnIntf.getName());
+                              RouteOrigin.LOCAL, currVpnIntf.getName());
             }
         }
     }
@@ -1539,7 +1518,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     protected void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label,
-                                 String intfName) {
+                                 RouteOrigin origin, String intfName) {
 
         //add extra route to vpn mapping; advertise with nexthop as tunnel ip
         VpnUtil.syncUpdate(
@@ -1576,10 +1555,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             // pointing to the DPNs where Vpn1 is instantiated. LFIB in these DPNS must have a flow entry, with lower
             // priority, where if Label matches then sets the lportTag of the Vpn2 endpoint and goes to LportDispatcher
             // This is like leaking one of the Vpn2 routes towards Vpn1
-            boolean nexthopIsVpn2 = ( interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(nextHop) );
-            String srcVpnUuid = (nexthopIsVpn2) ? interVpnLink.getSecondEndpoint().getVpnUuid().getValue()
+            boolean nexthopIsVpn2 = interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(nextHop);
+            String srcVpnUuid = nexthopIsVpn2 ? interVpnLink.getSecondEndpoint().getVpnUuid().getValue()
                     : interVpnLink.getFirstEndpoint().getVpnUuid().getValue();
-            String dstVpnUuid = (nexthopIsVpn2) ? interVpnLink.getFirstEndpoint().getVpnUuid().getValue()
+            String dstVpnUuid = nexthopIsVpn2 ? interVpnLink.getFirstEndpoint().getVpnUuid().getValue()
                     : interVpnLink.getSecondEndpoint().getVpnUuid().getValue();
             String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnUuid);
             long newLabel = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
@@ -1591,10 +1570,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, interVpnLink, srcVpnUuid, dstVpnUuid, destination, newLabel);
         } else {
             if (rd != null) {
-                addPrefixToBGP(rd, destination, nextHop, label, null);
+                addPrefixToBGP(rd, destination, nextHop, label, origin, null /* WriteTxn */);
             } else {
                 // ### add FIB route directly
-                fibManager.addOrUpdateFibEntry(dataBroker, routerID, destination, Arrays.asList(nextHop), label, RouteOrigin.STATIC, null);
+                fibManager.addOrUpdateFibEntry(dataBroker, routerID, destination, Arrays.asList(nextHop), label, origin,
+                                               null /* WriteTxn */);
             }
         }
     }
