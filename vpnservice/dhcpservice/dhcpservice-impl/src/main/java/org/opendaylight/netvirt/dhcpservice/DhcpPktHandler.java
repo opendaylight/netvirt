@@ -89,8 +89,13 @@ public class DhcpPktHandler implements PacketProcessingListener {
     //TODO: Handle this in a separate thread
     @Override
     public void onPacketReceived(PacketReceived packet) {
+        if (!dhcpServiceEnabled()) {
+            LOG.trace("dhcp service disabled");
+            return;
+        }
         Class<? extends PacketInReason> pktInReason = packet.getPacketInReason();
-        if (isPktInReasonSendtoCtrl(pktInReason)) {
+        short tableId = packet.getTableId().getValue();
+        if (tableId == NwConstants.DHCP_TABLE && isPktInReasonSendtoCtrl(pktInReason)) {
             byte[] inPayload = packet.getPayload();
             Ethernet ethPkt = new Ethernet();
             try {
@@ -125,6 +130,11 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 LOG.trace("Reason for failure {}", e);
             }
         }
+    }
+
+    private boolean dhcpServiceEnabled() {
+        String dhcpEnabled = System.getProperty("controller-dhcp-enabled", null);
+        return dhcpEnabled != null && dhcpEnabled.equalsIgnoreCase("true");
     }
 
     private void sendPacketOut(byte[] pktOut, BigInteger dpnId, String interfaceName, BigInteger tunnelId) {
