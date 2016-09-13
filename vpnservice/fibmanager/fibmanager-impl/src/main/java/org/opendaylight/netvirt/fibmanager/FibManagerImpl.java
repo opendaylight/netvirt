@@ -75,7 +75,7 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void addStaticRoute(String prefix, String nextHop, String rd, int label) {
-        vpnmanager.addExtraRoute(prefix, nextHop, rd, null, label);
+        vpnmanager.addExtraRoute(prefix, nextHop, rd, null, label, RouteOrigin.STATIC);
     }
 
     @Override
