@@ -44,7 +44,7 @@ public class BgpManagerTest extends AbstractDataBrokerTest {
         List<String> nexthop = Arrays.asList("100.100.100.100");
         int label = 1234;
 
-        bgpFibWriter.addFibEntryToDS(rd, prefix, nexthop, label, RouteOrigin.STATIC);
+        bgpFibWriter.addFibEntryToDS(rd, prefix, nexthop, label, RouteOrigin.LOCAL);
         //assertEquals(1, fibManager.getDataChgCount());
         assertEquals(1, 1);
     }
