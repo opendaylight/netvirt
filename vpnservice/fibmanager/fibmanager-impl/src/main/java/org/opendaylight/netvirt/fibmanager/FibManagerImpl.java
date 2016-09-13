@@ -33,14 +33,11 @@ public class FibManagerImpl implements IFibManager {
         this.nexthopManager = nexthopManager;
         this.vrfEntryListener = vrfEntryListener;
 
-        GlobalEventExecutor.INSTANCE.execute(new Runnable() {
-            @Override
-            public void run() {
-                final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
-                        IVpnManager.class, bundleContext);
-                vpnmanager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-                LOG.info("FibManagerImpl initialized. IVpnManager={}", vpnmanager);
-            }
+        GlobalEventExecutor.INSTANCE.execute(() -> {
+            final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
+                    IVpnManager.class, bundleContext);
+            vpnmanager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+            LOG.info("FibManagerImpl initialized. IVpnManager={}", vpnmanager);
         });
     }
 
@@ -75,7 +72,7 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void addStaticRoute(String prefix, String nextHop, String rd, int label) {
-        vpnmanager.addExtraRoute(prefix, nextHop, rd, null, label);
+        vpnmanager.addExtraRoute(prefix, nextHop, rd, null, label, RouteOrigin.STATIC);
     }
 
     @Override

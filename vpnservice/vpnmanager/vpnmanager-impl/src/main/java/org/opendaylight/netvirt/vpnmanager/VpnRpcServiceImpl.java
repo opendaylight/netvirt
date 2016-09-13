@@ -73,7 +73,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         SettableFuture<RpcResult<GenerateVpnLabelOutput>> futureResult = SettableFuture.create();
         String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
         long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                        VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ipPrefix));
+                        VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
         if (label == 0) {
             String msg = String.format("Could not retrieve the label for prefix {} in VPN {}", ipPrefix, vpnName);
             LOG.error(msg);
@@ -97,7 +97,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
         SettableFuture<RpcResult<Void>> futureResult = SettableFuture.create();
         VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ipPrefix));
+                VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
         futureResult.set(RpcResultBuilder.<Void>success().build());
         return futureResult;
     }
@@ -168,7 +168,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
             // The nexthop list to advertise to BGP contains the list of IPs of those DPNs where the
             // endpoint has been instantiated
-            List<String> nexthopList = new ArrayList<String>();
+            List<String> nexthopList = new ArrayList<>();
             List<BigInteger> dpns = InterVpnLinkUtil.getVpnLinkEndpointDPNsByIp(dataBroker, nexthop);
             for ( BigInteger dpnId : dpns ) {
                 nexthopList.add(InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId));
@@ -187,7 +187,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             }
         } else {
             vpnInterfaceMgr.addExtraRoute(destination, nexthop, vpnRd, null /*routerId */, label.intValue(),
-                                          null /* intfName */);
+                                          RouteOrigin.STATIC, null /* intfName */);
         }
 
         AddStaticRouteOutput labelOutput = new AddStaticRouteOutputBuilder().setLabel(label).build();
@@ -196,7 +196,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     }
 
     private Collection<RpcError> validateRemoveStaticRouteInput(RemoveStaticRouteInput input) {
-        Collection<RpcError> rpcErrors = new ArrayList<RpcError>();
+        Collection<RpcError> rpcErrors = new ArrayList<>();
         String destination = input.getDestination();
         String vpnInstanceName = input.getVpnInstanceName();
         String nexthop = input.getNexthop();
