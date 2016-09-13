@@ -86,9 +86,6 @@ public class NexthopManager implements AutoCloseable {
     private final OdlInterfaceRpcService interfaceManager;
     private final ItmRpcService itmManager;
     private final IdManagerService idManager;
-    private static final short LPORT_INGRESS_TABLE = 0;
-    private static final short LFIB_TABLE = 20;
-    private static final short FIB_TABLE = 21;
     private static final short DEFAULT_FLOW_PRIORITY = 10;
     private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
     private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;

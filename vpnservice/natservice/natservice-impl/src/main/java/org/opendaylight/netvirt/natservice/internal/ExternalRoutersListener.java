@@ -129,7 +129,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final NaptPacketInHandler naptPacketInHandler;
     private final IFibManager fibManager;
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
-    static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000022", 16);
 
     public ExternalRoutersListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                    final ItmRpcService itmManager,
@@ -1020,7 +1019,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_LFIB_TABLE, flowRef,
                 10, flowRef, 0, 0,
-                COOKIE_VM_LFIB_TABLE, matches, instructions);
+                NwConstants.COOKIE_VM_LFIB_TABLE, matches, instructions);
 
         mdsalManager.installFlow(dpId, flowEntity);
 
@@ -1960,7 +1959,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_LFIB_TABLE, flowRef,
                 10, flowRef, 0, 0,
-                COOKIE_VM_LFIB_TABLE, matches, null);
+                NwConstants.COOKIE_VM_LFIB_TABLE, matches, null);
 
         mdsalManager.removeFlow(dpnId, flowEntity);
 

@@ -187,7 +187,7 @@ public class DhcpManager {
                 serviceInfo =
                 getBoundServices(String.format("%s.%s", "dhcp", interfaceName),
                         DHCPMConstants.DHCP_SERVICE_PRIORITY, DHCPMConstants.DEFAULT_FLOW_PRIORITY,
-                        DHCPMConstants.COOKIE_VM_INGRESS_TABLE, instructions);
+                        NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
         tx.put(LogicalDatastoreType.CONFIGURATION,
                 buildServiceId(interfaceName, DHCPMConstants.DHCP_SERVICE_PRIORITY), serviceInfo, true);
     }
