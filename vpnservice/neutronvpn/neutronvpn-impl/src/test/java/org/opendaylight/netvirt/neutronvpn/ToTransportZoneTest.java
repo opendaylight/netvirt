@@ -55,6 +55,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.SubnetsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.Vteps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.VtepsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
@@ -97,7 +103,7 @@ public class ToTransportZoneTest {
 
     private static final String PORT_NAME = "12345678-1234-1234-1234-123456789012";
 
-    private static final String PORT_IP = "1.1.1.1";
+    private static final String PORT_MAC = "00:00:00:00:00:01";
     
     private static final String NETWORK_ID = "12345678-1234-1234-1234-123456789012";
 
@@ -126,7 +132,7 @@ public class ToTransportZoneTest {
     
     private Interfaces interf;
 
-    private Port port;
+    private ElanInterface elanInterface;
 
     private List<Vteps> expectedVteps = new ArrayList<>();
     
@@ -134,7 +140,7 @@ public class ToTransportZoneTest {
     
     NeutronRouterDpnsToTransportZoneListener neutronRouterDpnsToTransportZoneListener;
 
-    private Network network;
+    private ElanInstance elanInstance;
 
     @Before
     public void setUp() {
@@ -177,11 +183,11 @@ public class ToTransportZoneTest {
         interfaces.add(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder().setName(PORT_NAME)
                 .addAugmentation(ParentRefs.class, new ParentRefsBuilder().setParentInterface(PHYS_PORT_NAME).build()).build());
         interf = new InterfacesBuilder().setInterface(interfaces).build();
-        port = buildPort(PORT_IP);
+        elanInterface = buildElanInterface();
         buildNode();
         when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(interf))).
-        thenReturn(Futures.immediateCheckedFuture(Optional.of(port))).
+        thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInterface))).
         thenReturn(Futures.immediateCheckedFuture(Optional.absent())).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(getBridgeRefForNode()))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(node))).
@@ -199,14 +205,14 @@ public class ToTransportZoneTest {
         interfaces.add(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder().setName(PORT_NAME)
                 .addAugmentation(ParentRefs.class, new ParentRefsBuilder().setParentInterface(PHYS_PORT_NAME).build()).build());
         interf = new InterfacesBuilder().setInterface(interfaces).build();
-        port = buildPort(PORT_IP);
-        network = buildNetwork(NetworkTypeVxlan.class);
+        elanInterface = buildElanInterface();
+        elanInstance = buildElanInstance(SegmentTypeVxlan.class);
         TransportZone tz = new TransportZoneBuilder().setZoneName(NETWORK_ID).setTunnelType(TunnelTypeVxlan.class).setSubnets(new ArrayList<>()).build();
         buildNode();
         when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(interf))).
-        thenReturn(Futures.immediateCheckedFuture(Optional.of(port))).
-        thenReturn(Futures.immediateCheckedFuture(Optional.of(network))).
+        thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInterface))).
+        thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInstance))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(tz))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(getBridgeRefForNode()))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(node))).
@@ -224,14 +230,14 @@ public class ToTransportZoneTest {
         interfaces.add(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder().setName(PORT_NAME)
                 .addAugmentation(ParentRefs.class, new ParentRefsBuilder().setParentInterface(PHYS_PORT_NAME).build()).build());
         interf = new InterfacesBuilder().setInterface(interfaces).build();
-        port = buildPort(PORT_IP);
-        network = buildNetwork(NetworkTypeVxlan.class);
+        elanInterface = buildElanInterface();
+        elanInstance = buildElanInstance(SegmentTypeVxlan.class);
         TransportZone tz = new TransportZoneBuilder().setZoneName(NETWORK_ID).setTunnelType(TunnelTypeVxlan.class).setSubnets(new ArrayList<>()).build();
         buildNode();
         when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(interf))).
-        thenReturn(Futures.immediateCheckedFuture(Optional.of(port))).
-        thenReturn(Futures.immediateCheckedFuture(Optional.of(network))).
+        thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInterface))).
+        thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInstance))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(tz))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(getBridgeRefForNode()))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(node))).
@@ -249,14 +255,14 @@ public class ToTransportZoneTest {
         interfaces.add(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder().setName(PORT_NAME)
                 .addAugmentation(ParentRefs.class, new ParentRefsBuilder().setParentInterface(PHYS_PORT_NAME).build()).build());
         interf = new InterfacesBuilder().setInterface(interfaces).build();
-        port = buildPort(PORT_IP);
-        network = buildNetwork(NetworkTypeVlan.class);
+        elanInterface = buildElanInterface();
+        elanInstance = buildElanInstance(SegmentTypeVxlan.class);
         TransportZone tz = new TransportZoneBuilder().setZoneName(NETWORK_ID).setTunnelType(TunnelTypeVxlan.class).setSubnets(buildSubnets()).build();
         buildNode();
         when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
         thenReturn(Futures.immediateCheckedFuture(Optional.of(interf))).
-        thenReturn(Futures.immediateCheckedFuture(Optional.of(port))).
-        thenReturn(Futures.immediateCheckedFuture(Optional.of(network)));
+        thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInterface))).
+        thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInstance)));
         InterfaceBuilder intBuilder = new InterfaceBuilder();
         intBuilder.setName(PHYS_PORT_NAME);
         intBuilder.setLowerLayerIf(new ArrayList<>(Arrays.asList(new String[] {"int:"+DPN_ID})));//NetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
@@ -284,11 +290,10 @@ public class ToTransportZoneTest {
         return routerDpnBuilder.build();
     }
 
-    private Network buildNetwork(Class<? extends NetworkTypeBase> networkType) {
-        NetworkBuilder builder = new NetworkBuilder();
-        NetworkProviderExtensionBuilder augBuilder = new NetworkProviderExtensionBuilder();
-        augBuilder.setNetworkType(networkType);
-        builder.addAugmentation(NetworkProviderExtension.class, augBuilder.build());
+    private ElanInstance buildElanInstance(Class<? extends SegmentTypeBase> networkType) {
+        ElanInstanceBuilder builder = new ElanInstanceBuilder();
+        builder.setSegmentType(networkType);
+        builder.setElanInstanceName(NETWORK_ID);
         return builder.build();
     }
 
@@ -332,11 +337,10 @@ public class ToTransportZoneTest {
         thenReturn(ovsdbNode);
     }
 
-    private Port buildPort(String portIp) {
-        PortBuilder portBuilder = new PortBuilder();
-        portBuilder.setFixedIps(new ArrayList<>(Arrays.asList(new FixedIps[] {new FixedIpsBuilder().setIpAddress(new IpAddress(portIp.toCharArray())).build()})));
-        portBuilder.setNetworkId(new Uuid(NETWORK_ID));
-        return portBuilder.build();
+    private ElanInterface buildElanInterface() {
+        ElanInterfaceBuilder elanInterfaceBuilder = new ElanInterfaceBuilder();
+        elanInterfaceBuilder.setElanInstanceName(NETWORK_ID);
+        return elanInterfaceBuilder.build();
     }
     
     protected void testTZ(InvocationOnMock invocation) {

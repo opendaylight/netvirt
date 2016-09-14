@@ -7,16 +7,15 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -40,24 +39,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.Vteps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.VtepsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class TransportZoneNotificationUtil {
 
@@ -102,25 +101,25 @@ public class TransportZoneNotificationUtil {
      * @param inter - the interface to update
      */
     public void updateTrasportZone(Interface inter) {
-        List<Port> ports = getPortsFromInterface(inter);
-        //supports VPN aware VMs (multiple ports for one interface)
-        for (Port port : ports) {
+        List<ElanInterface> elanInterfaces = getElanInterfacesFromInterface(inter);
+        //supports VPN aware VMs (multiple elanInterfaces for one interface)
+        for (ElanInterface elanInter : elanInterfaces) {
             try {
 
-                if (!checkIfVxlanNetwork(port)) {
+                if (!checkIfVxlanNetwork(elanInter)) {
                     continue;
                 }
 
-                String subnetIp = getSubnetIPFromPort(port);
+                String subnetIp = ALL_SUBNETS;
 
                 BigInteger dpnId = getDpnIdFromInterfaceState(inter);
 
                 InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
-                        .child(TransportZone.class, new TransportZoneKey(port.getNetworkId().getValue()));
+                        .child(TransportZone.class, new TransportZoneKey(elanInter.getElanInstanceName()));
                 TransportZone zone = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, inst);
 
                 if (zone == null) {
-                    zone = createZone(subnetIp, port.getNetworkId().getValue());
+                    zone = createZone(subnetIp, elanInter.getElanInstanceName());
                 }
 
                 if (addVtep(zone, subnetIp, dpnId) > 0) {
@@ -167,13 +166,13 @@ public class TransportZoneNotificationUtil {
         return useTZ;
     }
 
-    private boolean checkIfVxlanNetwork(Port port) {
-        InstanceIdentifier<Network> networkPath = InstanceIdentifier.create(Neutron.class)
-                .child(Networks.class).child(Network.class, new NetworkKey(port.getNetworkId()));
-        Network network = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, networkPath);
+    private boolean checkIfVxlanNetwork(ElanInterface elanInter) {
+        InstanceIdentifier<ElanInstance> ElanIntstancePath = InstanceIdentifier.create(ElanInstances.class)
+                .child(ElanInstance.class, new ElanInstanceKey(elanInter.getElanInstanceName()));
+        ElanInstance elanInstance = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, ElanIntstancePath);
 
-        if (network == null || !NeutronvpnUtils.isNetworkOfType(network, NetworkTypeVxlan.class)) {
-            LOG.debug("port in non-VXLAN network " + port.getName());
+        if (elanInstance == null || !ElanUtils.isVxlan(elanInstance)) {
+            LOG.debug("elanInterface in non-VXLAN elanInstance " + elanInter.getName());
             return false;
         }
 
@@ -207,15 +206,15 @@ public class TransportZoneNotificationUtil {
      * @param interfaceState - interface state to update
      * @return - list of ports bound to interface
      */
-    private List<Port> getPortsFromInterface(Interface interfaceState) {
+    private List<ElanInterface> getElanInterfacesFromInterface(Interface interfaceState) {
         String physPortId = getPortFromInterfaceName(interfaceState.getName());
-        List<Port> portsList = new ArrayList<>();
+        List<ElanInterface> elanInterList = new ArrayList<>();
 
         InstanceIdentifier<Interfaces> interPath = InstanceIdentifier.create(Interfaces.class);
         Interfaces interfaces = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, interPath);
         if (interfaces == null) {
             LOG.error("No interfaces in configuration");
-            return portsList;
+            return elanInterList;
         }
         List<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
             .Interface> inters = interfaces.getInterface();
@@ -227,21 +226,20 @@ public class TransportZoneNotificationUtil {
             if (parent == null || !physPortId.equals(parent.getParentInterface())) {
                 continue;
             }
-            String parentInt = inter.getName();
-            Uuid portUid = new Uuid(parentInt);
-            InstanceIdentifier<Port> pathPort = InstanceIdentifier.create(Neutron.class).child(Ports.class)
-                    .child(Port.class, new PortKey(portUid));
-            Port port = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, pathPort);
+            String intName = inter.getName();
+            InstanceIdentifier<ElanInterface> pathElanInt = InstanceIdentifier.builder(ElanInterfaces.class)
+                .child(ElanInterface.class, new ElanInterfaceKey(intName)).build();
+            ElanInterface elanInt = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, pathElanInt);
 
-            if (port == null) {
+            if (elanInt == null) {
                 LOG.debug("got Interface State of non NeutronPort instance " + physPortId);
                 continue;
             }
 
-            portsList.add(port);
+            elanInterList.add(elanInt);
         }
 
-        return portsList;
+        return elanInterList;
     }
 
 
