@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_14e0d4f8",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-14T11:46:05Z",
+      "side": 1,
+      "message": "I took a closer look at the dhcpservice-impl bundle and tried to find a global place I can disable instead of placing this \"if\" on each install/uninstall flows method.\nInitially I thought about disabling NodeListener upon init to avoid installing flows for both dhcp and external tunnel tables (60 \u0026 18) but then I saw the whole Hwvtep handling.\nSo, my question is should I stick to the NodeListener or should I aim more globally?",
+      "parentUuid": "7a6b29fe_71c79a96",
+      "revId": "01f09d27b04fa85a1a29d7391c88cbc8f4a166bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_51c25e85",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_54e52c07",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-14T11:46:05Z",
+      "side": 1,
+      "message": "yes, but looking at the dhcpservice-config.yang it seems like the default is false. Anyway, I\u0027m using the DhcpserviceConfig now",
+      "parentUuid": "7a6b29fe_51c25e85",
+      "revId": "01f09d27b04fa85a1a29d7391c88cbc8f4a166bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_51e53e07",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2016-09-14T07:28:36Z",
       "side": 1,
       "message": "Pretty sure you should use DhcpserviceConfig (see in DhcpManager)",
+      "revId": "01f09d27b04fa85a1a29d7391c88cbc8f4a166bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_942ea48a",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-14T11:46:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_51e53e07",
       "revId": "01f09d27b04fa85a1a29d7391c88cbc8f4a166bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
