@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_71c79a96",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-14T06:26:14Z",
+      "side": 1,
+      "message": "we also shouldn\u0027t even program dhcp flow entries when \"controller-dhcp-enabled\" is set to false. It can be done by avoiding all the interface state DCNs.\nThis avoids unnecessary dhcp punts to controller.",
+      "revId": "01f09d27b04fa85a1a29d7391c88cbc8f4a166bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_51c25e85",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-14T06:26:14Z",
+      "side": 1,
+      "message": "This logic makes dhcpservice to be disabled in controller by default. \nBut by default, It should be enabled.",
+      "revId": "01f09d27b04fa85a1a29d7391c88cbc8f4a166bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
