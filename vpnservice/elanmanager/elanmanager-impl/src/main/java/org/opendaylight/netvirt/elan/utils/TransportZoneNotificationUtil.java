@@ -5,22 +5,23 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.neutronvpn;
+package org.opendaylight.netvirt.elan.utils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntryKey;
@@ -36,20 +37,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.Vteps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.VtepsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -59,188 +56,204 @@ import org.slf4j.LoggerFactory;
 public class TransportZoneNotificationUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransportZoneNotificationUtil.class);
-    private static final String OF_URI_SEPARATOR = ":";
+    private static final String INTERFACE_PORT_SEPARATOR = ".";
     private static final String TUNNEL_PORT = "tunnel_port";
     private static final String LOCAL_IP = "local_ip";
     private static final String ALL_SUBNETS = "0.0.0.0/0";
     private final DataBroker dataBroker;
-    private final NeutronvpnManager nvManager;
     private final MdsalUtils mdsalUtils;
     private final SouthboundUtils southBoundUtils;
-    private final NeutronvpnConfig neutronvpnConfig;
+    private final IInterfaceManager interfaceManager;
+    private ElanConfig elanConfig;
 
-    public TransportZoneNotificationUtil(DataBroker dbx, NeutronvpnManager nvManager) {
+    public TransportZoneNotificationUtil(DataBroker dbx, IInterfaceManager interfaceManager, ElanConfig elanConfig) {
         this.dataBroker = dbx;
-        this.nvManager = nvManager;
+        this.interfaceManager = interfaceManager;
+        this.elanConfig = elanConfig;
         this.mdsalUtils = new MdsalUtils(dbx);
         southBoundUtils = new SouthboundUtils(mdsalUtils);
-        this.neutronvpnConfig = nvManager.getNeutronvpnConfig();
     }
 
+    public void updateTransportZone(List<String> elanInterfaces) {
+        boolean noUpdates = true;
 
-    /**
-     * Update/add TransportZone for bridheEntryRef change.<br>
-     * for any update on bridge entry we are looking for all the routers which are affected and try to recreate
-     * its TZ
-     * @param entry - the BridgeEntryRef that was updated
-     */
-    public void updateTrasportZone(BridgeRefEntry entry) {
-        BigInteger dpid = entry.getDpid();
-        Set<RouterDpnList> allRouterDpnList = NeutronvpnUtils.getAllRouterDpnList(dataBroker, dpid);
-        for (RouterDpnList routerDpnList : allRouterDpnList) {
-            updateTrasportZone(routerDpnList);
+        for (String elanInterface : elanInterfaces) {
+            InterfaceInfo interfaceStateFromOperDS =
+                    interfaceManager.getInterfaceInfoFromOperationalDataStore(elanInterface);
+
+            if (interfaceStateFromOperDS != null) {
+                noUpdates = false;
+                this.updateTransportZone(interfaceStateFromOperDS);
+            }
+        }
+
+        if (noUpdates) {
+            LOG.warn("No interfaces were found for transport zone update.");
         }
     }
 
     /**
      * Update/add TransportZone for interface State inter.<br>
-     * If Transport zone for given Network doesn't exist, then it will be added.<br>
+     * If Transport zone for given Network doesn't exist, then it will be added.
+     * <br>
      * If the TEP of the port's node exists in the TZ, it will not be added.
-     * @param inter - the interface to update
+     *
+     * @param interfaceStateFromOperDS
+     *            - the interface to update
      */
-    public void updateTrasportZone(Interface inter) {
-        List<Port> ports = getPortsFromInterface(inter);
-        //supports VPN aware VMs (multiple ports for one interface)
-        for (Port port : ports) {
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void updateTransportZone(InterfaceInfo interfaceStateFromOperDS) {
+        LOG.info("Update transport zone for interface {}", interfaceStateFromOperDS.getInterfaceName());
+
+        List<ElanInterface> elanInterfaces = getElanInterfacesFromInterface(interfaceStateFromOperDS);
+        // supports VPN aware VMs (multiple elanInterfaces for one interface)
+        for (ElanInterface elanInter : elanInterfaces) {
+            if (!checkIfVxlanNetwork(elanInter)) {
+                continue;
+            }
+
+            String subnetIp = ALL_SUBNETS;
+            BigInteger dpnId = interfaceStateFromOperDS.getDpId();
+            InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
+                    .child(TransportZone.class, new TransportZoneKey(elanInter.getElanInstanceName()));
+
+            // Get the transport zone for the elan instance
+            TransportZone zone = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, inst);
+
+            if (zone == null) {
+                zone = createZone(subnetIp, elanInter.getElanInstanceName());
+            }
+
             try {
-
-                if (!checkIfVxlanNetwork(port)) {
-                    continue;
-                }
-
-                String subnetIp = ALL_SUBNETS;
-
-                BigInteger dpnId = getDpnIdFromInterfaceState(inter);
-
-                InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
-                        .child(TransportZone.class, new TransportZoneKey(port.getNetworkId().getValue()));
-                TransportZone zone = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, inst);
-
-                if (zone == null) {
-                    zone = createZone(subnetIp, port.getNetworkId().getValue());
-                }
-
                 if (addVtep(zone, subnetIp, dpnId) > 0) {
-                    addTransportZone(zone, inter.getName());
+                    addTransportZone(zone, interfaceStateFromOperDS.getInterfaceName());
                 }
 
             } catch (Exception e) {
-                LOG.warn("failed to add tunnels on interface added to subnet {}. ", inter, e);
+                LOG.warn("failed to add tunnels on interface added to subnet {}. ", interfaceStateFromOperDS, e);
             }
         }
     }
 
-    public void updateTrasportZone(RouterDpnList routerDpnList) {
-        try{
-            InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class).
-                    child(TransportZone.class, new TransportZoneKey(routerDpnList.getRouterId()));
-            TransportZone zone = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, inst);
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void updateTransportZone(BridgeRefEntry bridgeRefEntry) {
+        try {
+            LOG.info("Update transport zone for bridgeRef with dpId {}", bridgeRefEntry.getDpid());
+            BigInteger dpId = bridgeRefEntry.getDpid();
+            InstanceIdentifier<VpnInstanceOpData> inst = InstanceIdentifier.create(VpnInstanceOpData.class);
+            VpnInstanceOpData vpnInstances = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, inst);
 
+            if (vpnInstances != null && vpnInstances.getVpnInstanceOpDataEntry() != null) {
+                for (VpnInstanceOpDataEntry vpnInstanceEntry : vpnInstances.getVpnInstanceOpDataEntry()) {
+                    if (vpnInstanceEntry.getVpnToDpnList().stream().anyMatch(vtd -> vtd.getDpnId() == dpId)) {
+                        updateTransportZone(vpnInstanceEntry);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.warn("failed to add tunnels on bridgeRef with dpId {} due to {}", bridgeRefEntry.getDpid(),
+                    e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void updateTransportZone(VpnInstanceOpDataEntry vpnInstance) {
+        try {
+            LOG.info("Update transport zone for vpn instance {}", vpnInstance.getVpnInstanceName());
+            String routerId = vpnInstance.getVpnInstanceName();
+            InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
+                    .child(TransportZone.class, new TransportZoneKey(routerId));
+            TransportZone zone = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, inst);
             String subnetIp = ALL_SUBNETS;
 
             if (zone == null) {
-                zone = createZone(subnetIp, routerDpnList.getRouterId());
+                zone = createZone(subnetIp, routerId);
             }
+
             int addedTeps = 0;
-            for (DpnVpninterfacesList dpnVpninterfacesList : routerDpnList.getDpnVpninterfacesList()) {
-                BigInteger dpnId = dpnVpninterfacesList.getDpnId();
-                addedTeps += addVtep(zone, subnetIp, dpnId);
+            for (VpnToDpnList dpnId : vpnInstance.getVpnToDpnList()) {
+                addedTeps += addVtep(zone, subnetIp, dpnId.getDpnId());
             }
+
             if (addedTeps > 0) {
-                addTransportZone(zone, "router " + routerDpnList.getRouterId());
+                addTransportZone(zone, "router " + routerId);
             }
         } catch (Exception e) {
-            LOG.warn("failed to add tunnels on router added of routerDpnList {}. ", routerDpnList, e);
+            LOG.warn("failed to add tunnels on router added of vpnInstanecOpDataEntry {} due to {}", vpnInstance,
+                    e.getMessage());
         }
     }
 
     public boolean isAutoTunnelConfigEnabled() {
         Boolean useTZ = true;
-        if (neutronvpnConfig != null && neutronvpnConfig.isUseTransportZone() != null) {
-            useTZ = neutronvpnConfig.isUseTransportZone();
+
+        if (elanConfig != null && elanConfig.isUseTransportZone() != null) {
+            useTZ = elanConfig.isUseTransportZone();
         }
-        LOG.info("isAutoTunnelConfigEnabled: useTz: {}, neutronvpnConfig: {}", useTZ, neutronvpnConfig);
+        LOG.info("isAutoTunnelConfigEnabled: useTz: {}, elanConfig: {}", useTZ, elanConfig);
         return useTZ;
     }
 
-    private boolean checkIfVxlanNetwork(Port port) {
-        InstanceIdentifier<Network> networkPath = InstanceIdentifier.create(Neutron.class)
-                .child(Networks.class).child(Network.class, new NetworkKey(port.getNetworkId()));
-        Network network = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, networkPath);
+    private boolean checkIfVxlanNetwork(ElanInterface elanInter) {
+        InstanceIdentifier<ElanInstance> elanInstancePath = InstanceIdentifier.create(ElanInstances.class)
+                .child(ElanInstance.class, new ElanInstanceKey(elanInter.getElanInstanceName()));
+        ElanInstance elanInstance = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, elanInstancePath);
 
-        if (network == null || !NeutronvpnUtils.isNetworkOfType(network, NetworkTypeVxlan.class)) {
-            LOG.debug("port in non-VXLAN network " + port.getName());
+        if (elanInstance == null || !ElanUtils.isVxlan(elanInstance)) {
+            LOG.debug("elanInterface in non-VXLAN elanInstance " + elanInter.getName());
             return false;
         }
 
         return true;
     }
 
-
-    private BigInteger getDpnIdFromInterfaceState(Interface inter) {
-        String lowerLayerIf = inter.getLowerLayerIf().get(0);
-        NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
-        BigInteger dpId = new BigInteger(getDpnFromNodeConnectorId(nodeConnectorId));
-        return dpId;
-    }
-
     /*
      * takes all Neutron Ports that are related to the given interface state
+     *
      * @param interfaceState - interface state to update
+     *
      * @return - list of ports bound to interface
      */
-    private List<Port> getPortsFromInterface(Interface interfaceState) {
-        String physPortId = getPortFromInterfaceName(interfaceState.getName());
-        List<Port> portsList = new ArrayList<>();
+    private List<ElanInterface> getElanInterfacesFromInterface(InterfaceInfo interfaceStateFromOperDS) {
+        String physPortId = getPortFromInterfaceName(interfaceStateFromOperDS.getInterfaceName());
+        List<ElanInterface> elanInterList = new ArrayList<>();
 
         InstanceIdentifier<Interfaces> interPath = InstanceIdentifier.create(Interfaces.class);
         Interfaces interfaces = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, interPath);
         if (interfaces == null) {
             LOG.error("No interfaces in configuration");
-            return portsList;
+            return elanInterList;
         }
-        List<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-            .Interface> inters = interfaces.getInterface();
+
+        List<Interface> inters = interfaces.getInterface();
 
         // take all interfaces with parent-interface with physPortId name
-        for (org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-                .Interface inter : inters) {
+        for (Interface inter : inters) {
             ParentRefs parent = inter.getAugmentation(ParentRefs.class);
             if (parent == null || !physPortId.equals(parent.getParentInterface())) {
                 continue;
             }
-            String parentInt = inter.getName();
-            Uuid portUid = new Uuid(parentInt);
-            InstanceIdentifier<Port> pathPort = InstanceIdentifier.create(Neutron.class).child(Ports.class)
-                    .child(Port.class, new PortKey(portUid));
-            Port port = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, pathPort);
+            String intName = inter.getName();
+            InstanceIdentifier<ElanInterface> pathElanInt = InstanceIdentifier.builder(ElanInterfaces.class)
+                    .child(ElanInterface.class, new ElanInterfaceKey(intName)).build();
+            ElanInterface elanInt = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, pathElanInt);
 
-            if (port == null) {
+            if (elanInt == null) {
                 LOG.debug("got Interface State of non NeutronPort instance " + physPortId);
                 continue;
             }
 
-            portsList.add(port);
+            elanInterList.add(elanInt);
         }
 
-        return portsList;
+        return elanInterList;
     }
-
 
     private String getPortFromInterfaceName(String name) {
-        String[] splitedStr = name.split(OF_URI_SEPARATOR);
-        name = splitedStr.length > 1 ? splitedStr[1] : name;
+        String[] splitedStr = name.split(INTERFACE_PORT_SEPARATOR);
+        name = splitedStr.length > 1 ? splitedStr[0] : name;
         return name;
     }
-
-
-    // TODO: code is used in another places. Should be extracted into utility
-    private String getDpnFromNodeConnectorId(NodeConnectorId portId) {
-        String[] split = portId.getValue().split(OF_URI_SEPARATOR);
-        return split[1];
-    }
-
-
 
     private TransportZone createZone(String subnetIp, String zoneName) {
         TransportZoneBuilder tzb = new TransportZoneBuilder();
@@ -253,15 +266,16 @@ public class TransportZoneNotificationUtil {
         return tzb.build();
     }
 
-
     private void addTransportZone(TransportZone zone, String interName) {
         InstanceIdentifier<TransportZones> path = InstanceIdentifier.builder(TransportZones.class).build();
         TransportZones zones = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, path);
         if (zones == null) {
+            // Create the zones and add the transport zone
             List<TransportZone> zoneList = new ArrayList<>();
             zoneList.add(zone);
             zones = new TransportZonesBuilder().setTransportZone(zoneList).build();
-        } else {
+        } else if (!zones.getTransportZone().stream().anyMatch(z -> z.getKey().equals(zone.getKey()))) {
+            // Add the transport zone
             zones.getTransportZone().add(zone);
         }
 
@@ -270,16 +284,15 @@ public class TransportZoneNotificationUtil {
     }
 
     private int addVtep(TransportZone zone, String subnetIp, BigInteger dpnId) throws Exception {
-
         Subnets subnets = findSubnets(zone.getSubnets(), subnetIp);
 
-        for(Vteps existingVtep : subnets.getVteps()){
+        for (Vteps existingVtep : subnets.getVteps()) {
             if (existingVtep.getDpnId().equals(dpnId)) {
                 return 0;
             }
         }
 
-        IpAddress nodeIp =  getNodeIP(dpnId);
+        IpAddress nodeIp = getNodeIP(dpnId);
 
         VtepsBuilder vtepsBuilder = new VtepsBuilder();
         vtepsBuilder.setDpnId(dpnId);
@@ -291,7 +304,8 @@ public class TransportZoneNotificationUtil {
         return 1;
     }
 
-    // search for relevant subnets for the given subnetIP, add one if it is necessary
+    // search for relevant subnets for the given subnetIP, add one if it is
+    // necessary
     private Subnets findSubnets(List<Subnets> subnets, String subnetIp) {
         for (Subnets subnet : subnets) {
             IpPrefix subnetPrefix = new IpPrefix(subnetIp.toCharArray());
@@ -328,16 +342,17 @@ public class TransportZoneNotificationUtil {
     }
 
     @SuppressWarnings("unchecked")
-    private Node getPortsNode(BigInteger dpnId) throws Exception{
-        InstanceIdentifier<BridgeRefEntry> bridgeRefInfoPath = InstanceIdentifier.
-                create(BridgeRefInfo.class).child(BridgeRefEntry.class, new BridgeRefEntryKey(dpnId));
+    private Node getPortsNode(BigInteger dpnId) throws Exception {
+        InstanceIdentifier<BridgeRefEntry> bridgeRefInfoPath = InstanceIdentifier.create(BridgeRefInfo.class)
+                .child(BridgeRefEntry.class, new BridgeRefEntryKey(dpnId));
         BridgeRefEntry bridgeRefEntry = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, bridgeRefInfoPath);
         if (bridgeRefEntry == null) {
             throw new Exception("no bridge ref entry found for dpnId: " + dpnId);
         }
 
-        InstanceIdentifier<Node> nodeId = ((InstanceIdentifier<OvsdbBridgeAugmentation>) bridgeRefEntry
-                .getBridgeReference().getValue()).firstIdentifierOf(Node.class);
+        InstanceIdentifier<Node> nodeId =
+                ((InstanceIdentifier<OvsdbBridgeAugmentation>) bridgeRefEntry.getBridgeReference().getValue())
+                        .firstIdentifierOf(Node.class);
         Node node = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, nodeId);
 
         if (node == null) {
