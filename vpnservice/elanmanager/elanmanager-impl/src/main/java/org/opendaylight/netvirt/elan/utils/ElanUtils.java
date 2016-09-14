@@ -130,6 +130,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMacKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfacesKey;
@@ -1324,6 +1325,10 @@ public class ElanUtils {
         // data-store
         tx.put(LogicalDatastoreType.OPERATIONAL,
                 getElanInfoEntriesOperationalDataPath(elanTag), elanTagName);
+
+        ElanDpnInterfacesList elanDpnInterfacesList = new ElanDpnInterfacesListBuilder()
+            .setElanInstanceName(elanInstanceName).setKey(new ElanDpnInterfacesListKey(elanInstanceName)).build();
+        tx.put(LogicalDatastoreType.OPERATIONAL, getElanDpnOperationDataPath(elanInstanceName), elanDpnInterfacesList);
 
         // Updates the ElanInstance Config DS by setting the just acquired
         // elanTag
