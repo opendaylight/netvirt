@@ -275,14 +275,29 @@ public class VpnUtil {
         return (vpnInstance.isPresent()) ? vpnInstance.get() : null;
     }
 
-    static List<VpnInstance> getAllVpnInstance(DataBroker broker) {
+    static List<VpnInstance> getAllVpnInstances(DataBroker broker) {
         InstanceIdentifier<VpnInstances> id = InstanceIdentifier.builder(VpnInstances.class).build();
         Optional<VpnInstances> optVpnInstances = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (optVpnInstances.isPresent()) {
             return optVpnInstances.get().getVpnInstance();
         } else {
-            return new ArrayList<VpnInstance>();
+            return Collections.emptyList();
         }
+    }
+
+    public static List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
+            .instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> getDpnVpnInterfaces(DataBroker broker,
+                    VpnInstance vpnInstance, BigInteger dpnId) {
+        VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
+        LOG.trace("vpnConfig {}", vpnConfig);
+        String rd = vpnConfig.getRouteDistinguisher();
+        if (rd == null || rd.isEmpty()) {
+            rd = vpnInstance.getVpnInstanceName();
+            LOG.trace("rd is null or empty. Assigning VpnInstanceName to rd {}", rd);
+        }
+        InstanceIdentifier<VpnToDpnList> dpnToVpnId = getVpnToDpnListIdentifier(rd, dpnId);
+        Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnToVpnId);
+        return dpnInVpn.isPresent() ? dpnInVpn.get().getVpnInterfaces() : Collections.emptyList();
     }
 
     static VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
@@ -1176,7 +1191,7 @@ public class VpnUtil {
         }
         return result;
     }
-    
+
     static String getAssociatedExternalNetwork(DataBroker dataBroker, String routerId) {
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerId);
         Optional<Routers> routerData = read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
@@ -1188,7 +1203,7 @@ public class VpnUtil {
         }
         return null;
     }
-    
+
     static InstanceIdentifier<Routers> buildRouterIdentifier(String routerId) {
         InstanceIdentifier<Routers> routerInstanceIndentifier = InstanceIdentifier.builder(ExtRouters.class).child
                 (Routers.class, new RoutersKey(routerId)).build();
