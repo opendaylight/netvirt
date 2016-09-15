@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_082f13f8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-15T17:12:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_c8c7db62",
+      "range": {
+        "startLine": 162,
+        "startChar": 16,
+        "endLine": 162,
+        "endChar": 67
+      },
+      "revId": "5cbfba45d5e98d945ed100fb2eec7aa1ac39cecc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_48b46bf1",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_a8ec1fbc",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-15T17:12:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_48b46bf1",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 8
+      },
+      "revId": "5cbfba45d5e98d945ed100fb2eec7aa1ac39cecc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_e8c0d751",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2016-09-15T15:49:05Z",
       "side": 1,
       "message": "handleGroupInNeighborSwitches doesn\u0027t return null, it may return empty list. so we need to check \"if empty\" here.",
+      "range": {
+        "startLine": 193,
+        "startChar": 25,
+        "endLine": 193,
+        "endChar": 43
+      },
+      "revId": "5cbfba45d5e98d945ed100fb2eec7aa1ac39cecc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c8f19b96",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-15T17:12:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_e8c0d751",
       "range": {
         "startLine": 193,
         "startChar": 25,
