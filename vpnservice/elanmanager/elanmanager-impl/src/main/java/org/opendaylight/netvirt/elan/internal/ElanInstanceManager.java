@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev16061
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -129,11 +130,17 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     @Override
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance elanInstanceAdded) {
-        Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceAdded.getElanInstanceName());
+        String elanInstanceName  = elanInstanceAdded.getElanInstanceName();
+        Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceName);
         if (elanInfo == null) {
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             ElanUtils.updateOperationalDataStore(broker, idManager,
-                    elanInstanceAdded, new ArrayList<String>(), tx);
+                elanInstanceAdded, new ArrayList<String>(), tx);
+            ElanDpnInterfacesList elanDpnInterfacesList = new ElanDpnInterfacesListBuilder()
+                .setElanInstanceName(elanInstanceName).setKey(new ElanDpnInterfacesListKey(elanInstanceName))
+                .build();
+            tx.put(LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanDpnOperationDataPath(elanInstanceName),
+                elanDpnInterfacesList);
             ElanUtils.waitForTransactionToComplete(tx);
         }
     }
