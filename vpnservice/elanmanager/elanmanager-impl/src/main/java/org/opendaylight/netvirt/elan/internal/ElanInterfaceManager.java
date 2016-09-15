@@ -11,13 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
@@ -167,6 +161,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             InterfaceInfo interfaceInfo, boolean isInterfaceStateRemoved) {
         String elanName = elanInfo.getElanInstanceName();
         boolean isLastElanInterface = false;
+        boolean isLastInterfaceOnDpn = false;
+        BigInteger dpId = null;
         long elanTag = elanInfo.getElanTag();
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         WriteTransaction deleteFlowGroupTx = broker.newWriteOnlyTransaction();
@@ -179,7 +175,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             isLastElanInterface = true;
         }
         if (interfaceInfo != null) {
-            BigInteger dpId = interfaceInfo.getDpId();
+            dpId = interfaceInfo.getDpId();
             DpnInterfaces dpnInterfaces = removeElanDpnInterfaceFromOperationalDataStore(elanName, dpId, interfaceName,
                     elanTag, tx);
             /*
@@ -199,12 +195,16 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 if (ElanUtils.isVxlan(elanInfo)) {
                     unsetExternalTunnelTable(dpId, elanInfo);
                 }
+                isLastInterfaceOnDpn = true;
             } else {
                 setupLocalBroadcastGroups(elanInfo, dpnInterfaces, interfaceInfo);
             }
         }
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
         futures.add(ElanUtils.waitForTransactionToComplete(deleteFlowGroupTx));
+        if (isLastInterfaceOnDpn && dpId != null) {
+            setElanBCGrouponOtherDpns(elanInfo, dpId);
+        }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElanInterface removeInterfaceWorker = new InterfaceRemoveWorkerOnElanInterface(
                 interfaceName, elanInfo, interfaceInfo, isInterfaceStateRemoved, this, isLastElanInterface);
@@ -791,8 +791,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         List<Bucket> listBucketInfo = new ArrayList<>();
         ElanDpnInterfacesList elanDpns = elanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
         listBucketInfo.addAll(getRemoteBCGroupTunnelBuckets(elanDpns, dpnId, bucketId, elanTag));
-        listBucketInfo.addAll(getRemoteBCGroupExternalPortBuckets(elanDpns, dpnInterfaces, dpnId, bucketId));
-        listBucketInfo.addAll(getRemoteBCGroupBucketsOfElanL2GwDevices(elanInfo, dpnId, bucketId));
+        listBucketInfo.addAll(getRemoteBCGroupExternalPortBuckets(elanDpns, dpnInterfaces, dpnId, listBucketInfo.size() + 1));
+        listBucketInfo.addAll(getRemoteBCGroupBucketsOfElanL2GwDevices(elanInfo, dpnId, listBucketInfo.size() + 1));
         return listBucketInfo;
     }
 
@@ -802,7 +802,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         List<Bucket> listBucketInfo = new ArrayList<>();
         if (elanDpns != null) {
             for (DpnInterfaces dpnInterface : elanDpns.getDpnInterfaces()) {
-                if (elanUtils.isDpnPresent(dpnInterface.getDpId()) && dpnInterface.getDpId() != dpnId
+                if (elanUtils.isDpnPresent(dpnInterface.getDpId()) && !Objects.equals(dpnInterface.getDpId(), dpnId)
                         && dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()) {
                     try {
                         List<Action> listActionInfo = elanUtils.getInternalTunnelItmEgressAction(dpnId,
@@ -867,7 +867,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             List<DpnInterfaces> dpnInterfaceses = elanDpns.getDpnInterfaces();
             for (DpnInterfaces dpnInterface : dpnInterfaceses) {
                 List<Bucket> remoteListBucketInfo = new ArrayList<>();
-                if (elanUtils.isDpnPresent(dpnInterface.getDpId()) && !dpnInterface.getDpId().equals(dpId)
+                if (elanUtils.isDpnPresent(dpnInterface.getDpId()) && !Objects.equals(dpnInterface.getDpId(),dpId)
                         && dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()) {
                     List<Action> listAction = new ArrayList<>();
                     int actionKey = 0;
@@ -879,8 +879,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     bucketId++;
                     remoteListBucketInfo.addAll(listBucket);
                     for (DpnInterfaces otherFes : dpnInterfaceses) {
-                        if (elanUtils.isDpnPresent(otherFes.getDpId()) && otherFes.getDpId() != dpnInterface.getDpId()
-                                && otherFes.getInterfaces() != null && !otherFes.getInterfaces().isEmpty()) {
+                        if (elanUtils.isDpnPresent(otherFes.getDpId()) && !Objects.equals(otherFes.getDpId(),
+                            dpnInterface.getDpId()) && otherFes.getInterfaces() != null &&
+                            !otherFes.getInterfaces().isEmpty()) {
                             try {
                                 List<Action> remoteListActionInfo = elanUtils.getInternalTunnelItmEgressAction(
                                         dpnInterface.getDpId(), otherFes.getDpId(), elanTag);
