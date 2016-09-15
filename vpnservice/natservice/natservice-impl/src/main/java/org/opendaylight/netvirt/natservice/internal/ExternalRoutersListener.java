@@ -353,13 +353,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     private void installNaptPfibExternalOutputFlow(Routers routers, String routerName, BigInteger dpnId) {
-        Long routerId = NatUtil.getVpnId(dataBroker, routerName);
+        Long extVpnId = NatUtil.getVpnId(dataBroker, routers.getNetworkId().getValue());
 
         String ip = getExternalIpFromRouter(routers);
         Uuid subnetId = getSubnetIdOfIp(ip);
 
         if (subnetId != null) {
-            FlowEntity postNaptFlowEntity = buildNaptFibExternalOutputFlowEntity(dpnId, routerId, subnetId, ip);
+            FlowEntity postNaptFlowEntity = buildNaptFibExternalOutputFlowEntity(dpnId, extVpnId, subnetId, ip);
             mdsalManager.installFlow(postNaptFlowEntity);
         }
     }
