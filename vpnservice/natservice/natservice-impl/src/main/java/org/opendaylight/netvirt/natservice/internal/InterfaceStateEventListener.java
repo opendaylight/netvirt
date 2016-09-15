@@ -13,13 +13,18 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
@@ -42,6 +47,7 @@ import com.google.common.base.Optional;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -53,17 +59,20 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
     private final FloatingIPListener floatingIPListener;
     private final NaptManager naptManager;
     private final NeutronvpnService neutronVpnService;
+    private final NaptSwitchHA naptSwitchHA;
 
     public InterfaceStateEventListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                        final FloatingIPListener floatingIPListener,
                                        final NaptManager naptManager,
-                                       final NeutronvpnService neutronvpnService){
+                                       final NeutronvpnService neutronvpnService,
+                                       final NaptSwitchHA naptSwitchHA){
         super(Interface.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.floatingIPListener = floatingIPListener;
         this.naptManager = naptManager;
         this.neutronVpnService = neutronvpnService;
+        this.naptSwitchHA = naptSwitchHA;
     }
 
     public void init() {
@@ -134,6 +143,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
                 LOG.error("NAT Service : Exception caught in InterfaceOperationalStateDown : {}",ex);
             }
         }
+
     }
 
     @Override
@@ -146,8 +156,52 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
             if (routerId != null) {
                 processInterfaceAdded(interfaceName, routerId);
             }
+            if (Tunnel.class.equals(intrf.getType())) {
+                updateNaptTunnelsGroups(intrf);
+            }
         } catch (Exception ex) {
-        LOG.error("NAT Service : Exception caught in Interface Operational State Up event: {}", ex);
+            LOG.error("NAT Service : Exception caught in Interface Operational State Up event: {}", ex);
+        }
+    }
+
+    private void updateNaptTunnelsGroups(Interface intrf) {
+        // get tunnel's DPN
+        BigInteger tunnelDpn = NatUtil.getDpIdFromInterface(intrf);
+        if (tunnelDpn == BigInteger.ZERO) {
+            LOG.warn("Unable to obtain dpnId for tunnel interface {}, update NAPT tunnel group table failed",
+                    intrf.getName());
+            return;
+        }
+
+        // get tunnel DPN's routers
+        Set<RouterDpnList> allRouterDpnList = NatUtil.getAllRouterDpnList(dataBroker, tunnelDpn);
+
+        // for all routers in DPN
+        for (RouterDpnList routerDpnList : allRouterDpnList) {
+             String routerName = routerDpnList.getRouterId();
+             Long dpnRouterId = NatUtil.getVpnId(dataBroker, routerName);
+
+             if (dpnRouterId != NatConstants.INVALID_ID) {
+                 BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterId(dataBroker, dpnRouterId);
+
+                 if (naptSwitch == null) {
+                     LOG.debug("NAPT switch is undefined for router id {} and dpnId {}",
+                             dpnRouterId, tunnelDpn);
+                     continue;
+                 }
+
+                 // if the interface is of a neighbor dpn (not on the NAPT switch) update the router's group table
+                 if (!tunnelDpn.equals(naptSwitch)) {
+                     List<BucketInfo> bucketInfo = naptSwitchHA.handleGroupInNeighborSwitches(tunnelDpn,
+                             routerName, naptSwitch);
+                     if (bucketInfo.isEmpty()) {
+                         LOG.debug("Failed to populate bucketInfo for dpnId {} routername {} naptSwitch {}",
+                                 tunnelDpn, dpnRouterId, naptSwitch);
+                         continue;
+                     }
+                     naptSwitchHA.installSnatGroupEntry(tunnelDpn, bucketInfo, routerName);
+                 }
+             }
         }
     }
 

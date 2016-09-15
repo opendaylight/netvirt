@@ -141,6 +141,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -592,13 +593,23 @@ public class NatUtil {
          * NodeConnectorId is of form 'openflow:dpnid:portnum'
          */
         String[] split = portId.getValue().split(OF_URI_SEPARATOR);
+        if (split.length != 2) {
+            return null;
+        }
         return split[1];
     }
 
     public static BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState) {
         String lowerLayerIf = ifState.getLowerLayerIf().get(0);
+        if (lowerLayerIf != null) {
+            return BigInteger.ZERO;
+        }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
-        return new BigInteger(getDpnFromNodeConnectorId(nodeConnectorId));
+        String dpnFromNodeConnectorId = getDpnFromNodeConnectorId(nodeConnectorId);
+        if (dpnFromNodeConnectorId == null) {
+            return BigInteger.ZERO;
+        }
+        return new BigInteger(dpnFromNodeConnectorId);
     }
 
 
@@ -1179,5 +1190,26 @@ public class NatUtil {
         }
 
         return portIpToPortOpt.get().getMacAddress();
+    }
+
+    public static Set<RouterDpnList> getAllRouterDpnList(DataBroker broker, BigInteger dpid) {
+        Set<RouterDpnList> ret = new HashSet<>();
+        InstanceIdentifier<NeutronRouterDpns> routerDpnId = InstanceIdentifier.create(NeutronRouterDpns.class);
+        Optional<NeutronRouterDpns> neutronRouterDpnsOpt = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                routerDpnId);
+        if (neutronRouterDpnsOpt.isPresent()) {
+            NeutronRouterDpns neutronRouterDpns = neutronRouterDpnsOpt.get();
+            List<RouterDpnList> routerDpnLists = neutronRouterDpns.getRouterDpnList();
+            for (RouterDpnList routerDpnList : routerDpnLists) {
+                if (routerDpnList.getDpnVpninterfacesList() != null) {
+                    for (DpnVpninterfacesList dpnInterfaceList : routerDpnList.getDpnVpninterfacesList()) {
+                        if (dpnInterfaceList.getDpnId().equals(dpid)) {
+                            ret.add(routerDpnList);
+                        }
+                    }
+                }
+            }
+        }
+        return ret;
     }
 }

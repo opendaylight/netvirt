@@ -162,6 +162,7 @@
     <argument ref="floatingIPListener" />
     <argument ref="naptManager" />
     <argument ref="neutronvpnService" />
+    <argument ref="naptSwitchHA" />
   </bean>
 
   <bean id="sNATDefaultRouteProgrammer"
