@@ -569,7 +569,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
     }
 
-    private void processVpnInterfaceAdjacencies(BigInteger dpnId, String vpnName, String interfaceName,
+    protected void processVpnInterfaceAdjacencies(BigInteger dpnId, String vpnName, String interfaceName,
                                                 WriteTransaction writeConfigTxn,
                                                 WriteTransaction writeOperTxn) {
         InstanceIdentifier<VpnInterface> identifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
@@ -690,7 +690,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             }
         };
 
-        vpnsToImportRoute = FluentIterable.from(VpnUtil.getAllVpnInstance(dataBroker)).
+        vpnsToImportRoute = FluentIterable.from(VpnUtil.getAllVpnInstances(dataBroker)).
                 filter(excludeVpn).
                 filter(matchRTs).toList();
         return vpnsToImportRoute;
@@ -733,7 +733,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             }
         };
 
-        vpnsToExportRoute = FluentIterable.from(VpnUtil.getAllVpnInstance(dataBroker)).
+        vpnsToExportRoute = FluentIterable.from(VpnUtil.getAllVpnInstances(dataBroker)).
                 filter(excludeVpn).
                 filter(matchRTs).toList();
         return vpnsToExportRoute;
