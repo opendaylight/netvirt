@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_9d2ec78a",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-15T04:59:37Z",
+      "side": 1,
+      "message": "I see it\u0027s being done already in DhcpManager#init method.\n    public void init() {\n        if (config.isControllerDhcpEnabled()) {\n            dhcpInterfaceEventListener \u003d new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager);\n            dhcpInterfaceConfigListener \u003d new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager);\n            logger.info(\"DHCP Service initialized\");\n        }\n    }",
+      "parentUuid": "7a6b29fe_14e0d4f8",
+      "revId": "01f09d27b04fa85a1a29d7391c88cbc8f4a166bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_51c25e85",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
         "patchSetId": 4
