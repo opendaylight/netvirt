@@ -196,4 +196,11 @@
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
   </bean>
+
+	<bean id="tunnelEndPointChangeListener"
+		class="org.opendaylight.netvirt.vpnmanager.TunnelEndPointChangeListener"
+		init-method="start" destroy-method="close">
+		<argument ref="dataBroker" />
+		<argument ref="vpnInterfaceManager" />
+	</bean>
 </blueprint>
