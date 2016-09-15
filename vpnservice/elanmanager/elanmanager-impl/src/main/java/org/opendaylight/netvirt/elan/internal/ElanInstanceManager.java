@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev16061
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -85,8 +86,12 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
             }
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInstanceOperationalDataPath(elanName));
-            ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
+            Optional<ElanDpnInterfacesList> elanDpnInterfaceList = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                    ElanUtils.getElanDpnOperationDataPath(elanName));
+            if(elanDpnInterfaceList.isPresent()) {
+                ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     getElanDpnOperationDataPath(elanName));
+            }
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
         }
@@ -129,11 +134,12 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     @Override
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance elanInstanceAdded) {
-        Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceAdded.getElanInstanceName());
+        String elanInstanceName  = elanInstanceAdded.getElanInstanceName();
+        Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceName);
         if (elanInfo == null) {
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             ElanUtils.updateOperationalDataStore(broker, idManager,
-                    elanInstanceAdded, new ArrayList<String>(), tx);
+                elanInstanceAdded, new ArrayList<String>(), tx);
             ElanUtils.waitForTransactionToComplete(tx);
         }
     }
