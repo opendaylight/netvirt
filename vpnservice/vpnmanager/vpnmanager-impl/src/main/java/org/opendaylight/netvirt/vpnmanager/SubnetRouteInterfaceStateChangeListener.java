@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 public class SubnetRouteInterfaceStateChangeListener extends AbstractDataChangeListener<Interface>
         implements AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateChangeListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SubnetRouteInterfaceStateChangeListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final VpnInterfaceManager vpnInterfaceManager;
