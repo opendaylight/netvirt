@@ -141,6 +141,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -1172,5 +1173,26 @@ public class NatUtil {
         }
 
         return portIpToPortOpt.get().getMacAddress();
+    }
+
+    public static Set<RouterDpnList> getAllRouterDpnList(DataBroker broker, BigInteger dpid) {
+        Set<RouterDpnList> ret = new HashSet<>();
+        InstanceIdentifier<NeutronRouterDpns> routerDpnId = InstanceIdentifier.create(NeutronRouterDpns.class);
+        Optional<NeutronRouterDpns> neutronRouterDpnsOpt = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                routerDpnId);
+        if (neutronRouterDpnsOpt.isPresent()) {
+            NeutronRouterDpns neutronRouterDpns = neutronRouterDpnsOpt.get();
+            List<RouterDpnList> routerDpnLists = neutronRouterDpns.getRouterDpnList();
+            for (RouterDpnList routerDpnList : routerDpnLists) {
+                if (routerDpnList.getDpnVpninterfacesList() != null) {
+                    for (DpnVpninterfacesList dpnInterfaceList : routerDpnList.getDpnVpninterfacesList()) {
+                        if (dpnInterfaceList.getDpnId().equals(dpid)) {
+                            ret.add(routerDpnList);
+                        }
+                    }
+                }
+            }
+        }
+        return ret;
     }
 }
