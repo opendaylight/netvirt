@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_48e74be4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-15T16:57:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_c8f07bcb",
+      "range": {
+        "startLine": 355,
+        "startChar": 68,
+        "endLine": 355,
+        "endChar": 85
+      },
+      "revId": "3ec116d4a080b2f7e2e4a8899589b9f03371e403",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_6893275b",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2016-09-15T16:00:07Z",
       "side": 1,
       "message": "routerId should be extVpnId right?",
+      "revId": "3ec116d4a080b2f7e2e4a8899589b9f03371e403",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_68cfa756",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2253,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-15T16:57:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_6893275b",
       "revId": "3ec116d4a080b2f7e2e4a8899589b9f03371e403",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
