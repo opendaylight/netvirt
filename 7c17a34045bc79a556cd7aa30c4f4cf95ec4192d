@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_9d66c7b9",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-09-15T07:32:59Z",
+      "side": 1,
+      "message": "can\u0027t you get the pfx from netOvs?",
+      "revId": "7c17a34045bc79a556cd7aa30c4f4cf95ec4192d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5dc26f85",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-09-15T07:32:59Z",
+      "side": 1,
+      "message": "This is a long time to sleep and I\u0027m sure there\u0027s a good reason for it but is there anyway to check for what you\u0027re waiting for in the event that it finishes in less that 10*1000?",
+      "revId": "7c17a34045bc79a556cd7aa30c4f4cf95ec4192d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
