@@ -85,8 +85,13 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
             }
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInstanceOperationalDataPath(elanName));
-            ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
+            Optional<ElanDpnInterfacesList> elanDpnInterfaceList = MDSALUtil.read(broker,
+                    LogicalDatastoreType.OPERATIONAL,
+                    ElanUtils.getElanDpnOperationDataPath(elanName));
+            if (elanDpnInterfaceList.isPresent()) {
+                ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     getElanDpnOperationDataPath(elanName));
+            }
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
         }
@@ -129,11 +134,12 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     @Override
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance elanInstanceAdded) {
-        Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceAdded.getElanInstanceName());
+        String elanInstanceName  = elanInstanceAdded.getElanInstanceName();
+        Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceName);
         if (elanInfo == null) {
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             ElanUtils.updateOperationalDataStore(broker, idManager,
-                    elanInstanceAdded, new ArrayList<String>(), tx);
+                elanInstanceAdded, new ArrayList<String>(), tx);
             ElanUtils.waitForTransactionToComplete(tx);
         }
     }
