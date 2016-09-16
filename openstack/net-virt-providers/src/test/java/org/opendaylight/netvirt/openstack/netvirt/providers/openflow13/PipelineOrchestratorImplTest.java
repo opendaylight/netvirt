@@ -114,6 +114,9 @@ public class PipelineOrchestratorImplTest {
                 Service.OUTBOUND_NAT);
         assertEquals(
                 orchestrator.getNextServiceInPipeline(Service.OUTBOUND_NAT),
+                Service.L2_LEARN);
+        assertEquals(
+                orchestrator.getNextServiceInPipeline(Service.L2_LEARN),
                 Service.L2_FORWARDING);
         assertNull(orchestrator.getNextServiceInPipeline(Service.L2_FORWARDING));
     }
