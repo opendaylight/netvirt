@@ -12,8 +12,18 @@ import java.util.Collection;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.cloudservicechain.utils.ElanServiceChainUtils;
+import opendaylight.genius.mdsalutil.NWUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.ElanServiceChainState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.elan.to.pseudo.port.data.list.ElanToPseudoPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.elan.to.pseudo.port.data.list.ElanToPseudoPortDataKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,14 +62,11 @@ public class ElanServiceChainHandler {
      * @param scfTag Tag of the ServiceChain
      * @param elanLportTag LPortTag of the ElanPseudoPort that participates in
      *        the ServiceChain
-     * @param isLastServiceChain Only used in removals, states if the
-     *        ElanPseudoPort is not used in any other ServiceChain
      * @param addOrRemove States if the flows must be created or removed
      */
-    public void programElanScfPipeline(String elanName, short tableId, int scfTag, int elanLportTag,
-                                       boolean isLastServiceChain, int addOrRemove) {
-        logger.info("programElanScfPipeline:  elanName={}   scfTag={}   elanLportTag={}   lastSc={}   addOrRemove={}",
-                    elanName, scfTag, elanLportTag, isLastServiceChain, addOrRemove);
+    public void programElanScfPipeline(String elanName, short tableId, int scfTag, int elanLportTag, int addOrRemove) {
+        logger.info("programElanScfPipeline:  elanName={}   scfTag={}   elanLportTag={}    addOrRemove={}",
+                    elanName, scfTag, elanLportTag, addOrRemove);
         // There are 3 rules to be considered:
         //  1. LportDispatcher To Scf. Matches on elanPseudoPort + SI=1. Goes to DL Subscriber table
         //  2. LportDispatcher From Scf. Matches on elanPseudoPort + SI=3. Goes to ELAN DMAC
@@ -74,7 +81,7 @@ public class ElanServiceChainHandler {
             return;
         }
 
-        Optional<Collection<BigInteger>> elanDpnsOpc = ElanServiceChainUtils.getElanDnsByName(broker, elanName);
+        Optional<Collection<BigInteger>> elanDpnsOpc = ElanServiceChainUtils.getElanDpnsByName(broker, elanName);
         if ( !elanDpnsOpc.isPresent() ) {
             logger.debug("Could not find any DPN related to Elan {}", elanName);
             return;
@@ -106,8 +113,55 @@ public class ElanServiceChainHandler {
 
     }
 
-    public void removeElanPseudoPortFlows(String elanName, int elanPseudoLportTag) {
-        // TODO To be implemented in a later commit
+    public void removeElanPseudoPortFlows(String elanName, int elanLportTag) {
+        Optional<ElanToPseudoPortData> elanToLportTagList = ElanServiceChainUtils.getElanToLportTagList(broker, elanName);
+        if (!elanToLportTagList.isPresent()) {
+            logger.warn("Could not find ServiceChain state data for Elan {}", elanName);
+            return;
+        }
+        Optional<ElanInstance> elanInstance = ElanServiceChainUtils.getElanInstanceByName(broker, elanName);
+        if ( !elanInstance.isPresent() ) {
+            logger.warn("Could not fina ElanInstance for name {}", elanName);
+            return;
+        }
+        Integer scfTag = elanToLportTagList.get().getScfTag();
+        Long elanTag = elanInstance.get().getElanTag();
+        Long vni = elanInstance.get().getVni();
+
+        if ( vni == null ) {
+            logger.warn("Elan {} is not related to a VNI. VNI is mandatory for ServiceChaining. Returning", elanName);
+            return;
+        }
+
+        List<BigInteger> operativeDPNs = NWUtil.getOperativeDPNs(broker);
+        for ( BigInteger dpnId : operativeDPNs ) {
+            ElanServiceChainUtils.programLPortDispatcherToScf(mdsalManager, dpnId, elanTag.intValue(), elanLportTag,
+                                                              CloudServiceChainConstants.SCF_DOWN_SUB_FILTER_TCP_BASED_TABLE,
+                                                              scfTag, NwConstants.DEL_FLOW);
+            ElanServiceChainUtils.programLPortDispatcherFromScf(mdsalManager, dpnId, elanLportTag, elanTag.intValue(),
+                                                                NwConstants.DEL_FLOW);
+            ElanServiceChainUtils.programExternalTunnelTable(mdsalManager, dpnId, elanLportTag, vni, elanTag.intValue(),
+                                                             NwConstants.DEL_FLOW);
+        }
+
+        // Lastly, remove the serviceChain-state for the Elan
+        InstanceIdentifier<ElanToPseudoPortData> path =
+            InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class,
+                                                                  new ElanInstanceKey(elanName))
+                                                           .augmentation(ElanServiceChainState.class)
+                                                           .child(ElanToPseudoPortData.class,
+                                                                  new ElanToPseudoPortDataKey(elanName))
+                                                           .build();
+        Optional<ElanToPseudoPortData> elanScStateOpc = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, path);
+        if ( elanScStateOpc.isPresent() ) {
+             ElanToPseudoPortData elanScState = elanScStateOpc.get();
+            if (elanScState.getElanLportTag() != null && elanScState.getElanLportTag().intValue() == elanLportTag) {
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, path);
+            } else {
+                logger.debug("lportTag mismatch for Elan={}.  state-lPortTag={}   param-lportTag={}",
+                             elanName, elanScState.getElanLportTag(), elanLportTag);
+            }
+        }
     }
 
 }
