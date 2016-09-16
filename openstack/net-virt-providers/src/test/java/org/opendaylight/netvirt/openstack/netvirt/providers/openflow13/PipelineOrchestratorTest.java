@@ -31,7 +31,8 @@ public class PipelineOrchestratorTest {
         assertEquals(orchestrator.getNextServiceInPipeline(Service.L3_FORWARDING), Service.L2_REWRITE);
         assertEquals(orchestrator.getNextServiceInPipeline(Service.L2_REWRITE), Service.INGRESS_ACL);
         assertEquals(orchestrator.getNextServiceInPipeline(Service.INGRESS_ACL), Service.OUTBOUND_NAT);
-        assertEquals(orchestrator.getNextServiceInPipeline(Service.OUTBOUND_NAT), Service.L2_FORWARDING);
+        assertEquals(orchestrator.getNextServiceInPipeline(Service.OUTBOUND_NAT), Service.L2_LEARN);
+        assertEquals(orchestrator.getNextServiceInPipeline(Service.L2_LEARN), Service.L2_FORWARDING);
         assertNull(orchestrator.getNextServiceInPipeline(Service.L2_FORWARDING));
     }
 }
