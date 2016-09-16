@@ -19,6 +19,7 @@ import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -288,7 +289,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
         }
         boolean cleanLFib = vrfEntries != null && !vrfEntries.isEmpty();
 
-        List<BigInteger> operativeDPNs = VpnServiceChainUtils.getOperativeDPNs(broker);
+        List<BigInteger> operativeDPNs = NWUtil.getOperativeDPNs(broker);
         for (BigInteger dpnId : operativeDPNs) {
             if ( cleanLFib ) {
                 VpnServiceChainUtils.programLFibEntriesForSCF(mdsalManager, dpnId, vrfEntries, vpnPseudoLportTag,

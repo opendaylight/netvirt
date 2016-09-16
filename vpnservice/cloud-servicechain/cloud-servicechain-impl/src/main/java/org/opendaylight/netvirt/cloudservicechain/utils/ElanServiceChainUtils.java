@@ -50,16 +50,16 @@ public class ElanServiceChainUtils {
     private static final Logger logger = LoggerFactory.getLogger(ElanServiceChainUtils.class);
 
 
-    public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
-        return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
+    public static InstanceIdentifier<ElanInstance> getElanInstanceConfigDataPath(String elanInstanceName) {
+        return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class,
+                                                                     new ElanInstanceKey(elanInstanceName)).build();
     }
 
     public static Optional<ElanInstance> getElanInstanceByName(DataBroker broker, String elanName) {
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
-                getElanInstanceConfigurationDataPath(elanName));
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, getElanInstanceConfigDataPath(elanName));
     }
 
-    public static Optional<Collection<BigInteger>> getElanDnsByName(DataBroker broker, String elanInstanceName) {
+    public static Optional<Collection<BigInteger>> getElanDpnsByName(DataBroker broker, String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnIfacesIid =
                 InstanceIdentifier.builder(ElanDpnInterfaces.class)
                                   .child(ElanDpnInterfacesList.class,new ElanDpnInterfacesListKey(elanInstanceName))
@@ -90,10 +90,10 @@ public class ElanServiceChainUtils {
      *  + Matches on lportTag=ElanPseudoLportTag + SI=1
      *  + Sets scfTag and sends to the DlSubsFilter table.
      *
-     * @param dpnId  Dpn Id where the LPortDispatcher table must be modified
-     * @param elanLportTag Dataplane identifier of the ElanPseudoPort
-     * @param elanTag Dataplane identifier of the ELAN
-     * @param addOrRemove  States if flows must be added or removed
+     * @param dpnId Dpn Id where the flow must be installed
+     * @param elanLportTag the Elan Pseudo Lport Id in Dataplane
+     * @param elanTag the Elan Id in the Dataplane
+     * @param addOrRemove States if the flow must be added or removed
      */
     public static void programLPortDispatcherToScf(IMdsalApiManager mdsalManager, BigInteger dpnId, int elanTag,
             int elanLportTag, short tableId, int scfTag, int addOrRemove) {
@@ -120,7 +120,7 @@ public class ElanServiceChainUtils {
             mdsalManager.installFlow(dpnId, flow);
         } else {
             Flow flow = new FlowBuilder().setTableId(NwConstants.LPORT_DISPATCHER_TABLE)
-                    .setId(new FlowId(flowRef)).build();
+                                         .setId(new FlowId(flowRef)).build();
             mdsalManager.removeFlow(dpnId, flow);
         }
     }
@@ -132,10 +132,10 @@ public class ElanServiceChainUtils {
      *  + Matches on ElanPseudoPortTag and SI=3 (ELAN)
      *  + Sets elanTag and sends to DMAC table
      *
-     * @param dpnId Dpn Id where the LPortDispatcher table must be modified
-     * @param elanLportTag Dataplane identifier of the ElanPseudoPort
-     * @param elanTag Dataplane identifier of the ELAN
-     * @param addOrRemove States if flows must be added or removed
+     * @param dpnId Dpn Id where the flow must be installed
+     * @param elanLportTag the Elan Pseudo Lport Id to be used in the Dataplane
+     * @param elanTag the Elan Id to be used in the Dataplane
+     * @param addOrRemove States if the flow must be added or removed
      */
     public static void programLPortDispatcherFromScf(IMdsalApiManager mdsalManager, BigInteger dpnId,
                                                      int elanLportTag, int elanTag, int addOrRemove) {
@@ -173,7 +173,7 @@ public class ElanServiceChainUtils {
 
 
     /**
-     *  This flow is in charge of receiving packets from the TOR and sending
+     * This flow is in charge of receiving packets from the TOR and sending
      * them to the SCF Pipeline by setting the LportTag of ElanPseudoPort.
      * Note that ELAN already has a flow in this table that redirects packets
      * to the ELAN Pipeline. However, the flow for the SCF Pipeline will have
@@ -184,11 +184,11 @@ public class ElanServiceChainUtils {
      *  + Sets SI=1 and ElanPseudoPort tag in the Metadata and sends to
      *    LPortDispatcher via table 80.
      *
-     * @param dpnId Dpn Id where the ExtTunnel table must be modified
-     * @param elanLportTag Dataplane identifier of the ElanPseudoPort
-     * @param vni Virtual Network Identifier
-     * @param elanTag Dataplane identifier of the ELAN
-     * @param addOrRemove States if flows must be added or removed
+     * @param dpnId Dpn Id where the flow must be installed
+     * @param elanLportTag the Elan Pseudo Lport Id to be used in the Dataplane
+     * @param vni the VNI to which the Elan is related
+     * @param elanTag the Elan Id to be used in the Dataplane
+     * @param addOrRemove States if the flow must be added or removed
      */
     public static void programExternalTunnelTable(IMdsalApiManager mdsalManager, BigInteger dpnId, int elanLportTag,
             Long vni, int elanTag, int addOrRemove) {
