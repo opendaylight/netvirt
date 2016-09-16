@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.openstack.netvirt.api;
 
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 
 /**
@@ -26,11 +27,13 @@ public interface IngressAclProvider {
      * @param localPort the local port
      * @param securityGroup the security group
      * @param portUuid the uuid of the port.
+     * @param attachedMac2 the dhcp mac
+     * @param neutronSubnet is the neutron subnet
      * @param write  is this flow write or delete
      */
     void programPortSecurityGroup(Long dpid, String segmentationId, String attachedMac,
                                        long localPort, NeutronSecurityGroup securityGroup,
-                                       String portUuid, boolean write);
+                                       String portUuid, String attachedMac2, NeutronSubnet neutronSubnet, boolean write);
     /**
      * Program port security rule.
      *
@@ -40,11 +43,13 @@ public interface IngressAclProvider {
      * @param localPort the local port
      * @param portSecurityRule the security rule
      * @param vmIp the ip of the remote vm if it has a remote security group.
+     * @param attachedMac2 the dhcp mac
+     * @param neutronSubnet is the neutron subnet
      * @param write  is this flow write or delete
      */
     void programPortSecurityRule(Long dpid, String segmentationId, String attachedMac,
                                  long localPort, NeutronSecurityRule portSecurityRule,
-                                 Neutron_IPs vmIp, boolean write);
+                                 Neutron_IPs vmIp, String attachedMac2, NeutronSubnet neutronSubnet, boolean write);
     /**
      * Program fixed ingress ACL rules that will be associated with the VM port when a vm is spawned.
      * *
@@ -54,7 +59,22 @@ public interface IngressAclProvider {
      * @param localPort the local port
      * @param attachedMac2 the src mac
      * @param write is this flow writing or deleting
+     * @param neutronSubnet is the neutron subnet
      */
     void programFixedSecurityGroup(Long dpid, String segmentationId, String attachedMac, long localPort,
-                                  String attachedMac2, boolean write);
+                                  String attachedMac2, boolean write, NeutronSubnet neutronSubnet);
+
+    /**
+     * Program remove fixed security group rules
+     *
+     * @param dpid the dpid
+     * @param segmentationId the segmentation id
+     * @param attachedMac the dhcp mac
+     * @param localPort the local port
+     * @param attachedMac2 the src mac
+     * @param write is this flow writing or deleting
+     * @param neutronSubnet is the neutron subnet
+     */
+    void removeFixedSecurityGroup(Long dpid, String segmentationId, String attachedMac, long localPort,
+                                  String attachedMac2, boolean write, NeutronSubnet neutronSubnet);
 }

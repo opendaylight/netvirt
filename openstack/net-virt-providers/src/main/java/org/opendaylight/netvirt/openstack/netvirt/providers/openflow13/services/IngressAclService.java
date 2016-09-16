@@ -19,6 +19,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
 import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
@@ -68,7 +69,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
     @Override
     public void programPortSecurityGroup(Long dpid, String segmentationId, String attachedMac,
                                        long localPort, NeutronSecurityGroup securityGroup,
-                                       String portUuid, boolean write) {
+                        String portUuid, String dhcpMacAddress, NeutronSubnet neutronSubnet, boolean write) {
 
         LOG.trace("programPortSecurityGroup neutronSecurityGroup: {} ", securityGroup);
         if (securityGroup == null || getSecurityRulesforGroup(securityGroup) == null) {
@@ -103,7 +104,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                     if (null != remoteSrcAddressList) {
                         for (Neutron_IPs vmIp :remoteSrcAddressList ) {
                             programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                                                    portSecurityRule, vmIp, write);
+                                                    portSecurityRule, vmIp, dhcpMacAddress, neutronSubnet, write);
                         }
                         if (write) {
                             securityGroupCacheManger.addToCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid);
@@ -114,7 +115,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                     }
                 } else {
                     programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                                            portSecurityRule, null, write);
+                                            portSecurityRule, null, dhcpMacAddress, neutronSubnet, write);
                 }
                 if (write) {
                     securityGroupCacheManger.portAdded(securityGroup.getSecurityGroupUUID(), portUuid);
@@ -128,7 +129,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
     @Override
     public void programPortSecurityRule(Long dpid, String segmentationId, String attachedMac,
                                         long localPort, NeutronSecurityRule portSecurityRule,
-                                        Neutron_IPs vmIp, boolean write) {
+                           Neutron_IPs vmIp, String dhcpMacAddress, NeutronSubnet neutronSubnet, boolean write) {
         String securityRuleEtherType = portSecurityRule.getSecurityRuleEthertype();
         boolean isIpv6 = NeutronSecurityRule.ETHERTYPE_IPV6.equals(securityRuleEtherType);
         if (!isIpv6 && !NeutronSecurityRule.ETHERTYPE_IPV4.equals(securityRuleEtherType)) {
@@ -172,7 +173,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                 case MatchUtils.ICMPV6:
                     LOG.debug("programPortSecurityRule: Rule matching ICMP", portSecurityRule);
                     ingressAclIcmp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
-                                 write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                    		dhcpMacAddress, neutronSubnet, write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 default:
                     LOG.info("programPortSecurityAcl: Protocol is not TCP/UDP/ICMP but other "
@@ -218,12 +219,19 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
 
     @Override
     public void programFixedSecurityGroup(Long dpid, String segmentationId, String dhcpMacAddress,
-                                        long localPort, String attachMac, boolean write) {
+                                        long localPort, String attachMac, boolean write, NeutronSubnet neutronSubnet) {
 
         ingressAclDhcpAllowServerTraffic(dpid, segmentationId,dhcpMacAddress, attachMac,
                                          write,Constants.PROTO_DHCP_SERVER_MATCH_PRIORITY);
         ingressAclDhcpv6AllowServerTraffic(dpid, segmentationId,dhcpMacAddress, attachMac,
                                            write,Constants.PROTO_DHCP_SERVER_MATCH_PRIORITY);
+
+        if (write) {
+            addIcmpDropRule(dpid, segmentationId, write, neutronSubnet, Constants.PROTO_ICMP_DROP_PRIORITY);
+            addUdpDropRule(dpid, segmentationId, write, neutronSubnet, Constants.PROTO_ICMP_DROP_PRIORITY);
+            addUdpAllowRule(dpid, segmentationId, write ,neutronSubnet,dhcpMacAddress, Constants.PROTO_PORT_MATCH_PRIORITY);
+        }
+
         if (securityServicesManager.isConntrackEnabled()) {
             programIngressAclFixedConntrackRule(dpid, segmentationId, attachMac, localPort, write);
         } else {
@@ -234,6 +242,15 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                 Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
         }
         programArpRule(dpid, segmentationId, localPort, attachMac, write);
+    }
+
+    @Override
+    public void removeFixedSecurityGroup(Long dpid, String segmentationId, String dhcpMacAddress,
+                                        long localPort, String attachMac, boolean write, NeutronSubnet neutronSubnet) {
+        addIcmpDropRule(dpid, segmentationId, false, neutronSubnet, Constants.PROTO_ICMP_DROP_PRIORITY);
+        addUdpDropRule(dpid, segmentationId, false, neutronSubnet, Constants.PROTO_ICMP_DROP_PRIORITY);
+        addUdpAllowRule(dpid, segmentationId, false ,neutronSubnet,dhcpMacAddress, Constants.PROTO_PORT_MATCH_PRIORITY);
+        ingressAclIcmpDhcp(dpid, segmentationId,false, neutronSubnet, dhcpMacAddress, Constants.PROTO_PORT_MATCH_PRIORITY);
     }
 
     private void addTcpSynFlagMatchIpv4Drop(Long dpidLong, String segmentationId, String dstMac,
@@ -258,6 +275,52 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         addPipelineInstruction(flowBuilder, null, true);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
         syncFlow(flowBuilder, nodeBuilder, write);
+    }
+
+    private void addIcmpDropRule(Long dpid, String segmentationId, boolean write,
+                                 NeutronSubnet neutronSubnet, Integer priority) {
+        String flowId = "Ingress_ICMP_Server" + segmentationId + "_DROP_" ;
+        MatchBuilder matchBuilder = new MatchBuilder();
+        matchBuilder = MatchUtils.createICMPDrop(matchBuilder);
+        if((neutronSubnet != null) && !(neutronSubnet.getCidr().toString()).contains("/0")) {
+                matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder, null, new Ipv4Prefix(neutronSubnet.getCidr().toString()));
+        }
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, priority,
+                                                              matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, true);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpid);
+        syncFlow(flowBuilder ,nodeBuilder, write);
+    }
+
+    private void addUdpDropRule(Long dpid, String segmentationId, boolean write,
+    		                    NeutronSubnet neutronSubnet, Integer priority) {
+    	String flowId = "Ingress_UDP_Server" + segmentationId + "_DROP_" ;
+    	MatchBuilder matchBuilder = new MatchBuilder();
+    	matchBuilder = MatchUtils.createUDPDrop(matchBuilder);
+    	if((neutronSubnet != null) && !(neutronSubnet.getCidr().toString()).contains("/0")) {
+    		matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder, null, new Ipv4Prefix(neutronSubnet.getCidr().toString()));
+    	}
+    	FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, priority,
+    			                                              matchBuilder, getTable());
+    	addPipelineInstruction(flowBuilder, null, true);
+    	NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpid);
+    	syncFlow(flowBuilder ,nodeBuilder, write);
+    }
+
+    private void addUdpAllowRule(Long dpid, String segmentationId, boolean write,
+    		NeutronSubnet neutronSubnet,String dhcpMacAddress, Integer protoPortMatchPriority) {
+    	String flowId = "Ingress_UDP_Server" + segmentationId + "_ALLOW_";
+    	MatchBuilder matchBuilder = new MatchBuilder();
+    	if((neutronSubnet != null) && (dhcpMacAddress != null)) {
+    	    matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,null,dhcpMacAddress,MatchUtils.ETHERTYPE_IPV4);
+    	}
+        matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 67, 68);
+    	FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority,
+                                                              matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, false);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpid);
+        syncFlow(flowBuilder ,nodeBuilder, write);
+
     }
 
     private void programArpRule(Long dpid, String segmentationId, long localPort, String attachMac, boolean write) {
@@ -573,15 +636,22 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
 
     private void ingressAclIcmp(Long dpidLong, String segmentationId, String dstMac,
             NeutronSecurityRule portSecurityRule, String srcAddress,
-            boolean write, Integer protoPortMatchPriority) {
+            String dhcpMacAddress, NeutronSubnet neutronSubnet, boolean write, Integer protoPortMatchPriority) {
 
         boolean isIpv6 = NeutronSecurityRule.ETHERTYPE_IPV6.equals(portSecurityRule.getSecurityRuleEthertype());
         if (isIpv6) {
             ingressAclIcmpV6(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
                              write, protoPortMatchPriority);
+            if (write) {
+                ingressAclIcmpDhcp(dpidLong, segmentationId, write, neutronSubnet, dhcpMacAddress, protoPortMatchPriority);
+            }
         } else {
             ingressAclIcmpV4(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
                              write, protoPortMatchPriority);
+            if (write) {
+                ingressAclIcmpDhcp(dpidLong, segmentationId, write,
+                                                  neutronSubnet, dhcpMacAddress, protoPortMatchPriority);
+            }
         }
     }
 
@@ -685,6 +755,18 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         flowId = flowId + "_Permit";
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
         addInstructionWithConntrackCommit(flowBuilder, false);
+        syncFlow(flowBuilder ,nodeBuilder, write);
+    }
+
+    private void ingressAclIcmpDhcp(Long dpidLong, String segmentationId, boolean write,
+            NeutronSubnet neutronSubnet, String dhcpMacAddress, Integer protoPortMatchPriority) {
+        MatchBuilder matchBuilder = new MatchBuilder();
+        String flowId = "Ingress_ICMP_" + segmentationId + "_" ;
+        matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,null,dhcpMacAddress,MatchUtils.ETHERTYPE_IPV4);
+        matchBuilder = MatchUtils.createICMPDhcpAllow(matchBuilder);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, false);
         syncFlow(flowBuilder ,nodeBuilder, write);
     }
 
