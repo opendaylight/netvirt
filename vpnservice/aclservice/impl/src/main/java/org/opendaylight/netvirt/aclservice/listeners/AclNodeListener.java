@@ -52,31 +52,22 @@ import org.slf4j.LoggerFactory;
 public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, AclNodeListener>
         implements AutoCloseable {
 
-    /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(AclNodeListener.class);
 
-    /** The mdsal manager. */
     private final IMdsalApiManager mdsalManager;
-
-    /** The data broker. */
+    private final AclClusterUtil aclClusterUtil;
+    private final AclserviceConfig config;
     private final DataBroker dataBroker;
 
     private SecurityGroupMode securityGroupMode = null;
 
-    private AclserviceConfig config;
-
-    /**
-     * Instantiates a new acl node listener.
-     *
-     * @param mdsalManager the mdsal manager
-     * @param dataBroker the data broker
-     * @param config aclservice configuration
-     */
     @Inject
-    public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker, AclserviceConfig config) {
+    public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker, AclserviceConfig config,
+            AclClusterUtil aclClusterUtil) {
         super(FlowCapableNode.class, AclNodeListener.class);
 
         this.mdsalManager = mdsalManager;
+        this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
         this.config = config;
     }
@@ -111,13 +102,12 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     protected void update(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModificationBefore,
             FlowCapableNode dataObjectModificationAfter) {
         // do nothing
-
     }
 
     @Override
     protected void add(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         LOG.trace("FlowCapableNode Added: key: {}", key);
-        if (!AclClusterUtil.isEntityOwner()) {
+        if (!aclClusterUtil.isEntityOwner()) {
             return;
         }
         NodeKey nodeKey = key.firstKeyOf(Node.class);

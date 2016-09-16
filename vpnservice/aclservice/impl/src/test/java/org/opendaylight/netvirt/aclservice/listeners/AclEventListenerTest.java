@@ -25,6 +25,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -45,17 +46,16 @@ public class AclEventListenerTest {
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
-
         mockInstanceId = mock(InstanceIdentifier.class);
         aclInterfaceMock = mock(AclInterface.class);
         aclServiceManager = mock(AclServiceManager.class);
-        aclEventListener = new AclEventListener(aclServiceManager, mock(DataBroker.class));
+        AclClusterUtil aclClusterUtil = () -> true;
+        aclEventListener = new AclEventListener(aclServiceManager, aclClusterUtil, mock(DataBroker.class));
 
         aclInterfaceValueSaver = ArgumentCaptor.forClass(AclInterface.class);
         actionValueSaver = ArgumentCaptor.forClass(AclServiceManager.Action.class);
         aceValueSaver = ArgumentCaptor.forClass(Ace.class);
         prepareAclClusterUtil("netvirt-acl");
-
 
         aclName = "00000000-0000-0000-0000-000000000001";
     }
