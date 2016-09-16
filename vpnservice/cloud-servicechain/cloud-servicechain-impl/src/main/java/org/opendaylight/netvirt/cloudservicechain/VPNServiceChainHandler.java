@@ -15,10 +15,19 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+<<<<<<< HEAD:vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/VPNServiceChainHandler.java
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
+=======
+import org.opendaylight.vpnservice.mdsalutil.FlowEntity;
+import org.opendaylight.vpnservice.mdsalutil.MDSALDataStoreUtils;
+import org.opendaylight.vpnservice.mdsalutil.MDSALUtil;
+import org.opendaylight.vpnservice.mdsalutil.NWUtil;
+import org.opendaylight.vpnservice.mdsalutil.NwConstants;
+import org.opendaylight.vpnservice.mdsalutil.interfaces.IMdsalApiManager;
+>>>>>>> a10860d... Performs a residual cleanup of ElanPseudoPort flows:cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/vpnservicechain/VPNServiceChainHandler.java
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -288,7 +297,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
         }
         boolean cleanLFib = vrfEntries != null && !vrfEntries.isEmpty();
 
-        List<BigInteger> operativeDPNs = VpnServiceChainUtils.getOperativeDPNs(broker);
+        List<BigInteger> operativeDPNs = NWUtil.getOperativeDPNs(broker);
         for (BigInteger dpnId : operativeDPNs) {
             if ( cleanLFib ) {
                 VpnServiceChainUtils.programLFibEntriesForSCF(mdsalManager, dpnId, vrfEntries, vpnPseudoLportTag,

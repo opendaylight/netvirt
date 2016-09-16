@@ -70,6 +70,9 @@ public interface ICloudServiceChain {
      */
     void programElanScfPipeline(String elanName, short tableId, int scfTag, int elanLportTag,
                                 boolean isLastServiceChain, int addOrRemove);
+    // TODO: To be removed when sdnc is changed so that it calls the following API instead:
+    void programElanScfPipeline(String elanName, short tableId, int scfTag, int elanLportTag, int addOrRemove);
+
 
     /**
      * Removes all Flow entries (ExtTunnelTable + LPortDispatcher) that are
