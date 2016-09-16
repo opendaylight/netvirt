@@ -56,6 +56,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version='${genius.version}'>odl-genius</feature>
     <bundle>wrap:mvn:javax.inject/javax.inject/{{VERSION}}</bundle>
     <bundle>mvn:commons-net/commons-net/{{VERSION}}</bundle>
+    <bundle>wrap:mvn:com.googlecode.java-ipv6/java-ipv6/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/bgpmanager-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/bgpmanager-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/vpnmanager-impl/{{VERSION}}</bundle>
