@@ -19,6 +19,7 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
@@ -75,7 +76,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
 
     @Override
     public void programPortSecurityGroup(Long dpid, String segmentationId, String attachedMac, long localPort,
-                                       NeutronSecurityGroup securityGroup, String portUuid, boolean write) {
+                       NeutronSecurityGroup securityGroup, String portUuid, String dhcpMacAddress, NeutronSubnet neutronSubnet, boolean write) {
 
         LOG.trace("programPortSecurityGroup: neutronSecurityGroup: {} ", securityGroup);
         if (securityGroup == null || getSecurityRulesforGroup(securityGroup) == null) {
@@ -111,7 +112,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                         for (Neutron_IPs vmIp :remoteSrcAddressList ) {
 
                             programPortSecurityRule(dpid, segmentationId, attachedMac,
-                                                    localPort, portSecurityRule, vmIp, write);
+                                                    localPort, portSecurityRule, vmIp, dhcpMacAddress, neutronSubnet, write);
                         }
                         if (write) {
                             securityGroupCacheManger.addToCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid);
@@ -122,7 +123,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                     }
                 } else {
                     programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                                            portSecurityRule, null, write);
+                                            portSecurityRule, null, dhcpMacAddress, neutronSubnet,write);
                 }
                 if (write) {
                     securityGroupCacheManger.portAdded(securityGroup.getSecurityGroupUUID(), portUuid);
@@ -136,12 +137,12 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
     @Override
     public void programPortSecurityRule(Long dpid, String segmentationId, String attachedMac,
                                         long localPort, NeutronSecurityRule portSecurityRule,
-                                        Neutron_IPs vmIp, boolean write) {
+                           Neutron_IPs vmIp, String dhcpMacAddress, NeutronSubnet neutronSubnet, boolean write) {
         String securityRuleEtherType = portSecurityRule.getSecurityRuleEthertype();
         boolean isIpv6 = NeutronSecurityRule.ETHERTYPE_IPV6.equals(securityRuleEtherType);
         if (!isIpv6 && !NeutronSecurityRule.ETHERTYPE_IPV4.equals(securityRuleEtherType)) {
             LOG.debug("programPortSecurityRule: SecurityRuleEthertype {} does not match IPv4/v6.",
-                securityRuleEtherType);
+                      securityRuleEtherType);
             return;
         }
 
@@ -184,8 +185,8 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                 case MatchUtils.ICMPV6:
                     LOG.debug("programPortSecurityRule: Rule matching ICMP", portSecurityRule);
                     egressAclIcmp(dpid, segmentationId, attachedMac,
-                        portSecurityRule, ipaddress,write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                              portSecurityRule, ipaddress, dhcpMacAddress, neutronSubnet, write,
+                              Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 default:
                     LOG.info("programPortSecurityAcl: Protocol is not TCP/UDP/ICMP but other "
@@ -234,13 +235,21 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
 
     @Override
     public void programFixedSecurityGroup(Long dpid, String segmentationId, String attachedMac,
-                                          long localPort, List<Neutron_IPs> srcAddressList, boolean write) {
+                                          String dhcpMacAddress, long localPort, List<Neutron_IPs> srcAddressList,
+                                          boolean write, NeutronSubnet neutronSubnet) {
 
         egressAclDhcpAllowClientTrafficFromVm(dpid, write, localPort,
                                               Constants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY);
         egressAclDhcpv6AllowClientTrafficFromVm(dpid, write, localPort,
                                                 Constants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY);
         programArpRule(dpid, segmentationId, localPort, attachedMac, write);
+
+        if (write) {
+            addIcmpDropRule(dpid, segmentationId, write, neutronSubnet, Constants.PROTO_ICMP_DROP_PRIORITY);
+            addUdpDropRule(dpid, segmentationId, write, neutronSubnet, Constants.PROTO_ICMP_DROP_PRIORITY);
+            addUdpAllowRule(dpid, segmentationId, write, neutronSubnet, dhcpMacAddress, Constants.PROTO_PORT_MATCH_PRIORITY);
+        }
+
         if (securityServicesManager.isConntrackEnabled()) {
             programEgressAclFixedConntrackRule(dpid, segmentationId, localPort, attachedMac, write);
         } else {
@@ -255,6 +264,16 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                                              Constants.PROTO_DHCP_CLIENT_SPOOF_MATCH_PRIORITY_DROP);
         egressAclDhcpv6DropServerTrafficfromVm(dpid, localPort, write,
                                                Constants.PROTO_DHCP_CLIENT_SPOOF_MATCH_PRIORITY_DROP);
+    }
+
+    @Override
+    public void removeFixedSecurityGroup(Long dpid, String segmentationId, String attachedMac,
+                                          String dhcpMacAddress,long localPort, List<Neutron_IPs> srcAddressList,
+                                          boolean write, NeutronSubnet neutronSubnet) {
+        addIcmpDropRule(dpid, segmentationId, false, neutronSubnet, Constants.PROTO_ICMP_DROP_PRIORITY);
+        addUdpDropRule(dpid, segmentationId, false, neutronSubnet, Constants.PROTO_ICMP_DROP_PRIORITY);
+        addUdpAllowRule(dpid, segmentationId, false, neutronSubnet, dhcpMacAddress, Constants.PROTO_PORT_MATCH_PRIORITY);
+        egressAclIcmpDhcp(dpid, segmentationId, false, neutronSubnet, dhcpMacAddress, Constants.PROTO_PORT_MATCH_PRIORITY);
     }
 
     private void addTcpSynFlagMatchIpv4Drop(Long dpidLong, String segmentationId, String srcMac,
@@ -278,6 +297,67 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowName, priority, matchBuilder, getTable());
         addPipelineInstruction(flowBuilder, null, true);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        syncFlow(flowBuilder, nodeBuilder, write);
+    }
+
+    private void addIcmpDropRule(Long dpid, String segmentationId, boolean write,
+                                 NeutronSubnet neutronSubnet, Integer priority) {
+        String flowId = "Egress_ICMP_Server" + segmentationId + "_DROP_" ;
+        MatchBuilder matchBuilder = new MatchBuilder();
+        matchBuilder = MatchUtils.createIpProtocolMatch(matchBuilder, MatchUtils.ICMP_SHORT);
+        if((neutronSubnet != null) && !(neutronSubnet.getCidr().toString()).contains("/0")) {
+            matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder, new Ipv4Prefix(neutronSubnet.getCidr().toString()), null);
+        }
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, priority,
+                                                              matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, true);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpid);
+        syncFlow(flowBuilder, nodeBuilder, write);
+    }
+
+    private void addUdpDropRule(Long dpid, String segmentationId, boolean write,
+                                NeutronSubnet neutronSubnet, Integer priority) {
+        String flowId = "Egress_UDP_Server" + segmentationId + "_DROP_" ;
+        MatchBuilder matchBuilder = new MatchBuilder();
+        matchBuilder = MatchUtils.createIpProtocolMatch(matchBuilder, MatchUtils.UDP_SHORT);
+        if((neutronSubnet != null) && !(neutronSubnet.getCidr().toString()).contains("/0")) {
+            matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder, new Ipv4Prefix(neutronSubnet.getCidr().toString()), null);
+        }
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, priority,
+                                                              matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, true);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpid);
+        syncFlow(flowBuilder, nodeBuilder, write);
+    }
+
+    private void addUdpAllowRule(Long dpid, String segmentationId, boolean write,
+                                 NeutronSubnet neutronSubnet, String dhcpMacAddress, Integer protoPortMatchPriority) {
+        String flowId = "Egress_UDP_Server" + segmentationId + "_ALLOW_";
+        MatchBuilder matchBuilder = new MatchBuilder();
+        if((neutronSubnet != null) && (dhcpMacAddress != null)) {
+            matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder, dhcpMacAddress, null, MatchUtils.ETHERTYPE_IPV4);
+        }
+        matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 67, 68);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority,
+                                                              matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, false);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpid);
+        syncFlow(flowBuilder, nodeBuilder, write);
+
+    }
+
+    @Override
+    public void programgatewayMacAddrRules(Long dpid, String segmentationId, boolean write, String gatewayMacAddress){
+        String flowId = "Egress_GW_Server" + segmentationId + "_ALLOW_";
+        MatchBuilder matchBuilder = new MatchBuilder();
+        if (gatewayMacAddress != null ) {
+            matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder, gatewayMacAddress, null, MatchUtils.ETHERTYPE_IPV4);
+        }
+        matchBuilder = MatchUtils.createICMPDhcpAllow(matchBuilder);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, Constants.PROTO_PORT_MATCH_PRIORITY,
+                                                              matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, false);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpid);
         syncFlow(flowBuilder, nodeBuilder, write);
     }
 
@@ -521,15 +601,21 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
 
     private void egressAclIcmp(Long dpidLong, String segmentationId, String srcMac,
             NeutronSecurityRule portSecurityRule, String dstAddress,
-            boolean write, Integer protoPortMatchPriority) {
+            String dhcpMacAddress, NeutronSubnet neutronSubnet, boolean write, Integer protoPortMatchPriority) {
 
         boolean isIpv6 = NeutronSecurityRule.ETHERTYPE_IPV6.equals(portSecurityRule.getSecurityRuleEthertype());
         if (isIpv6) {
             egressAclIcmpV6(dpidLong, segmentationId, srcMac, portSecurityRule, dstAddress, write,
                             protoPortMatchPriority);
+            if (write) {
+                egressAclIcmpDhcp(dpidLong, segmentationId, write, neutronSubnet, dhcpMacAddress, protoPortMatchPriority);
+            }
         } else {
             egressAclIcmpV4(dpidLong, segmentationId, srcMac, portSecurityRule, dstAddress, write,
                             protoPortMatchPriority);
+            if (write) {
+                egressAclIcmpDhcp(dpidLong, segmentationId, write, neutronSubnet, dhcpMacAddress, protoPortMatchPriority);
+            }
         }
     }
 
@@ -632,6 +718,29 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
         addInstructionWithConntrackCommit(flowBuilder, false);
         syncFlow(flowBuilder ,nodeBuilder, write);
+    }
+
+    /**
+     *
+     * Add rule to allow DHCP mac address.
+     *
+     * @param dpidLong the dpid
+     * @param segmentationId the segmentation id
+     * @param write add or delete
+     * @param neutronSubnet in the neutron subnet
+     * @param dhcpMacAddress the dhcp mac address
+     * @param protoPortMatchPriority the protocol match priroty
+     */
+    private void egressAclIcmpDhcp(Long dpidLong, String segmentationId, boolean write,
+            NeutronSubnet neutronSubnet, String dhcpMacAddress, Integer protoPortMatchPriority) {
+        MatchBuilder matchBuilder = new MatchBuilder();
+        String flowId = "Egress_ICMP_" + segmentationId + "_" ;
+        matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder, dhcpMacAddress, null, MatchUtils.ETHERTYPE_IPV4);
+        matchBuilder = MatchUtils.createICMPDhcpAllow(matchBuilder);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, false);
+        syncFlow(flowBuilder, nodeBuilder, write);
     }
 
     /**
