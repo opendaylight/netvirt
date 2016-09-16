@@ -21,9 +21,12 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSubnetCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.MdsalHelper;
 import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
@@ -812,11 +815,40 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                 removeLocalBridgeRules(node, dpid, segmentationId, attachedMac, localPort);
             }
             if (isTunnel(networkType) || isVlan(networkType)) {
+                Node srcBridgeNode = southbound.getBridgeNode(node, configurationService.getIntegrationBridgeName());
+                boolean isSrcinNw = tenantNetworkManager.isTenantNetworkPresentInNode(srcBridgeNode, segmentationId);
+                if (!isSrcinNw) {
+                    removeLocalSubnetRules(dpid, localPort, attachedMac, segmentationId, intf);
+                }
                 programLocalSecurityGroupRules(attachedMac, node, intf, dpid, localPort, segmentationId, false);
             }
         } catch (Exception e) {
             LOG.error("Exception in removing Local Rules for {} on {}", intf, node, e);
         }
+    }
+
+    private void removeLocalSubnetRules(long dpid, long localPort, String attachedMac, String segmentationId,
+                                   OvsdbTerminationPointAugmentation intf) {
+        NeutronPort dhcpPort = securityServicesManager.getDhcpServerPort(intf);
+        if (null != dhcpPort) {
+            NeutronSubnet neutronSubnet = securityServicesManager.getSubnet(intf);
+            List<Neutron_IPs> srcAddressList = securityServicesManager.getIpAddressList(intf);
+            if (null == srcAddressList) {
+                LOG.warn("removeLocalSubnetRules: No Ip address assigned {}", intf);
+                return;
+             }
+
+            String gateWayMac = securityServicesManager.getGatewayMacAddr(neutronSubnet);
+            if (gateWayMac != null) {
+            	ingressAclProvider.programgatewayMacAddrRules(dpid, segmentationId, false, gateWayMac);
+                egressAclProvider.programgatewayMacAddrRules(dpid, segmentationId, false, gateWayMac);
+            }
+
+             ingressAclProvider.removeFixedSecurityGroup(dpid, segmentationId, dhcpPort.getMacAddress(), localPort,
+                                                              attachedMac, false, neutronSubnet);
+             egressAclProvider.removeFixedSecurityGroup(dpid, segmentationId, attachedMac, dhcpPort.getMacAddress(),localPort,
+                                                              srcAddressList, false, neutronSubnet);
+          }
     }
 
     private void programTunnelRules (String tunnelType, String segmentationId, InetAddress dst, Node node,
@@ -1017,10 +1049,19 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                 LOG.warn("programLocalRules: No Ip address assigned {}", intf);
                 return;
             }
+
+            NeutronSubnet neutronSubnet = securityServicesManager.getSubnet(intf);
+            if (configurationService.isL3ForwardingEnabled()) {
+                String gateWayMac = securityServicesManager.getGatewayMacAddr(neutronSubnet);
+                if (gateWayMac != null && write) {
+                    ingressAclProvider.programgatewayMacAddrRules(dpid, segmentationId, write, gateWayMac);
+                    egressAclProvider.programgatewayMacAddrRules(dpid, segmentationId, write, gateWayMac);
+                }
+            }
             ingressAclProvider.programFixedSecurityGroup(dpid, segmentationId, dhcpPort.getMacAddress(), localPort,
-                                                         attachedMac, write);
-            egressAclProvider.programFixedSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                        srcAddressList, write);
+                    attachedMac, write, neutronSubnet);
+            egressAclProvider.programFixedSecurityGroup(dpid, segmentationId, attachedMac, dhcpPort.getMacAddress(),
+                    localPort, srcAddressList, write, neutronSubnet);
             /* If the network type is tunnel based (VXLAN/GRRE/etc) with Neutron Port Security ACLs */
             /* TODO SB_MIGRATION */
 
@@ -1032,9 +1073,9 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                                                                            Constants.EXTERNAL_ID_INTERFACE_ID);
             for (NeutronSecurityGroup securityGroupInPort:securityGroupListInPort) {
                 ingressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                            securityGroupInPort, neutronPortId, write);
+                                              securityGroupInPort, neutronPortId, dhcpPort.getMacAddress(),neutronSubnet, write);
                 egressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                           securityGroupInPort, neutronPortId, write);
+                                                           securityGroupInPort, neutronPortId, dhcpPort.getMacAddress(),neutronSubnet, write);
             }
 
         } else {
@@ -1973,7 +2014,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             initializeFlowRules(openflowNode, configurationService.getIntegrationBridgeName());
             triggerInterfaceUpdates(openflowNode);
         } else if (bridgeName.equals(configurationService.getExternalBridgeName())) {
-            initializeFlowRules(openflowNode, configurationService.getExternalBridgeName());            
+            initializeFlowRules(openflowNode, configurationService.getExternalBridgeName());
             triggerInterfaceUpdates(openflowNode);
         }
     }
