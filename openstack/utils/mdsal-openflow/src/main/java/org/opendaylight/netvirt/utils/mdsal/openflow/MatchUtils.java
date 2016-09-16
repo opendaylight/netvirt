@@ -288,6 +288,68 @@ public class MatchUtils {
     }
 
     /**
+     * Match ICMP
+     *
+     * @param matchBuilder MatchBuilder Object
+     * @return matchBuilder Map MatchBuilder Object with a match
+     */
+    public static MatchBuilder createICMPDrop(MatchBuilder matchBuilder) {
+
+    // Ethertype match
+    EthernetMatchBuilder eth = new EthernetMatchBuilder();
+    EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
+    ethTypeBuilder.setType(new EtherType(0x0800L));
+    eth.setEthernetType(ethTypeBuilder.build());
+    matchBuilder.setEthernetMatch(eth.build());
+
+    // Build the IPv4 Match required per OVS Syntax
+    IpMatchBuilder ipmatch = new IpMatchBuilder();
+    ipmatch.setIpProtocol((short) 1);
+    matchBuilder.setIpMatch(ipmatch.build());
+
+    return matchBuilder;
+    }
+
+    /**
+     * Match ICMP DHCP
+     *
+     * @param matchBuilder MatchBuilder Object
+     * @return matchBuilder Map MatchBuilder Object with a match
+     */
+    public static MatchBuilder createICMPDhcpAllow(MatchBuilder matchBuilder) {
+
+    // Build the IPv4 Match required per OVS Syntax
+    IpMatchBuilder ipmatch = new IpMatchBuilder();
+    ipmatch.setIpProtocol((short) 1);
+    matchBuilder.setIpMatch(ipmatch.build());
+
+    return matchBuilder;
+    }
+
+    /**
+     * Match UDP
+     *
+     * @param matchBuilder MatchBuilder Object
+     * @return matchBuilder Map MatchBuilder Object with a match
+     */
+    public static MatchBuilder createUDPDrop(MatchBuilder matchBuilder) {
+
+    // Ethertype match
+    EthernetMatchBuilder eth = new EthernetMatchBuilder();
+    EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
+    ethTypeBuilder.setType(new EtherType(0x0800L));
+    eth.setEthernetType(ethTypeBuilder.build());
+    matchBuilder.setEthernetMatch(eth.build());
+
+    // Build the IPv4 Match required per OVS Syntax
+    IpMatchBuilder ipmatch = new IpMatchBuilder();
+    ipmatch.setIpProtocol((short) 17);
+    matchBuilder.setIpMatch(ipmatch.build());
+
+    return matchBuilder;
+    }
+
+    /**
      * Match ICMPv6 code and type
      *
      * @param matchBuilder MatchBuilder Object

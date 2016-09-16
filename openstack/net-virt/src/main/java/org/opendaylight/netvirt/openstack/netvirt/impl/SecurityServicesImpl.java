@@ -458,10 +458,11 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
         NeutronPort dhcpPort = this.getDhcpServerPort(intf);
         List<Neutron_IPs> srcAddressList = null;
         srcAddressList = this.getIpAddressList(intf);
+        NeutronSubnet neutronSubnet = getSubnet(intf);
         ingressAclProvider.programFixedSecurityGroup(dpid, segmentationId,
-            dhcpPort.getMacAddress(), localPort, attachedMac, write);
+            dhcpPort.getMacAddress(), localPort, attachedMac, write, neutronSubnet);
         egressAclProvider.programFixedSecurityGroup(dpid, segmentationId,
-            attachedMac, localPort, srcAddressList, write);
+            attachedMac, dhcpPort.getMacAddress(),localPort, srcAddressList, write, neutronSubnet);
 
     }
 
@@ -501,11 +502,13 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
                 LOG.debug("syncSecurityGroup: No neutronPortId seen in {}", intf);
                 return;
             }
+            NeutronSubnet neutronSubnet = getSubnet(intf);
             for (NeutronSecurityGroup securityGroupInPort:securityGroupList) {
+                NeutronPort dhcpPort = this.getDhcpServerPort(intf);
                 ingressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                          securityGroupInPort, neutronPortId, write);
+                                                          securityGroupInPort, neutronPortId, dhcpPort.getMacAddress(), neutronSubnet, write);
                 egressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                         securityGroupInPort, neutronPortId, write);
+                                                         securityGroupInPort, neutronPortId, dhcpPort.getMacAddress(), neutronSubnet, write);
             }
         }
     }
@@ -540,13 +543,15 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
             if (dpid == 0L) {
                 return;
             }
+            NeutronSubnet neutronSubnet = getSubnet(intf);
             if (NeutronSecurityRule.ETHERTYPE_IPV4.equals(securityRule.getSecurityRuleEthertype())) {
+                NeutronPort dhcpPort = this.getDhcpServerPort(intf);
                 if (NeutronSecurityRule.DIRECTION_INGRESS.equals(securityRule.getSecurityRuleDirection())) {
                     ingressAclProvider.programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                            securityRule, vmIp, write);
+                            securityRule, vmIp, dhcpPort.getMacAddress(), neutronSubnet, write);
                 } else if (NeutronSecurityRule.DIRECTION_EGRESS.equals(securityRule.getSecurityRuleDirection())) {
                     egressAclProvider.programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                            securityRule, vmIp, write);
+                            securityRule, vmIp, dhcpPort.getMacAddress(), neutronSubnet, write);
                 }
             }
         }
@@ -660,5 +665,36 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
     @Override
     public boolean isConntrackEnabled() {
         return isConntrackEnabled;
+    }
+
+    /**
+     * Get the Neutron Subnet.
+     *
+     * @param intf the port
+     * @return  neutron subnet
+     */
+    @Override
+    public NeutronSubnet getSubnet(OvsdbTerminationPointAugmentation intf) {
+        NeutronPort neutronPort = null;
+        String neutronPortId = southbound.getInterfaceExternalIdsValue(intf,
+                Constants.EXTERNAL_ID_INTERFACE_ID);
+        neutronPort = neutronPortCache.getPort(neutronPortId);
+        if (neutronPort == null) {
+            neutronPort = neutronL3Adapter.getPortFromCleanupCache(neutronPortId);
+                if (neutronPort == null) {
+                    LOG.error("getDHCPServerPort: neutron port of {} is not found", neutronPortId);
+                    return null;
+                }
+            LOG.info("getDHCPServerPort: neutron port of {} got from cleanupcache", neutronPortId);
+
+        }
+        List<Neutron_IPs> fixedIps = neutronPort.getFixedIPs();
+        if (null == fixedIps || 0 == fixedIps.size() ) {
+           LOG.error("getDHCPServerPort: No fixed ip is assigned");
+           return null;
+        }
+        String subnetUuid = fixedIps.iterator().next().getSubnetUUID();
+        NeutronSubnet neutronSubnet = neutronSubnetCache.getSubnet(subnetUuid);
+        return neutronSubnet;
     }
 }
