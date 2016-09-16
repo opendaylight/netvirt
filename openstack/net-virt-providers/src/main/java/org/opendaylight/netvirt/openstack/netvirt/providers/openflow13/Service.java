@@ -26,6 +26,7 @@ public enum Service {
     L2_REWRITE ((short) 80, "Layer2 rewrite service"),
     INGRESS_ACL ((short) 90, "Ingress Acces-control"),
     OUTBOUND_NAT ((short) 100, "DNAT for outbound floating-ip traffic"),
+    L2_LEARN ((short) 105, "Layer2 mac remote tep learning"),
     L2_FORWARDING ((short) 110, "Layer2 mac,vlan based forwarding");
 
     short table;
