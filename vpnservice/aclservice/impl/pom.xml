@@ -103,6 +103,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.googlecode.java-ipv6</groupId>
+      <artifactId>java-ipv6</artifactId>
+      <version>0.16</version>
+    </dependency>
+    <dependency>
       <groupId>org.eclipse.xtend</groupId>
       <artifactId>org.eclipse.xtend.lib</artifactId>
       <scope>test</scope>
