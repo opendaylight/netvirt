@@ -21,6 +21,7 @@ public interface L2ForwardingProvider {
     void programTunnelOut(Long dpidLong, String segmentationId, Long OFPortOut, String attachedMac, boolean write);
     void programVlanOut(Long dpidLong, String segmentationId, Long ethPort, String attachedMac, boolean write);
     void programTunnelFloodOut(Long dpidLong, String segmentationId, Long OFPortOut, boolean write);
+    void programTunnelUnknownUcastFloodOut(Long dpidLong, String segmentationId, Long OFPortOut, boolean write);
     void programVlanFloodOut(Long dpidLong, String segmentationId, Long ethPort, boolean write);
     void programTunnelMiss(Long dpidLong, String segmentationId, boolean write);
     void programVlanMiss(Long dpidLong, String segmentationId, Long ethPort, boolean write);
