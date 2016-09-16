@@ -1,0 +1,310 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_b88aae61",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "Nit: just check for !gatewayIpOptional.isPresent() and log the error and return it. otherwise continue getting gateway ip from gatewayIpOptional.get(). \nIt avoids both if-else and gives better code readability.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_58f39a09",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "same comment as above",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_18eda226",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "Don\u0027t you need to check for profileId \u003d\u003d null also ?",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_38f69ef9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "same comment as above.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_98e0922a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "Nit: no space after ,",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_78dbf67b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "it is not LLDP monitoring. change the log accordingly.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f8d6e64d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "you can use parallelStream, map, filter and findFirst methods of java 8 to find monitorId for the given macEntry. It gives good performance.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_38cdfeb7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitorEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "Nit: open curly brace like below (applicable for all class files)\n\n if(macEntry \u003d\u003d null) {",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_98c7f295",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitorEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "Nit: no space after ,\nhave it corrected in all class files.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d8bdea03",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitorStartTask.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "I don\u0027t see LOG is being used here. Is it needed ?",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_183be29d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "change the variable name to arpMonitorProfileId.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b8b8ee11",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "is it needed ? please remove it.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d854cacb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/MacEntry.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "use next line if line\u0027s column length is too long (not beyond 100)",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f86426ba",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1291,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "you can make use of neutronVpnService.getNeutronPort(name) to get the Port object. since this API already uses local cache, we can avoid MD-SAL ds reads.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_385b3ef7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1298,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "same as before. use neutronVpnService.getNeutronSubnet(nPort.getFixedIps().get(0).getSubnetId()); to get Subnet.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b8146ee9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1325,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "just use InterfaceUtils.getMacAddressForInterface(dataBroker, interfaceName); to get OF port Mac address.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_98ea52d9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1347,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "make sure you always have gateway ip is present in VpnPortipToPort ds when router is associated to vpn instance and mac is returned.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d8f04acb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1357,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T05:38:40Z",
+      "side": 1,
+      "message": "this method can be removed",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
