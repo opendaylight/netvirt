@@ -419,7 +419,18 @@ public class ElanBridgeManager {
             return null;
         }
 
-        return southboundUtils.getDataPathId(bridgeNode) + IfmConstants.OF_URI_SEPARATOR
+        long dataPathId = southboundUtils.getDataPathId(bridgeNode);
+        if (dataPathId < 1) {
+            LOG.info("No DatapathID for node {} with physicalNetworkName {}",
+                    bridgeNode.getNodeId().getValue(), physicalNetworkName);
+            return null;
+        }
+
+        return dataPathId + IfmConstants.OF_URI_SEPARATOR
                 + getIntBridgePortNameFor(bridgeNode, providerMappingValue);
+    }
+
+    public boolean hasDatapathID(Node node) {
+        return southboundUtils.getDataPathId(node) > 0 ? true : false;
     }
 }
