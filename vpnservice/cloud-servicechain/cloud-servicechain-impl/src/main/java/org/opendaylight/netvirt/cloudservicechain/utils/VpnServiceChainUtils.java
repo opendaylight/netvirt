@@ -620,31 +620,4 @@ public class VpnServiceChainUtils {
                                  .append(CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY).toString();
     }
 
-    // TODO: this method is copied from VpnUtil. It should be in a more centric place, like the
-    // IdManager or the NwUtil.java class or something like that.
-    /**
-     * Returns the ids of the currently operative DPNs
-     *
-     * @param dataBroker
-     * @return
-     */
-    public static List<BigInteger> getOperativeDPNs(DataBroker dataBroker) {
-        List<BigInteger> result = new LinkedList<BigInteger>();
-        InstanceIdentifier<Nodes> nodesInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).build();
-        Optional<Nodes> nodesOptional = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                                       nodesInstanceIdentifier);
-        if (!nodesOptional.isPresent()) {
-            return result;
-        }
-        Nodes nodes = nodesOptional.get();
-        List<Node> nodeList = nodes.getNode();
-        for (Node node : nodeList) {
-            NodeId nodeId = node.getId();
-            if (nodeId != null) {
-                BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeId);
-                result.add(dpnId);
-            }
-        }
-        return result;
-    }
 }
