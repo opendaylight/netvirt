@@ -43,6 +43,7 @@ public class ConfigurationServiceImplTest {
 
     private static final String ADDRESS = "127.0.0.1";
     private static final String IS_FOWARDING_ENABLE = "yes";
+    private static final String IS_LEARN_ENABLE = "yes";
 
     /**
      * Test method {@link ConfigurationServiceImpl#getTunnelEndPoint(Node)}
@@ -64,6 +65,13 @@ public class ConfigurationServiceImplTest {
         ConfigProperties.overrideProperty("ovsdb.l3.fwd.enabled", IS_FOWARDING_ENABLE);
 
         assertTrue("Error, l3 fowarding should be activated", configurationServiceImpl.isL3ForwardingEnabled());
+    }
+
+    @Test
+    public void testIsRemoteMacLearnEnabled() {
+        ConfigProperties.overrideProperty("ovsdb.remotemac.learn.enabled", IS_LEARN_ENABLE);
+
+        assertTrue("Error, remote mac learn should be activated", configurationServiceImpl.isRemoteMacLearnEnabled());
     }
 
     /**

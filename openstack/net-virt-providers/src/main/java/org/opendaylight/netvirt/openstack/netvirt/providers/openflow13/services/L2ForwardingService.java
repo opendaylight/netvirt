@@ -644,6 +644,83 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
     }
 
     /*
+     * (Table:110) Flooding local unknown unicast Traffic
+     * Match: TunnelID and Unknown unicast and Local InPort
+     * Instruction: Set TunnelID and GOTO Table Tunnel Table (n)
+     * table=110,priority=16380,tun_id=0x5,dl_dst=00:00:00:00:00:00/01:00:00:00:00:00 \
+     * actions=output:10,output:11
+     */
+    @Override
+    public void programTunnelUnknownUcastFloodOut(Long dpidLong, String segmentationId, Long OFPortOut, boolean write) {
+
+        String nodeName = OPENFLOW + dpidLong;
+
+        NodeBuilder nodeBuilder = createNodeBuilder(nodeName);
+        FlowBuilder flowBuilder = new FlowBuilder();
+
+        // Create the OF Match using MatchBuilder
+        MatchBuilder matchBuilder = new MatchBuilder();
+        // Match TunnelID
+        MatchUtils.addNxRegMatch(matchBuilder,
+                new MatchUtils.RegMatch(ClassifierService.REG_FIELD, ClassifierService.REG_VALUE_FROM_LOCAL));
+        MatchUtils.createTunnelIDMatch(matchBuilder, new BigInteger(segmentationId));
+        // Match DMAC
+        MatchUtils.createDestEthMatch(matchBuilder, new MacAddress("00:00:00:00:00:00"),
+                new MacAddress("01:00:00:00:00:00"));
+        flowBuilder.setMatch(matchBuilder.build());
+
+        // Add Flow Attributes
+        String flowName = "TunnelUnknownUcastFloodOut_" + segmentationId;
+        final FlowId flowId = new FlowId(flowName);
+        flowBuilder
+                .setId(flowId)
+                .setBarrier(true)
+                .setTableId(getTable())
+                .setKey(new FlowKey(flowId))
+                .setPriority(16380)
+                .setFlowName(flowName)
+                .setHardTimeout(0)
+                .setIdleTimeout(0);
+
+        Flow flow = this.getFlow(flowBuilder, nodeBuilder);
+        // Instantiate the Builders for the OF Actions and Instructions
+        List<Instruction> existingInstructions = InstructionUtils.extractExistingInstructions(flow);
+
+        if (write) {
+            // Set the Output Port/Iface
+            Instruction outputPortInstruction =
+                    createOutputPortInstructions(new InstructionBuilder(), dpidLong, OFPortOut, existingInstructions)
+                            .setOrder(0)
+                            .setKey(new InstructionKey(0))
+                            .build();
+
+            // Add InstructionsBuilder to FlowBuilder
+            InstructionUtils.setFlowBuilderInstruction(flowBuilder, outputPortInstruction);
+
+            writeFlow(flowBuilder, nodeBuilder);
+        } else {
+            InstructionBuilder ib = new InstructionBuilder();
+            /* remove port from action list */
+            boolean flowRemove = InstructionUtils.removeOutputPortFromInstructions(ib, dpidLong,
+                    OFPortOut, existingInstructions);
+            if (flowRemove) {
+                /* if all port are removed, remove the flow too. */
+                removeFlow(flowBuilder, nodeBuilder);
+            } else {
+                /* Install instruction with new output port list*/
+                Instruction instruction = ib
+                        .setOrder(0)
+                        .setKey(new InstructionKey(0))
+                        .build();
+
+                // Add InstructionsBuilder to FlowBuilder
+                InstructionUtils.setFlowBuilderInstruction(flowBuilder, instruction);
+                writeFlow(flowBuilder, nodeBuilder);
+            }
+        }
+    }
+
+    /*
      * (Table:1) Egress VLAN Traffic
      * Match: Destination Ethernet Addr and VLAN id
      * Instruction: GOTO table 2 and Output port eth interface

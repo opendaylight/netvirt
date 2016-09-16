@@ -70,6 +70,7 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
             Service.L2_REWRITE,
             Service.INGRESS_ACL,
             Service.OUTBOUND_NAT,
+            Service.L2_LEARN,
             Service.L2_FORWARDING
     );
 

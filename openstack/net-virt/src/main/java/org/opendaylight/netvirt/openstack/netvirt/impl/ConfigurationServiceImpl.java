@@ -166,6 +166,12 @@ public class ConfigurationServiceImpl implements ConfigurationService, ConfigInt
     }
 
     @Override
+    public boolean isRemoteMacLearnEnabled() {
+        final String enabledPropertyStr = ConfigProperties.getProperty(this.getClass(), "ovsdb.remotemac.learn.enabled");
+        return enabledPropertyStr != null && enabledPropertyStr.equalsIgnoreCase("yes");
+    }
+
+    @Override
     public String getDefaultGatewayMacAddress(Node node) {
         String l3gatewayForNode = null;
         if (node != null) {
