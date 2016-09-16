@@ -9,6 +9,8 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import com.google.common.base.Optional;
+import com.googlecode.ipv6.IPv6Address;
+import com.googlecode.ipv6.IPv6NetworkMask;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -454,8 +456,13 @@ public final class AclServiceUtils {
             } else {
                 matchFieldType = (matchCriteria == MatchCriteria.MATCH_SOURCE)
                         ? MatchFieldType.ipv6_source : MatchFieldType.ipv6_destination;
+                String[] ipv6addressValues = ipPrefix.getIpv6Prefix().getValue().split("/");
+                IPv6Address ipv6Address = IPv6Address.fromString(ipv6addressValues[0]);
+                IPv6Address maskedV6Address = ipv6Address.maskWithNetworkMask(
+                        IPv6NetworkMask.fromPrefixLength(Integer.parseInt(ipv6addressValues[1])));
                 flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV6}));
-                flowMatches.add(new MatchInfo(matchFieldType, new String[] {ipPrefix.getIpv6Prefix().getValue()}));
+                flowMatches.add(new MatchInfo(matchFieldType,
+                        new String[] {maskedV6Address.toString() + "/" + ipv6addressValues[1]}));
             }
         } else {
             IpAddress ipAddress = ipPrefixOrAddress.getIpAddress();
