@@ -75,6 +75,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>inject</artifactId>
       <version>${infrautils.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.googlecode.java-ipv6</groupId>
+      <artifactId>java-ipv6</artifactId>
+      <version>0.16</version>
+    </dependency>
   </dependencies>
 
   <build>
