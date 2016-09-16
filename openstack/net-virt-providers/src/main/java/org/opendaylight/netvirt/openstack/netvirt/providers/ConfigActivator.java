@@ -23,6 +23,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.GatewayMacResolver;
 import org.opendaylight.netvirt.openstack.netvirt.api.IcmpEchoProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.InboundNatProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.IngressAclProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingLearnProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.L2RewriteProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.L3ForwardingProvider;
@@ -44,6 +45,7 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.IcmpEchoResponderService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.InboundNatService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.IngressAclService;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.L2ForwardingLearnService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.L2ForwardingService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.L2RewriteService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.L3ForwardingService;
@@ -136,6 +138,10 @@ public class ConfigActivator implements BundleActivator {
         registerService(context, L2RewriteProvider.class.getName(),
                 l2RewriteService, Service.L2_REWRITE);
 
+        L2ForwardingLearnService l2ForwardingLearnService = new L2ForwardingLearnService();
+        registerService(context, L2ForwardingLearnProvider.class.getName(),
+                l2ForwardingLearnService, Service.L2_LEARN);
+
         L2ForwardingService l2ForwardingService = new L2ForwardingService();
         registerService(context, L2ForwardingProvider.class.getName(),
                 l2ForwardingService, Service.L2_FORWARDING);
@@ -161,6 +167,7 @@ public class ConfigActivator implements BundleActivator {
         pipelineOrchestrator.setDependencies(context, null);
         outboundNatService.setDependencies(context, null);
         egressAclService.setDependencies(context, null);
+        l2ForwardingLearnService.setDependencies(context, null);
         l2ForwardingService.setDependencies(context, null);
         l2RewriteService.setDependencies(context, null);
         l3ForwardingService.setDependencies(context, null);

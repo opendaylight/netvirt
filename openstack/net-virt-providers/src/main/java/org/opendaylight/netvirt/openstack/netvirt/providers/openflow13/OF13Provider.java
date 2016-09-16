@@ -33,6 +33,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.EgressAclProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.IngressAclProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingLearnProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
@@ -129,6 +130,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     private volatile IngressAclProvider ingressAclProvider;
     private volatile EgressAclProvider egressAclProvider;
     private volatile NodeCacheManager nodeCacheManager;
+    private volatile L2ForwardingLearnProvider l2ForwardingLearnProvider;
     private volatile L2ForwardingProvider l2ForwardingProvider;
 
     public static final String NAME = "OF13Provider";
@@ -267,6 +269,16 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         handleTunnelFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, true);
 
         /*
+         * Table(110) Rule #1
+         * ----------------
+         * Match: Tunnel ID and unknown unicast
+         * table=110,priority=16380,tun_id=0x5,dl_dst=00:00:00:00:00:00/01:00:00:00:00:00 \
+         * actions=output:2,3,4,5
+         */
+
+        handleTunnelUnknownUcastFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, true);
+
+        /*
          * TODO : Optimize the following 2 writes to be restricted only for the very first port known in a segment.
          */
         /*
@@ -330,6 +342,16 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
         handleLocalBcastOut(dpid, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, false);
         handleTunnelFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, false);
+
+        /*
+         * Table(110) Rule #1
+         * ----------------
+         * Match: Tunnel ID and unknown unicast
+         * table=110,priority=16380,tun_id=0x5,dl_dst=00:00:00:00:00:00/01:00:00:00:00:00 \
+         * actions=output:2,3,4,5
+         */
+
+        handleTunnelUnknownUcastFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, false);
     }
 
     private void programLocalIngressTunnelBridgeRules(Node node, Long dpid, String segmentationId, String attachedMac, long tunnelOFPort, long localPort) {
@@ -353,6 +375,15 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
          */
 
         handleTunnelFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, tunnelOFPort, true);
+
+        /*
+         * Table(110) Rule #1
+         * ----------------
+         * Match: Tunnel ID and unknown unicast
+         * table=110,priority=16380,tun_id=0x5,dl_dst=00:00:00:00:00:00/01:00:00:00:00:00 \
+         * actions=output:2,3,4,5
+         */
+        handleTunnelUnknownUcastFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, tunnelOFPort, true);
 
     }
 
@@ -430,6 +461,16 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
          */
 
         handleTunnelFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, tunnelOFPort, false);
+
+        /*
+         * Table(110) Rule #1
+         * ----------------
+         * Match: Tunnel ID and unknown unicast
+         * table=110,priority=16380,tun_id=0x5,dl_dst=00:00:00:00:00:00/01:00:00:00:00:00 \
+         * actions=output:2,3,4,5
+         */
+
+        handleTunnelUnknownUcastFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, tunnelOFPort, false);
     }
 
     private void programLocalVlanRules(Node node, Long dpid, String segmentationId, String attachedMac, long localPort) {
@@ -1180,6 +1221,10 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                         if (isSrcinNw && isDestinNw) {
                             programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, intf, true);
                             programTunnelRules(networkType, segmentationId, src, dstBridgeNode, intf, true);
+                        } else if (configurationService.isRemoteMacLearnEnabled()) {
+                            //Even if to learn remote MAC, a network doesn't exist in a node,
+                            //a vxlan port is added in TunnelRules for both nodes.(bug# 6474)
+                            programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, intf, true);
                         }
                     }
                     if (destTunnelStatus) {
@@ -1269,10 +1314,13 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                                 dst, srcNode, intf, true, isLastInstanceOnNode);
                         Node dstBridgeNode = southbound.getBridgeNode(dstNode, Constants.INTEGRATION_BRIDGE);
                         //While removing last instance , check whether the network present in src node
-                        //If network is not present in src node , remove the vxlan port of src from dst node in TunnelRules(Bug# 5614)
+                        //If network is not present in src node AND REMOTE MAC LEARNING IS not enabled,
+                        //remove the vxlan port of src from dst node in TunnelRules(Bug# 5614)
                         boolean isSrcinNw = tenantNetworkManager.isTenantNetworkPresentInNode(srcBridgeNode, segmentationId);
                         if (dstBridgeNode != null) {
-                            if (!isSrcinNw) {
+                            //To learn remote MAC, also to make the flooding the node by which a network
+                            //doesn't exist in a node, TunnelRules leaves it.
+                            if (!isSrcinNw && !configurationService.isRemoteMacLearnEnabled()) {
                                 removeTunnelRules(tunnelType, segmentationId,
                                     src, dstBridgeNode, intf, true, isLastInstanceOnNode);
                             }
@@ -1321,6 +1369,15 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
         writeLLDPRule(dpid);
 
+        /*
+         * Table(105) Rule #1
+         * -------------------
+         * Match: reg0=0x2
+         * Action: learn and goto next table
+         */
+
+        writeL2ForwardingLearnRule(dpid);
+
         if (bridgeName.equals(configurationService.getIntegrationBridgeName()) &&
                 NetvirtProvidersProvider.getTableOffset() != 0) {
             classifierProvider.programGotoTable(dpid,true);
@@ -1341,6 +1398,18 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
     private void writeLLDPRule(Long dpidLong) {
         classifierProvider.programLLDPPuntRule(dpidLong);
+    }
+
+    /*
+     * Create an L2Forwarding mac learn Flow Rule
+     * Match: reg0 = ClassifierService.REG_VALUE_FROM_REMOTE
+     * Action: learn and goto next table
+     */
+
+    private void writeL2ForwardingLearnRule(Long dpidLong) {
+        if (configurationService.isRemoteMacLearnEnabled()) {
+            l2ForwardingLearnProvider.programL2ForwardingLearnRule(dpidLong);
+        }
     }
 
     /*
@@ -1485,6 +1554,22 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             Short localTable, String segmentationId,
             Long OFPortOut, boolean write) {
         l2ForwardingProvider.programTunnelFloodOut(dpidLong, segmentationId, OFPortOut, write);
+    }
+
+    /*
+     * (Table:110) Flooding local unknown unicast Traffic
+     * Match: TunnelID and Unknown unicast and Local InPort
+     * Instruction: Set TunnelID and GOTO Table Tunnel Table (n)
+     * table=110,priority=16380,tun_id=0x5,dl_dst=00:00:00:00:00:00/01:00:00:00:00:00 \
+     * actions=output:10,output:11
+     */
+
+    private void handleTunnelUnknownUcastFloodOut(Long dpidLong, Short writeTable,
+            Short localTable, String segmentationId,
+            Long OFPortOut, boolean write) {
+        if (configurationService.isRemoteMacLearnEnabled()) {
+            l2ForwardingProvider.programTunnelUnknownUcastFloodOut(dpidLong, segmentationId, OFPortOut, write);
+        }
     }
 
     /*
@@ -2002,6 +2087,8 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                 (IngressAclProvider) ServiceHelper.getGlobalInstance(IngressAclProvider.class, this);
         egressAclProvider =
                 (EgressAclProvider) ServiceHelper.getGlobalInstance(EgressAclProvider.class, this);
+        l2ForwardingLearnProvider =
+                (L2ForwardingLearnProvider) ServiceHelper.getGlobalInstance(L2ForwardingLearnProvider.class, this);
         l2ForwardingProvider =
                 (L2ForwardingProvider) ServiceHelper.getGlobalInstance(L2ForwardingProvider.class, this);
         securityServicesManager =
