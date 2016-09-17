@@ -9,6 +9,8 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -598,6 +600,24 @@ public class ElanServiceProvider implements IElanService {
     @Override
     public ElanInterface getElanInterfaceByElanInterfaceName(String interfaceName) {
         return ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
+    }
+
+    @Override
+    public void handleKnownL3DmacAddress(String macAddress, String elanInstanceName, int addOrRemove) {
+        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+        if (elanInstance == null) {
+            LOG.warn("Null elan instance {}", elanInstanceName);
+            return;
+        }
+
+        List<BigInteger> dpnsIdsForElanInstance = elanUtils.getParticipatingDpnsInElanInstance(elanInstanceName);
+        if (dpnsIdsForElanInstance == null || dpnsIdsForElanInstance.isEmpty()) {
+            LOG.warn("No DPNs for elan instance {}", elanInstance);
+            return;
+        }
+
+        elanUtils.handleDmacRedirectToDispatcherFlows(elanInstance.getElanTag(), elanInstanceName, macAddress,
+                addOrRemove, dpnsIdsForElanInstance);
     }
 
     /**

@@ -19,11 +19,14 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataCh
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
@@ -71,12 +74,14 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private final NotificationPublishService notificationPublishService;
     private final NeutronSubnetGwMacResolver gwMacResolver;
     private OdlInterfaceRpcService odlInterfaceRpcService;
+    private final IElanService elanService;
 
     public NeutronPortChangeListener(final DataBroker dataBroker,
                                      final NeutronvpnManager nVpnMgr, final NeutronvpnNatManager nVpnNatMgr,
                                      final NotificationPublishService notiPublishService,
                                      final LockManagerService lockManager, NeutronSubnetGwMacResolver gwMacResolver,
-                                     final OdlInterfaceRpcService odlInterfaceRpcService) {
+                                     final OdlInterfaceRpcService odlInterfaceRpcService,
+                                     final IElanService elanService) {
         super(Port.class);
         this.dataBroker = dataBroker;
         nvpnManager = nVpnMgr;
@@ -85,6 +90,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
         this.lockManager = lockManager;
         this.gwMacResolver = gwMacResolver;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
+        this.elanService = elanService;
     }
 
     public void start() {
@@ -129,6 +135,9 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             }
             if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(input.getDeviceOwner())) {
                 handleRouterGatewayUpdated(input);
+            } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(input.getDeviceOwner())) {
+                elanService.handleKnownL3DmacAddress(input.getMacAddress().getValue(), input.getNetworkId().getValue(),
+                        NwConstants.ADD_FLOW);
             }
         }
         if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
@@ -155,6 +164,10 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
                 handleRouterInterfaceRemoved(input);
                 /* nothing else to do here */
                 return;
+            } else if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(input.getDeviceOwner())
+                    || NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(input.getDeviceOwner())) {
+                elanService.handleKnownL3DmacAddress(input.getMacAddress().getValue(), input.getNetworkId().getValue(),
+                        NwConstants.DEL_FLOW);
             }
         }
         if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
@@ -192,6 +205,9 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             }
             if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(update.getDeviceOwner())) {
                 handleRouterGatewayUpdated(update);
+            } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(update.getDeviceOwner())) {
+                elanService.handleKnownL3DmacAddress(update.getMacAddress().getValue(), update.getNetworkId().getValue(),
+                        NwConstants.ADD_FLOW);
             }
         }
 
@@ -236,6 +252,9 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
             Uuid routerId = new Uuid(routerPort.getDeviceId());
             Uuid infNetworkId = routerPort.getNetworkId();
             Uuid existingVpnId = NeutronvpnUtils.getVpnForNetwork(dataBroker, infNetworkId);
+
+            elanService.handleKnownL3DmacAddress(routerPort.getMacAddress().getValue(), infNetworkId.getValue(),
+                    NwConstants.ADD_FLOW);
             if (existingVpnId == null) {
                 for (FixedIps portIP : routerPort.getFixedIps()) {
                     if (portIP.getIpAddress().getIpv4Address() != null) {
@@ -269,6 +288,10 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     private void handleRouterInterfaceRemoved(Port routerPort) {
         if (routerPort.getDeviceId() != null) {
             Uuid routerId = new Uuid(routerPort.getDeviceId());
+            Uuid infNetworkId = routerPort.getNetworkId();
+
+            elanService.handleKnownL3DmacAddress(routerPort.getMacAddress().getValue(), infNetworkId.getValue(),
+                    NwConstants.DEL_FLOW);
             for (FixedIps portIP : routerPort.getFixedIps()) {
                 if (portIP.getIpAddress().getIpv4Address() != null) {
                     Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
@@ -290,6 +313,10 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
 
     private void handleRouterGatewayUpdated(Port routerGwPort) {
         Uuid routerId = new Uuid(routerGwPort.getDeviceId());
+        Uuid networkId = routerGwPort.getNetworkId();
+        elanService.handleKnownL3DmacAddress(routerGwPort.getMacAddress().getValue(), networkId.getValue(),
+                NwConstants.ADD_FLOW);
+
         Router router = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
         if (router == null) {
             LOG.warn("No router found for router GW port {} router id {}", routerGwPort.getUuid(), routerId.getValue());
