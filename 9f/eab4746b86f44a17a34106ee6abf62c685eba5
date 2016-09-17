@@ -1,0 +1,9 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Joshua <jhershbe@redhat.com>
+Code-Review+1: Koby Aizer <koby.aizer@hpe.com>
+Code-Review+2: Vishal Thapar <vishal.thapar@ericsson.com>
+Submitted-by: Vishal Thapar <vishal.thapar@ericsson.com>
+Submitted-at: Sat, 17 Sep 2016 14:26:07 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/45510
+Project: netvirt
+Branch: refs/heads/stable/boron
