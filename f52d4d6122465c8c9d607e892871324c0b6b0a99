@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_44ae0f99",
+        "filename": "openstack/sfc-translator/impl/src/main/java/org/opendaylight/netvirt/openstack/sfc/translator/OpenStackSFCTranslatorProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-09-17T15:16:26Z",
+      "side": 1,
+      "message": "all those should be retained and #close() on the close() method the free resources.\n\nOr, even better, all those could be instantiated through blueprint, letting blueprint managed their life-cycle. Allowing to completely get rid of this class. Anyway, food for thought.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 61
+      },
+      "revId": "f52d4d6122465c8c9d607e892871324c0b6b0a99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
