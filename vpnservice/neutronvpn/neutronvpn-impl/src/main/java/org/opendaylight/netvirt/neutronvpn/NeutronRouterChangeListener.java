@@ -73,6 +73,7 @@ public class NeutronRouterChangeListener extends AbstractDataChangeListener<Rout
         }
         // Create internal VPN
         nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, input.getUuid(), null);
+        nvpnNatManager.handleExternalNetworkForRouter(null, input);
         NeutronvpnUtils.addToRouterCache(input);
         gwMacResolver.sendArpRequestsToExtGateways(input);
     }
