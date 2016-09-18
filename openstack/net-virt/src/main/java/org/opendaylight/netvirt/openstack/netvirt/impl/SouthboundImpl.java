@@ -768,4 +768,18 @@ public class SouthboundImpl implements Southbound {
         return ovsdbBridgeAugmentation;
     }
 
+    @Override
+    public Node readConfigBridge(Node node, String name) {
+        LOG.trace("readConfigBridge: EntryPoint: Node:{}::BridgeName:{}", node, name);
+        Node bridgeNode = null;
+        ConnectionInfo connectionInfo = getConnectionInfo(node);
+        if (connectionInfo != null) {
+            InstanceIdentifier<Node> bridgeIid =
+            MdsalHelper.createInstanceIdentifier(node.getKey(), name);
+            bridgeNode = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, bridgeIid);
+            LOG.trace("readConfigBridge: bridgeNode:{}", bridgeNode);
+        }
+        return bridgeNode;
+    }
+
 }

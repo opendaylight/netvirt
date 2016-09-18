@@ -1354,6 +1354,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         String datapathId = southbound.getDatapathId(node);
         LOG.trace("initializeFlowRules: bridgeName: {}, datapathId: {} ",
                 bridgeName, datapathId);
+        String brExt = null;
 
         if (dpid == 0L) {
             LOG.debug("Openflow Datapath-ID not set for the integration bridge in {}", node);
@@ -1383,7 +1384,11 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             classifierProvider.programGotoTable(dpid,true);
         }
 
-        if (bridgeName.equals(configurationService.getExternalBridgeName())) {
+        if (configurationService.isL3MultipleExternalNetworkEnabled()) {
+            brExt = bridgeConfigurationManager.getMultipleExternalBridge(node);
+        }
+        if (bridgeName.equals(configurationService.getExternalBridgeName()) ||
+                (bridgeName.equals(brExt))) {
             writeNormalRule(dpid);
         }
     }
@@ -1773,9 +1778,11 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     /**
      * Create Output Port Group Instruction
      *
+     * @param nodeBuilder Node Builder
      * @param ib       Map InstructionBuilder without any instructions
      * @param dpidLong Long the datapath ID of a switch/node
      * @param port     Long representing a port on a switch/node
+     * @param instructions List of instructions
      * @return ib InstructionBuilder Map with instructions
      */
     // TODO This method is referenced from commented code in L2ForwardingService (which needs to be checked)
@@ -1930,9 +1937,11 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     /**
      * Remove Output Port from action list in group bucket
      *
+     * @param nodeBuilder Node Builder
      * @param ib       Map InstructionBuilder without any instructions
      * @param dpidLong Long the datapath ID of a switch/node
      * @param port     Long representing a port on a switch/node
+     * @param instructions List of instructions
      * @return ib InstructionBuilder Map with instructions
      */
     // TODO This method is referenced from commented code in L2ForwardingService (which needs to be checked)
@@ -2054,11 +2063,13 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     public void initializeOFFlowRules(Node openflowNode) {
         String bridgeName = southbound.getBridgeName(openflowNode);
         LOG.info("initializeOFFlowRules: bridgeName: {}", bridgeName);
-        if (bridgeName.equals(configurationService.getIntegrationBridgeName())) {
-            initializeFlowRules(openflowNode, configurationService.getIntegrationBridgeName());
-            triggerInterfaceUpdates(openflowNode);
-        } else if (bridgeName.equals(configurationService.getExternalBridgeName())) {
-            initializeFlowRules(openflowNode, configurationService.getExternalBridgeName());            
+        String brExt = null;
+        if (configurationService.isL3MultipleExternalNetworkEnabled()) {
+            brExt = bridgeConfigurationManager.getMultipleExternalBridge(openflowNode);
+        }
+        if (bridgeName.equals(configurationService.getIntegrationBridgeName()) ||
+                bridgeName.equals(configurationService.getExternalBridgeName()) || bridgeName.equals(brExt)) {
+            initializeFlowRules(openflowNode, bridgeName);
             triggerInterfaceUpdates(openflowNode);
         }
     }
