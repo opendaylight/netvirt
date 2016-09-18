@@ -1096,8 +1096,30 @@ public class NatUtil {
     	return getNeutronPortForIp(broker, targetIP, NeutronConstants.DEVICE_OWNER_GATEWAY_INF);
     }
 
-    public static Port getNeutronPortForIp(DataBroker broker,
-        IpAddress targetIP, String deviceType) {
+    public static Port getNeutronPortForIpAndNetwork(DataBroker broker,
+            IpAddress targetIP, Uuid networkId) {
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports> portsOptional = getNeutronPorts(
+                broker);
+
+        if (portsOptional == null) {
+            return null;
+        }
+
+        for (Port port : portsOptional.get().getPort()) {
+            if (networkId.equals(port.getNetworkId()) && port.getFixedIps() != null) {
+                for (FixedIps ip : port.getFixedIps()) {
+                    if (Objects.equals(ip.getIpAddress(), targetIP)) {
+                        return port;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports> getNeutronPorts(
+            DataBroker broker) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports>
         portsIdentifier = InstanceIdentifier
                 .create(Neutron.class)
@@ -1106,6 +1128,17 @@ public class NatUtil {
                 broker, LogicalDatastoreType.CONFIGURATION, portsIdentifier);
         if (!portsOptional.isPresent() || portsOptional.get().getPort() == null) {
             LOG.trace("No neutron ports found");
+            return null;
+        }
+        return portsOptional;
+    }
+
+    public static Port getNeutronPortForIp(DataBroker broker,
+        IpAddress targetIP, String deviceType) {
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports> portsOptional = getNeutronPorts(
+                broker);
+
+        if (portsOptional == null) {
             return null;
         }
 
