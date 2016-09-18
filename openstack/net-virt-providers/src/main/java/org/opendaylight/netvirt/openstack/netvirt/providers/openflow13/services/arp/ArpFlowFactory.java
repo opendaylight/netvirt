@@ -37,6 +37,8 @@ public class ArpFlowFactory {
 
     /**
      * Creates {@link EthernetMatch} containing ARP ether-type and the given destination MAC address
+     * @param destinationMacAddress Destination MAC Address
+     * @return EthernetMatch ethernetMatch
      */
     public static EthernetMatch createEthernetMatch(MacAddress destinationMacAddress) {
         return new EthernetMatchBuilder().setEthernetType(
@@ -48,6 +50,9 @@ public class ArpFlowFactory {
     /**
      * Creates {@link ArpMatch} containing Reply ARP operation, THA and TPA for the given target
      * address and SPA for the given sender protocol address
+     * @param targetAddress Target Address
+     * @param senderProtocolAddress Sender Protocol Address
+     * @return ArpMatch arpMatch
      */
     public static ArpMatch createArpMatch(ArpMessageAddress targetAddress, Ipv4Address senderProtocolAddress) {
         return new ArpMatchBuilder().setArpOp(ArpOperation.REPLY.intValue())
@@ -62,6 +67,7 @@ public class ArpFlowFactory {
      * Creates {@link Action} representing output to the controller
      *
      * @param order the order for the action
+     * @return Action action
      */
     public static Action createSendToControllerAction(int order) {
         return new ActionBuilder().setOrder(order)
