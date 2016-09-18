@@ -210,6 +210,11 @@ public class ConfigActivator implements BundleActivator {
         registerService(context,
                 new String[] {DistributedArpService.class.getName()},
                 distributedArpServiceProperties, distributedArpService);
+        
+        final VLANProviderUtil vlanProviderUtil = new VLANProviderUtil();
+        registerService(context,
+                new String[] {VLANProviderUtil.class.getName()},
+                null, vlanProviderUtil);
 
         OpenstackRouter openstackRouter = new OpenstackRouter();
         registerService(context,
@@ -261,8 +266,10 @@ public class ConfigActivator implements BundleActivator {
         trackService(context, INeutronLoadBalancerPoolCRUD.class, lBaaSHandler, lBaaSPoolMemberHandler);
         trackService(context, LoadBalancerProvider.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler);
         trackService(context, ArpProvider.class, neutronL3Adapter, distributedArpService);
+        trackService(context, VLANProviderUtil.class, neutronL3Adapter, vlanProviderUtil);
         trackService(context, InboundNatProvider.class, neutronL3Adapter);
         trackService(context, OutboundNatProvider.class, neutronL3Adapter);
+        trackService(context, OutboundNatProvider.class, vlanProviderUtil);
         trackService(context, RoutingProvider.class, neutronL3Adapter);
         trackService(context, L3ForwardingProvider.class, neutronL3Adapter);
         trackService(context, GatewayMacResolver.class, neutronL3Adapter);

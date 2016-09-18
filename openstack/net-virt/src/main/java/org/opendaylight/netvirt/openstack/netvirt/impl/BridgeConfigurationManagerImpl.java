@@ -166,6 +166,53 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
         try {
             if (configurationService.isL3ForwardingEnabled()) {
                 createExternalBridge(ovsdbNode);
+            } else if(configurationService.isL3MultipleExternalNetworkEnabled()) {
+                String brExt = getMultipleExternalBridge(ovsdbNode);
+                if (brExt == null) {
+                    LOG.warn("The provider mapping external network bridge name is null");
+                    return;
+                }
+                //get internal bridge
+                String brInt = configurationService.getIntegrationBridgeName();
+                if (!addBridge(ovsdbNode, brExt, null)) {
+                    LOG.debug("Multiple External Bridge Creation failed");
+                    return;
+                }
+                configurationService.setExternalBridgeName(brExt);
+                Node intovsdbNode = southbound.readConfigBridge(ovsdbNode, brInt);
+                LOG.trace("Internal bridge details in config data store:intovsdbNode:{}", intovsdbNode);
+                if (intovsdbNode == null) {
+                    return;
+                }
+                //Processing an external bridge
+                String portNameExt = null;
+                if (brExt.contains("-")) {
+                    String[] brExt_Ex = brExt.split("-");
+                    portNameExt = Constants.MULTIPLE_NETWORK_L3_PATCH.concat("-").concat(brExt_Ex[1]);
+                } else {
+                    portNameExt = Constants.MULTIPLE_NETWORK_L3_PATCH.concat("-").concat(brExt);
+                }
+                LOG.trace("prepareNode: portNameExt:{}", portNameExt);
+                final String portNameInt = "patch-int";
+                Preconditions.checkNotNull(portNameInt);
+                Preconditions.checkNotNull(portNameExt);
+                if (!addPatchPort(intovsdbNode, brInt, portNameExt, portNameInt)) {
+                    LOG.error("Add Port {} to Bridge {} failed", portNameInt, brInt);
+                    return;
+                }
+                configurationService.addPatchPortName(new ImmutablePair<>(brInt, brExt), portNameExt);
+                Node extBridgeNode = southbound.readBridgeNode(ovsdbNode, brExt);
+                LOG.trace("External bridge details in operational data store:extBridgeNode:{}", extBridgeNode);
+                if (extBridgeNode == null) {
+                    LOG.warn("External bridge is not created:{}", brExt);
+                    return;
+                }
+                if (!addPatchPort(extBridgeNode, brExt, portNameInt, portNameExt)) {
+                    LOG.error("Add Port {} to Bridge {} failed", portNameExt, brExt);
+                    return;
+                }
+                configurationService.addPatchPortName(new ImmutablePair<>(brExt, brInt), portNameInt);
+                LOG.info("Multiple external bridge is successfully created:{}", brExt);
             }
         } catch (Exception e) {
             LOG.error("Error creating External Bridge on {}", ovsdbNode, e);
@@ -275,6 +322,9 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
         String providerMaps = southbound.getOtherConfig(node, OvsdbTables.OPENVSWITCH,
                 configurationService.getProviderMappingsKey());
         if (providerMaps == null) {
+            if (configurationService.isL3MultipleExternalNetworkEnabled()) {
+                return phyIfName;
+            }
             providerMaps = configurationService.getDefaultProviderMapping();
         }
 
@@ -491,8 +541,10 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
      */
     private boolean addPatchPort (Node node, String bridgeName, String portName, String peerPortName) {
         boolean rv = true;
-
-        if (southbound.extractTerminationPointAugmentation(node, portName) == null) {
+        if (configurationService.isL3MultipleExternalNetworkEnabled()) {
+            rv = southbound.addPatchTerminationPoint(node, bridgeName, portName, peerPortName);
+            LOG.info("adding termination points for specific check:rv:{}", rv);
+        } else if (southbound.extractTerminationPointAugmentation(node, portName) == null) {
             rv = southbound.addPatchTerminationPoint(node, bridgeName, portName, peerPortName);
 
             if (rv) {
@@ -664,5 +716,21 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
 
     @Override
     public void setDependencies(Object impl) {
+    }
+
+    @Override
+    public String getMultipleExternalBridge(Node ovsdbNode) {
+        String brExt = null;
+        List<String> phyIfName = this.getAllPhysicalInterfaceNames(ovsdbNode);
+        LOG.debug("getMultipleExternalBridge phyIfName::{}", phyIfName);
+        if (phyIfName.size() > 0) {
+            brExt = phyIfName.get(0);
+            LOG.debug("Provider Mapping: external bridge name:{}", brExt);
+        }
+        if (brExt == null || brExt.isEmpty()) {
+            LOG.warn("The provider mapping external network bridge name is null");
+            return null;
+        }
+        return brExt;
     }
 }

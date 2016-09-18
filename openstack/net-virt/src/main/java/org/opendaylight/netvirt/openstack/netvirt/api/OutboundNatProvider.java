@@ -26,5 +26,10 @@ public interface OutboundNatProvider {
 
     Status programIpRewriteExclusion(Long dpid, String segmentationId,
                                      String excludedCidr, Action action);
+    
+    void provideNetworkOutput(Long dpidLong, Long patchIntPort, Long ofPortValue, String macAddress, boolean write);
+    void provideNetworkPopVlan(Long dpidLong, String segmentationId, Long patchIntPort, Long ofPortValue, boolean write);
+    void provideNetworkPushVlan(Long dpidLong, String segmentationId, Long patchExtPort, String macAddress, boolean write);
+    void provideNetworkDrop(Long dpidLong, Long patchExtPort, boolean write);
 
 }
