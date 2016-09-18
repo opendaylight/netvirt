@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.Inet6Address;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.List;
 
 import org.opendaylight.netvirt.openstack.netvirt.api.OutboundNatProvider;
@@ -30,7 +31,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.address.address.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCaseBuilder;
@@ -39,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
 
 import com.google.common.collect.Lists;
 import org.osgi.framework.BundleContext;
@@ -192,6 +197,188 @@ public class OutboundNatService extends AbstractServiceInstance implements Outbo
 
         // ToDo: WriteFlow/RemoveFlow should return something we can use to check success
         return new Status(StatusCode.SUCCESS);
+    }
+
+    /**
+     * Writing following flow in the internal bridge
+     * table=100, n_packets=1192, n_bytes=55496, priority=4,in_port=5,dl_src=fa:16:3e:74:a9:2e actions=output:3
+     */
+    @Override
+    public void provideNetworkOutput(Long dpidLong, Long ofPort, Long patchPort, String macAddress, boolean write) {
+        String nodeName = OPENFLOW + dpidLong;
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(nodeName);
+        FlowBuilder flowBuilder = new FlowBuilder();
+        // Create the OF Match using MatchBuilder
+        MatchBuilder matchBuilder = new MatchBuilder();
+        //Match In Port
+        MatchUtils.createInPortMatch(matchBuilder, dpidLong, ofPort);
+        MatchUtils.createEthSrcMatch(matchBuilder, new MacAddress(macAddress));
+        flowBuilder.setMatch(matchBuilder.build());
+        // Add Flow Attributes
+        String flowName = "OutboundNATVLAN_" + dpidLong + "_" + ofPort;
+        final FlowId flowId = new FlowId(flowName);
+        flowBuilder
+                .setId(flowId)
+                .setBarrier(true)
+                .setTableId(getTable())
+                .setKey(new FlowKey(flowId))
+                .setPriority(4)
+                .setFlowName(flowName)
+                .setHardTimeout(0)
+                .setIdleTimeout(0);
+        if (write) {
+            // Set the Output Port/Iface
+            Instruction outputPortInstruction =
+                    InstructionUtils.createOutputPortInstructions(new InstructionBuilder(), dpidLong, patchPort)
+                            .setOrder(0)
+                            .setKey(new InstructionKey(0))
+                            .build();
+            // Add InstructionsBuilder to FlowBuilder
+            InstructionUtils.setFlowBuilderInstruction(flowBuilder, outputPortInstruction);
+            writeFlow(flowBuilder, nodeBuilder);
+            LOG.trace("Flow successfully written into internal bridge.");
+        } else {
+            removeFlow(flowBuilder, nodeBuilder);
+            LOG.trace("Flow successfully removed from internal bridge.");
+        }
+    }
+
+    /**
+     * Writing following flow in the internal bridge
+     * table=100, n_packets=218, n_bytes=15778, priority=4,in_port=3,dl_vlan=100 actions=pop_vlan,output:5
+     */
+    @Override
+    public void provideNetworkPopVlan(Long dpidLong, String segmentationId, Long ofPort, Long patchPort, boolean write) {
+        String nodeName = OPENFLOW + dpidLong;
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(nodeName);
+        FlowBuilder flowBuilder = new FlowBuilder();
+        // Create the OF Match using MatchBuilder
+        MatchBuilder matchBuilder = new MatchBuilder();
+        // Match Vlan ID
+        MatchUtils.createVlanIdMatch(matchBuilder, new VlanId(Integer.valueOf(segmentationId)), true);
+      //Match In Port
+        MatchUtils.createInPortMatch(matchBuilder, dpidLong, patchPort);
+        flowBuilder.setMatch(matchBuilder.build());
+        // Add Flow Attributes
+        String flowName = "OutboundNATVLAN_" + segmentationId + "_" + patchPort;
+        final FlowId flowId = new FlowId(flowName);
+        flowBuilder
+                .setId(flowId)
+                .setBarrier(true)
+                .setTableId(getTable())
+                .setKey(new FlowKey(flowId))
+                .setPriority(4)
+                .setFlowName(flowName)
+                .setHardTimeout(0)
+                .setIdleTimeout(0);
+        if (write) {
+            /* Strip vlan and store to tmp instruction space*/
+            Instruction stripVlanInstruction = InstructionUtils.createPopVlanInstructions(new InstructionBuilder())
+                    .setOrder(0)
+                    .setKey(new InstructionKey(0))
+                    .build();
+            // Set the Output Port/Iface
+            Instruction setOutputPortInstruction =
+                    InstructionUtils.addOutputPortInstructions(new InstructionBuilder(), dpidLong, ofPort,
+                            Collections.singletonList(stripVlanInstruction))
+                            .setOrder(1)
+                            .setKey(new InstructionKey(0))
+                            .build();
+
+            // Add InstructionsBuilder to FlowBuilder
+            InstructionUtils.setFlowBuilderInstruction(flowBuilder, setOutputPortInstruction);
+            writeFlow(flowBuilder, nodeBuilder);
+            LOG.trace("Flow successfully written into internal bridge");
+        } else {
+            removeFlow(flowBuilder, nodeBuilder);
+            LOG.trace("Flow successfully removed from internal bridge");
+        }
+    }
+
+    /**
+     * Writing following flow in the external bridge
+     * cookie=0x0, duration=4831.827s, table=0, n_packets=1202, n_bytes=56476, priority=4,in_port=3,dl_src=fa:16:3e:74:a9:2e  actions=push_vlan:0x8100,set_field:4196 vlan_vid,NORMAL
+     *
+     */
+    @Override
+    public void provideNetworkPushVlan(Long dpidLong, String segmentationId, Long patchExtPort, String macAddress, boolean write) {
+        String nodeName = OPENFLOW + dpidLong;
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(nodeName);
+        FlowBuilder flowBuilder = new FlowBuilder();
+        // Create the OF Match using MatchBuilder
+        MatchBuilder matchBuilder = new MatchBuilder();
+        MatchUtils.createEthSrcMatch(matchBuilder, new MacAddress(macAddress));
+        //Match In Port
+        MatchUtils.createInPortMatch(matchBuilder, dpidLong, patchExtPort);
+        flowBuilder.setMatch(matchBuilder.build());
+        // Add Flow Attributes
+        String flowName = "OutboundNATVLAN_" + dpidLong + "_" + segmentationId;
+        final FlowId flowId = new FlowId(flowName);
+        flowBuilder
+                .setId(flowId)
+                .setBarrier(true)
+                .setTableId((short) 0)
+                .setKey(new FlowKey(flowId))
+                .setPriority(4)
+                .setFlowName(flowName)
+                .setHardTimeout(0)
+                .setIdleTimeout(0);
+        if (write) {
+            InstructionBuilder ib = new InstructionBuilder();
+            // Set VLAN ID Instruction
+            InstructionUtils.createSetVlanAndNormalInstructions(ib, new VlanId(Integer.valueOf(segmentationId)));
+            ib.setOrder(0);
+            ib.setKey(new InstructionKey(0));
+            Instruction pushVLANInstruction = ib.build();
+            InstructionUtils.setFlowBuilderInstruction(flowBuilder, pushVLANInstruction);
+            writeFlow(flowBuilder, nodeBuilder);
+            LOG.trace("Flow successfully written into external bridge.");
+        } else {
+            removeFlow(flowBuilder, nodeBuilder);
+            LOG.trace("Flow successfully removed from external bridge");
+        }
+    }
+
+    /**
+     * Writing following flow in the external bridge
+     * table=0, n_packets=0, n_bytes=0, priority=2,in_port=3 actions=drop
+     */
+    @Override
+    public void provideNetworkDrop(Long dpidLong, Long patchExtPort, boolean write) {
+        String nodeName = OPENFLOW + dpidLong;
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(nodeName);
+        FlowBuilder flowBuilder = new FlowBuilder();
+        // Create the OF Match using MatchBuilder
+        MatchBuilder matchBuilder = new MatchBuilder();
+      //Match In Port
+        MatchUtils.createInPortMatch(matchBuilder, dpidLong, patchExtPort);
+        flowBuilder.setMatch(matchBuilder.build());
+        // Add Flow Attributes
+        String flowName = "OutboundNATVLAN_" + dpidLong + "_" + patchExtPort;
+        final FlowId flowId = new FlowId(flowName);
+        flowBuilder
+                .setId(flowId)
+                .setBarrier(true)
+                .setTableId((short) 0)
+                .setKey(new FlowKey(flowId))
+                .setPriority(2)
+                .setFlowName(flowName)
+                .setHardTimeout(0)
+                .setIdleTimeout(0);
+        if (write) {
+            // Call the InstructionBuilder Methods Containing Actions
+            Instruction dropInstruction = InstructionUtils.createDropInstructions(new InstructionBuilder())
+                    .setOrder(0)
+                    .setKey(new InstructionKey(0))
+                    .build();
+            // Add InstructionsBuilder to FlowBuilder
+            InstructionUtils.setFlowBuilderInstruction(flowBuilder, dropInstruction);
+            writeFlow(flowBuilder, nodeBuilder);
+            LOG.trace("Flow successfully written into external bridge");
+        } else {
+            removeFlow(flowBuilder, nodeBuilder);
+            LOG.trace("Flow successfully removed from internal bridge");
+        }
     }
 
     @Override
