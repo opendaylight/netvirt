@@ -30,6 +30,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
@@ -73,6 +74,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private final IVpnManager vpnManager;
     private final IFibManager fibManager;
     private final OdlArputilService arpUtilService;
+    private final IElanService elanService;
+
     static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final String FLOWID_PREFIX = "NAT.";
 
@@ -83,7 +86,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                 final FloatingIPListener floatingIPListener,
                                 final IFibManager fibManager,
                                 final OdlArputilService arputilService,
-                                final IVpnManager vpnManager) {
+                                final IVpnManager vpnManager,
+                                final IElanService elanService) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.vpnService = vpnService;
@@ -93,6 +97,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         this.fibManager = fibManager;
         this.arpUtilService = arputilService;
         this.vpnManager = vpnManager;
+        this.elanService = elanService;
     }
 
     @Override
@@ -177,15 +182,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
         // Handle GARP transmission
         final IpAddress extrenalAddress = IpAddressBuilder.getDefaultInstance(externalIp);
-        final IpAddress internalAddress = IpAddressBuilder.getDefaultInstance(internalIp);
-        Port neutronPortForIp = NatUtil.getNeutronPortForIp(dataBroker,internalAddress,
-                NeutronConstants.DEVICE_OWNER_NEUTRON_PORT);
-        if (neutronPortForIp == null) {
-            LOG.warn("No neutron port was found for external ip {} in router {}", internalIp, routerId);
-            NatServiceCounters.port_not_found_for_floating.inc();
-            return;
-        }
-        sendGarpOnInterface(neutronPortForIp.getUuid().getValue(), extrenalAddress, routerId);
+        sendGarpOnInterface(dpnId, networkId,  routerId, extrenalAddress);
 
     }
 
@@ -378,14 +375,22 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         LOG.debug("LFIB Entry for dpID : {} label : {} removed successfully {}",dpnId, serviceId);
     }
 
-    private void sendGarpOnInterface(String interfaceName, final IpAddress floatingIpAddress, final String routerId) {
+    private void sendGarpOnInterface(final BigInteger dpnId, Uuid networkId, final String routerId,
+            final IpAddress floatingIpAddress) {
         if (floatingIpAddress.getIpv4Address() == null) {
-            LOG.warn("Faild to send GARP for IP. recieved IPv6.");
+            LOG.info("Failed to send GARP for IP. recieved IPv6.");
             NatServiceCounters.garp_sent_ipv6.inc();
             return;
         }
 
+        String interfaceName = elanService.getExternalElanInterface(networkId.getValue(), dpnId);
+        if (interfaceName == null) {
+            LOG.warn("Failed to send GARP for IP. Failed to retrieve interface name from network {} and dpn id {}.",
+                    networkId.getValue(), dpnId);
+        }
+
         try {
+            // find the external network interface name for dpn
             Port floatingPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, floatingIpAddress);
             PhysAddress floatingPortMac = new PhysAddress(floatingPort.getMacAddress().getValue());
             List<InterfaceAddress> interfaceAddresses = new ArrayList<>();

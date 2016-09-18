@@ -17,7 +17,6 @@ public enum NatServiceCounters {
     subnetmap_add, //
     subnetmap_remove, //
     subnetmap_update, //
-    port_not_found_for_floating, //
     garp_sent, //
     garp_sent_ipv6, //
     garp_sent_failed;
