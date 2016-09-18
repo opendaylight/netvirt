@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.netvirt.openstack.netvirt.api.ArpProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
@@ -42,6 +41,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.VlanConfigurationCache;
+import org.opendaylight.netvirt.openstack.netvirt.api.VlanResponderProvider;
 import org.opendaylight.netvirt.openstack.netvirt.impl.BridgeConfigurationManagerImpl;
 import org.opendaylight.netvirt.openstack.netvirt.impl.ConfigurationServiceImpl;
 import org.opendaylight.netvirt.openstack.netvirt.impl.DistributedArpService;
@@ -211,6 +211,11 @@ public class ConfigActivator implements BundleActivator {
                 new String[] {DistributedArpService.class.getName()},
                 distributedArpServiceProperties, distributedArpService);
 
+        final VLANProvider vlanProvider = new VLANProvider();
+        registerService(context,
+                new String[] {VLANProvider.class.getName()},
+                null, vlanProvider);
+
         OpenstackRouter openstackRouter = new OpenstackRouter();
         registerService(context,
                 new String[]{MultiTenantAwareRouter.class.getName()}, null, openstackRouter);
@@ -261,8 +266,10 @@ public class ConfigActivator implements BundleActivator {
         trackService(context, INeutronLoadBalancerPoolCRUD.class, lBaaSHandler, lBaaSPoolMemberHandler);
         trackService(context, LoadBalancerProvider.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler);
         trackService(context, ArpProvider.class, neutronL3Adapter, distributedArpService);
+        trackService(context, VLANProvider.class, neutronL3Adapter, vlanProvider);
         trackService(context, InboundNatProvider.class, neutronL3Adapter);
         trackService(context, OutboundNatProvider.class, neutronL3Adapter);
+        trackService(context, VlanResponderProvider.class, vlanProvider);
         trackService(context, RoutingProvider.class, neutronL3Adapter);
         trackService(context, L3ForwardingProvider.class, neutronL3Adapter);
         trackService(context, GatewayMacResolver.class, neutronL3Adapter);

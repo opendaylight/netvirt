@@ -33,6 +33,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheListener;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.OutboundNatProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.RoutingProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.VlanResponderProvider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.OF13Provider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineOrchestrator;
@@ -50,6 +51,7 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.LoadBalancerService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.OutboundNatService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.RoutingService;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.VlanResponderService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.arp.GatewayMacResolverService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
@@ -148,6 +150,10 @@ public class ConfigActivator implements BundleActivator {
         registerService(context, OutboundNatProvider.class.getName(),
                 outboundNatService, Service.OUTBOUND_NAT);
 
+        VlanResponderService vlanResponderService = new VlanResponderService();
+        registerService(context, VlanResponderProvider.class.getName(),
+                vlanResponderService, Service.OUTBOUND_NAT);
+
         final GatewayMacResolverService gatewayMacResolverService = new GatewayMacResolverService(packetProcessingService, salFlowService);
         registerService(context, GatewayMacResolver.class.getName(),
                 gatewayMacResolverService, Service.GATEWAY_RESOLVER);
@@ -173,6 +179,7 @@ public class ConfigActivator implements BundleActivator {
         of13Provider.setDependencies(context, null);
         gatewayMacResolverService.setDependencies(context, null);
         icmpEchoResponderService.setDependencies(context, null);
+        vlanResponderService.setDependencies(context, null);
 
         @SuppressWarnings("unchecked")
         ServiceTracker networkingProviderManagerTracker = new ServiceTracker(context,

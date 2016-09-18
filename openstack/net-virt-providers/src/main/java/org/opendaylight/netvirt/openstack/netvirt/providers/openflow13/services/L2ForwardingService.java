@@ -791,6 +791,7 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
      * @param ib       Map InstructionBuilder without any instructions
      * @param dpidLong Long the datapath ID of a switch/node
      * @param port     Long representing a port on a switch/node
+     * @param instructions List of instructions
      * @return ib InstructionBuilder Map with instructions
      */
     protected InstructionBuilder createOutputPortInstructions(InstructionBuilder ib,
