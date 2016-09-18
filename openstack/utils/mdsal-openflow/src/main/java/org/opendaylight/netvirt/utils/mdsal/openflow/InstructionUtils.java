@@ -74,6 +74,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._3.match.TunnelIpv4MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.TcpMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.UdpMatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.vlan.match.fields.VlanIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.VlanMatchBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -391,6 +393,55 @@ public class InstructionUtils {
         ab.setAction(new SetVlanIdActionCaseBuilder().setSetVlanIdAction(vl.build()).build());
         ab.setOrder(1);
         actionList.add(ab.build());
+        // Create an Apply Action
+        ApplyActionsBuilder aab = new ApplyActionsBuilder();
+        aab.setAction(actionList);
+
+        // Wrap our Apply Action in an Instruction
+        ib.setInstruction(new ApplyActionsCaseBuilder().setApplyActions(aab.build()).build());
+
+        return ib;
+    }
+
+    /**
+     * Creates Set Vlan ID Instruction along with VLAN Id match and NORMAL actions- This includes push vlan action, and set field -&gt; vlan vid action
+     * @param ib     Map InstructionBuilder without any instructions
+     * @param vlanId Integer representing a VLAN ID Integer representing a VLAN ID
+     * @return ib Map InstructionBuilder with instructions
+     */
+    public static InstructionBuilder createSetVlanAndNormalInstructions(InstructionBuilder ib, VlanId vlanId) {
+
+        List<Action> actionList = new ArrayList<>();
+        ActionBuilder ab = new ActionBuilder();
+
+        /* First we push vlan header */
+        PushVlanActionBuilder vlan = new PushVlanActionBuilder();
+        vlan.setEthernetType(IPV4);
+        ab.setAction(new PushVlanActionCaseBuilder().setPushVlanAction(vlan.build()).build());
+        ab.setOrder(0);
+        actionList.add(ab.build());
+
+        SetFieldBuilder setFieldBuilder = new SetFieldBuilder();
+
+        VlanMatchBuilder vlanBuilder1 = new VlanMatchBuilder();
+        VlanIdBuilder vlanIdBuilder = new VlanIdBuilder();
+        VlanId vlanId1 = new VlanId(vlanId);
+        vlanBuilder1.setVlanId(vlanIdBuilder.setVlanId(vlanId1).setVlanIdPresent(true).build());
+        setFieldBuilder.setVlanMatch(vlanBuilder1.build());
+        ab = new ActionBuilder();
+        ab.setAction(new SetFieldCaseBuilder().setSetField(setFieldBuilder.build()).build());
+        ab.setOrder(1);
+        actionList.add(ab.build());
+
+        ab = new ActionBuilder();
+        OutputActionBuilder output = new OutputActionBuilder();
+        output.setMaxLength(60);
+        Uri value = new Uri(OutputPortValues.NORMAL.toString());
+        output.setOutputNodeConnector(value);
+        ab.setAction(new OutputActionCaseBuilder().setOutputAction(output.build()).build());
+        ab.setOrder(2);
+        actionList.add(ab.build());
+
         // Create an Apply Action
         ApplyActionsBuilder aab = new ApplyActionsBuilder();
         aab.setAction(actionList);

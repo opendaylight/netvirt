@@ -71,6 +71,13 @@ public interface ConfigurationService {
     Map<Pair<String, String>, String> getPatchPortNames();
 
     /**
+     * Adds entry to the patch port cache
+     * @param pairKey pairKey
+     * @param value value
+     */
+     void addPatchPortName(Pair<String, String> pairKey, String value);
+
+    /**
      * Sets the Map of source/destination bridges to patch port name
      * @param patchPortNames Map of source/destination bridges to patch port name
      */
@@ -133,6 +140,12 @@ public interface ConfigurationService {
      * @return true if ovsdb net-virt is configured for distributed arp responder
      */
     boolean isDistributedArpDisabled();
+
+    /**
+     * Determine if Multiple External Network is enabled
+     * @return true if ovsdb net-virt is configured to perform Multiple External Network
+     */
+    boolean isL3MultipleExternalNetworkEnabled();
 
     /**
      * Returns the MacAddress to be used for the default gateway by the {@link L3ForwardingProvider}
