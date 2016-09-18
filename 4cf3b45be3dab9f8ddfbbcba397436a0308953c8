@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_a4056347",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-09-18T07:12:15Z",
+      "side": 1,
+      "message": "Creating dependencies between bundle implementations doesn\u0027t seem like a good practice to me. Consider adding your ELAN related logic in IElanService and reference it using blueprint dependency",
+      "revId": "4cf3b45be3dab9f8ddfbbcba397436a0308953c8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
