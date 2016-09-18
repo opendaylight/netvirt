@@ -84,7 +84,8 @@ public class ArpSender {
      * @param tpa the target protocol address, in this case IPv4 address for which MAC should be
      *        discovered
      * @param arpRequestDestMacAddress the destination MAC address to be used in the ARP packet or null if not known.
-     * @param egressNc the path to node connector from where the ARP packet will be sent  @return future result about success of packet-out
+     * @param egressNc the path to node connector from where the ARP packet will be sent  @return future result about success of * packet-out
+     * @return future result about success of packet-out
      */
     public ListenableFuture<RpcResult<Void>> sendArp(ArpMessageAddress senderAddress, Ipv4Address tpa,
                                                      MacAddress arpRequestDestMacAddress, InstanceIdentifier<NodeConnector> egressNc) {
