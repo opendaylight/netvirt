@@ -1096,20 +1096,48 @@ public class NatUtil {
     	return getNeutronPortForIp(broker, targetIP, NeutronConstants.DEVICE_OWNER_GATEWAY_INF);
     }
 
-    public static Port getNeutronPortForIp(DataBroker broker,
-        IpAddress targetIP, String deviceType) {
+    public static Port getNeutronPortForIpAndNetwork(DataBroker broker,
+            IpAddress targetIP, Uuid networkId) {
+        List<Port> ports = getNeutronPorts(
+                broker);
+
+        for (Port port : ports) {
+            if (networkId.equals(port.getNetworkId()) && port.getFixedIps() != null) {
+                for (FixedIps ip : port.getFixedIps()) {
+                    if (Objects.equals(ip.getIpAddress(), targetIP)) {
+                        return port;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static List<Port> getNeutronPorts(
+            DataBroker broker) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports>
         portsIdentifier = InstanceIdentifier
                 .create(Neutron.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports.class);
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports> portsOptional = read(
                 broker, LogicalDatastoreType.CONFIGURATION, portsIdentifier);
+
         if (!portsOptional.isPresent() || portsOptional.get().getPort() == null) {
             LOG.trace("No neutron ports found");
-            return null;
+            return Collections.EMPTY_LIST;
         }
 
-        for (Port port : portsOptional.get().getPort()) {
+        return portsOptional.get().getPort();
+
+    }
+
+    public static Port getNeutronPortForIp(DataBroker broker,
+        IpAddress targetIP, String deviceType) {
+        List<Port> ports = getNeutronPorts(
+                broker);
+
+        for (Port port : ports) {
             if (deviceType.equals(port.getDeviceOwner()) && port.getFixedIps() != null) {
                 for (FixedIps ip : port.getFixedIps()) {
                     if (Objects.equals(ip.getIpAddress(), targetIP)) {
