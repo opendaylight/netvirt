@@ -178,10 +178,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         // Handle GARP transmission
         final IpAddress extrenalAddress = IpAddressBuilder.getDefaultInstance(externalIp);
         final IpAddress internalAddress = IpAddressBuilder.getDefaultInstance(internalIp);
-        Port neutronPortForIp = NatUtil.getNeutronPortForIp(dataBroker,internalAddress,
-                NeutronConstants.DEVICE_OWNER_NEUTRON_PORT);
+        Port neutronPortForIp = NatUtil.getNeutronPortForIpAndNetwork(dataBroker,internalAddress,networkId);
         if (neutronPortForIp == null) {
-            LOG.warn("No neutron port was found for external ip {} in router {}", internalIp, routerId);
+            LOG.warn("No neutron port was found for internal ip {} in network {} and router {}", internalIp, networkId, routerId);
             NatServiceCounters.port_not_found_for_floating.inc();
             return;
         }

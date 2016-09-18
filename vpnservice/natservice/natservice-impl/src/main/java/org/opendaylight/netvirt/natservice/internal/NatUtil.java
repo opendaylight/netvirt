@@ -1096,6 +1096,32 @@ public class NatUtil {
     	return getNeutronPortForIp(broker, targetIP, NeutronConstants.DEVICE_OWNER_GATEWAY_INF);
     }
 
+    public static Port getNeutronPortForIpAndNetwork(DataBroker broker,
+            IpAddress targetIP, Uuid networkId) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports>
+        portsIdentifier = InstanceIdentifier
+                .create(Neutron.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports.class);
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports> portsOptional = read(
+                broker, LogicalDatastoreType.CONFIGURATION, portsIdentifier);
+        if (!portsOptional.isPresent() || portsOptional.get().getPort() == null) {
+            LOG.trace("No neutron ports found");
+            return null;
+        }
+
+        for (Port port : portsOptional.get().getPort()) {
+            if (networkId.equals(port.getNetworkId()) && port.getFixedIps() != null) {
+                for (FixedIps ip : port.getFixedIps()) {
+                    if (Objects.equals(ip.getIpAddress(), targetIP)) {
+                        return port;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     public static Port getNeutronPortForIp(DataBroker broker,
         IpAddress targetIP, String deviceType) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports>
