@@ -224,8 +224,9 @@ public class BridgeConfigurationManagerImplTest {
         //when(ConfigProperties.getProperty(any(Class.class), anyString())).thenReturn(ADDRESS);
 
         when(southbound.addBridge(any(Node.class), anyString(), anyList(), eq(DatapathTypeSystem.class))).thenReturn(true);
+        when(southbound.readConfigBridge(any(Node.class), anyString())).thenReturn(mock(Node.class));
         when(configurationService.isL3ForwardingEnabled()).thenReturn(true);
-
+        when(configurationService.isL3MultipleExternalNetworkEnabled()).thenReturn(true);
         bridgeConfigurationManagerImpl.prepareNode(node);
 
         // TODO This test doesn't verify anything
