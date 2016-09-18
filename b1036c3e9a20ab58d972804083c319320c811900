@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_c48dffd4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-18T08:40:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_44a28f4b",
+      "revId": "b1036c3e9a20ab58d972804083c319320c811900",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_a48c43db",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-09-18T08:06:40Z",
       "side": 1,
       "message": "Could this be null?",
+      "revId": "b1036c3e9a20ab58d972804083c319320c811900",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_24c033e0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-18T08:40:46Z",
+      "side": 1,
+      "message": "No, it will return an empty hash",
+      "parentUuid": "7a6b29fe_a48c43db",
       "revId": "b1036c3e9a20ab58d972804083c319320c811900",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
