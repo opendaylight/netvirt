@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_7fdbd87b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1102,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2016-09-18T18:09:35Z",
+      "side": 1,
+      "message": "Use one line",
+      "range": {
+        "startLine": 1101,
+        "startChar": 8,
+        "endLine": 1102,
+        "endChar": 23
+      },
+      "revId": "f7eb1e3985efc2bd666e1cb06e2e66db6ae7c5f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_dfe66c43",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2016-09-18T18:09:35Z",
+      "side": 1,
+      "message": "One line",
+      "range": {
+        "startLine": 1117,
+        "startChar": 3,
+        "endLine": 1118,
+        "endChar": 32
+      },
+      "revId": "f7eb1e3985efc2bd666e1cb06e2e66db6ae7c5f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bfe1f02b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1138,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2016-09-18T18:09:35Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 1135,
+        "startChar": 3,
+        "endLine": 1138,
+        "endChar": 24
+      },
+      "revId": "f7eb1e3985efc2bd666e1cb06e2e66db6ae7c5f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
