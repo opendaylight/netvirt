@@ -134,4 +134,11 @@ public interface BridgeConfigurationManager {
      * @return a list of controllers
      */
     List<String> getControllersFromOvsdbNode(Node node);
+
+    /**
+     * Returns all physical interfaces configured in the provider mapping
+     * @param node the {@link Node} to query
+     * @return name of the physical interface
+     */
+    String getMultipleExternalBridge(Node node);
 }

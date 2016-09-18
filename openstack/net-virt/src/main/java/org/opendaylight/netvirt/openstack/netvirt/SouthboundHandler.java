@@ -57,6 +57,7 @@ public class SouthboundHandler extends AbstractHandler
     private volatile NodeCacheManager nodeCacheManager;
     private volatile OvsdbInventoryService ovsdbInventoryService;
     private volatile Southbound southbound;
+    private volatile VLANProvider vlanProvider;
 
     private SouthboundEvent.Type ovsdbTypeToSouthboundEventType(OvsdbType ovsdbType) {
         SouthboundEvent.Type type = SouthboundEvent.Type.NODE;
@@ -113,6 +114,8 @@ public class SouthboundHandler extends AbstractHandler
 
         distributedArpService.processInterfaceEvent(node, intf, network, Action.DELETE);
         neutronL3Adapter.handleInterfaceEvent(node, intf, network, Action.DELETE);
+        final NeutronPort neutronPort = tenantNetworkManager.getTenantPort(intf);
+        programVLANNetworkFlowProvider(node, intf, network, neutronPort, false);
         List<String> phyIfName = bridgeConfigurationManager.getAllPhysicalInterfaceNames(node);
         if (isInterfaceOfInterest(intf, phyIfName)) {
             // delete tunnel or physical interfaces
@@ -191,6 +194,8 @@ public class SouthboundHandler extends AbstractHandler
             } catch (Exception e) {
                 LOG.error("Error fetching Interface Rows for node {}", node, e);
             }
+        } else if (network != null && network.getRouterExternal()) {
+                this.handleInterfaceDelete(node, ovsdbTerminationPointAugmentation, false, network);
         }
         //remove neutronPort from the CleanupCache, if it has the entry.
         NeutronPort neutronPort = null;
@@ -321,7 +326,7 @@ public class SouthboundHandler extends AbstractHandler
         switch (ev.getAction()) {
             case ADD:
             case UPDATE:
-                processPortUpdate(ev.getNode(), (OvsdbTerminationPointAugmentation) ev.getAugmentationData());
+                processPortUpdate(ev.getNode(), (OvsdbTerminationPointAugmentation) ev.getAugmentationData(), ev.getAction());
                 break;
             case DELETE:
                 processPortDelete(ev.getNode(), (OvsdbTerminationPointAugmentation) ev.getAugmentationData(), null);
@@ -329,11 +334,25 @@ public class SouthboundHandler extends AbstractHandler
         }
     }
 
-    private void processPortUpdate(Node node, OvsdbTerminationPointAugmentation port) {
+    private void processPortUpdate(Node node, OvsdbTerminationPointAugmentation port, Action action) {
         LOG.debug("processPortUpdate : {} for the Node: {}", port, node);
         NeutronNetwork network = tenantNetworkManager.getTenantNetwork(port);
-        if (network != null && !network.getRouterExternal()) {
-            this.handleInterfaceUpdate(node, port);
+        if (network != null) {
+            final NeutronPort neutronPort = tenantNetworkManager.getTenantPort(port);
+            if (!network.getRouterExternal()) {
+                handleInterfaceUpdate(node, port);
+            } else if (action != null && action.equals(Action.UPDATE)) {
+                programVLANNetworkFlowProvider(node, port, network, neutronPort, true);
+            }
+        }
+    }
+
+    private void programVLANNetworkFlowProvider(final Node node, final OvsdbTerminationPointAugmentation port,
+           final NeutronNetwork network, final NeutronPort neutronPort, final Boolean isWrite) {
+        if (neutronPort != null && neutronPort.getDeviceOwner().equalsIgnoreCase(Constants.OWNER_ROUTER_GATEWAY) &&
+                network.getProviderNetworkType().equalsIgnoreCase(NetworkHandler.NETWORK_TYPE_VLAN) &&
+                configurationService.isL3MultipleExternalNetworkEnabled()) {
+            vlanProvider.programProviderNetworkFlow(node, port, network, neutronPort, isWrite);
         }
     }
 
@@ -354,7 +373,7 @@ public class SouthboundHandler extends AbstractHandler
         // Would need to change listener or grab tp nodes in here.
         List<TerminationPoint> terminationPoints = southbound.extractTerminationPoints(node);
         for (TerminationPoint terminationPoint : terminationPoints) {
-            processPortUpdate(node, terminationPoint.getAugmentation(OvsdbTerminationPointAugmentation.class));
+            processPortUpdate(node, terminationPoint.getAugmentation(OvsdbTerminationPointAugmentation.class), null);
         }
     }
 
@@ -428,6 +447,8 @@ public class SouthboundHandler extends AbstractHandler
         ovsdbInventoryService =
                 (OvsdbInventoryService) ServiceHelper.getGlobalInstance(OvsdbInventoryService.class, this);
         ovsdbInventoryService.listenerAdded(this);
+        vlanProvider = 
+                (VLANProvider) ServiceHelper.getGlobalInstance(VLANProvider.class, this);
     }
 
     @Override
