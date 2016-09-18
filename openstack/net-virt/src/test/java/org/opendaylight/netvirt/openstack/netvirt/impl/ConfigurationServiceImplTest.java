@@ -43,6 +43,7 @@ public class ConfigurationServiceImplTest {
 
     private static final String ADDRESS = "127.0.0.1";
     private static final String IS_FOWARDING_ENABLE = "yes";
+    private static final String IS_MULTIPLE_EXTERNAL_NETWORK_ENABLE = "yes";
 
     /**
      * Test method {@link ConfigurationServiceImpl#getTunnelEndPoint(Node)}
@@ -64,6 +65,13 @@ public class ConfigurationServiceImplTest {
         ConfigProperties.overrideProperty("ovsdb.l3.fwd.enabled", IS_FOWARDING_ENABLE);
 
         assertTrue("Error, l3 fowarding should be activated", configurationServiceImpl.isL3ForwardingEnabled());
+    }
+
+    @Test
+    public void testIsL3MultipleExternalNetworkEnabled() {
+        ConfigProperties.overrideProperty("ovsdb.l3.multiple.network.enabled", IS_MULTIPLE_EXTERNAL_NETWORK_ENABLE);
+
+        assertTrue("Error, l3 multiple external network should be activated", configurationServiceImpl.isL3MultipleExternalNetworkEnabled());
     }
 
     /**
