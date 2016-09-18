@@ -26,6 +26,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
@@ -160,7 +161,8 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         return flowEntity;
     }
 
-    private FlowEntity buildDNATFlowEntity(BigInteger dpId, String internalIp, String externalIp, long routerId, long associatedVpn) {
+    private FlowEntity buildDNATFlowEntity(BigInteger dpId, String internalIp, String externalIp, long routerId,
+            long associatedVpn, String srcMac) {
 
         LOG.info("Bulding DNAT Flow entity for ip {} ", externalIp);
 
@@ -180,6 +182,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
 //        actionsInfos.add(new ActionInfo(ActionType.set_destination_ip, new String[]{ internalIp, "32" }));
+        actionsInfos.add(new ActionInfo(ActionType.set_field_eth_src, new String[] { srcMac }));
 
         List<InstructionInfo> instructions = new ArrayList<>();
 //        instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf
@@ -276,11 +279,13 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         return flowEntity;
     }
 
-    private void createDNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId, long vpnId, long associatedVpnId) {
+    private void createDNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId, long vpnId,
+            long associatedVpnId, String srcMac) {
+
         FlowEntity pFlowEntity = buildPreDNATFlowEntity(dpnId, internalIp, externalIp, routerId, vpnId, associatedVpnId );
         mdsalManager.installFlow(pFlowEntity);
 
-        FlowEntity flowEntity = buildDNATFlowEntity(dpnId, internalIp, externalIp, routerId, associatedVpnId);
+        FlowEntity flowEntity = buildDNATFlowEntity(dpnId, internalIp, externalIp, routerId, associatedVpnId, srcMac);
         mdsalManager.installFlow(flowEntity);
     }
 
@@ -425,8 +430,10 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         }
 
         //Create the DNAT and SNAT table entries
-        createDNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), routerId, vpnId, associatedVpnId);
-
+        String macOfRouterInterface = NatUtil.getMacOfRouterByDeviceOwner(dataBroker, routerName,
+                NeutronConstants.DEVICE_OWNER_ROUTER_INF);
+        createDNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), routerId, vpnId, associatedVpnId,
+                macOfRouterInterface);
 
         createSNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), vpnId, routerId, associatedVpnId);
 
@@ -455,7 +462,9 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
             return;
         }
         //Create the DNAT and SNAT table entries
-        createDNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId, associatedVpnId);
+        String macOfRouterInterface = NatUtil.getMacOfRouterByDeviceOwner(dataBroker, routerName,
+                NeutronConstants.DEVICE_OWNER_ROUTER_INF);
+        createDNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId, associatedVpnId, macOfRouterInterface);
 
         createSNATTblEntry(dpnId, internalIp, externalIp, vpnId, routerId, associatedVpnId);
 
@@ -482,7 +491,10 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         FlowEntity pFlowEntity = buildPreDNATFlowEntity(dpnId, internalIp, externalIp, routerId, vpnId, associatedVpnId );
         mdsalManager.installFlow(pFlowEntity);
 
-        FlowEntity flowEntity = buildDNATFlowEntity(dpnId, internalIp, externalIp, routerId, associatedVpnId);
+        String macOfRouterInterface = NatUtil.getMacOfRouterByDeviceOwner(dataBroker, routerName,
+                NeutronConstants.DEVICE_OWNER_ROUTER_INF);
+        FlowEntity flowEntity = buildDNATFlowEntity(dpnId, internalIp, externalIp, routerId, associatedVpnId,
+                macOfRouterInterface);
         mdsalManager.installFlow(flowEntity);
 
         //createSNATTblEntry(dpnId, internalIp, externalIp, vpnId, routerId, macAddr);
