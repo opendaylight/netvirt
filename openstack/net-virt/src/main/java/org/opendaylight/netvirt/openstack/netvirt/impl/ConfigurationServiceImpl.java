@@ -113,6 +113,16 @@ public class ConfigurationServiceImpl implements ConfigurationService, ConfigInt
         return patchPortNames;
     }
 
+    /**
+     * Adds entry to the patch port cache
+     * @param pairKey pairKey
+     * @param value value
+     */
+     @Override
+     public void addPatchPortName(Pair<String, String> pairKey, String value) {
+         this.patchPortNames.put(pairKey, value);
+     }
+
     @Override
     public void setPatchPortNames(Map<Pair<String, String>, String> patchPortNames) {
         this.patchPortNames = patchPortNames;
@@ -163,6 +173,12 @@ public class ConfigurationServiceImpl implements ConfigurationService, ConfigInt
     public boolean isDistributedArpDisabled() {
         final String strARPDisabled = ConfigProperties.getProperty(this.getClass(), "ovsdb.l3.arp.responder.disabled");
         return strARPDisabled != null && strARPDisabled.equalsIgnoreCase("yes");
+    }
+
+    @Override
+    public boolean isL3MultipleExternalNetworkEnabled() {
+        final String enabledPropertyStr = ConfigProperties.getProperty(this.getClass(), "ovsdb.l3.multiple.network.enabled");
+        return enabledPropertyStr != null && enabledPropertyStr.equalsIgnoreCase("yes");
     }
 
     @Override
