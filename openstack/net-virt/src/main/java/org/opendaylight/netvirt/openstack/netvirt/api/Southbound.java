@@ -83,4 +83,5 @@ public interface Southbound {
     Long getOFPort(Node bridgeNode, String portName);
     DataBroker getDatabroker();
     OvsdbBridgeAugmentation getBridgeFromConfig(Node ovsdbNode, String bridgeName);
+    Node readConfigBridge(Node node, String name);
 }
