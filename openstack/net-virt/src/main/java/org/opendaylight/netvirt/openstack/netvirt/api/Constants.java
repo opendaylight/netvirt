@@ -111,4 +111,8 @@ public final class Constants {
      * Clustering
      */
     public static final String NETVIRT_OWNER_ENTITY_TYPE = "ovsdb-netvirt-provider";
+
+    public static final String MULTIPLE_NETWORK_L3_PATCH = "patch";
+
+    public static final String OWNER_ROUTER_GATEWAY = "network:router_gateway";
 }

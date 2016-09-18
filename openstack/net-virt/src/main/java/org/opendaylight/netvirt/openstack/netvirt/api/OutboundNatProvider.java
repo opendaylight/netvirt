@@ -27,4 +27,42 @@ public interface OutboundNatProvider {
     Status programIpRewriteExclusion(Long dpid, String segmentationId,
                                      String excludedCidr, Action action);
 
+    /**
+     * Creates flow for OUTPUT instruction.
+     * @param dpidLong dp Id
+     * @param patchIntPort patch port of internal bridge
+     * @param ofPortValue of port value
+     * @param macAddress mac address
+     * @param write - flag to indicate the operation
+     */
+    void programProviderNetworkOutput(Long dpidLong, Long patchIntPort, Long ofPortValue, String macAddress, boolean write);
+
+    /**
+     * Creates flow for POP Vlan instriction.
+     * @param dpidLong dp Id
+     * @param segmentationId segmentation id
+     * @param patchIntPort patch port of internal bridge
+     * @param ofPortValue of port value
+     * @param write - flag to indicate the operation
+     */
+    void programProviderNetworkPopVlan(Long dpidLong, String segmentationId, Long patchIntPort, Long ofPortValue, boolean write);
+
+    /**
+     * Creates flow for Push VLAN instruction.
+     * @param dpidLong dp Id
+     * @param segmentationId Segmentation id
+     * @param patchExtPort patch port of external bridge
+     * @param macAddress mac address
+     * @param write - flag indicate the operation
+     */
+    void programProviderNetworkPushVlan(Long dpidLong, String segmentationId, Long patchExtPort, String macAddress, boolean write);
+
+    /**
+     * Creates flow for Drop instruction.
+     * @param dpidLong dp id
+     * @param patchExtPort patch port of external bridge
+     * @param write - flag indicate the operation
+     */
+    void programProviderNetworkDrop(Long dpidLong, Long patchExtPort, boolean write);
+
 }
