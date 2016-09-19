@@ -24,6 +24,7 @@ import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeNetdev;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -186,6 +187,13 @@ public class ElanBridgeManager {
     }
 
     private boolean createIntegrationBridge(Node ovsdbNode, boolean generateIntBridgeMac) {
+        // Make sure iface-type exist in Open_vSwitch table prior to br-int creation
+        // in order to allow mixed topology of both DPDK and non-DPDK OVS nodes
+        if (!ifaceTypesExist(ovsdbNode)) {
+            LOG.debug("Skipping integration bridge creation as if-types has not been initialized");
+            return false;
+        }
+
         LOG.debug("ElanBridgeManager.createIntegrationBridge, skipping if exists");
         if (!addBridge(ovsdbNode, INTEGRATION_BRIDGE,
                 generateIntBridgeMac ? generateRandomMac() : null)) {
@@ -193,6 +201,12 @@ public class ElanBridgeManager {
             return false;
         }
         return true;
+    }
+
+    private boolean ifaceTypesExist(Node ovsdbNode) {
+        OvsdbNodeAugmentation ovsdbNodeAugmentation = southboundUtils.extractNodeAugmentation(ovsdbNode);
+        return ovsdbNodeAugmentation != null && ovsdbNodeAugmentation.getInterfaceTypeEntry() != null
+                && !ovsdbNodeAugmentation.getInterfaceTypeEntry().isEmpty();
     }
 
     /**
