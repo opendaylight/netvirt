@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_9cc23fe7",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1172,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-19T13:03:07Z",
+      "side": 1,
+      "message": "is there a different model we can use other than neutron?",
+      "range": {
+        "startLine": 1165,
+        "startChar": 4,
+        "endLine": 1172,
+        "endChar": 5
+      },
+      "revId": "e504cc9227edeeda0ab1de607949ab480f84d881",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5c8d47d2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1189,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-19T13:03:07Z",
+      "side": 1,
+      "message": "To avoid conflicts, I placed this method before getNeutronPortForIp in a previous patch",
+      "range": {
+        "startLine": 1174,
+        "startChar": 3,
+        "endLine": 1189,
+        "endChar": 5
+      },
+      "revId": "e504cc9227edeeda0ab1de607949ab480f84d881",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
