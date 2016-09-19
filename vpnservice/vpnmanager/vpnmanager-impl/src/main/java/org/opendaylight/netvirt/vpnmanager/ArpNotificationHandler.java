@@ -143,45 +143,61 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 String targetIpToQuery = notification.getDstIpaddress().getIpv4Address().getValue();
                 VpnPortipToPort vpnTargetIpToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker,
                         vpnIds.getVpnInstanceName(), targetIpToQuery);
-                //Process and respond from Controller only for GatewayIp ARP request
-                if (vpnTargetIpToPort != null) {
-                    if (vpnTargetIpToPort.isSubnetIp()) {
-                        String macAddress = vpnTargetIpToPort.getMacAddress();
-                        PhysAddress targetMac = new PhysAddress(macAddress);
-                        processArpRequest(srcIP, srcMac, targetIP, targetMac, srcInterface);
-                    }
-                } else {
-                    //Respond for gateway Ips ARP requests if L3vpn configured without a router
-                    if (vpnIds.isExternalVpn()) {
-                        Port prt;
-                        String gw = null;
-                        Uuid portUuid = new Uuid(srcInterface);
-                        InstanceIdentifier<Port> inst = InstanceIdentifier.create(Neutron.class)
-                                .child(Ports.class)
-                                .child(Port.class, new PortKey(portUuid));
-                        Optional<Port> port = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, inst);
-                        if (port.isPresent()) {
-                            prt = port.get();
-                            Uuid subnetUUID = prt.getFixedIps().get(0).getSubnetId();
-                            LOG.trace("Subnet UUID for this VPN Interface is {}", subnetUUID);
-                            SubnetKey subnetkey = new SubnetKey(subnetUUID);
-                            InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
-                                    .child(Subnets.class)
-                                    .child(Subnet.class, subnetkey);
-                            Optional<Subnet> subnet = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
-                            if (subnet.isPresent()) {
-                                gw = subnet.get().getGatewayIp().getIpv4Address().getValue();
-                                if (targetIpToQuery.equalsIgnoreCase(gw)) {
-                                    LOG.trace("Target Destination matches the Gateway IP {} so respond for ARP", gw);
-                                    processArpRequest(srcIP, srcMac, targetIP, null, srcInterface);
-                                }
-                            }
-                        }
-                    } else if (elanService.isExternalInterface(srcInterface)) {
-                        handleArpRequestFromExternalInterface(srcInterface, srcIP, srcMac, targetIP);
-                    } else {
-                        LOG.trace("ARP request is not on an External VPN/Interface, so ignoring the request.");
-                    }
+
+                if (vpnIds.isExternalVpn()) {
+                    handleArpRequestForExternalVpn(srcInterface, srcIP, srcMac, targetIP, targetIpToQuery,
+                            vpnTargetIpToPort);
+                    return;
+                }
+                if (vpnTargetIpToPort != null && vpnTargetIpToPort.isSubnetIp()) { // handle router interfaces ARP
+                    handleArpRequestForSubnetIp(srcInterface, srcIP, srcMac, targetIP, vpnTargetIpToPort);
+                    return;
+                }
+                if (elanService.isExternalInterface(srcInterface)) {
+                    handleArpRequestFromExternalInterface(srcInterface, srcIP, srcMac, targetIP);
+                    return;
+                }
+            }
+        }
+    }
+
+    private void handleArpRequestForSubnetIp(String srcInterface, IpAddress srcIP, PhysAddress srcMac,
+            IpAddress targetIP, VpnPortipToPort vpnTargetIpToPort) {
+        String macAddress = vpnTargetIpToPort.getMacAddress();
+        PhysAddress targetMac = new PhysAddress(macAddress);
+        processArpRequest(srcIP, srcMac, targetIP, targetMac, srcInterface);
+        return;
+    }
+
+    private void handleArpRequestForExternalVpn(String srcInterface, IpAddress srcIP, PhysAddress srcMac,
+            IpAddress targetIP, String targetIpToQuery, VpnPortipToPort vpnTargetIpToPort) {
+        if (vpnTargetIpToPort != null) {
+            if (vpnTargetIpToPort.isSubnetIp()) {
+                handleArpRequestForSubnetIp(srcInterface, srcIP, srcMac, targetIP, vpnTargetIpToPort);
+            }
+            return;
+        }
+        // Respond for gateway Ips ARP requests if L3vpn configured without a router
+        Port prt;
+        String gw = null;
+        Uuid portUuid = new Uuid(srcInterface);
+        InstanceIdentifier<Port> inst = InstanceIdentifier.create(Neutron.class).child(Ports.class)
+                .child(Port.class, new PortKey(portUuid));
+        Optional<Port> port = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, inst);
+        if (port.isPresent()) {
+            prt = port.get();
+            Uuid subnetUUID = prt.getFixedIps().get(0).getSubnetId();
+            LOG.trace("Subnet UUID for this VPN Interface is {}", subnetUUID);
+            SubnetKey subnetkey = new SubnetKey(subnetUUID);
+            InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
+                    .child(Subnets.class).child(Subnet.class, subnetkey);
+            Optional<Subnet> subnet = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    subnetidentifier);
+            if (subnet.isPresent()) {
+                gw = subnet.get().getGatewayIp().getIpv4Address().getValue();
+                if (targetIpToQuery.equalsIgnoreCase(gw)) {
+                    LOG.trace("Target Destination matches the Gateway IP {} so respond for ARP", gw);
+                    processArpRequest(srcIP, srcMac, targetIP, null, srcInterface);
                 }
             }
         }
