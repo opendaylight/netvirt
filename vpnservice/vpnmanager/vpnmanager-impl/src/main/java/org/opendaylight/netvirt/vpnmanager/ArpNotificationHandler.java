@@ -144,12 +144,10 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 VpnPortipToPort vpnTargetIpToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker,
                         vpnIds.getVpnInstanceName(), targetIpToQuery);
                 //Process and respond from Controller only for GatewayIp ARP request
-                if (vpnTargetIpToPort != null) {
-                    if (vpnTargetIpToPort.isSubnetIp()) {
-                        String macAddress = vpnTargetIpToPort.getMacAddress();
-                        PhysAddress targetMac = new PhysAddress(macAddress);
-                        processArpRequest(srcIP, srcMac, targetIP, targetMac, srcInterface);
-                    }
+                if ((vpnTargetIpToPort != null) && (vpnTargetIpToPort.isSubnetIp())) {
+                    String macAddress = vpnTargetIpToPort.getMacAddress();
+                    PhysAddress targetMac = new PhysAddress(macAddress);
+                    processArpRequest(srcIP, srcMac, targetIP, targetMac, srcInterface);
                 } else {
                     //Respond for gateway Ips ARP requests if L3vpn configured without a router
                     if (vpnIds.isExternalVpn()) {
