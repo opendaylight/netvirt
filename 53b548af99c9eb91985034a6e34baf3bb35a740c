@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_fa953633",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-19T09:15:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_faa7f6ba",
+      "revId": "53b548af99c9eb91985034a6e34baf3bb35a740c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_5aab8a88",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2016-09-19T09:08:51Z",
       "side": 1,
       "message": "Could be null",
+      "revId": "53b548af99c9eb91985034a6e34baf3bb35a740c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5a99ca6c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 4039
+      },
+      "writtenOn": "2016-09-19T09:15:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_5aab8a88",
       "revId": "53b548af99c9eb91985034a6e34baf3bb35a740c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
