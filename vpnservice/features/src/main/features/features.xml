@@ -54,7 +54,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version="${openflowplugin.version}">odl-openflowplugin-southbound</feature>
     <feature version="${openflowplugin.version}">odl-openflowplugin-flow-services</feature>
     <feature version='${genius.version}'>odl-genius</feature>
-    <bundle>wrap:mvn:javax.inject/javax.inject/{{VERSION}}</bundle>
+    <feature version='${infrautils.version}'>odl-infrautils-inject</feature>
     <bundle>mvn:commons-net/commons-net/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/bgpmanager-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/bgpmanager-impl/{{VERSION}}</bundle>
