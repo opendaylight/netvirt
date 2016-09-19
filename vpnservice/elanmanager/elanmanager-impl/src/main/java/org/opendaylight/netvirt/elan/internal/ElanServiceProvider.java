@@ -477,7 +477,7 @@ public class ElanServiceProvider implements IElanService {
 
     private void createExternalElanNetwork(ElanInstance elanInstance, String interfaceName) {
         if (interfaceName == null) {
-            LOG.trace("No physial interface is attached to {}", elanInstance.getPhysicalNetworkName());
+            LOG.trace("No physical interface is attached to {}", elanInstance.getPhysicalNetworkName());
             return;
         }
 
@@ -550,7 +550,7 @@ public class ElanServiceProvider implements IElanService {
                 if (hasPortNameUpdated(origPortName, updatedPortName)
                         || hasDatapathIdAdded(hasDatapathIdOnOrigNode, hasDatapathIdOnUpdatedNode)) {
                     createExternalElanNetwork(elanInstance,
-                            bridgeMgr.getProviderInterfaceName(updatedNode, updatedPortName));
+                            bridgeMgr.getProviderInterfaceName(updatedNode, physicalNetworkName));
                 }
             }
         }
