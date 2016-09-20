@@ -70,6 +70,24 @@
       "revId": "69641f10ca1447a62013c5d78a1d4b683f9bf183",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ab3a4b96",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-09-20T09:52:32Z",
+      "side": 1,
+      "message": "I already posted the second review, please see changeset 2.\n\nTotally agree with the rest of the comments (not implemented inside this review)",
+      "parentUuid": "7a6b29fe_b07c7aed",
+      "revId": "69641f10ca1447a62013c5d78a1d4b683f9bf183",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
