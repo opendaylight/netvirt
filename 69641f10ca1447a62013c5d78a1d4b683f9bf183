@@ -16,6 +16,24 @@
       "revId": "69641f10ca1447a62013c5d78a1d4b683f9bf183",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b0ec7a2b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-20T04:42:30Z",
+      "side": 1,
+      "message": "Yes,  we should not make entry into vpnTargetIpToPort for floating IP address at any case.\nFor timely workaround, you can provide the above workaround (the one Vivek mentioned) to fix this issue.",
+      "parentUuid": "7a6b29fe_85765e04",
+      "revId": "69641f10ca1447a62013c5d78a1d4b683f9bf183",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
