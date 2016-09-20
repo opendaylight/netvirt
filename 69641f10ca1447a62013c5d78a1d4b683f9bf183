@@ -52,6 +52,24 @@
       "revId": "69641f10ca1447a62013c5d78a1d4b683f9bf183",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b07c7aed",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-20T07:54:07Z",
+      "side": 1,
+      "message": "The above change you in flow is OK..\nPlease make the changes and post it as next PS.\n\nUsing NeutronVpnPortIpToPort with multiple semantics lands up into code confusion..\n\nI believe we need to pin the semantic to NeutronVpnPortIpToPort so that it captures only neutron configuration (and no learning). It should not be used for any other purpose and it can be a Config DS.\n\nThere will be another datastore MipPortIpToPort that will capture ARP requests, ARP responses and GARP requests and that will be Operational in nature and that will store Non-Neutron ports like VIPs.   This MipPortIpToPort will serve as an ARP Cache inside the Controller as it will always have only datapath learned entries and can be managed\nfor expiration and other things.\n\nNow this semantic pinning can be a separate review after this !",
+      "parentUuid": "7a6b29fe_107a8e23",
+      "revId": "69641f10ca1447a62013c5d78a1d4b683f9bf183",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
