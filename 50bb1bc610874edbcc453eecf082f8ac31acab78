@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_83fdb3b3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-09-20T18:45:00Z",
+      "side": 1,
+      "message": "Unrelated to your review, but please rename counter to garp_failed_ipv6",
+      "revId": "50bb1bc610874edbcc453eecf082f8ac31acab78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e32f473d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-09-20T18:45:00Z",
+      "side": 1,
+      "message": "garp_failed_missing_interface",
+      "revId": "50bb1bc610874edbcc453eecf082f8ac31acab78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a319cf23",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-09-20T18:45:00Z",
+      "side": 1,
+      "message": "garp_failed_send",
+      "revId": "50bb1bc610874edbcc453eecf082f8ac31acab78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
