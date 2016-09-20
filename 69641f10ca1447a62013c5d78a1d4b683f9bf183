@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_85765e04",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-20T02:08:08Z",
+      "side": 1,
+      "message": "}I understand you want the code path of elanService.handleArpRequestFromExternalInterface() to be excited for this use-case.\n\nBut this fix will break External VPN ARP functionality for us!\n\nIs the target IP here is the external network\u0027s subnet gateway ip ?\n\nWondering why vpnTargetIpToPort is being filled for FloatingIPs.  That in itself is a bug we have to fix if happening !\n\nIf that is a long pole, better to move the following piece into the \"else\" case for (vpnTargetIpToPort.isSubnetIp()):\n\nif (elanService.isExternalInterface(srcInterface)) {\n                        handleArpRequestFromExternalInterface(srcInterface, srcIP, srcMac, targetIP);\n\n}",
+      "revId": "69641f10ca1447a62013c5d78a1d4b683f9bf183",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
