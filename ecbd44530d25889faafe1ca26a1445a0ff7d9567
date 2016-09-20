@@ -167,6 +167,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_e5ad929c",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T01:09:54Z",
+      "side": 1,
+      "message": "parameter \u0027write\u0027 is not used here?",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_25702a71",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
         "patchSetId": 1
@@ -269,6 +286,23 @@
       "writtenOn": "2016-09-20T00:28:22Z",
       "side": 1,
       "message": "please drop the \"is\" in \"is the neutron subnet\"",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a5a71abc",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/EgressAclProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T01:09:54Z",
+      "side": 1,
+      "message": "I think method programFixedSecurityGroup should handle both adding (if \u0027write\u0027 is true\u0027 and removing flows (if \u0027wrire\u0027 is false).\nWe might not want to add new method \u0027removeFixedSecurityGroup\u0027, instead using the method \u0027programFixedSecurityGroup\u0027 as per reason above.",
       "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
