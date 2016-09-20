@@ -34,6 +34,24 @@
       "revId": "69641f10ca1447a62013c5d78a1d4b683f9bf183",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_107a8e23",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-09-20T07:18:39Z",
+      "side": 1,
+      "message": "Thanks for your informative reply.\nFirst thing, as I wrote in the change description, I agree that the floating IP getting into vpnTargetIpToPort is a bug, and should be fixed.\n\nHowever, I don\u0027t think ARP caching should affect regular ARP flows in any case. The proposed change will break floating IP arp responses for floating IPs which are not learnt into vpnTargetIpToPort (which is even worse than the current state).\n\nSorry for not noticing that my change affects the isExternalVpn() use case, but I think that the way the code is currently written is very misleading. If I understand correctly, the vpnTargetIpToPort model is used for two different reasons here - One as an ARP cache to avoid ARP handling in the isExternalVpn usecase, and one as a way to tell whether the targetIp is a subnetIp.\n\nI suggest the following change (once again, apologies if I missed something as I am not familiar with isExternalVpn use case).\n\nif (isExternalVpn) {\n  if (vpnTargetIpToPort !\u003d null) {\n    if (vpnTargetIpToPort.isSubnetIp()) {\n\t  // respond as usual\n\t}\n    return;\t\n  }\n  // handle isExternalVpn as usual\n  return;\n}\nif (vpnTargetIpToPort \u0026\u0026 vpnTargetIpToPort.isSubnetIp()) { // handle router interfaces ARP\n  // respond as usual\n  return;\n}\nif (elanService.isExternalInterface(srcInterface)) {\n  // respond as usual\n  return;\n}",
+      "parentUuid": "7a6b29fe_b0ec7a2b",
+      "revId": "69641f10ca1447a62013c5d78a1d4b683f9bf183",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
