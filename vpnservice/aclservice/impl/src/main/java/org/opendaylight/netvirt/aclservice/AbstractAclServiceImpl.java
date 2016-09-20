@@ -123,12 +123,12 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 portBefore.getSecurityGroups());
         List<Uuid> deletedAcls = AclServiceUtils.getUpdatedAclList(portBefore.getSecurityGroups(),
                 portAfter.getSecurityGroups());
-        if (addedAcls != null && !addedAcls.isEmpty()) {
-            updateCustomRules(dpId, portAfter.getLPortTag(), addedAcls, NwConstants.ADD_FLOW,
-                    portAfter.getInterfaceId(), portAfter.getAllowedAddressPairs());
-        }
         if (deletedAcls != null && !deletedAcls.isEmpty()) {
             updateCustomRules(dpId, portAfter.getLPortTag(), deletedAcls, NwConstants.DEL_FLOW,
+                    portAfter.getInterfaceId(), portAfter.getAllowedAddressPairs());
+        }
+        if (addedAcls != null && !addedAcls.isEmpty()) {
+            updateCustomRules(dpId, portAfter.getLPortTag(), addedAcls, NwConstants.ADD_FLOW,
                     portAfter.getInterfaceId(), portAfter.getAllowedAddressPairs());
         }
     }
