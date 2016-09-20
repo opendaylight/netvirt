@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_f0f27204",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-20T05:15:54Z",
+      "side": 1,
+      "message": "Nit: Don\u0027t use separate line for opening curly brace {. Do it in all occurrences.",
+      "revId": "fc4663fc61dc40fc85e994997cf73c7cd3392c98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_70e66245",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-20T05:15:54Z",
+      "side": 1,
+      "message": "it should be like this: arpMonitorProfileId \u003d\u003d null || arpMonitorProfileId.equals(0L)",
+      "revId": "fc4663fc61dc40fc85e994997cf73c7cd3392c98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f0c9d2ac",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-20T05:15:54Z",
+      "side": 1,
+      "message": "Nit: no space after ,. Please do it in all occurrences and don\u0027t miss out in the next code review. This has been told several times.",
+      "revId": "fc4663fc61dc40fc85e994997cf73c7cd3392c98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d0cc96bd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1314,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-20T05:15:54Z",
+      "side": 1,
+      "message": "Did you check gatewayIp always present in VpnPortipToPort DS ?",
+      "revId": "fc4663fc61dc40fc85e994997cf73c7cd3392c98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
