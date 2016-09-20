@@ -592,6 +592,10 @@ public class ElanServiceProvider implements IElanService {
         return externalElanInterfaces;
     }
 
+    public String getExternalElanInterface(String elanInstanceName, BigInteger dpnId) {
+        return elanUtils.getExternalElanInterface(elanInstanceName, dpnId);
+    }
+
     @Override
     public boolean isExternalInterface(String interfaceName) {
         return elanUtils.isExternal(interfaceName);
