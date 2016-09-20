@@ -1,0 +1,396 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_65b86211",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "The name could be more clear as \"removeLocalSubnetRules\"",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c53a1698",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 830,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "Move to inside the if (null !\u003d dhcpPort) block. This way this method is not executed if dhcpPort \u003d\u003d null",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a53d5a91",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "initializing srcAddressList \u003d null is redundant. It could move to inside the if (null !\u003d dhcpPort) block as:\n\nif (null !\u003d dhcpPort) {\n    List\u003cNeutron_IPs\u003e srcAddressList \u003d securityServicesManager.getIpAddressList(intf);",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0541ae0a",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 836,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "Replace \"programLocalRules\" with the method name",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_25494a31",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "add \u0027space\u0027 char after \u0027,\u0027",
+      "range": {
+        "startLine": 237,
+        "startChar": 64,
+        "endLine": 237,
+        "endChar": 68
+      },
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_05588ef8",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "Space after \u0027,\u0027",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c56176aa",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "Add java doc",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a5643ab9",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "replace method name \"egressAclIcmpdhcp\" with \"egressAclIcmpDhcp\"",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e55ab2f0",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "formatting around \u0027, \u0027",
+      "range": {
+        "startLine": 232,
+        "startChar": 57,
+        "endLine": 232,
+        "endChar": 70
+      },
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_25702a71",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "formatting around \u0027, \u0027",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_45756662",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 770,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "formatting around \u0027, \u0027",
+      "range": {
+        "startLine": 770,
+        "startChar": 30,
+        "endLine": 770,
+        "endChar": 41
+      },
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_856bfe83",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/EgressAclProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "won\u0027t you just name the parameter name as \u0027dhcpMacAddress\u0027",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6566a2bc",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/EgressAclProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "please drop the \"is\" in \"is the neutron subnet\"",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_25f78ad4",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/EgressAclProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "Missing parameter \"dhcpMacAddress\".\nCould you also arrange the order of parameters of this method to be consistent with the method programPortSecurityGroup",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c50856dc",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/EgressAclProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "please drop the \"is\" in \"is the neutron subnet\"",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_65fd02b1",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/EgressAclProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "Missing parameter \"dhcpMacAddress\".\nCould you also arrange the order of parameters of this method to be consistent with the method programPortSecurityGroup",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c52fb63d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/IngressAclProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "Please see comments for the EgressAclProvider.java about naming parameters \u0027attachedMac\u0027 and \u0027attachedMac2\u0027 to be more clear about their meanings.",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6514e2e8",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 677,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "We could refactor the common code between this method and getDhcpServerPort method",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c5d3365e",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "Don\u0027t you have to call \ncreateIpProtocolMatch(matchBuilder, ICMP_SHORT)\ninstead of creating new method",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2594aa89",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "Please add indentation for the newly added code",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e5cc72bd",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "It is easy to read as:\nipmatch.setIpProtocol(ICMP_SHORT);",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_25c2ea84",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-20T00:28:22Z",
+      "side": 1,
+      "message": "Don\u0027t you have to call:\n\ncreateIpProtocolMatch(matchBuilder, UDP_SHORT)\n\nin stead of creating new method",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
