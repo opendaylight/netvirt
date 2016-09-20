@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a6b29fe_05e88e7a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-20T02:16:37Z",
+      "side": 1,
+      "message": "Good catch :) !",
+      "revId": "a4e0e75c075c51f7bd846ad4ed4ba3aded11ee96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a59b9a16",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelEndPointChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-20T02:16:37Z",
+      "side": 1,
+      "message": "We should never be Visiting all VPN Instances in a cloud, just because we added a TEP to one of the Datapaths !",
+      "revId": "a4e0e75c075c51f7bd846ad4ed4ba3aded11ee96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_c5f1766c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
         "patchSetId": 4
