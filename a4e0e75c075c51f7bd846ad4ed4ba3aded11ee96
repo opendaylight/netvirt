@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_c5f1766c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-20T02:15:27Z",
+      "side": 1,
+      "message": "This entire file has been refactored and so let us please wait for new changes to drop in !",
+      "range": {
+        "startLine": 168,
+        "startChar": 38,
+        "endLine": 168,
+        "endChar": 39
+      },
+      "revId": "a4e0e75c075c51f7bd846ad4ed4ba3aded11ee96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
