@@ -35,7 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -81,8 +80,6 @@ public class NeutronPortChangeListenerTest {
     @Mock
     ElanInstance elanInstance;
     @Mock
-    LockManagerService lockManagerService;
-    @Mock
     NeutronSubnetGwMacResolver gwMacResolver;
     @Mock
     IElanService elanService;
@@ -100,7 +97,7 @@ public class NeutronPortChangeListenerTest {
         when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
             thenReturn(Futures.immediateCheckedFuture(Optional.of(mockNetwork)));
         neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, nVpnMgr, nVpnNatMgr,
-                notiPublishService, lockManagerService, gwMacResolver, odlInterfaceRpcService, elanService);
+                notiPublishService, gwMacResolver, odlInterfaceRpcService, elanService);
         InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class,
                         new ElanInstanceKey(new Uuid("12345678-1234-1234-1234-123456789012").getValue())).build();

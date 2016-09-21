@@ -18,7 +18,6 @@ import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPortsBuilder;
@@ -42,13 +41,10 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
     private static final Logger LOG = LoggerFactory.getLogger(NeutronFloatingToFixedIpMappingChangeListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
-    private final LockManagerService lockManagerService;
 
-    public NeutronFloatingToFixedIpMappingChangeListener(final DataBroker dataBroker,
-                                                         final LockManagerService lockManagerService) {
+    public NeutronFloatingToFixedIpMappingChangeListener(final DataBroker dataBroker) {
         super(Floatingip.class);
         this.dataBroker = dataBroker;
-        this.lockManagerService = lockManagerService;
     }
 
     public void start() {
@@ -167,7 +163,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
                 portsList.add(fixedNeutronPortBuilder.build());
                 routerPortsBuilder.setPorts(portsList);
             }
-            isLockAcquired = NeutronvpnUtils.lock(lockManagerService, routerName);
+            isLockAcquired = NeutronvpnUtils.lock(routerName);
             LOG.debug("Creating/Updating routerPorts node {} in floatingIpInfo DS for floating IP () on fixed " +
                     "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifier, routerPortsBuilder
@@ -177,7 +173,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
             LOG.error("addToFloatingIpInfo failed for floating IP: {} ", floatingIpAddress);
         } finally {
             if (isLockAcquired) {
-                NeutronvpnUtils.unlock(lockManagerService, routerName);
+                NeutronvpnUtils.unlock(routerName);
             }
         }
     }
@@ -203,7 +199,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
                     if (portsList.size() == 1) {
                         try {
                             // remove entire routerPorts node
-                            isLockAcquired = NeutronvpnUtils.lock(lockManagerService, routerName);
+                            isLockAcquired = NeutronvpnUtils.lock(routerName);
                             LOG.debug("removing routerPorts node: {} ", routerName);
                             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
                                     routerPortsIdentifierBuilder.build());
@@ -211,7 +207,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
                             LOG.error("Failure in deletion of routerPorts node {}", routerName);
                         } finally {
                             if (isLockAcquired) {
-                                NeutronvpnUtils.unlock(lockManagerService, routerName);
+                                NeutronvpnUtils.unlock(routerName);
                             }
                         }
                     } else {
@@ -219,7 +215,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
                                 (fixedNeutronPortName));
                         try {
                             // remove entire ports node under this routerPorts node
-                            isLockAcquired = NeutronvpnUtils.lock(lockManagerService, fixedNeutronPortName);
+                            isLockAcquired = NeutronvpnUtils.lock(fixedNeutronPortName);
                             LOG.debug("removing ports node {} under routerPorts node {}", fixedNeutronPortName,
                                     routerName);
                             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, portsIdentifierBuilder
@@ -228,7 +224,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
                             LOG.error("Failure in deletion of routerPorts node {}", routerName);
                         } finally {
                             if (isLockAcquired) {
-                                NeutronvpnUtils.unlock(lockManagerService, routerName);
+                                NeutronvpnUtils.unlock(routerName);
                             }
                         }
                     }
@@ -237,14 +233,14 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
                             portsIdentifierBuilder.child(IpMapping.class, new IpMappingKey(fixedIpAddress)).build();
                     try {
                         // remove particular ipMapping
-                        isLockAcquired = NeutronvpnUtils.lock(lockManagerService, fixedIpAddress);
+                        isLockAcquired = NeutronvpnUtils.lock(fixedIpAddress);
                         LOG.debug("removing particular ipMapping {}", ipMapping);
                         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, ipMappingIdentifier);
                     } catch (Exception e) {
                         LOG.error("Failure in deletion of ipMapping {}", ipMapping);
                     } finally {
                         if (isLockAcquired) {
-                            NeutronvpnUtils.unlock(lockManagerService, fixedIpAddress);
+                            NeutronvpnUtils.unlock(fixedIpAddress);
                         }
                     }
                 }
@@ -278,15 +274,16 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
                             if (portsList.size() == 1) {
                                 try {
                                     // remove entire routerPorts node
-                                    isLockAcquired = NeutronvpnUtils.lock(lockManagerService, routerName);
+                                    isLockAcquired = NeutronvpnUtils.lock(routerName);
                                     LOG.debug("removing routerPorts node: {} ", routerName);
-                                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifierBuilder.build());
+                                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                            routerPortsIdentifierBuilder.build());
 
                                 } catch (Exception e) {
                                     LOG.error("Failure in deletion of routerPorts node {}", routerName);
                                 } finally {
                                     if (isLockAcquired) {
-                                        NeutronvpnUtils.unlock(lockManagerService, routerName);
+                                        NeutronvpnUtils.unlock(routerName);
                                     }
                                 }
                             } else {
@@ -297,7 +294,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
                                         .floating.ip.info.router.ports.Ports.class, new PortsKey(fixedNeutronPortName));
                                 try {
                                     // remove entire ports node under this routerPorts node
-                                    isLockAcquired = NeutronvpnUtils.lock(lockManagerService, fixedNeutronPortName);
+                                    isLockAcquired = NeutronvpnUtils.lock(fixedNeutronPortName);
                                     LOG.debug("removing ports node {} under routerPorts node {}",
                                             fixedNeutronPortName, routerName);
                                     MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
@@ -306,7 +303,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractDataC
                                     LOG.error("Failure in deletion of routerPorts node {}", routerName);
                                 } finally {
                                     if (isLockAcquired) {
-                                        NeutronvpnUtils.unlock(lockManagerService, routerName);
+                                        NeutronvpnUtils.unlock(routerName);
                                     }
                                 }
                             }
