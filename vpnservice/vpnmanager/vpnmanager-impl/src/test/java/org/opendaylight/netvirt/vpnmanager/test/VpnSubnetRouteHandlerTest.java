@@ -27,6 +27,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.netvirt.vpnmanager.SubnetOpDpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager;
+import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer;
 import org.opendaylight.netvirt.vpnmanager.VpnSubnetRouteHandler;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -182,6 +183,7 @@ public class VpnSubnetRouteHandlerTest {
     @Mock LockManagerService lockManager;
     @Mock SubnetOpDpnManager subnetOpDpnManager;
     @Mock LockManagerService lockManagerService;
+    @Mock VpnOpDataSyncer vpnOpDataSyncer;
 
     VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
@@ -209,7 +211,7 @@ public class VpnSubnetRouteHandlerTest {
         setupMocks();
 
         vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, subnetOpDpnManager, bgpManager,
-                vpnInterfaceManager, idManager, lockManagerService);
+                vpnInterfaceManager, idManager, lockManagerService, vpnOpDataSyncer);
         Future<RpcResult<AllocateIdOutput>> idOutputOptional =
                 RpcResultBuilder.success(allocateIdOutput).buildFuture();
 

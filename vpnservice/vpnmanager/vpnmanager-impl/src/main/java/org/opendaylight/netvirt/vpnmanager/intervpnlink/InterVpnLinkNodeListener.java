@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -25,6 +26,9 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer;
+import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLinkBuilder;
@@ -52,12 +56,19 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
 
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
+    private IFibManager fibManager;
+    private NotificationPublishService notificationsService;
+    private VpnOpDataSyncer vpnOpDataSyncer;
 
 
-    public InterVpnLinkNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalMgr) {
+    public InterVpnLinkNodeListener(final DataBroker db, IMdsalApiManager mdsalMgr, IFibManager fibManager,
+                                    NotificationPublishService notifService, VpnOpDataSyncer vpnOpDataSyncer) {
         super(Node.class, InterVpnLinkNodeListener.class);
-        this.dataBroker = dataBroker;
-        mdsalManager = mdsalMgr;
+        this.dataBroker = db;
+        this.mdsalManager = mdsalMgr;
+        this.fibManager = fibManager;
+        this.notificationsService = notifService;
+        this.vpnOpDataSyncer = vpnOpDataSyncer;
     }
 
     public void start() {
@@ -88,7 +99,8 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
         BigInteger dpId = new BigInteger(node[1]);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         coordinator.enqueueJob("IVpnLink" + dpId.toString(),
-                               new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, dpId));
+                               new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, fibManager, notificationsService,
+                                                           vpnOpDataSyncer, dpId));
     }
 
     @Override
