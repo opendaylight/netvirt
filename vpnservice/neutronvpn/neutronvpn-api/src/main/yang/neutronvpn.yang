@@ -132,6 +132,26 @@ module neutronvpn {
           type    yang:uuid;
           description "UUID representing the network ";
         }
+
+        leaf type {
+           description
+              "The type of the VPN Instance.
+               L3 indicates it is an L3VPN.
+               L2 indicates it is EVPN";
+
+           type enumeration {
+              enum l3 {
+                 value "0";
+                 description “L3VPN";
+              }
+              enum l2 {
+                 value "1";
+                 description "EVPN";
+              }
+           }
+           default "l3";
+        }
+
     }
 
     container vpnMaps {

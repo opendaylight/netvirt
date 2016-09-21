@@ -104,6 +104,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.A
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.BgpvpnTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -414,7 +415,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    private void updateVpnInstanceNode(String vpnName, List<String> rd, List<String> irt, List<String> ert) {
+    private void updateVpnInstanceNode(String vpnName, List<String> rd, List<String> irt, List<String> ert, VpnInstance.Type type) {
 
         VpnInstanceBuilder builder = null;
         List<VpnTarget> vpnTargetList = new ArrayList<>();
@@ -429,7 +430,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 builder = new VpnInstanceBuilder(optionalVpn.get());
                 LOG.debug("updating existing vpninstance node");
             } else {
-                builder = new VpnInstanceBuilder().setKey(new VpnInstanceKey(vpnName)).setVpnInstanceName(vpnName);
+                builder = new VpnInstanceBuilder().setKey(new VpnInstanceKey(vpnName)).setVpnInstanceName(vpnName).setType(type);
             }
             if (irt != null && !irt.isEmpty()) {
                 if (ert != null && !ert.isEmpty()) {
@@ -669,6 +670,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 .setName(infName)
                 .setVpnInstanceName(vpnId.getValue())
                 .addAugmentation(Adjacencies.class, adjs);
+        //Add network Id to retrieve VNI for L2VPN
+        vpnb.setNetworkId(port.getNetworkId().getValue());
         VpnInterface vpnIf = vpnb.build();
 
         try {
@@ -797,7 +800,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                     List<String> ert, Uuid router, List<Uuid> networks) {
 
         // Update VPN Instance node
-        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert);
+        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, VpnInstance.Type.L3);
 
         // Update local vpn-subnet DS
         updateVpnMaps(vpn, name, router, tenant, networks);
@@ -844,11 +847,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      * @param router UUID of the neutron router the VPN may be associated to
      * @param networks UUID of the neutron network the VPN may be associated to
      */
-    public void createL3Vpn(Uuid vpn, String name, Uuid tenant, List<String> rd, List<String> irt, List<String> ert,
-                            Uuid router, List<Uuid> networks) throws Exception {
+    public void createVpn(Uuid vpn, String name, Uuid tenant, List<String> rd, List<String> irt, List<String> ert,
+                            Uuid router, List<Uuid> networks, VpnInstance.Type type) throws Exception {
 
         // Update VPN Instance node
-        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert);
+        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, type);
 
         // Please note that router and networks will be filled into VPNMaps
         // by subsequent calls here to associateRouterToVpn and
@@ -895,6 +898,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 errorList.add(error);
                 warningcount++;
                 continue;
+            }
+            VpnInstance.Type vpnInstanceType = VpnInstance.Type.L3;
+            if (vpn.getType() != null && vpn.getType().equals(L3vpn.Type.L2)) {
+                vpnInstanceType = VpnInstance.Type.L2;
             }
             if (vpn.getRouteDistinguisher().size() > 1) {
                 msg = String.format("Creation of L3VPN failed for VPN %s due to multiple RD input %s",
@@ -953,8 +960,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
             try {
-                createL3Vpn(vpn.getId(), vpn.getName(), vpn.getTenantId(), vpn.getRouteDistinguisher(),
-                        vpn.getImportRT(), vpn.getExportRT(), vpn.getRouterId(), vpn.getNetworkIds());
+                createVpn(vpn.getId(), vpn.getName(), vpn.getTenantId(), vpn.getRouteDistinguisher(),
+                        vpn.getImportRT(), vpn.getExportRT(), vpn.getRouterId(), vpn.getNetworkIds(), vpnInstanceType);
             } catch (Exception ex) {
                 msg = String.format("Creation of L3VPN failed for VPN %s", vpn.getId().getValue());
                 LOG.error(msg, ex);
