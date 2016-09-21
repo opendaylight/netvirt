@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -24,6 +25,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -183,13 +185,14 @@ public class DhcpManager {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, ++instructionKey));
+        short serviceIndex = ServiceIndex.getIndex(NwConstants.DHCP_SERVICE_NAME, NwConstants.DHCP_SERVICE_INDEX);
         BoundServices
                 serviceInfo =
                 getBoundServices(String.format("%s.%s", "dhcp", interfaceName),
-                        DHCPMConstants.DHCP_SERVICE_PRIORITY, DHCPMConstants.DEFAULT_FLOW_PRIORITY,
+                        serviceIndex, DHCPMConstants.DEFAULT_FLOW_PRIORITY,
                         DHCPMConstants.COOKIE_VM_INGRESS_TABLE, instructions);
         tx.put(LogicalDatastoreType.CONFIGURATION,
-                buildServiceId(interfaceName, DHCPMConstants.DHCP_SERVICE_PRIORITY), serviceInfo, true);
+                buildServiceId(interfaceName, serviceIndex), serviceInfo, true);
     }
 
     private InstanceIdentifier<BoundServices> buildServiceId(String interfaceName,
@@ -207,7 +210,8 @@ public class DhcpManager {
     }
 
     public void unbindDhcpService(String interfaceName, WriteTransaction tx) {
+        short serviceIndex = ServiceIndex.getIndex(NwConstants.DHCP_SERVICE_NAME, NwConstants.DHCP_SERVICE_INDEX);
         tx.delete(LogicalDatastoreType.CONFIGURATION,
-                buildServiceId(interfaceName, DHCPMConstants.DHCP_SERVICE_PRIORITY));
+                buildServiceId(interfaceName, serviceIndex));
     }
 }
