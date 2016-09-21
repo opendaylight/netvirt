@@ -8,19 +8,13 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -43,8 +37,6 @@ import com.google.common.base.Optional;
 public class NeutronvpnNatManager implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronvpnNatManager.class);
     private final DataBroker dataBroker;
-    private final IMdsalApiManager mdsalUtil;
-    private final IElanService elanService;
     private static final int EXTERNAL_NO_CHANGE = 0;
     private static final int EXTERNAL_ADDED = 1;
     private static final int EXTERNAL_REMOVED = 2;
@@ -54,10 +46,8 @@ public class NeutronvpnNatManager implements AutoCloseable {
      * @param dataBroker           - dataBroker reference
      * @param mdsalManager - MDSAL Util API access
      */
-    public NeutronvpnNatManager(final DataBroker dataBroker, final IMdsalApiManager mdsalManager, final IElanService elanService) {
+    public NeutronvpnNatManager(final DataBroker dataBroker) {
         this.dataBroker = dataBroker;
-        this.mdsalUtil = mdsalManager;
-        this.elanService = elanService;
     }
 
     @Override
@@ -86,7 +76,6 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 LOG.trace("External Network removal detected " +
                         "for router " +  routerId.getValue());
                 removeExternalNetworkFromRouter(origExtNetId, update);
-                removeVpnInterface(origExtNetId);
                 //gateway mac unset handled as part of gateway clear deleting top-level routers node
                 return;
             }
@@ -444,74 +433,9 @@ public class NeutronvpnNatManager implements AutoCloseable {
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, builder.build());
             LOG.trace("Wrote successfully Routers to CONFIG Datastore");
 
-            handleExternalPorts(routers, routerId);
         } catch (Exception ex) {
             LOG.error("Creation of extrouters failed for router " + routerId.getValue() +
                     " failed with " + ex.getMessage());
-        }
-    }
-
-    private void handleExternalPorts(Routers routers, Uuid routerId) {
-        if (routers.getNetworkId() == null) {
-            LOG.trace("No external network attached to routers {}", routers);
-            return;
-        }
-
-        Uuid extNetId = routers.getNetworkId();
-        Collection<String> extElanInterfaces = elanService.getExternalElanInterfaces(extNetId.getValue());
-        if (extElanInterfaces == null || extElanInterfaces.isEmpty()) {
-            LOG.trace("No external ports attached to router {}", routers.getRouterName());
-            return;
-        }
-
-        for (String elanInterface : extElanInterfaces) {
-            createVpnInterface(extNetId, elanInterface);
-        }
-    }
-
-    private void createVpnInterface(Uuid vpnId, String infName) {
-        if (vpnId == null || infName == null) {
-            return;
-        }
-
-        boolean isLockAcquired = false;
-        InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
-        VpnInterface vpnIf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
-                .setName(infName).setVpnInstanceName(vpnId.getValue()).build();
-        try {
-            isLockAcquired = NeutronvpnUtils.lock(infName);
-            LOG.debug("Creating vpn interface {}", vpnIf);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
-        } catch (Exception ex) {
-            LOG.error("Creation of vpninterface {} failed due to {}", infName, ex);
-        } finally {
-            if (isLockAcquired) {
-                NeutronvpnUtils.unlock(infName);
-            }
-        }
-    }
-
-    private void removeVpnInterface(Uuid extNetId) {
-        Collection<String> extElanInterfaces = elanService.getExternalElanInterfaces(extNetId.getValue());
-        if (extElanInterfaces == null || extElanInterfaces.isEmpty()) {
-            LOG.trace("No external ports attached for external network {}", extNetId);
-            return;
-        }
-
-        for (String elanInterface : extElanInterfaces) {
-            boolean isLockAcquired = false;
-            InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(elanInterface);
-            try {
-                isLockAcquired = NeutronvpnUtils.lock(elanInterface);
-                LOG.debug("removing vpn interface {}, vpnIfIdentifier", elanInterface, vpnIfIdentifier);
-                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
-            } catch (Exception ex) {
-                LOG.error("Removal of vpninterface {} failed due to {}", elanInterface, ex);
-            } finally {
-                if (isLockAcquired) {
-                    NeutronvpnUtils.unlock(elanInterface);
-                }
-            }
         }
     }
 
