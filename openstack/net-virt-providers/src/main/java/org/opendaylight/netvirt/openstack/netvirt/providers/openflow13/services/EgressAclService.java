@@ -141,57 +141,58 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         boolean isIpv6 = NeutronSecurityRule.ETHERTYPE_IPV6.equals(securityRuleEtherType);
         if (!isIpv6 && !NeutronSecurityRule.ETHERTYPE_IPV4.equals(securityRuleEtherType)) {
             LOG.debug("programPortSecurityRule: SecurityRuleEthertype {} does not match IPv4/v6.",
-                      securityRuleEtherType);
+                securityRuleEtherType);
             return;
         }
 
+
+        String ipaddress = null;
+        if (null != vmIp) {
+            ipaddress = vmIp.getIpAddress();
+            try {
+                InetAddress address = InetAddress.getByName(ipaddress);
+                if (isIpv6 && address instanceof Inet4Address || !isIpv6 && address instanceof Inet6Address) {
+                    LOG.debug("programPortSecurityRule: Remote vmIP {} does not match with "
+                            + "SecurityRuleEthertype {}.", ipaddress, securityRuleEtherType);
+                    return;
+                }
+            } catch (UnknownHostException e) {
+                LOG.warn("Invalid IP address {}", ipaddress, e);
+                return;
+            }
+        }
         if (null == portSecurityRule.getSecurityRuleProtocol()) {
             /* TODO Rework on the priority values */
             egressAclIp(dpid, isIpv6, segmentationId, attachedMac,
-                          write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                portSecurityRule, ipaddress,
+                write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
         } else {
-            String ipaddress = null;
-            if (null != vmIp) {
-                ipaddress = vmIp.getIpAddress();
-                try {
-                    InetAddress address = InetAddress.getByName(ipaddress);
-                    if (isIpv6 && address instanceof Inet4Address || !isIpv6 && address instanceof Inet6Address) {
-                        LOG.debug("programPortSecurityRule: Remote vmIP {} does not match with "
-                                + "SecurityRuleEthertype {}.", ipaddress, securityRuleEtherType);
-                        return;
-                    }
-                } catch (UnknownHostException e) {
-                    LOG.warn("Invalid IP address {}", ipaddress, e);
-                    return;
-                }
-            }
-
             switch (portSecurityRule.getSecurityRuleProtocol()) {
                 case MatchUtils.TCP:
                     LOG.debug("programPortSecurityRule: Rule matching TCP", portSecurityRule);
                     egressAclTcp(dpid, segmentationId, attachedMac,
-                             portSecurityRule,ipaddress, write,
-                             Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        portSecurityRule,ipaddress, write,
+                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 case MatchUtils.UDP:
                     LOG.debug("programPortSecurityRule: Rule matching UDP", portSecurityRule);
                     egressAclUdp(dpid, segmentationId, attachedMac,
-                             portSecurityRule, ipaddress, write,
-                             Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        portSecurityRule, ipaddress, write,
+                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 case MatchUtils.ICMP:
                 case MatchUtils.ICMPV6:
                     LOG.debug("programPortSecurityRule: Rule matching ICMP", portSecurityRule);
                     egressAclIcmp(dpid, segmentationId, attachedMac,
-                              portSecurityRule, ipaddress,write,
-                              Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        portSecurityRule, ipaddress,write,
+                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 default:
                     LOG.info("programPortSecurityAcl: Protocol is not TCP/UDP/ICMP but other "
                             + "protocol = ", portSecurityRule.getSecurityRuleProtocol());
                     egressOtherProtocolAclHandler(dpid, segmentationId, attachedMac,
-                                              portSecurityRule, ipaddress, write,
-                                              Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        portSecurityRule, ipaddress, write,
+                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
                     break;
             }
         }
@@ -387,6 +388,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
      * @param protoPortMatchPriority the protocol match priority.
      */
     private void egressAclIp(Long dpidLong, boolean isIpv6, String segmentationId, String srcMac,
+                             NeutronSecurityRule portSecurityRule, String srcAddress,
                                boolean write, Integer protoPortMatchPriority ) {
         MatchBuilder matchBuilder = new MatchBuilder();
         String flowId = "Egress_IP" + segmentationId + "_" + srcMac + "_Permit_";
@@ -394,6 +396,22 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,srcMac,null);
         } else {
             matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,srcMac,null,MatchUtils.ETHERTYPE_IPV4);
+        }
+        if (null != srcAddress) {
+            flowId = flowId + srcAddress;
+            if (isIpv6) {
+                matchBuilder = MatchUtils.addRemoteIpv6Prefix(matchBuilder,
+                        MatchUtils.iPv6PrefixFromIPv6Address(srcAddress),null);
+            } else {
+                matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
+                        MatchUtils.iPv4PrefixFromIPv4Address(srcAddress),null);
+            }
+        } else {
+            if (isIpv6) {
+                flowId = flowId + "Ipv6";
+            } else {
+                flowId = flowId + "Ipv4";
+            }
         }
         addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
