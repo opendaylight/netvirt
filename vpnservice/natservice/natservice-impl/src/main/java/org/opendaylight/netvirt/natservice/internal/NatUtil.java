@@ -650,7 +650,10 @@ public class NatUtil {
         Optional<VpnMap> optionalVpnMap = read(broker, LogicalDatastoreType.CONFIGURATION,
                 vpnMapIdentifier);
         if (optionalVpnMap.isPresent()) {
-            return optionalVpnMap.get().getRouterId().getValue();
+            Uuid routerId = optionalVpnMap.get().getRouterId();
+            if (routerId != null) {
+                return routerId.getValue();
+            }
         }
         return null;
     }
