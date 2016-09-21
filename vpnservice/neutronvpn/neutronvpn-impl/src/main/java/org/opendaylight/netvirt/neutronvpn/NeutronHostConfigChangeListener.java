@@ -10,10 +10,8 @@ package org.opendaylight.netvirt.neutronvpn;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.Hostconfigs;
@@ -26,14 +24,13 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NeutronHostConfigChangeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
+public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListenerBase<Node,
+        NeutronHostConfigChangeListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronHostConfigChangeListener.class);
-    private ListenerRegistration<DataChangeListener>listenerRegistration;
     private final DataBroker dataBroker;
     private final SouthboundUtils southboundUtils;
     private final MdsalUtils mdsalUtils;
@@ -48,7 +45,7 @@ public class NeutronHostConfigChangeListener extends AbstractDataChangeListener<
     }
 
     public NeutronHostConfigChangeListener(final DataBroker dataBroker){
-        super(Node.class);
+        super(Node.class,NeutronHostConfigChangeListener.class);
         this.dataBroker = dataBroker;
         this.mdsalUtils = new MdsalUtils(dataBroker);
         this.southboundUtils = new SouthboundUtils(mdsalUtils);
@@ -56,11 +53,11 @@ public class NeutronHostConfigChangeListener extends AbstractDataChangeListener<
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
-    private InstanceIdentifier<Node> getWildCardPath(){
+    @Override
+    protected InstanceIdentifier<Node> getWildCardPath(){
         return InstanceIdentifier
                 .create(NetworkTopology.class)
                 .child(Topology.class,new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
@@ -68,13 +65,10 @@ public class NeutronHostConfigChangeListener extends AbstractDataChangeListener<
     }
 
     @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.info("{} close", getClass().getSimpleName());
+    protected NeutronHostConfigChangeListener getDataTreeChangeListener() {
+        return NeutronHostConfigChangeListener.this;
     }
+
 
     @Override
     protected void remove(InstanceIdentifier<Node>identifier, Node del){

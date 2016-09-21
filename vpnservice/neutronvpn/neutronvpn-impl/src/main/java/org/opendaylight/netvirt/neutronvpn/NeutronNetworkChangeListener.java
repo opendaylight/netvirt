@@ -9,10 +9,8 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import java.util.Objects;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
@@ -26,14 +24,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Network> implements AutoCloseable {
+public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBase<Network, NeutronNetworkChangeListener>
+        implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronNetworkChangeListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final NeutronvpnManager nvpnManager;
     private final NeutronvpnNatManager nvpnNatManager;
@@ -43,7 +40,7 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
     public NeutronNetworkChangeListener(final DataBroker dataBroker, final NeutronvpnManager nVpnMgr,
                                         final NeutronvpnNatManager nVpnNatMgr, final IElanService elanService,
                                         OdlInterfaceRpcService odlInterfaceRpcService) {
-        super(Network.class);
+        super(Network.class, NeutronNetworkChangeListener.class);
         this.dataBroker = dataBroker;
         nvpnManager = nVpnMgr;
         nvpnNatManager = nVpnNatMgr;
@@ -53,22 +50,19 @@ public class NeutronNetworkChangeListener extends AbstractDataChangeListener<Net
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                getWildCardPath(), this, DataChangeScope.SUBTREE);
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
-    private InstanceIdentifier<Network> getWildCardPath() {
+    @Override
+    protected InstanceIdentifier<Network> getWildCardPath() {
         return InstanceIdentifier.create(Neutron.class).child(Networks.class).child(Network.class);
     }
 
     @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.info("{} close", getClass().getSimpleName());
+    protected NeutronNetworkChangeListener getDataTreeChangeListener() {
+        return NeutronNetworkChangeListener.this;
     }
+
 
     @Override
     protected void add(InstanceIdentifier<Network> identifier, Network input) {
