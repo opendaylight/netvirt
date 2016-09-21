@@ -36,31 +36,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateBuilder;
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn
-        .link.states.InterVpnLinkStateKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.inter.vpn.link.state.FirstEndpointState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.inter.vpn.link.state.SecondEndpointState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLinkKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
-import org.opendaylight.yangtools.yang.common.RpcError.ErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 /**
  * This class contains methods to be used as utilities related with inter-vpn-link.
@@ -114,6 +110,10 @@ public class InterVpnLinkUtil {
     public static void updateVpnFootprint(VpnFootprintService vpnFootprintService, String vpnName,
                                           List<BigInteger> dpnList) {
         LOG.debug("updateVpnFootprint (add):  vpn={}  dpnList={}", vpnName, dpnList);
+        // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
+        // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach
+        // to Vpn2 targets. If new Vpn2 targets are added later, the Fib will be maintained in these DPNs even if
+        // Vpn2 is not physically present there.
         for ( BigInteger dpnId : dpnList ) {
             String ifaceName = buildInterVpnLinkIfaceName(vpnName, dpnId);
             vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, ifaceName, true /* addition */);
@@ -134,7 +134,6 @@ public class InterVpnLinkUtil {
         LOG.debug("updateVpnFootprint (remove):  vpn={}  dpn={}  ifaceName={}", vpnName, dpnId, ifaceName);
         vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, ifaceName, false /* removal */);
     }
-
 
     /**
      * Retrieves the InterVpnLink object searching by its name
@@ -203,17 +202,25 @@ public class InterVpnLinkUtil {
      *     InterVpnLink
      * @param lPortTagOfOtherEndpoint Dataplane identifier of the other
      *     endpoint of the InterVpnLink
+     * @return the list of Futures for each and every flow that has been
+     *     installed
      */
-    public static void installLPortDispatcherTableFlow(DataBroker broker, IMdsalApiManager mdsalManager,
-                                                       InterVpnLink interVpnLink, List<BigInteger> dpnList,
-                                                       Uuid vpnUuidOtherEndpoint, Integer lPortTagOfOtherEndpoint) {
+    public static List<ListenableFuture<Void>> installLPortDispatcherTableFlow(DataBroker broker,
+                                                                               IMdsalApiManager mdsalManager,
+                                                                               InterVpnLink interVpnLink,
+                                                                               List<BigInteger> dpnList,
+                                                                               Uuid vpnUuidOtherEndpoint,
+                                                                               Long lPortTagOfOtherEndpoint) {
+        List<ListenableFuture<Void>> result = new ArrayList<>();
         long vpnId = VpnUtil.getVpnId(broker, vpnUuidOtherEndpoint.getValue());
         for ( BigInteger dpnId : dpnList ) {
             // insert into LPortDispatcher table
             Flow lPortDispatcherFlow = buildLPortDispatcherFlow(interVpnLink.getName(), vpnId,
                                                                 lPortTagOfOtherEndpoint.intValue());
-            mdsalManager.installFlow(dpnId, lPortDispatcherFlow);
+            result.add(mdsalManager.installFlow(dpnId, lPortDispatcherFlow));
         }
+
+        return result;
     }
 
     /**
@@ -369,8 +376,8 @@ public class InterVpnLinkUtil {
         Optional<InterVpnLinks> interVpnLinksOpData =
                 MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinksIid);
 
-        return (interVpnLinksOpData.isPresent()) ? interVpnLinksOpData.get().getInterVpnLink()
-                : new ArrayList<InterVpnLink>();
+        return interVpnLinksOpData.isPresent() ? interVpnLinksOpData.get().getInterVpnLink()
+                : new ArrayList<>();
     }
 
     /**
@@ -465,7 +472,7 @@ public class InterVpnLinkUtil {
 
         boolean destinationIs1stEndpoint = interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(dstVpnUuid);
 
-        String endpointIp = (destinationIs1stEndpoint) ? interVpnLink.getSecondEndpoint().getIpAddress().getValue()
+        String endpointIp = destinationIs1stEndpoint ? interVpnLink.getSecondEndpoint().getIpAddress().getValue()
                 : interVpnLink.getFirstEndpoint().getIpAddress().getValue();
 
         VrfEntry newVrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
@@ -487,7 +494,7 @@ public class InterVpnLinkUtil {
         Optional<InterVpnLinkState> optVpnLinkState = getInterVpnLinkState(broker, interVpnLink.getName());
         if ( optVpnLinkState.isPresent() ) {
             InterVpnLinkState vpnLinkState = optVpnLinkState.get();
-            List<BigInteger> dpnIdList = (destinationIs1stEndpoint) ? vpnLinkState.getFirstEndpointState().getDpId()
+            List<BigInteger> dpnIdList = destinationIs1stEndpoint ? vpnLinkState.getFirstEndpointState().getDpId()
                     : vpnLinkState.getSecondEndpointState().getDpId();
             List<String> nexthops = new ArrayList<String>();
             for (BigInteger dpnId : dpnIdList) {
