@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.aclservice.listeners;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
@@ -47,6 +48,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);

@@ -17,7 +17,6 @@ import com.mycila.guice.ext.closeable.CloseableInjector;
 import javax.inject.Inject;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
@@ -29,7 +28,6 @@ public class AclServiceTest {
     @Inject DataBroker dataBroker;
     @Inject TestIMdsalApiManager mdsalApiManager;
 
-    @Ignore
     @Test
     public void newInterface() throws Exception {
         // Given
