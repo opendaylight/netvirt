@@ -51,15 +51,18 @@ public class VpnFootprintService {
 
     private final DataBroker dataBroker;
     private final IFibManager fibManager;
+    private final VpnOpDataSyncer vpnOpDataSyncer;
     private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final NotificationPublishService notificationPublishService;
 
     public VpnFootprintService(final DataBroker dataBroker,
                                final IFibManager fibManager,
                                final OdlInterfaceRpcService ifaceRpcService,
-                               final NotificationPublishService notificationPublishService) {
+                               final NotificationPublishService notificationPublishService,
+                               final VpnOpDataSyncer vpnOpDataSyncer) {
         this.dataBroker = dataBroker;
         this.fibManager = fibManager;
+        this.vpnOpDataSyncer = vpnOpDataSyncer;
         this.ifaceMgrRpcService = ifaceRpcService;
         this.notificationPublishService = notificationPublishService;
     }
@@ -71,6 +74,13 @@ public class VpnFootprintService {
         }
         if(!dpId.equals(BigInteger.ZERO)) {
             if(add) {
+                // Considering the possibility of VpnInstanceOpData not being ready yet cause the VPN is
+                // still in its creation process
+                if ( vpnId == VpnConstants.INVALID_ID ) {
+                    vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpnName,
+                                                   VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS);
+                    vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+                }
                 createOrUpdateVpnToDpnList(vpnId, dpId, interfaceName, vpnName);
             } else {
                 removeOrUpdateVpnToDpnList(vpnId, dpId, interfaceName, vpnName);
@@ -119,7 +129,7 @@ public class VpnFootprintService {
             try {
                 futures.get();
             } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Error adding to dpnToVpnList for vpn {} interface {} dpn {}", vpnName, intfName, dpnId);
+                LOG.error("Error adding to dpnToVpnList for vpn {} interface {} dpn {}", vpnName, intfName, dpnId, e);
                 throw new RuntimeException(e.getMessage());
             }
         }
@@ -167,7 +177,8 @@ public class VpnFootprintService {
             try {
                 futures.get();
             } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Error removing from dpnToVpnList for vpn {} interface {} dpn {}", vpnName, intfName, dpnId);
+                LOG.error("Error removing from dpnToVpnList for vpn {} interface {} dpn {}",
+                          vpnName, intfName, dpnId, e);
                 throw new RuntimeException(e.getMessage());
             }
         }

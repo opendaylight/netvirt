@@ -19,10 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeoutException;
-import java.util.Arrays;
-import java.util.concurrent.Callable;
-import java.lang.StringBuffer;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -30,7 +27,6 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.InvalidJobException;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -45,6 +41,7 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComp
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCleanedCheckerTask;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCreatorTask;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkRemoverTask;
+import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -79,12 +76,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,6 +93,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     private final IFibManager fibManager;
     private final NotificationPublishService notificationsService;
     private final VpnFootprintService vpnFootprintService;
+    private final VpnOpDataSyncer vpnOpDataSyncer;
+
 
     // A couple of listener in order to maintain the InterVpnLink cache
     private InterVpnLinkCacheFeeder iVpnLinkCacheFeeder;
@@ -111,7 +104,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     public InterVpnLinkListener(final DataBroker dataBroker, final IdManagerService idManager,
                                 final IMdsalApiManager mdsalManager, final IBgpManager bgpManager,
                                 final IFibManager fibManager, final NotificationPublishService notifService,
-                                final VpnFootprintService vpnFootprintService) {
+                                final VpnFootprintService vpnFootprintService, final VpnOpDataSyncer vpnOpDataSyncer) {
         super(InterVpnLink.class, InterVpnLinkListener.class);
         this.dataBroker = dataBroker;
         this.idManager = idManager;
@@ -120,7 +113,9 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         this.fibManager = fibManager;
         this.notificationsService = notifService;
         this.vpnFootprintService = vpnFootprintService;
+        this.vpnOpDataSyncer = vpnOpDataSyncer;
     }
+
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
@@ -143,9 +138,10 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     @Override
     protected void add(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink add) {
 
+
         LOG.debug("Reacting to IVpnLink {} creation. Vpn1=[name={}  EndpointIp={}]  Vpn2=[name={} endpointIP={}]",
-                add.getName(), add.getFirstEndpoint().getVpnUuid(), add.getFirstEndpoint().getIpAddress(),
-                add.getSecondEndpoint().getVpnUuid(), add.getSecondEndpoint().getIpAddress());
+                  add.getName(), add.getFirstEndpoint().getVpnUuid(), add.getFirstEndpoint().getIpAddress(),
+                  add.getSecondEndpoint().getVpnUuid(), add.getSecondEndpoint().getIpAddress());
 
         // Create VpnLink state
         InstanceIdentifier<InterVpnLinkState> vpnLinkStateIid = InterVpnLinkUtil.getInterVpnLinkStateIid(add.getName());
@@ -187,6 +183,34 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
         InterVpnLinkCache.addInterVpnLinkToCaches(add);
 
+        // Wait for VPN Operational data ready
+        long vpn1Id = VpnUtil.getVpnId(dataBroker, vpn1Name);
+        if (vpn1Id == VpnConstants.INVALID_ID) {
+            boolean vpn1Ready =
+                vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpn1Name,
+                                                    VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
+            if ( !vpn1Ready ) {
+                String errMsg =
+                    "InterVpnLink " + add.getName() + " creation error: Operational Data for VPN " + vpn1Name +
+                    " not ready after " + VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS + " milliseconds";
+                setInError(vpnLinkStateIid, vpnLinkState, errMsg);
+                return;
+            }
+        }
+        long vpn2Id = VpnUtil.getVpnId(dataBroker, vpn2Name);
+        if (vpn2Id == VpnConstants.INVALID_ID) {
+            boolean vpn1Ready =
+                vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId,vpn2Name,
+                                                    VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
+            if ( !vpn1Ready ) {
+                String errMsg =
+                    "InterVpnLink " + add.getName() + " creation error: Operational Data for VPN " + vpn2Name +
+                    " not ready after " + VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS + " milliseconds";
+                setInError(vpnLinkStateIid, vpnLinkState, errMsg);
+                return;
+            }
+        }
+
         int numberOfDpns = Integer.getInteger(NBR_OF_DPNS_PROPERTY_NAME, 1);
         List<BigInteger> firstDpnList = VpnUtil.pickRandomDPNs(dataBroker, numberOfDpns, null);
         if (firstDpnList != null && !firstDpnList.isEmpty()) {
@@ -208,9 +232,9 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
             // Note that in the DPN of the firstEndpoint we install the lportTag of the secondEndpoint and viceversa
             InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, add, firstDpnList,
-                                                             vpn2Uuid, secondVpnLportTag.intValue());
+                                                             vpn2Uuid, secondVpnLportTag);
             InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, add, secondDpnList,
-                                                             vpn1Uuid, firstVpnLportTag.intValue());
+                                                             vpn1Uuid, firstVpnLportTag);
             // Update the VPN -> DPNs Map.
             // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
             // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach
@@ -371,7 +395,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 continue;
             }
             InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, srcVpnUuid, dstVpnUuid,
-                    vrfEntry.getDestPrefix(), label);
+                                       vrfEntry.getDestPrefix(), label);
         }
     }
 
@@ -403,7 +427,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                                            label, RouteOrigin.value(vrfEntry.getOrigin()));
             }
         }
-
     }
 
     private boolean checkVpnAvailability(InterVpnLinkKey key, Uuid vpnId) {
@@ -422,11 +445,11 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         return true;
     }
 
-
     @Override
     protected void remove(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink del) {
 
         LOG.debug("Reacting to InterVpnLink {} removal", del.getName());
+
         // Remove learnt routes
         // Remove entries in the LPortDispatcher table
         // Remove the corresponding entries in InterVpnLinkState
@@ -535,6 +558,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         cleanUpInterVPNRoutes(iVpnLinkName, vrfEntries, isVpnFirstEndPoint);
     }
 
+
     private void releaseVpnLinkLPortTag(String idKey) {
         ReleaseIdInput releaseIdInput =
             new ReleaseIdInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME).setIdKey(idKey).build();
@@ -587,6 +611,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                               final InterVpnLinkState vpnLinkState,
                               String errorMsg) {
         LOG.error("Setting InterVpnLink {} in error. Reason: {}", vpnLinkState.getInterVpnLinkName(), errorMsg);
+
         // Setting InterVPNLink in error state in MDSAL
         InterVpnLinkState vpnLinkErrorState =
             new InterVpnLinkStateBuilder(vpnLinkState).setState(InterVpnLinkState.State.Error)
