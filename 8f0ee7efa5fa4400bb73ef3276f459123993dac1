@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_1cdd8442",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T08:13:32Z",
+      "side": 1,
+      "message": "Where is start invoked..?  \n\nWithout that where do you register the Listener?\n\nCan you please look the review from Ramanathan, as i posted a PS there to addrress comments from Vishal?\n\nPlease bring those changes here.",
+      "revId": "8f0ee7efa5fa4400bb73ef3276f459123993dac1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fcb6c8f7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T08:13:32Z",
+      "side": 1,
+      "message": "who invokes start?",
+      "revId": "8f0ee7efa5fa4400bb73ef3276f459123993dac1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
