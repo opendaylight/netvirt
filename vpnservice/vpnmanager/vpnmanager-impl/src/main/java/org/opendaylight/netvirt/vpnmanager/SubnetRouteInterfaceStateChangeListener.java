@@ -11,10 +11,9 @@ import java.math.BigInteger;
 
 import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -24,10 +23,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SubnetRouteInterfaceStateChangeListener extends AbstractDataChangeListener<Interface>
-        implements AutoCloseable {
+public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChangeListenerBase<Interface,
+              SubnetRouteInterfaceStateChangeListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetRouteInterfaceStateChangeListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
@@ -35,7 +33,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AbstractDataChangeL
     public SubnetRouteInterfaceStateChangeListener(final DataBroker dataBroker,
                                                    final VpnInterfaceManager vpnInterfaceManager,
                                                    final VpnSubnetRouteHandler vpnSubnetRouteHandler) {
-        super(Interface.class);
+        super(Interface.class, SubnetRouteInterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
@@ -43,21 +41,17 @@ public class SubnetRouteInterfaceStateChangeListener extends AbstractDataChangeL
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
-    private InstanceIdentifier<Interface> getWildCardPath() {
+    @Override
+    protected InstanceIdentifier<Interface> getWildCardPath() {
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
     }
 
     @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.info("{} close", getClass().getSimpleName());
+    protected SubnetRouteInterfaceStateChangeListener getDataTreeChangeListener() {
+        return SubnetRouteInterfaceStateChangeListener.this;
     }
 
     @Override
