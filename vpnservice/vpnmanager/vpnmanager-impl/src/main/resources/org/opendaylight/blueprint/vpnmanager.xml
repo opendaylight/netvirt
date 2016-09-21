@@ -46,11 +46,14 @@
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener" />
   <odl:notification-listener ref="dpnInVpnChangeListener" />
 
+  <bean id="vpnOpDataSyncer" class="org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer"/>
+
   <bean id="vpnFootprintService" class="org.opendaylight.netvirt.vpnmanager.VpnFootprintService">
     <argument ref="dataBroker" />
     <argument ref="fibManager" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="notificationPublishService" />
+    <argument ref="vpnOpDataSyncer" />
   </bean>
 
   <bean id="vpnInterfaceManager"
@@ -64,6 +67,7 @@
     <argument ref="fibManager" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="vpnFootprintService" />
+    <argument ref="vpnOpDataSyncer" />
   </bean>
 
   <bean id="interfaceStateChangeListener"
@@ -144,6 +148,7 @@
     <argument ref="vpnInterfaceManager" />
     <argument ref="idManagerService" />
     <argument ref="lockManagerService" />
+    <argument ref="vpnOpDataSyncer"/>
   </bean>
   <service ref="vpnSubnetRouteHandler" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnListener" />
@@ -185,6 +190,7 @@
     <argument ref="idManagerService" />
     <argument ref="vpnInterfaceManager" />
     <argument ref="fibManager" />
+    <argument ref="vpnOpDataSyncer" />
   </bean>
 
   <bean id="fibEntriesListener" class="org.opendaylight.netvirt.vpnmanager.FibEntriesListener"
@@ -215,6 +221,7 @@
     <argument ref="fibManager" />
     <argument ref="notificationPublishService" />
     <argument ref="vpnFootprintService" />
+    <argument ref="vpnOpDataSyncer" />
   </bean>
 
   <bean id="interVpnLinkNodeListener"
