@@ -617,9 +617,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
             Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(value);
 
-            VpnInterface opInterface = VpnUtil.getVpnInterface(interfaceName, vpnName, aug, dpnId, Boolean.FALSE);
-            InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-            writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface, true);
+            addVpnInterfaceToOperational(vpnName, interfaceName, dpnId, aug, writeOperTxn);
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
 
             for (Adjacency nextHop : aug.getAdjacency()) {
@@ -643,7 +641,16 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             (int) label, RouteOrigin.STATIC, writeConfigTxn);
                 }
             }
+        } else {
+            addVpnInterfaceToOperational(vpnName, interfaceName, dpnId, null, writeOperTxn);
         }
+    }
+
+    private void addVpnInterfaceToOperational(String interfaceName, String vpnName, BigInteger dpnId, Adjacencies aug,
+            WriteTransaction writeOperTxn) {
+        VpnInterface opInterface = VpnUtil.getVpnInterface(interfaceName, vpnName, aug, dpnId, Boolean.FALSE);
+        InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
+        writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface, true);
     }
 
     private List<VpnInstanceOpDataEntry> getVpnsImportingMyRoute(final String vpnName) {
@@ -766,7 +773,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         return rts;
     }
-    
+
     private List<String> getExportRts(VpnInstance vpnInstance) {
         List<String> exportRts = new ArrayList<>();
         VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
