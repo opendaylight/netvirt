@@ -12,17 +12,10 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -47,7 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTargetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTargetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.Vpn;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,25 +47,25 @@ import org.slf4j.LoggerFactory;
 public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInstance, VpnInstanceListener>
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final IBgpManager bgpManager;
     private final IdManagerService idManager;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final IFibManager fibManager;
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private ConcurrentMap<String, Runnable> vpnOpMap = new ConcurrentHashMap<String, Runnable>();
+    private final VpnOpDataSyncer vpnOpDataNotifier;
 
     public VpnInstanceListener(final DataBroker dataBroker, final IBgpManager bgpManager,
                                final IdManagerService idManager,
                                final VpnInterfaceManager vpnInterfaceManager,
-                               final IFibManager fibManager) {
+                               final IFibManager fibManager,
+                               final VpnOpDataSyncer vpnOpDataSyncer) {
         super(VpnInstance.class, VpnInstanceListener.class);
         this.dataBroker = dataBroker;
         this.bgpManager = bgpManager;
         this.idManager = idManager;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.fibManager = fibManager;
+        this.vpnOpDataNotifier = vpnOpDataSyncer;
     }
 
     public void start() {
@@ -101,7 +93,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         long timeout = VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
         Optional<VpnInstanceOpDataEntry> vpnOpValue = null;
         vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getVpnInstanceOpDataIdentifier(rd));
+                                  VpnUtil.getVpnInstanceOpDataIdentifier(rd));
 
         if ((vpnOpValue != null) && (vpnOpValue.isPresent())) {
             vpnOpEntry = vpnOpValue.get();
@@ -188,7 +180,6 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         LOG.trace("Remove VPN event key: {}, value: {}", identifier, del);
         final String vpnName = del.getVpnInstanceName();
         final String rd = del.getIpv4Family().getRouteDistinguisher();
-        final long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
         Optional<VpnInstanceOpDataEntry> vpnOpValue = null;
 
         //TODO(vpnteam): Entire code would need refactoring to listen only on the parent object - VPNInstance
@@ -302,8 +293,6 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     @Override
     protected void add(final InstanceIdentifier<VpnInstance> identifier, final VpnInstance value) {
         LOG.trace("Add VPN event key: {}, value: {}", identifier, value);
-        final VpnAfConfig config = value.getIpv4Family();
-        final String rd = config.getRouteDistinguisher();
         final String vpnName = value.getVpnInstanceName();
 
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -332,7 +321,6 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
             final VpnAfConfig config = vpnInstance.getIpv4Family();
-            final String rd = config.getRouteDistinguisher();
             WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
             WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
             addVpnInstance(vpnInstance, writeConfigTxn, writeOperTxn);
@@ -511,8 +499,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         }
 
         private void notifyTask() {
-            notifyTaskIfRequired(vpnName, vpnInterfaceManager.getvpnInstanceToIdSynchronizerMap());
-            notifyTaskIfRequired(vpnName, vpnInterfaceManager.getvpnInstanceOpDataSynchronizerMap());
+            vpnOpDataNotifier.notifyVpnOpDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpnName);
+            vpnOpDataNotifier.notifyVpnOpDataReady(VpnOpDataSyncer.VpnOpDataType.vpnOpData, vpnName);
         }
         /**
          *
@@ -531,8 +519,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
     public boolean isVPNConfigured() {
 
-        InstanceIdentifier<VpnInstances> vpnsIdentifier =
-                InstanceIdentifier.builder(VpnInstances.class).build();
+        InstanceIdentifier<VpnInstances> vpnsIdentifier = InstanceIdentifier.builder(VpnInstances.class).build();
         Optional<VpnInstances> optionalVpns = TransactionUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 vpnsIdentifier);
         if (!optionalVpns.isPresent() ||
@@ -553,22 +540,5 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             return vpnInstanceOpData.get();
         }
         return null;
-    }
-
-    private void notifyTaskIfRequired(String vpnName,
-                                      ConcurrentHashMap<String, List<Runnable>> vpnInstanceMap) {
-        synchronized (vpnInstanceMap) {
-            List<Runnable> notifieeList = vpnInstanceMap.remove(vpnName);
-            if (notifieeList == null) {
-                LOG.trace(" No notify tasks found for vpnName {}", vpnName);
-                return;
-            }
-            Iterator<Runnable> notifieeIter = notifieeList.iterator();
-            while (notifieeIter.hasNext()) {
-                Runnable notifyTask = notifieeIter.next();
-                executorService.execute(notifyTask);
-                notifieeIter.remove();
-            }
-        }
     }
 }
