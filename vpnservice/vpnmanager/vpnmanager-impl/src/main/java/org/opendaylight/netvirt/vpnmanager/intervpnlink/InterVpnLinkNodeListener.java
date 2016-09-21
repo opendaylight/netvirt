@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -20,6 +21,7 @@ import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
@@ -50,11 +52,16 @@ public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node> i
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
+    private IFibManager fibManager;
+    private NotificationPublishService notificationsService;
 
-    public InterVpnLinkNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalMgr) {
+    public InterVpnLinkNodeListener(final DataBroker db, IMdsalApiManager mdsalMgr, IFibManager fibManager,
+                                    NotificationPublishService notifService) {
         super(Node.class);
-        this.dataBroker = dataBroker;
-        mdsalManager = mdsalMgr;
+        this.dataBroker = db;
+        this.mdsalManager = mdsalMgr;
+        this.fibManager = fibManager;
+        this.notificationsService = notifService;
     }
 
     public void start() {
@@ -87,7 +94,8 @@ public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node> i
         BigInteger dpId = new BigInteger(node[1]);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         coordinator.enqueueJob("IVpnLink" + dpId.toString(),
-                new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, dpId));
+                               new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, fibManager, notificationsService,
+                                                           dpId));
     }
 
     @Override
@@ -121,7 +129,7 @@ public class InterVpnLinkNodeListener extends AbstractDataChangeListener<Node> i
         }
         @Override
         public List<ListenableFuture<Void>> call() throws Exception {
-            List<ListenableFuture<Void>> result = new ArrayList<ListenableFuture<Void>>();
+            List<ListenableFuture<Void>> result = new ArrayList<>();
 
             List<InterVpnLink> allInterVpnLinks = InterVpnLinkUtil.getAllInterVpnLinks(broker);
             for ( InterVpnLink interVpnLink : allInterVpnLinks ) {
