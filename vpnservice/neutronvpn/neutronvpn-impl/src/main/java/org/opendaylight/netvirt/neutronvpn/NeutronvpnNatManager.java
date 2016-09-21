@@ -89,7 +89,6 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 LOG.trace("External Network removal detected " +
                         "for router " +  routerId.getValue());
                 removeExternalNetworkFromRouter(origExtNetId, update);
-                removeVpnInterface(origExtNetId);
                 //gateway mac unset handled as part of gateway clear deleting top-level routers node
                 return;
             }
@@ -477,7 +476,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, builder.build());
             LOG.trace("Wrote successfully Routers to CONFIG Datastore");
 
-            handleExternalPorts(routers, routerId);
+            createExternalVpnInterfaces(routers, routerId);
         } catch (Exception ex) {
             LOG.error("Creation of extrouters failed for router " + routerId.getValue() +
                     " failed with " + ex.getMessage());
@@ -488,7 +487,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         }
     }
 
-    private void handleExternalPorts(Routers routers, Uuid routerId) {
+    private void createExternalVpnInterfaces(Routers routers, Uuid routerId) {
         if (routers.getNetworkId() == null) {
             LOG.trace("No external network attached to routers {}", routers);
             return;
@@ -524,30 +523,6 @@ public class NeutronvpnNatManager implements AutoCloseable {
         } finally {
             if (isLockAcquired) {
                 NeutronvpnUtils.unlock(lockManager, infName);
-            }
-        }
-    }
-
-    private void removeVpnInterface(Uuid extNetId) {
-        Collection<String> extElanInterfaces = elanService.getExternalElanInterfaces(extNetId.getValue());
-        if (extElanInterfaces == null || extElanInterfaces.isEmpty()) {
-            LOG.trace("No external ports attached for external network {}", extNetId);
-            return;
-        }
-
-        for (String elanInterface : extElanInterfaces) {
-            boolean isLockAcquired = false;
-            InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(elanInterface);
-            try {
-                isLockAcquired = NeutronvpnUtils.lock(lockManager, elanInterface);
-                LOG.debug("removing vpn interface {}, vpnIfIdentifier", elanInterface, vpnIfIdentifier);
-                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
-            } catch (Exception ex) {
-                LOG.error("Removal of vpninterface {} failed due to {}", elanInterface, ex);
-            } finally {
-                if (isLockAcquired) {
-                    NeutronvpnUtils.unlock(lockManager, elanInterface);
-                }
             }
         }
     }

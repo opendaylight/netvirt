@@ -203,4 +203,11 @@
     <argument ref="dataBroker" />
     <argument ref="vpnInterfaceManager" />
   </bean>
+
+  <bean id="vpnElanInterfaceChangeListener"
+        class="org.opendaylight.netvirt.vpnmanager.VpnElanInterfaceChangeListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanService" />
+  </bean>
 </blueprint>
