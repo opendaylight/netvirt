@@ -46,7 +46,6 @@ import java.util.concurrent.Callable;
 public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<Node, InterVpnLinkNodeListener>
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkNodeListener.class);
-    private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
 
     // TODO: Remove when included in ovsdb's SouthboundUtils
     public static final TopologyId FLOW_TOPOLOGY_ID = new TopologyId(new Uri("flow:1"));
