@@ -93,6 +93,63 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_fca1a846",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-09-21T09:19:56Z",
+      "side": 1,
+      "message": "These ICMP drop rules will drop the reverse traffic as well. Is there any specific reason for adding this?",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_3cae802e",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-09-21T09:19:56Z",
+      "side": 1,
+      "message": "Will affect reverse traffic?",
+      "range": {
+        "startLine": 248,
+        "startChar": 12,
+        "endLine": 248,
+        "endChar": 26
+      },
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5cb37c97",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-09-21T09:19:56Z",
+      "side": 1,
+      "message": "We are already blocking UDP server traffic the vm and blocking client.",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_05588ef8",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
         "patchSetId": 1
@@ -104,6 +161,23 @@
       "writtenOn": "2016-09-20T00:28:22Z",
       "side": 1,
       "message": "Space after \u0027,\u0027",
+      "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1c446472",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-09-21T09:19:56Z",
+      "side": 1,
+      "message": "This should be added only when there is an SG configured. To allow DHCP traffic adding an ICMP allow rule will do.",
       "revId": "ecbd44530d25889faafe1ca26a1445a0ff7d9567",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
