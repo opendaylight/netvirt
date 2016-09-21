@@ -38,8 +38,6 @@
         class="org.opendaylight.netvirt.neutronvpn.NeutronvpnNatManager"
         destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="elanService" />
   </bean>
 
   <bean id="neutronFloatingToFixedIpMappingChangeListener"
