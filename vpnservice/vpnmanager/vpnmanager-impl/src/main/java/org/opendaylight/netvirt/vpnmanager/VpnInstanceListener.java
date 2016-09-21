@@ -19,7 +19,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -60,21 +59,20 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private final IdManagerService idManager;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final IFibManager fibManager;
-    private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
-            .setNameFormat("NV-VpnMgr-%d").build();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
-    private ConcurrentMap<String, Runnable> vpnOpMap = new ConcurrentHashMap<String, Runnable>();
+    private final VpnOpDataSyncer vpnOpDataNotifier;
 
     public VpnInstanceListener(final DataBroker dataBroker, final IBgpManager bgpManager,
                                final IdManagerService idManager,
                                final VpnInterfaceManager vpnInterfaceManager,
-                               final IFibManager fibManager) {
+                               final IFibManager fibManager,
+                               final VpnOpDataSyncer vpnOpDataSyncer) {
         super(VpnInstance.class, VpnInstanceListener.class);
         this.dataBroker = dataBroker;
         this.bgpManager = bgpManager;
         this.idManager = idManager;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.fibManager = fibManager;
+        this.vpnOpDataNotifier = vpnOpDataSyncer;
     }
 
     public void start() {
@@ -92,15 +90,6 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         return VpnInstanceListener.this;
     }
 
-    void notifyTaskIfRequired(String vpnName) {
-        Runnable notifyTask = vpnOpMap.remove(vpnName);
-        if (notifyTask == null) {
-            LOG.trace("VpnInstanceListener update: No Notify Task queued for vpnName {}", vpnName);
-            return;
-        }
-        executorService.execute(notifyTask);
-    }
-
     private void waitForOpRemoval(String rd, String vpnName) {
         //wait till DCN for update on VPN Instance Op Data signals that vpn interfaces linked to this vpn instance is zero
         //TODO(vpnteam): Entire code would need refactoring to listen only on the parent object - VPNInstance
@@ -111,7 +100,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         long timeout = VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
         Optional<VpnInstanceOpDataEntry> vpnOpValue = null;
         vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getVpnInstanceOpDataIdentifier(rd));
+                                  VpnUtil.getVpnInstanceOpDataIdentifier(rd));
 
         if ((vpnOpValue != null) && (vpnOpValue.isPresent())) {
             vpnOpEntry = vpnOpValue.get();
@@ -510,6 +499,9 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 }
                 vpnInterfaceManager.handleVpnsExportingRoutes(this.vpnName, rd);
             }
+            vpnOpDataNotifier.notifyVpnOpDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpnName);
+            vpnOpDataNotifier.notifyVpnOpDataReady(VpnOpDataSyncer.VpnOpDataType.vpnOpData, vpnName);
+
         }
         /**
          *

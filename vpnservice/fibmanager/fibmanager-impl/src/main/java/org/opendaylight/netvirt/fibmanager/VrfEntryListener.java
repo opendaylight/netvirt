@@ -51,7 +51,6 @@ import org.opendaylight.genius.utils.batching.ResourceHandler;
 import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.genius.utils.batching.SubTransactionImpl;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -67,7 +66,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetTunnelTypeInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetTunnelTypeOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -315,12 +313,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return;
         }
 
-        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.INTERVPN) {
-            // When it is a leaked route, the LFIB and FIB goes a bit different.
-            installInterVpnRouteInLFib(rd, vrfEntry);
-            return;
-        }
-
         final List<BigInteger> localDpnIdList = createLocalFibEntry(vpnInstance.getVpnId(), rd, vrfEntry);
 
         if (vpnToDpnList != null) {
@@ -353,7 +345,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 if ( isNexthopTheOtherVpnLinkEndpoint(routeNexthop, vpnUuid, interVpnLink.get()) ) {
                     // This is an static route that points to the other endpoint of an InterVpnLink
                     // In that case, we should add another entry in FIB table pointing to LPortDispatcher table.
-                    installRouteInInterVpnLink(interVpnLink.get(), vpnUuid, vrfEntry, vpnId);
+                    installIVpnLinkSwitchingFlows(interVpnLink.get(), vpnUuid, vrfEntry, vpnId);
+                    installInterVpnRouteInLFib(rd, vrfEntry);
                 }
             }
         }
@@ -388,12 +381,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
      * InterVpnLink, regarding one of the VPN's point of view.
      */
     private boolean isNexthopTheOtherVpnLinkEndpoint(String nexthop, String thisVpnUuid, InterVpnLink interVpnLink) {
-        return
-                interVpnLink != null
-                        && (   (interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(thisVpnUuid)
-                        && interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(nexthop))
-                        || (interVpnLink.getSecondEndpoint().getVpnUuid().getValue().equals(thisVpnUuid )
-                        && interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(nexthop)) );
+        return interVpnLink != null
+               && ( interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(thisVpnUuid)
+                        && interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(nexthop) )
+               || ( interVpnLink.getSecondEndpoint().getVpnUuid().getValue().equals(thisVpnUuid )
+                        && interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(nexthop) );
     }
 
 
@@ -425,8 +417,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         // For leaking, we need the InterVpnLink to be active. For removal, we just need a InterVpnLink.
         Optional<InterVpnLink> interVpnLink =
-                (addOrRemove == NwConstants.ADD_FLOW) ? FibUtil.getActiveInterVpnLinkFromRd(dataBroker, rd)
-                        : FibUtil.getInterVpnLinkByRd(dataBroker, rd);
+            ( addOrRemove == NwConstants.ADD_FLOW ) ? FibUtil.getActiveInterVpnLinkFromRd(dataBroker, rd)
+                                                    : FibUtil.getInterVpnLinkByRd(dataBroker, rd);
         if ( !interVpnLink.isPresent() ) {
             LOG.debug("Could not find an InterVpnLink for Route-Distinguisher={}", rd);
             return;
@@ -434,12 +426,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         // Ok, at this point everything is ready for the leaking/removal... but should it be performed?
         // For removal, we remove all leaked routes, but we only leak a route if the corresponding flag is enabled.
-        boolean proceed = (addOrRemove == NwConstants.DEL_FLOW )
-                || ( RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP
-                && interVpnLink.get().isBgpRoutesLeaking() );
+        boolean proceed =
+            addOrRemove == NwConstants.DEL_FLOW
+            || ( RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP && interVpnLink.get().isBgpRoutesLeaking());
 
         if ( proceed ) {
-            String theOtherVpnId = ( interVpnLink.get().getFirstEndpoint().getVpnUuid().getValue().equals(vpnUuid) )
+            String theOtherVpnId = interVpnLink.get().getFirstEndpoint().getVpnUuid().getValue().equals(vpnUuid)
                     ? interVpnLink.get().getSecondEndpoint().getVpnUuid().getValue()
                     : vpnUuid;
 
@@ -538,6 +530,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
     }
 
+    /*
+     * For a given route, it installs a flow in LFIB that sets the lportTag of the other endpoint and sends to
+     * LportDispatcher table (via table 80)
+     */
     private void installInterVpnRouteInLFib(final String rd, final VrfEntry vrfEntry) {
         // INTERVPN routes are routes in a Vpn1 that have been leaked to Vpn2. In DC-GW, this Vpn2 route is pointing
         // to a list of DPNs where Vpn2's VpnLink was instantiated. In these DPNs LFIB must be programmed so that the
@@ -568,10 +564,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 }
 
                 List<BigInteger> targetDpns =
-                        ( vpnIs1stEndpoint ) ? vpnLinkState.get().getFirstEndpointState().getDpId()
+                        vpnIs1stEndpoint ? vpnLinkState.get().getFirstEndpointState().getDpId()
                                 : vpnLinkState.get().getSecondEndpointState().getDpId();
                 Long lportTag =
-                        ( vpnIs1stEndpoint ) ? vpnLinkState.get().getSecondEndpointState().getLportTag()
+                        vpnIs1stEndpoint ? vpnLinkState.get().getSecondEndpointState().getLportTag()
                                 : vpnLinkState.get().getFirstEndpointState().getLportTag();
 
                 for ( BigInteger dpId : targetDpns ) {
@@ -602,9 +598,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
 
-
-    private void installRouteInInterVpnLink(final InterVpnLink interVpnLink, final String vpnUuid,
-                                            final VrfEntry vrfEntry, long vpnTag) {
+    /*
+     * Installs the flows in FIB table that, for a given route, do the switching from one VPN to the other.
+     */
+    private void installIVpnLinkSwitchingFlows(final InterVpnLink interVpnLink, final String vpnUuid,
+                                               final VrfEntry vrfEntry, long vpnTag) {
         Preconditions.checkNotNull(interVpnLink, "InterVpnLink cannot be null");
         Preconditions.checkArgument(vrfEntry.getNextHopAddressList() != null
                 && vrfEntry.getNextHopAddressList().size() == 1);
@@ -624,7 +622,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     destination, nextHop, interVpnLink.getName());
             return;
         }
-
 
         // Everything Ok
         boolean vpnIsFirstEndpoint = isVpnFirstEndPoint(interVpnLink, vpnUuid);
@@ -1392,10 +1389,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             String routeNexthop = vrfEntry.getNextHopAddressList().get(0);
 
             if ( interVpnLink.isPresent()
-                    && ( (interVpnLink.get().getFirstEndpoint().getVpnUuid().getValue().equals(vpnUuid.get())
-                    && interVpnLink.get().getSecondEndpoint().getIpAddress().getValue().equals(routeNexthop))
-                    || (interVpnLink.get().getSecondEndpoint().getVpnUuid().getValue().equals(vpnUuid.get() )
-                    && interVpnLink.get().getFirstEndpoint().getIpAddress().getValue().equals(routeNexthop)) ) ) {
+                 && ( ( interVpnLink.get().getFirstEndpoint().getVpnUuid().getValue().equals(vpnUuid.get())
+                         && interVpnLink.get().getSecondEndpoint().getIpAddress().getValue().equals(routeNexthop) )
+                    || ( (interVpnLink.get().getSecondEndpoint().getVpnUuid().getValue().equals(vpnUuid.get() )
+                          && interVpnLink.get().getFirstEndpoint().getIpAddress().getValue().equals(routeNexthop) ) ) ) )  {
                 // This is route that points to the other endpoint of an InterVpnLink
                 // In that case, we should look for the FIB table pointing to LPortDispatcher table and remove it.
                 removeRouteFromInterVpnLink(interVpnLink.get(), rd, vrfEntry);
@@ -1469,7 +1466,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                            VrfEntry vrfEntry, String rd, WriteTransaction tx){
         boolean isRemoteRoute = true;
         if (localNextHopInfo != null) {
-            isRemoteRoute = (!remoteDpnId.equals(localNextHopInfo.getDpnId()));
+            isRemoteRoute = !remoteDpnId.equals(localNextHopInfo.getDpnId());
         }
         if (isRemoteRoute) {
             deleteFibEntry(remoteDpnId, vpnId, vrfEntry, rd, tx);
@@ -1845,7 +1842,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             }
                             return futures;
                         }
-
                     });
         }
     }
@@ -2056,7 +2052,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
         Optional<VrfEntry> vrfEntry = read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
         if (vrfEntry.isPresent())  {
-            return (vrfEntry.get());
+            return vrfEntry.get();
         }
         return null;
     }
