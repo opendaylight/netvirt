@@ -174,13 +174,7 @@ public class TunnelInterfaceStateListener extends AbstractDataChangeListener<Sta
                 LOG.trace("vpnInstance {}", vpnInstance);
                 vpnId = VpnUtil.getVpnId(dataBroker, vpnInstance.getVpnInstanceName());
                 try {
-                    VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
-                    LOG.trace("vpnConfig {}", vpnConfig);
-                    String rd = vpnConfig.getRouteDistinguisher();
-                    if (rd == null || rd.isEmpty()) {
-                        rd = vpnInstance.getVpnInstanceName();
-                        LOG.trace("rd is null or empty. Assigning VpnInstanceName to rd {}", rd);
-                    }
+                    String rd = VpnUtil.getRdFromVpnInstance(vpnInstance);
                     InstanceIdentifier<VpnToDpnList> srcId =
                             VpnUtil.getVpnToDpnListIdentifier(rd, srcDpnId);
                     Optional<VpnToDpnList> srcDpnInVpn =
