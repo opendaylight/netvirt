@@ -782,11 +782,16 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (localNextHopInfo != null) {
             final BigInteger dpnId = localNextHopInfo.getDpnId();
             if (!isVpnPresentInDpn(rd, dpnId)) {
+                LOG.error("The vpnName with vpnId {} rd {} is not available on dpn {}", vpnId, rd, dpnId.toString());
                 return BigInteger.ZERO;
             }
 
             final long groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId, localNextHopInfo.getVpnInterfaceName(), localNextHopIP);
-
+            if (groupId == 0) {
+                LOG.error("Unable to create Group for local prefix {} on rd {} for vpninterface {} on Node {}",
+                        vrfEntry.getDestPrefix(), rd, localNextHopInfo.getVpnInterfaceName(), dpnId.toString());
+                return BigInteger.ZERO;
+            }
             List<ActionInfo> actionsInfos =
                     Arrays.asList(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId)}));
             final List<InstructionInfo> instructions =
