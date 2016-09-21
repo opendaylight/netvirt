@@ -95,15 +95,15 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             LOG.error("Neutronvpn doesn't support gre network provider type for this network {}.", input);
             return;
         }
+        if (NeutronvpnUtils.getIsExternal(input)) {
+            nvpnNatManager.removeExternalNetwork(input);
+        }
         //Delete ELAN instance for this network
         String elanInstanceName = input.getUuid().getValue();
         ElanInstance elanInstance = elanService.getElanInstance(elanInstanceName);
         if (elanInstance != null) {
             elanService.deleteExternalElanNetwork(elanInstance);
             deleteElanInstance(elanInstanceName);
-        }
-        if (NeutronvpnUtils.getIsExternal(input)) {
-            nvpnNatManager.removeExternalNetwork(input);
         }
         NeutronvpnUtils.removeFromNetworkCache(input);
     }
