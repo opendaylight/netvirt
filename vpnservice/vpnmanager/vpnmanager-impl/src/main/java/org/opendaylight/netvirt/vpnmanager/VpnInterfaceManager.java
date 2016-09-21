@@ -148,6 +148,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final NotificationPublishService notificationPublishService;
     private ConcurrentHashMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<String, Runnable>();
+    private ConcurrentHashMap<String, List<Runnable>> vpnInstanceToIdSynchronizerMap = new ConcurrentHashMap<String, List<Runnable>>();
+    private ConcurrentHashMap<String, List<Runnable>> vpnInstanceOpDataSynchronizerMap = new ConcurrentHashMap<String, List<Runnable>>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public VpnInterfaceManager(final DataBroker dataBroker,
@@ -184,6 +186,13 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         return VpnInterfaceManager.this;
     }
 
+    public ConcurrentHashMap<String, List<Runnable>> getvpnInstanceToIdSynchronizerMap() {
+        return vpnInstanceToIdSynchronizerMap;
+    }
+
+    public ConcurrentHashMap<String, List<Runnable>> getvpnInstanceOpDataSynchronizerMap() {
+        return vpnInstanceOpDataSynchronizerMap;
+    }
 
     private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> getInterfaceListenerPath() {
         return InstanceIdentifier.create(InterfacesState.class)
@@ -224,7 +233,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 return;
             }
         } else {
-            LOG.info("Handling addition of VPN interface {} skipped as interfaceState is not available", interfaceName);
+            LOG.error("Handling addition of VPN interface {} skipped as interfaceState is not available", interfaceName);
         }
     }
 
@@ -240,9 +249,38 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             LOG.info("Binding vpn service to interface {} ", interfaceName);
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             if (vpnId == VpnConstants.INVALID_ID) {
-                LOG.trace("VpnInstance to VPNId mapping is not yet available, bailing out now.");
-                return;
+                waitForVpnInstance(vpnName, VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS, vpnInstanceToIdSynchronizerMap);
+                vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+                if (vpnId == VpnConstants.INVALID_ID) {
+                    LOG.error("VpnInstance to VPNId mapping not yet available for VpnName {} processing vpninterface {} " +
+                            ", bailing out now.", vpnName, interfaceName);
+                    return;
+                }
+            } else {
+                // Incase of cluster reboot , VpnId would be available already as its a configDS fetch.
+                // However VpnInstanceOpData will be repopulated, so if its not available
+                // wait for 180 seconds and retry.
+                // TODO:  This wait to be removed by making vpnManager the central engine in carbon
+                String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+                VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+                if (vpnInstanceOpDataEntry == null) {
+                    LOG.debug("VpnInstanceOpData not yet populated for vpn {} rd {}", vpnName, vpnRd);
+                    int retry = 2;
+                    while (retry > 0) {
+                        waitForVpnInstance(vpnName, VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS, vpnInstanceOpDataSynchronizerMap);
+                        vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+                        if (vpnInstanceOpDataEntry != null) {
+                            break;
+                        }
+                        retry--;
+                        if (retry <= 0) {
+                            LOG.error("VpnInstanceOpData not populated even after second retry for vpn {} rd {} vpninterface {}, bailing out ", vpnName, vpnRd, interfaceName);
+                            return;
+                        }
+                    }
+                }
             }
+
             boolean waitForVpnInterfaceOpRemoval = false;
             VpnInterface opVpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, vpnInterface.getName());
             if (opVpnInterface != null ) {
@@ -1727,11 +1765,36 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    void notifyTaskIfRequired(String intfName) {
-        Runnable notifyTask = vpnIntfMap.remove(intfName);
-        if (notifyTask == null) {
-            return;
+    //TODO(vivek) This waiting business to be removed in carbon
+    public void waitForVpnInstance(String vpnName, long wait_time,
+                                       ConcurrentHashMap<String, List<Runnable>> vpnInstanceMap) {
+        List<Runnable> notifieeList = null;
+        Runnable notifyTask = new VpnNotifyTask();
+        try {
+            synchronized (vpnInstanceMap) {
+                notifieeList = vpnInstanceMap.get(vpnName);
+                if (notifieeList == null) {
+                    notifieeList = new ArrayList<Runnable>();
+                    vpnInstanceMap.put(vpnName, notifieeList);
+                }
+                notifieeList.add(notifyTask);
+            }
+            synchronized (notifyTask) {
+                try {
+                    notifyTask.wait(wait_time);
+                } catch (InterruptedException e) {
+                }
+            }
+        } finally {
+            synchronized (vpnInstanceMap) {
+                notifieeList = vpnInstanceMap.get(vpnName);
+                if (notifieeList != null) {
+                    notifieeList.remove(notifyTask);
+                    if (notifieeList.isEmpty()) {
+                        vpnInstanceMap.remove(vpnName);
+                    }
+                }
+            }
         }
-        executorService.execute(notifyTask);
     }
 }
