@@ -91,6 +91,16 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         Preconditions.checkNotNull(elanTag, "ElanTag cannot be null or empty!");
 
         logger.info("onSubnetAddedToVpn: Subnet " + subnetId.getValue() + " being added to vpn");
+        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        if (vpnId == VpnConstants.INVALID_ID) {
+            vpnInterfaceManager.waitForVpnInstance(vpnName, VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS, vpnInterfaceManager.getvpnInstanceToIdSynchronizerMap());
+            vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+            if (vpnId == VpnConstants.INVALID_ID) {
+                logger.error("onSubnetAddedToVpn: VpnInstance to VPNId mapping not yet available for VpnName {} processing subnet {} with IP {} " +
+                        ", bailing out now.", vpnName, subnetId, subnetIp);
+                return;
+            }
+        }
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());

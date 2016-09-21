@@ -289,6 +289,10 @@ public class NexthopManager implements AutoCloseable {
     public long createLocalNextHop(long vpnId, BigInteger dpnId,
                                    String ifName, String ipAddress) {
         long groupId = createNextHopPointer(getNextHopKey(vpnId, ipAddress));
+        if (groupId == 0) {
+            LOG.error("Unable to allocate groupId for vpnId {} , prefix {}", vpnId, ipAddress);
+            return groupId;
+        }
         String nextHopLockStr = new String(vpnId + ipAddress);
         synchronized (nextHopLockStr.intern()) {
             VpnNexthop nexthop = getVpnNexthop(vpnId, ipAddress);
