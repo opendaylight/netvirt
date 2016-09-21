@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -142,6 +143,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     /**
      * @param dataBroker DataBroker reference
      * @param mdsalManager MDSAL Util API access
+     * @param notiPublishService notificationPublishService
+     * @param vpnNatMgr VPN NAT manager service
+     * @param vpnRpcSrv VPN RPC service
+     * @param elanService ELAN service
+     * @param neutronFloatingToFixedIpMappingChangeListener FIP to FixedIP listener
+     * @param neutronvpnConfig Neutronvpn configuration service
      */
     public NeutronvpnManager(
             final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -601,14 +608,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     protected void createVpnInterface(Uuid vpnId, Uuid routerId, Port port, WriteTransaction wrtConfigTxn) {
-        Boolean wrtConfigTxnPresent = true;
-        if (wrtConfigTxn == null) {
-            wrtConfigTxnPresent = false;
-            wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-        }
         String infName = port.getUuid().getValue();
         List<Adjacency> adjList = new ArrayList<>();
-        InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
         List<FixedIps> ips = port.getFixedIps();
 
         Router rtr = null;
@@ -637,20 +638,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
         // create vpn-interface on this neutron port
         Adjacencies adjs = new AdjacenciesBuilder().setAdjacency(adjList).build();
-        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName)).setName(infName)
-                .setVpnInstanceName(vpnId.getValue()).addAugmentation(Adjacencies.class, adjs);
-        VpnInterface vpnIf = vpnb.build();
-        try {
-            LOG.debug("Creating vpn interface {}", vpnIf);
-            wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
-        } catch (Exception ex) {
-            LOG.error("Creation of vpninterface {} failed due to {}", infName, ex);
-        }
+        writeVpnInterfaceToDs(vpnId, infName, adjs, wrtConfigTxn);
         if (routerId != null) {
             addToNeutronRouterInterfacesMap(routerId, infName);
-        }
-        if (!wrtConfigTxnPresent) {
-            wrtConfigTxn.submit();
         }
     }
 
@@ -783,6 +773,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      * @param ert A list of Export Route Targets
      * @param router UUID of the neutron router the VPN may be associated to
      * @param networks UUID of the neutron network the VPN may be associated to
+     * @throws Exception if association of L3VPN failed
      */
     public void createL3Vpn(Uuid vpn, String name, Uuid tenant, List<String> rd, List<String> irt, List<String> ert,
                             Uuid router, List<Uuid> networks) throws Exception {
@@ -2042,7 +2033,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      * Implementation of the "vpnservice:l3vpn-config-show" karaf CLI command
      *
      * @param vpnuuid Uuid of the VPN whose config must be shown
-     * @return
+     * @return formatted output list
      */
     public List<String> showVpnConfigCLI(Uuid vpnuuid) {
         List<String> result = new ArrayList<>();
@@ -2109,6 +2100,84 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             System.out.println("error getting VPN info : " + e.getMessage());
         }
         return result;
+    }
+
+    protected void createExternalVpnInterfaces(Uuid extNetId) {
+        if (extNetId == null) {
+            LOG.trace("external network is null");
+            return;
+        }
+
+        Collection<String> extElanInterfaces = elanService.getExternalElanInterfaces(extNetId.getValue());
+        if (extElanInterfaces == null || extElanInterfaces.isEmpty()) {
+            LOG.trace("No external ports attached to external network {}", extNetId.getValue());
+            return;
+        }
+
+        for (String elanInterface : extElanInterfaces) {
+            createExternalVpnInterface(extNetId, elanInterface);
+        }
+    }
+
+    protected void removeExternalVpnInterfaces(Uuid extNetId) {
+        Collection<String> extElanInterfaces = elanService.getExternalElanInterfaces(extNetId.getValue());
+        if (extElanInterfaces == null || extElanInterfaces.isEmpty()) {
+            LOG.trace("No external ports attached for external network {}", extNetId);
+            return;
+        }
+
+        for (String elanInterface : extElanInterfaces) {
+            boolean isLockAcquired = false;
+            InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils
+                    .buildVpnInterfaceIdentifier(elanInterface);
+            try {
+                isLockAcquired = NeutronvpnUtils.lock(elanInterface);
+                LOG.debug("removing vpn interface {}, vpnIfIdentifier", elanInterface, vpnIfIdentifier);
+                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
+            } catch (Exception ex) {
+                LOG.error("Removal of vpninterface {} failed due to {}", elanInterface, ex);
+            } finally {
+                if (isLockAcquired) {
+                    NeutronvpnUtils.unlock(elanInterface);
+                }
+            }
+        }
+    }
+
+    private void createExternalVpnInterface(Uuid vpnId, String infName) {
+        writeVpnInterfaceToDs(vpnId, infName, null, null);
+    }
+
+    private void writeVpnInterfaceToDs(Uuid vpnId, String infName, Adjacencies adjacencies,
+            WriteTransaction wrtConfigTxn) {
+        if (vpnId == null || infName == null) {
+            LOG.debug("vpn id or interface is null");
+            return;
+        }
+
+        Boolean wrtConfigTxnPresent = true;
+        if (wrtConfigTxn == null) {
+            wrtConfigTxnPresent = false;
+            wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+        }
+
+        InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
+        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName)).setName(infName)
+                .setVpnInstanceName(vpnId.getValue());
+        if (adjacencies != null) {
+            vpnb.addAugmentation(Adjacencies.class, adjacencies);
+        }
+        VpnInterface vpnIf = vpnb.build();
+        try {
+            LOG.info("Creating vpn interface {}", vpnIf);
+            wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
+        } catch (Exception ex) {
+            LOG.error("Creation of vpninterface {} failed due to {}", infName, ex);
+        }
+
+        if (!wrtConfigTxnPresent) {
+            wrtConfigTxn.submit();
+        }
     }
 
     private String getshowVpnConfigCLIHelp() {
