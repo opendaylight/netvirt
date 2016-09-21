@@ -979,9 +979,9 @@ public class NeutronvpnUtils {
     /**
      * Get inter-VPN link state
      *
-     * @param broker
-     * @param vpnLinkName
-     * @return
+     * @param broker data broker
+     * @param vpnLinkName VPN link name
+     * @return Optional of InterVpnLinkState
      */
     public static Optional<InterVpnLinkState> getInterVpnLinkState(DataBroker broker, String vpnLinkName) {
         InstanceIdentifier<InterVpnLinkState> vpnLinkStateIid = InstanceIdentifier.builder(InterVpnLinkStates.class)
