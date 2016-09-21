@@ -90,7 +90,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         Preconditions.checkNotNull(vpnName, "VpnName cannot be null or empty!");
         Preconditions.checkNotNull(elanTag, "ElanTag cannot be null or empty!");
 
-        logger.info("onSubnetAddedToVpn: Subnet " + subnetId.getValue() + " being added to vpn");
+        logger.info("onSubnetAddedToVpn: Subnet {} being added to vpn", subnetId.getValue());
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
@@ -102,7 +102,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                         child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
                 Optional<Subnetmap> sm = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subMapid);
                 if (!sm.isPresent()) {
-                    logger.error("onSubnetAddedToVpn: Unable to retrieve subnetmap entry for subnet : " + subnetId);
+                    logger.error("onSubnetAddedToVpn: Unable to retrieve subnetmap entry for subnet : {}", subnetId);
                     return;
                 }
                 subMap = sm.get();
@@ -707,10 +707,11 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         Preconditions.checkNotNull(vpnName, "vpnName cannot be null or empty!");
         Preconditions.checkNotNull(elanTag, "elanTag cannot be null or empty!");
         String nexthopIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, nhDpnId);
-        if(nexthopIp != null)
+        if(nexthopIp != null) {
             vpnInterfaceManager.addSubnetRouteFibEntryToDS(rd, vpnName, subnetIp, nexthopIp, label, elanTag, nhDpnId , null);
-        else
+        } else {
             logger.info("Unable to get nextHop ip address for nextHop DPN {}. Abort adding subnet route to FIB table.", nhDpnId);
+        }
     }
 
     private int getLabel(String rd, String subnetIp) {
