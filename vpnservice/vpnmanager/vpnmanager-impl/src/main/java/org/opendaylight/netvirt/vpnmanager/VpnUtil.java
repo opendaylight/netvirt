@@ -272,7 +272,7 @@ public class VpnUtil {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
                 new VpnInstanceKey(vpnInstanceName)).build();
         Optional<VpnInstance> vpnInstance = read(broker, LogicalDatastoreType.CONFIGURATION, id);
-        return (vpnInstance.isPresent()) ? vpnInstance.get() : null;
+        return vpnInstance.isPresent() ? vpnInstance.get() : null;
     }
 
     static List<VpnInstance> getAllVpnInstances(DataBroker broker) {
@@ -316,7 +316,7 @@ public class VpnUtil {
                             child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
             Optional<VrfEntry> vrfEntry = read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
             if (vrfEntry.isPresent()) {
-                return (vrfEntry.get());
+                return vrfEntry.get();
             }
         }
         return null;
@@ -430,7 +430,7 @@ public class VpnUtil {
      */
     public static String getVpnNameFromRd(DataBroker broker, String rd) {
         VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(broker, rd);
-        return (vpnInstanceOpData != null) ? vpnInstanceOpData.getVpnInstanceName() : null;
+        return vpnInstanceOpData != null ? vpnInstanceOpData.getVpnInstanceName() : null;
     }
 
     /**
@@ -635,10 +635,11 @@ public class VpnUtil {
                List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces> rtrInterfaces = RouterInterfacesMap.get().getRouterInterfaces();
                   for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces rtrInterface : rtrInterfaces) {
                       List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces> rtrIfc = rtrInterface.getInterfaces();
-                      for(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces ifc : rtrIfc)
-                       if (ifc.getInterfaceId().equals(interfaceName)) {
-                          return rtrInterface.getRouterId().getValue();
-                       }
+                      for(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces ifc : rtrIfc) {
+                        if (ifc.getInterfaceId().equals(interfaceName)) {
+                              return rtrInterface.getRouterId().getValue();
+                           }
+                    }
                   }
         }
         return null;
@@ -915,20 +916,6 @@ public class VpnUtil {
         }
     }
 
-    /**
-     * Removes a specific interface from the VpnToDpn operative map.
-     *
-     * @param broker    dataBroker service reference
-     * @param rd        Route-distinguisher of the VPN
-     * @param dpnId     Id of the DPN where the interface is
-     * @param ifaceName interface name.
-     */
-    public static void removeIfaceFromVpnToDpnMap(DataBroker broker, String rd, BigInteger dpnId, String ifaceName) {
-        tryDelete(broker, LogicalDatastoreType.CONFIGURATION, getVpnToDpnInterfacePath(rd, dpnId, ifaceName));
-        // Note: tryDelete is a best-effort. Sometimes we want to update the VpnToDpnMap ifaces when the
-        // DPN has gone down (and the VpnToDpnMap has been removed in a different Thread)
-    }
-
     public static void removePrefixToInterfaceForVpnId(DataBroker broker, long vpnId, WriteTransaction writeTxn) {
         try {
             // Clean up PrefixToInterface Operational DS
@@ -1084,8 +1071,9 @@ public class VpnUtil {
         for (BigInteger dpId : dpnIdPool) {
             if (excludingDPNs == null || !excludingDPNs.contains(dpId)) {
                 result.add(dpId);
-                if (result.size() == numberOfDPNs)
+                if (result.size() == numberOfDPNs) {
                     break;
+                }
             }
         }
 
@@ -1168,7 +1156,7 @@ public class VpnUtil {
         InstanceIdentifier id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
         if (vpnPortipToPortData.isPresent()) {
-            return (vpnPortipToPortData.get());
+            return vpnPortipToPortData.get();
         }
         return null;
     }
