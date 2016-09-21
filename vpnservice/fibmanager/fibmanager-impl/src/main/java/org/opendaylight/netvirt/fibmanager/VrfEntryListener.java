@@ -325,12 +325,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return;
         }
 
-        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.INTERVPN) {
-            // When it is a leaked route, the LFIB and FIB goes a bit different.
-            installInterVpnRouteInLFib(rd, vrfEntry);
-            return;
-        }
-
         final List<BigInteger> localDpnIdList = createLocalFibEntry(vpnInstance.getVpnId(), rd, vrfEntry);
 
         if (vpnToDpnList != null) {
@@ -365,7 +359,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 if ( interVpnLink.isIpAddrTheOtherVpnEndpoint(routeNexthop, vpnUuid) ) {
                     // This is an static route that points to the other endpoint of an InterVpnLink
                     // In that case, we should add another entry in FIB table pointing to LPortDispatcher table.
-                    installRouteInInterVpnLink(interVpnLink, vpnUuid, vrfEntry, vpnId);
+                    installIVpnLinkSwitchingFlows(interVpnLink, vpnUuid, vrfEntry, vpnId);
                     installInterVpnRouteInLFib(rd, vrfEntry);
                 }
             }
@@ -537,6 +531,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
     }
 
+    /*
+     * For a given route, it installs a flow in LFIB that sets the lportTag of the other endpoint and sends to
+     * LportDispatcher table (via table 80)
+     */
     private void installInterVpnRouteInLFib(final String rd, final VrfEntry vrfEntry) {
         // INTERVPN routes are routes in a Vpn1 that have been leaked to Vpn2. In DC-GW, this Vpn2 route is pointing
         // to a list of DPNs where Vpn2's VpnLink was instantiated. In these DPNs LFIB must be programmed so that the
@@ -599,9 +597,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
 
-
-    private void installRouteInInterVpnLink(final InterVpnLinkDataComposite interVpnLink, final String vpnUuid,
-                                            final VrfEntry vrfEntry, long vpnTag) {
+    /*
+     * Installs the flows in FIB table that, for a given route, do the switching from one VPN to the other.
+     */
+    private void installIVpnLinkSwitchingFlows(final InterVpnLinkDataComposite interVpnLink, final String vpnUuid,
+                                               final VrfEntry vrfEntry, long vpnTag) {
         Preconditions.checkNotNull(interVpnLink, "InterVpnLink cannot be null");
         Preconditions.checkArgument(vrfEntry.getNextHopAddressList() != null
                 && vrfEntry.getNextHopAddressList().size() == 1);
@@ -1862,7 +1862,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             }
                             return futures;
                         }
-
                     });
         }
     }

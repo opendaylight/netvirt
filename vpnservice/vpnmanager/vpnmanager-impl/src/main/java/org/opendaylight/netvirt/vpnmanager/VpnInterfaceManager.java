@@ -14,21 +14,34 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterators;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimerTask;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.Future;
+
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
@@ -71,11 +84,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Se
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.LabelRouteMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
@@ -115,14 +125,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rem
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcError;
@@ -142,15 +146,21 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final NotificationPublishService notificationPublishService;
     private ConcurrentHashMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<String, Runnable>();
-    private ConcurrentHashMap<String, List<Runnable>> vpnInstanceToIdSynchronizerMap = new ConcurrentHashMap<String, List<Runnable>>();
-    private ConcurrentHashMap<String, List<Runnable>> vpnInstanceOpDataSynchronizerMap = new ConcurrentHashMap<String, List<Runnable>>();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final VpnOpDataSyncer vpnOpDataSyncer;
     private static final int vpnInfUpdateTimerTaskDelay = 1000;
     private static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;
     private BlockingQueue<UpdateData> vpnInterfacesUpdateQueue = new LinkedBlockingQueue<>();
     private ScheduledThreadPoolExecutor vpnInfUpdateTaskExecutor = (ScheduledThreadPoolExecutor) Executors
             .newScheduledThreadPool(1);
 
+    /**
+     * Responsible for listening to data change related to VPN Interface
+     * Bind VPN Service on the interface and informs the BGP service
+     *
+     * @param dataBroker - dataBroker service reference
+     * @param bgpManager Used to advertise routes to the BGP Router
+     * @param notificationPublishService Used to subscribe to notification events
+     */
     public VpnInterfaceManager(final DataBroker dataBroker,
                                final IBgpManager bgpManager,
                                final OdlArputilService arpManager,
@@ -158,8 +168,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                final IMdsalApiManager mdsalManager,
                                final IFibManager fibManager,
                                final OdlInterfaceRpcService ifaceMgrRpcService,
-                               final NotificationPublishService notificationPublishService) {
+                               final NotificationPublishService notificationPublishService,
+                               final VpnOpDataSyncer vpnOpDataSyncer) {
         super(VpnInterface.class, VpnInterfaceManager.class);
+
         this.dataBroker = dataBroker;
         this.bgpManager = bgpManager;
         this.arpManager = arpManager;
@@ -168,6 +180,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         this.fibManager = fibManager;
         this.ifaceMgrRpcService = ifaceMgrRpcService;
         this.notificationPublishService = notificationPublishService;
+        this.vpnOpDataSyncer = vpnOpDataSyncer;
         vpnInfUpdateTaskExecutor.scheduleWithFixedDelay(new VpnInterfaceUpdateTimerTask(),
                 0, vpnInfUpdateTimerTaskDelay, TIME_UNIT);
     }
@@ -189,14 +202,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     @Override
     protected VpnInterfaceManager getDataTreeChangeListener() {
         return VpnInterfaceManager.this;
-    }
-
-    public ConcurrentHashMap<String, List<Runnable>> getvpnInstanceToIdSynchronizerMap() {
-        return vpnInstanceToIdSynchronizerMap;
-    }
-
-    public ConcurrentHashMap<String, List<Runnable>> getvpnInstanceOpDataSynchronizerMap() {
-        return vpnInstanceOpDataSynchronizerMap;
     }
 
     private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> getInterfaceListenerPath() {
@@ -247,7 +252,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                         delAdjFromVpnInterface(identifier, adj, dpnId, writeOperTxn, writeConfigTxn);
                                     }
                                 }
-                                List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                List<ListenableFuture<Void>> futures = new ArrayList<>();
                                 futures.add(writeOperTxn.submit());
                                 futures.add(writeConfigTxn.submit());
                                 futures.add(writeInvTxn.submit());
@@ -278,34 +283,30 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             LOG.info("Binding vpn service to interface {} ", interfaceName);
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             if (vpnId == VpnConstants.INVALID_ID) {
-                waitForVpnInstance(vpnName, VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS, vpnInstanceToIdSynchronizerMap);
+                vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpnName,
+                                                    VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
+
                 vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
                 if (vpnId == VpnConstants.INVALID_ID) {
-                    LOG.error("VpnInstance to VPNId mapping not yet available for VpnName {} processing vpninterface {} " +
-                            ", bailing out now.", vpnName, interfaceName);
+                    LOG.error("VpnInstance to VPNId mapping not yet available for VpnName {} processing vpninterface {}"
+                              + ", bailing out now.", vpnName, interfaceName);
                     return;
                 }
             } else {
-                // Incase of cluster reboot , VpnId would be available already as its a configDS fetch.
-                // However VpnInstanceOpData will be repopulated, so if its not available
-                // wait for 180 seconds and retry.
-                // TODO:  This wait to be removed by making vpnManager the central engine in carbon
+                // In case of cluster reboot, VpnId would be available already as its a configDS fetch.
+                // If VpnInstanceOpData is not be available, wait for 180 sec and retry.
                 String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnName);
                 VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
                 if (vpnInstanceOpDataEntry == null) {
-                    LOG.debug("VpnInstanceOpData not yet populated for vpn {} rd {}", vpnName, vpnRd);
-                    int retry = 2;
-                    while (retry > 0) {
-                        waitForVpnInstance(vpnName, VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS, vpnInstanceOpDataSynchronizerMap);
-                        vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
-                        if (vpnInstanceOpDataEntry != null) {
-                            break;
-                        }
-                        retry--;
-                        if (retry <= 0) {
-                            LOG.error("VpnInstanceOpData not populated even after second retry for vpn {} rd {} vpninterface {}, bailing out ", vpnName, vpnRd, interfaceName);
-                            return;
-                        }
+                    vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnOpData, vpnName,
+                                                        VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS,
+                                                        2 /* MaxAttempts */);
+                    vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+                    if (vpnInstanceOpDataEntry == null) {
+                        LOG.error("VpnInstanceOpData not populated even after {} ms for vpn {} rd {} vpninterface {}, bailing out ",
+                                  2 * VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS,
+                                  vpnName, vpnRd, interfaceName);
+                        return;
                     }
                 }
             }
@@ -560,16 +561,32 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String interfaceName, boolean add) {
-        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+    public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String interfaceName, boolean addOrRemove) {
         if (dpId == null) {
             dpId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, interfaceName);
         }
         if(!dpId.equals(BigInteger.ZERO)) {
-            if(add) {
-                createOrUpdateVpnToDpnList(vpnId, dpId, interfaceName, vpnName);
-            } else {
-                removeOrUpdateVpnToDpnList(vpnId, dpId, interfaceName, vpnName);
+            LOG.info("VpnInterfaceManager.Modifying VpnToDpnMap: Op={}  vpnName={}  dpnId={}  ifaceName={}",
+                     addOrRemove ? "Adding iface to footprint" : "Removing iface from footprint",
+                     vpnName, dpId, interfaceName);
+            ModifyVpnFootprintTask modifyVpnFootprintTask =
+                new ModifyVpnFootprintTask(dataBroker, fibManager, notificationPublishService, vpnOpDataSyncer,
+                                           vpnName, dpId, interfaceName, addOrRemove);
+            DataStoreJobCoordinator.getInstance().enqueueJob(modifyVpnFootprintTask.getDsJobCoordinatorKey(),
+                                                             modifyVpnFootprintTask);
+
+            try {
+                LOG.info("ModifyingVpnToDpnMap: waiting for it to finish. Operation={}",
+                         addOrRemove ? "Adding iface to Footprint" : "Removing iface from footprint");
+                modifyVpnFootprintTask.waitTillPersisted(VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS);
+                LOG.info("VpnInterfaceManager: new VpnToDpnMap has been persisted: vpn={} dpn={} iface={}",
+                         vpnName, dpId, interfaceName);
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Error updating dpnToVpnList for vpn {} interface {} dpn {}", vpnName, interfaceName, dpId);
+                throw new RuntimeException(e.getMessage());
+            } catch ( TimeoutException e ) {
+                LOG.warn("The attempt of updating VpnToDpn map has not been persisted after {}ms. Vpn {} Dpn {} iface {}",
+                         VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS, vpnName, dpId, interfaceName);
             }
         }
     }
@@ -586,7 +603,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     public List<ListenableFuture<Void>> call() throws Exception {
                         WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                         int instructionKey = 0;
-                        List<Instruction> instructions = new ArrayList<Instruction>();
+                        List<Instruction> instructions = new ArrayList<>();
 
                         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(
                                 MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
@@ -599,7 +616,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                         NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
                         writeTxn.put(LogicalDatastoreType.CONFIGURATION,
                                 InterfaceUtils.buildServiceId(vpnInterfaceName, ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)), serviceInfo, true);
-                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
                         futures.add(writeTxn.submit());
                         return futures;
                     }
@@ -674,7 +691,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix), true);
                 } else {
                     //Extra route adjacency
-                    LOG.trace("Adding prefix {} and nexthopList {} as extra-route for vpn", nextHop.getIpAddress(), nextHop.getNextHopIpList(), vpnName);
+                    LOG.trace("Adding prefix {} and nextHopList {} as extra-route for vpn", nextHop.getIpAddress(), nextHop.getNextHopIpList(), vpnName);
                     writeOperTxn.merge(
                             LogicalDatastoreType.OPERATIONAL,
                             VpnUtil.getVpnToExtrarouteIdentifier(
@@ -768,32 +785,21 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             return vpnsToExportRoute;
         }
 
-        Predicate<VpnInstanceOpDataEntry> excludeVpn = new Predicate<VpnInstanceOpDataEntry>() {
-            @Override
-            public boolean apply(VpnInstanceOpDataEntry input) {
-                if (input.getVpnInstanceName() == null) {
-                    LOG.error("Received vpn instance without identity");
-                    return false;
-                }
-                return !input.getVpnInstanceName().equals(vpnName);
+        Predicate<VpnInstanceOpDataEntry> excludeVpn = input -> {
+            if (input.getVpnInstanceName() == null) {
+                LOG.error("Received vpn instance without identity");
+                return false;
             }
+            return !input.getVpnInstanceName().equals(vpnName);
         };
 
-        Predicate<VpnInstanceOpDataEntry> matchRTs = new Predicate<VpnInstanceOpDataEntry>() {
-            @Override
-            public boolean apply(VpnInstanceOpDataEntry input) {
-                Iterable<String> commonRTs = intersection(getRts(vpnInstanceOpDataEntry, VpnTarget.VrfRTType.ImportExtcommunity),
-                        getRts(input, VpnTarget.VrfRTType.ExportExtcommunity));
-                return Iterators.size(commonRTs.iterator()) > 0;
-            }
+        Predicate<VpnInstanceOpDataEntry> matchRTs = input -> {
+            Iterable<String> commonRTs = intersection(getRts(vpnInstanceOpDataEntry, VpnTarget.VrfRTType.ImportExtcommunity),
+                    getRts(input, VpnTarget.VrfRTType.ExportExtcommunity));
+            return Iterators.size(commonRTs.iterator()) > 0;
         };
 
-        Function<VpnInstanceOpDataEntry, String> toInstanceName = new Function<VpnInstanceOpDataEntry, String>() {
-            @Override
-            public String apply(VpnInstanceOpDataEntry vpnInstance) {
-                return vpnInstance.getVpnInstanceName();
-            }
-        };
+        Function<VpnInstanceOpDataEntry, String> toInstanceName = vpnInstance -> vpnInstance.getVpnInstanceName();
 
         vpnsToExportRoute = FluentIterable.from(VpnUtil.getAllVpnInstanceOpData(dataBroker)).
                 filter(excludeVpn).
@@ -849,6 +855,66 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         return exportRts;
     }
 
+    private void makeArpFlow(BigInteger dpId,short sIndex, int lPortTag, String vpnInterfaceName,
+                             long vpnId, ArpReplyOrRequest replyOrRequest, int addOrRemoveFlow,
+                             WriteTransaction writeConfigTxn){
+        List<MatchInfo> matches = new ArrayList<>();
+        BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher(lPortTag, ++sIndex, MetaDataUtil.getVpnIdMetadata(vpnId));
+        BigInteger metadataMask = MetaDataUtil.getMetaDataMaskForLPortDispatcher(MetaDataUtil.METADATA_MASK_SERVICE_INDEX,
+                MetaDataUtil.METADATA_MASK_LPORT_TAG, MetaDataUtil.METADATA_MASK_VRFID);
+
+        // Matching Arp reply flows
+        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_ARP }));
+        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
+                metadata, metadataMask }));
+
+        matches.add(new MatchInfo(MatchFieldType.arp_op, new long[] { replyOrRequest.getArpOperation() }));
+
+        // Instruction to punt to controller
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{
+                Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
+
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+
+        // Install the flow entry in L3_INTERFACE_TABLE
+        String flowRef = VpnUtil.getFlowRef(dpId, NwConstants.L3_INTERFACE_TABLE,
+                NwConstants.ETHTYPE_ARP, lPortTag, replyOrRequest.getArpOperation());
+        FlowEntity flowEntity;
+        flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_INTERFACE_TABLE, flowRef,
+                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, replyOrRequest.getName(), 0, 0,
+                VpnUtil.getCookieArpFlow(lPortTag), matches, instructions);
+
+        Flow flow = flowEntity.getFlowBuilder().build();
+        String flowId = flowEntity.getFlowId();
+        FlowKey flowKey = new FlowKey( new FlowId(flowId));
+        Node nodeDpn = VpnUtil.buildDpnNode(dpId);
+
+        InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
+
+        if (writeConfigTxn != null) {
+            if (addOrRemoveFlow == NwConstants.ADD_FLOW) {
+                LOG.debug("Creating ARP Flow for interface {}", vpnInterfaceName);
+                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow, true);
+            } else {
+                LOG.debug("Deleting ARP Flow for interface {}", vpnInterfaceName);
+                writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
+            }
+        } else {
+            if (addOrRemoveFlow == NwConstants.ADD_FLOW) {
+                LOG.debug("Creating ARP Flow for interface {}",vpnInterfaceName);
+                mdsalManager.installFlow(flowEntity);
+            } else {
+                LOG.debug("Deleting ARP Flow for interface {}",vpnInterfaceName);
+                mdsalManager.removeFlow(flowEntity);
+            }
+        }
+    }
+
     private String getRouteDistinguisher(String vpnName) {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
                 .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
@@ -862,174 +928,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         return rd;
     }
 
-    /**
-     * JobCallback class is used as a future callback for
-     * main and rollback workers to handle success and failure.
-     */
-    private class DpnEnterExitVpnWorker implements FutureCallback<List<Void>> {
-        BigInteger dpnId;
-        String vpnName;
-        String rd;
-        boolean entered;
-
-        public DpnEnterExitVpnWorker(BigInteger dpnId, String vpnName, String rd, boolean entered) {
-            this.entered = entered;
-            this.dpnId = dpnId;
-            this.vpnName = vpnName;
-            this.rd = rd;
-        }
-
-        /**
-         * @param voids
-         * This implies that all the future instances have returned success. -- TODO: Confirm this
-         */
-        @Override
-        public void onSuccess(List<Void> voids) {
-            if (entered) {
-                publishAddNotification(dpnId, vpnName, rd);
-            } else {
-                publishRemoveNotification(dpnId, vpnName, rd);
-            }
-        }
-
-        /**
-         *
-         * @param throwable
-         * This method is used to handle failure callbacks.
-         * If more retry needed, the retrycount is decremented and mainworker is executed again.
-         * After retries completed, rollbackworker is executed.
-         * If rollbackworker fails, this is a double-fault. Double fault is logged and ignored.
-         */
-        @Override
-        public void onFailure(Throwable throwable) {
-            LOG.warn("Job: failed with exception: ", throwable);
-        }
-    }
-
-    private void createOrUpdateVpnToDpnList(long vpnId, BigInteger dpnId, String intfName, String vpnName) {
-        String routeDistinguisher = getRouteDistinguisher(vpnName);
-        String rd = (routeDistinguisher == null) ? vpnName : routeDistinguisher;
-        Boolean newDpnOnVpn = Boolean.FALSE;
-
-        synchronized (vpnName.intern()) {
-            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-            InstanceIdentifier<VpnToDpnList> id = VpnUtil.getVpnToDpnListIdentifier(rd, dpnId);
-            Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data
-                    .entry.vpn.to.dpn.list.VpnInterfaces
-                    vpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
-
-            if (dpnInVpn.isPresent()) {
-                VpnToDpnList vpnToDpnList = dpnInVpn.get();
-                List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                        .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> vpnInterfaces = vpnToDpnList.getVpnInterfaces();
-                if (vpnInterfaces == null) {
-                    vpnInterfaces = new ArrayList<>();
-                }
-                vpnInterfaces.add(vpnInterface);
-                VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
-                vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
-
-                if (writeTxn != null) {
-                    writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(), true);
-                } else {
-                    VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build());
-                }
-                /* If earlier state was inactive, it is considered new DPN coming back to the
-                 * same VPN
-                 */
-                if (vpnToDpnList.getDpnState() == VpnToDpnList.DpnState.Inactive) {
-                    newDpnOnVpn = Boolean.TRUE;
-                }
-            } else {
-                List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                        .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> vpnInterfaces = new ArrayList<>();
-                vpnInterfaces.add(vpnInterface);
-                VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder().setDpnId(dpnId);
-                vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
-
-                if (writeTxn != null) {
-                    writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(), true);
-                } else {
-                    VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build());
-                }
-                newDpnOnVpn = Boolean.TRUE;
-            }
-            CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
-            try {
-                futures.get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Error adding to dpnToVpnList for vpn {} interface {} dpn {}", vpnName, intfName, dpnId);
-                throw new RuntimeException(e.getMessage());
-            }
-        }
-        /*
-         * Informing the Fib only after writeTxn is submitted successfuly.
-         */
-        if (newDpnOnVpn) {
-            LOG.debug("Sending populateFib event for new dpn {} in VPN {}", dpnId, vpnName);
-            fibManager.populateFibOnNewDpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd, true /* entered */));
-        }
-    }
-
-    private void removeOrUpdateVpnToDpnList(long vpnId, BigInteger dpnId, String intfName, String vpnName) {
-        Boolean lastDpnOnVpn = Boolean.FALSE;
-        String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
-        synchronized (vpnName.intern()) {
-            InstanceIdentifier<VpnToDpnList> id = VpnUtil.getVpnToDpnListIdentifier(rd, dpnId);
-            Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-            if (dpnInVpn.isPresent()) {
-                List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                        .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> vpnInterfaces = dpnInVpn.get().getVpnInterfaces();
-                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces
-                        currVpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
-
-                if (vpnInterfaces.remove(currVpnInterface)) {
-                    if (vpnInterfaces.isEmpty()) {
-                        List<IpAddresses> ipAddresses = dpnInVpn.get().getIpAddresses();
-                        if (ipAddresses == null || ipAddresses.isEmpty()) {
-                            VpnToDpnListBuilder dpnInVpnBuilder =
-                                    new VpnToDpnListBuilder(dpnInVpn.get())
-                                            .setDpnState(VpnToDpnList.DpnState.Inactive)
-                                            .setVpnInterfaces(null);
-                            if (writeTxn != null) {
-                                writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, dpnInVpnBuilder.build(), true);
-                            } else {
-                                VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, id, dpnInVpnBuilder.build());
-                            }
-                            lastDpnOnVpn = Boolean.TRUE;
-                        } else {
-                            LOG.warn("vpn interfaces are empty but ip addresses are present for the vpn {} in dpn {}", vpnName, dpnId);
-                        }
-                    } else {
-                        if (writeTxn != null) {
-                            writeTxn.delete(LogicalDatastoreType.OPERATIONAL, id.child(
-                                    org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                                            .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces.class,
-                                    new VpnInterfacesKey(intfName)));
-                        } else {
-                            VpnUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL, id.child(
-                                    org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                                            .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces.class,
-                                    new VpnInterfacesKey(intfName)), VpnUtil.DEFAULT_CALLBACK);
-                        }
-                    }
-                }
-            }
-            CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
-            try {
-                futures.get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Error removing from dpnToVpnList for vpn {} interface {} dpn {}", vpnName, intfName, dpnId);
-                throw new RuntimeException(e.getMessage());
-            }
-        }
-        if (lastDpnOnVpn) {
-            LOG.debug("Sending cleanup event for dpn {} in VPN {}", dpnId, vpnName);
-            fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd, false /* exited */));
-        }
-    }
 
     void handleVpnsExportingRoutes(String vpnName, String vpnRd) {
         List<VpnInstanceOpDataEntry> vpnsToExportRoute = getVpnsExportingMyRoute(vpnName);
@@ -1120,7 +1018,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
                             WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                             processVpnInterfaceDown(dpId, interfaceName, ifIndex, false, true, writeConfigTxn, writeOperTxn, writeInvTxn);
-                            List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                            List<ListenableFuture<Void>> futures = new ArrayList<>();
                             futures.add(writeOperTxn.submit());
                             futures.add(writeConfigTxn.submit());
                             futures.add(writeInvTxn.submit());
@@ -1277,7 +1175,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         if (!isInterfaceStateDown && isConfigRemoval) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob(vpnInterfaceName,
-                    new Callable<List<ListenableFuture<Void>>>() {
+                     new Callable<List<ListenableFuture<Void>>>() {
                         @Override
                         public List<ListenableFuture<Void>> call() throws Exception {
                             WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
@@ -1285,7 +1183,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     InterfaceUtils.buildServiceId(vpnInterfaceName,
                                             ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)));
 
-                            List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                            List<ListenableFuture<Void>> futures = new ArrayList<>();
                             futures.add(writeTxn.submit());
                             return futures;
                         }
@@ -1663,7 +1561,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     intfName, null, false, rd, null);
         }
 
-        // TODO (eperefr): This is a limitation to be stated in docs. When configuring static route to go to
+        // TODO: This is a limitation to be stated in docs. When configuring static route to go to
         // another VPN, there can only be one nexthop or, at least, the nexthop to the interVpnLink should be in
         // first place.
         Optional<InterVpnLink> optInterVpnLink = InterVpnLinkUtil.getInterVpnLinkByEndpointIp(dataBroker, nextHop);
@@ -1673,10 +1571,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             // pointing to the DPNs where Vpn1 is instantiated. LFIB in these DPNS must have a flow entry, with lower
             // priority, where if Label matches then sets the lportTag of the Vpn2 endpoint and goes to LportDispatcher
             // This is like leaking one of the Vpn2 routes towards Vpn1
-            boolean nexthopIsVpn2 = ( interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(nextHop) );
-            String srcVpnUuid = (nexthopIsVpn2) ? interVpnLink.getSecondEndpoint().getVpnUuid().getValue()
+            boolean nexthopIsVpn2 = interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(nextHop);
+            String srcVpnUuid = nexthopIsVpn2 ? interVpnLink.getSecondEndpoint().getVpnUuid().getValue()
                     : interVpnLink.getFirstEndpoint().getVpnUuid().getValue();
-            String dstVpnUuid = (nexthopIsVpn2) ? interVpnLink.getFirstEndpoint().getVpnUuid().getValue()
+            String dstVpnUuid = nexthopIsVpn2 ? interVpnLink.getFirstEndpoint().getVpnUuid().getValue()
                     : interVpnLink.getSecondEndpoint().getVpnUuid().getValue();
             String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnUuid);
             long newLabel = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
@@ -1862,38 +1760,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    //TODO(vivek) This waiting business to be removed in carbon
-    public void waitForVpnInstance(String vpnName, long wait_time,
-                                       ConcurrentHashMap<String, List<Runnable>> vpnInstanceMap) {
-        List<Runnable> notifieeList = null;
-        Runnable notifyTask = new VpnNotifyTask();
-        try {
-            synchronized (vpnInstanceMap) {
-                notifieeList = vpnInstanceMap.get(vpnName);
-                if (notifieeList == null) {
-                    notifieeList = new ArrayList<Runnable>();
-                    vpnInstanceMap.put(vpnName, notifieeList);
-                }
-                notifieeList.add(notifyTask);
-            }
-            synchronized (notifyTask) {
-                try {
-                    notifyTask.wait(wait_time);
-                } catch (InterruptedException e) {
-                }
-            }
-        } finally {
-            synchronized (vpnInstanceMap) {
-                notifieeList = vpnInstanceMap.get(vpnName);
-                if (notifieeList != null) {
-                    notifieeList.remove(notifyTask);
-                    if (notifieeList.isEmpty()) {
-                        vpnInstanceMap.remove(vpnName);
-                    }
-                }
-            }
-        }
-    }
 
     protected void createVpnInterfaceForRouter(VpnInterface vpnInterface, String interfaceName) {
         if (vpnInterface == null) {
