@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.aclservice.api.tests
+package org.opendaylight.netvirt.aclservice.tests
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker
 import org.opendaylight.genius.mdsalutil.MDSALUtil
@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier
 
-import static extension org.opendaylight.netvirt.aclservice.api.tests.BuilderExtensions.operator_doubleGreaterThan
+import static extension org.opendaylight.netvirt.aclservice.tests.infra.BuilderExtensions.operator_doubleGreaterThan
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION
 
 class InterfaceBuilderHelper {

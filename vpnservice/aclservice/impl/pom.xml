@@ -79,13 +79,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
     <!-- Dependencies used only by code under src/test (<scope>test) -->
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>aclservice-api</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.opendaylight.genius</groupId>
       <artifactId>mdsalutil-api</artifactId>
       <version>${genius.version}</version>
@@ -126,24 +119,15 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <!-- TODO Remove <version> once TBD https://git.opendaylight.org/gerrit/#/c/?/ has been merged -->
-      <!-- Must use 4.0 instead of 4.1.0 due incomp. with to mycila-guice-jsr250 3.6.ga, see https://github.com/mycila/guice/issues/11 (below)  -->
-      <version>4.0</version>
+      <groupId>com.mycila.guice.extensions</groupId>
+      <artifactId>mycila-guice-jsr250</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.mycila.guice.extensions</groupId>
-      <artifactId>mycila-guice-jsr250</artifactId>
-      <version>3.6.ga</version>
+      <groupId>ch.vorburger</groupId>
+      <artifactId>xtendbeans</artifactId>
+      <version>1.2.0</version>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.sonatype.sisu</groupId>
-          <artifactId>sisu-guice</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
 
