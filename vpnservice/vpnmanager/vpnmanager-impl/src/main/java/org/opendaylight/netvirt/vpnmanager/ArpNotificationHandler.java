@@ -12,6 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -24,6 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Od
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.Floatingips;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.floatingips.Floatingip;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
@@ -64,15 +67,18 @@ public class ArpNotificationHandler implements OdlArputilListener {
     OdlArputilService arpManager;
     final IElanService elanService;
     ArpScheduler arpScheduler;
+    OdlInterfaceRpcService ifaceMgrRpcService;
 
     public ArpNotificationHandler(DataBroker dataBroker, VpnInterfaceManager vpnIfMgr,
-            final IElanService elanService, IdManagerService idManager,OdlArputilService arpManager,ArpScheduler arpScheduler){
+            final IElanService elanService, IdManagerService idManager, OdlArputilService arpManager,
+            ArpScheduler arpScheduler, OdlInterfaceRpcService ifaceMgrRpcService) {
         this.dataBroker = dataBroker;
         vpnIfManager = vpnIfMgr;
         this.elanService = elanService;
         this.idManager = idManager;
         this.arpManager = arpManager;
-        this.arpScheduler =arpScheduler;
+        this.arpScheduler = arpScheduler;
+        this.ifaceMgrRpcService = ifaceMgrRpcService;
     }
 
     @Override
@@ -265,19 +271,29 @@ public class ArpNotificationHandler implements OdlArputilListener {
     private void handleArpRequestFromExternalInterface(String srcInterface, IpAddress srcIP, PhysAddress srcMac,
             IpAddress targetIP) {
         Port port = VpnUtil.getNeutronPortForFloatingIp(dataBroker, targetIP);
-        String targetIpValue = targetIP.getIpv4Address().getValue();
+        String floatingIp = targetIP.getIpv4Address().getValue();
         if (port == null) {
-            LOG.trace("No neutron port found for with floating ip {}", targetIpValue);
+            LOG.trace("No neutron port found for with floating ip {}", floatingIp);
             return;
         }
 
         MacAddress targetMac = port.getMacAddress();
         if (targetMac == null) {
-            LOG.trace("No mac address found for floating ip {}", targetIpValue);
+            LOG.trace("No mac address found for floating ip {}", floatingIp);
             return;
         }
 
-        LOG.trace("Target destination matches floating IP {} so respond for ARP", targetIpValue);
+        // don't allow ARP responses if from different dpn
+        String localPortInterface = getFloatingInternalInterface(floatingIp);
+        if (localPortInterface != null && !localPortInterface.isEmpty()) {
+            BigInteger dpnIdSrc = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, srcInterface);
+            BigInteger dpnIdLocal = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, localPortInterface);
+            if (!dpnIdSrc.equals(dpnIdLocal)) {
+                LOG.trace("Not same dpnId, so don't respond for ARP - dpnIdSrc:{} dpnIdLocal:{}", dpnIdSrc, dpnIdLocal);
+                return;
+            }
+        }
+        LOG.trace("Target destination matches floating IP {} so respond for ARP", floatingIp);
         vpnIfManager.processArpRequest(srcIP, srcMac, targetIP, new PhysAddress(targetMac.getValue()), srcInterface);
     }
 
@@ -363,4 +379,24 @@ public class ArpNotificationHandler implements OdlArputilListener {
         }
     }
 
+    public String getFloatingInternalInterface(String targetIpValue) {
+        if (targetIpValue == null || targetIpValue.isEmpty()) {
+            return null;
+        }
+        InstanceIdentifier<Floatingips> identifier = InstanceIdentifier.create(Neutron.class).child(Floatingips.class);
+        Optional<Floatingips> optInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, identifier);
+        if (optInterface.isPresent()) {
+            Floatingips fips = optInterface.get();
+            if (fips != null) {
+                for (Floatingip fip : fips.getFloatingip()) {
+                    String ipv4Addr = fip.getFloatingIpAddress().getIpv4Address().getValue();
+                    if (targetIpValue.equals(ipv4Addr)) {
+                        LOG.trace("OLGA: found target Floatingip:{}", targetIpValue);
+                        return fip.getPortId().getValue();
+                    }
+                }
+            }
+        }
+        return null;
+    }
 }
