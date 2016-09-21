@@ -59,7 +59,7 @@ public class VpnManagerImpl implements IVpnManager {
                 .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.info("Created IdPool for VPN Service");
             }
         } catch (InterruptedException | ExecutionException e) {
