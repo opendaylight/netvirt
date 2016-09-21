@@ -202,7 +202,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(flowEntity);
 
         List<NxMatchInfo> nxMkMatches = new ArrayList<>();
-        nxMkMatches.add(new NxMatchInfo(NxMatchFieldType.nxm_reg_6,
+        nxMkMatches.add(new NxMatchInfo(NxMatchFieldType.nxm_reg_5,
                 new long[] {Long.valueOf(AclConstants.LEARN_MATCH_REG_VALUE)}));
 
         short dispatcherTableId = NwConstants.EGRESS_LPORT_DISPATCHER_TABLE;
@@ -253,7 +253,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(flowEntity);
 
         List<NxMatchInfo> nxMkMatches = new ArrayList<>();
-        nxMkMatches.add(new NxMatchInfo(NxMatchFieldType.nxm_reg_6,
+        nxMkMatches.add(new NxMatchInfo(NxMatchFieldType.nxm_reg_5,
                 new long[] {Long.valueOf(AclConstants.LEARN_MATCH_REG_VALUE)}));
 
         short dispatcherTableId = NwConstants.LPORT_DISPATCHER_TABLE;
