@@ -10,7 +10,9 @@ package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -19,8 +21,11 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.ModifyVpnFootprintTask;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
+import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -52,6 +57,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * This class contains methods to be used as utilities related with inter-vpn-link.
@@ -87,27 +93,66 @@ public class InterVpnLinkUtil {
                 .build();
     }
 
+    public static String getInterVpnLinkIfaceName(String vpnUuid, BigInteger dpnId ) {
+        return String.format("InterVpnLink.%s.%s", vpnUuid, dpnId.toString());
+    }
+
     /**
      * Updates VpnToDpn map by adding a fake VpnInterface related to an
-     * InterVpnLink in the corresponding DPNs
+     * InterVpnLink in the corresponding DPNs. If the fake iface is the
+     * first one on the any of the specified DPNs, the installation of
+     * Fib flows on that DPN will be triggered
      *
      * @param broker dataBroker service reference
+     * @param fibManager FibManager service reference
+     * @param notifService NotificationPublish service reference
+     * @param vpnName Name of the VPN to which the fake interfaces belong
      * @param dpnList List of DPNs where the fake InterVpnLink interface must
      *     be added
-     * @param vpnUuid UUID of the VPN to which the fake interfaces belong
      */
-    public static void updateVpnToDpnMap(DataBroker broker, List<BigInteger> dpnList, Uuid vpnUuid) {
-        String rd = VpnUtil.getVpnRd(broker, vpnUuid.getValue());
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
-        Optional<VpnInstanceOpDataEntry> vpnInstOpData = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
-        if ( vpnInstOpData.isPresent() ) {
-            for (BigInteger dpnId : dpnList) {
-                String linkIfaceName = String.format("InterVpnLink.%s.%s", vpnUuid.getValue(), dpnId.toString());
-                VpnUtil.mergeDpnInVpnToDpnMap(broker, vpnInstOpData.get(), dpnId, Arrays.asList(linkIfaceName));
-            }
+    public static void updateVpnFootprint(DataBroker broker, IFibManager fibManager,
+                                          NotificationPublishService notifService, VpnOpDataSyncer vpnOpDataSyncer,
+                                          String vpnName, List<BigInteger> dpnList) {
+        // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
+        // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach
+        // to Vpn2 targets. If new Vpn2 targets are added later, the Fib will be maintained in these DPNs even if
+        // Vpn2 is not physically present there.
+
+        LOG.debug("InterVpnLink updateVpnFootprint (add):  vpn={}  dpnList={}", vpnName, dpnList);
+        DataStoreJobCoordinator dsJobCoordinator = DataStoreJobCoordinator.getInstance();
+        for ( BigInteger dpnId : dpnList ) {
+            String ifaceName = getInterVpnLinkIfaceName(vpnName, dpnId);
+            ModifyVpnFootprintTask addVpnLnkIfaceToVpnFootprint =
+                new ModifyVpnFootprintTask(broker, fibManager, notifService, vpnOpDataSyncer,
+                                           vpnName, dpnId, ifaceName, true /* addition */);
+            dsJobCoordinator.enqueueJob(addVpnLnkIfaceToVpnFootprint.getDsJobCoordinatorKey(),
+                                        addVpnLnkIfaceToVpnFootprint);
         }
     }
 
+    /**
+     * Updates VpnToDpn map by removing the fake VpnInterface related to an
+     * InterVpnLink in the corresponding DPNs.
+     *
+     * @param broker dataBroker service reference
+     * @param fibManager FibManager service reference
+     * @param notifService NotificationPublish service reference
+     * @param vpnName Name of the VPN to which the fake interfaces belong
+     * @param dpnId DPN where the fake InterVpnLink interface must be removed from
+     */
+    public static void removeIVpnLinkIfaceFromVpnFootprint(DataBroker broker, IFibManager fibManager,
+                                                           NotificationPublishService notifService,
+                                                           VpnOpDataSyncer vpnOpDataSyncer,
+                                                           String vpnName, BigInteger dpnId) {
+        String interfaceName = getInterVpnLinkIfaceName(vpnName, dpnId);
+        LOG.debug("InterVpnLink updateVpnFootprint (remove):  vpn={}  dpn={}  ifaceName={}",
+                  vpnName, dpnId, interfaceName);
+        ModifyVpnFootprintTask modifyVpnFootprintTask =
+            new ModifyVpnFootprintTask(broker, fibManager, notifService, vpnOpDataSyncer, vpnName, dpnId,
+                                       interfaceName, false /* removal */);
+        DataStoreJobCoordinator.getInstance().enqueueJob(modifyVpnFootprintTask.getDsJobCoordinatorKey(),
+                                                         modifyVpnFootprintTask);
+    }
 
     /**
      * Retrieves the InterVpnLink object searching by its name
@@ -174,17 +219,24 @@ public class InterVpnLinkUtil {
      *     InterVpnLink
      * @param lPortTagOfOtherEndpoint Dataplane identifier of the other
      *     endpoint of the InterVpnLink
+     * @return
      */
-    public static void installLPortDispatcherTableFlow(DataBroker broker, IMdsalApiManager mdsalManager,
-                                                       InterVpnLink interVpnLink, List<BigInteger> dpnList,
-                                                       Uuid vpnUuidOtherEndpoint, Integer lPortTagOfOtherEndpoint) {
+    public static List<ListenableFuture<Void>> installLPortDispatcherTableFlow(DataBroker broker,
+                                                                               IMdsalApiManager mdsalManager,
+                                                                               InterVpnLink interVpnLink,
+                                                                               List<BigInteger> dpnList,
+                                                                               Uuid vpnUuidOtherEndpoint,
+                                                                               Integer lPortTagOfOtherEndpoint) {
+        List<ListenableFuture<Void>> result = new ArrayList<>();
         long vpnId = VpnUtil.getVpnId(broker, vpnUuidOtherEndpoint.getValue());
         for ( BigInteger dpnId : dpnList ) {
             // insert into LPortDispatcher table
             Flow lPortDispatcherFlow = buildLPortDispatcherFlow(interVpnLink.getName(), vpnId,
                                                                 lPortTagOfOtherEndpoint.intValue());
-            mdsalManager.installFlow(dpnId, lPortDispatcherFlow);
+            result.add(mdsalManager.installFlow(dpnId, lPortDispatcherFlow));
         }
+
+        return result;
     }
 
     /**
@@ -233,7 +285,7 @@ public class InterVpnLinkUtil {
 
     public static List<Instruction> buildLportDispatcherTableInstructions (long vpnId) {
         int instructionKey = 0;
-        List<Instruction> instructions = new ArrayList<Instruction>();
+        List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
                 MetaDataUtil.METADATA_MASK_VRFID,
                 ++instructionKey));
@@ -255,8 +307,8 @@ public class InterVpnLinkUtil {
         Optional<InterVpnLinkStates> interVpnLinkStateOpData =
                 MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinkStateIid);
 
-        return (interVpnLinkStateOpData.isPresent()) ? interVpnLinkStateOpData.get().getInterVpnLinkState()
-                : new ArrayList<InterVpnLinkState>();
+        return interVpnLinkStateOpData.isPresent() ? interVpnLinkStateOpData.get().getInterVpnLinkState()
+                : new ArrayList<>();
     }
 
     /**
@@ -339,8 +391,8 @@ public class InterVpnLinkUtil {
         Optional<InterVpnLinks> interVpnLinksOpData =
                 MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinksIid);
 
-        return (interVpnLinksOpData.isPresent()) ? interVpnLinksOpData.get().getInterVpnLink()
-                : new ArrayList<InterVpnLink>();
+        return interVpnLinksOpData.isPresent() ? interVpnLinksOpData.get().getInterVpnLink()
+                : new ArrayList<>();
     }
 
     /**
@@ -361,7 +413,7 @@ public class InterVpnLinkUtil {
             }
         } else {
             LOG.trace("Could not find InterVpnLinkState for interVpnLink {}", vpnLinkName);
-            return new ArrayList<BigInteger>();
+            return new ArrayList<>();
         }
     }
 
@@ -383,7 +435,7 @@ public class InterVpnLinkUtil {
                     iVpnLink.getSecondEndpoint().getVpnUuid().getValue());
         } else {
             LOG.trace("Could not find an InterVpnLink with endpoint IpAddr={}", endpointIp);
-            return new ArrayList<BigInteger>();
+            return new ArrayList<>();
         }
     }
 
@@ -435,7 +487,7 @@ public class InterVpnLinkUtil {
 
         boolean destinationIs1stEndpoint = interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(dstVpnUuid);
 
-        String endpointIp = (destinationIs1stEndpoint) ? interVpnLink.getSecondEndpoint().getIpAddress().getValue()
+        String endpointIp = destinationIs1stEndpoint ? interVpnLink.getSecondEndpoint().getIpAddress().getValue()
                 : interVpnLink.getFirstEndpoint().getIpAddress().getValue();
 
         VrfEntry newVrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
@@ -457,9 +509,9 @@ public class InterVpnLinkUtil {
         Optional<InterVpnLinkState> optVpnLinkState = getInterVpnLinkState(broker, interVpnLink.getName());
         if ( optVpnLinkState.isPresent() ) {
             InterVpnLinkState vpnLinkState = optVpnLinkState.get();
-            List<BigInteger> dpnIdList = (destinationIs1stEndpoint) ? vpnLinkState.getFirstEndpointState().getDpId()
+            List<BigInteger> dpnIdList = destinationIs1stEndpoint ? vpnLinkState.getFirstEndpointState().getDpId()
                     : vpnLinkState.getSecondEndpointState().getDpId();
-            List<String> nexthops = new ArrayList<String>();
+            List<String> nexthops = new ArrayList<>();
             for (BigInteger dpnId : dpnIdList) {
                 nexthops.add(InterfaceUtils.getEndpointIpAddressForDPN(broker, dpnId));
             }
