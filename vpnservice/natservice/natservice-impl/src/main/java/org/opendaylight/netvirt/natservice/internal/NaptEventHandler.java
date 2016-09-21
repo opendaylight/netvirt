@@ -103,6 +103,10 @@ public class NaptEventHandler {
             LOG.debug("NAT Service : BGP VPN ID {}", bgpVpnId);
             String vpnName = NatUtil.getRouterName(dataBroker, bgpVpnId);
             String routerName = NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnName);
+            if (routerName == null) {
+                LOG.error("NAT Service: Unable to find router for VpnName {}", vpnName);
+                return;
+            }
             routerId = NatUtil.getVpnId(dataBroker, routerName);
             LOG.debug("NAT Service : Router ID {}", routerId);
             dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);

@@ -111,6 +111,19 @@ public class BgpUtil {
         return Optional.absent();
     }
 
+    public static <T extends DataObject> void syncWrite(DataBroker broker, LogicalDatastoreType datastoreType,
+                                                        InstanceIdentifier<T> path, T data) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.put(datastoreType, path, data, true);
+        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        try {
+            futures.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     public static void setBroker(final DataBroker broker) {
         BgpUtil.dataBroker = broker;
         initTransactionChain();

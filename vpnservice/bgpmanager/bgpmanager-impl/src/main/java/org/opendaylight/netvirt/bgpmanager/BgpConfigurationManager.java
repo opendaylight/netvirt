@@ -1838,8 +1838,7 @@ public class BgpConfigurationManager {
         Vrfs dto = new VrfsBuilder().setRd(rd)
                 .setImportRts(irts)
                 .setExportRts(erts).build();
-
-        asyncWrite(iid, dto);
+        BgpUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, iid, dto);
     }
 
     public synchronized void stopConfig() {

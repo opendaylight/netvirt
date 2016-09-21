@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,9 +56,7 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
     private final IdManagerService idManager;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final IFibManager fibManager;
-    private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
-            .setNameFormat("NV-VpnMgr-%d").build();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private ConcurrentMap<String, Runnable> vpnOpMap = new ConcurrentHashMap<String, Runnable>();
 
     public VpnInstanceListener(final DataBroker dataBroker, final IBgpManager bgpManager,
@@ -89,15 +88,6 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
             listenerRegistration = null;
         }
         LOG.info("{} close", getClass().getSimpleName());
-    }
-
-    void notifyTaskIfRequired(String vpnName) {
-        Runnable notifyTask = vpnOpMap.remove(vpnName);
-        if (notifyTask == null) {
-            LOG.trace("VpnInstanceListener update: No Notify Task queued for vpnName {}", vpnName);
-            return;
-        }
-        executorService.execute(notifyTask);
     }
 
     private void waitForOpRemoval(String rd, String vpnName) {
@@ -355,10 +345,8 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(writeConfigTxn.submit());
             ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
-            if (rd != null) {
-                Futures.addCallback(listenableFuture,
-                        new AddBgpVrfWorker(config , vpnInstance.getVpnInstanceName()));
-            }
+            Futures.addCallback(listenableFuture,
+                    new AddBgpVrfWorker(config , vpnInstance.getVpnInstanceName()));
             return futures;
         }
     }
@@ -370,7 +358,7 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
         String vpnInstanceName = value.getVpnInstanceName();
 
         long vpnId = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, vpnInstanceName);
-        LOG.trace("VPN instance to ID generated.");
+        LOG.info("VPN Id {} generated for VpnInstanceName {}", vpnId, vpnInstanceName);
         org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance
                 vpnInstanceToVpnId = VpnUtil.getVpnInstanceToVpnId(vpnInstanceName, vpnId, (rd != null) ? rd
                 : vpnInstanceName);
@@ -400,19 +388,17 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
 
         try {
             String cachedTransType = fibManager.getConfTransType();
-            LOG.trace("Value for confTransportType is " + cachedTransType);
             if (cachedTransType.equals("Invalid")) {
                 try {
                     fibManager.setConfTransType("L3VPN", "VXLAN");
                 } catch (Exception e) {
-                    LOG.trace("Exception caught setting the cached value for transportType");
-                    LOG.error(e.getMessage());
+                    LOG.error("Exception caught setting the L3VPN tunnel transportType", e);
                 }
             } else {
-                LOG.trace(":cached val is neither unset/invalid. NO-op.");
+                LOG.trace("Configured tunnel transport type for L3VPN as {}", cachedTransType);
             }
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            LOG.error("Error when trying to retrieve tunnel transport type for L3VPN ", e);
         }
 
         if (rd == null) {
@@ -442,6 +428,7 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
                         builder.build(), TransactionUtil.DEFAULT_CALLBACK);
             }
         }
+        LOG.info("VpnInstanceOpData populated successfully for vpn {} rd {}", vpnInstanceName, rd);
     }
 
 
@@ -486,7 +473,11 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
                     LOG.error("Exception when adding VRF to BGP", e);
                     return;
                 }
-                vpnInterfaceManager.handleVpnsExportingRoutes(this.vpnName, rd);
+                notifyTaskIfRequired(vpnName, vpnInterfaceManager.getvpnInstanceToIdSynchronizerMap());
+                notifyTaskIfRequired(vpnName, vpnInterfaceManager.getvpnInstanceOpDataSynchronizerMap());
+                if (rd != null) {
+                    vpnInterfaceManager.handleVpnsExportingRoutes(this.vpnName, rd);
+                }
             }
         }
         /**
@@ -528,5 +519,22 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
             return vpnInstanceOpData.get();
         }
         return null;
+    }
+
+    private void notifyTaskIfRequired(String vpnName,
+                                      ConcurrentHashMap<String, List<Runnable>> vpnInstanceMap) {
+        synchronized (vpnInstanceMap) {
+            List<Runnable> notifieeList = vpnInstanceMap.remove(vpnName);
+            if (notifieeList == null) {
+                LOG.trace(" No notify tasks found for vpnName {}", vpnName);
+                return;
+            }
+            Iterator<Runnable> notifieeIter = notifieeList.iterator();
+            while (notifieeIter.hasNext()) {
+                Runnable notifyTask = notifieeIter.next();
+                executorService.execute(notifyTask);
+                notifieeIter.remove();
+            }
+        }
     }
 }
