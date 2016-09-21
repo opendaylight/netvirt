@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_2df768d4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T13:55:16Z",
+      "side": 1,
+      "message": "Can we please space with newlines the commit messages 1., 2, 3. etc..\n\nThe commit title gives no clue for reviewer.. May I propose something on lines:\n\nEthernet VPN Enhancement to NeutronVPN, VPNEngine.\n\nFIB can be a different review.  In fact you can have the addorUpdateFibEntry changes to FIB as another review..",
+      "revId": "4c815bc5b34a013c08fda1fbb4efcab7fbf668d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d2d3f35d",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T13:55:16Z",
+      "side": 1,
+      "message": "i am not sure if we can name a FibEntry as \u0027L2\u0027 :)\n\nmay be we can update the existing method like this:\naddOrUpdateFibEntry(Broker, RD, PREFIX, MACADDRESS, NEXTHOPLIST, ENCAPTYPE(MPLSGRE/VXLAN), LABEL, VNI, GATEWAYMACADDRESS, WRITETXN);",
+      "revId": "4c815bc5b34a013c08fda1fbb4efcab7fbf668d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2d948889",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T13:55:16Z",
+      "side": 1,
+      "message": "please fix this as per earlier comment in the other file !",
+      "revId": "4c815bc5b34a013c08fda1fbb4efcab7fbf668d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0df38c0a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T13:55:16Z",
+      "side": 1,
+      "message": "make changes here according to the signature change mentioned earlier !",
+      "revId": "4c815bc5b34a013c08fda1fbb4efcab7fbf668d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_edf570ed",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T13:55:16Z",
+      "side": 1,
+      "message": "content to be merged with the previous method..",
+      "revId": "4c815bc5b34a013c08fda1fbb4efcab7fbf668d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2ddbe87c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T13:55:16Z",
+      "side": 1,
+      "message": "this does not apply after our discussion today right :) !",
+      "revId": "4c815bc5b34a013c08fda1fbb4efcab7fbf668d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4dc74496",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T13:55:16Z",
+      "side": 1,
+      "message": "Name now looks like a PUN :)\n\nCan we just name this as createVpn ?",
+      "revId": "4c815bc5b34a013c08fda1fbb4efcab7fbf668d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_8dbddc04",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T13:55:16Z",
+      "side": 1,
+      "message": "can we please fix these tabs?",
+      "revId": "4c815bc5b34a013c08fda1fbb4efcab7fbf668d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0d41cc0a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T13:55:16Z",
+      "side": 1,
+      "message": "tHE above 2 lines can be moved before the if / else.\n\nWithin if / else only set the vrfid in the instance-op-data?",
+      "revId": "4c815bc5b34a013c08fda1fbb4efcab7fbf668d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6d4fa034",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T13:55:16Z",
+      "side": 1,
+      "message": "camel case for method names please ?",
+      "revId": "4c815bc5b34a013c08fda1fbb4efcab7fbf668d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ed5a90f0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T13:55:16Z",
+      "side": 1,
+      "message": "Looks like you want to handle import/export in a different review..\n\nCompletely in line with that .. Smaller the review, makes it easier.",
+      "revId": "4c815bc5b34a013c08fda1fbb4efcab7fbf668d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_8d54bcca",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1140,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-21T13:55:16Z",
+      "side": 1,
+      "message": "this call to be fixed..",
+      "revId": "4c815bc5b34a013c08fda1fbb4efcab7fbf668d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
