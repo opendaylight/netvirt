@@ -122,16 +122,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
@@ -1268,4 +1275,62 @@ public class VpnUtil {
 
         return nodeDpn;
     }
+
+    public static Network getNeutronNetwork(DataBroker broker, Uuid networkId) {
+        Network network = null;
+        InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class).child(Networks.class).child
+                (Network.class, new NetworkKey(networkId));
+        Optional<Network> net = read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        if (net.isPresent()) {
+            network = net.get();
+        }
+        return network;
+    }
+
+    public static String getSegmentationIdFromNeutronNetwork(Network network) {
+        String segmentationId = null;
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        if (providerExtension != null) {
+            segmentationId = getSegmentationIdFromNeutronNetwork(network, NetworkTypeVxlan.class);
+        }
+
+        return segmentationId;
+    }
+
+    public static <T extends NetworkTypeBase> String getSegmentationIdFromNeutronNetwork(Network network,
+                                                                                         Class<T> networkType) throws UnsupportedOperationException {
+        String segmentationId = null;
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        if (providerExtension != null) {
+            segmentationId = providerExtension.getSegmentationId();
+            if (segmentationId == null) {
+                List<Segments> providerSegments = providerExtension.getSegments();
+                if (providerSegments != null && providerSegments.size() > 0) {
+                    for (Segments providerSegment: providerSegments) {
+                        if (isNetworkSegmentType(providerSegment, networkType)) {
+                            segmentationId = providerSegment.getSegmentationId();
+                            break;
+                        }
+                    }
+                }
+                else {
+                    throw new UnsupportedOperationException("Multi-segment networks is not supported.");
+                }
+            }
+        }
+        return segmentationId;
+    }
+
+    static <T extends NetworkTypeBase> boolean isNetworkSegmentType(Segments providerSegment,
+                                                                    Class<T> expectedNetworkType) {
+        Class<? extends NetworkTypeBase> networkType = providerSegment.getNetworkType();
+        return (networkType != null && networkType.isAssignableFrom(expectedNetworkType));
+    }
+
+    static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {
+        InstanceIdentifier<NetworkMap> id = InstanceIdentifier.builder(NetworkMaps.class).child(NetworkMap.class, new
+                NetworkMapKey(networkId)).build();
+        return id;
+    }
+
 }

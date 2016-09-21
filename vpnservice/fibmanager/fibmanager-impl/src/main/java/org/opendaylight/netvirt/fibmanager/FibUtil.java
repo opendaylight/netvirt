@@ -490,7 +490,7 @@ public class FibUtil {
 
             if (! entry.isPresent()) {
                 VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-                        .setLabel((long)label).setOrigin(origin.getValue()).build();
+                        .setLabel((long)label).setOrigin(origin.getValue()).setEncapType(VrfEntry.EncapType.Mplsgre).build();
 
                 if (writeConfigTxn != null) {
                     writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
@@ -504,7 +504,7 @@ public class FibUtil {
                         nh.add(nextHop);
                 }
                 VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
-                        .setLabel((long) label).setOrigin(origin.getValue()).build();
+                        .setLabel((long) label).setOrigin(origin.getValue()).setEncapType(VrfEntry.EncapType.Mplsgre).build();
 
                 if (writeConfigTxn != null) {
                     writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
@@ -515,6 +515,62 @@ public class FibUtil {
         } catch (Exception e) {
             LOG.error("addFibEntryToDS: error ", e);
         }
+    }
+
+    public static void addOrUpdateL2FibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
+                          String vni, RouteOrigin origin, String macAddress, String gatewayMac, WriteTransaction writeConfigTxn) {
+        if (rd == null || rd.isEmpty() ) {
+            LOG.error("Prefix {} not associated with vpn", prefix);
+            return;
+        }
+
+        Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
+
+        for ( String nextHop: nextHopList){
+            if (nextHop == null || nextHop.isEmpty()){
+                LOG.error("nextHop list contains null element");
+                return;
+            }
+        }
+
+        LOG.debug("Creating L2 vrfEntry for {} nexthop {} vni {}", prefix, nextHopList, vni);
+        try{
+            InstanceIdentifier<VrfEntry> vrfEntryId =
+                    InstanceIdentifier.builder(FibEntries.class)
+                            .child(VrfTables.class, new VrfTablesKey(rd))
+                            .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+            Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+
+            if (! entry.isPresent()) {
+                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
+                        .setOrigin(origin.getValue()).setVni(Long.valueOf(vni)).setEncapType(VrfEntry.EncapType.Vxlan)
+                        .setMacAddress(macAddress).setGatewayMacAddress(gatewayMac).build();
+
+                if (writeConfigTxn != null) {
+                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                } else {
+                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                }
+            } else { // Found in MDSAL database
+                List<String> nh = entry.get().getNextHopAddressList();
+                for (String nextHop : nextHopList) {
+                    if (!nh.contains(nextHop))
+                        nh.add(nextHop);
+                }
+                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
+                        .setVni(Long.valueOf(vni)).setEncapType(VrfEntry.EncapType.Vxlan).setMacAddress(macAddress)
+                        .setGatewayMacAddress(gatewayMac).setOrigin(origin.getValue()).build();
+
+                if (writeConfigTxn != null) {
+                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                } else {
+                    MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("addFibEntryToDS: error ", e);
+        }
+
     }
 
     public static void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn) {

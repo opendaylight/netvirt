@@ -419,6 +419,7 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
             VpnInstanceOpDataEntryBuilder builder =
                     new VpnInstanceOpDataEntryBuilder().setVrfId(vpnInstanceName).setVpnId(vpnId)
                             .setVpnInstanceName(vpnInstanceName);
+            setVpnInstanceType(value.getType(), builder);
             if (writeOperTxn != null) {
                 writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName),
@@ -431,7 +432,7 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
         } else {
             VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder()
                     .setVrfId(rd).setVpnId(vpnId).setVpnInstanceName(vpnInstanceName);
-
+            setVpnInstanceType(value.getType(), builder);
             if (writeOperTxn != null) {
                 writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getVpnInstanceOpDataIdentifier(rd),
@@ -441,6 +442,14 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
                         VpnUtil.getVpnInstanceOpDataIdentifier(rd),
                         builder.build(), TransactionUtil.DEFAULT_CALLBACK);
             }
+        }
+    }
+
+    private void setVpnInstanceType(VpnInstance.Type type, VpnInstanceOpDataEntryBuilder builder) {
+        if (type.equals(VpnInstance.Type.L2)) {
+            builder.setType(VpnInstanceOpDataEntry.Type.L2);
+        } else {
+            builder.setType(VpnInstanceOpDataEntry.Type.L3);
         }
     }
 

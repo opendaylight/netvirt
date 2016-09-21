@@ -669,6 +669,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 .setName(infName)
                 .setVpnInstanceName(vpnId.getValue())
                 .addAugmentation(Adjacencies.class, adjs);
+        if (routerId != null) {
+            //VPN with Router influence. Add network Id to retrieve VNI for L2VPN
+            vpnb.setNetworkId(port.getNetworkId().getValue());
+        }
         VpnInterface vpnIf = vpnb.build();
 
         try {
