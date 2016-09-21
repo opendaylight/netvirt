@@ -766,7 +766,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         return rts;
     }
-    
+
     private List<String> getExportRts(VpnInstance vpnInstance) {
         List<String> exportRts = new ArrayList<>();
         VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
