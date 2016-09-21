@@ -39,6 +39,8 @@
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener" />
   <odl:notification-listener ref="dpnInVpnChangeListener" />
 
+  <bean id="vpnOpDataNotifier" class="org.opendaylight.netvirt.vpnmanager.VpnOpDataNotifier"/>
+
   <bean id="vpnInterfaceManager"
         class="org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager"
         init-method="start" destroy-method="close">
@@ -50,6 +52,7 @@
     <argument ref="fibManager" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="notificationPublishService" />
+    <argument ref="vpnOpDataNotifier" />
   </bean>
 
   <bean id="tunnelInterfaceStateListener"
@@ -63,13 +66,6 @@
 
   <bean id="interfaceStateChangeListener"
         class="org.opendaylight.netvirt.vpnmanager.InterfaceStateChangeListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="vpnInterfaceManager" />
-  </bean>
-
-  <bean id="vpnInterfaceOpListener"
-        class="org.opendaylight.netvirt.vpnmanager.VpnInterfaceOpListener"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="vpnInterfaceManager" />
@@ -150,6 +146,7 @@
     <argument ref="idManagerService" />
     <argument ref="vpnInterfaceManager" />
     <argument ref="fibManager" />
+    <argument ref="vpnOpDataNotifier" />
   </bean>
 
   <bean id="fibEntriesListener" class="org.opendaylight.netvirt.vpnmanager.FibEntriesListener"
@@ -158,7 +155,7 @@
     <argument ref="vpnInstanceListener" />
   </bean>
 
-  <bean id="VpnInterfaceOpListener"
+  <bean id="vpnInterfaceOpListener"
         class="org.opendaylight.netvirt.vpnmanager.VpnInterfaceOpListener"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
@@ -191,7 +188,9 @@
     <argument ref="idManagerService" />
     <argument ref="mdsalUtils" />
     <argument ref="bgpmanager" />
+    <argument ref="fibManager" />
     <argument ref="notificationPublishService" />
+    <argument ref="vpnOpDataNotifier" />
   </bean>
 
   <bean id="interVpnLinkNodeListener"
@@ -199,6 +198,9 @@
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
+    <argument ref="fibManager" />
+    <argument ref="notificationPublishService" />
+    <argument ref="vpnOpDataNotifier" />
   </bean>
 
   <bean id="tunnelEndPointChangeListener"
