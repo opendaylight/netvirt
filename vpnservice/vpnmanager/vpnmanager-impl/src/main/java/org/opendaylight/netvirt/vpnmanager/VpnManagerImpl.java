@@ -38,12 +38,14 @@ public class VpnManagerImpl implements IVpnManager {
                           final IdManagerService idManagerService,
                           final VpnInstanceListener vpnInstanceListener,
                           final VpnInterfaceManager vpnInterfaceManager,
-                          final IMdsalApiManager mdsalManager) {
+                          final IMdsalApiManager mdsalManager,
+                          final VpnOpDataNotifier vpnOpDataNotif) {
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnInstanceListener = vpnInstanceListener;
         this.idManager = idManagerService;
         this.mdsalManager = mdsalManager;
+        this.vpnOpDataNotifier = vpnOpDataNotif;
     }
 
     public void start() {
@@ -59,7 +61,7 @@ public class VpnManagerImpl implements IVpnManager {
                 .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.info("Created IdPool for VPN Service");
             }
         } catch (InterruptedException | ExecutionException e) {
