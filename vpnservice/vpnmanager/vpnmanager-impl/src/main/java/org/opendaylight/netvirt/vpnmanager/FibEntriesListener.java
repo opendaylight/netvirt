@@ -10,8 +10,7 @@ package org.opendaylight.netvirt.vpnmanager;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
@@ -19,41 +18,37 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FibEntriesListener extends AbstractDataChangeListener<VrfEntry> implements AutoCloseable {
+public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry, FibEntriesListener>
+        implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(FibEntriesListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final VpnInstanceListener vpnInstanceListener;
 
     public FibEntriesListener(final DataBroker dataBroker, final VpnInstanceListener vpnInstanceListener) {
-        super(VrfEntry.class);
+        super(VrfEntry.class, FibEntriesListener.class);
         this.dataBroker = dataBroker;
         this.vpnInstanceListener = vpnInstanceListener;
     }
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.BASE);
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
-    private InstanceIdentifier<VrfEntry> getWildCardPath() {
+    @Override
+    protected InstanceIdentifier<VrfEntry> getWildCardPath() {
         return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class);
     }
 
     @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.info("{} close", getClass().getSimpleName());
+    protected FibEntriesListener getDataTreeChangeListener() {
+        return FibEntriesListener.this;
     }
+
 
     @Override
     protected void remove(InstanceIdentifier<VrfEntry> identifier,
