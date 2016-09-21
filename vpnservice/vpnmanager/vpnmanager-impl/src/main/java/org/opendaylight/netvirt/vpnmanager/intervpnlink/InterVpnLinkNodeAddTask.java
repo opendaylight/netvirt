@@ -12,10 +12,12 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.netvirt.vpnmanager.VpnUtil;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateBuilder;
@@ -41,14 +43,22 @@ import java.util.concurrent.Callable;
 public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<Void>>> {
     private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
 
-    private DataBroker broker;
-    private BigInteger dpnId;
+    private final DataBroker broker;
+    private final BigInteger dpnId;
     final IMdsalApiManager mdsalManager;
+    private final IFibManager fibManager;
+    private final NotificationPublishService notificationsService;
+    private final VpnOpDataSyncer vpnOpDataSyncer;
 
-    public InterVpnLinkNodeAddTask(final DataBroker broker, final IMdsalApiManager mdsalMgr, final BigInteger dpnId) {
+    public InterVpnLinkNodeAddTask(final DataBroker broker, final IMdsalApiManager mdsalMgr,
+                                   final IFibManager fibManager, final NotificationPublishService notifService,
+                                   final VpnOpDataSyncer vpnOpDataSyncer, final BigInteger dpnId) {
         this.broker = broker;
         this.dpnId = dpnId;
         this.mdsalManager = mdsalMgr;
+        this.fibManager = fibManager;
+        this.notificationsService = notifService;
+        this.vpnOpDataSyncer = vpnOpDataSyncer;
     }
 
     @Override
@@ -114,24 +124,27 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
 
     private void installLPortDispatcherTable(InterVpnLinkState interVpnLinkState, List<BigInteger> firstDpnList,
                                              List<BigInteger> secondDpnList) {
-        Optional<InterVpnLink> vpnLink = InterVpnLinkUtil.getInterVpnLinkByName(broker, interVpnLinkState.getKey().getInterVpnLinkName());
+        Optional<InterVpnLink> vpnLink =
+            InterVpnLinkUtil.getInterVpnLinkByName(broker, interVpnLinkState.getKey().getInterVpnLinkName());
         if (vpnLink.isPresent()) {
             Uuid firstEndpointVpnUuid = vpnLink.get().getFirstEndpoint().getVpnUuid();
             Uuid secondEndpointVpnUuid = vpnLink.get().getSecondEndpoint().getVpnUuid();
             // Note that in the DPN of the firstEndpoint we install the lportTag of the secondEndpoint and viceversa
             InterVpnLinkUtil.installLPortDispatcherTableFlow(broker, mdsalManager, vpnLink.get(), firstDpnList,
                                                     secondEndpointVpnUuid,
-                                                    interVpnLinkState.getSecondEndpointState().getLportTag().intValue());
+                                                    interVpnLinkState.getSecondEndpointState().getLportTag());
             InterVpnLinkUtil.installLPortDispatcherTableFlow(broker, mdsalManager, vpnLink.get(), secondDpnList,
                                                     firstEndpointVpnUuid,
-                                                    interVpnLinkState.getFirstEndpointState().getLportTag().intValue());
+                                                    interVpnLinkState.getFirstEndpointState().getLportTag());
             // Update the VPN -> DPNs Map.
             // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
             // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach
             // to Vpn2 targets. If new Vpn2 targets are added later, the Fib will be maintained in these DPNs even if
             // Vpn2 is not physically present there.
-            InterVpnLinkUtil.updateVpnToDpnMap(broker, firstDpnList, secondEndpointVpnUuid);
-            InterVpnLinkUtil.updateVpnToDpnMap(broker, secondDpnList, firstEndpointVpnUuid);
+            InterVpnLinkUtil.updateVpnFootprint(broker, fibManager, notificationsService, vpnOpDataSyncer,
+                                                secondEndpointVpnUuid.getValue(), firstDpnList);
+            InterVpnLinkUtil.updateVpnFootprint(broker, fibManager, notificationsService, vpnOpDataSyncer,
+                                               firstEndpointVpnUuid.getValue(), secondDpnList);
         }
     }
 
