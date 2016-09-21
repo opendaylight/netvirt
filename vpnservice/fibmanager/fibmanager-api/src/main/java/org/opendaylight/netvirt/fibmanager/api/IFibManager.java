@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.fibmanager.api;
 import com.google.common.util.concurrent.FutureCallback;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -44,7 +45,8 @@ public interface IFibManager {
 
 
     void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                             int label, RouteOrigin origin, WriteTransaction writeConfigTxn);
+                             VrfEntry.EncapType encapType, int label, long vni, String gatewayMacAddress,
+                             String macAddress, RouteOrigin origin, WriteTransaction writeConfigTxn);
     void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopToRemove, WriteTransaction writeConfigTxn);
     void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn);
     void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
