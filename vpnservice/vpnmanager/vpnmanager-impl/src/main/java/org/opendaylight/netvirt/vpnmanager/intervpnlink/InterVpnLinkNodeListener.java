@@ -55,7 +55,6 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
     private final IMdsalApiManager mdsalManager;
     private final VpnFootprintService vpnFootprintService;
 
-
     public InterVpnLinkNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalMgr,
                                     final VpnFootprintService vpnFootprintService) {
         super(Node.class, InterVpnLinkNodeListener.class);
