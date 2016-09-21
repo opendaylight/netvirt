@@ -150,6 +150,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
     private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final NotificationPublishService notificationPublishService;
     private ConcurrentHashMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<String, Runnable>();
+    private ConcurrentHashMap<String, List<Runnable>> vpnInstanceMap = new ConcurrentHashMap<String, List<Runnable>>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public VpnInterfaceManager(final DataBroker dataBroker,
@@ -188,6 +189,10 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             listenerRegistration = null;
         }
         LOG.info("{} close", getClass().getSimpleName());
+    }
+
+    public ConcurrentHashMap<String, List<Runnable>> getVpnInstanceMap() {
+        return vpnInstanceMap;
     }
 
     private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> getInterfaceListenerPath() {
@@ -229,7 +234,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 return;
             }
         } else {
-            LOG.info("Handling addition of VPN interface {} skipped as interfaceState is not available", interfaceName);
+            LOG.error("Handling addition of VPN interface {} skipped as interfaceState is not available", interfaceName);
         }
     }
 
@@ -245,9 +250,38 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             LOG.info("Binding vpn service to interface {} ", interfaceName);
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             if (vpnId == VpnConstants.INVALID_ID) {
-                LOG.trace("VpnInstance to VPNId mapping is not yet available, bailing out now.");
-                return;
+                waitForVpnInstanceInfo(vpnName, VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
+                vpnId = VpnUtil.getVpnId(broker, vpnName);
+                if (vpnId == VpnConstants.INVALID_ID) {
+                    LOG.error("VpnInstance to VPNId mapping not yet available for VpnName {} processing vpninterface {} " +
+                            ", bailing out now.", vpnName, interfaceName);
+                    return;
+                }
+            } else {
+                // Incase of cluster reboot , VpnId would be available already as its a configDS fetch.
+                // However VpnInstanceOpData will be repopulated, so if its not available
+                // wait for 180 seconds and retry.
+                // TODO:  This wait to be removed by making vpnManager the central engine in carbon
+                String vpnRd = VpnUtil.getVpnRd(broker, vpnName);
+                VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(broker, vpnRd);
+                if (vpnInstanceOpDataEntry == null) {
+                    LOG.debug("VpnInstanceOpData not yet populated for vpn {} rd {}", vpnName, vpnRd);
+                    int retry = 2;
+                    while (retry > 0) {
+                        waitForVpnInstanceInfo(vpnName, VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS);
+                        vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(broker, vpnRd);
+                        if (vpnInstanceOpDataEntry != null) {
+                            break;
+                        }
+                        retry--;
+                        if (retry <= 0) {
+                            LOG.error("VpnInstanceOpData not populated even after second retry for vpn {} rd {} vpninterface {}, bailing out ", vpnName, vpnRd, interfaceName);
+                            return;
+                        }
+                    }
+                }
             }
+
             boolean waitForVpnInterfaceOpRemoval = false;
             VpnInterface opVpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, vpnInterface.getName());
             if (opVpnInterface != null ) {
@@ -669,6 +703,9 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         Predicate<VpnInstance> excludeVpn = new Predicate<VpnInstance>() {
             @Override
             public boolean apply(VpnInstance input) {
+                if (input.getVpnInstanceName() == null) {
+                    return false;
+                }
                 return !input.getVpnInstanceName().equals(vpnName);
             }
         };
@@ -690,6 +727,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             }
         };
 
+        // TODO(vivekn): very expensive read getAllVpnInstances here to be removed
         vpnsToImportRoute = FluentIterable.from(VpnUtil.getAllVpnInstances(dataBroker)).
                 filter(excludeVpn).
                 filter(matchRTs).toList();
@@ -713,6 +751,9 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         Predicate<VpnInstance> excludeVpn = new Predicate<VpnInstance>() {
             @Override
             public boolean apply(VpnInstance input) {
+                if (input.getVpnInstanceName() == null) {
+                    return false;
+                }
                 return !input.getVpnInstanceName().equals(vpnName);
             }
         };
@@ -733,6 +774,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             }
         };
 
+        // TODO(vivekn): very expensive read getAllVpnInstances here to be removed
         vpnsToExportRoute = FluentIterable.from(VpnUtil.getAllVpnInstances(dataBroker)).
                 filter(excludeVpn).
                 filter(matchRTs).toList();
@@ -1781,11 +1823,34 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
     }
 
-    void notifyTaskIfRequired(String intfName) {
-        Runnable notifyTask = vpnIntfMap.remove(intfName);
-        if (notifyTask == null) {
-            return;
+    private void waitForVpnInstanceInfo(String vpnName, long wait_time) {
+        List<Runnable> notifieeList = null;
+        Runnable notifyTask = new VpnNotifyTask();
+        try {
+            synchronized (vpnInstanceMap) {
+                notifieeList = vpnInstanceMap.get(vpnName);
+                if (notifieeList == null) {
+                    notifieeList = new ArrayList<Runnable>();
+                    vpnInstanceMap.put(vpnName, notifieeList);
+                }
+                notifieeList.add(notifyTask);
+            }
+            synchronized (notifyTask) {
+                try {
+                    notifyTask.wait(wait_time);
+                } catch (InterruptedException e) {
+                }
+            }
+        } finally {
+            synchronized (vpnInstanceMap) {
+                notifieeList = vpnInstanceMap.get(vpnName);
+                if (notifieeList != null) {
+                    notifieeList.remove(notifyTask);
+                    if (notifieeList.isEmpty()) {
+                        vpnInstanceMap.remove(vpnName);
+                    }
+                }
+            }
         }
-        executorService.execute(notifyTask);
     }
 }
