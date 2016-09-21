@@ -8,8 +8,8 @@
 package org.opendaylight.netvirt.aclservice.tests;
 
 import static ch.vorburger.xtendbeans.AssertBeans.assertEqualBeans;
-import static org.opendaylight.netvirt.aclservice.api.tests.InterfaceBuilderHelper.putNewInterface;
-import static org.opendaylight.netvirt.aclservice.api.tests.StateInterfaceBuilderHelper.putNewStateInterface;
+import static org.opendaylight.netvirt.aclservice.tests.InterfaceBuilderHelper.putNewInterface;
+import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHelper.putNewStateInterface;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
-import org.opendaylight.netvirt.aclservice.api.tests.FlowEntryObjects;
 
 public class AclServiceTest {
 
