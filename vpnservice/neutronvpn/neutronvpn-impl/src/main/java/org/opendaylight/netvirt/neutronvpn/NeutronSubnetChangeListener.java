@@ -107,8 +107,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     }
 
     private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId) {
-        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null/*router UUID*/, null/*vpn UUID*/,
-                                     null/*port uuid*/, null/*subnet builder*/, null/*WrTransaction*/);
+        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null/*routerID*/, null/*vpnID*/);
         if (networkId != null) {
             createSubnetToNetworkMapping(subnetId, networkId);
         }
@@ -133,8 +132,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         if (networkId != null && !networkId.equals(oldNetworkId)) {
             createSubnetToNetworkMapping(subnetId, networkId);
         }
-        nvpnManager.updateSubnetNode(subnetId, null, tenantId, networkId, null/*Router UUID*/, null/*VPN UUID*/,
-                                     null/*port UUID*/, null/*subnet builder*/, null/*Wr Transaction*/);
+        nvpnManager.updateSubnetNode(subnetId, null, tenantId, networkId, null/*routerID*/, null/*vpnID*/);
     }
 
     private void createSubnetToNetworkMapping(Uuid subnetId, Uuid networkId) {

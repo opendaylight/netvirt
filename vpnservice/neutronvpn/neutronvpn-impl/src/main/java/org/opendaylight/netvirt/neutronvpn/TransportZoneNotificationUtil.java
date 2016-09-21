@@ -197,7 +197,7 @@ public class TransportZoneNotificationUtil {
             throw new Exception("No fixed ip for port" + port.getName());
         }
         Uuid subnetId = ip.getSubnetId();
-        Subnetmap subnetmap = nvManager.updateSubnetmapNodeWithPorts(subnetId, port.getUuid(), null, null, null);
+        Subnetmap subnetmap = nvManager.updateSubnetmapNodeWithPorts(subnetId, port.getUuid(), null);
         String subnetIp = subnetmap.getSubnetIp();
         return subnetIp;
     }
