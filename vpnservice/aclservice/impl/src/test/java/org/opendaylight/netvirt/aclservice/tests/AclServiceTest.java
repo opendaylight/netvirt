@@ -8,17 +8,20 @@
 package org.opendaylight.netvirt.aclservice.tests;
 
 import static ch.vorburger.xtendbeans.AssertBeans.assertEqualBeans;
+import static org.junit.Assert.assertTrue;
 import static org.opendaylight.netvirt.aclservice.api.tests.InterfaceBuilderHelper.putNewInterface;
 import static org.opendaylight.netvirt.aclservice.api.tests.StateInterfaceBuilderHelper.putNewStateInterface;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.mycila.guice.ext.closeable.CloseableInjector;
+import java.util.List;
 import javax.inject.Inject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.tests.FlowEntryObjects;
@@ -40,7 +43,16 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertEqualBeans(FlowEntryObjects.expectedFlows("0D:AA:D8:42:30:F3"), mdsalApiManager.getFlows());
+        assertFlows(FlowEntryObjects.expectedFlows("0D:AA:D8:42:30:F3"));
+    }
+
+
+    private void assertFlows(List<FlowEntity> expectedFlows) {
+        List<FlowEntity> flows = mdsalApiManager.getFlows();
+        if (!expectedFlows.isEmpty()) {
+            assertTrue("No Flows created (bean wiring may be broken?)", !flows.isEmpty());
+        }
+        assertEqualBeans(expectedFlows, flows);
     }
 
 
