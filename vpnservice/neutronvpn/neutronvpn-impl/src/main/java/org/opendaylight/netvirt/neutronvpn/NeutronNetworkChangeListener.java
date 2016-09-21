@@ -20,6 +20,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeFlat;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
@@ -88,6 +90,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             if (providerNwType != ProviderTypes.GRE) {
                 nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, null, null);
             }
+            nvpnManager.createExternalVpnInterfaces(input.getUuid());
         }
     }
 
@@ -99,15 +102,17 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             LOG.error("Neutronvpn doesn't support gre network provider type for this network {}.", input);
             return;
         }
+        if (NeutronvpnUtils.getIsExternal(input)) {
+            nvpnManager.removeExternalVpnInterfaces(input.getUuid());
+            nvpnManager.removeL3Vpn(input.getUuid());
+            nvpnNatManager.removeExternalNetwork(input);
+        }
         //Delete ELAN instance for this network
         String elanInstanceName = input.getUuid().getValue();
         ElanInstance elanInstance = elanService.getElanInstance(elanInstanceName);
         if (elanInstance != null) {
             elanService.deleteExternalElanNetwork(elanInstance);
             deleteElanInstance(elanInstanceName);
-        }
-        if (NeutronvpnUtils.getIsExternal(input)) {
-            nvpnNatManager.removeExternalNetwork(input);
         }
         NeutronvpnUtils.removeFromNetworkCache(input);
     }
